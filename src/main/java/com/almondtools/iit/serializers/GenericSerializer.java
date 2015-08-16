@@ -8,7 +8,7 @@ import java.util.List;
 import com.almondtools.iit.SerializedValue;
 import com.almondtools.iit.Serializer;
 import com.almondtools.iit.SerializerFacade;
-import com.almondtools.iit.SnapshotExcluded;
+import com.almondtools.iit.analyzer.SnapshotExcluded;
 import com.almondtools.iit.values.SerializedObject;
 
 public class GenericSerializer implements Serializer {

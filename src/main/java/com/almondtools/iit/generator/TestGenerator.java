@@ -1,4 +1,4 @@
-package com.almondtools.iit.runtime;
+package com.almondtools.iit.generator;
 
 import static java.lang.Character.toUpperCase;
 import static java.util.Collections.emptyList;

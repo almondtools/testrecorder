@@ -1,4 +1,4 @@
-package com.almondtools.iit;
+package com.almondtools.iit.analyzer;
 
 import static java.util.stream.Collectors.toList;
 import static org.objectweb.asm.Opcodes.AASTORE;
@@ -54,6 +54,8 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
+
+import com.almondtools.iit.SerializationException;
 
 public class SnapshotInstrumentor {
 

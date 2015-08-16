@@ -1,4 +1,4 @@
-package com.almondtools.iit.runtime;
+package com.almondtools.iit.generator;
 
 import java.lang.reflect.Field;
 import java.util.function.Supplier;
@@ -8,7 +8,6 @@ import org.hamcrest.Matcher;
 import org.hamcrest.SelfDescribing;
 import org.hamcrest.TypeSafeMatcher;
 
-import com.almondtools.iit.SerializationException;
 
 public abstract class GenericObject {
 
@@ -16,7 +15,7 @@ public abstract class GenericObject {
 		try {
 			return as(clazz.newInstance());
 		} catch (InstantiationException | IllegalAccessException e) {
-			throw new SerializationException(e);
+			throw new GenericObjectException(e);
 		}
 	}
 
@@ -34,7 +33,7 @@ public abstract class GenericObject {
 			try {
 				to.set(o, field.get(this));
 			} catch (IllegalArgumentException | IllegalAccessException e) {
-				throw new SerializationException(e);
+				throw new GenericObjectException(e);
 			} finally {
 				if (!access) {
 					to.setAccessible(false);
@@ -53,7 +52,7 @@ public abstract class GenericObject {
 				current = current.getSuperclass();
 			}
 		}
-		throw new SerializationException(new NoSuchFieldException(name));
+		throw new GenericObjectException(new NoSuchFieldException(name));
 	}
 
 	public boolean matches(Object o) {
@@ -84,7 +83,7 @@ public abstract class GenericObject {
 					continue;
 				}
 			} catch (IllegalArgumentException | IllegalAccessException e) {
-				throw new SerializationException(e);
+				throw new GenericObjectException(e);
 			} finally {
 				if (!access) {
 					to.setAccessible(false);

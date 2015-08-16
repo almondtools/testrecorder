@@ -1,4 +1,4 @@
-package com.almondtools.iit.runtime;
+package com.almondtools.iit.generator;
 
 public final class TemplateHelper {
 

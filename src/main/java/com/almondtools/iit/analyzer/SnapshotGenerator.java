@@ -1,8 +1,10 @@
-package com.almondtools.iit;
+package com.almondtools.iit.analyzer;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+
+import com.almondtools.iit.GeneratedSnapshot;
 
 public class SnapshotGenerator {
 

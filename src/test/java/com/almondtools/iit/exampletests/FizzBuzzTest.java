@@ -1,6 +1,6 @@
 package com.almondtools.iit.exampletests;
 
-import static com.almondtools.iit.SnapshotGenerator.setSnapshotConsumer;
+import static com.almondtools.iit.analyzer.SnapshotGenerator.setSnapshotConsumer;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
@@ -13,9 +13,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.almondtools.iit.GeneratedSnapshot;
-import com.almondtools.iit.SnapshotInstrumentor;
+import com.almondtools.iit.analyzer.SnapshotInstrumentor;
 import com.almondtools.iit.examples.FizzBuzz;
-import com.almondtools.iit.runtime.TestGenerator;
+import com.almondtools.iit.generator.TestGenerator;
 
 public class FizzBuzzTest {
 

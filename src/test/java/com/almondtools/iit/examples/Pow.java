@@ -1,6 +1,6 @@
 package com.almondtools.iit.examples;
 
-import com.almondtools.iit.Snapshot;
+import com.almondtools.iit.analyzer.Snapshot;
 
 public class Pow {
 

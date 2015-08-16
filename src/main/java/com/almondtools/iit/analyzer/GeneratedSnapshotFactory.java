@@ -1,4 +1,6 @@
-package com.almondtools.iit;
+package com.almondtools.iit.analyzer;
+
+import com.almondtools.iit.GeneratedSnapshot;
 
 public class GeneratedSnapshotFactory {
 

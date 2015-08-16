@@ -1,4 +1,4 @@
-package com.almondtools.iit.runtime;
+package com.almondtools.iit.generator;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.is;

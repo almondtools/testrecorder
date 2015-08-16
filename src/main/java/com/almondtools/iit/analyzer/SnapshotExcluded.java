@@ -1,4 +1,4 @@
-package com.almondtools.iit;
+package com.almondtools.iit.analyzer;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,6 +1,6 @@
 package com.almondtools.iit.visitors;
 
-import static com.almondtools.iit.runtime.TemplateHelper.asLiteral;
+import static com.almondtools.iit.generator.TemplateHelper.asLiteral;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -20,7 +20,7 @@ import org.stringtemplate.v4.ST;
 
 import com.almondtools.iit.SerializedValue;
 import com.almondtools.iit.SerializedValueVisitor;
-import com.almondtools.iit.runtime.MapMatcher;
+import com.almondtools.iit.generator.MapMatcher;
 import com.almondtools.iit.values.SerializedArray;
 import com.almondtools.iit.values.SerializedField;
 import com.almondtools.iit.values.SerializedList;
