@@ -4,7 +4,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.almondtools</groupId>
-	<artifactId>invitroderivatives</artifactId>
+	<artifactId>invitroderived</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<url>https://github.com/almondtools/xrayinterface</url>
