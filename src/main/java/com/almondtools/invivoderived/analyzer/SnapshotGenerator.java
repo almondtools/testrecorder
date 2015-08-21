@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import com.almondtools.invivoderived.GeneratedSnapshot;
+import com.almondtools.invivoderived.GeneratedSnapshotFactory;
+import com.almondtools.invivoderived.SerializerFacade;
 
 public class SnapshotGenerator {
 
@@ -39,32 +41,36 @@ public class SnapshotGenerator {
 	}
 	
 	public void setupVariables(String signature, Object... args) {
+		SerializerFacade facade = new SerializerFacade();
 		GeneratedSnapshot snapshot = newSnapshot(signature);
-		snapshot.setupThis(self);
-		snapshot.setupArgs(args);
+		snapshot.setSetupThis(facade.serialize(self.getClass(), self));
+		snapshot.setSetupArgs(facade.serialize(snapshot.getArgumentTypes(), args));
 	}
 
 	public void expectVariables(Object result, Object... args) {
+		SerializerFacade facade = new SerializerFacade();
 		GeneratedSnapshot snapshot = fetchSnapshot();
-		snapshot.expectThis(self);
-		snapshot.expectResult(result);
-		snapshot.expectArgs(args);
+		snapshot.setExpectThis(facade.serialize(self.getClass(), self));
+		snapshot.setExpectResult(facade.serialize(snapshot.getResultType(), result));
+		snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
 		consumer.accept(snapshot);
 	}
 	
 	public void expectVariables(Object... args) {
+		SerializerFacade facade = new SerializerFacade();
 		GeneratedSnapshot snapshot = fetchSnapshot();
-		snapshot.expectThis(self);
-		snapshot.expectArgs(args);
+		snapshot.setExpectThis(facade.serialize(self.getClass(), self));
+		snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
 		consumer.accept(snapshot);
 	}
 	
 	public void throwVariables(Throwable throwable, Object... args) {
+		SerializerFacade facade = new SerializerFacade();
 		GeneratedSnapshot snapshot = fetchSnapshot();
-		snapshot.expectThis(self);
-		snapshot.expectException(throwable);
-		snapshot.expectArgs(args);
+		snapshot.setExpectThis(facade.serialize(self.getClass(), self));
+		snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
+		snapshot.setExpectException(facade.serialize(throwable.getClass(), throwable));
 		consumer.accept(snapshot);
 	}
-	
+
 }

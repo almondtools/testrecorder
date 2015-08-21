@@ -40,30 +40,30 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation> {
 	private LocalVariableNameGenerator locals;
 	private Map<SerializedValue, String> computed;
 
-	private Set<String> imports;
+	private ImportManager imports;
 
 	public ObjectToSetupCode() {
-		this(new LocalVariableNameGenerator());
+		this(new LocalVariableNameGenerator(), new ImportManager());
 	}
 	
-	public ObjectToSetupCode(LocalVariableNameGenerator locals) {
+	public ObjectToSetupCode(LocalVariableNameGenerator locals, ImportManager imports) {
 		this.locals = locals;
+		this.imports = imports;
 		this.computed = new IdentityHashMap<>();
-		this.imports = new LinkedHashSet<>();
 	}
 	
 	public LocalVariableNameGenerator getLocals() {
 		return locals;
 	}
 	
-	public Set<String> getImports() {
+	public ImportManager getImports() {
 		return imports;
 	}
 
 	@Override
 	public Computation visitField(SerializedField field) {
 		if (!field.getType().isArray() && !field.getType().isPrimitive()) {
-			imports.add(field.getType().getName());
+			imports.registerImport(field.getType());
 		}
 		
 		Computation valueTemplate = field.getValue().accept(this);
@@ -77,18 +77,13 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation> {
 		return new Computation(statement.render(), statements);
 	}
 
-	private void registerImports(Class<?>... types) {
-		for (Class<?> type : types) {
-			imports.add(type.getName());
-		}
-	}
-
 	@Override
 	public Computation visitObject(SerializedObject value) {
 		if (computed.containsKey(value)) {
 			return new Computation(computed.get(value), true);
 		}
-		registerImports(value.getType(), GenericObject.class);
+		Class<?>[] types = { value.getType(), GenericObject.class };
+		imports.registerImports(types);
 		
 		List<Computation> elementTemplates = value.getFields().stream()
 			.map(element -> element.accept(this))
@@ -113,7 +108,8 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation> {
 		if (computed.containsKey(value)) {
 			return new Computation(computed.get(value), true);
 		}
-		registerImports(List.class, ArrayList.class);
+		Class<?>[] types = { List.class, ArrayList.class };
+		imports.registerImports(types);
 		
 		List<Computation> elementTemplates = value.stream()
 			.map(element -> element.accept(this))
@@ -151,7 +147,8 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation> {
 		if (computed.containsKey(value)) {
 			return new Computation(computed.get(value), true);
 		}
-		registerImports(Set.class, LinkedHashSet.class);
+		Class<?>[] types = { Set.class, LinkedHashSet.class };
+		imports.registerImports(types);
 
 		List<Computation> elementTemplates = value.stream()
 			.map(element -> element.accept(this))
@@ -189,8 +186,10 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation> {
 		if (computed.containsKey(value)) {
 			return new Computation(computed.get(value), true);
 		}
-		registerImports(Map.class);
-		registerImports(LinkedHashMap.class);
+		Class<?>[] types = { Map.class };
+		imports.registerImports(types);
+		Class<?>[] types1 = { LinkedHashMap.class };
+		imports.registerImports(types1);
 		
 		Map<Computation, Computation> elementTemplates = value.entrySet().stream()
 			.collect(toMap(entry -> entry.getKey().accept(this), entry -> entry.getValue().accept(this)));
@@ -227,7 +226,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation> {
 		if (computed.containsKey(value)) {
 			return new Computation(computed.get(value), true);
 		}
-		imports.add(value.getType().getComponentType().getName());
+		imports.registerImport(value.getType());
 		
 		List<Computation> elementTemplates = Stream.of(value.getArray())
 			.map(element -> element.accept(this))

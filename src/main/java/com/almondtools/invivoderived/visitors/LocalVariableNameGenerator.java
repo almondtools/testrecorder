@@ -24,7 +24,11 @@ public class LocalVariableNameGenerator {
 	}
 
 	private String base(Class<?> clazz) {
-		String simpleName = clazz.getSimpleName();
-		return toLowerCase(simpleName.charAt(0)) + simpleName.substring(1);
+		if (clazz.isArray()) {
+			return base(clazz.getComponentType()) + "_";
+		} else {
+			String simpleName = clazz.getSimpleName();
+			return toLowerCase(simpleName.charAt(0)) + simpleName.substring(1);
+		}
 	}
 }

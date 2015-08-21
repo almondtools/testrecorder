@@ -1,11 +1,15 @@
 package com.almondtools.invivoderived.scenarios;
 
 import static com.almondtools.invivoderived.analyzer.SnapshotGenerator.setSnapshotConsumer;
+import static com.almondtools.invivoderived.dynamiccompile.CompilableMatcher.compiles;
+import static com.almondtools.invivoderived.dynamiccompile.TestsRunnableMatcher.testsRuns;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.core.Every.everyItem;
+import static org.junit.Assert.assertThat;
 
-import java.nio.file.Paths;
-
-import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.almondtools.invivoderived.analyzer.SnapshotInstrumentor;
@@ -13,25 +17,62 @@ import com.almondtools.invivoderived.generator.TestGenerator;
 
 public class SideEffectsTest {
 
-	private SnapshotInstrumentor instrumentor;
+	private static SnapshotInstrumentor instrumentor;
+
 	private TestGenerator testGenerator;
+
+	@BeforeClass
+	public static void beforeClass() throws Exception {
+		instrumentor = new SnapshotInstrumentor();
+		instrumentor.register("com.almondtools.invivoderived.scenarios.SideEffects");
+	}
 
 	@Before
 	public void before() throws Exception {
-		instrumentor = new SnapshotInstrumentor();
-		instrumentor.register("com.almondtools.invivoderived.scenarios.SideEffects");
 		testGenerator = new TestGenerator();
 		setSnapshotConsumer(testGenerator);
 	}
 
-	@After
-	public void after() throws Exception {
-		testGenerator.writeTests(Paths.get("target/generated"), SideEffects.class);
-	}
-	
 	@Test
-	public void testSnapshotSize() throws Exception {
-		SideEffects.main(new String[0]);
+	public void testSideEffectsOnThis() throws Exception {
+		SideEffects sideEffects = new SideEffects();
+		for (int i = 0; i < 100; i += sideEffects.getI()) {
+			sideEffects.methodWithSideEffectOnThis(i);
+		}
+		assertThat(testGenerator.getTests().size(), equalTo(7));
+		assertThat(testGenerator.getTests(), everyItem(containsString("assert")));
+	}
+
+	@Test
+	public void testSideEffectsOnThisCompilable() throws Exception {
+		SideEffects sideEffects = new SideEffects();
+		for (int i = 0; i < 100; i += sideEffects.getI()) {
+			sideEffects.methodWithSideEffectOnThis(i);
+		}
+		assertThat(testGenerator.renderTest(SideEffects.class), compiles());
+		assertThat(testGenerator.renderTest(SideEffects.class), testsRuns());
+	}
+
+	@Test
+	public void testSideEffectsOnArgument() throws Exception {
+		int[] array = new int[] { 0 };
+		SideEffects sideEffects = new SideEffects();
+		for (int i = 0; i < 10; i++) {
+			sideEffects.methodWithSideEffectOnArgument(array);
+		}
+		assertThat(testGenerator.getTests().size(), equalTo(10));
+		assertThat(testGenerator.getTests(), everyItem(containsString("assert")));
+	}
+
+	@Test
+	public void testSideEffectsOnArgumentCompilable() throws Exception {
+		int[] array = new int[] { 0 };
+		SideEffects sideEffects = new SideEffects();
+		for (int i = 0; i < 10; i++) {
+			sideEffects.methodWithSideEffectOnArgument(array);
+		}
+		assertThat(testGenerator.renderTest(SideEffects.class), compiles());
+		assertThat(testGenerator.renderTest(SideEffects.class), testsRuns());
 	}
 
 }

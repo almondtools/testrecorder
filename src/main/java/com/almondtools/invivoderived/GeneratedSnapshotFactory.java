@@ -1,6 +1,4 @@
-package com.almondtools.invivoderived.analyzer;
-
-import com.almondtools.invivoderived.GeneratedSnapshot;
+package com.almondtools.invivoderived;
 
 public class GeneratedSnapshotFactory {
 

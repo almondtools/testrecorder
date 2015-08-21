@@ -25,6 +25,7 @@ import org.stringtemplate.v4.ST;
 import com.almondtools.invivoderived.GeneratedSnapshot;
 import com.almondtools.invivoderived.SerializedValue;
 import com.almondtools.invivoderived.visitors.Computation;
+import com.almondtools.invivoderived.visitors.ImportManager;
 import com.almondtools.invivoderived.visitors.LocalVariableNameGenerator;
 import com.almondtools.invivoderived.visitors.ObjectToMatcherCode;
 import com.almondtools.invivoderived.visitors.ObjectToSetupCode;
@@ -57,13 +58,18 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 
 	private static final String CALL_EXPRESSION = "<base>.<method>(<args; separator=\", \">)";
 
+	private ImportManager imports;
 	private Set<String> tests;
-	private Set<String> imports;
 
 	public TestGenerator() {
+		this.imports = new ImportManager();
+		imports.registerImport(Test.class);
+
 		this.tests = new LinkedHashSet<>();
-		this.imports = new LinkedHashSet<>();
-		imports.add(Test.class.getName());
+	}
+	
+	public Set<String> getTests() {
+		return tests;
 	}
 
 	@Override
@@ -73,38 +79,48 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 			.generateAct()
 			.generateAssert();
 		tests.add(methodGenerator.generateTest());
-		imports.addAll(methodGenerator.getImports());
 	}
 
 	public void writeTests(Path dir, Class<?> clazz) {
-		String pkg = clazz.getPackage().getName();
-		String className = clazz.getSimpleName() + "InVitroTest";
+		String rendered = renderTest(clazz);
 
-		ST file = new ST(TEST_FILE);
-		file.add("package", pkg);
-		file.add("imports", imports);
-		file.add("className", className);
-		file.add("methods", tests);
-
-		Path testpackage = dir.resolve(pkg.replace('.', '/'));
 		try {
-			Files.createDirectories(testpackage);
-			Path testfile = testpackage.resolve(className + ".java");
+			Path testfile = locateTestFile(dir, clazz);
 			try (Writer writer = Files.newBufferedWriter(testfile)) {
-				writer.write(file.render());
+				writer.write(rendered);
 			}
 		} catch (IOException e) {
-			System.out.println(file.render());
+			System.out.println(rendered);
 		}
 	}
 
-	private static class MethodGenerator {
+	private Path locateTestFile(Path dir, Class<?> clazz) throws IOException {
+		String pkg = clazz.getPackage().getName();
+		String className = clazz.getSimpleName() + "InVitroTest";
+		Path testpackage = dir.resolve(pkg.replace('.', '/'));
+		
+		Files.createDirectories(testpackage);
+		
+		return testpackage.resolve(className + ".java");
+	}
+
+	public String renderTest(Class<?> clazz) {
+		ST file = new ST(TEST_FILE);
+		file.add("package", clazz.getPackage().getName());
+		file.add("imports", imports.getImports());
+		file.add("className", clazz.getSimpleName() + "InVitroTest");
+		file.add("methods", tests);
+
+		return file.render();
+	}
+
+	private class MethodGenerator {
 
 		private LocalVariableNameGenerator locals;
+		
 		private GeneratedSnapshot snapshot;
 		private int no;
 
-		private Set<String> imports;
 		private List<String> statements;
 
 		private String base;
@@ -115,24 +131,17 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 			this.snapshot = snapshot;
 			this.no = no;
 			this.locals = new LocalVariableNameGenerator();
-			this.imports = new LinkedHashSet<>();
 			this.statements = new ArrayList<>();
-		}
-
-		public Set<String> getImports() {
-			return imports;
 		}
 
 		public MethodGenerator generateArrange() {
 			statements.add(BEGIN_ARRANGE);
 
-			ObjectToSetupCode setupCode = new ObjectToSetupCode(locals);
+			ObjectToSetupCode setupCode = new ObjectToSetupCode(locals, imports);
 			Computation setupThis = snapshot.getSetupThis().accept(setupCode);
 			List<Computation> setupArgs = Stream.of(snapshot.getSetupArgs())
 				.map(arg -> arg.accept(setupCode))
 				.collect(toList());
-
-			imports.addAll(setupCode.getImports());
 
 			statements.addAll(setupThis.getStatements());
 			statements.addAll(setupArgs.stream()
@@ -169,7 +178,7 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 		public MethodGenerator generateAssert() {
 			statements.add(BEGIN_ASSERT);
 
-			ObjectToMatcherCode expectCode = new ObjectToMatcherCode(locals);
+			ObjectToMatcherCode expectCode = new ObjectToMatcherCode(locals, imports);
 
 			List<String> expectResult = Optional.ofNullable(snapshot.getExpectResult())
 				.map(o -> expectCode.createAssertion(o, result))
@@ -188,8 +197,6 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 				.mapToObj(i -> expectCode.createAssertion(serializedArgs[i], args.get(i)))
 				.flatMap(statements -> statements.stream())
 				.collect(toList());
-
-			imports.addAll(expectCode.getImports());
 
 			statements.addAll(expectResult);
 			statements.addAll(expectThis);

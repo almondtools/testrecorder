@@ -34,7 +34,7 @@ public class ArraySerializer implements Serializer {
 	public void populate(SerializedValue serializedObject, Object object) {
 		SerializedArray newSerializedObject = (SerializedArray) serializedObject;
 		for (int i = 0; i < Array.getLength(object); i++) {
-			newSerializedObject.add(facade.serialize(type, Array.get(object, i)));
+			newSerializedObject.add(facade.serialize(type.getComponentType(), Array.get(object, i)));
 		}
 	}
 

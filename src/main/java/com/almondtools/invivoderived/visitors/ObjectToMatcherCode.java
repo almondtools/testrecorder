@@ -6,21 +6,18 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.stringtemplate.v4.ST;
 
 import com.almondtools.invivoderived.SerializedValue;
 import com.almondtools.invivoderived.SerializedValueVisitor;
-import com.almondtools.invivoderived.generator.MapMatcher;
+import com.almondtools.invivoderived.generator.PrimitiveArrayMatcher;
 import com.almondtools.invivoderived.values.SerializedArray;
 import com.almondtools.invivoderived.values.SerializedField;
 import com.almondtools.invivoderived.values.SerializedList;
@@ -45,31 +42,30 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation> 
 	private static final String NO_ENTRIES = "noEntries()";
 	private static final String CONTAINS_ENTRIES = "containsEntries().<entries : { entry | entry(<entry.key>, <entry.value>)}>";
 	private static final String ARRAY_CONTAINING = "arrayContaining(<values; separator=\", \">)";
+	private static final String PRIMITIVE_ARRAY_CONTAINING = "<type>ArrayContaining(<values; separator=\", \">)";
 
 	private LocalVariableNameGenerator locals;
-
-	private Set<String> imports;
+	private ImportManager imports;
 
 	public ObjectToMatcherCode() {
-		this(new LocalVariableNameGenerator());
+		this(new LocalVariableNameGenerator(), new ImportManager());
 	}
 
-	public ObjectToMatcherCode(LocalVariableNameGenerator locals) {
+	public ObjectToMatcherCode(LocalVariableNameGenerator locals, ImportManager imports) {
 		this.locals = locals;
-		this.imports = new LinkedHashSet<>();
+		this.imports = imports;
 	}
 
 	public LocalVariableNameGenerator getLocals() {
 		return locals;
 	}
 
-	public Set<String> getImports() {
+	public ImportManager getImports() {
 		return imports;
 	}
 
 	public List<String> createAssertion(SerializedValue o, String exp) {
-		imports.add("static " + Assert.class.getName() + ".assertThat");
-		imports.add(Matcher.class.getName());
+		imports.staticImport(Assert.class, "assertThat");
 
 		List<String> statements = new ArrayList<>();
 
@@ -133,13 +129,13 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation> 
 	@Override
 	public Computation visitList(SerializedList value) {
 		if (value.isEmpty()) {
-			imports.add("static " + Matchers.class.getName() + ".empty");
+			imports.staticImport(Matchers.class, "empty");
 
 			ST matcher = new ST(EMPTY);
 
 			return new Computation(matcher.render(), emptyList());
 		} else {
-			imports.add("static " + Matchers.class.getName() + ".contains");
+			imports.staticImport(Matchers.class, "contains");
 
 			List<Computation> elements = value.stream()
 				.map(element -> getSimpleValue(element))
@@ -159,13 +155,13 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation> 
 	@Override
 	public Computation visitSet(SerializedSet value) {
 		if (value.isEmpty()) {
-			imports.add("static " + Matchers.class.getName() + ".empty");
+			imports.staticImport(Matchers.class, "empty");
 
 			ST matcher = new ST(EMPTY);
 
 			return new Computation(matcher.render(), emptyList());
 		} else {
-			imports.add("static " + Matchers.class.getName() + ".contains");
+			imports.staticImport(Matchers.class, "contains");
 
 			List<Computation> elements = value.stream()
 				.map(element -> getSimpleValue(element))
@@ -185,13 +181,13 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation> 
 	@Override
 	public Computation visitMap(SerializedMap value) {
 		if (value.isEmpty()) {
-			imports.add("static " + MapMatcher.class.getName() + ".noEntries");
+			imports.staticImport(Matchers.class, "noEntries");
 
 			ST matcher = new ST(NO_ENTRIES);
 
 			return new Computation(matcher.render(), emptyList());
 		} else {
-			imports.add("static " + MapMatcher.class.getName() + ".containsEntries");
+			imports.staticImport(Matchers.class, "containsEntries");
 
 			Map<Computation, Computation> elements = value.entrySet().stream()
 				.collect(toMap(entry -> getSimpleValue(entry.getKey()), entry -> getSimpleValue(entry.getValue())));
@@ -209,25 +205,45 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation> 
 
 	@Override
 	public Computation visitArray(SerializedArray value) {
-		imports.add("static " + Matchers.class.getName() + ".arrayContaining");
+		if (value.getType().getComponentType().isPrimitive()) {
+			String name = value.getType().getComponentType().getName();
+			imports.staticImport(PrimitiveArrayMatcher.class, name + "ArrayContaining");
 
-		List<Computation> elements = Stream.of(value.getArray())
-			.map(element -> getSimpleValue(element))
-			.collect(toList());
+			List<Computation> elements = Stream.of(value.getArray())
+				.map(element -> getSimpleValue(element))
+				.collect(toList());
 
-		ST matcher = new ST(ARRAY_CONTAINING);
-		matcher.add("values", elements.stream()
-			.map(element -> element.getValue())
-			.collect(toList()));
+			ST matcher = new ST(PRIMITIVE_ARRAY_CONTAINING);
+			matcher.add("type", name);
+			matcher.add("values", elements.stream()
+				.map(element -> element.getValue())
+				.collect(toList()));
 
-		return new Computation(matcher.render(), elements.stream()
-			.flatMap(element -> element.getStatements().stream())
-			.collect(toList()));
+			return new Computation(matcher.render(), elements.stream()
+				.flatMap(element -> element.getStatements().stream())
+				.collect(toList()));
+		} else {
+			imports.staticImport(Matchers.class, "arrayContaining");
+
+			List<Computation> elements = Stream.of(value.getArray())
+				.map(element -> getSimpleValue(element))
+				.collect(toList());
+
+			ST matcher = new ST(ARRAY_CONTAINING);
+			matcher.add("values", elements.stream()
+				.map(element -> element.getValue())
+				.collect(toList()));
+
+			return new Computation(matcher.render(), elements.stream()
+				.flatMap(element -> element.getStatements().stream())
+				.collect(toList()));
+		}
+
 	}
 
 	@Override
 	public Computation visitLiteral(SerializedLiteral value) {
-		imports.add("static " + Matchers.class.getName() + ".equalTo");
+		imports.staticImport(Matchers.class, "equalTo");
 
 		ST matcher = new ST(EQUAL_TO);
 		matcher.add("value", literalValue(value.getValue()));
@@ -237,7 +253,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation> 
 
 	@Override
 	public Computation visitNull(SerializedNull value) {
-		imports.add("static " + CoreMatchers.class.getName() + ".nullValue");
+		imports.staticImport(Matchers.class, "nullValue");
 
 		ST matcher = new ST(NULL);
 

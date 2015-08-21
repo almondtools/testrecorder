@@ -1,9 +1,13 @@
 package com.almondtools.invivoderived.generator;
 
+import static java.util.stream.Collectors.toList;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -73,7 +77,7 @@ public abstract class GenericObject {
 	}
 
 	public <T> T as(T o) {
-		for (Field field : getClass().getFields()) {
+		for (Field field : getGenericFields()) {
 			Field to = findField(field.getName(), o.getClass());
 			boolean access = to.isAccessible();
 			if (!access) {
@@ -104,8 +108,17 @@ public abstract class GenericObject {
 		throw new GenericObjectException(new NoSuchFieldException(name));
 	}
 
+
+	private List<Field> getGenericFields() {
+		Field[] declaredFields = getClass().getDeclaredFields();
+		return Stream.of(declaredFields)
+			.filter(field -> !field.getName().contains("this$"))
+			.map(field -> {field.setAccessible(true); return field;})
+			.collect(toList());
+	}
+	
 	public boolean matches(Object o) {
-		for (Field field : getClass().getFields()) {
+		for (Field field : getGenericFields()) {
 			Field to = findField(field.getName(), o.getClass());
 			boolean access = to.isAccessible();
 			if (!access) {
@@ -149,7 +162,7 @@ public abstract class GenericObject {
 			@Override
 			public void describeTo(Description description) {
 				description.appendText("with fields:");
-				for (Field field : self.getClass().getFields()) {
+				for (Field field : getGenericFields()) {
 					try {
 						description.appendText("\n\t")
 							.appendText(field.getType().getSimpleName()).appendText(" ")
@@ -176,16 +189,32 @@ public abstract class GenericObject {
 			@Override
 			protected void describeMismatchSafely(T item, Description mismatchDescription) {
 				mismatchDescription.appendText("with fields:");
-				for (Field field : item.getClass().getFields()) {
+				for (Field field : item.getClass().getDeclaredFields()) {
 					try {
 						mismatchDescription.appendText("\n")
 							.appendText(field.getType().getSimpleName()).appendText(" ")
 							.appendText(field.getName()).appendText(":")
-							.appendValue(field.get(item));
+							.appendValue(getValue(field, item));
 					} catch (IllegalArgumentException | IllegalAccessException e) {
 						mismatchDescription.appendText("\n")
 							.appendValue(field.getType()).appendText(" ")
 							.appendValue(field.getName()).appendText(":<description failed>");
+					}
+				}
+			}
+
+			private Object getValue(Field field, Object item) throws IllegalAccessException {
+				boolean access = field.isAccessible();
+				if (!access) {
+					field.setAccessible(true);
+				}
+				try {
+					return field.get(item);
+				} catch (IllegalArgumentException | IllegalAccessException e) {
+					throw new GenericObjectException(e);
+				} finally {
+					if (!access) {
+						field.setAccessible(false);
 					}
 				}
 			}
