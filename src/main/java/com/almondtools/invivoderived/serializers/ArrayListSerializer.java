@@ -2,6 +2,7 @@ package com.almondtools.invivoderived.serializers;
 
 import static java.util.Arrays.asList;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,8 +25,8 @@ public class ArrayListSerializer implements Serializer {
 	}
 
 	@Override
-	public SerializedValue generate() {
-		return new SerializedList();
+	public SerializedValue generate(Type type) {
+		return new SerializedList(type);
 	}
 
 	@Override
@@ -34,4 +35,5 @@ public class ArrayListSerializer implements Serializer {
 			((SerializedList) serializedObject).add(facade.serialize(element.getClass(), element));
 		}
 	}
+
 }

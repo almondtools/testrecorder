@@ -2,6 +2,7 @@ package com.almondtools.invivoderived.serializers;
 
 import static java.util.Arrays.asList;
 
+import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -26,8 +27,8 @@ public class LinkedHashSetSerializer implements Serializer {
 	}
 
 	@Override
-	public SerializedValue generate() {
-		return new SerializedSet();
+	public SerializedValue generate(Type type) {
+		return new SerializedSet(type);
 	}
 
 	@Override
@@ -36,4 +37,5 @@ public class LinkedHashSetSerializer implements Serializer {
 			((SerializedSet) serializedObject).add(facade.serialize(element.getClass(), element));
 		}
 	}
+
 }

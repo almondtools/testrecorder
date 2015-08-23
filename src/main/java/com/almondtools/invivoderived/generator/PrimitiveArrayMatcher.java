@@ -14,7 +14,35 @@ public class PrimitiveArrayMatcher<T> extends TypeSafeMatcher<T> {
 		this.array = array;
 	}
 
+	public static Matcher<boolean[]> booleanArrayContaining(boolean... items) {
+		return new PrimitiveArrayMatcher<>(items);
+	}
+
+	public static Matcher<char[]> charArrayContaining(char... items) {
+		return new PrimitiveArrayMatcher<>(items);
+	}
+
+	public static Matcher<byte[]> byteArrayContaining(byte... items) {
+		return new PrimitiveArrayMatcher<>(items);
+	}
+
+	public static Matcher<short[]> shortArrayContaining(short... items) {
+		return new PrimitiveArrayMatcher<>(items);
+	}
+
 	public static Matcher<int[]> intArrayContaining(int... items) {
+		return new PrimitiveArrayMatcher<>(items);
+	}
+
+	public static Matcher<float[]> floatArrayContaining(float... items) {
+		return new PrimitiveArrayMatcher<>(items);
+	}
+
+	public static Matcher<long[]> longArrayContaining(long... items) {
+		return new PrimitiveArrayMatcher<>(items);
+	}
+
+	public static Matcher<double[]> doubleArrayContaining(double... items) {
 		return new PrimitiveArrayMatcher<>(items);
 	}
 

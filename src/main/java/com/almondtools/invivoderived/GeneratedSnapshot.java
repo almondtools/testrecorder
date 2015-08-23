@@ -1,10 +1,12 @@
 package com.almondtools.invivoderived;
 
+import java.lang.reflect.Type;
+
 public class GeneratedSnapshot {
 
-	private Class<?> resultType;
+	private Type resultType;
 	private String methodName;
-	private Class<?>[] argumentTypes;
+	private Type[] argumentTypes;
 
 	private SerializedValue setupThis;
 	private SerializedValue[] setupArgs;
@@ -14,13 +16,13 @@ public class GeneratedSnapshot {
 	private SerializedValue expectException;
 	private SerializedValue[] expectArgs;
 
-	public GeneratedSnapshot(Class<?> resultType, String methodName, Class<?>... argumentTypes) {
+	public GeneratedSnapshot(Type resultType, String methodName, Type... argumentTypes) {
 		this.resultType = resultType;
 		this.methodName = methodName;
 		this.argumentTypes = argumentTypes;
 	}
 
-	public Class<?> getResultType() {
+	public Type getResultType() {
 		return resultType;
 	}
 
@@ -28,8 +30,12 @@ public class GeneratedSnapshot {
 		return methodName;
 	}
 
-	public Class<?>[] getArgumentTypes() {
+	public Type[] getArgumentTypes() {
 		return argumentTypes;
+	}
+
+	public Type getThisType() {
+		return setupThis.getType();
 	}
 
 	public SerializedValue getSetupThis() {

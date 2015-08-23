@@ -4,7 +4,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
 public class MapMatcher<K,V> extends TypeSafeMatcher<Map<K,V>>{
@@ -15,7 +14,7 @@ public class MapMatcher<K,V> extends TypeSafeMatcher<Map<K,V>>{
 		entries = new LinkedHashMap<>();
 	}
 
-	public Matcher<?> entry(K key, V value) {
+	public MapMatcher<K,V> entry(K key, V value) {
 		entries.put(key, value);
 		return this;
 	}
@@ -47,11 +46,11 @@ public class MapMatcher<K,V> extends TypeSafeMatcher<Map<K,V>>{
 		return true;
 	}
 
-	public static <K,V> MapMatcher<K, V> noEntries() {
+	public static <K,V> MapMatcher<K, V> noEntries(Class<K> key, Class<V> value) {
 		return new MapMatcher<>();
 	}
 
-	public static <K,V> MapMatcher<K, V> containsEntries() {
+	public static <K,V> MapMatcher<K, V> containsEntries(Class<K> key, Class<V> value) {
 		return new MapMatcher<>();
 	}
 

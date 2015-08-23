@@ -1,5 +1,7 @@
 package com.almondtools.invivoderived.values;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -11,15 +13,33 @@ import com.almondtools.invivoderived.visitors.SerializedValuePrinter;
 
 public class SerializedMap implements SerializedValue, Map<SerializedValue, SerializedValue> {
 
+	private Type type;
 	private Map<SerializedValue, SerializedValue> map;
 
-	public SerializedMap() {
+	public SerializedMap(Type type) {
+		this.type = type;
 		map = new LinkedHashMap<>();
 	}
 	
 	@Override
-	public Class<?> getType() {
-		return Map.class;
+	public Type getType() {
+		return type;
+	}
+
+	public Type getKeyType() {
+		if (type instanceof ParameterizedType) {
+			return ((ParameterizedType) type).getActualTypeArguments()[0];
+		} else {
+			return Object.class;
+		}
+	}
+
+	public Type getValueType() {
+		if (type instanceof ParameterizedType) {
+			return ((ParameterizedType) type).getActualTypeArguments()[1];
+		} else {
+			return Object.class;
+		}
 	}
 
 	@Override
@@ -87,4 +107,5 @@ public class SerializedMap implements SerializedValue, Map<SerializedValue, Seri
 	public String toString() {
 		return accept(new SerializedValuePrinter());
 	}
+
 }

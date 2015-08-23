@@ -1,18 +1,24 @@
 package com.almondtools.invivoderived.generator;
 
+import static com.almondtools.invivoderived.generator.TypeHelper.getBase;
+import static com.almondtools.invivoderived.generator.TypeHelper.getSimpleName;
+import static com.almondtools.invivoderived.generator.TypeHelper.isPrimitive;
 import static java.lang.Character.toUpperCase;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -59,38 +65,44 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 	private static final String CALL_EXPRESSION = "<base>.<method>(<args; separator=\", \">)";
 
 	private ImportManager imports;
-	private Set<String> tests;
+	private Map<Class<?>, Set<String>> tests;
 
 	public TestGenerator() {
 		this.imports = new ImportManager();
-		imports.registerImport(Test.class);
+		this.imports.registerImport(Test.class);
 
-		this.tests = new LinkedHashSet<>();
+		this.tests = new LinkedHashMap<>();
 	}
-	
-	public Set<String> getTests() {
-		return tests;
+
+	public Set<String> getTests(Class<?> clazz) {
+		return tests.get(clazz);
 	}
 
 	@Override
 	public void accept(GeneratedSnapshot snapshot) {
-		MethodGenerator methodGenerator = new MethodGenerator(snapshot, tests.size())
+		Set<String> localtests = this.tests.computeIfAbsent(getBase(snapshot.getThisType()), key -> new LinkedHashSet<>());
+
+		MethodGenerator methodGenerator = new MethodGenerator(snapshot, localtests.size())
 			.generateArrange()
 			.generateAct()
 			.generateAssert();
-		tests.add(methodGenerator.generateTest());
+
+		localtests.add(methodGenerator.generateTest());
 	}
 
-	public void writeTests(Path dir, Class<?> clazz) {
-		String rendered = renderTest(clazz);
+	public void writeTests(Path dir) {
+		for (Class<?> clazz : tests.keySet()) {
 
-		try {
-			Path testfile = locateTestFile(dir, clazz);
-			try (Writer writer = Files.newBufferedWriter(testfile)) {
-				writer.write(rendered);
+			String rendered = renderTest(clazz);
+
+			try {
+				Path testfile = locateTestFile(dir, clazz);
+				try (Writer writer = Files.newBufferedWriter(testfile)) {
+					writer.write(rendered);
+				}
+			} catch (IOException e) {
+				System.out.println(rendered);
 			}
-		} catch (IOException e) {
-			System.out.println(rendered);
 		}
 	}
 
@@ -98,18 +110,20 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 		String pkg = clazz.getPackage().getName();
 		String className = clazz.getSimpleName() + "InVitroTest";
 		Path testpackage = dir.resolve(pkg.replace('.', '/'));
-		
+
 		Files.createDirectories(testpackage);
-		
+
 		return testpackage.resolve(className + ".java");
 	}
 
 	public String renderTest(Class<?> clazz) {
+		Set<String> localtests = this.tests.get(clazz);
+
 		ST file = new ST(TEST_FILE);
 		file.add("package", clazz.getPackage().getName());
 		file.add("imports", imports.getImports());
 		file.add("className", clazz.getSimpleName() + "InVitroTest");
-		file.add("methods", tests);
+		file.add("methods", localtests);
 
 		return file.render();
 	}
@@ -117,7 +131,7 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 	private class MethodGenerator {
 
 		private LocalVariableNameGenerator locals;
-		
+
 		private GeneratedSnapshot snapshot;
 		private int no;
 
@@ -148,9 +162,13 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 				.flatMap(arg -> arg.getStatements().stream())
 				.collect(toList()));
 
-			this.base = assign(snapshot.getSetupThis().getType(), setupThis.getValue());
+			this.base = setupThis.isStored() 
+				? setupThis.getValue()
+				: assign(snapshot.getSetupThis().getType(), setupThis.getValue());
 			this.args = IntStream.range(0, setupArgs.size())
-				.mapToObj(i -> assign(snapshot.getSetupArgs()[i].getType(), setupArgs.get(i).getValue()))
+				.mapToObj(i -> setupArgs.get(i).isStored() 
+					? setupArgs.get(i).getValue()
+					: assign(snapshot.getSetupArgs()[i].getType(), setupArgs.get(i).getValue()))
 				.collect(toList());
 			return this;
 		}
@@ -158,7 +176,7 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 		public MethodGenerator generateAct() {
 			statements.add(BEGIN_ACT);
 
-			Class<?> resultType = snapshot.getResultType();
+			Type resultType = snapshot.getResultType();
 			String methodName = snapshot.getMethodName();
 
 			ST call = new ST(CALL_EXPRESSION);
@@ -189,7 +207,7 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 				.map(o -> expectCode.createAssertion(o, base))
 				.orElse(emptyList());
 
-			Class<?>[] argumentTypes = snapshot.getArgumentTypes();
+			Type[] argumentTypes = snapshot.getArgumentTypes();
 			SerializedValue[] serializedArgs = snapshot.getExpectArgs();
 			List<String> expectArgs = IntStream.range(0, argumentTypes.length)
 				.filter(i -> !isImmutable(argumentTypes[i]))
@@ -205,18 +223,18 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 			return this;
 		}
 
-		public String assign(Class<?> type, String value) {
+		public String assign(Type type, String value) {
 			return assign(type, value, false);
 		}
 
-		public String assign(Class<?> type, String value, boolean force) {
+		public String assign(Type type, String value, boolean force) {
 			if (isImmutable(type) && !force) {
 				return value;
 			} else {
 				String name = locals.fetchName(type);
 
 				ST assign = new ST(ASSIGN_STMT);
-				assign.add("type", type.getSimpleName());
+				assign.add("type", getSimpleName(type));
 				assign.add("name", name);
 				assign.add("value", value);
 
@@ -233,9 +251,9 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 			statements.add(statement.render());
 		}
 
-		private boolean isImmutable(Class<?> clazz) {
-			return clazz.isPrimitive()
-				|| IMMUTABLE_TYPES.contains(clazz);
+		private boolean isImmutable(Type type) {
+			return isPrimitive(type)
+				|| IMMUTABLE_TYPES.contains(type);
 		}
 
 		public String generateTest() {

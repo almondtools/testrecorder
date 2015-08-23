@@ -2,6 +2,7 @@ package com.almondtools.invivoderived.serializers;
 
 import static java.util.Arrays.asList;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -26,8 +27,8 @@ public class LinkedHashMapSerializer implements Serializer {
 	}
 
 	@Override
-	public SerializedValue generate() {
-		return new SerializedMap();
+	public SerializedValue generate(Type type) {
+		return new SerializedMap(type);
 	}
 
 	@Override
@@ -39,4 +40,5 @@ public class LinkedHashMapSerializer implements Serializer {
 			serializedMap.put(facade.serialize(key.getClass(), key), facade.serialize(value.getClass(), value));
 		}
 	}
+
 }

@@ -28,7 +28,7 @@ public class SerializedValuePrinter implements SerializedValueVisitor<String> {
 	public String visitObject(SerializedObject object) {
 		boolean inserted = known.add(object);
 		if (inserted) {
-			return object.getType().getSimpleName() + "/" + System.identityHashCode(object) + " "
+			return object.getType().getTypeName() + "/" + System.identityHashCode(object) + " "
 				+ object.getFields().stream()
 					.map(field -> field.accept(this))
 					.collect(joining(",\n", "{\n", "\n}"));
@@ -39,7 +39,7 @@ public class SerializedValuePrinter implements SerializedValueVisitor<String> {
 
 	@Override
 	public String visitField(SerializedField field) {
-		return field.getType().getSimpleName() + " " + field.getName() + ": " + field.getValue().accept(this);
+		return field.getType().getTypeName() + " " + field.getName() + ": " + field.getValue().accept(this);
 	}
 
 	@Override

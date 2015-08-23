@@ -1,5 +1,7 @@
 package com.almondtools.invivoderived.values;
 
+import java.lang.reflect.Type;
+
 import com.almondtools.invivoderived.SerializedValue;
 import com.almondtools.invivoderived.SerializedValueVisitor;
 import com.almondtools.invivoderived.visitors.SerializedValuePrinter;
@@ -7,10 +9,10 @@ import com.almondtools.invivoderived.visitors.SerializedValuePrinter;
 public class SerializedField {
 
 	private String name;
-	private Class<?> type;
+	private Type type;
 	private SerializedValue value;
 
-	public SerializedField(String name, Class<?> type, SerializedValue value) {
+	public SerializedField(String name, Type type, SerializedValue value) {
 		this.name = name;
 		this.type = type;
 		this.value = value;
@@ -20,7 +22,7 @@ public class SerializedField {
 		return name;
 	}
 
-	public Class<?> getType() {
+	public Type getType() {
 		return type;
 	}
 
@@ -40,7 +42,7 @@ public class SerializedField {
 	@Override
 	public int hashCode() {
 		return name.hashCode() * 31
-			+ type.getName().hashCode() * 13
+			+ type.getTypeName().hashCode() * 13
 			+ value.hashCode();
 	}
 

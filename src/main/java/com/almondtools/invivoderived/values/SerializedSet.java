@@ -1,5 +1,7 @@
 package com.almondtools.invivoderived.values;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -11,15 +13,25 @@ import com.almondtools.invivoderived.visitors.SerializedValuePrinter;
 
 public class SerializedSet implements SerializedValue, Set<SerializedValue> {
 
+	private Type type;
 	private Set<SerializedValue> set;
 	
-	public SerializedSet() {
+	public SerializedSet(Type type) {
+		this.type = type;
 		set = new LinkedHashSet<>();
 	}
 	
 	@Override
-	public Class<?> getType() {
-		return Set.class;
+	public Type getType() {
+		return type;
+	}
+
+	public Type getComponentType() {
+		if (type instanceof ParameterizedType) {
+			return ((ParameterizedType) type).getActualTypeArguments()[0];
+		} else {
+			return Object.class;
+		}
 	}
 
 	@Override

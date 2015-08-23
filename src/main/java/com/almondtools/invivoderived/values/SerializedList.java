@@ -1,5 +1,7 @@
 package com.almondtools.invivoderived.values;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -12,15 +14,25 @@ import com.almondtools.invivoderived.visitors.SerializedValuePrinter;
 
 public class SerializedList implements SerializedValue, List<SerializedValue> {
 
+	private Type type;
 	private List<SerializedValue> list;
 
-	public SerializedList() {
+	public SerializedList(Type type) {
+		this.type = type;
 		this.list = new ArrayList<>();
 	}
 	
 	@Override
-	public Class<?> getType() {
-		return List.class;
+	public Type getType() {
+		return type;
+	}
+
+	public Type getComponentType() {
+		if (type instanceof ParameterizedType) {
+			return ((ParameterizedType) type).getActualTypeArguments()[0];
+		} else {
+			return Object.class;
+		}
 	}
 
 	@Override

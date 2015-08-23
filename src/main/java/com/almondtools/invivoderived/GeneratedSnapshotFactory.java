@@ -1,13 +1,15 @@
 package com.almondtools.invivoderived;
 
+import java.lang.reflect.Type;
+
 public class GeneratedSnapshotFactory {
 
-	private Class<?> resultType;
+	private Type resultType;
 	private String methodName;
-	private Class<?>[] argumentTypes;
+	private Type[] argumentTypes;
 
 	
-	public GeneratedSnapshotFactory(Class<?> resultType, String methodName, Class<?>... argumentTypes) {
+	public GeneratedSnapshotFactory(Type resultType, String methodName, Type... argumentTypes) {
 		this.resultType = resultType;
 		this.methodName = methodName;
 		this.argumentTypes = argumentTypes;

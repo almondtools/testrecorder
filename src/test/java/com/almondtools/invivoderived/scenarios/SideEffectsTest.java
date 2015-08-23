@@ -39,18 +39,8 @@ public class SideEffectsTest {
 		for (int i = 0; i < 100; i += sideEffects.getI()) {
 			sideEffects.methodWithSideEffectOnThis(i);
 		}
-		assertThat(testGenerator.getTests().size(), equalTo(7));
-		assertThat(testGenerator.getTests(), everyItem(containsString("assert")));
-	}
-
-	@Test
-	public void testSideEffectsOnThisCompilable() throws Exception {
-		SideEffects sideEffects = new SideEffects();
-		for (int i = 0; i < 100; i += sideEffects.getI()) {
-			sideEffects.methodWithSideEffectOnThis(i);
-		}
-		assertThat(testGenerator.renderTest(SideEffects.class), compiles());
-		assertThat(testGenerator.renderTest(SideEffects.class), testsRuns());
+		assertThat(testGenerator.getTests(SideEffects.class).size(), equalTo(7));
+		assertThat(testGenerator.getTests(SideEffects.class), everyItem(containsString("assert")));
 	}
 
 	@Test
@@ -60,14 +50,17 @@ public class SideEffectsTest {
 		for (int i = 0; i < 10; i++) {
 			sideEffects.methodWithSideEffectOnArgument(array);
 		}
-		assertThat(testGenerator.getTests().size(), equalTo(10));
-		assertThat(testGenerator.getTests(), everyItem(containsString("assert")));
+		assertThat(testGenerator.getTests(SideEffects.class).size(), equalTo(10));
+		assertThat(testGenerator.getTests(SideEffects.class), everyItem(containsString("assert")));
 	}
 
 	@Test
-	public void testSideEffectsOnArgumentCompilable() throws Exception {
+	public void testSideEffectsCompilable() throws Exception {
 		int[] array = new int[] { 0 };
 		SideEffects sideEffects = new SideEffects();
+		for (int i = 0; i < 100; i += sideEffects.getI()) {
+			sideEffects.methodWithSideEffectOnThis(i);
+		}
 		for (int i = 0; i < 10; i++) {
 			sideEffects.methodWithSideEffectOnArgument(array);
 		}

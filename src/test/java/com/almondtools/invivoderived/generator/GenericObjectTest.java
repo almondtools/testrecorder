@@ -7,8 +7,6 @@ import static org.junit.Assert.assertThat;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 
-import com.almondtools.invivoderived.generator.GenericObject;
-
 @SuppressWarnings("unused")
 public class GenericObjectTest {
 

@@ -32,7 +32,7 @@ public class OtherFizzBuzzTest {
 
 		OtherFizzBuzz.main(new String[0]);
 
-		testGenerator.writeTests(Paths.get("target/generated"), OtherFizzBuzz.class);
+		testGenerator.writeTests(Paths.get("target/generated"));
 	}
 	
 }

@@ -44,7 +44,7 @@ public class ResultsTest {
 			results.add(pow.pow(i));
 		}
 		assertThat(results, hasSize(10));
-		assertThat(testGenerator.getTests(), hasSize(10));
+		assertThat(testGenerator.getTests(Results.class), hasSize(10));
 	}
 
 	@Test
@@ -53,7 +53,7 @@ public class ResultsTest {
 		for (int i = 1; i <= 10; i++) {
 			pow.pow(i);
 		}
-		assertThat(testGenerator.getTests(), everyItem(containsString("assert")));
+		assertThat(testGenerator.getTests(Results.class), everyItem(containsString("assert")));
 	}
 
 	@Test

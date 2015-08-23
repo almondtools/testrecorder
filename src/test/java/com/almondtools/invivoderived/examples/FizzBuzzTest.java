@@ -32,7 +32,7 @@ public class FizzBuzzTest {
 
 		FizzBuzz.main(new String[0]);
 		
-		testGenerator.writeTests(Paths.get("target/generated"), FizzBuzz.class);
+		testGenerator.writeTests(Paths.get("target/generated"));
 	}
 
 }

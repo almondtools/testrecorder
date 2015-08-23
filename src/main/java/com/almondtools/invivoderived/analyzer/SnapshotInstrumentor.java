@@ -56,6 +56,7 @@ import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import com.almondtools.invivoderived.SerializationException;
+import com.almondtools.invivoderived.generator.TypeHelper;
 
 public class SnapshotInstrumentor {
 
@@ -113,7 +114,7 @@ public class SnapshotInstrumentor {
 
 	@SuppressWarnings("unchecked")
 	private FieldNode createTestAspectField() {
-		FieldNode fieldNode = new FieldNode(Opcodes.ACC_PRIVATE, SNAPSHOT_GENERATOR_FIELD_NAME, Type.getDescriptor(SnapshotGenerator.class), Type.getDescriptor(SnapshotGenerator.class), null);
+		FieldNode fieldNode = new FieldNode(Opcodes.ACC_PRIVATE | Opcodes.ACC_SYNTHETIC, SNAPSHOT_GENERATOR_FIELD_NAME, Type.getDescriptor(SnapshotGenerator.class), Type.getDescriptor(SnapshotGenerator.class), null);
 		fieldNode.visibleAnnotations = new ArrayList<>();
 		fieldNode.visibleAnnotations.add(new AnnotationNode(Type.getDescriptor(SnapshotExcluded.class)));
 		return fieldNode;
@@ -167,17 +168,41 @@ public class SnapshotInstrumentor {
 
 		insnList.add(new VarInsnNode(ALOAD, 0));
 		insnList.add(new FieldInsnNode(GETFIELD, classNode.name, SNAPSHOT_GENERATOR_FIELD_NAME, Type.getDescriptor(SnapshotGenerator.class)));
-		for (MethodNode method : getSnapshotMethods(classNode)) {
+		for (MethodNode methodNode : getSnapshotMethods(classNode)) {
 			insnList.add(new InsnNode(DUP));
-			insnList.add(new LdcInsnNode(method.desc));
-			insnList.add(pushType(Type.getReturnType(method.desc)));
-			insnList.add(new LdcInsnNode(method.name));
-			insnList.add(pushMethodParameterTypes(method));
-			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getDescriptor(SnapshotGenerator.class), "register",
-				Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "register", String.class, Class.class, String.class, Class[].class)), false));
+			insnList.add(new LdcInsnNode(methodNode.name + methodNode.desc));
+			
+			insnList.add(pushMethod(classNode, methodNode));
+			
+			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getDescriptor(SnapshotGenerator.class), "register", Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "register", String.class, Method.class)), false));
 		}
 		insnList.add(new InsnNode(POP));
 
+		return insnList;
+	}
+
+	private InsnList pushMethod(ClassNode clazz, MethodNode method) {
+		Type[] argumentTypes = Type.getArgumentTypes(method.desc);
+		int argCount = argumentTypes.length;;
+		
+		InsnList insnList = new InsnList();
+
+		insnList.add(new VarInsnNode(ALOAD, 0));
+		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getDescriptor(Object.class), "getClass", Type.getMethodDescriptor(methodOf(Object.class, "getClass")), false));
+		
+		
+		insnList.add(new LdcInsnNode(method.name));
+		
+		insnList.add(new LdcInsnNode(argCount));
+		insnList.add(new TypeInsnNode(Opcodes.ANEWARRAY, Type.getDescriptor(Class.class)));
+		for (int i = 0; i < argCount; i++) {
+			insnList.add(new InsnNode(DUP));
+			insnList.add(new LdcInsnNode(i));
+			insnList.add(pushType(argumentTypes[i]));
+			insnList.add(new InsnNode(AASTORE));
+		}
+		
+		insnList.add(new MethodInsnNode(INVOKESTATIC, Type.getDescriptor(TypeHelper.class), "getDeclaredMethod", Type.getMethodDescriptor(methodOf(TypeHelper.class, "getDeclaredMethod", Class.class, String.class, Class[].class)), false));
 		return insnList;
 	}
 
@@ -226,7 +251,7 @@ public class SnapshotInstrumentor {
 		insnList.add(new VarInsnNode(ALOAD, 0));
 		insnList.add(new FieldInsnNode(GETFIELD, classNode.name, SNAPSHOT_GENERATOR_FIELD_NAME, Type.getDescriptor(SnapshotGenerator.class)));
 
-		insnList.add(new LdcInsnNode(methodNode.desc));
+		insnList.add(new LdcInsnNode(methodNode.name + methodNode.desc));
 
 		insnList.add(pushMethodArguments(methodNode));
 
@@ -306,28 +331,6 @@ public class SnapshotInstrumentor {
 			insnList.add(new VarInsnNode(type.getOpcode(ILOAD), i + 1));
 
 			insnList.add(boxPrimitives(type));
-
-			insnList.add(new InsnNode(AASTORE));
-		}
-		return insnList;
-
-	}
-
-	private InsnList pushMethodParameterTypes(MethodNode methodNode) {
-		int params = Type.getArgumentTypes(methodNode.desc).length;
-
-		InsnList insnList = new InsnList();
-
-		insnList.add(new LdcInsnNode(params));
-		insnList.add(new TypeInsnNode(Opcodes.ANEWARRAY, Type.getDescriptor(Class.class)));
-
-		for (int i = 0; i < params; i++) {
-			insnList.add(new InsnNode(DUP));
-			insnList.add(new LdcInsnNode(i));
-
-			LocalVariableNode node = (LocalVariableNode) methodNode.localVariables.get(i + 1);
-
-			insnList.add(pushType(Type.getReturnType(node.desc)));
 
 			insnList.add(new InsnNode(AASTORE));
 		}

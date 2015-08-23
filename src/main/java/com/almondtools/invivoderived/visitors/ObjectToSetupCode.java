@@ -1,10 +1,12 @@
 package com.almondtools.invivoderived.visitors;
 
 import static com.almondtools.invivoderived.generator.TemplateHelper.asLiteral;
+import static com.almondtools.invivoderived.generator.TypeHelper.getSimpleName;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
@@ -19,6 +21,7 @@ import org.stringtemplate.v4.ST;
 import com.almondtools.invivoderived.SerializedValue;
 import com.almondtools.invivoderived.SerializedValueVisitor;
 import com.almondtools.invivoderived.generator.GenericObject;
+import com.almondtools.invivoderived.generator.TypeHelper;
 import com.almondtools.invivoderived.values.SerializedArray;
 import com.almondtools.invivoderived.values.SerializedField;
 import com.almondtools.invivoderived.values.SerializedList;
@@ -62,16 +65,14 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation> {
 
 	@Override
 	public Computation visitField(SerializedField field) {
-		if (!field.getType().isArray() && !field.getType().isPrimitive()) {
-			imports.registerImport(field.getType());
-		}
+		imports.registerImport(field.getType());
 		
 		Computation valueTemplate = field.getValue().accept(this);
 		
 		List<String> statements = valueTemplate.getStatements();
 		
 		ST statement = new ST(FIELD);
-		statement.add("type", field.getType().getSimpleName());
+		statement.add("type", TypeHelper.getSimpleName(field.getType()));
 		statement.add("name", field.getName());
 		statement.add("value", valueTemplate.getValue());
 		return new Computation(statement.render(), statements);
@@ -82,7 +83,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation> {
 		if (computed.containsKey(value)) {
 			return new Computation(computed.get(value), true);
 		}
-		Class<?>[] types = { value.getType(), GenericObject.class };
+		Type[] types = { value.getType(), GenericObject.class };
 		imports.registerImports(types);
 		
 		List<Computation> elementTemplates = value.getFields().stream()
@@ -98,7 +99,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation> {
 			.collect(toList());
 
 		ST statement = new ST(GENERIC_OBJECT);
-		statement.add("type", value.getType().getSimpleName());
+		statement.add("type", getSimpleName(value.getType()));
 		statement.add("fields", elements);
 		return new Computation(statement.render(), statements);
 	}
@@ -108,8 +109,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation> {
 		if (computed.containsKey(value)) {
 			return new Computation(computed.get(value), true);
 		}
-		Class<?>[] types = { List.class, ArrayList.class };
-		imports.registerImports(types);
+		imports.registerImports(value.getType(), ArrayList.class);
 		
 		List<Computation> elementTemplates = value.stream()
 			.map(element -> element.accept(this))
@@ -126,7 +126,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation> {
 		String name = locals.fetchName(List.class);
 		
 		ST init = new ST(ASSIGN_STMT);
-		init.add("type", List.class.getSimpleName());
+		init.add("type", TypeHelper.getSimpleName(value.getType()));
 		init.add("name", name);
 		init.add("value", "new ArrayList<>()");
 		statements.add(init.render());
@@ -139,7 +139,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation> {
 			statements.add(add.render());
 		}
 		
-		return new Computation(name, statements);
+		return new Computation(name, true, statements);
 	}
 
 	@Override
@@ -147,8 +147,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation> {
 		if (computed.containsKey(value)) {
 			return new Computation(computed.get(value), true);
 		}
-		Class<?>[] types = { Set.class, LinkedHashSet.class };
-		imports.registerImports(types);
+		imports.registerImports(value.getType(), LinkedHashSet.class);
 
 		List<Computation> elementTemplates = value.stream()
 			.map(element -> element.accept(this))
@@ -165,7 +164,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation> {
 		String name = locals.fetchName(Set.class);
 		
 		ST init = new ST(ASSIGN_STMT);
-		init.add("type", Set.class.getSimpleName());
+		init.add("type", TypeHelper.getSimpleName(value.getType()));
 		init.add("name", name);
 		init.add("value", "new LinkedHashSet<>()");
 		statements.add(init.render());
@@ -178,7 +177,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation> {
 			statements.add(add.render());
 		}
 		
-		return new Computation(name, statements);
+		return new Computation(name, true, statements);
 	}
 
 	@Override
@@ -186,10 +185,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation> {
 		if (computed.containsKey(value)) {
 			return new Computation(computed.get(value), true);
 		}
-		Class<?>[] types = { Map.class };
-		imports.registerImports(types);
-		Class<?>[] types1 = { LinkedHashMap.class };
-		imports.registerImports(types1);
+		imports.registerImports(value.getType(), LinkedHashMap.class);
 		
 		Map<Computation, Computation> elementTemplates = value.entrySet().stream()
 			.collect(toMap(entry -> entry.getKey().accept(this), entry -> entry.getValue().accept(this)));
@@ -205,7 +201,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation> {
 		String name = locals.fetchName(Map.class);
 		
 		ST init = new ST(ASSIGN_STMT);
-		init.add("type", Map.class.getSimpleName());
+		init.add("type", TypeHelper.getSimpleName(value.getType()));
 		init.add("name", name);
 		init.add("value", "new LinkedHashMap<>()");
 		statements.add(init.render());
@@ -218,7 +214,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation> {
 			statements.add(add.render());
 		}
 		
-		return new Computation(name, statements);
+		return new Computation(name, true, statements);
 	}
 
 	@Override
@@ -241,7 +237,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation> {
 			.collect(toList());
 
 		ST statement = new ST(ARRAY_LITERAL);
-		statement.add("type", value.getType().getSimpleName());
+		statement.add("type", getSimpleName(value.getType()));
 		statement.add("elements", elements);
 		return new Computation(statement.render(), statements);
 	}
@@ -249,11 +245,8 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation> {
 	@Override
 	public Computation visitLiteral(SerializedLiteral value) {
 		Object literalValue = value.getValue();
-		if (literalValue instanceof String) {
-			return new Computation(asLiteral((String) literalValue));
-		} else {
-			return new Computation(value.toString());
-		}
+		String literal = asLiteral(literalValue);
+		return new Computation(literal);
 	}
 
 	@Override

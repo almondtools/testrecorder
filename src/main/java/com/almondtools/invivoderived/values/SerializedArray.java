@@ -1,5 +1,7 @@
 package com.almondtools.invivoderived.values;
 
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,19 +11,29 @@ import com.almondtools.invivoderived.visitors.SerializedValuePrinter;
 
 public class SerializedArray implements SerializedValue {
 
-	private Class<?> type;
+	private Type type;
 	private List<SerializedValue> array;
 
-	public SerializedArray(Class<?> type) {
+	public SerializedArray(Type type) {
 		this.type = type;
 		this.array = new ArrayList<>();
 	}
 	
 	@Override
-	public Class<?> getType() {
+	public Type getType() {
 		return type;
 	}
 	
+	public Type getComponentType() {
+		if (type instanceof Class<?> && ((Class<?>) type).isArray()) {
+			return ((Class<?>) type).getComponentType();
+		} else if (type instanceof GenericArrayType) {
+			return ((GenericArrayType) type).getGenericComponentType();
+		} else {
+			return Object.class;
+		}
+	}
+
 	public SerializedValue[] getArray() {
 		return array.toArray(new SerializedValue[0]);
 	}
@@ -42,7 +54,7 @@ public class SerializedArray implements SerializedValue {
 
 	@Override
 	public int hashCode() {
-		return type.getName().hashCode() * 17
+		return type.getTypeName().hashCode() * 17
 			+ array.hashCode();
 	}
 

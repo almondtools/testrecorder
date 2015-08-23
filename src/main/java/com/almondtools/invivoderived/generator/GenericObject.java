@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -80,8 +81,12 @@ public abstract class GenericObject {
 		for (Field field : getGenericFields()) {
 			Field to = findField(field.getName(), o.getClass());
 			boolean access = to.isAccessible();
+			boolean finalField = isFinal(field);
 			if (!access) {
 				to.setAccessible(true);
+			}
+			if (finalField) {
+				unsetFinal(field);
 			}
 			try {
 				to.set(o, field.get(this));
@@ -91,11 +96,36 @@ public abstract class GenericObject {
 				if (!access) {
 					to.setAccessible(false);
 				}
+				if (finalField) {
+					setFinal(field);
+				}
 			}
 		}
 		return o;
 	}
 
+	private boolean isFinal(Field field) {
+		return (field.getModifiers() & Modifier.FINAL) == Modifier.FINAL;
+	}
+
+	private void unsetFinal(Field field) {
+		try {
+			Field modifiersField = Field.class.getDeclaredField("modifiers");
+			modifiersField.setAccessible(true);
+			modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+		}
+	}
+	
+	private void setFinal(Field field) {
+		try {
+			Field modifiersField = Field.class.getDeclaredField("modifiers");
+			modifiersField.setAccessible(true);
+			modifiersField.setInt(field, field.getModifiers() | ~Modifier.FINAL);
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+		}
+	}
+	
 	private Field findField(String name, Class<?> clazz) {
 		Class<?> current = clazz;
 		while (current != Object.class) {

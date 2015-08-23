@@ -1,5 +1,6 @@
 package com.almondtools.invivoderived.values;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,16 +10,16 @@ import com.almondtools.invivoderived.visitors.SerializedValuePrinter;
 
 public class SerializedNull implements SerializedValue {
 
-	private static final Map<Class<?>, SerializedNull> KNOWN_LITERALS = new HashMap<>();
+	private static final Map<Type, SerializedNull> KNOWN_LITERALS = new HashMap<>();
 	
-	private Class<?> type;
+	private Type type;
 	
-	public SerializedNull(Class<?> type) {
+	public SerializedNull(Type type) {
 		this.type = type;
 	}
 	
 	@Override
-	public Class<?> getType() {
+	public Type getType() {
 		return type;
 	}
 
@@ -27,7 +28,7 @@ public class SerializedNull implements SerializedValue {
 		return visitor.visitNull(this);
 	}
 
-	public static SerializedNull of(Class<?> type) {
+	public static SerializedNull of(Type type) {
 		return KNOWN_LITERALS.computeIfAbsent(type, typ -> new SerializedNull(typ));
 	}
 
@@ -38,7 +39,7 @@ public class SerializedNull implements SerializedValue {
 
 	@Override
 	public int hashCode() {
-		return type.getName().hashCode() * 7 + 29;
+		return type.getTypeName().hashCode() * 7 + 29;
 	}
 
 	@Override

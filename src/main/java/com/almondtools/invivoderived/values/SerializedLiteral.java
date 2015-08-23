@@ -1,5 +1,6 @@
 package com.almondtools.invivoderived.values;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,20 +12,20 @@ public class SerializedLiteral implements SerializedValue {
 
 	private static final Map<Object, SerializedLiteral> KNOWN_LITERALS = new HashMap<>();
 	
-	private Class<?> type;
+	private Type type;
 	private Object value;
 
-	public SerializedLiteral(Class<?> type, Object value) {
+	public SerializedLiteral(Type type, Object value) {
 		this.type = type;
 		this.value = value;
 	}
 	
-	public static SerializedLiteral of(Class<?> type, Object value) {
+	public static SerializedLiteral of(Type type, Object value) {
 		return KNOWN_LITERALS.computeIfAbsent(value, val -> new SerializedLiteral(type, val));
 	}
 
 	@Override
-	public Class<?> getType() {
+	public Type getType() {
 		return type;
 	}
 	
@@ -44,7 +45,7 @@ public class SerializedLiteral implements SerializedValue {
 
 	@Override
 	public int hashCode() {
-		return type.getName().hashCode() * 19
+		return type.getTypeName().hashCode() * 19
 			+ value.hashCode();
 	}
 

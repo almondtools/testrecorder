@@ -3,6 +3,8 @@ package com.almondtools.invivoderived.serializers;
 import static java.util.Collections.emptyList;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.List;
 
 import com.almondtools.invivoderived.SerializedValue;
@@ -14,11 +16,9 @@ import com.almondtools.invivoderived.values.SerializedObject;
 public class GenericSerializer implements Serializer {
 
 	private SerializerFacade facade;
-	private Class<?> clazz;
 
-	public GenericSerializer(SerializerFacade facade, Class<?> clazz) {
+	public GenericSerializer(SerializerFacade facade) {
 		this.facade = facade;
-		this.clazz = clazz;
 	}
 
 	@Override
@@ -27,13 +27,14 @@ public class GenericSerializer implements Serializer {
 	}
 
 	@Override
-	public SerializedValue generate() {
-		return new SerializedObject(clazz);
+	public SerializedValue generate(Type type) {
+		return new SerializedObject(type);
 	}
 
 	@Override
 	public void populate(SerializedValue serializedObject, Object object) {
 		SerializedObject newSerializedObject = (SerializedObject) serializedObject;
+		newSerializedObject.setObjectType(object.getClass());
 		Class<?> objectClass = object.getClass();
 		while (objectClass != Object.class) {
 			for (Field f : objectClass.getDeclaredFields()) {
@@ -47,7 +48,9 @@ public class GenericSerializer implements Serializer {
 
 	private boolean isSerializable(Field field) {
 		return !field.isAnnotationPresent(SnapshotExcluded.class)
-			&& field.getName().charAt(0) != '$';
+			&& field.getName().charAt(0) != '$'
+			&& ((field.getModifiers() & Modifier.STATIC) != Modifier.STATIC)
+			&& !facade.excludes(field.getType());
 	}
 
 }
