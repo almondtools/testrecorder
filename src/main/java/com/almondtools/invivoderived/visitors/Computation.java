@@ -5,6 +5,8 @@ import java.util.List;
 
 public class Computation {
 
+	public static final Computation NULL = new Computation("");
+	
 	private List<String> statements;
 	private String value;
 	private boolean stored;

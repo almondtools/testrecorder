@@ -18,6 +18,7 @@ import java.util.stream.Stream;
 
 import org.stringtemplate.v4.ST;
 
+import com.almondtools.invivoderived.SerializedCollectionVisitor;
 import com.almondtools.invivoderived.SerializedValue;
 import com.almondtools.invivoderived.SerializedValueVisitor;
 import com.almondtools.invivoderived.generator.GenericObject;
@@ -31,7 +32,7 @@ import com.almondtools.invivoderived.values.SerializedNull;
 import com.almondtools.invivoderived.values.SerializedObject;
 import com.almondtools.invivoderived.values.SerializedSet;
 
-public class ObjectToSetupCode implements SerializedValueVisitor<Computation> {
+public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, SerializedCollectionVisitor<Computation> {
 
 	private static final String GENERIC_OBJECT = "new GenericObject() {\n<fields; separator=\"\\n\">\n}.as(<type>.class)";
 	private static final String FIELD = "<type> <name> = <value>;";
@@ -252,6 +253,11 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation> {
 	@Override
 	public Computation visitNull(SerializedNull value) {
 		return new Computation("null");
+	}
+
+	@Override
+	public Computation visitUnknown(SerializedValue value) {
+		return Computation.NULL;
 	}
 
 }

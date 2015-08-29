@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import com.almondtools.invivoderived.SerializedCollectionVisitor;
 import com.almondtools.invivoderived.SerializedValue;
 import com.almondtools.invivoderived.SerializedValueVisitor;
 import com.almondtools.invivoderived.visitors.SerializedValuePrinter;
@@ -37,7 +38,9 @@ public class SerializedList implements SerializedValue, List<SerializedValue> {
 
 	@Override
 	public <T> T accept(SerializedValueVisitor<T> visitor) {
-		return visitor.visitList(this);
+		return visitor.as(SerializedCollectionVisitor.extend(visitor))
+			.map(v -> v.visitList(this))
+			.orElseGet(() -> visitor.visitUnknown(this));
 	}
 
 	public int size() {

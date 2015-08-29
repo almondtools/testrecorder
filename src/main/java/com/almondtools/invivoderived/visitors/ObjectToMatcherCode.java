@@ -19,6 +19,7 @@ import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.stringtemplate.v4.ST;
 
+import com.almondtools.invivoderived.SerializedCollectionVisitor;
 import com.almondtools.invivoderived.SerializedValue;
 import com.almondtools.invivoderived.SerializedValueVisitor;
 import com.almondtools.invivoderived.generator.MapMatcher;
@@ -32,7 +33,7 @@ import com.almondtools.invivoderived.values.SerializedNull;
 import com.almondtools.invivoderived.values.SerializedObject;
 import com.almondtools.invivoderived.values.SerializedSet;
 
-public class ObjectToMatcherCode implements SerializedValueVisitor<Computation> {
+public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>, SerializedCollectionVisitor<Computation> {
 
 	private static final String ASSERT = "assertThat(<object>,<matcher>);";
 
@@ -269,6 +270,11 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation> 
 		ST matcher = new ST(NULL);
 
 		return new Computation(matcher.render(), emptyList());
+	}
+	
+	@Override
+	public Computation visitUnknown(SerializedValue value) {
+		return Computation.NULL;
 	}
 
 	private boolean isSimpleValue(SerializedValue element) {

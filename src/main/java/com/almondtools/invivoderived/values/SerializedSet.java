@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import com.almondtools.invivoderived.SerializedCollectionVisitor;
 import com.almondtools.invivoderived.SerializedValue;
 import com.almondtools.invivoderived.SerializedValueVisitor;
 import com.almondtools.invivoderived.visitors.SerializedValuePrinter;
@@ -36,7 +37,9 @@ public class SerializedSet implements SerializedValue, Set<SerializedValue> {
 
 	@Override
 	public <T> T accept(SerializedValueVisitor<T> visitor) {
-		return visitor.visitSet(this);
+		return visitor.as(SerializedCollectionVisitor.extend(visitor))
+			.map(v -> v.visitSet(this))
+			.orElseGet(() -> visitor.visitUnknown(this));
 	}
 
 	public int size() {

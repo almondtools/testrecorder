@@ -6,6 +6,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import com.almondtools.invivoderived.SerializedCollectionVisitor;
+import com.almondtools.invivoderived.SerializedValue;
 import com.almondtools.invivoderived.SerializedValueVisitor;
 import com.almondtools.invivoderived.values.SerializedArray;
 import com.almondtools.invivoderived.values.SerializedField;
@@ -16,7 +18,7 @@ import com.almondtools.invivoderived.values.SerializedNull;
 import com.almondtools.invivoderived.values.SerializedObject;
 import com.almondtools.invivoderived.values.SerializedSet;
 
-public class SerializedValuePrinter implements SerializedValueVisitor<String> {
+public class SerializedValuePrinter implements SerializedValueVisitor<String>, SerializedCollectionVisitor<String> {
 
 	private Set<Object> known;
 
@@ -79,4 +81,10 @@ public class SerializedValuePrinter implements SerializedValueVisitor<String> {
 	public String visitNull(SerializedNull value) {
 		return "null";
 	}
+
+	@Override
+	public String visitUnknown(SerializedValue value) {
+		return "";
+	}
+
 }

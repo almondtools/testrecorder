@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.almondtools.invivoderived.SerializedCollectionVisitor;
 import com.almondtools.invivoderived.SerializedValue;
 import com.almondtools.invivoderived.SerializedValueVisitor;
 import com.almondtools.invivoderived.visitors.SerializedValuePrinter;
@@ -44,7 +45,9 @@ public class SerializedMap implements SerializedValue, Map<SerializedValue, Seri
 
 	@Override
 	public <T> T accept(SerializedValueVisitor<T> visitor) {
-		return visitor.visitMap(this);
+		return visitor.as(SerializedCollectionVisitor.extend(visitor))
+			.map(v -> v.visitMap(this))
+			.orElseGet(() -> visitor.visitUnknown(this));
 	}
 	
 	public int size() {
