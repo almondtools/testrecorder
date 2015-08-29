@@ -25,7 +25,7 @@ public class GenericCollectionDataTypes {
 		decs.add(decs.stream()
 			.reduce((bi1, bi2) -> bi1.add(bi2))
 			.orElse(BigDecimal.ONE.setScale(2))
-			.divide(BigDecimal.valueOf(decs.size() + 1), RoundingMode.UP));
+			.divide(BigDecimal.valueOf(2 * decs.size() + 1), RoundingMode.UP));
 		return decs;
 	}
 

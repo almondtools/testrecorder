@@ -8,12 +8,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.almondtools.invivoderived.SerializedValue;
 import com.almondtools.invivoderived.Serializer;
 import com.almondtools.invivoderived.SerializerFacade;
+import com.almondtools.invivoderived.SerializerFactory;
 import com.almondtools.invivoderived.values.SerializedSet;
 
-public class LinkedHashSetSerializer implements Serializer {
+public class LinkedHashSetSerializer implements Serializer<SerializedSet>{
 
 	private SerializerFacade facade;
 
@@ -27,15 +27,24 @@ public class LinkedHashSetSerializer implements Serializer {
 	}
 
 	@Override
-	public SerializedValue generate(Type type) {
+	public SerializedSet generate(Type type) {
 		return new SerializedSet(type);
 	}
 
 	@Override
-	public void populate(SerializedValue serializedObject, Object object) {
+	public void populate(SerializedSet serializedObject, Object object) {
 		for (Object element : (Set<?>) object) {
-			((SerializedSet) serializedObject).add(facade.serialize(element.getClass(), element));
+			serializedObject.add(facade.serialize(element.getClass(), element));
 		}
+	}
+
+	public static class Factory implements SerializerFactory<SerializedSet> {
+
+		@Override
+		public LinkedHashSetSerializer newSerializer(SerializerFacade facade) {
+			return new LinkedHashSetSerializer(facade);
+		}
+
 	}
 
 }

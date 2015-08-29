@@ -8,6 +8,8 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,11 +22,14 @@ import org.junit.Assert;
 import org.stringtemplate.v4.ST;
 
 import com.almondtools.invivoderived.SerializedCollectionVisitor;
+import com.almondtools.invivoderived.SerializedImmutableVisitor;
 import com.almondtools.invivoderived.SerializedValue;
 import com.almondtools.invivoderived.SerializedValueVisitor;
 import com.almondtools.invivoderived.generator.MapMatcher;
 import com.almondtools.invivoderived.generator.PrimitiveArrayMatcher;
 import com.almondtools.invivoderived.values.SerializedArray;
+import com.almondtools.invivoderived.values.SerializedBigDecimal;
+import com.almondtools.invivoderived.values.SerializedBigInteger;
 import com.almondtools.invivoderived.values.SerializedField;
 import com.almondtools.invivoderived.values.SerializedList;
 import com.almondtools.invivoderived.values.SerializedLiteral;
@@ -33,11 +38,12 @@ import com.almondtools.invivoderived.values.SerializedNull;
 import com.almondtools.invivoderived.values.SerializedObject;
 import com.almondtools.invivoderived.values.SerializedSet;
 
-public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>, SerializedCollectionVisitor<Computation> {
+public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>, SerializedCollectionVisitor<Computation>, SerializedImmutableVisitor<Computation> {
 
 	private static final String ASSERT = "assertThat(<object>,<matcher>);";
 
 	private static final String GENERIC_OBJECT = "new GenericObject() {\n<fields; separator=\"\\n\">\n}.matcher(<type>.class)";
+	private static final String NEW_OBJECT = "new <type>(<args; separator=\", \">)";
 	private static final String FIELD = "<type> <name> = <value>;";
 	private static final String MATCHER = "Matcher<$type$>";
 
@@ -273,10 +279,42 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 	}
 	
 	@Override
+	public Computation visitBigDecimal(SerializedBigDecimal value) {
+		imports.registerImport(BigDecimal.class);
+		imports.staticImport(Matchers.class, "equalTo");
+
+		String literal = asLiteral(value.getValue().toPlainString());
+		ST expression = new ST(NEW_OBJECT);
+		expression.add("type", "BigDecimal");
+		expression.add("args", literal);
+		
+		ST matcher = new ST(EQUAL_TO);
+		matcher.add("value", expression.render());
+
+		return new Computation(matcher.render(), emptyList());
+	}
+	
+	@Override
+	public Computation visitBigInteger(SerializedBigInteger value) {
+		imports.registerImport(BigInteger.class);
+		imports.staticImport(Matchers.class, "equalTo");
+
+		String literal = asLiteral(value.getValue().toString());
+		ST expression = new ST(NEW_OBJECT);
+		expression.add("type", "BigInteger");
+		expression.add("args", literal);
+		
+		ST matcher = new ST(EQUAL_TO);
+		matcher.add("value", expression.render());
+
+		return new Computation(matcher.render(), emptyList());
+	}
+
+	@Override
 	public Computation visitUnknown(SerializedValue value) {
 		return Computation.NULL;
 	}
-
+	
 	private boolean isSimpleValue(SerializedValue element) {
 		return element instanceof SerializedNull
 			|| element instanceof SerializedLiteral;

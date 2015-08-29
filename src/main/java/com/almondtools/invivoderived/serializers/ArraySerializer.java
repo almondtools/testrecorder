@@ -6,12 +6,11 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import com.almondtools.invivoderived.SerializedValue;
 import com.almondtools.invivoderived.Serializer;
 import com.almondtools.invivoderived.SerializerFacade;
 import com.almondtools.invivoderived.values.SerializedArray;
 
-public class ArraySerializer implements Serializer {
+public class ArraySerializer implements Serializer<SerializedArray> {
 
 	private SerializerFacade facade;
 
@@ -25,15 +24,14 @@ public class ArraySerializer implements Serializer {
 	}
 
 	@Override
-	public SerializedValue generate(Type type) {
+	public SerializedArray generate(Type type) {
 		return new SerializedArray(type);
 	}
 
 	@Override
-	public void populate(SerializedValue serializedObject, Object object) {
-		SerializedArray newSerializedObject = (SerializedArray) serializedObject;
+	public void populate(SerializedArray serializedObject, Object object) {
 		for (int i = 0; i < Array.getLength(object); i++) {
-			newSerializedObject.add(facade.serialize(newSerializedObject.getComponentType(), Array.get(object, i)));
+			serializedObject.add(facade.serialize(serializedObject.getComponentType(), Array.get(object, i)));
 		}
 	}
 

@@ -7,13 +7,12 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import com.almondtools.invivoderived.SerializedValue;
 import com.almondtools.invivoderived.Serializer;
 import com.almondtools.invivoderived.SerializerFacade;
 import com.almondtools.invivoderived.analyzer.SnapshotExcluded;
 import com.almondtools.invivoderived.values.SerializedObject;
 
-public class GenericSerializer implements Serializer {
+public class GenericSerializer implements Serializer<SerializedObject> {
 
 	private SerializerFacade facade;
 
@@ -27,19 +26,18 @@ public class GenericSerializer implements Serializer {
 	}
 
 	@Override
-	public SerializedValue generate(Type type) {
+	public SerializedObject generate(Type type) {
 		return new SerializedObject(type);
 	}
 
 	@Override
-	public void populate(SerializedValue serializedObject, Object object) {
-		SerializedObject newSerializedObject = (SerializedObject) serializedObject;
-		newSerializedObject.setObjectType(object.getClass());
+	public void populate(SerializedObject serializedObject, Object object) {
+		serializedObject.setObjectType(object.getClass());
 		Class<?> objectClass = object.getClass();
 		while (objectClass != Object.class) {
 			for (Field f : objectClass.getDeclaredFields()) {
 				if (isSerializable(f)) {
-					newSerializedObject.addField(facade.serialize(f, object));
+					serializedObject.addField(facade.serialize(f, object));
 				}
 			}
 			objectClass = objectClass.getSuperclass();

@@ -7,9 +7,12 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import com.almondtools.invivoderived.SerializedCollectionVisitor;
+import com.almondtools.invivoderived.SerializedImmutableVisitor;
 import com.almondtools.invivoderived.SerializedValue;
 import com.almondtools.invivoderived.SerializedValueVisitor;
 import com.almondtools.invivoderived.values.SerializedArray;
+import com.almondtools.invivoderived.values.SerializedBigDecimal;
+import com.almondtools.invivoderived.values.SerializedBigInteger;
 import com.almondtools.invivoderived.values.SerializedField;
 import com.almondtools.invivoderived.values.SerializedList;
 import com.almondtools.invivoderived.values.SerializedLiteral;
@@ -18,7 +21,7 @@ import com.almondtools.invivoderived.values.SerializedNull;
 import com.almondtools.invivoderived.values.SerializedObject;
 import com.almondtools.invivoderived.values.SerializedSet;
 
-public class SerializedValuePrinter implements SerializedValueVisitor<String>, SerializedCollectionVisitor<String> {
+public class SerializedValuePrinter implements SerializedValueVisitor<String>, SerializedCollectionVisitor<String>, SerializedImmutableVisitor<String> {
 
 	private Set<Object> known;
 
@@ -80,6 +83,16 @@ public class SerializedValuePrinter implements SerializedValueVisitor<String>, S
 	@Override
 	public String visitNull(SerializedNull value) {
 		return "null";
+	}
+
+	@Override
+	public String visitBigDecimal(SerializedBigDecimal value) {
+		return value.getValue().toPlainString();
+	}
+	
+	@Override
+	public String visitBigInteger(SerializedBigInteger value) {
+		return value.getValue().toString();
 	}
 
 	@Override

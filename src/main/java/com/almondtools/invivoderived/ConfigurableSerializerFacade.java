@@ -15,6 +15,8 @@ import java.util.stream.IntStream;
 
 import com.almondtools.invivoderived.serializers.ArrayListSerializer;
 import com.almondtools.invivoderived.serializers.ArraySerializer;
+import com.almondtools.invivoderived.serializers.BigDecimalSerializer;
+import com.almondtools.invivoderived.serializers.BigIntegerSerializer;
 import com.almondtools.invivoderived.serializers.GenericSerializer;
 import com.almondtools.invivoderived.serializers.LinkedHashMapSerializer;
 import com.almondtools.invivoderived.serializers.LinkedHashSetSerializer;
@@ -24,27 +26,30 @@ import com.almondtools.invivoderived.values.SerializedNull;
 
 public class ConfigurableSerializerFacade implements SerializerFacade {
 
-	public static final List<SerializerFactory> DEFAULT_SERIALIZERS = asList(
-		ArrayListSerializer::new,
-		LinkedHashSetSerializer::new,
-		LinkedHashMapSerializer::new);
+	public static final List<SerializerFactory<?>> DEFAULT_SERIALIZERS = asList(
+		(SerializerFactory<?>) new ArrayListSerializer.Factory(),
+		(SerializerFactory<?>) new LinkedHashSetSerializer.Factory(),
+		(SerializerFactory<?>) new LinkedHashMapSerializer.Factory(),
+		(SerializerFactory<?>) new BigIntegerSerializer.Factory(),
+		(SerializerFactory<?>) new BigDecimalSerializer.Factory()
+		);
 
-	private Map<Class<?>, Serializer> serializers;
+	private Map<Class<?>, Serializer<?>> serializers;
 	private Map<Object, SerializedValue> serialized;
 
 	public ConfigurableSerializerFacade() {
 		this(DEFAULT_SERIALIZERS);
 	}
 
-	public ConfigurableSerializerFacade(List<SerializerFactory> serializerFactories) {
+	public ConfigurableSerializerFacade(List<SerializerFactory<?>> serializerFactories) {
 		serializers = setupSerializers(this, serializerFactories);
 		serialized = new IdentityHashMap<>();
 	}
 
-	private static Map<Class<?>, Serializer> setupSerializers(SerializerFacade facade, List<SerializerFactory> serializerFactories) {
-		IdentityHashMap<Class<?>, Serializer> serializers = new IdentityHashMap<>();
+	private static Map<Class<?>, Serializer<?>> setupSerializers(SerializerFacade facade, List<SerializerFactory<?>> serializerFactories) {
+		IdentityHashMap<Class<?>, Serializer<?>> serializers = new IdentityHashMap<>();
 		serializerFactories.stream()
-			.map(factory -> factory.newFacade(facade))
+			.map(factory -> factory.newSerializer(facade))
 			.forEach(serializer -> {
 				for (Class<?> clazz : serializer.getMatchingClasses()) {
 					serializers.put(clazz, serializer);
@@ -53,6 +58,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 		return serializers;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public SerializedValue serialize(Type type, Object object) {
 		if (object == null) {
@@ -70,9 +76,9 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 		return serializedObject;
 	}
 
-	private Serializer fetchSerializer(Type type) {
+	private Serializer<?> fetchSerializer(Type type) {
 		Class<?> clazz = getClass(type);
-		Serializer serializer = serializers.get(clazz);
+		Serializer<?> serializer = serializers.get(clazz);
 		if (serializer != null) {
 			return serializer;
 		}

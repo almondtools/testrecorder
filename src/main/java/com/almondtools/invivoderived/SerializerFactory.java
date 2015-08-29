@@ -1,7 +1,7 @@
 package com.almondtools.invivoderived;
 
-public interface SerializerFactory {
+public interface SerializerFactory<T extends SerializedValue> {
 
-	Serializer newFacade(SerializerFacade facade);
+	Serializer<T> newSerializer(SerializerFacade facade);
 
 }
