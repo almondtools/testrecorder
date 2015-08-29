@@ -28,7 +28,7 @@ public class SerializedNull implements SerializedValue {
 		return visitor.visitNull(this);
 	}
 
-	public static SerializedNull of(Type type) {
+	public static SerializedNull nullInstance(Type type) {
 		return KNOWN_LITERALS.computeIfAbsent(type, typ -> new SerializedNull(typ));
 	}
 

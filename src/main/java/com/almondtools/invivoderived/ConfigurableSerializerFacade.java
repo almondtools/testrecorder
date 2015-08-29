@@ -1,5 +1,6 @@
 package com.almondtools.invivoderived;
 
+import static com.almondtools.invivoderived.values.SerializedLiteral.isLiteral;
 import static java.util.Arrays.asList;
 
 import java.lang.reflect.Array;
@@ -55,9 +56,9 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 	@Override
 	public SerializedValue serialize(Type type, Object object) {
 		if (object == null) {
-			return SerializedNull.of(type);
+			return SerializedNull.nullInstance(type);
 		} else if (isLiteral(type)) {
-			return SerializedLiteral.of(type, object);
+			return SerializedLiteral.literal(type, object);
 		}
 		SerializedValue serializedObject = serialized.get(object);
 		if (serializedObject == null) {
@@ -106,10 +107,6 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 			System.out.println(f.getName());
 			throw new SerializationException(e);
 		}
-	}
-
-	private boolean isLiteral(Type type) {
-		return LITERAL_TYPES.contains(type);
 	}
 
 	private Class<?> getClass(Type type) {
