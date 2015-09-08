@@ -81,12 +81,8 @@ public abstract class GenericObject {
 		for (Field field : getGenericFields()) {
 			Field to = findField(field.getName(), o.getClass());
 			boolean access = to.isAccessible();
-			boolean finalField = isFinal(field);
 			if (!access) {
 				to.setAccessible(true);
-			}
-			if (finalField) {
-				unsetFinal(field);
 			}
 			try {
 				to.set(o, field.get(this));
@@ -96,36 +92,11 @@ public abstract class GenericObject {
 				if (!access) {
 					to.setAccessible(false);
 				}
-				if (finalField) {
-					setFinal(field);
-				}
 			}
 		}
 		return o;
 	}
 
-	private boolean isFinal(Field field) {
-		return (field.getModifiers() & Modifier.FINAL) == Modifier.FINAL;
-	}
-
-	private void unsetFinal(Field field) {
-		try {
-			Field modifiersField = Field.class.getDeclaredField("modifiers");
-			modifiersField.setAccessible(true);
-			modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-		}
-	}
-	
-	private void setFinal(Field field) {
-		try {
-			Field modifiersField = Field.class.getDeclaredField("modifiers");
-			modifiersField.setAccessible(true);
-			modifiersField.setInt(field, field.getModifiers() | ~Modifier.FINAL);
-		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-		}
-	}
-	
 	private Field findField(String name, Class<?> clazz) {
 		Class<?> current = clazz;
 		while (current != Object.class) {
@@ -142,11 +113,18 @@ public abstract class GenericObject {
 	private List<Field> getGenericFields() {
 		Field[] declaredFields = getClass().getDeclaredFields();
 		return Stream.of(declaredFields)
-			.filter(field -> !field.getName().contains("this$"))
+			.filter(field -> isSerializable(field))
 			.map(field -> {field.setAccessible(true); return field;})
 			.collect(toList());
 	}
 	
+	private boolean isSerializable(Field field) {
+		return !field.isSynthetic()
+			&& field.getName().indexOf('$') < 0
+			&& ((field.getModifiers() & Modifier.STATIC) != Modifier.STATIC)
+			&& ((field.getModifiers() & Modifier.FINAL) != Modifier.FINAL);
+	}
+
 	public boolean matches(Object o) {
 		for (Field field : getGenericFields()) {
 			Field to = findField(field.getName(), o.getClass());

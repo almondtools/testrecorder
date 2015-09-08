@@ -46,8 +46,10 @@ public class GenericSerializer implements Serializer<SerializedObject> {
 
 	private boolean isSerializable(Field field) {
 		return !field.isAnnotationPresent(SnapshotExcluded.class)
-			&& field.getName().charAt(0) != '$'
+			&& !field.isSynthetic()
+			&& field.getName().indexOf('$') < 0
 			&& ((field.getModifiers() & Modifier.STATIC) != Modifier.STATIC)
+			&& ((field.getModifiers() & Modifier.FINAL) != Modifier.FINAL)
 			&& !facade.excludes(field.getType());
 	}
 
