@@ -5,6 +5,7 @@ import static com.almondtools.invivoderived.generator.TypeHelper.getSimpleName;
 import static com.almondtools.invivoderived.generator.TypeHelper.isPrimitive;
 import static java.lang.Character.toUpperCase;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toList;
 
 import java.io.IOException;
@@ -80,7 +81,7 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 
 	@Override
 	public void accept(GeneratedSnapshot snapshot) {
-		Set<String> localtests = this.tests.computeIfAbsent(getBase(snapshot.getThisType()), key -> new LinkedHashSet<>());
+		Set<String> localtests = tests.computeIfAbsent(getBase(snapshot.getThisType()), key -> new LinkedHashSet<>());
 
 		MethodGenerator methodGenerator = new MethodGenerator(snapshot, localtests.size())
 			.generateArrange()
@@ -117,7 +118,7 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 	}
 
 	public String renderTest(Class<?> clazz) {
-		Set<String> localtests = this.tests.get(clazz);
+		Set<String> localtests = tests.getOrDefault(clazz, emptySet());
 
 		ST file = new ST(TEST_FILE);
 		file.add("package", clazz.getPackage().getName());

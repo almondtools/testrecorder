@@ -8,9 +8,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 import com.almondtools.invivoderived.serializers.ArrayListSerializer;
@@ -31,11 +34,11 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 		(SerializerFactory<?>) new LinkedHashSetSerializer.Factory(),
 		(SerializerFactory<?>) new LinkedHashMapSerializer.Factory(),
 		(SerializerFactory<?>) new BigIntegerSerializer.Factory(),
-		(SerializerFactory<?>) new BigDecimalSerializer.Factory()
-		);
+		(SerializerFactory<?>) new BigDecimalSerializer.Factory());
 
 	private Map<Class<?>, Serializer<?>> serializers;
 	private Map<Object, SerializedValue> serialized;
+	private Set<Predicate<Class<?>>> exclusions;
 
 	public ConfigurableSerializerFacade() {
 		this(DEFAULT_SERIALIZERS);
@@ -44,6 +47,11 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 	public ConfigurableSerializerFacade(List<SerializerFactory<?>> serializerFactories) {
 		serializers = setupSerializers(this, serializerFactories);
 		serialized = new IdentityHashMap<>();
+		exclusions = new HashSet<>();
+	}
+
+	public void addExclusion(Predicate<Class<?>> exclusion) {
+		exclusions.add(exclusion);
 	}
 
 	private static Map<Class<?>, Serializer<?>> setupSerializers(SerializerFacade facade, List<SerializerFactory<?>> serializerFactories) {
@@ -129,7 +137,8 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 
 	@Override
 	public boolean excludes(Class<?> type) {
-		return false;
+		return exclusions.stream()
+			.anyMatch(exclusion -> exclusion.test(type));
 	}
 
 }

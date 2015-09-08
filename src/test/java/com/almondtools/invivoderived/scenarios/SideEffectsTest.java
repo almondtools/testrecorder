@@ -4,7 +4,7 @@ import static com.almondtools.invivoderived.analyzer.SnapshotGenerator.setSnapsh
 import static com.almondtools.invivoderived.dynamiccompile.CompilableMatcher.compiles;
 import static com.almondtools.invivoderived.dynamiccompile.TestsRunnableMatcher.testsRuns;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Every.everyItem;
 import static org.junit.Assert.assertThat;
 
@@ -39,7 +39,7 @@ public class SideEffectsTest {
 		for (int i = 0; i < 100; i += sideEffects.getI()) {
 			sideEffects.methodWithSideEffectOnThis(i);
 		}
-		assertThat(testGenerator.getTests(SideEffects.class).size(), equalTo(7));
+		assertThat(testGenerator.getTests(SideEffects.class), hasSize(7));
 		assertThat(testGenerator.getTests(SideEffects.class), everyItem(containsString("assert")));
 	}
 
@@ -50,7 +50,7 @@ public class SideEffectsTest {
 		for (int i = 0; i < 10; i++) {
 			sideEffects.methodWithSideEffectOnArgument(array);
 		}
-		assertThat(testGenerator.getTests(SideEffects.class).size(), equalTo(10));
+		assertThat(testGenerator.getTests(SideEffects.class), hasSize(10));
 		assertThat(testGenerator.getTests(SideEffects.class), everyItem(containsString("assert")));
 	}
 

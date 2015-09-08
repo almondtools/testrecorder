@@ -8,6 +8,8 @@ public class GeneratedSnapshot {
 	private String methodName;
 	private Type[] argumentTypes;
 
+	private boolean valid;
+	
 	private SerializedValue setupThis;
 	private SerializedValue[] setupArgs;
 
@@ -20,6 +22,15 @@ public class GeneratedSnapshot {
 		this.resultType = resultType;
 		this.methodName = methodName;
 		this.argumentTypes = argumentTypes;
+		this.valid = true;
+	}
+
+	public void invalidate() {
+		valid = false;
+	}
+	
+	public boolean isValid() {
+		return valid;
 	}
 
 	public Type getResultType() {
