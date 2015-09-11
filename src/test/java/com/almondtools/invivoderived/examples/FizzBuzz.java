@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.almondtools.invivoderived.analyzer.Snapshot;
+import com.almondtools.invivoderived.Snapshot;
 
 public class FizzBuzz {
 

@@ -1,6 +1,6 @@
 package com.almondtools.invivoderived.scenarios;
 
-import com.almondtools.invivoderived.analyzer.Snapshot;
+import com.almondtools.invivoderived.Snapshot;
 
 public class PrimitiveDataTypes {
 

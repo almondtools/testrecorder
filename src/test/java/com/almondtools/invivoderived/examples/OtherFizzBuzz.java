@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.almondtools.invivoderived.analyzer.Snapshot;
+import com.almondtools.invivoderived.Snapshot;
 
 public class OtherFizzBuzz {
 

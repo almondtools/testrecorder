@@ -1,57 +1,36 @@
 package com.almondtools.invivoderived;
 
 import static com.almondtools.invivoderived.values.SerializedLiteral.isLiteral;
-import static java.util.Arrays.asList;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
-import com.almondtools.invivoderived.serializers.ArrayListSerializer;
 import com.almondtools.invivoderived.serializers.ArraySerializer;
-import com.almondtools.invivoderived.serializers.BigDecimalSerializer;
-import com.almondtools.invivoderived.serializers.BigIntegerSerializer;
 import com.almondtools.invivoderived.serializers.GenericSerializer;
-import com.almondtools.invivoderived.serializers.LinkedHashMapSerializer;
-import com.almondtools.invivoderived.serializers.LinkedHashSetSerializer;
 import com.almondtools.invivoderived.values.SerializedField;
 import com.almondtools.invivoderived.values.SerializedLiteral;
 import com.almondtools.invivoderived.values.SerializedNull;
 
 public class ConfigurableSerializerFacade implements SerializerFacade {
 
-	public static final List<SerializerFactory<?>> DEFAULT_SERIALIZERS = asList(
-		(SerializerFactory<?>) new ArrayListSerializer.Factory(),
-		(SerializerFactory<?>) new LinkedHashSetSerializer.Factory(),
-		(SerializerFactory<?>) new LinkedHashMapSerializer.Factory(),
-		(SerializerFactory<?>) new BigIntegerSerializer.Factory(),
-		(SerializerFactory<?>) new BigDecimalSerializer.Factory());
-
 	private Map<Class<?>, Serializer<?>> serializers;
 	private Map<Object, SerializedValue> serialized;
-	private Set<Predicate<Class<?>>> exclusions;
+	private List<Predicate<Class<?>>> classExclusions;
+	private List<Predicate<Field>> fieldExclusions;
 
-	public ConfigurableSerializerFacade() {
-		this(DEFAULT_SERIALIZERS);
-	}
-
-	public ConfigurableSerializerFacade(List<SerializerFactory<?>> serializerFactories) {
-		serializers = setupSerializers(this, serializerFactories);
+	public ConfigurableSerializerFacade(SerializationProfile profile) {
+		serializers = setupSerializers(this, profile.getSerializerFactories());
 		serialized = new IdentityHashMap<>();
-		exclusions = new HashSet<>();
-	}
-
-	public void addExclusion(Predicate<Class<?>> exclusion) {
-		exclusions.add(exclusion);
+		classExclusions = profile.getClassExclusions();
+		fieldExclusions = profile.getFieldExclusions();
 	}
 
 	private static Map<Class<?>, Serializer<?>> setupSerializers(SerializerFacade facade, List<SerializerFactory<?>> serializerFactories) {
@@ -64,6 +43,11 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 				}
 			});
 		return serializers;
+	}
+
+	@Override
+	public void reset() {
+		serialized.clear();
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -136,9 +120,15 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 	}
 
 	@Override
-	public boolean excludes(Class<?> type) {
-		return exclusions.stream()
-			.anyMatch(exclusion -> exclusion.test(type));
+	public boolean excludes(Field field) {
+		boolean excluded = fieldExclusions.stream()
+			.anyMatch(exclusion -> exclusion.test(field));
+		if (!excluded) {
+			Class<?> type = field.getType();
+			excluded = classExclusions.stream()
+				.anyMatch(exclusion -> exclusion.test(type));
+		}
+		return excluded;
 	}
 
 }

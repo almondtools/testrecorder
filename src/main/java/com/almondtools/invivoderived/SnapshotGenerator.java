@@ -1,4 +1,4 @@
-package com.almondtools.invivoderived.analyzer;
+package com.almondtools.invivoderived;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -11,25 +11,19 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
-
-import com.almondtools.invivoderived.ConfigurableSerializerFacade;
-import com.almondtools.invivoderived.GeneratedSnapshot;
-import com.almondtools.invivoderived.GeneratedSnapshotFactory;
-import com.almondtools.invivoderived.SerializerFacade;
 
 public class SnapshotGenerator {
 
 	private static Consumer<GeneratedSnapshot> consumer = snapshot -> {
 	};
-	private static long timeout = 1;
-	private static Supplier<SerializerFacade> facades = () -> new ConfigurableSerializerFacade();
+	private static long timeout = 1000000000;
 
 	private Object self;
 
 	private ExecutorService executor;
 	private Map<String, GeneratedSnapshotFactory> snapshotFactories;
 	private ThreadLocal<GeneratedSnapshot> current = new ThreadLocal<>();
+	private ThreadLocal<SerializerFacade> currentFacade = new ThreadLocal<>();
 
 	public SnapshotGenerator(Object self) {
 		this.self = self;
@@ -45,12 +39,8 @@ public class SnapshotGenerator {
 		SnapshotGenerator.timeout = timeout;
 	}
 
-	public static void setFacades(Supplier<SerializerFacade> facades) {
-		SnapshotGenerator.facades = facades;
-	}
-
 	public void register(String signature, Method method) {
-		snapshotFactories.put(signature, new GeneratedSnapshotFactory(method.getGenericReturnType(), method.getName(), method.getGenericParameterTypes()));
+		snapshotFactories.put(signature, new GeneratedSnapshotFactory(method.getAnnotation(Snapshot.class), method.getGenericReturnType(), method.getName(), method.getGenericParameterTypes()));
 	}
 
 	public GeneratedSnapshot newSnapshot(String signature) {
@@ -62,9 +52,21 @@ public class SnapshotGenerator {
 	public GeneratedSnapshot fetchSnapshot() {
 		return current.get();
 	}
-
+	
+	public SerializerFacade facade(String signature) {
+		ConfigurableSerializerFacade facade = new ConfigurableSerializerFacade(snapshotFactories.get(signature).profile());
+		currentFacade.set(facade);
+		return facade;
+	}
+	
+	public SerializerFacade facade() {
+		SerializerFacade serializerFacade = currentFacade.get();
+		serializerFacade.reset();
+		return serializerFacade;
+	}
+	
 	public void setupVariables(String signature, Object... args) {
-		SerializerFacade facade = facades.get();
+		SerializerFacade facade = facade(signature);
 		modify(newSnapshot(signature), snapshot -> {
 			snapshot.setSetupThis(facade.serialize(self.getClass(), self));
 			snapshot.setSetupArgs(facade.serialize(snapshot.getArgumentTypes(), args));
@@ -72,7 +74,7 @@ public class SnapshotGenerator {
 	}
 
 	public void expectVariables(Object result, Object... args) {
-		SerializerFacade facade = facades.get();
+		SerializerFacade facade = facade();
 		GeneratedSnapshot currentSnapshot = fetchSnapshot();
 		modify(currentSnapshot, snapshot -> {
 			snapshot.setExpectThis(facade.serialize(self.getClass(), self));
@@ -83,7 +85,7 @@ public class SnapshotGenerator {
 	}
 
 	public void expectVariables(Object... args) {
-		SerializerFacade facade = facades.get();
+		SerializerFacade facade = facade();
 		GeneratedSnapshot currentSnapshot = fetchSnapshot();
 		modify(currentSnapshot, snapshot -> {
 			snapshot.setExpectThis(facade.serialize(self.getClass(), self));
@@ -93,7 +95,7 @@ public class SnapshotGenerator {
 	}
 
 	public void throwVariables(Throwable throwable, Object... args) {
-		SerializerFacade facade = facades.get();
+		SerializerFacade facade = facade();
 		GeneratedSnapshot currentSnapshot = fetchSnapshot();
 		modify(currentSnapshot, snapshot -> {
 			snapshot.setExpectThis(facade.serialize(self.getClass(), self));

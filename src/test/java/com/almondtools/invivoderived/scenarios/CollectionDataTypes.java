@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.almondtools.invivoderived.analyzer.Snapshot;
+import com.almondtools.invivoderived.Snapshot;
 
 public class CollectionDataTypes {
 

@@ -1,6 +1,6 @@
 package com.almondtools.invivoderived.scenarios;
 
-import static com.almondtools.invivoderived.analyzer.SnapshotGenerator.setSnapshotConsumer;
+import static com.almondtools.invivoderived.SnapshotGenerator.setSnapshotConsumer;
 import static com.almondtools.invivoderived.dynamiccompile.CompilableMatcher.compiles;
 import static com.almondtools.invivoderived.dynamiccompile.TestsRunnableMatcher.testsRuns;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -12,7 +12,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.almondtools.invivoderived.analyzer.SnapshotInstrumentor;
+import com.almondtools.invivoderived.SnapshotInstrumentor;
 import com.almondtools.invivoderived.generator.TestGenerator;
 
 public class SideEffectsTest {

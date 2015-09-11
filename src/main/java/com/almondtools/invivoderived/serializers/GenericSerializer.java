@@ -3,13 +3,12 @@ package com.almondtools.invivoderived.serializers;
 import static java.util.Collections.emptyList;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.List;
 
 import com.almondtools.invivoderived.Serializer;
 import com.almondtools.invivoderived.SerializerFacade;
-import com.almondtools.invivoderived.analyzer.SnapshotExcluded;
+import com.almondtools.invivoderived.SnapshotExcluded;
 import com.almondtools.invivoderived.values.SerializedObject;
 
 public class GenericSerializer implements Serializer<SerializedObject> {
@@ -47,10 +46,7 @@ public class GenericSerializer implements Serializer<SerializedObject> {
 	private boolean isSerializable(Field field) {
 		return !field.isAnnotationPresent(SnapshotExcluded.class)
 			&& !field.isSynthetic()
-			&& field.getName().indexOf('$') < 0
-			&& ((field.getModifiers() & Modifier.STATIC) != Modifier.STATIC)
-			&& ((field.getModifiers() & Modifier.FINAL) != Modifier.FINAL)
-			&& !facade.excludes(field.getType());
+			&& !facade.excludes(field);
 	}
 
 }

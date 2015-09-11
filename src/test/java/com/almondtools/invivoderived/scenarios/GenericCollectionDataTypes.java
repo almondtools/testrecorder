@@ -5,7 +5,7 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.List;
 
-import com.almondtools.invivoderived.analyzer.Snapshot;
+import com.almondtools.invivoderived.Snapshot;
 
 public class GenericCollectionDataTypes {
 

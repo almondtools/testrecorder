@@ -6,6 +6,8 @@ import java.lang.reflect.Type;
 import com.almondtools.invivoderived.values.SerializedField;
 
 public interface SerializerFacade {
+	
+	void reset();
 
 	SerializedValue serialize(Type type, Object object);
 
@@ -13,6 +15,6 @@ public interface SerializerFacade {
 
 	SerializedField serialize(Field f, Object obj);
 
-	boolean excludes(Class<?> type);
+	boolean excludes(Field field);
 
 }

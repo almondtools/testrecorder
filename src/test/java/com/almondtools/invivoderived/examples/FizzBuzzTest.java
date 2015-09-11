@@ -1,6 +1,6 @@
 package com.almondtools.invivoderived.examples;
 
-import static com.almondtools.invivoderived.analyzer.SnapshotGenerator.setSnapshotConsumer;
+import static com.almondtools.invivoderived.SnapshotGenerator.setSnapshotConsumer;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.almondtools.invivoderived.GeneratedSnapshot;
-import com.almondtools.invivoderived.analyzer.SnapshotInstrumentor;
+import com.almondtools.invivoderived.SnapshotInstrumentor;
 import com.almondtools.invivoderived.generator.TestGenerator;
 
 public class FizzBuzzTest {
