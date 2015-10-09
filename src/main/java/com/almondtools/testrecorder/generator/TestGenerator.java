@@ -66,11 +66,13 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 	private static final String CALL_EXPRESSION = "<base>.<method>(<args; separator=\", \">)";
 
 	private ImportManager imports;
+	private List<CustomGenerator> customGenerators;
 	private Map<Class<?>, Set<String>> tests;
 
 	public TestGenerator() {
 		this.imports = new ImportManager();
 		this.imports.registerImport(Test.class);
+		this.customGenerators = new ArrayList<>();
 
 		this.tests = new LinkedHashMap<>();
 	}
@@ -152,7 +154,7 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 		public MethodGenerator generateArrange() {
 			statements.add(BEGIN_ARRANGE);
 
-			ObjectToSetupCode setupCode = new ObjectToSetupCode(locals, imports);
+			ObjectToSetupCode setupCode = new ObjectToSetupCode(locals, imports, customGenerators);
 			Computation setupThis = snapshot.getSetupThis().accept(setupCode);
 			List<Computation> setupArgs = Stream.of(snapshot.getSetupArgs())
 				.map(arg -> arg.accept(setupCode))

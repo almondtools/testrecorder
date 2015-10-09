@@ -3,10 +3,11 @@ testrecorder
 
 TODOs
 =====
-- BeanSerializer:
-  - serializes to SerializedObject
-  - additionally checks whether the object is completely serializable by its property methods (getters/setters)
-  - and add this information to the SerializedObject
-  - writing test code with `ObjectToSetupCode` and `ObjectToMatcherCode` can then rely on this knowledge and can generate more readable test code
+- Adjust ObjectToSetupCode to use setters for rendering GenericObjects if possible
+  - it is possible if all setters exist
+  - and applying all setters generates the same generic object as the original
+- Adjust ObjectToSetupCode to use CustomDeserializers
 - Other Serializers
 - Other Profiles (than `DefaultSerializationProfile)` that can handle serialization of static or generated data
+- Higher Test Coverage
+- Tutorial

@@ -10,6 +10,7 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -24,6 +25,7 @@ import com.almondtools.testrecorder.SerializedCollectionVisitor;
 import com.almondtools.testrecorder.SerializedImmutableVisitor;
 import com.almondtools.testrecorder.SerializedValue;
 import com.almondtools.testrecorder.SerializedValueVisitor;
+import com.almondtools.testrecorder.generator.CustomGenerator;
 import com.almondtools.testrecorder.generator.GenericObject;
 import com.almondtools.testrecorder.generator.TypeHelper;
 import com.almondtools.testrecorder.values.SerializedArray;
@@ -47,19 +49,29 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 	private static final String ASSIGN_STMT = "<type> <name> = <value>;";
 	private static final String CALL_PROC_STMT = "<base>.<method>(<arguments; separator=\", \">);";
 
+	private List<CustomGenerator> customGenerator;
+
 	private LocalVariableNameGenerator locals;
 	private Map<SerializedValue, String> computed;
 
 	private ImportManager imports;
 
 	public ObjectToSetupCode() {
-		this(new LocalVariableNameGenerator(), new ImportManager());
+		this(new LocalVariableNameGenerator(), new ImportManager(), Collections.emptyList());
 	}
 
-	public ObjectToSetupCode(LocalVariableNameGenerator locals, ImportManager imports) {
+	public ObjectToSetupCode(LocalVariableNameGenerator locals, ImportManager imports, List<CustomGenerator> deserializers) {
+		this.customGenerator = deserializers;
 		this.locals = locals;
 		this.imports = imports;
 		this.computed = new IdentityHashMap<>();
+	}
+
+	public CustomGenerator getCustomGeneratorFor(SerializedObject value) {
+		return customGenerator.stream()
+			.filter(deserializer -> deserializer.supports(value))
+			.findFirst()
+			.orElse(null);
 	}
 
 	public LocalVariableNameGenerator getLocals() {
@@ -90,6 +102,11 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 		if (computed.containsKey(value)) {
 			return new Computation(computed.get(value), true);
 		}
+		CustomGenerator deserializer = getCustomGeneratorFor(value);
+		if (deserializer != null) {
+			return deserializer.deserialize(value, this);
+		}
+		
 		Type[] types = { value.getType(), GenericObject.class };
 		imports.registerImports(types);
 
