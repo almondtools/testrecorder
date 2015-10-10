@@ -8,12 +8,24 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 public class SnapshotGenerator {
 
+	private static ThreadFactory THREADS = new ThreadFactory() {
+		
+		@Override
+		public Thread newThread(Runnable runnable) {
+			Thread thread = Executors.defaultThreadFactory().newThread(runnable);
+			thread.setDaemon(true);
+			return thread;
+		}
+	
+	};
+	
 	private static Consumer<GeneratedSnapshot> consumer = snapshot -> {
 	};
 	private static long timeout = 1000000000;
@@ -27,20 +39,22 @@ public class SnapshotGenerator {
 
 	public SnapshotGenerator(Object self) {
 		this.self = self;
-		this.executor = Executors.newSingleThreadExecutor();
+
+		this.executor = Executors.newSingleThreadExecutor(THREADS);
 		this.snapshotFactories = new HashMap<>();
 	}
 
 	public static void setSnapshotConsumer(Consumer<GeneratedSnapshot> consumer) {
 		SnapshotGenerator.consumer = consumer;
 	}
-	
+
 	public static void setTimeout(long timeout) {
 		SnapshotGenerator.timeout = timeout;
 	}
 
 	public void register(String signature, Method method) {
-		snapshotFactories.put(signature, new GeneratedSnapshotFactory(method.getAnnotation(Snapshot.class), method.getGenericReturnType(), method.getName(), method.getGenericParameterTypes()));
+		snapshotFactories.put(signature, new GeneratedSnapshotFactory(method.getAnnotation(Snapshot.class),
+				method.getGenericReturnType(), method.getName(), method.getGenericParameterTypes()));
 	}
 
 	public GeneratedSnapshot newSnapshot(String signature) {
@@ -52,19 +66,20 @@ public class SnapshotGenerator {
 	public GeneratedSnapshot fetchSnapshot() {
 		return current.get();
 	}
-	
+
 	public SerializerFacade facade(String signature) {
-		ConfigurableSerializerFacade facade = new ConfigurableSerializerFacade(snapshotFactories.get(signature).profile());
+		ConfigurableSerializerFacade facade = new ConfigurableSerializerFacade(
+				snapshotFactories.get(signature).profile());
 		currentFacade.set(facade);
 		return facade;
 	}
-	
+
 	public SerializerFacade facade() {
 		SerializerFacade serializerFacade = currentFacade.get();
 		serializerFacade.reset();
 		return serializerFacade;
 	}
-	
+
 	public void setupVariables(String signature, Object... args) {
 		SerializerFacade facade = facade(signature);
 		modify(newSnapshot(signature), snapshot -> {
