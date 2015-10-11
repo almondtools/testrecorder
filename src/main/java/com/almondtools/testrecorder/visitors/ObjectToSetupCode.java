@@ -2,15 +2,25 @@ package com.almondtools.testrecorder.visitors;
 
 import static com.almondtools.testrecorder.generator.TemplateHelper.asLiteral;
 import static com.almondtools.testrecorder.generator.TypeHelper.getSimpleName;
-import static java.util.Arrays.asList;
+import static com.almondtools.testrecorder.visitors.Templates.arrayLiteral;
+import static com.almondtools.testrecorder.visitors.Templates.assignField;
+import static com.almondtools.testrecorder.visitors.Templates.assignStatement;
+import static com.almondtools.testrecorder.visitors.Templates.callMethodStatement;
+import static com.almondtools.testrecorder.visitors.Templates.genericObjectConverter;
+import static com.almondtools.testrecorder.visitors.Templates.newObject;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -19,15 +29,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import org.stringtemplate.v4.ST;
-
 import com.almondtools.testrecorder.SerializedCollectionVisitor;
 import com.almondtools.testrecorder.SerializedImmutableVisitor;
 import com.almondtools.testrecorder.SerializedValue;
 import com.almondtools.testrecorder.SerializedValueVisitor;
-import com.almondtools.testrecorder.generator.CustomGenerator;
 import com.almondtools.testrecorder.generator.GenericObject;
-import com.almondtools.testrecorder.generator.TypeHelper;
 import com.almondtools.testrecorder.values.SerializedArray;
 import com.almondtools.testrecorder.values.SerializedBigDecimal;
 import com.almondtools.testrecorder.values.SerializedBigInteger;
@@ -41,37 +47,19 @@ import com.almondtools.testrecorder.values.SerializedSet;
 
 public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, SerializedCollectionVisitor<Computation>, SerializedImmutableVisitor<Computation> {
 
-	private static final String GENERIC_OBJECT = "new GenericObject() {\n<fields; separator=\"\\n\">\n}.as(<type>.class)";
-	private static final String FIELD = "<type> <name> = <value>;";
-	private static final String ARRAY_LITERAL = "new <type>{<elements; separator=\", \">}";
-	private static final String NEW_OBJECT = "new <type>(<args; separator=\", \">)";
-
-	private static final String ASSIGN_STMT = "<type> <name> = <value>;";
-	private static final String CALL_PROC_STMT = "<base>.<method>(<arguments; separator=\", \">);";
-
-	private List<CustomGenerator> customGenerator;
-
 	private LocalVariableNameGenerator locals;
 	private Map<SerializedValue, String> computed;
 
 	private ImportManager imports;
 
 	public ObjectToSetupCode() {
-		this(new LocalVariableNameGenerator(), new ImportManager(), Collections.emptyList());
+		this(new LocalVariableNameGenerator(), new ImportManager());
 	}
 
-	public ObjectToSetupCode(LocalVariableNameGenerator locals, ImportManager imports, List<CustomGenerator> deserializers) {
-		this.customGenerator = deserializers;
+	public ObjectToSetupCode(LocalVariableNameGenerator locals, ImportManager imports) {
 		this.locals = locals;
 		this.imports = imports;
 		this.computed = new IdentityHashMap<>();
-	}
-
-	public CustomGenerator getCustomGeneratorFor(SerializedObject value) {
-		return customGenerator.stream()
-			.filter(deserializer -> deserializer.supports(value))
-			.findFirst()
-			.orElse(null);
 	}
 
 	public LocalVariableNameGenerator getLocals() {
@@ -90,11 +78,8 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 
 		List<String> statements = valueTemplate.getStatements();
 
-		ST statement = new ST(FIELD);
-		statement.add("type", TypeHelper.getSimpleName(field.getType()));
-		statement.add("name", field.getName());
-		statement.add("value", valueTemplate.getValue());
-		return new Computation(statement.render(), statements);
+		String assignField = assignField(getSimpleName(field.getType()), field.getName(), valueTemplate.getValue());
+		return new Computation(assignField, statements);
 	}
 
 	@Override
@@ -102,11 +87,91 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 		if (computed.containsKey(value)) {
 			return new Computation(computed.get(value), true);
 		}
-		CustomGenerator deserializer = getCustomGeneratorFor(value);
-		if (deserializer != null) {
-			return deserializer.deserialize(value, this);
+		try {
+			return renderBeanSetup(value);
+		} catch (IntrospectionException | ReflectiveOperationException | RuntimeException | BeanSetupFailedException e) {
+			return renderGenericSetup(value);
 		}
+	}
+
+	private Computation renderBeanSetup(SerializedObject value) throws IntrospectionException, ReflectiveOperationException, BeanSetupFailedException {
+		Type type = value.getType();
+		Class<?> clazz = value.getObjectType();
+
+		BeanInfo info = Introspector.getBeanInfo(clazz);
+		Set<String> requiredProperties = value.getFields().stream()
+			.map(field -> field.getName())
+			.collect(toSet());
+		Map<String, PropertyDescriptor> writeableProperties = writeableProperties(info, requiredProperties);
+		if (writeableProperties.size() != requiredProperties.size()) {
+			throw new BeanSetupFailedException();
+		}
+		List<String> statements = new ArrayList<>();
+
+		String name = locals.fetchName(type);
+
+		String bean = newObject(getSimpleName(type));
+		String constructorStatement = assignStatement(getSimpleName(type), name, bean);
+		statements.add(constructorStatement);
+
+		Object o = clazz.newInstance();
+		for (SerializedField field : value.getFields()) {
+			String fieldName = field.getName();
+			PropertyDescriptor setProperty = writeableProperties.get(fieldName);
+			SerializedValue fieldvalue = field.getValue();
+
+			if (setSuccessful(o, setProperty, fieldvalue)) {
+				Computation fieldComputation = fieldvalue.accept(this);
+				statements.addAll(fieldComputation.getStatements());
+
+				String setStatement = callMethodStatement(name, setProperty.getWriteMethod().getName(), fieldComputation.getValue());
+				statements.add(setStatement);
+			} else {
+				throw new BeanSetupFailedException();
+			}
+		}
+
+		return new Computation(name, true, statements);
+	}
+
+	private boolean setSuccessful(Object base, PropertyDescriptor setProperty, SerializedValue fieldvalue) throws BeanSetupFailedException, ReflectiveOperationException {
+		Class<?> clazz = base.getClass();
+		String fieldName = setProperty.getName();
 		
+		Object setValue = deserialize(fieldvalue);
+
+		setProperty.getWriteMethod().invoke(base, setValue);
+		Field f = clazz.getDeclaredField(fieldName);
+		boolean accessible = f.isAccessible();
+		try {
+			if (!accessible) {
+				f.setAccessible(true);
+			}
+			Object foundValue = f.get(base);
+			if (foundValue == setValue) {
+				return true;
+			} else if (foundValue == null || setValue == null) {
+				return false;
+			} else {
+				return foundValue.equals(setValue);
+			}
+		} finally {
+			if (!accessible) {
+				f.setAccessible(true);
+			}
+		}
+	}
+
+	private Object deserialize(SerializedValue value) throws BeanSetupFailedException {
+		if (value instanceof SerializedNull) {
+			return null;
+		} else if (value instanceof SerializedLiteral) {
+			return ((SerializedLiteral) value).getValue();
+		}
+		throw new BeanSetupFailedException();
+	}
+
+	private Computation renderGenericSetup(SerializedObject value) {
 		Type[] types = { value.getType(), GenericObject.class };
 		imports.registerImports(types);
 
@@ -122,10 +187,15 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 			.flatMap(template -> template.getStatements().stream())
 			.collect(toList());
 
-		ST statement = new ST(GENERIC_OBJECT);
-		statement.add("type", getSimpleName(value.getType()));
-		statement.add("fields", elements);
-		return new Computation(statement.render(), statements);
+		String genericObject = genericObjectConverter(getSimpleName(value.getType()), elements);
+		return new Computation(genericObject, statements);
+	}
+
+	private Map<String, PropertyDescriptor> writeableProperties(BeanInfo info, Set<String> required) {
+		return Stream.of(info.getPropertyDescriptors())
+			.filter(property -> property.getWriteMethod() != null)
+			.filter(property -> required.contains(property.getName()))
+			.collect(toMap(property -> property.getName(), property -> property));
 	}
 
 	@Override
@@ -133,6 +203,10 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 		if (computed.containsKey(value)) {
 			return new Computation(computed.get(value), true);
 		}
+		return renderListSetup(value);
+	}
+
+	private Computation renderListSetup(SerializedList value) {
 		imports.registerImports(value.getType(), ArrayList.class);
 
 		List<Computation> elementTemplates = value.stream()
@@ -149,18 +223,12 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 
 		String name = locals.fetchName(List.class);
 
-		ST init = new ST(ASSIGN_STMT);
-		init.add("type", TypeHelper.getSimpleName(value.getType()));
-		init.add("name", name);
-		init.add("value", "new ArrayList<>()");
-		statements.add(init.render());
+		String listInit = assignStatement(getSimpleName(value.getType()), name, "new ArrayList<>()");
+		statements.add(listInit);
 
 		for (String element : elements) {
-			ST add = new ST(CALL_PROC_STMT);
-			add.add("base", name);
-			add.add("method", "add");
-			add.add("arguments", asList(element));
-			statements.add(add.render());
+			String addElement = callMethodStatement(name, "add", element);
+			statements.add(addElement);
 		}
 
 		return new Computation(name, true, statements);
@@ -171,6 +239,10 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 		if (computed.containsKey(value)) {
 			return new Computation(computed.get(value), true);
 		}
+		return renderSetSetup(value);
+	}
+
+	private Computation renderSetSetup(SerializedSet value) {
 		imports.registerImports(value.getType(), LinkedHashSet.class);
 
 		List<Computation> elementTemplates = value.stream()
@@ -187,18 +259,12 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 
 		String name = locals.fetchName(Set.class);
 
-		ST init = new ST(ASSIGN_STMT);
-		init.add("type", TypeHelper.getSimpleName(value.getType()));
-		init.add("name", name);
-		init.add("value", "new LinkedHashSet<>()");
-		statements.add(init.render());
+		String setInit = assignStatement(getSimpleName(value.getType()), name, "new LinkedHashSet<>()");
+		statements.add(setInit);
 
 		for (String element : elements) {
-			ST add = new ST(CALL_PROC_STMT);
-			add.add("base", name);
-			add.add("method", "add");
-			add.add("arguments", asList(element));
-			statements.add(add.render());
+			String addElement = callMethodStatement(name, "add", element);
+			statements.add(addElement);
 		}
 
 		return new Computation(name, true, statements);
@@ -209,6 +275,10 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 		if (computed.containsKey(value)) {
 			return new Computation(computed.get(value), true);
 		}
+		return renderMapSetup(value);
+	}
+
+	private Computation renderMapSetup(SerializedMap value) {
 		imports.registerImports(value.getType(), LinkedHashMap.class);
 
 		Map<Computation, Computation> elementTemplates = value.entrySet().stream()
@@ -224,18 +294,12 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 
 		String name = locals.fetchName(Map.class);
 
-		ST init = new ST(ASSIGN_STMT);
-		init.add("type", TypeHelper.getSimpleName(value.getType()));
-		init.add("name", name);
-		init.add("value", "new LinkedHashMap<>()");
-		statements.add(init.render());
+		String mapInit = assignStatement(getSimpleName(value.getType()), name, "new LinkedHashMap<>()");
+		statements.add(mapInit);
 
 		for (Map.Entry<String, String> element : elements.entrySet()) {
-			ST add = new ST(CALL_PROC_STMT);
-			add.add("base", name);
-			add.add("method", "put");
-			add.add("arguments", asList(element.getKey(), element.getValue()));
-			statements.add(add.render());
+			String putEntry = callMethodStatement(name, "put", element.getKey(), element.getValue());
+			statements.add(putEntry );
 		}
 
 		return new Computation(name, true, statements);
@@ -246,6 +310,10 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 		if (computed.containsKey(value)) {
 			return new Computation(computed.get(value), true);
 		}
+		return renderArraySetup(value);
+	}
+
+	private Computation renderArraySetup(SerializedArray value) {
 		imports.registerImport(value.getType());
 
 		List<Computation> elementTemplates = Stream.of(value.getArray())
@@ -260,10 +328,8 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 			.flatMap(template -> template.getStatements().stream())
 			.collect(toList());
 
-		ST statement = new ST(ARRAY_LITERAL);
-		statement.add("type", getSimpleName(value.getType()));
-		statement.add("elements", elements);
-		return new Computation(statement.render(), statements);
+		String arrayLiteral = arrayLiteral(getSimpleName(value.getType()), elements);
+		return new Computation(arrayLiteral, statements);
 	}
 
 	@Override
@@ -278,10 +344,8 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 		imports.registerImport(BigDecimal.class);
 
 		String literal = asLiteral(value.getValue().toPlainString());
-		ST expression = new ST(NEW_OBJECT);
-		expression.add("type", "BigDecimal");
-		expression.add("args", literal);
-		return new Computation(expression.render());
+		String bigDecimal = newObject("BigDecimal", literal);
+		return new Computation(bigDecimal);
 	}
 
 	@Override
@@ -289,10 +353,8 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 		imports.registerImport(BigInteger.class);
 
 		String literal = asLiteral(value.getValue().toString());
-		ST expression = new ST(NEW_OBJECT);
-		expression.add("type", "BigInteger");
-		expression.add("args", literal);
-		return new Computation(expression.render());
+		String bigInteger = newObject("BigInteger", literal);
+		return new Computation(bigInteger);
 	}
 
 	@Override
@@ -305,4 +367,17 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 		return Computation.NULL;
 	}
 
+	public static class Factory implements SerializedValueVisitorFactory {
+
+		@Override
+		public ObjectToSetupCode create(LocalVariableNameGenerator locals, ImportManager imports) {
+			return new ObjectToSetupCode(locals, imports);
+		}
+
+	}
+
+	private static class BeanSetupFailedException extends Exception {
+		public BeanSetupFailedException() {
+		}
+	}
 }

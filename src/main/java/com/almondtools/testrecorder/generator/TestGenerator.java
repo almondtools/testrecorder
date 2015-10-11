@@ -26,22 +26,27 @@ import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.stringtemplate.v4.ST;
 
 import com.almondtools.testrecorder.GeneratedSnapshot;
 import com.almondtools.testrecorder.SerializedValue;
+import com.almondtools.testrecorder.SerializedValueVisitor;
 import com.almondtools.testrecorder.visitors.Computation;
 import com.almondtools.testrecorder.visitors.ImportManager;
 import com.almondtools.testrecorder.visitors.LocalVariableNameGenerator;
 import com.almondtools.testrecorder.visitors.ObjectToMatcherCode;
 import com.almondtools.testrecorder.visitors.ObjectToSetupCode;
+import com.almondtools.testrecorder.visitors.SerializedValueVisitorFactory;
 
 public class TestGenerator implements Consumer<GeneratedSnapshot> {
 
+
 	private static final Set<Class<?>> IMMUTABLE_TYPES = new HashSet<>(Arrays.asList(
-		Boolean.class, Character.class, Byte.class, Short.class, Integer.class, Float.class, Long.class, Double.class,
-		String.class));
+		Boolean.class, Character.class, Byte.class, Short.class, Integer.class, Float.class, Long.class, Double.class, String.class));
+	
+	private static final String RECORDED_TEST = "RecordedTest";
 
 	private static final String TEST_FILE = "package <package>;\n\n"
 		+ "<imports: {pkg | import <pkg>;\n}>"
@@ -63,18 +68,30 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 	private static final String BEGIN_ACT = "\n//Act";
 	private static final String BEGIN_ASSERT = "\n//Assert";
 
+	private static final String ASSERT = "assertThat(<object>,<matcher>);";
+
 	private static final String CALL_EXPRESSION = "<base>.<method>(<args; separator=\", \">)";
 
 	private ImportManager imports;
-	private List<CustomGenerator> customGenerators;
+	private SerializedValueVisitorFactory setup;
+	private SerializedValueVisitorFactory matcher;
 	private Map<Class<?>, Set<String>> tests;
 
 	public TestGenerator() {
 		this.imports = new ImportManager();
 		this.imports.registerImport(Test.class);
-		this.customGenerators = new ArrayList<>();
+		this.setup = new ObjectToSetupCode.Factory();
+		this.matcher = new ObjectToMatcherCode.Factory();
 
 		this.tests = new LinkedHashMap<>();
+	}
+	
+	public void setSetup(SerializedValueVisitorFactory setup) {
+		this.setup = setup;
+	}
+	
+	public void setMatcher(SerializedValueVisitorFactory matcher) {
+		this.matcher = matcher;
 	}
 
 	public Set<String> getTests(Class<?> clazz) {
@@ -111,7 +128,7 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 
 	private Path locateTestFile(Path dir, Class<?> clazz) throws IOException {
 		String pkg = clazz.getPackage().getName();
-		String className = clazz.getSimpleName() + "InVitroTest";
+		String className = clazz.getSimpleName() + RECORDED_TEST;
 		Path testpackage = dir.resolve(pkg.replace('.', '/'));
 
 		Files.createDirectories(testpackage);
@@ -125,7 +142,7 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 		ST file = new ST(TEST_FILE);
 		file.add("package", clazz.getPackage().getName());
 		file.add("imports", imports.getImports());
-		file.add("className", clazz.getSimpleName() + "InVitroTest");
+		file.add("className", clazz.getSimpleName() + RECORDED_TEST);
 		file.add("methods", localtests);
 
 		return file.render();
@@ -154,7 +171,7 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 		public MethodGenerator generateArrange() {
 			statements.add(BEGIN_ARRANGE);
 
-			ObjectToSetupCode setupCode = new ObjectToSetupCode(locals, imports, customGenerators);
+			SerializedValueVisitor<Computation> setupCode = setup.create(locals, imports);
 			Computation setupThis = snapshot.getSetupThis().accept(setupCode);
 			List<Computation> setupArgs = Stream.of(snapshot.getSetupArgs())
 				.map(arg -> arg.accept(setupCode))
@@ -197,17 +214,20 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 		}
 
 		public MethodGenerator generateAssert() {
+			imports.staticImport(Assert.class, "assertThat");
 			statements.add(BEGIN_ASSERT);
 
-			ObjectToMatcherCode expectCode = new ObjectToMatcherCode(locals, imports);
+			SerializedValueVisitor<Computation> expectCode = matcher.create(locals, imports);
 
 			List<String> expectResult = Optional.ofNullable(snapshot.getExpectResult())
-				.map(o -> expectCode.createAssertion(o, result))
+				.map(o -> o.accept(expectCode))
+				.map(o -> createAssertion(o, result))
 				.orElse(emptyList());
 
 			List<String> expectThis = Optional.of(snapshot.getExpectThis())
 				.filter(o -> !o.equals(snapshot.getSetupThis()))
-				.map(o -> expectCode.createAssertion(o, base))
+				.map(o -> o.accept(expectCode))
+				.map(o -> createAssertion(o, base))
 				.orElse(emptyList());
 
 			Type[] argumentTypes = snapshot.getArgumentTypes();
@@ -215,7 +235,7 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 			List<String> expectArgs = IntStream.range(0, argumentTypes.length)
 				.filter(i -> !isImmutable(argumentTypes[i]))
 				.filter(i -> !serializedArgs[i].equals(snapshot.getSetupArgs()[i]))
-				.mapToObj(i -> expectCode.createAssertion(serializedArgs[i], args.get(i)))
+				.mapToObj(i -> createAssertion(serializedArgs[i].accept(expectCode), args.get(i)))
 				.flatMap(statements -> statements.stream())
 				.collect(toList());
 
@@ -225,6 +245,22 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 
 			return this;
 		}
+
+		private List<String> createAssertion(Computation matcher, String exp) {
+
+			List<String> statements = new ArrayList<>();
+
+			statements.addAll(matcher.getStatements());
+
+			ST assertion = new ST(ASSERT);
+			assertion.add("object", exp);
+			assertion.add("matcher", matcher.getValue());
+
+			statements.add(assertion.render());
+
+			return statements;
+		}
+
 
 		public String assign(Type type, String value) {
 			return assign(type, value, false);

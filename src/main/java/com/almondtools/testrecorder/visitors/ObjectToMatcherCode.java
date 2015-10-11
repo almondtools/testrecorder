@@ -3,6 +3,19 @@ package com.almondtools.testrecorder.visitors;
 import static com.almondtools.testrecorder.generator.TemplateHelper.asLiteral;
 import static com.almondtools.testrecorder.generator.TypeHelper.getSimpleName;
 import static com.almondtools.testrecorder.generator.TypeHelper.isPrimitive;
+import static com.almondtools.testrecorder.visitors.Templates.arrayContainingMatcher;
+import static com.almondtools.testrecorder.visitors.Templates.assignField;
+import static com.almondtools.testrecorder.visitors.Templates.containsEntriesMatcher;
+import static com.almondtools.testrecorder.visitors.Templates.containsInAnyOrderMatcher;
+import static com.almondtools.testrecorder.visitors.Templates.containsMatcher;
+import static com.almondtools.testrecorder.visitors.Templates.emptyMatcher;
+import static com.almondtools.testrecorder.visitors.Templates.equalToMatcher;
+import static com.almondtools.testrecorder.visitors.Templates.genericObjectMatcher;
+import static com.almondtools.testrecorder.visitors.Templates.genericType;
+import static com.almondtools.testrecorder.visitors.Templates.newObject;
+import static com.almondtools.testrecorder.visitors.Templates.noEntriesMatcher;
+import static com.almondtools.testrecorder.visitors.Templates.nullMatcher;
+import static com.almondtools.testrecorder.visitors.Templates.primitiveArrayContainingMatcher;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -10,21 +23,20 @@ import static java.util.stream.Collectors.toMap;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Stream;
 
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
-import org.junit.Assert;
-import org.stringtemplate.v4.ST;
 
 import com.almondtools.testrecorder.SerializedCollectionVisitor;
 import com.almondtools.testrecorder.SerializedImmutableVisitor;
 import com.almondtools.testrecorder.SerializedValue;
 import com.almondtools.testrecorder.SerializedValueVisitor;
+import com.almondtools.testrecorder.generator.GenericObject;
 import com.almondtools.testrecorder.generator.MapMatcher;
 import com.almondtools.testrecorder.generator.PrimitiveArrayMatcher;
 import com.almondtools.testrecorder.values.SerializedArray;
@@ -39,23 +51,6 @@ import com.almondtools.testrecorder.values.SerializedObject;
 import com.almondtools.testrecorder.values.SerializedSet;
 
 public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>, SerializedCollectionVisitor<Computation>, SerializedImmutableVisitor<Computation> {
-
-	private static final String ASSERT = "assertThat(<object>,<matcher>);";
-
-	private static final String GENERIC_OBJECT = "new GenericObject() {\n<fields; separator=\"\\n\">\n}.matcher(<type>.class)";
-	private static final String NEW_OBJECT = "new <type>(<args; separator=\", \">)";
-	private static final String FIELD = "<type> <name> = <value>;";
-	private static final String MATCHER = "Matcher<$type$>";
-
-	private static final String NULL = "nullValue()";
-	private static final String EQUAL_TO = "equalTo(<value>)";
-	private static final String EMPTY = "empty()";
-	private static final String CONTAINS = "contains(<values; separator=\", \">)";
-	private static final String CONTAINS_IN_ANY_ORDER = "containsInAnyOrder(<values; separator=\", \">)";
-	private static final String NO_ENTRIES = "noEntries(<keytype>.class, <valuetype>.class)";
-	private static final String CONTAINS_ENTRIES = "containsEntries(<keytype>.class, <valuetype>.class)<entries : { entry | .entry(<entry.key>, <entry.value>)}>";
-	private static final String ARRAY_CONTAINING = "arrayContaining(<values; separator=\", \">)";
-	private static final String PRIMITIVE_ARRAY_CONTAINING = "<type>ArrayContaining(<values; separator=\", \">)";
 
 	private LocalVariableNameGenerator locals;
 	private ImportManager imports;
@@ -77,67 +72,44 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 		return imports;
 	}
 
-	public List<String> createAssertion(SerializedValue o, String exp) {
-		imports.staticImport(Assert.class, "assertThat");
-
-		List<String> statements = new ArrayList<>();
-
-		Computation matcher = o.accept(this);
-
-		statements.addAll(matcher.getStatements());
-
-		ST assertion = new ST(ASSERT);
-		assertion.add("object", exp);
-		assertion.add("matcher", matcher.getValue());
-
-		statements.add(assertion.render());
-
-		return statements;
-	}
-
 	@Override
 	public Computation visitField(SerializedField field) {
 		SerializedValue fieldValue = field.getValue();
 		if (isSimpleValue(fieldValue)) {
 			Computation value = getSimpleValue(fieldValue);
 
-			ST fieldEntry = new ST(FIELD);
-			fieldEntry.add("type", getSimpleName(field.getType()));
-			fieldEntry.add("name", field.getName());
-			fieldEntry.add("value", value.getValue());
-
-			return new Computation(fieldEntry.render(), value.getStatements());
+			String assignField = assignField(getSimpleName(field.getType()), field.getName(), value.getValue());
+			return new Computation(assignField, value.getStatements());
 		} else {
 			imports.registerImport(Matcher.class);
 			Computation value = fieldValue.accept(this);
 
-			ST matcher = new ST(MATCHER, '$', '$');
-			matcher.add("type", matcherType(field.getType()));
+			String genericType = genericType("Matcher", matcherType(field.getType()));
 
-			ST fieldEntry = new ST(FIELD);
-			fieldEntry.add("type", matcher);
-			fieldEntry.add("name", field.getName());
-			fieldEntry.add("value", value.getValue());
-
-			return new Computation(fieldEntry.render(), value.getStatements());
+			String assignField = assignField(genericType, field.getName(), value.getValue());
+			return new Computation(assignField, value.getStatements());
 		}
 	}
 
 	@Override
 	public Computation visitObject(SerializedObject value) {
+		Type[] types = { value.getType(), GenericObject.class };
+		imports.registerImports(types);
+
 		List<Computation> fields = value.getFields().stream()
 			.map(field -> field.accept(this))
 			.collect(toList());
 
-		ST matcher = new ST(GENERIC_OBJECT);
-		matcher.add("type", getSimpleName(value.getType()));
-		matcher.add("fields", fields.stream()
-			.map(field -> field.getValue())
-			.collect(toList()));
-
-		return new Computation(matcher.render(), fields.stream()
+		List<String> fieldComputations = fields.stream()
 			.flatMap(field -> field.getStatements().stream())
-			.collect(toList()));
+			.collect(toList());
+
+		List<String> fieldAssignments = fields.stream()
+			.map(field -> field.getValue())
+			.collect(toList());
+
+		String matcherExpression = genericObjectMatcher(getSimpleName(value.getType()), fieldAssignments);
+		return new Computation(matcherExpression, fieldComputations);
 	}
 
 	@Override
@@ -145,9 +117,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 		if (value.isEmpty()) {
 			imports.staticImport(Matchers.class, "empty");
 
-			ST matcher = new ST(EMPTY);
-
-			return new Computation(matcher.render(), emptyList());
+			return new Computation(emptyMatcher(), emptyList());
 		} else {
 			imports.staticImport(Matchers.class, "contains");
 
@@ -155,14 +125,17 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 				.map(element -> getSimpleValue(element))
 				.collect(toList());
 
-			ST matcher = new ST(CONTAINS);
-			matcher.add("values", elements.stream()
-				.map(element -> element.getValue())
-				.collect(toList()));
-
-			return new Computation(matcher.render(), elements.stream()
+			List<String> elementComputations = elements.stream()
 				.flatMap(element -> element.getStatements().stream())
-				.collect(toList()));
+				.collect(toList());
+
+			String[] elementValues = elements.stream()
+				.map(element -> element.getValue())
+				.toArray(len -> new String[len]);
+
+			String containsMatcher = containsMatcher(elementValues);
+
+			return new Computation(containsMatcher, elementComputations);
 		}
 	}
 
@@ -171,9 +144,8 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 		if (value.isEmpty()) {
 			imports.staticImport(Matchers.class, "empty");
 
-			ST matcher = new ST(EMPTY);
-
-			return new Computation(matcher.render(), emptyList());
+			String emptyMatcher = emptyMatcher();
+			return new Computation(emptyMatcher, emptyList());
 		} else {
 			imports.staticImport(Matchers.class, "containsInAnyOrder");
 
@@ -181,43 +153,45 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 				.map(element -> getSimpleValue(element))
 				.collect(toList());
 
-			ST matcher = new ST(CONTAINS_IN_ANY_ORDER);
-			matcher.add("values", elements.stream()
-				.map(element -> element.getValue())
-				.collect(toList()));
-
-			return new Computation(matcher.render(), elements.stream()
+			List<String> elementComputations = elements.stream()
 				.flatMap(element -> element.getStatements().stream())
-				.collect(toList()));
+				.collect(toList());
+
+			String[] elementValues = elements.stream()
+				.map(element -> element.getValue())
+				.toArray(len -> new String[len]);
+
+			String containsInAnyOrderMatcher = containsInAnyOrderMatcher(elementValues);
+			return new Computation(containsInAnyOrderMatcher, elementComputations);
 		}
 	}
 
 	@Override
 	public Computation visitMap(SerializedMap value) {
+		String keyType = getSimpleName(value.getKeyType());
+		String valueType = getSimpleName(value.getValueType());
 		if (value.isEmpty()) {
 			imports.staticImport(MapMatcher.class, "noEntries");
 
-			ST matcher = new ST(NO_ENTRIES);
-			matcher.add("keytype", getSimpleName(value.getKeyType()));
-			matcher.add("valuetype", getSimpleName(value.getValueType()));
+			String noEntriesMatcher = noEntriesMatcher(keyType, valueType);
 
-			return new Computation(matcher.render(), emptyList());
+			return new Computation(noEntriesMatcher, emptyList());
 		} else {
 			imports.staticImport(MapMatcher.class, "containsEntries");
 
 			Map<Computation, Computation> elements = value.entrySet().stream()
 				.collect(toMap(entry -> getSimpleValue(entry.getKey()), entry -> getSimpleValue(entry.getValue())));
 
-			ST matcher = new ST(CONTAINS_ENTRIES);
-			matcher.add("keytype", getSimpleName(value.getKeyType()));
-			matcher.add("valuetype", getSimpleName(value.getValueType()));
-			matcher.add("entries", elements.entrySet().stream()
-				.collect(toMap(entry -> entry.getKey().getValue(), entry -> entry.getValue().getValue()))
-				.entrySet());
-
-			return new Computation(matcher.render(), elements.entrySet().stream()
+			List<String> entryComputations = elements.entrySet().stream()
 				.flatMap(entry -> Stream.concat(entry.getKey().getStatements().stream(), entry.getValue().getStatements().stream()))
-				.collect(toList()));
+				.collect(toList());
+
+			Set<Entry<String, String>> entryValues = elements.entrySet().stream()
+				.collect(toMap(entry -> entry.getKey().getValue(), entry -> entry.getValue().getValue()))
+				.entrySet();
+
+			String containsEntriesMatcher = containsEntriesMatcher(keyType, valueType, entryValues);
+			return new Computation(containsEntriesMatcher, entryComputations);
 		}
 	}
 
@@ -231,15 +205,16 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 				.map(element -> getSimpleValue(element))
 				.collect(toList());
 
-			ST matcher = new ST(PRIMITIVE_ARRAY_CONTAINING);
-			matcher.add("type", name);
-			matcher.add("values", elements.stream()
-				.map(element -> element.getValue())
-				.collect(toList()));
-
-			return new Computation(matcher.render(), elements.stream()
+			List<String> elementComputations = elements.stream()
 				.flatMap(element -> element.getStatements().stream())
-				.collect(toList()));
+				.collect(toList());
+
+			String[] elementValues = elements.stream()
+				.map(element -> element.getValue())
+				.toArray(len -> new String[len]);
+
+			String primitiveArrayContainingMatcher = primitiveArrayContainingMatcher(name, elementValues);
+			return new Computation(primitiveArrayContainingMatcher, elementComputations);
 		} else {
 			imports.staticImport(Matchers.class, "arrayContaining");
 
@@ -247,14 +222,16 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 				.map(element -> getSimpleValue(element))
 				.collect(toList());
 
-			ST matcher = new ST(ARRAY_CONTAINING);
-			matcher.add("values", elements.stream()
-				.map(element -> element.getValue())
-				.collect(toList()));
-
-			return new Computation(matcher.render(), elements.stream()
+			List<String> elementComputations = elements.stream()
 				.flatMap(element -> element.getStatements().stream())
-				.collect(toList()));
+				.collect(toList());
+
+			String[] elementValues = elements.stream()
+				.map(element -> element.getValue())
+				.toArray(len -> new String[len]);
+
+			String arrayContainingMatcher = arrayContainingMatcher(elementValues);
+			return new Computation(arrayContainingMatcher, elementComputations);
 		}
 
 	}
@@ -263,58 +240,51 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 	public Computation visitLiteral(SerializedLiteral value) {
 		imports.staticImport(Matchers.class, "equalTo");
 
-		ST matcher = new ST(EQUAL_TO);
-		matcher.add("value", asLiteral(value.getValue()));
+		String valueExpression = asLiteral(value.getValue());
 
-		return new Computation(matcher.render(), emptyList());
+		String equalToMatcher = equalToMatcher(valueExpression);
+		return new Computation(equalToMatcher, emptyList());
 	}
 
 	@Override
 	public Computation visitNull(SerializedNull value) {
 		imports.staticImport(Matchers.class, "nullValue");
 
-		ST matcher = new ST(NULL);
-
-		return new Computation(matcher.render(), emptyList());
+		String nullMatcher = nullMatcher();
+		return new Computation(nullMatcher, emptyList());
 	}
-	
+
 	@Override
 	public Computation visitBigDecimal(SerializedBigDecimal value) {
 		imports.registerImport(BigDecimal.class);
 		imports.staticImport(Matchers.class, "equalTo");
 
 		String literal = asLiteral(value.getValue().toPlainString());
-		ST expression = new ST(NEW_OBJECT);
-		expression.add("type", "BigDecimal");
-		expression.add("args", literal);
-		
-		ST matcher = new ST(EQUAL_TO);
-		matcher.add("value", expression.render());
 
-		return new Computation(matcher.render(), emptyList());
+		String bigDecimalLiteral = newObject("BigDecimal", literal);
+
+		String equalToMatcher = equalToMatcher(bigDecimalLiteral);
+		return new Computation(equalToMatcher, emptyList());
 	}
-	
+
 	@Override
 	public Computation visitBigInteger(SerializedBigInteger value) {
 		imports.registerImport(BigInteger.class);
 		imports.staticImport(Matchers.class, "equalTo");
 
 		String literal = asLiteral(value.getValue().toString());
-		ST expression = new ST(NEW_OBJECT);
-		expression.add("type", "BigInteger");
-		expression.add("args", literal);
-		
-		ST matcher = new ST(EQUAL_TO);
-		matcher.add("value", expression.render());
 
-		return new Computation(matcher.render(), emptyList());
+		String bigIntegerLiteral = newObject("BigInteger", literal);
+
+		String equalToMatcher = equalToMatcher(bigIntegerLiteral);
+		return new Computation(equalToMatcher, emptyList());
 	}
 
 	@Override
 	public Computation visitUnknown(SerializedValue value) {
 		return Computation.NULL;
 	}
-	
+
 	private boolean isSimpleValue(SerializedValue element) {
 		return element instanceof SerializedNull
 			|| element instanceof SerializedLiteral;
@@ -336,6 +306,15 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 		} else {
 			return getSimpleName(clazz);
 		}
+	}
+
+	public static class Factory implements SerializedValueVisitorFactory {
+
+		@Override
+		public SerializedValueVisitor<Computation> create(LocalVariableNameGenerator locals, ImportManager imports) {
+			return new ObjectToMatcherCode(locals, imports);
+		}
+
 	}
 
 }
