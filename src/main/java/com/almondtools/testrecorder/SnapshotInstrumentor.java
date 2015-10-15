@@ -22,10 +22,13 @@ import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.SWAP;
 
 import java.io.IOException;
+import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.IllegalClassFormatException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -57,7 +60,7 @@ import org.objectweb.asm.tree.VarInsnNode;
 
 import com.almondtools.testrecorder.generator.TypeHelper;
 
-public class SnapshotInstrumentor {
+public class SnapshotInstrumentor implements ClassFileTransformer {
 
 	private static final String CONSTRUCTOR_NAME = "<init>";
 	private static final String DEFINE_PACKAGE = "definePackage";
@@ -65,16 +68,39 @@ public class SnapshotInstrumentor {
 	private static final String CLASS_LOADER = "java.lang.ClassLoader";
 
 	private static final String SNAPSHOT_GENERATOR_FIELD_NAME = "generator";
+	private List<String> packages;
 
+	public SnapshotInstrumentor() {
+		this.packages = new ArrayList<>();
+	}
+	
+	public SnapshotInstrumentor(List<String> packages) {
+		this.packages = packages;
+	}
+
+	@Override
+	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+		for (String pkg : packages) {
+			if (className.startsWith(pkg)) {
+				System.out.println("recording snapshots of " + className);
+				return instrument(new ClassReader(classfileBuffer));
+			}
+		}
+		return null;
+	}
+	
 	public void register(String clazz) throws IOException {
 		byte[] bytecode = instrument(clazz);
 		saveClass(clazz, bytecode);
 	}
 
+	public byte[] instrument(String className) throws IOException {
+		return instrument(new ClassReader(className));
+	}
+
 	@SuppressWarnings("unchecked")
-	private byte[] instrument(String clazz) throws IOException {
+	public byte[] instrument(ClassReader cr) {
 		ClassNode classNode = new ClassNode();
-		ClassReader cr = new ClassReader(clazz);
 
 		cr.accept(classNode, 0);
 

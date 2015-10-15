@@ -11,6 +11,7 @@ Our tool for this is **testrecorder**.
 
 TODOs
 =====
+- agent instead of main class injection
 - Other Serializers
 - More readable generated Tests
 - Less  warnings in generated Tests

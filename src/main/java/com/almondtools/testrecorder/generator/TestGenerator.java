@@ -6,6 +6,7 @@ import static com.almondtools.testrecorder.generator.TypeHelper.isPrimitive;
 import static java.lang.Character.toUpperCase;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
+import static java.util.Collections.synchronizedMap;
 import static java.util.stream.Collectors.toList;
 
 import java.io.IOException;
@@ -83,7 +84,7 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 		this.setup = new ObjectToSetupCode.Factory();
 		this.matcher = new ObjectToMatcherCode.Factory();
 
-		this.tests = new LinkedHashMap<>();
+		this.tests = synchronizedMap(new LinkedHashMap<>());
 	}
 	
 	public void setSetup(SerializedValueVisitorFactory setup) {
@@ -110,7 +111,7 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 		localtests.add(methodGenerator.generateTest());
 	}
 
-	public void writeTests(Path dir) {
+	public void writeResults(Path dir) {
 		for (Class<?> clazz : tests.keySet()) {
 
 			String rendered = renderTest(clazz);
@@ -125,10 +126,14 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 			}
 		}
 	}
+	
+	public void clearResults() {
+		tests.clear();
+	}
 
 	private Path locateTestFile(Path dir, Class<?> clazz) throws IOException {
 		String pkg = clazz.getPackage().getName();
-		String className = clazz.getSimpleName() + RECORDED_TEST;
+		String className = computeClassName(clazz);
 		Path testpackage = dir.resolve(pkg.replace('.', '/'));
 
 		Files.createDirectories(testpackage);
@@ -142,10 +147,14 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 		ST file = new ST(TEST_FILE);
 		file.add("package", clazz.getPackage().getName());
 		file.add("imports", imports.getImports());
-		file.add("className", clazz.getSimpleName() + RECORDED_TEST);
+		file.add("className", computeClassName(clazz));
 		file.add("methods", localtests);
 
 		return file.render();
+	}
+
+	public String computeClassName(Class<?> clazz) {
+		return clazz.getSimpleName() + RECORDED_TEST;
 	}
 
 	private class MethodGenerator {
