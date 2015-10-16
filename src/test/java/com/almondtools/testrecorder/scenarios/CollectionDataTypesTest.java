@@ -1,6 +1,5 @@
 package com.almondtools.testrecorder.scenarios;
 
-import static com.almondtools.testrecorder.SnapshotGenerator.setSnapshotConsumer;
 import static com.almondtools.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static com.almondtools.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRuns;
 import static org.junit.Assert.assertThat;
@@ -12,10 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.almondtools.testrecorder.DefaultConfig;
 import com.almondtools.testrecorder.SnapshotInstrumentor;
 import com.almondtools.testrecorder.generator.TestGenerator;
 
@@ -23,20 +22,12 @@ public class CollectionDataTypesTest {
 
 	private static SnapshotInstrumentor instrumentor;
 
-	private TestGenerator testGenerator;
-
 	@BeforeClass
 	public static void beforeClass() throws Exception {
-		instrumentor = new SnapshotInstrumentor();
+		instrumentor = new SnapshotInstrumentor(new DefaultConfig());
 		instrumentor.register("com.almondtools.testrecorder.scenarios.CollectionDataTypes");
 	}
 	
-	@Before
-	public void before() throws Exception {
-		testGenerator = new TestGenerator();
-		setSnapshotConsumer(testGenerator);
-	}
-
 	@Test
 	public void testCompilable() throws Exception {
 		List<Integer> list = new ArrayList<>();
@@ -49,6 +40,8 @@ public class CollectionDataTypesTest {
 			dataTypes.sets(set, i);
 			dataTypes.maps(map, i);
 		}
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
 		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles());
 		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRuns());
 	}

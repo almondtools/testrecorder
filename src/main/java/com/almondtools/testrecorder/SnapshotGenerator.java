@@ -26,10 +26,6 @@ public class SnapshotGenerator {
 	
 	};
 	
-	private static Consumer<GeneratedSnapshot> consumer = snapshot -> {
-	};
-	private static long timeout = 1000000000;
-
 	private Object self;
 
 	private ExecutorService executor;
@@ -37,24 +33,36 @@ public class SnapshotGenerator {
 	private ThreadLocal<GeneratedSnapshot> current = new ThreadLocal<>();
 	private ThreadLocal<SerializerFacade> currentFacade = new ThreadLocal<>();
 
-	public SnapshotGenerator(Object self) {
+	private Consumer<GeneratedSnapshot> consumer;
+	private long timeoutInMillis;
+	
+
+	public SnapshotGenerator(Object self, Class<? extends SnapshotConfig> config) {
+		SnapshotConfig snapshotConfig = loadConfig(config);
+		this.consumer = snapshotConfig.getConsumer();
+		this.timeoutInMillis = snapshotConfig.getTimeoutInMillis();
+		
 		this.self = self;
 
 		this.executor = Executors.newSingleThreadExecutor(THREADS);
 		this.snapshotFactories = new HashMap<>();
 	}
-
-	public static void setSnapshotConsumer(Consumer<GeneratedSnapshot> consumer) {
-		SnapshotGenerator.consumer = consumer;
+	
+	public Consumer<GeneratedSnapshot> getConsumer() {
+		return consumer;
 	}
 
-	public static void setTimeout(long timeout) {
-		SnapshotGenerator.timeout = timeout;
+	private static SnapshotConfig loadConfig(Class<? extends SnapshotConfig> config) {
+		try {
+			return config.newInstance();
+		} catch (RuntimeException | ReflectiveOperationException e) {
+			return new DefaultConfig();
+		}
 	}
 
 	public void register(String signature, Method method) {
-		snapshotFactories.put(signature, new GeneratedSnapshotFactory(method.getAnnotation(Snapshot.class),
-				method.getGenericReturnType(), method.getName(), method.getGenericParameterTypes()));
+		GeneratedSnapshotFactory factory = new GeneratedSnapshotFactory(method.getAnnotation(Snapshot.class), method.getGenericReturnType(), method.getName(), method.getGenericParameterTypes());
+		snapshotFactories.put(signature, factory);
 	}
 
 	public GeneratedSnapshot newSnapshot(String signature) {
@@ -122,7 +130,9 @@ public class SnapshotGenerator {
 
 	private void consume(GeneratedSnapshot snapshot) {
 		if (snapshot.isValid()) {
-			consumer.accept(snapshot);
+			if (consumer != null) {
+				consumer.accept(snapshot);
+			}
 		}
 	}
 
@@ -131,7 +141,7 @@ public class SnapshotGenerator {
 			Future<?> future = executor.submit(() -> {
 				task.accept(snapshot);
 			});
-			future.get(timeout, TimeUnit.MILLISECONDS);
+			future.get(timeoutInMillis, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException | ExecutionException | TimeoutException | CancellationException e) {
 			snapshot.invalidate();
 		}

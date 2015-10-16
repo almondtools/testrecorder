@@ -2,8 +2,6 @@ package com.almondtools.testrecorder.generator;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
-import java.util.Properties;
 
 import com.almondtools.testrecorder.GeneratedSnapshot;
 
@@ -16,63 +14,34 @@ public class ScheduledTestGenerator extends TestGenerator {
 	private long timeInterval;
 	private String classNameTemplate;
 	
-	public ScheduledTestGenerator(Properties properties) {
+	public ScheduledTestGenerator() {
 		this.counter = 0;
 		this.start = System.currentTimeMillis();
-		configure(properties);
+		this.path = Paths.get(".");
 	}
 
-	private void configure(Properties properties) {
-		configureDumpTo(Optional.ofNullable(properties.getProperty("consumer.dump.to"))
-			.map(path -> Paths.get(path))
-			.orElse(Paths.get("target/generated")));
-		
-		configureClassName(Optional.ofNullable(properties.getProperty("consumer.dump.class")));
-		
-		configureDumpOnShutDown(Optional.ofNullable(properties.getProperty("consumer.dump.shutdown"))
-			.map(value -> Boolean.valueOf(value)));
-		
-		configureDumpOnTimeInterval(Optional.ofNullable(properties.getProperty("consumer.dump.time.interval"))
-			.map(value -> parseLongOrNull(value)));
-		configureDumpOnCounterInterval(Optional.ofNullable(properties.getProperty("consumer.dump.counter.interval"))
-			.map(value -> parseIntOrNull(value)));
-
-	}
-
-	private Integer parseIntOrNull(String value) {
-		try {
-			return Integer.valueOf(value);
-		} catch (NumberFormatException e) {
-			return null;
-		}
-	}
-
-	private Long parseLongOrNull(String value) {
-		try {
-			return Long.valueOf(value);
-		} catch (NumberFormatException e) {
-			return null;
-		}
-	}
-
-	private void configureDumpTo(Path path) {
+	public ScheduledTestGenerator withDumpTo(Path path) {
 		this.path = path;
+		return this;
 	}
 
-	private void configureClassName(Optional<String> template) {
-		this.classNameTemplate = template.orElse(null);
+	public ScheduledTestGenerator withClassName(String template) {
+		this.classNameTemplate = template;
+		return this;
 	}
 
-	private void configureDumpOnTimeInterval(Optional<Long> timeInterval) {
-		this.timeInterval = timeInterval.orElse(0L);
+	public ScheduledTestGenerator withDumpOnTimeInterval(long timeInterval) {
+		this.timeInterval = timeInterval;
+		return this;
 	}
 
-	private void configureDumpOnCounterInterval(Optional<Integer> counterInterval) {
-		this.counterInterval = counterInterval.orElse(0);
+	public ScheduledTestGenerator withDumpOnCounterInterval(int counterInterval) {
+		this.counterInterval = counterInterval;
+		return this;
 	}
 
-	private void configureDumpOnShutDown(Optional<Boolean> value) {
-		if (value.orElse(false)) {
+	public ScheduledTestGenerator withDumpOnShutDown(boolean shutDown) {
+		if (shutDown) {
 			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 
 				@Override
@@ -82,6 +51,7 @@ public class ScheduledTestGenerator extends TestGenerator {
 
 			}));
 		}
+		return this;
 	}
 	
 	@Override

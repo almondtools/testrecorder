@@ -67,21 +67,19 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	private static final String DEFINE_CLASS = "defineClass";
 	private static final String CLASS_LOADER = "java.lang.ClassLoader";
 
-	private static final String SNAPSHOT_GENERATOR_FIELD_NAME = "generator";
-	private List<String> packages;
-
-	public SnapshotInstrumentor() {
-		this.packages = new ArrayList<>();
-	}
+	public static final String SNAPSHOT_GENERATOR_FIELD_NAME = "generator";
 	
-	public SnapshotInstrumentor(List<String> packages) {
-		this.packages = packages;
+	private SnapshotConfig config;
+
+	public SnapshotInstrumentor(SnapshotConfig config) {
+		this.config = config;
 	}
 
 	@Override
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-		for (String pkg : packages) {
-			if (className.startsWith(pkg)) {
+		for (String pkg : config.getPackages()) {
+			pkg = pkg.replace('.', '/');
+			if (className != null && className.startsWith(pkg)) {
 				System.out.println("recording snapshots of " + className);
 				return instrument(new ClassReader(classfileBuffer));
 			}
@@ -187,8 +185,9 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		insnList.add(new TypeInsnNode(NEW, Type.getDescriptor(SnapshotGenerator.class)));
 		insnList.add(new InsnNode(DUP));
 		insnList.add(new VarInsnNode(ALOAD, 0));
+		insnList.add(new LdcInsnNode(Type.getType(config.getClass())));
 		insnList.add(new MethodInsnNode(INVOKESPECIAL, Type.getDescriptor(SnapshotGenerator.class), CONSTRUCTOR_NAME,
-			Type.getConstructorDescriptor(constructorOf(SnapshotGenerator.class, Object.class)), false));
+			Type.getConstructorDescriptor(constructorOf(SnapshotGenerator.class, Object.class, Class.class)), false));
 		insnList.add(new FieldInsnNode(PUTFIELD, classNode.name, SNAPSHOT_GENERATOR_FIELD_NAME, Type.getDescriptor(SnapshotGenerator.class)));
 
 		insnList.add(new VarInsnNode(ALOAD, 0));

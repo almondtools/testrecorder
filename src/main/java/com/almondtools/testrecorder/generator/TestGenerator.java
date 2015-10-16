@@ -1,5 +1,6 @@
 package com.almondtools.testrecorder.generator;
 
+import static com.almondtools.testrecorder.SnapshotInstrumentor.SNAPSHOT_GENERATOR_FIELD_NAME;
 import static com.almondtools.testrecorder.generator.TypeHelper.getBase;
 import static com.almondtools.testrecorder.generator.TypeHelper.getSimpleName;
 import static com.almondtools.testrecorder.generator.TypeHelper.isPrimitive;
@@ -11,6 +12,7 @@ import static java.util.stream.Collectors.toList;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,6 +36,7 @@ import org.stringtemplate.v4.ST;
 import com.almondtools.testrecorder.GeneratedSnapshot;
 import com.almondtools.testrecorder.SerializedValue;
 import com.almondtools.testrecorder.SerializedValueVisitor;
+import com.almondtools.testrecorder.SnapshotGenerator;
 import com.almondtools.testrecorder.visitors.Computation;
 import com.almondtools.testrecorder.visitors.ImportManager;
 import com.almondtools.testrecorder.visitors.LocalVariableNameGenerator;
@@ -317,5 +320,17 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 			return toUpperCase(testName.charAt(0)) + testName.substring(1) + no;
 		}
 
+	}
+
+	public static TestGenerator fromRecorded(Object object) {
+		Class<? extends Object> clazz = object.getClass();
+		try {
+			Field field = clazz.getDeclaredField(SNAPSHOT_GENERATOR_FIELD_NAME);
+			field.setAccessible(true);
+			SnapshotGenerator generator = (SnapshotGenerator) field.get(object);
+			return (TestGenerator) generator.getConsumer();
+		} catch (RuntimeException | ReflectiveOperationException e) {
+			return null;
+		}
 	}
 }
