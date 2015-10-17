@@ -18,7 +18,7 @@ public final class Templates {
 	private static final String ASSIGN_STMT = "<type> <name> = <value>;";
 	private static final String CALL_METHOD_STMT = "<base>.<method>(<arguments; separator=\", \">);";
 
-	private static final String GENERIC_TYPE = "<type><\\<><typeParam; separator=\", \"><\\>>";
+	private static final String GENERIC_TYPE = "$type$<$typeParam; separator=\", \"$>";
 
 	private static final String GENERIC_OBJECT_MATCHER = "new GenericObject() {\n<fields; separator=\"\\n\">\n}.matcher(<type>.class)";
 	private static final String CONTAINS_MATCHER = "contains(<values; separator=\", \">)";
@@ -94,9 +94,9 @@ public final class Templates {
 	}
 
 	public static String genericType(String type, String... typeParams) {
-		ST genericType = new ST(GENERIC_TYPE);
+		ST genericType = new ST(GENERIC_TYPE, '$','$');
 		genericType.add("type", type);
-		genericType.add("typeParams", asList(typeParams));
+		genericType.add("typeParam", asList(typeParams));
 
 		return genericType.render();
 	}
