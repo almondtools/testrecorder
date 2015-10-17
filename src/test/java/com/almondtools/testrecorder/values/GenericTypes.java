@@ -2,6 +2,7 @@ package com.almondtools.testrecorder.values;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,6 +14,11 @@ public class GenericTypes<T, L extends List<T>, S extends Set<T>, M extends Map<
 	public ArrayList<String> arrayListOfString;
 	public List<Set<String>> listOfSetOfString;
 	
+	public S setOfBounded;
+	public Set<String> setOfString;
+	public HashSet<String> hashSetOfString;
+	public Set<List<String>> setOfListOfString;
+
 	public static Type listOfString() {
 		try {
 			return GenericTypes.class.getDeclaredField("listOfString").getGenericType();
@@ -45,4 +51,35 @@ public class GenericTypes<T, L extends List<T>, S extends Set<T>, M extends Map<
 		}
 	}
 
+	public static Type setOfString() {
+		try {
+			return GenericTypes.class.getDeclaredField("setOfString").getGenericType();
+		} catch (ReflectiveOperationException e) {
+			return List.class;
+		}
+	}
+	
+	public static Type setOfListOfString() {
+		try {
+			return GenericTypes.class.getDeclaredField("setOfListOfString").getGenericType();
+		} catch (ReflectiveOperationException e) {
+			return List.class;
+		}
+	}
+	
+	public static Type hashSetOfString() {
+		try {
+			return GenericTypes.class.getDeclaredField("hashSetOfString").getGenericType();
+		} catch (ReflectiveOperationException e) {
+			return List.class;
+		}
+	}
+	
+	public static Type setOfBounded() {
+		try {
+			return GenericTypes.class.getDeclaredField("setOfBounded").getGenericType();
+		} catch (ReflectiveOperationException e) {
+			return List.class;
+		}
+	}
 }

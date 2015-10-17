@@ -392,4 +392,11 @@ public class SerializedListTest {
 		assertThat(list.toString(), equalTo("[string]"));
 	}
 
+	@Test
+	public void testAccept() throws Exception {
+		SerializedList list = new SerializedList(List.class);
+		assertThat(list.accept(new TestValueVisitor()), equalTo("unknown"));
+		assertThat(list.accept(new TestCollectionVisitor()), equalTo("list"));
+	}
+
 }
