@@ -1,5 +1,8 @@
 package com.almondtools.testrecorder.values;
 
+import static com.almondtools.testrecorder.values.GenericTypeResolver.findAllTypes;
+import static com.almondtools.testrecorder.values.GenericTypeResolver.resolve;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -7,6 +10,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Set;
 
 import com.almondtools.testrecorder.SerializedCollectionVisitor;
 import com.almondtools.testrecorder.SerializedValue;
@@ -22,18 +26,21 @@ public class SerializedList implements SerializedValue, List<SerializedValue> {
 		this.type = type;
 		this.list = new ArrayList<>();
 	}
-	
+
 	@Override
 	public Type getType() {
 		return type;
 	}
 
 	public Type getComponentType() {
-		if (type instanceof ParameterizedType) {
-			return ((ParameterizedType) type).getActualTypeArguments()[0];
-		} else {
-			return Object.class;
-		}
+		Set<Type> allTypes = findAllTypes(type);
+		return allTypes.stream()
+			.filter(type -> type instanceof ParameterizedType)
+			.map(type -> (ParameterizedType) type)
+			.filter(type -> type.getRawType().equals(List.class))
+			.map(type -> resolve(allTypes, type.getActualTypeArguments()[0]))
+			.findFirst()
+			.orElse(Object.class);
 	}
 
 	@Override
