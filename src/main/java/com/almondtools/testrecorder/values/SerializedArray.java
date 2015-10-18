@@ -1,5 +1,7 @@
 package com.almondtools.testrecorder.values;
 
+import static java.util.Arrays.asList;
+
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -17,6 +19,11 @@ public class SerializedArray implements SerializedValue {
 	public SerializedArray(Type type) {
 		this.type = type;
 		this.array = new ArrayList<>();
+	}
+
+	public SerializedArray with(SerializedValue... values) {
+		array.addAll(asList(values));
+		return this;
 	}
 	
 	@Override
