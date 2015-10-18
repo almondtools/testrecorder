@@ -14,6 +14,11 @@ public abstract class SerializedImmutable<T> implements SerializedValue {
 		this.type = type;
 	}
 
+	public SerializedImmutable<T> withValue(T value) {
+		this.value = value;
+		return this;
+	}
+
 	public void setValue(T value) {
 		this.value = value;
 	}
@@ -35,7 +40,7 @@ public abstract class SerializedImmutable<T> implements SerializedValue {
 	@Override
 	public int hashCode() {
 		return type.getTypeName().hashCode() * 19
-			+ value.hashCode();
+			+ (value == null ? 0 : value.hashCode());
 	}
 
 	@Override
@@ -51,7 +56,7 @@ public abstract class SerializedImmutable<T> implements SerializedValue {
 		}
 		SerializedImmutable<?> that = (SerializedImmutable<?>) obj;
 		return this.type == that.type
-			&& this.value.equals(that.value);
+			&& (this.value == null ? that.value == null : this.value.equals(that.value));
 	}
 
 }
