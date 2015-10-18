@@ -1,5 +1,7 @@
 package com.almondtools.testrecorder.values;
 
+import static java.util.Arrays.asList;
+
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +19,16 @@ public class SerializedObject implements SerializedValue {
 	public SerializedObject(Type type) {
 		this.type = type;
 		this.fields = new ArrayList<>();
+	}
+	
+	public SerializedObject withFields(SerializedField... fields) {
+		this.fields.addAll(asList(fields));
+		return this;
+	}
+	
+	public SerializedObject withObjectType(Class<String> objectType) {
+		this.objectType = objectType;
+		return this;
 	}
 	
 	@Override
@@ -51,7 +63,7 @@ public class SerializedObject implements SerializedValue {
 
 	@Override
 	public int hashCode() {
-		return objectType.getName().hashCode() + fields.hashCode();
+		return (objectType == null ? 0 : objectType.getName().hashCode()) + fields.hashCode();
 	}
 
 	@Override
@@ -66,8 +78,8 @@ public class SerializedObject implements SerializedValue {
 			return false;
 		}
 		SerializedObject that = (SerializedObject) obj;
-		return this.fields.equals(that.fields)
-			&& this.objectType == that.objectType;
+		return (this.objectType == null ? that.objectType == null : this.objectType == that.objectType)
+			&& this.fields.equals(that.fields);
 	}
-	
+
 }
