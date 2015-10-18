@@ -58,7 +58,7 @@ public class SerializedLiteral implements SerializedValue {
 	@Override
 	public int hashCode() {
 		return type.getTypeName().hashCode() * 19
-			+ value.hashCode();
+			+ (value == null ? 0 : value.hashCode());
 	}
 
 	@Override
@@ -74,7 +74,7 @@ public class SerializedLiteral implements SerializedValue {
 		}
 		SerializedLiteral that = (SerializedLiteral) obj;
 		return this.type == that.type
-			&& this.value.equals(that.value);
+			&& (this.value == null ? that.value == null : this.value.equals(that.value));
 	}
 
 }

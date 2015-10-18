@@ -2,6 +2,7 @@ package com.almondtools.testrecorder.values;
 
 import static com.almondtools.testrecorder.values.SerializedLiteral.isLiteral;
 import static com.almondtools.testrecorder.values.SerializedLiteral.literal;
+import static com.almondtools.util.objects.EqualityMatcher.satisfiesDefaultEquality;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
@@ -57,7 +58,7 @@ public class SerializedLiteralTest {
 	}
 
 	@Test
-	public void testToString0() throws Exception {
+	public void testToString() throws Exception {
 		SerializedLiteral value = literal(String.class, "string");
 
 		assertThat(value.toString(), equalTo("string"));
@@ -65,20 +66,13 @@ public class SerializedLiteralTest {
 
 	@Test
 	public void testEquals() throws Exception {
-		SerializedLiteral value = new SerializedLiteral(String.class, "string");
-
-		SerializedLiteral expected = new SerializedLiteral(String.class, "string");
-
-		assertThat(value, equalTo(expected));
-	}
-
-	@Test
-	public void testHashCode() throws Exception {
-		SerializedLiteral value = new SerializedLiteral(String.class, "string");
-
-		SerializedLiteral expected = new SerializedLiteral(String.class, "string");
-
-		assertThat(value.hashCode(), equalTo(expected.hashCode()));
+		assertThat(new SerializedLiteral(String.class, "string"), satisfiesDefaultEquality()
+			.andEqualTo(new SerializedLiteral(String.class, "string"))
+			.andNotEqualTo(new SerializedLiteral(Integer.class, 1))
+			.andNotEqualTo(new SerializedLiteral(String.class, null)));
+		assertThat(new SerializedLiteral(String.class, null), satisfiesDefaultEquality()
+			.andEqualTo(new SerializedLiteral(String.class, null))
+			.andNotEqualTo(new SerializedLiteral(String.class, "string")));
 	}
 
 }
