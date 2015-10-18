@@ -214,8 +214,7 @@ public class SerializedSetTest {
 			new SerializedLiteral(String.class, "other"),
 			new SerializedLiteral(String.class, "last")));
 		set.clear();
-		;
-
+		
 		assertThat(set, empty());
 	}
 

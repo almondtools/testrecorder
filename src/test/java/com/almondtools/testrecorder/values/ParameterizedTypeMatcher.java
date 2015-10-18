@@ -35,7 +35,8 @@ public class ParameterizedTypeMatcher extends TypeSafeDiagnosingMatcher<Type> {
 		
 		Type[] typeArgsItem = parameterizedType.getActualTypeArguments();
 		if (typeArgsItem.length != args.length) {
-			mismatchDescription.appendText("type argument number not matching: ").appendValue(typeArgsItem.length);
+			mismatchDescription.appendText("type argument number not matching: ").appendValue(typeArgsItem);
+			return false;
 		}
 		for (int i = 0; i < typeArgsItem.length; i++) {
 			if (!args[i].matches(typeArgsItem[i])) {

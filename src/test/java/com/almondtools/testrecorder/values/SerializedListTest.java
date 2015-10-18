@@ -240,8 +240,7 @@ public class SerializedListTest {
 			new SerializedLiteral(String.class, "other"),
 			new SerializedLiteral(String.class, "last")));
 		list.clear();
-		;
-
+		
 		assertThat(list, empty());
 	}
 
