@@ -19,7 +19,7 @@ How to use it
 
 TODOs
 =====
-- Maven artifact
+- Place in maven repository
 - Other Serializers
 - More readable generated Tests
 - Less  warnings in generated Tests
