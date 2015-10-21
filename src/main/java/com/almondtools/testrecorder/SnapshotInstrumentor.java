@@ -96,21 +96,36 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		return instrument(new ClassReader(className));
 	}
 
-	@SuppressWarnings("unchecked")
 	public byte[] instrument(ClassReader cr) {
 		ClassNode classNode = new ClassNode();
 
 		cr.accept(classNode, 0);
 
-		classNode.fields.add(createTestAspectField());
+		instrumentFields(classNode);
 
+		instrumentConstructors(classNode);
+
+		instrumentMethods(classNode);
+
+		ClassWriter out = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+		classNode.accept(out);
+		return out.toByteArray();
+	}
+
+	private void instrumentFields(ClassNode classNode) {
+		classNode.fields.add(createTestAspectField());
+	}
+
+	private void instrumentConstructors(ClassNode classNode) {
 		for (MethodNode method : getRootConstructors(classNode)) {
 			List<InsnNode> rets = findReturn(method.instructions);
 			for (InsnNode ret : rets) {
 				method.instructions.insertBefore(ret, createTestAspectInitializer(classNode));
 			}
 		}
+	}
 
+	private void instrumentMethods(ClassNode classNode) {
 		for (MethodNode method : getSnapshotMethods(classNode)) {
 			LabelNode tryLabel = new LabelNode();
 			LabelNode catchLabel = new LabelNode();
@@ -129,13 +144,8 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 				.orElse(RETURN);
 			method.instructions.add(createCatchFinally(catchLabel, throwVariables(classNode, method), finallyLabel, expectVariables(classNode, method), new InsnNode(returnOpcode)));
 		}
-
-		ClassWriter out = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
-		classNode.accept(out);
-		return out.toByteArray();
 	}
 
-	@SuppressWarnings("unchecked")
 	private FieldNode createTestAspectField() {
 		FieldNode fieldNode = new FieldNode(Opcodes.ACC_PRIVATE | Opcodes.ACC_SYNTHETIC, SNAPSHOT_GENERATOR_FIELD_NAME, Type.getDescriptor(SnapshotGenerator.class), Type.getDescriptor(SnapshotGenerator.class), null);
 		fieldNode.visibleAnnotations = new ArrayList<>();
@@ -143,9 +153,8 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		return fieldNode;
 	}
 
-	@SuppressWarnings("unchecked")
 	private List<MethodNode> getRootConstructors(ClassNode classNode) {
-		return ((List<MethodNode>) classNode.methods).stream()
+		return (classNode.methods).stream()
 			.filter(method -> isConstructor(method))
 			.filter(method -> isRoot(method, classNode.name))
 			.collect(toList());
@@ -155,9 +164,8 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		return method.name.equals(CONSTRUCTOR_NAME);
 	}
 
-	@SuppressWarnings("unchecked")
 	private boolean isRoot(MethodNode method, String name) {
-		return stream((Iterator<AbstractInsnNode>) method.instructions.iterator())
+		return stream(method.instructions.iterator())
 			.filter(insn -> insn.getOpcode() == Opcodes.INVOKESPECIAL && insn instanceof MethodInsnNode)
 			.map(insn -> (MethodInsnNode) insn)
 			.filter(insn -> insn.name.equals(CONSTRUCTOR_NAME))
@@ -169,9 +177,8 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		return StreamSupport.stream(spliterator, false);
 	}
 
-	@SuppressWarnings("unchecked")
 	private List<InsnNode> findReturn(InsnList instructions) {
-		return stream((Iterator<AbstractInsnNode>) instructions.iterator())
+		return stream(instructions.iterator())
 			.filter(insn -> insn instanceof InsnNode)
 			.map(insn -> (InsnNode) insn)
 			.filter(insn -> IRETURN <= insn.getOpcode() && insn.getOpcode() <= RETURN)
@@ -230,19 +237,17 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		return insnList;
 	}
 
-	@SuppressWarnings("unchecked")
 	private List<MethodNode> getSnapshotMethods(ClassNode classNode) {
 		return ((List<MethodNode>) classNode.methods).stream()
 			.filter(method -> isSnapshotMethod(method))
 			.collect(toList());
 	}
 
-	@SuppressWarnings("unchecked")
 	private boolean isSnapshotMethod(MethodNode method) {
 		if (method.visibleAnnotations == null) {
 			return false;
 		}
-		return ((List<AnnotationNode>) method.visibleAnnotations).stream()
+		return method.visibleAnnotations.stream()
 			.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Snapshot.class)));
 	}
 

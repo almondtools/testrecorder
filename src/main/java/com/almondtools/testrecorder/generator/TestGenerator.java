@@ -99,7 +99,7 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 	}
 
 	public Set<String> getTests(Class<?> clazz) {
-		return tests.get(clazz);
+		return tests.getOrDefault(clazz, emptySet());
 	}
 
 	@Override
