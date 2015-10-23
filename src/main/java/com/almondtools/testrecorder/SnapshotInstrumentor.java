@@ -1,7 +1,12 @@
 package com.almondtools.testrecorder;
 
+import static java.util.Spliterators.spliteratorUnknownSize;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static org.objectweb.asm.Opcodes.AASTORE;
+import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
+import static org.objectweb.asm.Opcodes.ACC_STATIC;
+import static org.objectweb.asm.Opcodes.ACC_SYNTHETIC;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.ATHROW;
@@ -25,6 +30,7 @@ import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -32,6 +38,7 @@ import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
@@ -68,7 +75,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	private static final String CLASS_LOADER = "java.lang.ClassLoader";
 
 	public static final String SNAPSHOT_GENERATOR_FIELD_NAME = "generator";
-	
+
 	private SnapshotConfig config;
 
 	public SnapshotInstrumentor(SnapshotConfig config) {
@@ -86,7 +93,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		}
 		return null;
 	}
-	
+
 	public void register(String clazz) throws IOException {
 		byte[] bytecode = instrument(clazz);
 		saveClass(clazz, bytecode);
@@ -106,6 +113,8 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		instrumentConstructors(classNode);
 
 		instrumentMethods(classNode);
+
+		instrumentFieldAccesses(classNode);
 
 		ClassWriter out = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
 		classNode.accept(out);
@@ -146,8 +155,25 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		}
 	}
 
+	private void instrumentFieldAccesses(ClassNode classNode) {
+		Map<String, FieldNode> fieldNames = getSnapshotFields(classNode).stream()
+			.collect(toMap(field -> field.name, field -> field));
+		
+		for (MethodNode method : classNode.methods) {
+			List<FieldInsnNode> writeAccesses = StreamSupport.stream(spliteratorUnknownSize(method.instructions.iterator(), Spliterator.ORDERED), false)
+				.filter(insnNode -> insnNode instanceof FieldInsnNode)
+				.map(insnNode -> (FieldInsnNode) insnNode)
+				.filter(fieldInsnNode -> fieldNames.containsKey(fieldInsnNode.name))
+				.collect(toList());
+			for (FieldInsnNode write : writeAccesses) {
+				method.instructions.insert(write, storeValue(classNode, fieldNames.get(write.name)));
+			}
+		}
+	}
+
 	private FieldNode createTestAspectField() {
-		FieldNode fieldNode = new FieldNode(Opcodes.ACC_PRIVATE | Opcodes.ACC_SYNTHETIC, SNAPSHOT_GENERATOR_FIELD_NAME, Type.getDescriptor(SnapshotGenerator.class), Type.getDescriptor(SnapshotGenerator.class), null);
+		FieldNode fieldNode = new FieldNode(ACC_PRIVATE | ACC_SYNTHETIC, SNAPSHOT_GENERATOR_FIELD_NAME, Type.getDescriptor(SnapshotGenerator.class),
+			Type.getDescriptor(SnapshotGenerator.class), null);
 		fieldNode.visibleAnnotations = new ArrayList<>();
 		fieldNode.visibleAnnotations.add(new AnnotationNode(Type.getDescriptor(SnapshotExcluded.class)));
 		return fieldNode;
@@ -199,13 +225,25 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 		insnList.add(new VarInsnNode(ALOAD, 0));
 		insnList.add(new FieldInsnNode(GETFIELD, classNode.name, SNAPSHOT_GENERATOR_FIELD_NAME, Type.getDescriptor(SnapshotGenerator.class)));
+
 		for (MethodNode methodNode : getSnapshotMethods(classNode)) {
 			insnList.add(new InsnNode(DUP));
-			insnList.add(new LdcInsnNode(methodNode.name + methodNode.desc));
-			
+			insnList.add(new LdcInsnNode(keySignature(classNode, methodNode)));
+
 			insnList.add(pushMethod(classNode, methodNode));
-			
-			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getDescriptor(SnapshotGenerator.class), "register", Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "register", String.class, Method.class)), false));
+
+			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getDescriptor(SnapshotGenerator.class), "register",
+				Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "register", String.class, Method.class)), false));
+		}
+
+		for (FieldNode fieldNode : getSnapshotFields(classNode)) {
+			insnList.add(new InsnNode(DUP));
+			insnList.add(new LdcInsnNode(keySignature(classNode, fieldNode)));
+
+			insnList.add(pushField(classNode, fieldNode));
+
+			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getDescriptor(SnapshotGenerator.class), "register",
+				Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "register", String.class, Field.class)), false));
 		}
 		insnList.add(new InsnNode(POP));
 
@@ -214,16 +252,15 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 	private InsnList pushMethod(ClassNode clazz, MethodNode method) {
 		Type[] argumentTypes = Type.getArgumentTypes(method.desc);
-		int argCount = argumentTypes.length;;
-		
+		int argCount = argumentTypes.length;
+
 		InsnList insnList = new InsnList();
 
 		insnList.add(new VarInsnNode(ALOAD, 0));
 		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getDescriptor(Object.class), "getClass", Type.getMethodDescriptor(methodOf(Object.class, "getClass")), false));
-		
-		
+
 		insnList.add(new LdcInsnNode(method.name));
-		
+
 		insnList.add(new LdcInsnNode(argCount));
 		insnList.add(new TypeInsnNode(Opcodes.ANEWARRAY, Type.getDescriptor(Class.class)));
 		for (int i = 0; i < argCount; i++) {
@@ -232,8 +269,22 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 			insnList.add(pushType(argumentTypes[i]));
 			insnList.add(new InsnNode(AASTORE));
 		}
-		
-		insnList.add(new MethodInsnNode(INVOKESTATIC, Type.getDescriptor(TypeHelper.class), "getDeclaredMethod", Type.getMethodDescriptor(methodOf(TypeHelper.class, "getDeclaredMethod", Class.class, String.class, Class[].class)), false));
+
+		insnList.add(new MethodInsnNode(INVOKESTATIC, Type.getDescriptor(TypeHelper.class), "getDeclaredMethod",
+			Type.getMethodDescriptor(methodOf(TypeHelper.class, "getDeclaredMethod", Class.class, String.class, Class[].class)), false));
+		return insnList;
+	}
+
+	private InsnList pushField(ClassNode clazz, FieldNode field) {
+		InsnList insnList = new InsnList();
+
+		insnList.add(new VarInsnNode(ALOAD, 0));
+		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getDescriptor(Object.class), "getClass", Type.getMethodDescriptor(methodOf(Object.class, "getClass")), false));
+
+		insnList.add(new LdcInsnNode(field.name));
+
+		insnList.add(new MethodInsnNode(INVOKESTATIC, Type.getDescriptor(TypeHelper.class), "getDeclaredField",
+			Type.getMethodDescriptor(methodOf(TypeHelper.class, "getDeclaredField", Class.class, String.class)), false));
 		return insnList;
 	}
 
@@ -248,6 +299,20 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 			return false;
 		}
 		return method.visibleAnnotations.stream()
+			.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Snapshot.class)));
+	}
+
+	private List<FieldNode> getSnapshotFields(ClassNode classNode) {
+		return ((List<FieldNode>) classNode.fields).stream()
+			.filter(field -> isSnapshotField(field))
+			.collect(toList());
+	}
+
+	private boolean isSnapshotField(FieldNode field) {
+		if (field.visibleAnnotations == null) {
+			return false;
+		}
+		return field.visibleAnnotations.stream()
 			.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Snapshot.class)));
 	}
 
@@ -274,13 +339,29 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		return insnList;
 	}
 
+	private InsnList storeValue(ClassNode classNode, FieldNode fieldNode) {
+		InsnList insnList = new InsnList();
+
+		insnList.add(new VarInsnNode(ALOAD, 0));
+		insnList.add(new FieldInsnNode(GETFIELD, classNode.name, SNAPSHOT_GENERATOR_FIELD_NAME, Type.getDescriptor(SnapshotGenerator.class)));
+
+		insnList.add(new LdcInsnNode(keySignature(classNode, fieldNode)));
+
+		insnList.add(pushFieldValue(classNode, fieldNode));
+
+		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getDescriptor(SnapshotGenerator.class), "storeValue",
+			Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "storeValue", String.class, Object.class)), false));
+
+		return insnList;
+	}
+
 	private InsnList setupVariables(ClassNode classNode, MethodNode methodNode) {
 		InsnList insnList = new InsnList();
 
 		insnList.add(new VarInsnNode(ALOAD, 0));
 		insnList.add(new FieldInsnNode(GETFIELD, classNode.name, SNAPSHOT_GENERATOR_FIELD_NAME, Type.getDescriptor(SnapshotGenerator.class)));
 
-		insnList.add(new LdcInsnNode(methodNode.name + methodNode.desc));
+		insnList.add(new LdcInsnNode(keySignature(classNode, methodNode)));
 
 		insnList.add(pushMethodArguments(methodNode));
 
@@ -367,6 +448,22 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 	}
 
+	private InsnList pushFieldValue(ClassNode classNode, FieldNode fieldNode) {
+		InsnList insnList = new InsnList();
+
+		insnList.add(new VarInsnNode(ALOAD, 0));
+		if ((fieldNode.access & ACC_STATIC) == ACC_STATIC) {
+			insnList.add(new FieldInsnNode(GETSTATIC, classNode.name, fieldNode.name, fieldNode.desc));
+		} else {
+			insnList.add(new FieldInsnNode(GETFIELD, classNode.name, fieldNode.name, fieldNode.desc));
+		}
+		
+		insnList.add(boxPrimitives(Type.getType(fieldNode.desc)));
+
+		return insnList;
+
+	}
+
 	private AbstractInsnNode pushType(Type type) {
 		if (type.getDescriptor().length() == 1) {
 			Class<?> boxedType = getBoxedType(type.getDescriptor().charAt(0));
@@ -412,10 +509,18 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		}
 	}
 
+	private String keySignature(ClassNode classNode, MethodNode methodNode) {
+		return classNode.name + ":" + methodNode.name + methodNode.desc;
+	}
+
+	private String keySignature(ClassNode classNode, FieldNode fieldNode) {
+		return classNode.name + ":" + fieldNode.name + fieldNode.desc;
+	}
+
 	private void createPackage(String className, ClassLoader loader, Class<?> cls) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
 		int packageEnd = className.lastIndexOf('.');
-		String pkg = className.substring(0,packageEnd );
-		
+		String pkg = className.substring(0, packageEnd);
+
 		Method definePackage = cls.getDeclaredMethod(DEFINE_PACKAGE, new Class[] {
 			String.class, String.class, String.class, String.class, String.class, String.class, String.class, URL.class
 		});

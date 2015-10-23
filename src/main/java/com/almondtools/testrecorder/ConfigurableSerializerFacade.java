@@ -55,8 +55,8 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 	public SerializedValue serialize(Type type, Object object) {
 		if (object == null) {
 			return SerializedNull.nullInstance(type);
-		} else if (isLiteral(type)) {
-			return SerializedLiteral.literal(type, object);
+		} else if (isLiteral(object.getClass())) {
+			return SerializedLiteral.literal(object.getClass(), object);
 		}
 		SerializedValue serializedObject = serialized.get(object);
 		if (serializedObject == null) {

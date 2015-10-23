@@ -50,7 +50,7 @@ public class SerializedObjectTest {
 		serializedObject.addField(new SerializedField("f1", Object.class, literal(String.class, "str")));
 		serializedObject.addField(new SerializedField("f2", Integer.class, literal(Integer.class, 2)));
 
-		assertThat(serializedObject.toString(), equalTo("java.lang.Object/" + System.identityHashCode(serializedObject) + " {\njava.lang.Object f1: str,\njava.lang.Integer f2: 2\n}"));
+		assertThat(serializedObject.toString(), equalTo("java.lang.String/" + System.identityHashCode(serializedObject) + " {\njava.lang.Object f1: str,\njava.lang.Integer f2: 2\n}"));
 	}
 
 	@Test

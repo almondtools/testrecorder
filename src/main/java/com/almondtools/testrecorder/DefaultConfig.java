@@ -2,15 +2,21 @@ package com.almondtools.testrecorder;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Consumer;
 
+import com.almondtools.testrecorder.generator.MethodSnapshotConsumer;
 import com.almondtools.testrecorder.generator.TestGenerator;
+import com.almondtools.testrecorder.generator.ValueSnapshotConsumer;
 
 public class DefaultConfig implements SnapshotConfig {
 
 	@Override
-	public Consumer<GeneratedSnapshot> getConsumer() {
+	public MethodSnapshotConsumer getMethodConsumer() {
 		return new TestGenerator();
+	}
+	
+	@Override
+	public ValueSnapshotConsumer getValueConsumer() {
+		return new ValueGenerator();
 	}
 
 	@Override

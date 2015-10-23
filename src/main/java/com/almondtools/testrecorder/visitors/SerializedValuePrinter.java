@@ -33,12 +33,12 @@ public class SerializedValuePrinter implements SerializedValueVisitor<String>, S
 	public String visitObject(SerializedObject object) {
 		boolean inserted = known.add(object);
 		if (inserted) {
-			return object.getType().getTypeName() + "/" + System.identityHashCode(object) + " "
+			return object.getObjectType().getTypeName() + "/" + System.identityHashCode(object) + " "
 				+ object.getFields().stream()
 					.map(field -> field.accept(this))
 					.collect(joining(",\n", "{\n", "\n}"));
 		} else {
-			return object.getType() + "/" + System.identityHashCode(object);
+			return object.getObjectType() + "/" + System.identityHashCode(object);
 		}
 	}
 

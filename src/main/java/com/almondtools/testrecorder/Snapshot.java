@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 import com.almondtools.testrecorder.profile.DefaultSerializationProfile;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target({ElementType.METHOD, ElementType.FIELD})
 public @interface Snapshot {
 	Class<? extends SerializationProfile> profile() default DefaultSerializationProfile.class;
 }

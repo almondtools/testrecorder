@@ -17,6 +17,7 @@ public final class Templates {
 
 	private static final String ASSIGN_STMT = "<type> <name> = <value>;";
 	private static final String CALL_METHOD_STMT = "<base>.<method>(<arguments; separator=\", \">);";
+	private static final String RETURN_STMT = "return <value>;";
 
 	private static final String GENERIC_TYPE = "$type$<$typeParam; separator=\", \"$>";
 
@@ -75,6 +76,13 @@ public final class Templates {
 		call.add("arguments", asList(arguments));
 
 		return call.render();
+	}
+
+	public static String returnStatement(String value) {
+		ST assign = new ST(RETURN_STMT);
+		assign.add("value", value);
+
+		return assign.render();
 	}
 
 	public static String genericObjectConverter(String type, List<String> fields) {

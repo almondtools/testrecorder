@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -33,7 +32,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.stringtemplate.v4.ST;
 
-import com.almondtools.testrecorder.GeneratedSnapshot;
+import com.almondtools.testrecorder.MethodSnapshot;
 import com.almondtools.testrecorder.SerializedValue;
 import com.almondtools.testrecorder.SerializedValueVisitor;
 import com.almondtools.testrecorder.SnapshotGenerator;
@@ -44,8 +43,7 @@ import com.almondtools.testrecorder.visitors.ObjectToMatcherCode;
 import com.almondtools.testrecorder.visitors.ObjectToSetupCode;
 import com.almondtools.testrecorder.visitors.SerializedValueVisitorFactory;
 
-public class TestGenerator implements Consumer<GeneratedSnapshot> {
-
+public class TestGenerator implements MethodSnapshotConsumer {
 
 	private static final Set<Class<?>> IMMUTABLE_TYPES = new HashSet<>(Arrays.asList(
 		Boolean.class, Character.class, Byte.class, Short.class, Integer.class, Float.class, Long.class, Double.class, String.class));
@@ -103,7 +101,7 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 	}
 
 	@Override
-	public void accept(GeneratedSnapshot snapshot) {
+	public void accept(MethodSnapshot snapshot) {
 		Set<String> localtests = tests.computeIfAbsent(getBase(snapshot.getThisType()), key -> new LinkedHashSet<>());
 
 		MethodGenerator methodGenerator = new MethodGenerator(snapshot, localtests.size())
@@ -144,8 +142,12 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 		return testpackage.resolve(className + ".java");
 	}
 
+	public Set<String> testsFor(Class<?> clazz) {
+		return tests.getOrDefault(clazz, emptySet());
+	}
+
 	public String renderTest(Class<?> clazz) {
-		Set<String> localtests = tests.getOrDefault(clazz, emptySet());
+		Set<String> localtests = testsFor(clazz);
 
 		ST file = new ST(TEST_FILE);
 		file.add("package", clazz.getPackage().getName());
@@ -164,7 +166,7 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 
 		private LocalVariableNameGenerator locals;
 
-		private GeneratedSnapshot snapshot;
+		private MethodSnapshot snapshot;
 		private int no;
 
 		private List<String> statements;
@@ -173,7 +175,7 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 		private List<String> args;
 		private String result;
 
-		public MethodGenerator(GeneratedSnapshot snapshot, int no) {
+		public MethodGenerator(MethodSnapshot snapshot, int no) {
 			this.snapshot = snapshot;
 			this.no = no;
 			this.locals = new LocalVariableNameGenerator();
@@ -328,7 +330,7 @@ public class TestGenerator implements Consumer<GeneratedSnapshot> {
 			Field field = clazz.getDeclaredField(SNAPSHOT_GENERATOR_FIELD_NAME);
 			field.setAccessible(true);
 			SnapshotGenerator generator = (SnapshotGenerator) field.get(object);
-			return (TestGenerator) generator.getConsumer();
+			return (TestGenerator) generator.getMethodConsumer();
 		} catch (RuntimeException | ReflectiveOperationException e) {
 			return null;
 		}

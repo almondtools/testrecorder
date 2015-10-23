@@ -4,14 +4,16 @@ import java.lang.reflect.Type;
 
 import com.almondtools.testrecorder.profile.DefaultSerializationProfile;
 
-public class GeneratedSnapshotFactory {
+public class MethodSnapshotFactory {
 
 	private SerializationProfile profile;
+	private Class<?> declaringClass;
 	private Type resultType;
 	private String methodName;
 	private Type[] argumentTypes;
 
-	public GeneratedSnapshotFactory(Snapshot snapshot, Type resultType, String methodName, Type... argumentTypes) {
+	public MethodSnapshotFactory(Class<?> declaringClass, Snapshot snapshot, Type resultType, String methodName, Type... argumentTypes) {
+		this.declaringClass = declaringClass;
 		this.profile = instantiate(snapshot.profile());
 		this.resultType = resultType;
 		this.methodName = methodName;
@@ -30,8 +32,8 @@ public class GeneratedSnapshotFactory {
 		return profile;
 	}
 
-	public GeneratedSnapshot create() {
-		return new GeneratedSnapshot(resultType, methodName, argumentTypes);
+	public MethodSnapshot createSnapshot() {
+		return new MethodSnapshot(declaringClass, resultType, methodName, argumentTypes);
 	}
 
 }

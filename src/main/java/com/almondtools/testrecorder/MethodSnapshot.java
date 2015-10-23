@@ -2,8 +2,9 @@ package com.almondtools.testrecorder;
 
 import java.lang.reflect.Type;
 
-public class GeneratedSnapshot {
+public class MethodSnapshot {
 
+	private Class<?> declaringClass;
 	private Type resultType;
 	private String methodName;
 	private Type[] argumentTypes;
@@ -18,7 +19,8 @@ public class GeneratedSnapshot {
 	private SerializedValue expectException;
 	private SerializedValue[] expectArgs;
 
-	public GeneratedSnapshot(Type resultType, String methodName, Type... argumentTypes) {
+	public MethodSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
+		this.declaringClass = declaringClass;
 		this.resultType = resultType;
 		this.methodName = methodName;
 		this.argumentTypes = argumentTypes;
@@ -31,6 +33,10 @@ public class GeneratedSnapshot {
 	
 	public boolean isValid() {
 		return valid;
+	}
+	
+	public Class<?> getDeclaringClass() {
+		return declaringClass;
 	}
 
 	public Type getResultType() {

@@ -1,11 +1,15 @@
 package com.almondtools.testrecorder;
 
 import java.util.List;
-import java.util.function.Consumer;
+
+import com.almondtools.testrecorder.generator.MethodSnapshotConsumer;
+import com.almondtools.testrecorder.generator.ValueSnapshotConsumer;
 
 public interface SnapshotConfig {
 
-	Consumer<GeneratedSnapshot> getConsumer();
+	MethodSnapshotConsumer getMethodConsumer();
+
+	ValueSnapshotConsumer getValueConsumer();
 
 	long getTimeoutInMillis();
 

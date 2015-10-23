@@ -3,6 +3,7 @@ package com.almondtools.testrecorder.generator;
 import static java.util.stream.Collectors.joining;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -18,6 +19,14 @@ public final class TypeHelper {
 		try {
 			return clazz.getDeclaredMethod(name, parameterTypes);
 		} catch (NoSuchMethodException | SecurityException e) {
+			return null;
+		}
+	}
+
+	public static Field getDeclaredField(Class<?> clazz, String name) {
+		try {
+			return clazz.getDeclaredField(name);
+		} catch (NoSuchFieldException | SecurityException e) {
 			return null;
 		}
 	}

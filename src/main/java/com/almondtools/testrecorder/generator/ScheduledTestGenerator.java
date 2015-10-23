@@ -3,7 +3,7 @@ package com.almondtools.testrecorder.generator;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import com.almondtools.testrecorder.GeneratedSnapshot;
+import com.almondtools.testrecorder.MethodSnapshot;
 
 public class ScheduledTestGenerator extends TestGenerator {
 
@@ -55,7 +55,7 @@ public class ScheduledTestGenerator extends TestGenerator {
 	}
 	
 	@Override
-	public void accept(GeneratedSnapshot snapshot) {
+	public void accept(MethodSnapshot snapshot) {
 		super.accept(snapshot);
 		checkCounterInterval();
 		checkTimeInterval();

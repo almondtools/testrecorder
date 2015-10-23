@@ -187,7 +187,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 			.flatMap(template -> template.getStatements().stream())
 			.collect(toList());
 
-		String genericObject = genericObjectConverter(getSimpleName(value.getType()), elements);
+		String genericObject = genericObjectConverter(getSimpleName(value.getObjectType()), elements);
 		return new Computation(genericObject, statements);
 	}
 
