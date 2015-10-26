@@ -22,6 +22,7 @@ import java.util.Map;
 import org.junit.Test;
 
 import com.almondtools.testrecorder.SerializedValue;
+import com.almondtools.testrecorder.visitors.TestValueVisitor;
 
 public class SerializedMapTest {
 

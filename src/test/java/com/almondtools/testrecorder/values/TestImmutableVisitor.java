@@ -1,6 +1,7 @@
 package com.almondtools.testrecorder.values;
 
 import com.almondtools.testrecorder.SerializedImmutableVisitor;
+import com.almondtools.testrecorder.visitors.TestValueVisitor;
 
 public class TestImmutableVisitor extends TestValueVisitor implements SerializedImmutableVisitor<String> {
 

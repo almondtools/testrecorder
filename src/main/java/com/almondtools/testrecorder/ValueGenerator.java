@@ -47,6 +47,10 @@ public class ValueGenerator implements ValueSnapshotConsumer {
 		this.values = synchronizedMap(new LinkedHashMap<>());
 	}
 	
+	public void setSerializers(SerializedValueVisitorFactory serializers) {
+		this.serializers = serializers;
+	}
+	
 	@Override
 	public void accept(ValueSnapshot snapshot) {
 		List<String> localvalues= values.computeIfAbsent(getBase(snapshot.getDeclaringClass()), key -> new ArrayList<>());
@@ -89,7 +93,7 @@ public class ValueGenerator implements ValueSnapshotConsumer {
 
 		public CodeGenerator(ValueSnapshot snapshot, int no) {
 			this.snapshot = snapshot;
-			this.resultType = getSimpleName(snapshot.getValue().getType());
+			this.resultType = getSimpleName(snapshot.getValueType());
 			this.no = no;
 			this.locals = new LocalVariableNameGenerator();
 			this.statements = new ArrayList<>();
@@ -120,8 +124,8 @@ public class ValueGenerator implements ValueSnapshotConsumer {
 	}
 
 	public static ValueGenerator fromRecorded(Object object) {
-		Class<? extends Object> clazz = object.getClass();
 		try {
+			Class<? extends Object> clazz = object.getClass();
 			Field field = clazz.getDeclaredField(SNAPSHOT_GENERATOR_FIELD_NAME);
 			field.setAccessible(true);
 			SnapshotGenerator generator = (SnapshotGenerator) field.get(object);

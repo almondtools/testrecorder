@@ -37,7 +37,7 @@ public class ResultsTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded(pow);
 		assertThat(results, hasSize(10));
-		assertThat(testGenerator.getTests(Results.class), hasSize(10));
+		assertThat(testGenerator.testsFor(Results.class), hasSize(10));
 	}
 
 	@Test
@@ -48,7 +48,7 @@ public class ResultsTest {
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded(pow);
-		assertThat(testGenerator.getTests(Results.class), everyItem(containsString("assert")));
+		assertThat(testGenerator.testsFor(Results.class), everyItem(containsString("assert")));
 	}
 
 	@Test

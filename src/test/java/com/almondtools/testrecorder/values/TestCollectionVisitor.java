@@ -1,6 +1,7 @@
 package com.almondtools.testrecorder.values;
 
 import com.almondtools.testrecorder.SerializedCollectionVisitor;
+import com.almondtools.testrecorder.visitors.TestValueVisitor;
 
 public class TestCollectionVisitor extends TestValueVisitor implements SerializedCollectionVisitor<String> {
 

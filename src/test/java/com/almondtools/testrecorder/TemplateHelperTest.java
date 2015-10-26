@@ -5,8 +5,6 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-import com.almondtools.testrecorder.TemplateHelper;
-
 public class TemplateHelperTest {
 
 	@Test

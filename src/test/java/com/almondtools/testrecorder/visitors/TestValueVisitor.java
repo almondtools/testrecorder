@@ -1,7 +1,12 @@
-package com.almondtools.testrecorder.values;
+package com.almondtools.testrecorder.visitors;
 
 import com.almondtools.testrecorder.SerializedValue;
 import com.almondtools.testrecorder.SerializedValueVisitor;
+import com.almondtools.testrecorder.values.SerializedArray;
+import com.almondtools.testrecorder.values.SerializedField;
+import com.almondtools.testrecorder.values.SerializedLiteral;
+import com.almondtools.testrecorder.values.SerializedNull;
+import com.almondtools.testrecorder.values.SerializedObject;
 
 public class TestValueVisitor implements SerializedValueVisitor<String> {
 

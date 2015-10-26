@@ -13,6 +13,8 @@ import java.util.Collection;
 
 import org.junit.Test;
 
+import com.almondtools.testrecorder.visitors.TestValueVisitor;
+
 public class SerializedLiteralTest {
 
 	@Test

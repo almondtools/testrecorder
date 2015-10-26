@@ -11,6 +11,8 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.almondtools.testrecorder.visitors.TestValueVisitor;
+
 public class SerializedArrayTest {
 
 	@SuppressWarnings("unused")

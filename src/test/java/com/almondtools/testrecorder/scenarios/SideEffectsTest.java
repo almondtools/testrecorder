@@ -32,8 +32,8 @@ public class SideEffectsTest {
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded(sideEffects);
-		assertThat(testGenerator.getTests(SideEffects.class), hasSize(7));
-		assertThat(testGenerator.getTests(SideEffects.class), everyItem(containsString("assert")));
+		assertThat(testGenerator.testsFor(SideEffects.class), hasSize(7));
+		assertThat(testGenerator.testsFor(SideEffects.class), everyItem(containsString("assert")));
 	}
 
 	@Test
@@ -45,8 +45,8 @@ public class SideEffectsTest {
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded(sideEffects);
-		assertThat(testGenerator.getTests(SideEffects.class), hasSize(10));
-		assertThat(testGenerator.getTests(SideEffects.class), everyItem(containsString("assert")));
+		assertThat(testGenerator.testsFor(SideEffects.class), hasSize(10));
+		assertThat(testGenerator.testsFor(SideEffects.class), everyItem(containsString("assert")));
 	}
 
 	@Test

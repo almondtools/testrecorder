@@ -67,7 +67,7 @@ public class MethodSnapshot {
 		return setupArgs;
 	}
 	
-	public void setSetupArgs(SerializedValue[] setupArgs) {
+	public void setSetupArgs(SerializedValue... setupArgs) {
 		this.setupArgs = setupArgs;
 	}
 
@@ -99,7 +99,7 @@ public class MethodSnapshot {
 		return expectArgs;
 	}
 	
-	public void setExpectArgs(SerializedValue[] expectArgs) {
+	public void setExpectArgs(SerializedValue... expectArgs) {
 		this.expectArgs = expectArgs;
 	}
 

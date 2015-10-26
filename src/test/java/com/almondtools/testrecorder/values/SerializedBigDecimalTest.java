@@ -7,6 +7,8 @@ import java.math.BigDecimal;
 
 import org.junit.Test;
 
+import com.almondtools.testrecorder.visitors.TestValueVisitor;
+
 public class SerializedBigDecimalTest {
 
 	@Test

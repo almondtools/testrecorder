@@ -92,10 +92,6 @@ public class TestGenerator implements MethodSnapshotConsumer {
 		this.matcher = matcher;
 	}
 
-	public Set<String> getTests(Class<?> clazz) {
-		return tests.getOrDefault(clazz, emptySet());
-	}
-
 	@Override
 	public void accept(MethodSnapshot snapshot) {
 		Set<String> localtests = tests.computeIfAbsent(getBase(snapshot.getThisType()), key -> new LinkedHashSet<>());
@@ -321,8 +317,8 @@ public class TestGenerator implements MethodSnapshotConsumer {
 	}
 
 	public static TestGenerator fromRecorded(Object object) {
-		Class<? extends Object> clazz = object.getClass();
 		try {
+			Class<? extends Object> clazz = object.getClass();
 			Field field = clazz.getDeclaredField(SNAPSHOT_GENERATOR_FIELD_NAME);
 			field.setAccessible(true);
 			SnapshotGenerator generator = (SnapshotGenerator) field.get(object);

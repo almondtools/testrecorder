@@ -27,6 +27,14 @@ public class ValueSnapshot {
 		return valid;
 	}
 	
+	public Type getValueType() {
+		if (value == null) {
+			return null;
+		} else {
+			return value.getType();
+		}
+	}
+	
 	public Class<?> getDeclaringClass() {
 		return declaringClass;
 	}
@@ -46,5 +54,5 @@ public class ValueSnapshot {
 	public void setValue(SerializedValue value) {
 		this.value = value;
 	}
-	
+
 }

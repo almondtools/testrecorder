@@ -7,6 +7,8 @@ import java.math.BigInteger;
 
 import org.junit.Test;
 
+import com.almondtools.testrecorder.visitors.TestValueVisitor;
+
 public class SerializedBigIntegerTest {
 
 	@Test
