@@ -1,4 +1,4 @@
-package com.almondtools.testrecorder.generator;
+package com.almondtools.testrecorder;
 
 public class GenericObjectException extends RuntimeException {
 

@@ -1,9 +1,9 @@
-package com.almondtools.testrecorder.generator;
+package com.almondtools.testrecorder;
 
 import static com.almondtools.testrecorder.SnapshotInstrumentor.SNAPSHOT_GENERATOR_FIELD_NAME;
-import static com.almondtools.testrecorder.generator.TypeHelper.getBase;
-import static com.almondtools.testrecorder.generator.TypeHelper.getSimpleName;
-import static com.almondtools.testrecorder.generator.TypeHelper.isPrimitive;
+import static com.almondtools.testrecorder.TypeHelper.getBase;
+import static com.almondtools.testrecorder.TypeHelper.getSimpleName;
+import static com.almondtools.testrecorder.TypeHelper.isPrimitive;
 import static java.lang.Character.toUpperCase;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
@@ -32,10 +32,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.stringtemplate.v4.ST;
 
-import com.almondtools.testrecorder.MethodSnapshot;
-import com.almondtools.testrecorder.SerializedValue;
-import com.almondtools.testrecorder.SerializedValueVisitor;
-import com.almondtools.testrecorder.SnapshotGenerator;
 import com.almondtools.testrecorder.visitors.Computation;
 import com.almondtools.testrecorder.visitors.ImportManager;
 import com.almondtools.testrecorder.visitors.LocalVariableNameGenerator;

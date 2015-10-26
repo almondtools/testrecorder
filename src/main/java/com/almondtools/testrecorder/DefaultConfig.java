@@ -3,10 +3,6 @@ package com.almondtools.testrecorder;
 import java.util.Collections;
 import java.util.List;
 
-import com.almondtools.testrecorder.generator.MethodSnapshotConsumer;
-import com.almondtools.testrecorder.generator.TestGenerator;
-import com.almondtools.testrecorder.generator.ValueSnapshotConsumer;
-
 public class DefaultConfig implements SnapshotConfig {
 
 	@Override

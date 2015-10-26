@@ -1,9 +1,7 @@
-package com.almondtools.testrecorder.generator;
+package com.almondtools.testrecorder;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import com.almondtools.testrecorder.MethodSnapshot;
 
 public class ScheduledTestGenerator extends TestGenerator {
 

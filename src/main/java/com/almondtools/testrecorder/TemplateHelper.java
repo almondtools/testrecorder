@@ -1,4 +1,4 @@
-package com.almondtools.testrecorder.generator;
+package com.almondtools.testrecorder;
 
 public final class TemplateHelper {
 

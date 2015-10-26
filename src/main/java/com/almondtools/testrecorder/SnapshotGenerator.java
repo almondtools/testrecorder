@@ -14,9 +14,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
-import com.almondtools.testrecorder.generator.MethodSnapshotConsumer;
-import com.almondtools.testrecorder.generator.ValueSnapshotConsumer;
-
 public class SnapshotGenerator {
 
 	private static ThreadFactory THREADS = new ThreadFactory() {

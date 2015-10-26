@@ -1,8 +1,8 @@
 package com.almondtools.testrecorder.visitors;
 
-import static com.almondtools.testrecorder.generator.TemplateHelper.asLiteral;
-import static com.almondtools.testrecorder.generator.TypeHelper.getSimpleName;
-import static com.almondtools.testrecorder.generator.TypeHelper.isPrimitive;
+import static com.almondtools.testrecorder.TemplateHelper.asLiteral;
+import static com.almondtools.testrecorder.TypeHelper.getSimpleName;
+import static com.almondtools.testrecorder.TypeHelper.isPrimitive;
 import static com.almondtools.testrecorder.visitors.Templates.arrayContainingMatcher;
 import static com.almondtools.testrecorder.visitors.Templates.assignField;
 import static com.almondtools.testrecorder.visitors.Templates.containsEntriesMatcher;
@@ -32,13 +32,13 @@ import java.util.stream.Stream;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
+import com.almondtools.testrecorder.GenericObject;
+import com.almondtools.testrecorder.MapMatcher;
+import com.almondtools.testrecorder.PrimitiveArrayMatcher;
 import com.almondtools.testrecorder.SerializedCollectionVisitor;
 import com.almondtools.testrecorder.SerializedImmutableVisitor;
 import com.almondtools.testrecorder.SerializedValue;
 import com.almondtools.testrecorder.SerializedValueVisitor;
-import com.almondtools.testrecorder.generator.GenericObject;
-import com.almondtools.testrecorder.generator.MapMatcher;
-import com.almondtools.testrecorder.generator.PrimitiveArrayMatcher;
 import com.almondtools.testrecorder.values.SerializedArray;
 import com.almondtools.testrecorder.values.SerializedBigDecimal;
 import com.almondtools.testrecorder.values.SerializedBigInteger;

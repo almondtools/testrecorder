@@ -16,7 +16,7 @@ import org.junit.Test;
 
 import com.almondtools.testrecorder.DefaultConfig;
 import com.almondtools.testrecorder.SnapshotInstrumentor;
-import com.almondtools.testrecorder.generator.TestGenerator;
+import com.almondtools.testrecorder.TestGenerator;
 
 public class CollectionDataTypesTest {
 

@@ -1,8 +1,8 @@
 package com.almondtools.testrecorder;
 
 import static com.almondtools.testrecorder.SnapshotInstrumentor.SNAPSHOT_GENERATOR_FIELD_NAME;
-import static com.almondtools.testrecorder.generator.TypeHelper.getBase;
-import static com.almondtools.testrecorder.generator.TypeHelper.getSimpleName;
+import static com.almondtools.testrecorder.TypeHelper.getBase;
+import static com.almondtools.testrecorder.TypeHelper.getSimpleName;
 import static com.almondtools.testrecorder.visitors.Templates.returnStatement;
 import static java.util.Collections.synchronizedMap;
 
@@ -14,7 +14,6 @@ import java.util.Map;
 
 import org.stringtemplate.v4.ST;
 
-import com.almondtools.testrecorder.generator.ValueSnapshotConsumer;
 import com.almondtools.testrecorder.visitors.Computation;
 import com.almondtools.testrecorder.visitors.ImportManager;
 import com.almondtools.testrecorder.visitors.LocalVariableNameGenerator;

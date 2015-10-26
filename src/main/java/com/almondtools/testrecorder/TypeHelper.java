@@ -1,4 +1,4 @@
-package com.almondtools.testrecorder.generator;
+package com.almondtools.testrecorder;
 
 import static java.util.stream.Collectors.joining;
 

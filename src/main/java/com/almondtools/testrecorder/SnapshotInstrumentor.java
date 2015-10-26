@@ -65,8 +65,6 @@ import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-import com.almondtools.testrecorder.generator.TypeHelper;
-
 public class SnapshotInstrumentor implements ClassFileTransformer {
 
 	private static final String CONSTRUCTOR_NAME = "<init>";

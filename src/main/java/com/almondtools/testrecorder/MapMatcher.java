@@ -1,4 +1,4 @@
-package com.almondtools.testrecorder.generator;
+package com.almondtools.testrecorder;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
