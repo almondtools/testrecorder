@@ -1,7 +1,7 @@
 package com.almondtools.testrecorder.values;
 
+import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefaultEquality;
 import static com.almondtools.testrecorder.values.SerializedLiteral.literal;
-import static com.almondtools.util.objects.EqualityMatcher.satisfiesDefaultEquality;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;

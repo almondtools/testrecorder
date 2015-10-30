@@ -1,6 +1,6 @@
 package com.almondtools.testrecorder.values;
 
-import static com.almondtools.util.objects.EqualityMatcher.satisfiesDefaultEquality;
+import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefaultEquality;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;

@@ -1,8 +1,8 @@
 package com.almondtools.testrecorder.values;
 
+import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefaultEquality;
 import static com.almondtools.testrecorder.values.SerializedLiteral.isLiteral;
 import static com.almondtools.testrecorder.values.SerializedLiteral.literal;
-import static com.almondtools.util.objects.EqualityMatcher.satisfiesDefaultEquality;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
