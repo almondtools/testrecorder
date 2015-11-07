@@ -8,9 +8,11 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.number.IsCloseTo.closeTo;
 import static org.junit.Assert.assertThat;
 
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.almondtools.testrecorder.ConfigRegistry;
 import com.almondtools.testrecorder.DefaultConfig;
 import com.almondtools.testrecorder.SnapshotInstrumentor;
 import com.almondtools.testrecorder.ValueGenerator;
@@ -23,6 +25,11 @@ public class FieldsTest {
 	public static void beforeClass() throws Exception {
 		instrumentor = new SnapshotInstrumentor(new DefaultConfig());
 		instrumentor.register("com.almondtools.testrecorder.scenarios.Fields");
+	}
+	
+	@Before
+	public void before() throws Exception {
+		((ValueGenerator) ConfigRegistry.loadConfig(DefaultConfig.class).getValueConsumer()).clearResults();
 	}
 	
 	@Test

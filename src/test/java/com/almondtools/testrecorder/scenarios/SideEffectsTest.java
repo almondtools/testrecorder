@@ -7,9 +7,11 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Every.everyItem;
 import static org.junit.Assert.assertThat;
 
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.almondtools.testrecorder.ConfigRegistry;
 import com.almondtools.testrecorder.DefaultConfig;
 import com.almondtools.testrecorder.SnapshotInstrumentor;
 import com.almondtools.testrecorder.TestGenerator;
@@ -24,6 +26,11 @@ public class SideEffectsTest {
 		instrumentor.register("com.almondtools.testrecorder.scenarios.SideEffects");
 	}
 
+	@Before
+	public void before() throws Exception {
+		((TestGenerator) ConfigRegistry.loadConfig(DefaultConfig.class).getMethodConsumer()).clearResults();
+	}
+	
 	@Test
 	public void testSideEffectsOnThis() throws Exception {
 		SideEffects sideEffects = new SideEffects();

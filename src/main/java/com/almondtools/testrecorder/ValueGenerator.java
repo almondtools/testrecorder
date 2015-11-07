@@ -65,6 +65,10 @@ public class ValueGenerator implements ValueSnapshotConsumer {
 		return values.computeIfAbsent(getBase(clazz), key -> new ArrayList<>());
 	}
 
+	public void clearResults() {
+		values.clear();
+	}
+
 	public String renderCode(Class<?> clazz) {
 		List<String> localvalues = valuesFor(clazz);
 
