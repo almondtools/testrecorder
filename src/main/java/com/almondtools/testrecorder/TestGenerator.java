@@ -5,6 +5,9 @@ import static com.almondtools.testrecorder.TypeHelper.getBase;
 import static com.almondtools.testrecorder.TypeHelper.getSimpleName;
 import static com.almondtools.testrecorder.TypeHelper.isPrimitive;
 import static java.lang.Character.toUpperCase;
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+import static java.nio.file.StandardOpenOption.WRITE;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.synchronizedMap;
@@ -111,7 +114,7 @@ public class TestGenerator implements MethodSnapshotConsumer {
 
 			try {
 				Path testfile = locateTestFile(dir, clazz);
-				try (Writer writer = Files.newBufferedWriter(testfile)) {
+				try (Writer writer = Files.newBufferedWriter(testfile, CREATE, WRITE, TRUNCATE_EXISTING)) {
 					writer.write(rendered);
 				}
 			} catch (IOException e) {
