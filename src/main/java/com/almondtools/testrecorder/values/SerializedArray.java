@@ -41,10 +41,22 @@ public class SerializedArray implements SerializedValue {
 		}
 	}
 
+	public Class<?> getRawType() {
+		if (type instanceof Class<?> && ((Class<?>) type).isArray()) {
+			return ((Class<?>) type).getComponentType();
+		} else {
+			return Object.class;
+		}
+	}
+
 	public SerializedValue[] getArray() {
 		return array.toArray(new SerializedValue[0]);
 	}
 
+	public List<SerializedValue> getArrayAsList() {
+		return array;
+	}
+	
 	@Override
 	public <T> T accept(SerializedValueVisitor<T> visitor) {
 		return visitor.visitArray(this);

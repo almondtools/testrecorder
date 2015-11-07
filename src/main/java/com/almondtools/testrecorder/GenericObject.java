@@ -22,7 +22,7 @@ public abstract class GenericObject {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T> T newInstance(Class<T> clazz) {
+	public static <T> T newInstance(Class<T> clazz) {
 		Exception exception = null;
 		for (Constructor<T> constructor : (Constructor<T>[]) clazz.getDeclaredConstructors()) {
 			boolean access = constructor.isAccessible();
@@ -43,7 +43,7 @@ public abstract class GenericObject {
 		throw new GenericObjectException(exception);
 	}
 
-	private Object[] createParams(Class<?>[] classes) {
+	public static Object[] createParams(Class<?>[] classes) {
 		Object[] params = new Object[classes.length];
 		for (int i = 0; i < params.length; i++) {
 			params[i] = getDefaultValue(classes[i]);
@@ -51,7 +51,7 @@ public abstract class GenericObject {
 		return params;
 	}
 
-	private Object getDefaultValue(Class<?> clazz) {
+	public static Object getDefaultValue(Class<?> clazz) {
 		if (clazz == boolean.class) {
 			return false;
 		} else if (clazz == char.class) {
@@ -79,25 +79,33 @@ public abstract class GenericObject {
 
 	public <T> T as(T o) {
 		for (Field field : getGenericFields()) {
-			Field to = findField(field.getName(), o.getClass());
-			boolean access = to.isAccessible();
-			if (!access) {
-				to.setAccessible(true);
-			}
 			try {
-				to.set(o, field.get(this));
+				setField(o, field.getName(), field.get(this));
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				throw new GenericObjectException(e);
-			} finally {
-				if (!access) {
-					to.setAccessible(false);
-				}
 			}
 		}
 		return o;
 	}
 
-	private Field findField(String name, Class<?> clazz) {
+	public static void setField(Object o, String name, Object value) {
+		Field to = findField(name, o.getClass());
+		boolean access = to.isAccessible();
+		if (!access) {
+			to.setAccessible(true);
+		}
+		try {
+			to.set(o, value);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			throw new GenericObjectException(e);
+		} finally {
+			if (!access) {
+				to.setAccessible(false);
+			}
+		}
+	}
+
+	public static Field findField(String name, Class<?> clazz) {
 		Class<?> current = clazz;
 		while (current != Object.class) {
 			try {

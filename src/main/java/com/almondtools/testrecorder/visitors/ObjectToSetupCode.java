@@ -95,7 +95,6 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 	}
 
 	private Computation renderBeanSetup(SerializedObject value) throws IntrospectionException, ReflectiveOperationException, BeanSetupFailedException {
-		Type type = value.getType();
 		Class<?> clazz = value.getObjectType();
 
 		BeanInfo info = Introspector.getBeanInfo(clazz);
@@ -108,10 +107,10 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 		}
 		List<String> statements = new ArrayList<>();
 
-		String name = locals.fetchName(type);
+		String name = locals.fetchName(clazz);
 
-		String bean = newObject(getSimpleName(type));
-		String constructorStatement = assignStatement(getSimpleName(type), name, bean);
+		String bean = newObject(getSimpleName(clazz));
+		String constructorStatement = assignStatement(getSimpleName(clazz), name, bean);
 		statements.add(constructorStatement);
 
 		Object o = clazz.newInstance();
@@ -138,7 +137,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 		Class<?> clazz = base.getClass();
 		String fieldName = setProperty.getName();
 		
-		Object setValue = deserialize(fieldvalue);
+		Object setValue = fieldvalue.accept(new Deserializer());
 
 		setProperty.getWriteMethod().invoke(base, setValue);
 		Field f = clazz.getDeclaredField(fieldName);
@@ -160,15 +159,6 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 				f.setAccessible(true);
 			}
 		}
-	}
-
-	private Object deserialize(SerializedValue value) throws BeanSetupFailedException {
-		if (value instanceof SerializedNull) {
-			return null;
-		} else if (value instanceof SerializedLiteral) {
-			return ((SerializedLiteral) value).getValue();
-		}
-		throw new BeanSetupFailedException();
 	}
 
 	private Computation renderGenericSetup(SerializedObject value) {
