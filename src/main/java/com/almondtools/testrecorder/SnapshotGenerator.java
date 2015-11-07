@@ -1,5 +1,7 @@
 package com.almondtools.testrecorder;
 
+import static com.almondtools.testrecorder.ConfigRegistry.loadConfig;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -41,10 +43,9 @@ public class SnapshotGenerator {
 	
 
 	public SnapshotGenerator(Object self, Class<? extends SnapshotConfig> config) {
-		SnapshotConfig snapshotConfig = loadConfig(config);
-		this.methodConsumer = snapshotConfig.getMethodConsumer();
-		this.valueConsumer = snapshotConfig.getValueConsumer();
-		this.timeoutInMillis = snapshotConfig.getTimeoutInMillis();
+		this.methodConsumer = loadConfig(config).getMethodConsumer();
+		this.valueConsumer = loadConfig(config).getValueConsumer();
+		this.timeoutInMillis = loadConfig(config).getTimeoutInMillis();
 		
 		this.self = self;
 
@@ -59,14 +60,6 @@ public class SnapshotGenerator {
 
 	public ValueSnapshotConsumer getValueConsumer() {
 		return valueConsumer;
-	}
-
-	private static SnapshotConfig loadConfig(Class<? extends SnapshotConfig> config) {
-		try {
-			return config.newInstance();
-		} catch (RuntimeException | ReflectiveOperationException e) {
-			return new DefaultConfig();
-		}
 	}
 
 	public void register(String signature, Method method) {

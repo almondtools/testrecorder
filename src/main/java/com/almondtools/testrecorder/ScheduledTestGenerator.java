@@ -2,8 +2,12 @@ package com.almondtools.testrecorder;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ScheduledTestGenerator extends TestGenerator {
+
+	private static volatile Set<ScheduledTestGenerator> dumpOnShutDown;
 
 	private Path path;
 	private int counter;
@@ -11,7 +15,7 @@ public class ScheduledTestGenerator extends TestGenerator {
 	private long start;
 	private long timeInterval;
 	private String classNameTemplate;
-	
+
 	public ScheduledTestGenerator() {
 		this.counter = 0;
 		this.start = System.currentTimeMillis();
@@ -40,18 +44,28 @@ public class ScheduledTestGenerator extends TestGenerator {
 
 	public ScheduledTestGenerator withDumpOnShutDown(boolean shutDown) {
 		if (shutDown) {
+			addDumpOnShutdown();
+		}
+		return this;
+	}
+
+	private synchronized void addDumpOnShutdown() {
+		if (dumpOnShutDown == null) {
+			dumpOnShutDown = new HashSet<>();
 			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 
 				@Override
 				public void run() {
-					dumpResults();
+					for (ScheduledTestGenerator gen : dumpOnShutDown) {
+						gen.dumpResults();
+					}
 				}
 
 			}));
 		}
-		return this;
+		dumpOnShutDown.add(this);
 	}
-	
+
 	@Override
 	public void accept(MethodSnapshot snapshot) {
 		super.accept(snapshot);
