@@ -236,27 +236,34 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 		return isSet(base, fieldName, setValue);
 	}
 
-	private boolean isSet(Object base, String fieldName, Object expectedValue) throws NoSuchFieldException, IllegalAccessException {
+	private boolean isSet(Object base, String fieldName, Object expectedValue) throws IllegalAccessException {
 		Class<?> clazz = base.getClass();
-		Field f = clazz.getDeclaredField(fieldName);
-		boolean accessible = f.isAccessible();
-		try {
-			if (!accessible) {
-				f.setAccessible(true);
-			}
-			Object foundValue = f.get(base);
-			if (foundValue == expectedValue) {
-				return true;
-			} else if (foundValue == null || expectedValue == null) {
-				return false;
-			} else {
-				return foundValue.equals(expectedValue);
-			}
-		} finally {
-			if (!accessible) {
-				f.setAccessible(true);
+		while (clazz != Object.class) {
+			try {
+				Field f = clazz.getDeclaredField(fieldName);
+				boolean accessible = f.isAccessible();
+				try {
+					if (!accessible) {
+						f.setAccessible(true);
+					}
+					Object foundValue = f.get(base);
+					if (foundValue == expectedValue) {
+						return true;
+					} else if (foundValue == null || expectedValue == null) {
+						return false;
+					} else {
+						return foundValue.equals(expectedValue);
+					}
+				} finally {
+					if (!accessible) {
+						f.setAccessible(true);
+					}
+				}
+			} catch (NoSuchFieldException e) {
+				clazz = clazz.getSuperclass();
 			}
 		}
+		return false;
 	}
 
 	private Computation renderGenericSetup(SerializedObject value) {
