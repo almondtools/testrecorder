@@ -2,19 +2,13 @@ package com.almondtools.testrecorder.scenarios;
 
 import com.almondtools.testrecorder.Snapshot;
 
-public class Bean {
+public class ConstructorBean {
 
 	private int i;
 	private Object o;
 	
-	public Bean() {
-	}
-	
-	public void setI(int i) {
+	public ConstructorBean(int i, Object o) {
 		this.i = i;
-	}
-	
-	public void setO(Object o) {
 		this.o = o;
 	}
 	

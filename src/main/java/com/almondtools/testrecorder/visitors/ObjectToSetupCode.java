@@ -8,6 +8,7 @@ import static com.almondtools.testrecorder.visitors.Templates.assignStatement;
 import static com.almondtools.testrecorder.visitors.Templates.callMethodStatement;
 import static com.almondtools.testrecorder.visitors.Templates.genericObjectConverter;
 import static com.almondtools.testrecorder.visitors.Templates.newObject;
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
@@ -16,6 +17,7 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -95,6 +97,98 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 	}
 
 	private Computation renderBeanSetup(SerializedObject value) throws IntrospectionException, ReflectiveOperationException, BeanSetupFailedException {
+		try {
+			return renderConstructorBean(value);
+		} catch (BeanSetupFailedException e) {
+			return renderClassicBean(value);
+		}
+	}
+
+	private Computation renderConstructorBean(SerializedObject value) throws IntrospectionException, ReflectiveOperationException, BeanSetupFailedException {
+		Class<?> clazz = value.getObjectType();
+
+		List<Type> requiredParameterTypes = value.getFields().stream()
+			.map(field -> field.getType())
+			.collect(toList());
+
+		Constructor<?> constructor = findConstructor(clazz, requiredParameterTypes);
+		if (constructor == null) {
+			throw new BeanSetupFailedException();
+		} else {
+			List<SerializedField> orderedFields = orderFields(constructor.getGenericParameterTypes(), value.getFields());
+			if (constructSuccessful(constructor, orderedFields)) {
+				List<String> statements = new ArrayList<>();
+
+				String name = locals.fetchName(clazz);
+
+				List<Computation> computations = orderedFields.stream()
+					.map(field -> field.getValue())
+					.map(fieldValue -> fieldValue.accept(this))
+					.collect(toList());
+				
+				statements.addAll(computations.stream()
+					.flatMap(computation -> computation.getStatements().stream())
+					.collect(toList()));
+				
+				String[] params = computations.stream()
+					.map(computation -> computation.getValue())
+					.toArray(len -> new String[len]);
+				
+				String bean = newObject(getSimpleName(clazz), params);
+				String constructorStatement = assignStatement(getSimpleName(clazz), name, bean);
+				statements.add(constructorStatement);
+
+				return new Computation(name, true, statements);
+			} else {
+				throw new BeanSetupFailedException();
+			}
+		}
+
+	}
+
+	private boolean constructSuccessful(Constructor<?> constructor, List<SerializedField> fields) {
+		Deserializer deserializer = new Deserializer();
+		Object[] arguments = fields.stream()
+			.map(field -> field.getValue().accept(deserializer))
+			.toArray(len -> new Object[len]);
+		try {
+			Object o = constructor.newInstance(arguments);
+			for (int i = 0; i < arguments.length; i++) {
+				SerializedField field = fields.get(i);
+				if (!isSet(o, field.getName(), arguments[i])) {
+					return false;
+				}
+			}
+			return true;
+		} catch (ReflectiveOperationException e) {
+			return false;
+		}
+	}
+
+	private Constructor<?> findConstructor(Class<?> clazz, List<Type> requiredParameterTypes) throws BeanSetupFailedException {
+		for (Constructor<?> constructor : clazz.getConstructors()) {
+			List<Type> foundTypes = asList(constructor.getGenericParameterTypes());
+			if (requiredParameterTypes.containsAll(foundTypes)
+				&& foundTypes.containsAll(requiredParameterTypes)) {
+				return constructor;
+			}
+		}
+		throw new BeanSetupFailedException();
+	}
+
+	private List<SerializedField> orderFields(Type[] types, List<SerializedField> fields) throws BeanSetupFailedException {
+		List<SerializedField> ordered = new ArrayList<>();
+		for (Type type : types) {
+			SerializedField matchingField = fields.stream()
+				.filter(field -> type.equals(field.getType()))
+				.findFirst()
+				.orElseThrow(() -> new BeanSetupFailedException());
+			ordered.add(matchingField);
+		}
+		return ordered;
+	}
+
+	private Computation renderClassicBean(SerializedObject value) throws IntrospectionException, ReflectiveOperationException, BeanSetupFailedException {
 		Class<?> clazz = value.getObjectType();
 
 		BeanInfo info = Introspector.getBeanInfo(clazz);
@@ -134,12 +228,16 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 	}
 
 	private boolean setSuccessful(Object base, PropertyDescriptor setProperty, SerializedValue fieldvalue) throws BeanSetupFailedException, ReflectiveOperationException {
-		Class<?> clazz = base.getClass();
 		String fieldName = setProperty.getName();
-		
+
 		Object setValue = fieldvalue.accept(new Deserializer());
 
 		setProperty.getWriteMethod().invoke(base, setValue);
+		return isSet(base, fieldName, setValue);
+	}
+
+	private boolean isSet(Object base, String fieldName, Object expectedValue) throws NoSuchFieldException, IllegalAccessException {
+		Class<?> clazz = base.getClass();
 		Field f = clazz.getDeclaredField(fieldName);
 		boolean accessible = f.isAccessible();
 		try {
@@ -147,12 +245,12 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 				f.setAccessible(true);
 			}
 			Object foundValue = f.get(base);
-			if (foundValue == setValue) {
+			if (foundValue == expectedValue) {
 				return true;
-			} else if (foundValue == null || setValue == null) {
+			} else if (foundValue == null || expectedValue == null) {
 				return false;
 			} else {
-				return foundValue.equals(setValue);
+				return foundValue.equals(expectedValue);
 			}
 		} finally {
 			if (!accessible) {
@@ -289,7 +387,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 
 		for (Map.Entry<String, String> element : elements.entrySet()) {
 			String putEntry = callMethodStatement(name, "put", element.getKey(), element.getValue());
-			statements.add(putEntry );
+			statements.add(putEntry);
 		}
 
 		return new Computation(name, true, statements);
