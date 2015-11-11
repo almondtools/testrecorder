@@ -4,6 +4,7 @@ import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPat
 import static com.almondtools.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static com.almondtools.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRuns;
 import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -29,18 +30,18 @@ public class SubSuperBeanTest {
 		instrumentor.register("com.almondtools.testrecorder.scenarios.SuperBean");
 		instrumentor.register("com.almondtools.testrecorder.scenarios.SubBean");
 	}
-	
+
 	@Before
 	public void before() throws Exception {
 		((TestGenerator) ConfigRegistry.loadConfig(DefaultConfig.class).getMethodConsumer()).clearResults();
 	}
-	
+
 	@Test
 	public void testCompilable() throws Exception {
 		SubBean bean = new SubBean();
 		bean.setI(22);
 		bean.setO(new SubBean());
-		
+
 		assertThat(bean.hashCode(), equalTo(191));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded(bean);
@@ -54,13 +55,13 @@ public class SubSuperBeanTest {
 		SubBean bean = new SubBean();
 		bean.setI(22);
 		bean.setO(new SubBean());
-		
+
 		assertThat(bean.hashCode(), equalTo(191));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded(bean);
 		assertThat(testGenerator.testsFor(SubBean.class), hasSize(2));
 		assertThat(testGenerator.testsFor(SubBean.class), containsInAnyOrder(
-			allOf(containsPattern("subBean?.setI(0)"), containsPattern("subBean?.setO(null)"), containsString("equalTo(13)")), 
+			allOf(containsString("new SubBean()"), not(containsPattern("subBean?.set")), containsString("equalTo(13)")),
 			allOf(containsPattern("subBean?.setI(22)"), containsPattern("subBean?.setO(subBean?)"), containsString("equalTo(191)"))));
 	}
 }

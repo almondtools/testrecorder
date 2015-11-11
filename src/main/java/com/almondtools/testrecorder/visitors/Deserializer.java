@@ -1,10 +1,14 @@
 package com.almondtools.testrecorder.visitors;
 
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
-
 import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
 
 import com.almondtools.testrecorder.DeserializationException;
 import com.almondtools.testrecorder.GenericObject;
@@ -26,6 +30,17 @@ import com.almondtools.testrecorder.values.SerializedSet;
 
 public class Deserializer implements SerializedValueVisitor<Object>, SerializedCollectionVisitor<Object>, SerializedImmutableVisitor<Object> {
 
+	private Map<SerializedValue, Object> deserialized;
+	
+	public Deserializer() {
+		this.deserialized = new IdentityHashMap<>();
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T> T fetch(SerializedValue key, Supplier<T> supplier) {
+		return (T) deserialized.computeIfAbsent(key, k -> supplier.get());
+	}
+	
 	@Override
 	public Object visitField(SerializedField field) {
 		throw new DeserializationException(field.toString());
@@ -34,7 +49,7 @@ public class Deserializer implements SerializedValueVisitor<Object>, SerializedC
 	@Override
 	public Object visitObject(SerializedObject value) {
 		try {
-			Object result = GenericObject.newInstance(value.getObjectType());
+			Object result = fetch(value, () -> GenericObject.newInstance(value.getObjectType()));
 			for (SerializedField field : value.getFields()) {
 				GenericObject.setField(result, field.getName(), field.getValue().accept(this));
 			}
@@ -46,45 +61,57 @@ public class Deserializer implements SerializedValueVisitor<Object>, SerializedC
 
 	@Override
 	public Object visitBigDecimal(SerializedBigDecimal value) {
-		return value.getValue();
+		return fetch(value, () -> value.getValue());
 	}
 
 	@Override
 	public Object visitBigInteger(SerializedBigInteger value) {
-		return value.getValue();
+		return fetch(value, () -> value.getValue());
 	}
 
 	@Override
 	public Object visitList(SerializedList value) {
-		return value.stream()
-			.map(element -> element.accept(this))
-			.collect(toList());
+		List<Object> list = fetch(value, ArrayList::new);
+		for (SerializedValue element : value) {
+			list.add(element.accept(this));
+		}
+		return list;
 	}
 
 	@Override
 	public Object visitMap(SerializedMap value) {
-		return value.entrySet().stream()
-			.collect(toMap(entry -> entry.getKey().accept(this), entry -> entry.getValue().accept(this)));
+		Map<Object,Object> map = fetch(value, LinkedHashMap::new);
+		for (Map.Entry<SerializedValue,SerializedValue> entry : value.entrySet()) {
+			Object k = entry.getKey().accept(this);
+			Object v = entry.getValue().accept(this);
+			map.put(k, v);
+		}
+		return map;
 	}
 
 	@Override
 	public Object visitSet(SerializedSet value) {
-		return value.stream()
-			.map(element -> element.accept(this))
-			.collect(toSet());
+		Set<Object> set = fetch(value, LinkedHashSet::new);
+		for (SerializedValue element : value) {
+			set.add(element.accept(this));
+		}
+		return set;
 	}
 
 	@Override
 	public Object visitArray(SerializedArray value) {
 		Class<?> componentType = value.getRawType();
-		return value.getArrayAsList().stream()
-			.map(element -> element.accept(this))
-			.toArray(len -> (Object[]) Array.newInstance(componentType, len));
+		SerializedValue[] rawArray = value.getArray();
+		Object[] array = (Object[]) fetch(value, () -> Array.newInstance(componentType, rawArray.length));
+		for (int i = 0; i < rawArray.length; i++) {
+			array[i] = rawArray[i].accept(this);
+		}
+		return array;
 	}
 
 	@Override
 	public Object visitLiteral(SerializedLiteral value) {
-		return ((SerializedLiteral) value).getValue();
+		return fetch(value, () -> ((SerializedLiteral) value).getValue());
 	}
 
 	@Override
