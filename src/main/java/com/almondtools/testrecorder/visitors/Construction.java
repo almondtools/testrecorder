@@ -1,7 +1,6 @@
 package com.almondtools.testrecorder.visitors;
 
 import static com.almondtools.testrecorder.GenericObject.getDefaultValue;
-import static com.almondtools.testrecorder.values.SerializedLiteral.isLiteral;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -9,13 +8,12 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Queue;
 import java.util.Set;
 
+import com.almondtools.testrecorder.GenericComparison;
 import com.almondtools.testrecorder.SerializedValueVisitor;
 import com.almondtools.testrecorder.values.SerializedField;
 import com.almondtools.testrecorder.values.SerializedObject;
@@ -41,7 +39,7 @@ public class Construction {
 	public Computation computeBest(SerializedValueVisitor<Computation> compiler) throws InstantiationException {
 		fillOrigins();
 		return computeConstructionPlans().stream()
-			.filter(plan -> equals(plan.execute(), value))
+			.filter(plan -> GenericComparison.equals(plan.execute(), value))
 			.sorted()
 			.findFirst()
 			.map(plan -> plan.compute(compiler))
@@ -207,86 +205,6 @@ public class Construction {
 			}
 		}
 		return arguments;
-	}
-
-	private boolean equals(Object o1, Object o2) {
-		return equals(new Pair(o1,o2));
-	}
-	
-	private boolean equals(Pair p) {
-		Queue<Pair> todo = new LinkedList<>();
-		todo.add(p);
-		while (!todo.isEmpty()) {
-			Pair current = todo.remove();
-			if (!current.equals()) {
-				return false;
-			} else {
-				List<Pair> nestedObjects = current.getNestedObjects();
-				todo.addAll(nestedObjects);
-			}
-		}
-		return true;
-	}
-	
-	private static class Pair {
-		private Object left;
-		private Object right;
-		
-		private List<Pair> nestedObjects;
-		
-		public Pair(Object left, Object right) {
-			this.left = left;
-			this.right = right;
-			this.nestedObjects = new ArrayList<>();
-		}
-		
-		public List<Pair> getNestedObjects() {
-			return nestedObjects;
-		}
-
-		public boolean equals() {
-			if (left.getClass() != right.getClass()) {
-				return false;
-			}
-			Class<?> clazz = left.getClass();
-			if (isLiteral(clazz)) {
-				return left.equals(right);
-			}
-			while (clazz != Object.class) {
-				for (Field field : clazz.getDeclaredFields()) {
-					if (field.isSynthetic()) {
-						continue;
-					}
-					boolean accesible = field.isAccessible();
-					try {
-						if (!accesible) {
-							field.setAccessible(true);
-						}
-						Object f1 = field.get(left);
-						Object f2 = field.get(right);
-						if (f1 == f2) {
-							continue;
-						} else if (f1 == null) {
-							return false;
-						} else if (f2 == null) {
-							return false;
-						} else if (f1.equals(f2)) {
-							continue;
-						} else {
-							nestedObjects.add(new Pair(f1,f2));
-						}
-					} catch (ReflectiveOperationException e) {
-						return false;
-					} finally {
-						if (!accesible) {
-							field.setAccessible(false);
-						}
-					}
-				}
-				clazz = clazz.getSuperclass();
-			}
-			return true;
-		}
 	}
 
 }

@@ -10,11 +10,6 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.SelfDescribing;
-import org.hamcrest.TypeSafeMatcher;
-
 public abstract class GenericObject {
 
 	public <T> T as(Class<T> clazz) {
@@ -118,7 +113,7 @@ public abstract class GenericObject {
 	}
 
 
-	private List<Field> getGenericFields() {
+	public List<Field> getGenericFields() {
 		Field[] declaredFields = getClass().getDeclaredFields();
 		return Stream.of(declaredFields)
 			.filter(field -> isSerializable(field))
@@ -131,111 +126,6 @@ public abstract class GenericObject {
 			&& field.getName().indexOf('$') < 0
 			&& ((field.getModifiers() & Modifier.STATIC) != Modifier.STATIC)
 			&& ((field.getModifiers() & Modifier.FINAL) != Modifier.FINAL);
-	}
-
-	public boolean matches(Object o) {
-		for (Field field : getGenericFields()) {
-			Field to = findField(field.getName(), o.getClass());
-			boolean access = to.isAccessible();
-			if (!access) {
-				to.setAccessible(true);
-			}
-			try {
-				Object fieldValue = field.get(this);
-				Object toValue = to.get(o);
-				if (fieldValue == null && toValue == null) {
-					continue;
-				} else if (fieldValue instanceof Matcher<?>) {
-					if (!((Matcher<?>) fieldValue).matches(toValue)) {
-						return false;
-					} else {
-						continue;
-					}
-				} else if (fieldValue == null) {
-					return false;
-				} else if (toValue == null) {
-					return false;
-				} else if (!fieldValue.equals(toValue)) {
-					return false;
-				} else {
-					continue;
-				}
-			} catch (IllegalArgumentException | IllegalAccessException e) {
-				throw new GenericObjectException(e);
-			} finally {
-				if (!access) {
-					to.setAccessible(false);
-				}
-			}
-		}
-		return true;
-	}
-
-	public <T> Matcher<T> matcher(Class<T> clazz) {
-		GenericObject self = GenericObject.this;
-		return new TypeSafeMatcher<T>() {
-
-			@Override
-			public void describeTo(Description description) {
-				description.appendText("with fields:");
-				for (Field field : getGenericFields()) {
-					try {
-						description.appendText("\n\t")
-							.appendText(field.getType().getSimpleName()).appendText(" ")
-							.appendText(field.getName()).appendText(":");
-						Object value = field.get(self);
-						if (value instanceof SelfDescribing) {
-							description.appendDescriptionOf((SelfDescribing) value);
-						} else {
-							description.appendValue(value);
-						}
-					} catch (IllegalArgumentException | IllegalAccessException e) {
-						description.appendText("\n\t")
-							.appendValue(field.getType()).appendText(" ")
-							.appendValue(field.getName()).appendText(":<description failed>");
-					}
-				}
-			}
-
-			@Override
-			protected boolean matchesSafely(T item) {
-				return self.matches(item);
-			}
-
-			@Override
-			protected void describeMismatchSafely(T item, Description mismatchDescription) {
-				mismatchDescription.appendText("with fields:");
-				for (Field field : item.getClass().getDeclaredFields()) {
-					try {
-						mismatchDescription.appendText("\n")
-							.appendText(field.getType().getSimpleName()).appendText(" ")
-							.appendText(field.getName()).appendText(":")
-							.appendValue(getValue(field, item));
-					} catch (IllegalArgumentException | IllegalAccessException e) {
-						mismatchDescription.appendText("\n")
-							.appendValue(field.getType()).appendText(" ")
-							.appendValue(field.getName()).appendText(":<description failed>");
-					}
-				}
-			}
-
-			private Object getValue(Field field, Object item) throws IllegalAccessException {
-				boolean access = field.isAccessible();
-				if (!access) {
-					field.setAccessible(true);
-				}
-				try {
-					return field.get(item);
-				} catch (IllegalArgumentException | IllegalAccessException e) {
-					throw new GenericObjectException(e);
-				} finally {
-					if (!access) {
-						field.setAccessible(false);
-					}
-				}
-			}
-
-		};
 	}
 
 }

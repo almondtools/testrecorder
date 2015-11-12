@@ -34,7 +34,7 @@ import org.hamcrest.Matchers;
 
 import com.almondtools.conmatch.datatypes.MapMatcher;
 import com.almondtools.conmatch.datatypes.PrimitiveArrayMatcher;
-import com.almondtools.testrecorder.GenericObject;
+import com.almondtools.testrecorder.GenericMatcher;
 import com.almondtools.testrecorder.SerializedCollectionVisitor;
 import com.almondtools.testrecorder.SerializedImmutableVisitor;
 import com.almondtools.testrecorder.SerializedValue;
@@ -93,7 +93,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 
 	@Override
 	public Computation visitObject(SerializedObject value) {
-		Type[] types = { value.getType(), GenericObject.class };
+		Type[] types = { value.getType(), GenericMatcher.class };
 		imports.registerImports(types);
 
 		List<Computation> fields = value.getFields().stream()

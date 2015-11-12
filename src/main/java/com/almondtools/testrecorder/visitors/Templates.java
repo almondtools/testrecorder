@@ -21,7 +21,7 @@ public final class Templates {
 
 	private static final String GENERIC_TYPE = "$type$<$typeParam; separator=\", \"$>";
 
-	private static final String GENERIC_OBJECT_MATCHER = "new GenericObject() {\n<fields; separator=\"\\n\">\n}.matcher(<type>.class)";
+	private static final String GENERIC_OBJECT_MATCHER = "new GenericMatcher() {\n<fields; separator=\"\\n\">\n}.matcher(<type>.class)";
 	private static final String CONTAINS_MATCHER = "contains(<values; separator=\", \">)";
 	private static final String EMPTY_MATCHER = "empty()";
 	private static final String CONTAINS_IN_ANY_ORDER_MATCHER = "containsInAnyOrder(<values; separator=\", \">)";
