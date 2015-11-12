@@ -18,30 +18,30 @@ public class GenericMatcherTest {
 	}
 
 	@Test
-	public void testMatcherSimple() throws Exception {
-		assertThat(new Simple("myStr"), new GenericMatcher() {
-			public String str = "myStr";
-
-		}.matcher(Simple.class));
-	}
+		public void testMatchingSimple() throws Exception {
+			assertThat(new Simple("myStr"), new GenericMatcher() {
+				public String str = "myStr";
+	
+			}.matching(Simple.class));
+		}
 
 	@Test
 	public void testMatchesComplex() throws Exception {
 		assertThat(new GenericMatcher() {
 			public Matcher<Simple> simple = new GenericMatcher() {
 				public String str = "otherStr";
-			}.matcher(Simple.class);
+			}.matching(Simple.class);
 		}.matches(new Complex()), is(true));
 	}
 
 	@Test
-	public void testMatcherComplex() throws Exception {
-		assertThat(new Complex(), new GenericMatcher() {
-			public Matcher<Simple> simple = new GenericMatcher() {
-				public String str = "otherStr";
-			}.matcher(Simple.class);
-		}.matcher(Complex.class));
-	}
+		public void testMatchingComplex() throws Exception {
+			assertThat(new Complex(), new GenericMatcher() {
+				public Matcher<Simple> simple = new GenericMatcher() {
+					public String str = "otherStr";
+				}.matching(Simple.class);
+			}.matching(Complex.class));
+		}
 
 	private static class Simple {
 		private String str;

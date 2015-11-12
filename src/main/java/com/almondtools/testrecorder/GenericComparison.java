@@ -66,17 +66,9 @@ public class GenericComparison {
 	}
 
 	public static boolean equals(Object left, Field lfield, Object right, Field rfield, Queue<GenericComparison> todo) {
-		boolean laccesible = lfield.isAccessible();
-		boolean raccesible = rfield.isAccessible();
 		try {
-			if (!laccesible) {
-				lfield.setAccessible(true);
-			}
-			if (!raccesible) {
-				rfield.setAccessible(true);
-			}
-			Object f1 = lfield.get(left);
-			Object f2 = rfield.get(right);
+			Object f1 = getValue(lfield, left);
+			Object f2 = getValue(rfield, right);
 			if (f1 == f2) {
 				return true;
 			} else if (f1 == null) {
@@ -91,12 +83,19 @@ public class GenericComparison {
 			}
 		} catch (ReflectiveOperationException e) {
 			return false;
+		}
+	}
+	
+	public static Object getValue(Field field, Object item) throws ReflectiveOperationException {
+		boolean access = field.isAccessible();
+		if (!access) {
+			field.setAccessible(true);
+		}
+		try {
+			return field.get(item);
 		} finally {
-			if (!laccesible) {
-				lfield.setAccessible(false);
-			}
-			if (!raccesible) {
-				rfield.setAccessible(false);
+			if (!access) {
+				field.setAccessible(false);
 			}
 		}
 	}
