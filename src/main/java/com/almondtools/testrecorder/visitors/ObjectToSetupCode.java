@@ -1,7 +1,7 @@
 package com.almondtools.testrecorder.visitors;
 
-import static com.almondtools.testrecorder.TemplateHelper.asLiteral;
 import static com.almondtools.testrecorder.TypeHelper.getSimpleName;
+import static com.almondtools.testrecorder.util.TemplateHelper.asLiteral;
 import static com.almondtools.testrecorder.visitors.Templates.arrayLiteral;
 import static com.almondtools.testrecorder.visitors.Templates.assignField;
 import static com.almondtools.testrecorder.visitors.Templates.assignStatement;
@@ -23,11 +23,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import com.almondtools.testrecorder.GenericObject;
 import com.almondtools.testrecorder.SerializedCollectionVisitor;
 import com.almondtools.testrecorder.SerializedImmutableVisitor;
 import com.almondtools.testrecorder.SerializedValue;
 import com.almondtools.testrecorder.SerializedValueVisitor;
+import com.almondtools.testrecorder.util.GenericObject;
 import com.almondtools.testrecorder.values.SerializedArray;
 import com.almondtools.testrecorder.values.SerializedBigDecimal;
 import com.almondtools.testrecorder.values.SerializedBigInteger;

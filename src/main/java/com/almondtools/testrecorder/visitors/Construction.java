@@ -1,6 +1,6 @@
 package com.almondtools.testrecorder.visitors;
 
-import static com.almondtools.testrecorder.GenericObject.getDefaultValue;
+import static com.almondtools.testrecorder.util.GenericObject.getDefaultValue;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -13,8 +13,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import com.almondtools.testrecorder.GenericComparison;
 import com.almondtools.testrecorder.SerializedValueVisitor;
+import com.almondtools.testrecorder.util.GenericComparison;
 import com.almondtools.testrecorder.values.SerializedField;
 import com.almondtools.testrecorder.values.SerializedObject;
 

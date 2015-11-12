@@ -1,6 +1,6 @@
 package com.almondtools.testrecorder.visitors;
 
-import static com.almondtools.testrecorder.GenericObject.getDefaultValue;
+import static com.almondtools.testrecorder.util.GenericObject.getDefaultValue;
 import static com.almondtools.testrecorder.values.SerializedLiteral.isLiteral;
 
 import java.lang.reflect.Constructor;

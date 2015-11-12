@@ -1,8 +1,8 @@
 package com.almondtools.testrecorder.visitors;
 
-import static com.almondtools.testrecorder.TemplateHelper.asLiteral;
 import static com.almondtools.testrecorder.TypeHelper.getSimpleName;
 import static com.almondtools.testrecorder.TypeHelper.isPrimitive;
+import static com.almondtools.testrecorder.util.TemplateHelper.asLiteral;
 import static com.almondtools.testrecorder.visitors.Templates.arrayContainingMatcher;
 import static com.almondtools.testrecorder.visitors.Templates.assignField;
 import static com.almondtools.testrecorder.visitors.Templates.containsEntriesMatcher;
@@ -34,11 +34,11 @@ import org.hamcrest.Matchers;
 
 import com.almondtools.conmatch.datatypes.MapMatcher;
 import com.almondtools.conmatch.datatypes.PrimitiveArrayMatcher;
-import com.almondtools.testrecorder.GenericMatcher;
 import com.almondtools.testrecorder.SerializedCollectionVisitor;
 import com.almondtools.testrecorder.SerializedImmutableVisitor;
 import com.almondtools.testrecorder.SerializedValue;
 import com.almondtools.testrecorder.SerializedValueVisitor;
+import com.almondtools.testrecorder.util.GenericMatcher;
 import com.almondtools.testrecorder.values.SerializedArray;
 import com.almondtools.testrecorder.values.SerializedBigDecimal;
 import com.almondtools.testrecorder.values.SerializedBigInteger;

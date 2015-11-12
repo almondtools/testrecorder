@@ -1,6 +1,6 @@
-package com.almondtools.testrecorder;
+package com.almondtools.testrecorder.util;
 
-import static com.almondtools.testrecorder.GenericComparison.getValue;
+import static com.almondtools.testrecorder.util.GenericComparison.getValue;
 
 import java.lang.reflect.Field;
 import java.util.LinkedList;

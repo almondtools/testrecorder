@@ -1,4 +1,4 @@
-package com.almondtools.testrecorder;
+package com.almondtools.testrecorder.util;
 
 import static java.util.stream.Collectors.toList;
 

@@ -11,12 +11,12 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import com.almondtools.testrecorder.DeserializationException;
-import com.almondtools.testrecorder.GenericObject;
-import com.almondtools.testrecorder.GenericObjectException;
 import com.almondtools.testrecorder.SerializedCollectionVisitor;
 import com.almondtools.testrecorder.SerializedImmutableVisitor;
 import com.almondtools.testrecorder.SerializedValue;
 import com.almondtools.testrecorder.SerializedValueVisitor;
+import com.almondtools.testrecorder.util.GenericObject;
+import com.almondtools.testrecorder.util.GenericObjectException;
 import com.almondtools.testrecorder.values.SerializedArray;
 import com.almondtools.testrecorder.values.SerializedBigDecimal;
 import com.almondtools.testrecorder.values.SerializedBigInteger;

@@ -1,9 +1,11 @@
-package com.almondtools.testrecorder;
+package com.almondtools.testrecorder.util;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
+
+import com.almondtools.testrecorder.util.GenericObject;
 
 @SuppressWarnings("unused")
 public class GenericObjectTest {
