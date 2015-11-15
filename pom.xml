@@ -190,4 +190,5 @@
 			</build>
 		</profile>
 	</profiles>
+	<description>Recording test data from running program.</description>
 </project>
