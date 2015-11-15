@@ -55,10 +55,10 @@ public class ValueGenerator implements ValueSnapshotConsumer {
 	public void accept(ValueSnapshot snapshot) {
 		List<String> localvalues= values.computeIfAbsent(getBase(snapshot.getDeclaringClass()), key -> new ArrayList<>());
 
-		CodeGenerator methodGenerator = new CodeGenerator(snapshot, localvalues.size())
+		CodeGenerator valueGenerator = new CodeGenerator(snapshot, localvalues.size())
 			.generateValue();
 
-		localvalues.add(methodGenerator.generateCode());
+		localvalues.add(valueGenerator.generateCode());
 	}
 
 	public List<String> valuesFor(Class<?> clazz) {
