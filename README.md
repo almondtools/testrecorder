@@ -19,9 +19,8 @@ How to use it
 
 TODOs
 =====
-- Place in maven repository
-- Other Serializers
 - More readable generated Tests
+- Triggering Object Serialization without Instrumentation (if only a value has to be serialized)
 - Less  warnings in generated Tests
 - Other Profiles (than `DefaultSerializationProfile)` that can handle serialization of static or generated data
 - Higher Test Coverage
