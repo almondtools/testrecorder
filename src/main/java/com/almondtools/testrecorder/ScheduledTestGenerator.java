@@ -67,7 +67,7 @@ public class ScheduledTestGenerator extends TestGenerator {
 	}
 
 	@Override
-	public void accept(MethodSnapshot snapshot) {
+	public void accept(ContextSnapshot snapshot) {
 		super.accept(snapshot);
 		checkCounterInterval();
 		checkTimeInterval();

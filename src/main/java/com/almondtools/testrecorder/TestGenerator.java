@@ -4,6 +4,9 @@ import static com.almondtools.testrecorder.SnapshotInstrumentor.SNAPSHOT_GENERAT
 import static com.almondtools.testrecorder.TypeHelper.getBase;
 import static com.almondtools.testrecorder.TypeHelper.getSimpleName;
 import static com.almondtools.testrecorder.TypeHelper.isPrimitive;
+import static com.almondtools.testrecorder.visitors.Templates.assignStatement;
+import static com.almondtools.testrecorder.visitors.Templates.callMethodStatement;
+import static com.almondtools.testrecorder.visitors.Templates.expressionStatement;
 import static java.lang.Character.toUpperCase;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
@@ -41,8 +44,9 @@ import com.almondtools.testrecorder.visitors.LocalVariableNameGenerator;
 import com.almondtools.testrecorder.visitors.ObjectToMatcherCode;
 import com.almondtools.testrecorder.visitors.ObjectToSetupCode;
 import com.almondtools.testrecorder.visitors.SerializedValueVisitorFactory;
+import com.almondtools.testrecorder.visitors.Templates;
 
-public class TestGenerator implements MethodSnapshotConsumer {
+public class TestGenerator implements SnapshotConsumer {
 
 	private static final Set<Class<?>> IMMUTABLE_TYPES = new HashSet<>(Arrays.asList(
 		Boolean.class, Character.class, Byte.class, Short.class, Integer.class, Float.class, Long.class, Double.class, String.class));
@@ -62,16 +66,9 @@ public class TestGenerator implements MethodSnapshotConsumer {
 		+ "  <statements;separator=\"\\n\">\n"
 		+ "}\n";
 
-	private static final String ASSIGN_STMT = "<type> <name> = <value>;";
-	private static final String EXPRESSION_STMT = "<value>;";
-
 	private static final String BEGIN_ARRANGE = "\n//Arrange";
 	private static final String BEGIN_ACT = "\n//Act";
 	private static final String BEGIN_ASSERT = "\n//Assert";
-
-	private static final String ASSERT = "assertThat(<object>,<matcher>);";
-
-	private static final String CALL_EXPRESSION = "<base>.<method>(<args; separator=\", \">)";
 
 	private ImportManager imports;
 	private SerializedValueVisitorFactory setup;
@@ -96,7 +93,7 @@ public class TestGenerator implements MethodSnapshotConsumer {
 	}
 
 	@Override
-	public void accept(MethodSnapshot snapshot) {
+	public void accept(ContextSnapshot snapshot) {
 		Set<String> localtests = tests.computeIfAbsent(getBase(snapshot.getThisType()), key -> new LinkedHashSet<>());
 
 		MethodGenerator methodGenerator = new MethodGenerator(snapshot, localtests.size())
@@ -161,7 +158,7 @@ public class TestGenerator implements MethodSnapshotConsumer {
 
 		private LocalVariableNameGenerator locals;
 
-		private MethodSnapshot snapshot;
+		private ContextSnapshot snapshot;
 		private int no;
 
 		private List<String> statements;
@@ -170,7 +167,7 @@ public class TestGenerator implements MethodSnapshotConsumer {
 		private List<String> args;
 		private String result;
 
-		public MethodGenerator(MethodSnapshot snapshot, int no) {
+		public MethodGenerator(ContextSnapshot snapshot, int no) {
 			this.snapshot = snapshot;
 			this.no = no;
 			this.locals = new LocalVariableNameGenerator();
@@ -208,15 +205,11 @@ public class TestGenerator implements MethodSnapshotConsumer {
 			Type resultType = snapshot.getResultType();
 			String methodName = snapshot.getMethodName();
 
-			ST call = new ST(CALL_EXPRESSION);
-			call.add("base", base);
-			call.add("method", methodName);
-			call.add("args", args);
-
+			String statement = callMethodStatement(base, methodName, args);
 			if (resultType != void.class) {
-				result = assign(resultType, call.render(), true);
+				result = assign(resultType, statement, true);
 			} else {
-				execute(call.render());
+				execute(statement);
 			}
 
 			return this;
@@ -261,11 +254,7 @@ public class TestGenerator implements MethodSnapshotConsumer {
 
 			statements.addAll(matcher.getStatements());
 
-			ST assertion = new ST(ASSERT);
-			assertion.add("object", exp);
-			assertion.add("matcher", matcher.getValue());
-
-			statements.add(assertion.render());
+			statements.add(Templates.callLocalMethodStatement("assertThat", exp, matcher.getValue()));
 
 			return statements;
 		}
@@ -281,22 +270,14 @@ public class TestGenerator implements MethodSnapshotConsumer {
 			} else {
 				String name = locals.fetchName(type);
 
-				ST assign = new ST(ASSIGN_STMT);
-				assign.add("type", getSimpleName(type));
-				assign.add("name", name);
-				assign.add("value", value);
-
-				statements.add(assign.render());
+				statements.add(assignStatement(getSimpleName(type), name, value));
 
 				return name;
 			}
 		}
 
 		public void execute(String value) {
-			ST statement = new ST(EXPRESSION_STMT);
-			statement.add("value", value);
-
-			statements.add(statement.render());
+			statements.add(expressionStatement(value));
 		}
 
 		private boolean isImmutable(Type type) {

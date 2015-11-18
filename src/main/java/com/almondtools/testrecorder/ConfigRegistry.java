@@ -34,26 +34,19 @@ public class ConfigRegistry {
 
 	private static class ImmutableSnapshotConfig implements SnapshotConfig {
 
-		private MethodSnapshotConsumer methodConsumer;
-		private ValueSnapshotConsumer valueConsumer;
+		private SnapshotConsumer snapshotConsumer;
 		private long timeoutInMillis;
 		private List<String> packages;
 
 		public ImmutableSnapshotConfig(SnapshotConfig config) {
-			this.methodConsumer = config.getMethodConsumer();
-			this.valueConsumer = config.getValueConsumer();
+			this.snapshotConsumer = config.getSnapshotConsumer();
 			this.timeoutInMillis = config.getTimeoutInMillis();
 			this.packages = config.getPackages();
 		}
 
 		@Override
-		public MethodSnapshotConsumer getMethodConsumer() {
-			return methodConsumer;
-		}
-
-		@Override
-		public ValueSnapshotConsumer getValueConsumer() {
-			return valueConsumer;
+		public SnapshotConsumer getSnapshotConsumer() {
+			return snapshotConsumer;
 		}
 
 		@Override

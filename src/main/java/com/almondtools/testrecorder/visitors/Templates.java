@@ -15,8 +15,10 @@ public final class Templates {
 	private static final String ARRAY_LITERAL = "new <type>{<elements; separator=\", \">}";
 	private static final String NEW_OBJECT = "new <type>(<args; separator=\", \">)";
 
+	private static final String EXPRESSION_STMT = "<value>;";
 	private static final String ASSIGN_STMT = "<type> <name> = <value>;";
 	private static final String CALL_METHOD_STMT = "<base>.<method>(<arguments; separator=\", \">);";
+	private static final String CALL_LOCAL_METHOD_STMT = "<method>(<arguments; separator=\", \">);";
 	private static final String RETURN_STMT = "return <value>;";
 
 	private static final String GENERIC_TYPE = "$type$<$typeParam; separator=\", \"$>";
@@ -34,6 +36,13 @@ public final class Templates {
 
 
 	private Templates() {
+	}
+
+	public static String expressionStatement(String value) {
+		ST statement = new ST(EXPRESSION_STMT);
+		statement.add("value", value);
+
+		return statement.render();
 	}
 
 	public static String assignField(String type, String name, String value) {
@@ -69,13 +78,29 @@ public final class Templates {
 		return assign.render();
 	}
 
-	public static String callMethodStatement(String base, String method, String... arguments) {
+	public static String callMethodStatement(String base, String method, List<String> arguments) {
 		ST call = new ST(CALL_METHOD_STMT);
 		call.add("base", base);
 		call.add("method", method);
-		call.add("arguments", asList(arguments));
+		call.add("arguments", arguments);
 
 		return call.render();
+	}
+
+	public static String callLocalMethodStatement(String method, String... arguments) {
+		return callLocalMethodStatement(method, asList(arguments));
+	}
+
+	public static String callLocalMethodStatement(String method, List<String> arguments) {
+		ST call = new ST(CALL_LOCAL_METHOD_STMT);
+		call.add("method", method);
+		call.add("arguments", arguments);
+
+		return call.render();
+	}
+
+	public static String callMethodStatement(String base, String method, String... arguments) {
+		return callMethodStatement(base, method, asList(arguments));
 	}
 
 	public static String returnStatement(String value) {

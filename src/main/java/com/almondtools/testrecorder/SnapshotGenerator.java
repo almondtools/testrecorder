@@ -2,7 +2,6 @@ package com.almondtools.testrecorder;
 
 import static com.almondtools.testrecorder.ConfigRegistry.loadConfig;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,57 +31,40 @@ public class SnapshotGenerator {
 	private Object self;
 
 	private ExecutorService executor;
-	private Map<String, MethodSnapshotFactory> methodSnapshots;
-	private Map<String, ValueSnapshotFactory> valueSnapshots;
-	private ThreadLocal<MethodSnapshot> current = new ThreadLocal<>();
+	private Map<String, ContextSnapshotFactory> methodSnapshots;
+	private ThreadLocal<ContextSnapshot> current = new ThreadLocal<>();
 	private ThreadLocal<SerializerFacade> currentFacade = new ThreadLocal<>();
 
-	private MethodSnapshotConsumer methodConsumer;
-	private ValueSnapshotConsumer valueConsumer;
+	private SnapshotConsumer snapshotConsumer;
 	private long timeoutInMillis;
 	
 
 	public SnapshotGenerator(Object self, Class<? extends SnapshotConfig> config) {
-		this.methodConsumer = loadConfig(config).getMethodConsumer();
-		this.valueConsumer = loadConfig(config).getValueConsumer();
+		this.snapshotConsumer = loadConfig(config).getSnapshotConsumer();
 		this.timeoutInMillis = loadConfig(config).getTimeoutInMillis();
 		
 		this.self = self;
 
 		this.executor = Executors.newSingleThreadExecutor(THREADS);
 		this.methodSnapshots = new HashMap<>();
-		this.valueSnapshots = new HashMap<>();
 	}
 	
-	public MethodSnapshotConsumer getMethodConsumer() {
-		return methodConsumer;
-	}
-
-	public ValueSnapshotConsumer getValueConsumer() {
-		return valueConsumer;
+	public SnapshotConsumer getMethodConsumer() {
+		return snapshotConsumer;
 	}
 
 	public void register(String signature, Method method) {
-		MethodSnapshotFactory factory = new MethodSnapshotFactory(method.getDeclaringClass(), method.getAnnotation(Snapshot.class), method.getGenericReturnType(), method.getName(), method.getGenericParameterTypes());
+		ContextSnapshotFactory factory = new ContextSnapshotFactory(method.getDeclaringClass(), method.getAnnotation(Snapshot.class), method.getGenericReturnType(), method.getName(), method.getGenericParameterTypes());
 		methodSnapshots.put(signature, factory);
 	}
 
-	public void register(String signature, Field field) {
-		ValueSnapshotFactory factory = new ValueSnapshotFactory(field.getDeclaringClass(), field.getAnnotation(Snapshot.class), field.getGenericType(), field.getName());
-		valueSnapshots.put(signature, factory);
-	}
-
-	public ValueSnapshot valueSnapshot(String signature) {
-		return valueSnapshots.get(signature).createSnapshot();
-	}
-
-	public MethodSnapshot newSnapshot(String signature) {
-		MethodSnapshot snapshot = methodSnapshots.get(signature).createSnapshot();
+	public ContextSnapshot newSnapshot(String signature) {
+		ContextSnapshot snapshot = methodSnapshots.get(signature).createSnapshot();
 		current.set(snapshot);
 		return snapshot;
 	}
 
-	public MethodSnapshot fetchSnapshot() {
+	public ContextSnapshot fetchSnapshot() {
 		return current.get();
 	}
 
@@ -98,20 +80,6 @@ public class SnapshotGenerator {
 		return serializerFacade;
 	}
 
-	public SerializerFacade valueFacade(String signature) {
-		ConfigurableSerializerFacade facade = new ConfigurableSerializerFacade(valueSnapshots.get(signature).profile());
-		return facade;
-	}
-
-	public void storeValue(String signature, Object value) {
-		SerializerFacade facade = valueFacade(signature);
-		ValueSnapshot valueSnapshot = valueSnapshot(signature);
-		modify(valueSnapshot, snapshot -> {
-			snapshot.setValue(facade.serialize(valueSnapshot.getType(), value));
-		});
-		consume(valueSnapshot);
-	}
-	
 	public void setupVariables(String signature, Object... args) {
 		SerializerFacade facade = facade(signature);
 		modify(newSnapshot(signature), snapshot -> {
@@ -122,7 +90,7 @@ public class SnapshotGenerator {
 
 	public void expectVariables(Object result, Object... args) {
 		SerializerFacade facade = facade();
-		MethodSnapshot currentSnapshot = fetchSnapshot();
+		ContextSnapshot currentSnapshot = fetchSnapshot();
 		modify(currentSnapshot, snapshot -> {
 			snapshot.setExpectThis(facade.serialize(self.getClass(), self));
 			snapshot.setExpectResult(facade.serialize(snapshot.getResultType(), result));
@@ -133,7 +101,7 @@ public class SnapshotGenerator {
 
 	public void expectVariables(Object... args) {
 		SerializerFacade facade = facade();
-		MethodSnapshot currentSnapshot = fetchSnapshot();
+		ContextSnapshot currentSnapshot = fetchSnapshot();
 		modify(currentSnapshot, snapshot -> {
 			snapshot.setExpectThis(facade.serialize(self.getClass(), self));
 			snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
@@ -143,7 +111,7 @@ public class SnapshotGenerator {
 
 	public void throwVariables(Throwable throwable, Object... args) {
 		SerializerFacade facade = facade();
-		MethodSnapshot currentSnapshot = fetchSnapshot();
+		ContextSnapshot currentSnapshot = fetchSnapshot();
 		modify(currentSnapshot, snapshot -> {
 			snapshot.setExpectThis(facade.serialize(self.getClass(), self));
 			snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
@@ -152,34 +120,15 @@ public class SnapshotGenerator {
 		consume(currentSnapshot);
 	}
 
-	private void consume(MethodSnapshot snapshot) {
+	private void consume(ContextSnapshot snapshot) {
 		if (snapshot.isValid()) {
-			if (methodConsumer != null) {
-				methodConsumer.accept(snapshot);
+			if (snapshotConsumer != null) {
+				snapshotConsumer.accept(snapshot);
 			}
 		}
 	}
 
-	private void consume(ValueSnapshot snapshot) {
-		if (snapshot.isValid()) {
-			if (valueConsumer != null) {
-				valueConsumer.accept(snapshot);
-			}
-		}
-	}
-
-	private void modify(MethodSnapshot snapshot, Consumer<MethodSnapshot> task) {
-		try {
-			Future<?> future = executor.submit(() -> {
-				task.accept(snapshot);
-			});
-			future.get(timeoutInMillis, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException | ExecutionException | TimeoutException | CancellationException e) {
-			snapshot.invalidate();
-		}
-	}
-
-	private void modify(ValueSnapshot snapshot, Consumer<ValueSnapshot> task) {
+	private void modify(ContextSnapshot snapshot, Consumer<ContextSnapshot> task) {
 		try {
 			Future<?> future = executor.submit(() -> {
 				task.accept(snapshot);

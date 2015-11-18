@@ -1,11 +1,8 @@
 package com.almondtools.testrecorder;
 
-import static java.util.Spliterators.spliteratorUnknownSize;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
-import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SYNTHETIC;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ASTORE;
@@ -38,7 +35,6 @@ import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
@@ -112,8 +108,6 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 		instrumentMethods(classNode);
 
-		instrumentFieldAccesses(classNode);
-
 		ClassWriter out = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
 		classNode.accept(out);
 		return out.toByteArray();
@@ -151,22 +145,6 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 				.findFirst()
 				.orElse(RETURN);
 			method.instructions.add(createCatchFinally(catchLabel, throwVariables(classNode, method), finallyLabel, expectVariables(classNode, method), new InsnNode(returnOpcode)));
-		}
-	}
-
-	private void instrumentFieldAccesses(ClassNode classNode) {
-		Map<String, FieldNode> fieldNames = getSnapshotFields(classNode).stream()
-			.collect(toMap(field -> field.name, field -> field));
-		
-		for (MethodNode method : classNode.methods) {
-			List<FieldInsnNode> writeAccesses = StreamSupport.stream(spliteratorUnknownSize(method.instructions.iterator(), Spliterator.ORDERED), false)
-				.filter(insnNode -> insnNode instanceof FieldInsnNode)
-				.map(insnNode -> (FieldInsnNode) insnNode)
-				.filter(fieldInsnNode -> fieldNames.containsKey(fieldInsnNode.name))
-				.collect(toList());
-			for (FieldInsnNode write : writeAccesses) {
-				method.instructions.insert(write, storeValue(classNode, fieldNames.get(write.name)));
-			}
 		}
 	}
 
@@ -338,22 +316,6 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		return insnList;
 	}
 
-	private InsnList storeValue(ClassNode classNode, FieldNode fieldNode) {
-		InsnList insnList = new InsnList();
-
-		insnList.add(new VarInsnNode(ALOAD, 0));
-		insnList.add(new FieldInsnNode(GETFIELD, classNode.name, SNAPSHOT_GENERATOR_FIELD_NAME, Type.getDescriptor(SnapshotGenerator.class)));
-
-		insnList.add(new LdcInsnNode(keySignature(classNode, fieldNode)));
-
-		insnList.add(pushFieldValue(classNode, fieldNode));
-
-		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getDescriptor(SnapshotGenerator.class), "storeValue",
-			Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "storeValue", String.class, Object.class)), false));
-
-		return insnList;
-	}
-
 	private InsnList setupVariables(ClassNode classNode, MethodNode methodNode) {
 		InsnList insnList = new InsnList();
 
@@ -443,22 +405,6 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 			insnList.add(new InsnNode(AASTORE));
 		}
-		return insnList;
-
-	}
-
-	private InsnList pushFieldValue(ClassNode classNode, FieldNode fieldNode) {
-		InsnList insnList = new InsnList();
-
-		insnList.add(new VarInsnNode(ALOAD, 0));
-		if ((fieldNode.access & ACC_STATIC) == ACC_STATIC) {
-			insnList.add(new FieldInsnNode(GETSTATIC, classNode.name, fieldNode.name, fieldNode.desc));
-		} else {
-			insnList.add(new FieldInsnNode(GETFIELD, classNode.name, fieldNode.name, fieldNode.desc));
-		}
-		
-		insnList.add(boxPrimitives(Type.getType(fieldNode.desc)));
-
 		return insnList;
 
 	}

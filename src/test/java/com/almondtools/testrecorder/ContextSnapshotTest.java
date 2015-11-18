@@ -14,11 +14,11 @@ import org.junit.Test;
 import com.almondtools.testrecorder.values.SerializedList;
 import com.almondtools.testrecorder.values.SerializedObject;
 
-public class MethodSnapshotTest {
+public class ContextSnapshotTest {
 
 	@Test
 	public void testMethodSnapshot() throws Exception {
-		MethodSnapshot snapshot = new MethodSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		
 		assertThat(snapshot.isValid(), is(true));
 		assertThat(snapshot.getDeclaringClass(), equalTo(ArrayList.class));
@@ -29,7 +29,7 @@ public class MethodSnapshotTest {
 
 	@Test
 	public void testInvalidate() throws Exception {
-		MethodSnapshot snapshot = new MethodSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		
 		snapshot.invalidate();
 		
@@ -38,7 +38,7 @@ public class MethodSnapshotTest {
 
 	@Test
 	public void testGetThisType() throws Exception {
-		MethodSnapshot snapshot = new MethodSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		SerializedList setupThis = new SerializedList(ArrayList.class);
 		setupThis.add(literal(String.class, "setup"));
 		
@@ -49,7 +49,7 @@ public class MethodSnapshotTest {
 
 	@Test
 	public void testSetGetSetupThis() throws Exception {
-		MethodSnapshot snapshot = new MethodSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		SerializedList setupThis = new SerializedList(ArrayList.class);
 		setupThis.add(literal(String.class, "setup"));
 		
@@ -60,7 +60,7 @@ public class MethodSnapshotTest {
 
 	@Test
 	public void testSetGetExpectThis() throws Exception {
-		MethodSnapshot snapshot = new MethodSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		SerializedList expectedThis = new SerializedList(ArrayList.class);
 		expectedThis.add(literal(String.class, "expected"));
 		
@@ -71,7 +71,7 @@ public class MethodSnapshotTest {
 
 	@Test
 	public void testSetGetSetupArgs() throws Exception {
-		MethodSnapshot snapshot = new MethodSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		
 		snapshot.setSetupArgs(literal(String.class, "a"),literal(String.class, "b"));
 		
@@ -80,7 +80,7 @@ public class MethodSnapshotTest {
 
 	@Test
 	public void testSetGetExpectArgs() throws Exception {
-		MethodSnapshot snapshot = new MethodSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		
 		snapshot.setExpectArgs(literal(String.class, "c"),literal(String.class, "d"));
 		
@@ -89,7 +89,7 @@ public class MethodSnapshotTest {
 
 	@Test
 	public void testSetGetExpectResult() throws Exception {
-		MethodSnapshot snapshot = new MethodSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		
 		snapshot.setExpectResult(literal(boolean.class, true));
 		
@@ -98,7 +98,7 @@ public class MethodSnapshotTest {
 
 	@Test
 	public void testSetGetExpectException() throws Exception {
-		MethodSnapshot snapshot = new MethodSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		
 		snapshot.setExpectException(new SerializedObject(NullPointerException.class));
 		

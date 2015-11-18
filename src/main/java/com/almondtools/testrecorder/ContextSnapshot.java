@@ -2,7 +2,7 @@ package com.almondtools.testrecorder;
 
 import java.lang.reflect.Type;
 
-public class MethodSnapshot {
+public class ContextSnapshot {
 
 	private Class<?> declaringClass;
 	private Type resultType;
@@ -19,7 +19,7 @@ public class MethodSnapshot {
 	private SerializedValue expectException;
 	private SerializedValue[] expectArgs;
 
-	public MethodSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
+	public ContextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
 		this.declaringClass = declaringClass;
 		this.resultType = resultType;
 		this.methodName = methodName;

@@ -31,7 +31,7 @@ public class ResultsTest {
 	
 	@Before
 	public void before() throws Exception {
-		((TestGenerator) ConfigRegistry.loadConfig(DefaultConfig.class).getMethodConsumer()).clearResults();
+		((TestGenerator) ConfigRegistry.loadConfig(DefaultConfig.class).getSnapshotConsumer()).clearResults();
 	}
 	
 	@Test

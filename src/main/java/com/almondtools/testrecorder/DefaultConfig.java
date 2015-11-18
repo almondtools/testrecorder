@@ -6,15 +6,10 @@ import java.util.List;
 public class DefaultConfig implements SnapshotConfig {
 
 	@Override
-	public MethodSnapshotConsumer getMethodConsumer() {
+	public SnapshotConsumer getSnapshotConsumer() {
 		return new TestGenerator();
 	}
 	
-	@Override
-	public ValueSnapshotConsumer getValueConsumer() {
-		return new ValueGenerator();
-	}
-
 	@Override
 	public long getTimeoutInMillis() {
 		return 100_000;

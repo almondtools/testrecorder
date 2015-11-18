@@ -4,9 +4,7 @@ import java.util.List;
 
 public interface SnapshotConfig {
 
-	MethodSnapshotConsumer getMethodConsumer();
-
-	ValueSnapshotConsumer getValueConsumer();
+	SnapshotConsumer getSnapshotConsumer();
 
 	long getTimeoutInMillis();
 
