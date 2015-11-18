@@ -18,7 +18,7 @@ public class GenericDataTypesTest {
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		instrumentor = new SnapshotInstrumentor(new DefaultConfig());
-		instrumentor.register("com.almondtools.testrecorder.scenarios.GenericDataTypes");
+		instrumentor.register(GenericDataTypesTest.class.getClassLoader(), "com.almondtools.testrecorder.scenarios.GenericDataTypes");
 	}
 	
 	@Test

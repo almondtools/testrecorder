@@ -13,12 +13,12 @@ import com.almondtools.testrecorder.SerializedValueVisitor;
 
 public class ConstructionPlan {
 
-	private LocalVariableNameGenerator locals;
+	private String name;
 	private ConstructorParams constructorParams;
 	private List<SetterParam> setterParams;
 
-	public ConstructionPlan(LocalVariableNameGenerator locals, ConstructorParams constructorParams, List<SetterParam> setterParams) {
-		this.locals = locals;
+	public ConstructionPlan(String name, ConstructorParams constructorParams, List<SetterParam> setterParams) {
+		this.name = name;
 		this.constructorParams = constructorParams;
 		this.setterParams = setterParams;
 	}
@@ -50,8 +50,6 @@ public class ConstructionPlan {
 		String[] params = computedParams.stream()
 			.map(computation -> computation.getValue())
 			.toArray(len -> new String[len]);
-
-		String name = locals.fetchName(clazz);
 
 		String bean = newObject(getSimpleName(clazz), params);
 		String constructorStatement = assignStatement(getSimpleName(clazz), name, bean);

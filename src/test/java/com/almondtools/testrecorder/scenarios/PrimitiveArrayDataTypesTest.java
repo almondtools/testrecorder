@@ -18,7 +18,7 @@ public class PrimitiveArrayDataTypesTest {
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		instrumentor = new SnapshotInstrumentor(new DefaultConfig());
-		instrumentor.register("com.almondtools.testrecorder.scenarios.PrimitiveArrayDataTypes");
+		instrumentor.register(PrimitiveArrayDataTypesTest.class.getClassLoader(), "com.almondtools.testrecorder.scenarios.PrimitiveArrayDataTypes");
 	}
 
 	@Test

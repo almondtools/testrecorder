@@ -8,4 +8,6 @@ public interface SerializedValue {
 
 	Type getType();
 
+	int shortHashcode();
+
 }

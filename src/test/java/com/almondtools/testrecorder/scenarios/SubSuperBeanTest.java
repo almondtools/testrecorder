@@ -27,8 +27,8 @@ public class SubSuperBeanTest {
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		instrumentor = new SnapshotInstrumentor(new DefaultConfig());
-		instrumentor.register("com.almondtools.testrecorder.scenarios.SuperBean");
-		instrumentor.register("com.almondtools.testrecorder.scenarios.SubBean");
+		instrumentor.register(SubSuperBeanTest.class.getClassLoader(), "com.almondtools.testrecorder.scenarios.SuperBean");
+		instrumentor.register(SubSuperBeanTest.class.getClassLoader(), "com.almondtools.testrecorder.scenarios.SubBean");
 	}
 
 	@Before

@@ -94,12 +94,21 @@ public class SerializedSet implements SerializedValue, Set<SerializedValue> {
 		set.clear();
 	}
 
-	public boolean equals(Object o) {
-		return set.equals(o);
-	}
-
 	public int hashCode() {
 		return set.hashCode();
+	}
+	
+	@Override
+	public int shortHashcode() {
+		return type.getTypeName().hashCode()
+			+ set.stream()
+			.mapToInt(element -> element.shortHashcode())
+			.reduce(0, (r,l) -> r * 37 + l);
+	}
+
+	public boolean equals(Object o) {
+		//TODO handle recursion this -> entry -> this
+		return set.equals(o);
 	}
 
 	@Override

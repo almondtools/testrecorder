@@ -17,6 +17,11 @@ How to use it
 - start your application with `-javaagent:testrecorder-jar-with-dependencies.jar=YourConfig com.almondtools.testrecorder.examples.FizzBuzz` 
 
 
+Bugs
+====
+- equals of SerializedValue sub classes may loop infinitely because of recursive beans (solution is already implemented in GenericComparison)
+- separate class loaders for instrumented tests (junit executes all tests with the same system class loader such that a redefinition of a class causes errors) 
+
 TODOs
 =====
 - More readable generated Tests

@@ -64,6 +64,12 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 		return imports;
 	}
 
+	private String localVariable(SerializedValue value, Type type) {
+		String name = locals.fetchName(type);
+		computed.put(value, name);
+		return name;
+	}
+
 	@Override
 	public Computation visitField(SerializedField field) {
 		imports.registerImport(field.getType());
@@ -90,7 +96,8 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 
 	private Computation renderBeanSetup(SerializedObject value) throws BeanSetupFailedException  {
 		try {
-			return new Construction(locals, value).computeBest(this);
+			String name = localVariable(value, value.getObjectType());
+			return new Construction(name, value).computeBest(this);
 		} catch (ReflectiveOperationException | RuntimeException e) {
 			throw new BeanSetupFailedException();
 		}
@@ -139,7 +146,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 			.flatMap(template -> template.getStatements().stream())
 			.collect(toList());
 
-		String name = locals.fetchName(List.class);
+		String name = localVariable(value, List.class);
 
 		String listInit = assignStatement(getSimpleName(value.getType()), name, "new ArrayList<>()");
 		statements.add(listInit);
@@ -175,7 +182,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 			.flatMap(template -> template.getStatements().stream())
 			.collect(toList());
 
-		String name = locals.fetchName(Set.class);
+		String name = localVariable(value, Set.class);
 
 		String setInit = assignStatement(getSimpleName(value.getType()), name, "new LinkedHashSet<>()");
 		statements.add(setInit);
@@ -210,7 +217,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 			.distinct()
 			.collect(toList());
 
-		String name = locals.fetchName(Map.class);
+		String name = localVariable(value, Map.class);
 
 		String mapInit = assignStatement(getSimpleName(value.getType()), name, "new LinkedHashMap<>()");
 		statements.add(mapInit);

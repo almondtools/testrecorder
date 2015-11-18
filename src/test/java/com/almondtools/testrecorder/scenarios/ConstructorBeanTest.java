@@ -26,7 +26,7 @@ public class ConstructorBeanTest {
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		instrumentor = new SnapshotInstrumentor(new DefaultConfig());
-		instrumentor.register("com.almondtools.testrecorder.scenarios.ConstructorBean");
+		instrumentor.register(ConstructorBeanTest.class.getClassLoader(), "com.almondtools.testrecorder.scenarios.ConstructorBean");
 	}
 	
 	@Before

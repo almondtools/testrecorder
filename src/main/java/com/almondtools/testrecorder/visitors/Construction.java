@@ -21,15 +21,15 @@ import com.almondtools.testrecorder.values.SerializedObject;
 public class Construction {
 
 	private Deserializer deserializer;
-	private LocalVariableNameGenerator locals;
 	private SerializedObject serialized;
+	private String name;
 	private Object value;
 	private Map<Constructor<?>, List<ConstructorParam>> constructors;
 	private List<SetterParam> setters;
 
-	public Construction(LocalVariableNameGenerator locals, SerializedObject value) {
+	public Construction(String name, SerializedObject value) {
 		this.deserializer = new Deserializer();
-		this.locals = locals;
+		this.name = name;
 		this.serialized = value;
 		this.value = serialized.accept(deserializer);
 		this.constructors = new HashMap<>();
@@ -69,7 +69,7 @@ public class Construction {
 			}
 		}
 		ConstructorParams constructorOf = constructorOf(constructor, setByConstructor);
-		return new ConstructionPlan(locals, constructorOf, setBySetter);
+		return new ConstructionPlan(name, constructorOf, setBySetter);
 	}
 
 	private ConstructorParams constructorOf(Constructor<?> constructor, List<ConstructorParam> params) {

@@ -76,6 +76,14 @@ public class SerializedArray implements SerializedValue {
 		return type.getTypeName().hashCode() * 17
 			+ array.hashCode();
 	}
+	
+	@Override
+	public int shortHashcode() {
+		return type.getTypeName().hashCode()
+			+ array.stream()
+			.mapToInt(element -> element.shortHashcode())
+			.reduce(0, (r,l) -> r * 29 + l);
+	}
 
 	@Override
 	public boolean equals(Object obj) {

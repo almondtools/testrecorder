@@ -98,14 +98,22 @@ public class SerializedMap implements SerializedValue, Map<SerializedValue, Seri
 		return map.entrySet();
 	}
 
-	public boolean equals(Object o) {
-		return map.equals(o);
+	@Override
+	public int shortHashcode() {
+		return type.getTypeName().hashCode();
 	}
 
 	public int hashCode() {
-		return map.hashCode();
+		return map.size() + map.entrySet().stream()
+			.mapToInt(entry -> entry.getValue().shortHashcode() + entry.getValue().shortHashcode())
+			.reduce(0, (r,l) -> r * 13 + l);
 	}
 
+	public boolean equals(Object o) {
+		//TODO handle recursion this -> entry -> this
+		return map.equals(o);
+	}
+	
 	@Override
 	public String toString() {
 		return accept(new SerializedValuePrinter());

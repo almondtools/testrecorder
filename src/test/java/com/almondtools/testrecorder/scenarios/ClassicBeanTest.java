@@ -27,7 +27,7 @@ public class ClassicBeanTest {
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		instrumentor = new SnapshotInstrumentor(new DefaultConfig());
-		instrumentor.register("com.almondtools.testrecorder.scenarios.ClassicBean");
+		instrumentor.register(ClassicBeanTest.class.getClassLoader(), "com.almondtools.testrecorder.scenarios.ClassicBean");
 	}
 	
 	@Before

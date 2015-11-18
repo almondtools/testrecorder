@@ -42,6 +42,11 @@ public abstract class SerializedImmutable<T> implements SerializedValue {
 		return type.getTypeName().hashCode() * 19
 			+ (value == null ? 0 : value.hashCode());
 	}
+	
+	@Override
+	public int shortHashcode() {
+		return hashCode();
+	}
 
 	@Override
 	public boolean equals(Object obj) {

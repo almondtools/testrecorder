@@ -88,9 +88,9 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		return null;
 	}
 
-	public void register(String clazz) throws IOException {
+	public void register(ClassLoader loader, String clazz) throws IOException {
 		byte[] bytecode = instrument(clazz);
-		saveClass(clazz, bytecode);
+		saveClass(loader, clazz, bytecode);
 	}
 
 	public byte[] instrument(String className) throws IOException {
@@ -431,9 +431,8 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		return insnList;
 	}
 
-	public Class<?> saveClass(String className, byte[] b) {
+	public Class<?> saveClass(ClassLoader loader, String className, byte[] b) {
 		try {
-			ClassLoader loader = ClassLoader.getSystemClassLoader();
 			Class<?> cls = Class.forName(CLASS_LOADER);
 
 			Method defineClass = cls.getDeclaredMethod(DEFINE_CLASS, new Class[] { String.class, byte[].class, int.class, int.class });

@@ -23,7 +23,7 @@ public class GenericCollectionDataTypesTest {
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		instrumentor = new SnapshotInstrumentor(new DefaultConfig());
-		instrumentor.register("com.almondtools.testrecorder.scenarios.GenericCollectionDataTypes");
+		instrumentor.register(GenericCollectionDataTypesTest.class.getClassLoader(), "com.almondtools.testrecorder.scenarios.GenericCollectionDataTypes");
 	}
 
 	@Test

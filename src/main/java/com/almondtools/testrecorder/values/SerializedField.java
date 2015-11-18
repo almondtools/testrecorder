@@ -46,6 +46,10 @@ public class SerializedField {
 			+ value.hashCode();
 	}
 
+	public int shortHashcode() {
+		return name.hashCode() * 31
+			+ type.getTypeName().hashCode() * 13;
+	}
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -62,4 +66,5 @@ public class SerializedField {
 			&& this.type == that.type
 			&& this.value.equals(that.value);
 	}
+
 }

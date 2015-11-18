@@ -62,6 +62,11 @@ public class SerializedLiteral implements SerializedValue {
 	}
 
 	@Override
+	public int shortHashcode() {
+		return hashCode();
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;

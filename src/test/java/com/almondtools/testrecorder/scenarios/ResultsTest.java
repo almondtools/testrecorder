@@ -26,7 +26,7 @@ public class ResultsTest {
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		instrumentor = new SnapshotInstrumentor(new DefaultConfig());
-		instrumentor.register("com.almondtools.testrecorder.scenarios.Results");
+		instrumentor.register(ResultsTest.class.getClassLoader(), "com.almondtools.testrecorder.scenarios.Results");
 	}
 	
 	@Before

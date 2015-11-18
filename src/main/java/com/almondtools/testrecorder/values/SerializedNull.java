@@ -41,6 +41,11 @@ public class SerializedNull implements SerializedValue {
 	public int hashCode() {
 		return type.getTypeName().hashCode() * 7 + 29;
 	}
+	
+	@Override
+	public int shortHashcode() {
+		return hashCode();
+	}
 
 	@Override
 	public boolean equals(Object obj) {

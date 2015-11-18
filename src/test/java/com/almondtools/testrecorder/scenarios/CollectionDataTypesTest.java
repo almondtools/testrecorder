@@ -25,7 +25,7 @@ public class CollectionDataTypesTest {
 	@BeforeClass
 	public static void beforeClass() throws Exception {
 		instrumentor = new SnapshotInstrumentor(new DefaultConfig());
-		instrumentor.register("com.almondtools.testrecorder.scenarios.CollectionDataTypes");
+		instrumentor.register(CollectionDataTypesTest.class.getClassLoader(), "com.almondtools.testrecorder.scenarios.CollectionDataTypes");
 	}
 	
 	@Test

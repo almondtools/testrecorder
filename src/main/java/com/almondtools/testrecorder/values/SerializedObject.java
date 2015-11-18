@@ -20,30 +20,30 @@ public class SerializedObject implements SerializedValue {
 		this.type = type;
 		this.fields = new ArrayList<>();
 	}
-	
+
 	public SerializedObject withFields(SerializedField... fields) {
 		this.fields.addAll(asList(fields));
 		return this;
 	}
-	
+
 	public SerializedObject withObjectType(Class<String> objectType) {
 		this.objectType = objectType;
 		return this;
 	}
-	
+
 	@Override
 	public Type getType() {
 		return type;
 	}
-	
+
 	public void setObjectType(Class<?> objectType) {
 		this.objectType = objectType;
 	}
-	
+
 	public Class<?> getObjectType() {
 		return objectType;
 	}
-	
+
 	public List<SerializedField> getFields() {
 		return fields;
 	}
@@ -51,7 +51,7 @@ public class SerializedObject implements SerializedValue {
 	public void addField(SerializedField field) {
 		fields.add(field);
 	}
-	
+
 	public <T> T accept(SerializedValueVisitor<T> visitor) {
 		return visitor.visitObject(this);
 	}
@@ -63,7 +63,14 @@ public class SerializedObject implements SerializedValue {
 
 	@Override
 	public int hashCode() {
-		return (objectType == null ? 0 : objectType.getName().hashCode()) + fields.hashCode();
+		return (objectType == null ? 0 : objectType.getName().hashCode()) + fields.stream()
+			.mapToInt(field -> field.shortHashcode())
+			.reduce(0, (r, l) -> r * 17 + l);
+	}
+	
+	@Override
+	public int shortHashcode() {
+		return (objectType == null ? 0 : objectType.getName().hashCode());
 	}
 
 	@Override
@@ -78,8 +85,10 @@ public class SerializedObject implements SerializedValue {
 			return false;
 		}
 		SerializedObject that = (SerializedObject) obj;
+		//TODO handle recursion this -> field -> this
 		return (this.objectType == null ? that.objectType == null : this.objectType == that.objectType)
 			&& this.fields.equals(that.fields);
+		
 	}
 
 }
