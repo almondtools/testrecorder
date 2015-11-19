@@ -28,9 +28,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -64,9 +62,6 @@ import org.objectweb.asm.tree.VarInsnNode;
 public class SnapshotInstrumentor implements ClassFileTransformer {
 
 	private static final String CONSTRUCTOR_NAME = "<init>";
-	private static final String DEFINE_PACKAGE = "definePackage";
-	private static final String DEFINE_CLASS = "defineClass";
-	private static final String CLASS_LOADER = "java.lang.ClassLoader";
 
 	public static final String SNAPSHOT_GENERATOR_FIELD_NAME = "generator";
 
@@ -86,11 +81,6 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 			}
 		}
 		return null;
-	}
-
-	public void register(ClassLoader loader, String clazz) throws IOException {
-		byte[] bytecode = instrument(clazz);
-		saveClass(loader, clazz, bytecode);
 	}
 
 	public byte[] instrument(String className) throws IOException {
@@ -149,8 +139,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	}
 
 	private FieldNode createTestAspectField() {
-		FieldNode fieldNode = new FieldNode(ACC_PRIVATE | ACC_SYNTHETIC, SNAPSHOT_GENERATOR_FIELD_NAME, Type.getDescriptor(SnapshotGenerator.class),
-			Type.getDescriptor(SnapshotGenerator.class), null);
+		FieldNode fieldNode = new FieldNode(ACC_PRIVATE | ACC_SYNTHETIC, SNAPSHOT_GENERATOR_FIELD_NAME, Type.getDescriptor(SnapshotGenerator.class), Type.getDescriptor(SnapshotGenerator.class), null);
 		fieldNode.visibleAnnotations = new ArrayList<>();
 		fieldNode.visibleAnnotations.add(new AnnotationNode(Type.getDescriptor(SnapshotExcluded.class)));
 		return fieldNode;
@@ -192,11 +181,11 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		InsnList insnList = new InsnList();
 
 		insnList.add(new VarInsnNode(ALOAD, 0));
-		insnList.add(new TypeInsnNode(NEW, Type.getDescriptor(SnapshotGenerator.class)));
+		insnList.add(new TypeInsnNode(NEW, Type.getInternalName(SnapshotGenerator.class)));
 		insnList.add(new InsnNode(DUP));
 		insnList.add(new VarInsnNode(ALOAD, 0));
 		insnList.add(new LdcInsnNode(Type.getType(config.getClass())));
-		insnList.add(new MethodInsnNode(INVOKESPECIAL, Type.getDescriptor(SnapshotGenerator.class), CONSTRUCTOR_NAME,
+		insnList.add(new MethodInsnNode(INVOKESPECIAL, Type.getInternalName(SnapshotGenerator.class), CONSTRUCTOR_NAME,
 			Type.getConstructorDescriptor(constructorOf(SnapshotGenerator.class, Object.class, Class.class)), false));
 		insnList.add(new FieldInsnNode(PUTFIELD, classNode.name, SNAPSHOT_GENERATOR_FIELD_NAME, Type.getDescriptor(SnapshotGenerator.class)));
 
@@ -209,7 +198,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 			insnList.add(pushMethod(classNode, methodNode));
 
-			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getDescriptor(SnapshotGenerator.class), "register",
+			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getInternalName(SnapshotGenerator.class), "register",
 				Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "register", String.class, Method.class)), false));
 		}
 
@@ -219,7 +208,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 			insnList.add(pushField(classNode, fieldNode));
 
-			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getDescriptor(SnapshotGenerator.class), "register",
+			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getInternalName(SnapshotGenerator.class), "register",
 				Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "register", String.class, Field.class)), false));
 		}
 		insnList.add(new InsnNode(POP));
@@ -234,12 +223,12 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		InsnList insnList = new InsnList();
 
 		insnList.add(new VarInsnNode(ALOAD, 0));
-		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getDescriptor(Object.class), "getClass", Type.getMethodDescriptor(methodOf(Object.class, "getClass")), false));
+		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getInternalName(Object.class), "getClass", Type.getMethodDescriptor(methodOf(Object.class, "getClass")), false));
 
 		insnList.add(new LdcInsnNode(method.name));
 
 		insnList.add(new LdcInsnNode(argCount));
-		insnList.add(new TypeInsnNode(Opcodes.ANEWARRAY, Type.getDescriptor(Class.class)));
+		insnList.add(new TypeInsnNode(Opcodes.ANEWARRAY, Type.getInternalName(Class.class)));
 		for (int i = 0; i < argCount; i++) {
 			insnList.add(new InsnNode(DUP));
 			insnList.add(new LdcInsnNode(i));
@@ -247,7 +236,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 			insnList.add(new InsnNode(AASTORE));
 		}
 
-		insnList.add(new MethodInsnNode(INVOKESTATIC, Type.getDescriptor(TypeHelper.class), "getDeclaredMethod",
+		insnList.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(TypeHelper.class), "getDeclaredMethod",
 			Type.getMethodDescriptor(methodOf(TypeHelper.class, "getDeclaredMethod", Class.class, String.class, Class[].class)), false));
 		return insnList;
 	}
@@ -260,7 +249,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 		insnList.add(new LdcInsnNode(field.name));
 
-		insnList.add(new MethodInsnNode(INVOKESTATIC, Type.getDescriptor(TypeHelper.class), "getDeclaredField",
+		insnList.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(TypeHelper.class), "getDeclaredField",
 			Type.getMethodDescriptor(methodOf(TypeHelper.class, "getDeclaredField", Class.class, String.class)), false));
 		return insnList;
 	}
@@ -326,7 +315,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 		insnList.add(pushMethodArguments(methodNode));
 
-		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getDescriptor(SnapshotGenerator.class), "setupVariables",
+		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getInternalName(SnapshotGenerator.class), "setupVariables",
 			Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "setupVariables", String.class, Object[].class)), false));
 
 		return insnList;
@@ -358,10 +347,10 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		insnList.add(pushMethodArguments(methodNode));
 
 		if (returnType.getSize() > 0) {
-			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getDescriptor(SnapshotGenerator.class), "expectVariables",
+			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getInternalName(SnapshotGenerator.class), "expectVariables",
 				Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "expectVariables", Object.class, Object[].class)), false));
 		} else {
-			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getDescriptor(SnapshotGenerator.class), "expectVariables",
+			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getInternalName(SnapshotGenerator.class), "expectVariables",
 				Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "expectVariables", Object[].class)), false));
 		}
 
@@ -380,7 +369,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 		insnList.add(pushMethodArguments(methodNode));
 
-		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getDescriptor(SnapshotGenerator.class), "throwVariables",
+		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getInternalName(SnapshotGenerator.class), "throwVariables",
 			Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "throwVariables", Throwable.class, Object[].class)), false));
 
 		return insnList;
@@ -392,7 +381,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		InsnList insnList = new InsnList();
 
 		insnList.add(new LdcInsnNode(params));
-		insnList.add(new TypeInsnNode(Opcodes.ANEWARRAY, Type.getDescriptor(Object.class)));
+		insnList.add(new TypeInsnNode(Opcodes.ANEWARRAY, Type.getInternalName(Object.class)));
 
 		for (int i = 0; i < params; i++) {
 			insnList.add(new InsnNode(DUP));
@@ -412,7 +401,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	private AbstractInsnNode pushType(Type type) {
 		if (type.getDescriptor().length() == 1) {
 			Class<?> boxedType = getBoxedType(type.getDescriptor().charAt(0));
-			return new FieldInsnNode(GETSTATIC, Type.getDescriptor(boxedType), "TYPE", Type.getDescriptor(Class.class));
+			return new FieldInsnNode(GETSTATIC, Type.getInternalName(boxedType), "TYPE", Type.getDescriptor(Class.class));
 		} else {
 			return new LdcInsnNode(type);
 		}
@@ -426,31 +415,9 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 			Class<?> boxed = getBoxedType(desc);
 
 			Method method = methodOf(boxed, "valueOf", raw);
-			insnList.add(new MethodInsnNode(INVOKESTATIC, Type.getDescriptor(boxed), "valueOf", Type.getMethodDescriptor(method), false));
+			insnList.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(boxed), "valueOf", Type.getMethodDescriptor(method), false));
 		}
 		return insnList;
-	}
-
-	public Class<?> saveClass(ClassLoader loader, String className, byte[] b) {
-		try {
-			Class<?> cls = Class.forName(CLASS_LOADER);
-
-			Method defineClass = cls.getDeclaredMethod(DEFINE_CLASS, new Class[] { String.class, byte[].class, int.class, int.class });
-
-			try {
-				defineClass.setAccessible(true);
-				Object[] args = new Object[] { className, b, new Integer(0), new Integer(b.length) };
-				Class<?> clazz = (Class<?>) defineClass.invoke(loader, args);
-				if (clazz.getPackage() == null) {
-					createPackage(className, loader, cls);
-				}
-				return clazz;
-			} finally {
-				defineClass.setAccessible(false);
-			}
-		} catch (Exception e) {
-			throw new SerializationException(e);
-		}
 	}
 
 	private String keySignature(ClassNode classNode, MethodNode methodNode) {
@@ -459,22 +426,6 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 	private String keySignature(ClassNode classNode, FieldNode fieldNode) {
 		return classNode.name + ":" + fieldNode.name + fieldNode.desc;
-	}
-
-	private void createPackage(String className, ClassLoader loader, Class<?> cls) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-		int packageEnd = className.lastIndexOf('.');
-		String pkg = className.substring(0, packageEnd);
-
-		Method definePackage = cls.getDeclaredMethod(DEFINE_PACKAGE, new Class[] {
-			String.class, String.class, String.class, String.class, String.class, String.class, String.class, URL.class
-		});
-		try {
-			definePackage.setAccessible(true);
-			Object[] args = new Object[] { pkg, null, null, null, null, null, null, null };
-			definePackage.invoke(loader, args);
-		} finally {
-			definePackage.setAccessible(false);
-		}
 	}
 
 	private <T> Constructor<T> constructorOf(Class<T> clazz, Class<?>... arguments) {

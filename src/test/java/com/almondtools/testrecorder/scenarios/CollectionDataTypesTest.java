@@ -11,23 +11,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import com.almondtools.testrecorder.DefaultConfig;
-import com.almondtools.testrecorder.SnapshotInstrumentor;
 import com.almondtools.testrecorder.TestGenerator;
+import com.almondtools.testrecorder.util.Instrumented;
+import com.almondtools.testrecorder.util.InstrumentedClassLoaderRunner;
 
+@RunWith(InstrumentedClassLoaderRunner.class)
+@Instrumented(classes={"com.almondtools.testrecorder.scenarios.CollectionDataTypes"})
 public class CollectionDataTypesTest {
 
-	private static SnapshotInstrumentor instrumentor;
-
-	@BeforeClass
-	public static void beforeClass() throws Exception {
-		instrumentor = new SnapshotInstrumentor(new DefaultConfig());
-		instrumentor.register(CollectionDataTypesTest.class.getClassLoader(), "com.almondtools.testrecorder.scenarios.CollectionDataTypes");
-	}
-	
 	@Test
 	public void testCompilable() throws Exception {
 		List<Integer> list = new ArrayList<>();

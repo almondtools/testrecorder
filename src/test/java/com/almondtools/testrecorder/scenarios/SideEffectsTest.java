@@ -8,23 +8,18 @@ import static org.hamcrest.core.Every.everyItem;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import com.almondtools.testrecorder.ConfigRegistry;
 import com.almondtools.testrecorder.DefaultConfig;
-import com.almondtools.testrecorder.SnapshotInstrumentor;
 import com.almondtools.testrecorder.TestGenerator;
+import com.almondtools.testrecorder.util.Instrumented;
+import com.almondtools.testrecorder.util.InstrumentedClassLoaderRunner;
 
+@RunWith(InstrumentedClassLoaderRunner.class)
+@Instrumented(classes={"com.almondtools.testrecorder.scenarios.SideEffects"})
 public class SideEffectsTest {
-
-	private static SnapshotInstrumentor instrumentor;
-
-	@BeforeClass
-	public static void beforeClass() throws Exception {
-		instrumentor = new SnapshotInstrumentor(new DefaultConfig());
-		instrumentor.register(SideEffectsTest.class.getClassLoader(), "com.almondtools.testrecorder.scenarios.SideEffects");
-	}
 
 	@Before
 	public void before() throws Exception {

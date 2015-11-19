@@ -4,23 +4,17 @@ import static com.almondtools.testrecorder.dynamiccompile.CompilableMatcher.comp
 import static com.almondtools.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRuns;
 import static org.junit.Assert.assertThat;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import com.almondtools.testrecorder.DefaultConfig;
-import com.almondtools.testrecorder.SnapshotInstrumentor;
 import com.almondtools.testrecorder.TestGenerator;
+import com.almondtools.testrecorder.util.Instrumented;
+import com.almondtools.testrecorder.util.InstrumentedClassLoaderRunner;
 
+@RunWith(InstrumentedClassLoaderRunner.class)
+@Instrumented(classes={"com.almondtools.testrecorder.scenarios.PrimitiveDataTypes"})
 public class PrimitiveDataTypesTest {
 
-	private static SnapshotInstrumentor instrumentor;
-
-	@BeforeClass
-	public static void beforeClass() throws Exception {
-		instrumentor = new SnapshotInstrumentor(new DefaultConfig());
-		instrumentor.register(PrimitiveDataTypesTest.class.getClassLoader(), "com.almondtools.testrecorder.scenarios.PrimitiveDataTypes");
-	}
-	
 	@Test
 	public void testCompilable() throws Exception {
 		PrimitiveDataTypes dataTypes = new PrimitiveDataTypes();
