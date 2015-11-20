@@ -56,7 +56,7 @@ public class Deserializer implements SerializedValueVisitor<Object>, SerializedC
 	@Override
 	public Object visitObject(SerializedObject value) {
 		try {
-			Object object = fetch(value, () -> GenericObject.newInstance(value.getObjectType()), base -> {
+			Object object = fetch(value, () -> GenericObject.newInstance(value.getValueType()), base -> {
 				for (SerializedField field : value.getFields()) {
 					GenericObject.setField(base, field.getName(), field.getValue().accept(this));
 				}

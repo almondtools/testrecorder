@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.almondtools.testrecorder.SerializedValue;
 import com.almondtools.testrecorder.SerializedValueVisitor;
+import com.almondtools.testrecorder.TypeHelper;
 import com.almondtools.testrecorder.visitors.SerializedValuePrinter;
 
 public class SerializedArray implements SerializedValue {
@@ -29,6 +30,11 @@ public class SerializedArray implements SerializedValue {
 	@Override
 	public Type getType() {
 		return type;
+	}
+	
+	@Override
+	public Class<?> getValueType() {
+		return TypeHelper.getBase(type);
 	}
 	
 	public Type getComponentType() {

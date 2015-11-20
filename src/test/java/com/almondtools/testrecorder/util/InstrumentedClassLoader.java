@@ -40,8 +40,7 @@ public class InstrumentedClassLoader extends URLClassLoader {
 
 			return defineClass(name, bytes, 0, bytes.length);
 		} catch (Throwable t) {
-			System.out.println(t.getMessage());
-			throw new ClassNotFoundException("", t);
+			throw new ClassNotFoundException(t.getMessage(), t);
 		}
 
 	}

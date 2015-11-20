@@ -49,32 +49,32 @@ public class SerializedMapTest {
 
 	@Test
 	public void testGetKeyValueTypeRaw() throws Exception {
-		assertThat(new SerializedMap(Map.class).getKeyType(), equalTo(Object.class));
-		assertThat(new SerializedMap(Map.class).getValueType(), equalTo(Object.class));
+		assertThat(new SerializedMap(Map.class).getMapKeyType(), equalTo(Object.class));
+		assertThat(new SerializedMap(Map.class).getMapValueType(), equalTo(Object.class));
 	}
 
 	@Test
 	public void testGetKeyValueTypeParameterized() throws Exception {
-		assertThat(new SerializedMap(mapOfStringString()).getKeyType(), equalTo(String.class));
-		assertThat(new SerializedMap(mapOfStringString()).getValueType(), equalTo(String.class));
+		assertThat(new SerializedMap(mapOfStringString()).getMapKeyType(), equalTo(String.class));
+		assertThat(new SerializedMap(mapOfStringString()).getMapValueType(), equalTo(String.class));
 	}
 
 	@Test
 	public void testGetKeyValueTypeNestedParameterized() throws Exception {
-		assertThat(new SerializedMap(mapOfStringListOfString()).getKeyType(), equalTo(String.class));
-		assertThat(new SerializedMap(mapOfStringListOfString()).getValueType(), parameterized(List.class, String.class));
+		assertThat(new SerializedMap(mapOfStringListOfString()).getMapKeyType(), equalTo(String.class));
+		assertThat(new SerializedMap(mapOfStringListOfString()).getMapValueType(), parameterized(List.class, String.class));
 	}
 
 	@Test
 	public void testGetKeyValueTypeIndirectParameterized() throws Exception {
-		assertThat(new SerializedMap(hashMapOfStringString()).getKeyType(), equalTo(String.class));
-		assertThat(new SerializedMap(hashMapOfStringString()).getValueType(), equalTo(String.class));
+		assertThat(new SerializedMap(hashMapOfStringString()).getMapKeyType(), equalTo(String.class));
+		assertThat(new SerializedMap(hashMapOfStringString()).getMapValueType(), equalTo(String.class));
 	}
 
 	@Test
 	public void testGetKeyValueTypeBounded() throws Exception {
-		assertThat(new SerializedMap(mapOfBounded()).getKeyType(), equalTo(Object.class));
-		assertThat(new SerializedMap(mapOfBounded()).getValueType(), equalTo(Object.class));
+		assertThat(new SerializedMap(mapOfBounded()).getMapKeyType(), equalTo(Object.class));
+		assertThat(new SerializedMap(mapOfBounded()).getMapValueType(), equalTo(Object.class));
 	}
 
 	@Test

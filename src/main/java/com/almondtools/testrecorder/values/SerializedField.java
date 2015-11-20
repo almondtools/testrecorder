@@ -6,7 +6,7 @@ import com.almondtools.testrecorder.SerializedValue;
 import com.almondtools.testrecorder.SerializedValueVisitor;
 import com.almondtools.testrecorder.visitors.SerializedValuePrinter;
 
-public class SerializedField {
+public class SerializedField implements Comparable<SerializedField>{
 
 	private String name;
 	private Type type;
@@ -37,6 +37,11 @@ public class SerializedField {
 	@Override
 	public String toString() {
 		return accept(new SerializedValuePrinter());
+	}
+	
+	@Override
+	public int compareTo(SerializedField o) {
+		return name.compareTo(o.name);
 	}
 
 	@Override

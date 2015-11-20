@@ -10,6 +10,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 
 import org.junit.Before;
@@ -63,6 +64,11 @@ public class TestGeneratorTest {
 			public SerializedValueVisitor<Computation> create(LocalVariableNameGenerator locals, ImportManager imports) {
 				return new TestComputationValueVisitor();
 			}
+
+			@Override
+			public Type resultType(Type value) {
+				return value;
+			}
 		});
 		ContextSnapshot snapshot = new ContextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField("field", int.class, literal(int.class, 12))));
@@ -88,6 +94,11 @@ public class TestGeneratorTest {
 			@Override
 			public SerializedValueVisitor<Computation> create(LocalVariableNameGenerator locals, ImportManager imports) {
 				return new TestComputationValueVisitor();
+			}
+			
+			@Override
+			public Type resultType(Type value) {
+				return value;
 			}
 		});
 		ContextSnapshot snapshot = new ContextSnapshot(MyClass.class, int.class, "intMethod", int.class);

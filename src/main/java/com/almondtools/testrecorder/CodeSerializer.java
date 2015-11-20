@@ -1,6 +1,7 @@
 package com.almondtools.testrecorder;
 
 import static com.almondtools.testrecorder.TypeHelper.getSimpleName;
+import static com.almondtools.testrecorder.visitors.Templates.assignStatement;
 import static java.util.stream.Collectors.joining;
 
 import java.lang.reflect.Type;
@@ -13,7 +14,6 @@ import com.almondtools.testrecorder.visitors.ImportManager;
 import com.almondtools.testrecorder.visitors.LocalVariableNameGenerator;
 import com.almondtools.testrecorder.visitors.ObjectToSetupCode;
 import com.almondtools.testrecorder.visitors.SerializedValueVisitorFactory;
-import com.almondtools.testrecorder.visitors.Templates;
 
 public class CodeSerializer {
 
@@ -22,21 +22,17 @@ public class CodeSerializer {
 	private SerializedValueVisitorFactory serializers;
 
 	public CodeSerializer() {
+		this(new ConfigurableSerializerFacade(new DefaultSerializationProfile()), new ObjectToSetupCode.Factory());
+	}
+	
+	public CodeSerializer(SerializerFacade facade, SerializedValueVisitorFactory serializers) {
 		this.imports = new ImportManager();
-		this.facade = new ConfigurableSerializerFacade(new DefaultSerializationProfile());
-		this.serializers = new ObjectToSetupCode.Factory();
-	}
-	
-	public void setFacade(SerializerFacade facade) {
 		this.facade = facade;
-	}
-	
-	public void setSerializers(SerializedValueVisitorFactory serializers) {
 		this.serializers = serializers;
 	}
 	
 	public String serialize(Object value) {
-		return (serialize(value.getClass(), value));
+		return (serialize(serializers.resultType(value.getClass()), value));
 	}
 	
 	public String serialize(Type type, Object value) {
@@ -69,7 +65,7 @@ public class CodeSerializer {
 			statements.addAll(serialized.getStatements());
 			if (!serialized.isStored()) {
 				String name = locals.fetchName(value.getClass());
-				statements.add(Templates.assignStatement(type, name, serialized.getValue()));
+				statements.add(assignStatement(type, name, serialized.getValue()));
 			}
 
 			return statements.stream()

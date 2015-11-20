@@ -96,7 +96,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 
 	private Computation renderBeanSetup(SerializedObject value) throws BeanSetupFailedException  {
 		try {
-			String name = localVariable(value, value.getObjectType());
+			String name = localVariable(value, value.getValueType());
 			return new Construction(name, value).computeBest(this);
 		} catch (ReflectiveOperationException | RuntimeException e) {
 			throw new BeanSetupFailedException();
@@ -108,6 +108,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 		imports.registerImports(types);
 
 		List<Computation> elementTemplates = value.getFields().stream()
+			.sorted()
 			.map(element -> element.accept(this))
 			.collect(toList());
 
@@ -119,7 +120,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 			.flatMap(template -> template.getStatements().stream())
 			.collect(toList());
 
-		String genericObject = genericObjectConverter(getSimpleName(value.getObjectType()), elements);
+		String genericObject = genericObjectConverter(getSimpleName(value.getValueType()), elements);
 		return new Computation(genericObject, statements);
 	}
 
@@ -299,6 +300,10 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 			return new ObjectToSetupCode(locals, imports);
 		}
 
+		@Override
+		public Type resultType(Type type) {
+			return type;
+		}
 	}
 
 	private static class BeanSetupFailedException extends Exception {

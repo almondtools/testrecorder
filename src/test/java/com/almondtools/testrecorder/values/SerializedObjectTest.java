@@ -22,7 +22,7 @@ public class SerializedObjectTest {
 
 		serializedObject.setObjectType(String.class);
 
-		assertThat(serializedObject.getObjectType(), equalTo(String.class));
+		assertThat(serializedObject.getValueType(), equalTo(String.class));
 	}
 
 	@Test

@@ -11,6 +11,11 @@ public class SerializedBigDecimal extends SerializedImmutable<BigDecimal> {
 	public SerializedBigDecimal(Type type) {
 		super(type);
 	}
+	
+	@Override
+	public Class<?> getValueType() {
+		return BigDecimal.class;
+	}
 
 	@Override
 	public <T> T accept(SerializedValueVisitor<T> visitor) {

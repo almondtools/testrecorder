@@ -2,10 +2,7 @@ package com.almondtools.testrecorder;
 
 import static com.almondtools.testrecorder.values.SerializedLiteral.isLiteral;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -108,15 +105,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 	}
 
 	private Class<?> getClass(Type type) {
-		if (type instanceof Class<?>) {
-			return ((Class<?>) type);
-		} else if (type instanceof GenericArrayType) {
-			return Array.newInstance(getClass(((GenericArrayType) type).getGenericComponentType()), 0).getClass();
-		} else if (type instanceof ParameterizedType) {
-			return getClass(((ParameterizedType) type).getRawType());
-		} else {
-			return Object.class;
-		}
+		return TypeHelper.getBase(type);
 	}
 
 	@Override

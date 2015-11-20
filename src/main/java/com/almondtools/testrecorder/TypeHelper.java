@@ -54,7 +54,19 @@ public final class TypeHelper {
 					.map(argtype -> getSimpleName(argtype))
 					.collect(joining(", ", "<", ">"));
 		} else {
-			return type.getTypeName();
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	public static String getRawName(Type type) {
+		if (type instanceof Class<?>) {
+			return ((Class<?>) type).getSimpleName();
+		} else if (type instanceof GenericArrayType) {
+			return getRawName(((GenericArrayType) type).getGenericComponentType()) + "[]";
+		} else if (type instanceof ParameterizedType) {
+			return getRawName(((ParameterizedType) type).getRawType());
+		} else {
+			throw new UnsupportedOperationException();
 		}
 	}
 

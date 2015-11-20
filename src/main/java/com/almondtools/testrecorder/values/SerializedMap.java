@@ -10,6 +10,7 @@ import java.util.Set;
 import com.almondtools.testrecorder.SerializedCollectionVisitor;
 import com.almondtools.testrecorder.SerializedValue;
 import com.almondtools.testrecorder.SerializedValueVisitor;
+import com.almondtools.testrecorder.TypeHelper;
 import com.almondtools.testrecorder.visitors.SerializedValuePrinter;
 
 public class SerializedMap implements SerializedValue, Map<SerializedValue, SerializedValue> {
@@ -27,7 +28,12 @@ public class SerializedMap implements SerializedValue, Map<SerializedValue, Seri
 		return type;
 	}
 
-	public Type getKeyType() {
+	@Override
+	public Class<?> getValueType() {
+		return TypeHelper.getBase(type);
+	}
+	
+	public Type getMapKeyType() {
 		if (type instanceof ParameterizedType) {
 			return ((ParameterizedType) type).getActualTypeArguments()[0];
 		} else {
@@ -35,7 +41,7 @@ public class SerializedMap implements SerializedValue, Map<SerializedValue, Seri
 		}
 	}
 
-	public Type getValueType() {
+	public Type getMapValueType() {
 		if (type instanceof ParameterizedType) {
 			return ((ParameterizedType) type).getActualTypeArguments()[1];
 		} else {

@@ -10,6 +10,7 @@ import java.util.Set;
 import com.almondtools.testrecorder.SerializedCollectionVisitor;
 import com.almondtools.testrecorder.SerializedValue;
 import com.almondtools.testrecorder.SerializedValueVisitor;
+import com.almondtools.testrecorder.TypeHelper;
 import com.almondtools.testrecorder.visitors.SerializedValuePrinter;
 
 public class SerializedSet implements SerializedValue, Set<SerializedValue> {
@@ -27,6 +28,11 @@ public class SerializedSet implements SerializedValue, Set<SerializedValue> {
 		return type;
 	}
 
+	@Override
+	public Class<?> getValueType() {
+		return TypeHelper.getBase(type);
+	}
+	
 	public Type getComponentType() {
 		if (type instanceof ParameterizedType) {
 			return ((ParameterizedType) type).getActualTypeArguments()[0];

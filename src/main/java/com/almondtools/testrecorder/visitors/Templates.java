@@ -20,10 +20,12 @@ public final class Templates {
 	private static final String CALL_METHOD_STMT = "<base>.<method>(<arguments; separator=\", \">);";
 	private static final String CALL_LOCAL_METHOD_STMT = "<method>(<arguments; separator=\", \">);";
 	private static final String RETURN_STMT = "return <value>;";
+	private static final String CAST_STMT = "(<type>) <expression>";
 
 	private static final String GENERIC_TYPE = "$type$<$typeParam; separator=\", \"$>";
 
 	private static final String GENERIC_OBJECT_MATCHER = "new GenericMatcher() {\n<fields; separator=\"\\n\">\n}.matching(<type>.class)";
+	private static final String RECURSIVE_MATCHER = "recursive(<type>.class)";
 	private static final String CONTAINS_MATCHER = "contains(<values; separator=\", \">)";
 	private static final String EMPTY_MATCHER = "empty()";
 	private static final String CONTAINS_IN_ANY_ORDER_MATCHER = "containsInAnyOrder(<values; separator=\", \">)";
@@ -171,6 +173,13 @@ public final class Templates {
 		return matcher.render();
 	}
 
+	public static String recursiveMatcher(String type) {
+		ST matcher = new ST(RECURSIVE_MATCHER);
+		matcher.add("type", type);
+
+		return matcher.render();
+	}
+
 	public static String arrayContainingMatcher(String... elementValues) {
 		ST matcher = new ST(ARRAY_CONTAINING_MATCHER);
 		matcher.add("values", asList(elementValues));
@@ -195,6 +204,14 @@ public final class Templates {
 
 	public static String nullMatcher() {
 		ST matcher = new ST(NULL_MATCHER);
+
+		return matcher.render();
+	}
+
+	public static String cast(String type, String expression) {
+		ST matcher = new ST(CAST_STMT);
+		matcher.add("type", type);
+		matcher.add("expression", expression);
 
 		return matcher.render();
 	}

@@ -40,6 +40,11 @@ public class SerializedLiteral implements SerializedValue {
 	public Type getType() {
 		return type;
 	}
+	
+	@Override
+	public Class<?> getValueType() {
+		return value.getClass();
+	}
 
 	public Object getValue() {
 		return value;

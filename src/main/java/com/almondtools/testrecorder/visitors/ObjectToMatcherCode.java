@@ -1,5 +1,6 @@
 package com.almondtools.testrecorder.visitors;
 
+import static com.almondtools.testrecorder.TypeHelper.getRawName;
 import static com.almondtools.testrecorder.TypeHelper.getSimpleName;
 import static com.almondtools.testrecorder.TypeHelper.isPrimitive;
 import static com.almondtools.testrecorder.util.TemplateHelper.asLiteral;
@@ -16,13 +17,16 @@ import static com.almondtools.testrecorder.visitors.Templates.newObject;
 import static com.almondtools.testrecorder.visitors.Templates.noEntriesMatcher;
 import static com.almondtools.testrecorder.visitors.Templates.nullMatcher;
 import static com.almondtools.testrecorder.visitors.Templates.primitiveArrayContainingMatcher;
+import static com.almondtools.testrecorder.visitors.Templates.recursiveMatcher;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -52,7 +56,8 @@ import com.almondtools.testrecorder.values.SerializedSet;
 
 public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>, SerializedCollectionVisitor<Computation>, SerializedImmutableVisitor<Computation> {
 
-	private LocalVariableNameGenerator locals;
+	private Set<SerializedValue> computed;
+
 	private ImportManager imports;
 
 	public ObjectToMatcherCode() {
@@ -60,14 +65,10 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 	}
 
 	public ObjectToMatcherCode(LocalVariableNameGenerator locals, ImportManager imports) {
-		this.locals = locals;
 		this.imports = imports;
+		this.computed = new HashSet<>();
 	}
-
-	public LocalVariableNameGenerator getLocals() {
-		return locals;
-	}
-
+	
 	public ImportManager getImports() {
 		return imports;
 	}
@@ -84,7 +85,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 			imports.registerImport(Matcher.class);
 			Computation value = fieldValue.accept(this);
 
-			String genericType = genericType("Matcher", matcherType(field.getType()));
+			String genericType = genericType("Matcher", matcherType(field.getValue().getValueType()));
 
 			String assignField = assignField(genericType, field.getName(), value.getValue());
 			return new Computation(assignField, value.getStatements());
@@ -93,10 +94,15 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 
 	@Override
 	public Computation visitObject(SerializedObject value) {
+		if (!computed.add(value)) {
+			imports.staticImport(GenericMatcher.class,"recursive");
+			return new Computation(recursiveMatcher(getRawName(value.getValueType())));
+		}
 		Type[] types = { value.getType(), GenericMatcher.class };
 		imports.registerImports(types);
 
 		List<Computation> fields = value.getFields().stream()
+			.sorted()
 			.map(field -> field.accept(this))
 			.collect(toList());
 
@@ -108,12 +114,22 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 			.map(field -> field.getValue())
 			.collect(toList());
 
-		String matcherExpression = genericObjectMatcher(getSimpleName(value.getType()), fieldAssignments);
+		String matcherResultType = getSimpleName(value.getType());
+		String matcherRealType = getSimpleName(value.getValueType());
+		String matcherRawType = getRawName(value.getValueType());
+		String matcherExpression = genericObjectMatcher(matcherRawType, fieldAssignments);
+		if (!matcherRealType.equals(matcherRawType)) {
+			matcherExpression = Templates.cast(matcherResultType, matcherExpression);
+		}
 		return new Computation(matcherExpression, fieldComputations);
 	}
 
 	@Override
 	public Computation visitList(SerializedList value) {
+		if (!computed.add(value)) {
+			imports.staticImport(GenericMatcher.class,"recursive");
+			return new Computation(recursiveMatcher(getRawName(value.getValueType())));
+		}
 		if (value.isEmpty()) {
 			imports.staticImport(Matchers.class, "empty");
 
@@ -141,6 +157,10 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 
 	@Override
 	public Computation visitSet(SerializedSet value) {
+		if (!computed.add(value)) {
+			imports.staticImport(GenericMatcher.class,"recursive");
+			return new Computation(recursiveMatcher(getRawName(value.getValueType())));
+		}
 		if (value.isEmpty()) {
 			imports.staticImport(Matchers.class, "empty");
 
@@ -168,8 +188,12 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 
 	@Override
 	public Computation visitMap(SerializedMap value) {
-		String keyType = getSimpleName(value.getKeyType());
-		String valueType = getSimpleName(value.getValueType());
+		if (!computed.add(value)) {
+			imports.staticImport(GenericMatcher.class,"recursive");
+			return new Computation(recursiveMatcher(getRawName(value.getValueType())));
+		}
+		String keyType = getSimpleName(value.getMapKeyType());
+		String valueType = getSimpleName(value.getMapValueType());
 		if (value.isEmpty()) {
 			imports.staticImport(MapMatcher.class, "noEntries");
 
@@ -197,6 +221,10 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 
 	@Override
 	public Computation visitArray(SerializedArray value) {
+		if (!computed.add(value)) {
+			imports.staticImport(GenericMatcher.class,"recursive");
+			return new Computation(recursiveMatcher(getRawName(value.getValueType())));
+		}
 		if (isPrimitive(value.getComponentType())) {
 			String name = value.getComponentType().getTypeName();
 			imports.staticImport(PrimitiveArrayMatcher.class, name + "ArrayContaining");
@@ -315,6 +343,26 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 			return new ObjectToMatcherCode(locals, imports);
 		}
 
+		@Override
+		public Type resultType(Type type) {
+			return new ParameterizedType() {
+				
+				@Override
+				public Type getRawType() {
+					return Matcher.class;
+				}
+				
+				@Override
+				public Type getOwnerType() {
+					return null;
+				}
+				
+				@Override
+				public Type[] getActualTypeArguments() {
+					return new Type[]{type};
+				}
+			};
+		}
 	}
 
 }

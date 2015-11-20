@@ -40,7 +40,8 @@ public class SerializedObject implements SerializedValue {
 		this.objectType = objectType;
 	}
 
-	public Class<?> getObjectType() {
+	@Override
+	public Class<?> getValueType() {
 		return objectType;
 	}
 

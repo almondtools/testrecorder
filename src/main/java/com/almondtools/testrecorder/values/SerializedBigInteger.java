@@ -13,6 +13,11 @@ public class SerializedBigInteger extends SerializedImmutable<BigInteger> {
 	}
 
 	@Override
+	public Class<?> getValueType() {
+		return BigInteger.class;
+	}
+
+	@Override
 	public <T> T accept(SerializedValueVisitor<T> visitor) {
 		return visitor.as(SerializedImmutableVisitor.extend(visitor))
 			.map(v -> v.visitBigInteger(this))

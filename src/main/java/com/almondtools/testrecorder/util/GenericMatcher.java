@@ -1,6 +1,7 @@
 package com.almondtools.testrecorder.util;
 
 import static com.almondtools.testrecorder.util.GenericComparison.getValue;
+import static org.hamcrest.Matchers.instanceOf;
 
 import java.lang.reflect.Field;
 import java.util.LinkedList;
@@ -38,6 +39,10 @@ public class GenericMatcher extends GenericObject {
 			}
 		}
 		return true;
+	}
+	
+	public static <T> Matcher<T> recursive(Class<T> clazz) {
+		return instanceOf(clazz);
 	}
 
 	private class InternalsMatcher<T> extends TypeSafeMatcher<T> {

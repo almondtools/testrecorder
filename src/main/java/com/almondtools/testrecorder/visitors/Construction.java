@@ -90,7 +90,7 @@ public class Construction {
 
 	private Object buildFromStandardConstructor() {
 		try {
-			Constructor<?> constructor = serialized.getObjectType().getConstructor();
+			Constructor<?> constructor = serialized.getValueType().getConstructor();
 			constructors.put(constructor, new ArrayList<>());
 			return constructor.newInstance();
 		} catch (ReflectiveOperationException e) {
@@ -104,7 +104,7 @@ public class Construction {
 			String fieldName = field.getName();
 			Object fieldValue = field.getValue().accept(deserializer);
 
-			for (Constructor<?> constructor : serialized.getObjectType().getConstructors()) {
+			for (Constructor<?> constructor : serialized.getValueType().getConstructors()) {
 				Class<?>[] parameterTypes = constructor.getParameterTypes();
 				for (int i = 0; i < parameterTypes.length; i++) {
 					Class<?> parameterType = parameterTypes[i];
@@ -132,7 +132,7 @@ public class Construction {
 			String fieldName = field.getName();
 			Object fieldValue = field.getValue().accept(deserializer);
 
-			nextmethod: for (Method method : serialized.getObjectType().getMethods()) {
+			nextmethod: for (Method method : serialized.getValueType().getMethods()) {
 				if (method.getName().startsWith("set")) {
 					Class<?>[] parameterTypes = method.getParameterTypes();
 					if (parameterTypes.length == 1 && matches(parameterTypes[0], fieldValue)) {

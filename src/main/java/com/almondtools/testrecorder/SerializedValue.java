@@ -19,4 +19,6 @@ public interface SerializedValue {
 
 	Type getType();
 
+	Class<?> getValueType();
+
 }

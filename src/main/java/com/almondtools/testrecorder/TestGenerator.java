@@ -5,6 +5,7 @@ import static com.almondtools.testrecorder.TypeHelper.getBase;
 import static com.almondtools.testrecorder.TypeHelper.getSimpleName;
 import static com.almondtools.testrecorder.TypeHelper.isPrimitive;
 import static com.almondtools.testrecorder.visitors.Templates.assignStatement;
+import static com.almondtools.testrecorder.visitors.Templates.callLocalMethodStatement;
 import static com.almondtools.testrecorder.visitors.Templates.callMethodStatement;
 import static com.almondtools.testrecorder.visitors.Templates.expressionStatement;
 import static java.lang.Character.toUpperCase;
@@ -44,7 +45,6 @@ import com.almondtools.testrecorder.visitors.LocalVariableNameGenerator;
 import com.almondtools.testrecorder.visitors.ObjectToMatcherCode;
 import com.almondtools.testrecorder.visitors.ObjectToSetupCode;
 import com.almondtools.testrecorder.visitors.SerializedValueVisitorFactory;
-import com.almondtools.testrecorder.visitors.Templates;
 
 public class TestGenerator implements SnapshotConsumer {
 
@@ -219,16 +219,14 @@ public class TestGenerator implements SnapshotConsumer {
 			imports.staticImport(Assert.class, "assertThat");
 			statements.add(BEGIN_ASSERT);
 
-			SerializedValueVisitor<Computation> expectCode = matcher.create(locals, imports);
-
 			List<String> expectResult = Optional.ofNullable(snapshot.getExpectResult())
-				.map(o -> o.accept(expectCode))
+				.map(o -> o.accept(matcher.create(locals, imports)))
 				.map(o -> createAssertion(o, result))
 				.orElse(emptyList());
 
 			List<String> expectThis = Optional.of(snapshot.getExpectThis())
 				.filter(o -> !o.equals(snapshot.getSetupThis()))
-				.map(o -> o.accept(expectCode))
+				.map(o -> o.accept(matcher.create(locals, imports)))
 				.map(o -> createAssertion(o, base))
 				.orElse(emptyList());
 
@@ -237,7 +235,7 @@ public class TestGenerator implements SnapshotConsumer {
 			List<String> expectArgs = IntStream.range(0, argumentTypes.length)
 				.filter(i -> !isImmutable(argumentTypes[i]))
 				.filter(i -> !serializedArgs[i].equals(snapshot.getSetupArgs()[i]))
-				.mapToObj(i -> createAssertion(serializedArgs[i].accept(expectCode), args.get(i)))
+				.mapToObj(i -> createAssertion(serializedArgs[i].accept(matcher.create(locals, imports)), args.get(i)))
 				.flatMap(statements -> statements.stream())
 				.collect(toList());
 
@@ -254,7 +252,7 @@ public class TestGenerator implements SnapshotConsumer {
 
 			statements.addAll(matcher.getStatements());
 
-			statements.add(Templates.callLocalMethodStatement("assertThat", exp, matcher.getValue()));
+			statements.add(callLocalMethodStatement("assertThat", exp, matcher.getValue()));
 
 			return statements;
 		}
