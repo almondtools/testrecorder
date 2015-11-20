@@ -14,7 +14,7 @@ public class SerializedNull implements SerializedValue {
 	
 	private Type type;
 	
-	public SerializedNull(Type type) {
+	private SerializedNull(Type type) {
 		this.type = type;
 	}
 	
@@ -37,29 +37,4 @@ public class SerializedNull implements SerializedValue {
 		return accept(new SerializedValuePrinter());
 	}
 
-	@Override
-	public int hashCode() {
-		return type.getTypeName().hashCode() * 7 + 29;
-	}
-	
-	@Override
-	public int shortHashcode() {
-		return hashCode();
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		SerializedNull that = (SerializedNull) obj;
-		return this.type == that.type;
-	}
-	
 }

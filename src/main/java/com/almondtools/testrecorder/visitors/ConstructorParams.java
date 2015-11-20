@@ -2,6 +2,8 @@ package com.almondtools.testrecorder.visitors;
 
 import static com.almondtools.testrecorder.util.GenericObject.getDefaultValue;
 import static com.almondtools.testrecorder.values.SerializedLiteral.isLiteral;
+import static com.almondtools.testrecorder.values.SerializedLiteral.literal;
+import static com.almondtools.testrecorder.values.SerializedNull.nullInstance;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -9,8 +11,6 @@ import java.util.List;
 
 import com.almondtools.testrecorder.SerializedValue;
 import com.almondtools.testrecorder.values.SerializedField;
-import com.almondtools.testrecorder.values.SerializedLiteral;
-import com.almondtools.testrecorder.values.SerializedNull;
 
 public class ConstructorParams {
 
@@ -56,11 +56,11 @@ public class ConstructorParams {
 			if (fields[i] == null) {
 				Class<?> parameterType = constructor.getParameterTypes()[i];
 				if (parameterType == String.class) {
-					serializedValues.add(new SerializedNull(String.class));
+					serializedValues.add(nullInstance(String.class));
 				} else if (isLiteral(parameterType)) {
-					serializedValues.add(new SerializedLiteral(parameterType, values[i]));
+					serializedValues.add(literal(parameterType, values[i]));
 				} else {
-					serializedValues.add(new SerializedNull(parameterType));
+					serializedValues.add(nullInstance(parameterType));
 				}
 			} else {
 				serializedValues.add(fields[i].getValue());

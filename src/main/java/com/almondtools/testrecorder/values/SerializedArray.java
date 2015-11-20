@@ -71,33 +71,4 @@ public class SerializedArray implements SerializedValue {
 		return accept(new SerializedValuePrinter());
 	}
 
-	@Override
-	public int hashCode() {
-		return type.getTypeName().hashCode() * 17
-			+ array.hashCode();
-	}
-	
-	@Override
-	public int shortHashcode() {
-		return type.getTypeName().hashCode()
-			+ array.stream()
-			.mapToInt(element -> element.shortHashcode())
-			.reduce(0, (r,l) -> r * 29 + l);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		SerializedArray that = (SerializedArray) obj;
-		return this.type == that.type
-			&& this.array.equals(that.array);
-	}
 }

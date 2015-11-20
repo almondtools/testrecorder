@@ -1,6 +1,5 @@
 package com.almondtools.testrecorder.values;
 
-import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefaultEquality;
 import static com.almondtools.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
@@ -53,18 +52,6 @@ public class SerializedObjectTest {
 		serializedObject.addField(new SerializedField("f2", Integer.class, literal(Integer.class, 2)));
 
 		assertThat(serializedObject.toString(), equalTo("java.lang.String/" + System.identityHashCode(serializedObject) + " {\njava.lang.Object f1: str,\njava.lang.Integer f2: 2\n}"));
-	}
-
-	@Test
-	public void testEquals() throws Exception {
-		assertThat(new SerializedObject(Object.class), satisfiesDefaultEquality()
-			.andEqualTo(new SerializedObject(String.class))
-			.andNotEqualTo(new SerializedObject(Object.class).withObjectType(String.class))
-			.andNotEqualTo(new SerializedObject(String.class).withFields(new SerializedField("f", Object.class, literal(String.class, "str")))));
-		assertThat(new SerializedObject(Object.class).withObjectType(String.class), satisfiesDefaultEquality()
-			.andEqualTo(new SerializedObject(Object.class).withObjectType(String.class))
-			.andNotEqualTo(new SerializedObject(Object.class))
-			.andNotEqualTo(new SerializedObject(String.class)));
 	}
 
 }

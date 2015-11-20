@@ -142,23 +142,6 @@ public class SerializedList implements SerializedValue, List<SerializedValue> {
 		return list.subList(fromIndex, toIndex);
 	}
 
-	public int hashCode() {
-		return list.hashCode();
-	}
-
-	@Override
-	public int shortHashcode() {
-		return type.getTypeName().hashCode()
-			+ list.stream()
-			.mapToInt(element -> element.shortHashcode())
-			.reduce(0, (r,l) -> r * 11 + l);
-	}
-
-	public boolean equals(Object o) {
-		//TODO handle recursion this -> entry -> this
-		return list.equals(o);
-	}
-
 	@Override
 	public String toString() {
 		return accept(new SerializedValuePrinter());

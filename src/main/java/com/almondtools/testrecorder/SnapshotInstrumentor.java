@@ -104,7 +104,6 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	}
 
 	private void instrumentFields(ClassNode classNode) {
-		//TODO handle super class instantiations
 		classNode.fields.add(createTestAspectField());
 	}
 

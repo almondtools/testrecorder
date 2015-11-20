@@ -1,6 +1,5 @@
 package com.almondtools.testrecorder.values;
 
-import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefaultEquality;
 import static com.almondtools.testrecorder.values.SerializedLiteral.isLiteral;
 import static com.almondtools.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.Matchers.equalTo;
@@ -64,17 +63,6 @@ public class SerializedLiteralTest {
 		SerializedLiteral value = literal(String.class, "string");
 
 		assertThat(value.toString(), equalTo("string"));
-	}
-
-	@Test
-	public void testEquals() throws Exception {
-		assertThat(new SerializedLiteral(String.class, "string"), satisfiesDefaultEquality()
-			.andEqualTo(new SerializedLiteral(String.class, "string"))
-			.andNotEqualTo(new SerializedLiteral(Integer.class, 1))
-			.andNotEqualTo(new SerializedLiteral(String.class, null)));
-		assertThat(new SerializedLiteral(String.class, null), satisfiesDefaultEquality()
-			.andEqualTo(new SerializedLiteral(String.class, null))
-			.andNotEqualTo(new SerializedLiteral(String.class, "string")));
 	}
 
 }

@@ -5,6 +5,7 @@ import static com.almondtools.testrecorder.values.GenericTypes.mapOfBounded;
 import static com.almondtools.testrecorder.values.GenericTypes.mapOfStringListOfString;
 import static com.almondtools.testrecorder.values.GenericTypes.mapOfStringString;
 import static com.almondtools.testrecorder.values.ParameterizedTypeMatcher.parameterized;
+import static com.almondtools.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
@@ -85,7 +86,7 @@ public class SerializedMapTest {
 	@Test
 	public void testSize1() throws Exception {
 		SerializedMap map = new SerializedMap(Map.class);
-		map.put(new SerializedLiteral(String.class, "key"), new SerializedLiteral(String.class, "value"));
+		map.put(literal(String.class, "key"), literal(String.class, "value"));
 		assertThat(map.size(), equalTo(1));
 	}
 
@@ -98,65 +99,65 @@ public class SerializedMapTest {
 	@Test
 	public void testIsEmpty1() throws Exception {
 		SerializedMap map = new SerializedMap(Map.class);
-		map.put(new SerializedLiteral(String.class, "key"), new SerializedLiteral(String.class, "value"));
+		map.put(literal(String.class, "key"), literal(String.class, "value"));
 		assertThat(map.isEmpty(), is(false));
 	}
 
 	@Test
 	public void testContains0() throws Exception {
 		SerializedMap map = new SerializedMap(Map.class);
-		assertThat(map.containsKey(new SerializedLiteral(String.class, "key")), is(false));
-		assertThat(map.containsValue(new SerializedLiteral(String.class, "value")), is(false));
+		assertThat(map.containsKey(literal(String.class, "key")), is(false));
+		assertThat(map.containsValue(literal(String.class, "value")), is(false));
 	}
 
 	@Test
 	public void testContainsKey1() throws Exception {
 		SerializedMap map = new SerializedMap(Map.class);
-		map.put(new SerializedLiteral(String.class, "key"), new SerializedLiteral(String.class, "value"));
-		assertThat(map.containsKey(new SerializedLiteral(String.class, "key")), is(true));
-		assertThat(map.containsKey(new SerializedLiteral(String.class, "string")), is(false));
+		map.put(literal(String.class, "key"), literal(String.class, "value"));
+		assertThat(map.containsKey(literal(String.class, "key")), is(true));
+		assertThat(map.containsKey(literal(String.class, "string")), is(false));
 	}
 
 	@Test
 	public void testContainsValue1() throws Exception {
 		SerializedMap map = new SerializedMap(Map.class);
-		map.put(new SerializedLiteral(String.class, "key"), new SerializedLiteral(String.class, "value"));
-		assertThat(map.containsValue(new SerializedLiteral(String.class, "value")), is(true));
-		assertThat(map.containsValue(new SerializedLiteral(String.class, "string")), is(false));
+		map.put(literal(String.class, "key"), literal(String.class, "value"));
+		assertThat(map.containsValue(literal(String.class, "value")), is(true));
+		assertThat(map.containsValue(literal(String.class, "string")), is(false));
 	}
 
 	@Test
 	public void testRemoveObject0() throws Exception {
 		SerializedMap map = new SerializedMap(Map.class);
-		assertThat(map.remove(new SerializedLiteral(String.class, "string")), nullValue());
+		assertThat(map.remove(literal(String.class, "string")), nullValue());
 	}
 
 	@Test
 	public void testRemoveObject1() throws Exception {
 		SerializedMap map = new SerializedMap(Map.class);
-		map.put(new SerializedLiteral(String.class, "key"), new SerializedLiteral(String.class, "value"));
-		assertThat(map.remove(new SerializedLiteral(String.class, "string")), nullValue());
-		assertThat(map.remove(new SerializedLiteral(String.class, "key")), equalTo(new SerializedLiteral(String.class, "value")));
+		map.put(literal(String.class, "key"), literal(String.class, "value"));
+		assertThat(map.remove(literal(String.class, "string")), nullValue());
+		assertThat(map.remove(literal(String.class, "key")), equalTo(literal(String.class, "value")));
 	}
 
 	@Test
 	public void testPutAll() throws Exception {
 		SerializedMap map = new SerializedMap(Map.class);
 		Map<SerializedValue, SerializedValue> value = new HashMap<>();
-		value.put(new SerializedLiteral(String.class, "key1"), new SerializedLiteral(String.class, "value1"));
-		value.put(new SerializedLiteral(String.class, "key2"), new SerializedLiteral(String.class, "value2"));
+		value.put(literal(String.class, "key1"), literal(String.class, "value1"));
+		value.put(literal(String.class, "key2"), literal(String.class, "value2"));
 		
 		map.putAll(value);
 
-		assertThat(map, hasEntry(new SerializedLiteral(String.class, "key1"), new SerializedLiteral(String.class, "value1")));
-		assertThat(map, hasEntry(new SerializedLiteral(String.class, "key2"), new SerializedLiteral(String.class, "value2")));
+		assertThat(map, hasEntry(literal(String.class, "key1"), literal(String.class, "value1")));
+		assertThat(map, hasEntry(literal(String.class, "key2"), literal(String.class, "value2")));
 	}
 
 	@Test
 	public void testClear() throws Exception {
 		SerializedMap map = new SerializedMap(Map.class);
-		map.put(new SerializedLiteral(String.class, "key1"), new SerializedLiteral(String.class, "value1"));
-		map.put(new SerializedLiteral(String.class, "key2"), new SerializedLiteral(String.class, "value2"));
+		map.put(literal(String.class, "key1"), literal(String.class, "value1"));
+		map.put(literal(String.class, "key2"), literal(String.class, "value2"));
 
 		map.clear();
 
@@ -166,45 +167,19 @@ public class SerializedMapTest {
 	@Test
 	public void testKeySet() throws Exception {
 		SerializedMap map = new SerializedMap(Map.class);
-		map.put(new SerializedLiteral(String.class, "key1"), new SerializedLiteral(String.class, "value1"));
-		map.put(new SerializedLiteral(String.class, "key2"), new SerializedLiteral(String.class, "value2"));
+		map.put(literal(String.class, "key1"), literal(String.class, "value1"));
+		map.put(literal(String.class, "key2"), literal(String.class, "value2"));
 
-		assertThat(map.keySet(), containsInAnyOrder(new SerializedLiteral(String.class, "key1"), new SerializedLiteral(String.class, "key2")));
+		assertThat(map.keySet(), containsInAnyOrder(literal(String.class, "key1"), literal(String.class, "key2")));
 	}
 
 	@Test
 	public void testValues() throws Exception {
 		SerializedMap map = new SerializedMap(Map.class);
-		map.put(new SerializedLiteral(String.class, "key1"), new SerializedLiteral(String.class, "value1"));
-		map.put(new SerializedLiteral(String.class, "key2"), new SerializedLiteral(String.class, "value2"));
+		map.put(literal(String.class, "key1"), literal(String.class, "value1"));
+		map.put(literal(String.class, "key2"), literal(String.class, "value2"));
 
-		assertThat(map.values(), containsInAnyOrder(new SerializedLiteral(String.class, "value1"), new SerializedLiteral(String.class, "value2")));
-	}
-
-	@Test
-	public void testEquals() throws Exception {
-		SerializedMap map = new SerializedMap(Map.class);
-		map.put(new SerializedLiteral(String.class, "key1"), new SerializedLiteral(String.class, "value1"));
-		map.put(new SerializedLiteral(String.class, "key2"), new SerializedLiteral(String.class, "value2"));
-
-		SerializedMap expected = new SerializedMap(Map.class);
-		expected.put(new SerializedLiteral(String.class, "key1"), new SerializedLiteral(String.class, "value1"));
-		expected.put(new SerializedLiteral(String.class, "key2"), new SerializedLiteral(String.class, "value2"));
-
-		assertThat(map, equalTo(expected));
-	}
-
-	@Test
-	public void testHashCode() throws Exception {
-		SerializedMap map = new SerializedMap(Map.class);
-		map.put(new SerializedLiteral(String.class, "key1"), new SerializedLiteral(String.class, "value1"));
-		map.put(new SerializedLiteral(String.class, "key2"), new SerializedLiteral(String.class, "value2"));
-
-		SerializedMap expected = new SerializedMap(Map.class);
-		expected.put(new SerializedLiteral(String.class, "key1"), new SerializedLiteral(String.class, "value1"));
-		expected.put(new SerializedLiteral(String.class, "key2"), new SerializedLiteral(String.class, "value2"));
-
-		assertThat(map.hashCode(), equalTo(expected.hashCode()));
+		assertThat(map.values(), containsInAnyOrder(literal(String.class, "value1"), literal(String.class, "value2")));
 	}
 
 	@Test
@@ -217,7 +192,7 @@ public class SerializedMapTest {
 	@Test
 	public void testToString1() throws Exception {
 		SerializedMap map = new SerializedMap(Map.class);
-		map.put(new SerializedLiteral(String.class, "key"), new SerializedLiteral(String.class, "value"));
+		map.put(literal(String.class, "key"), literal(String.class, "value"));
 		
 		assertThat(map.toString(), equalTo("{key:value}"));
 	}

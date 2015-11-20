@@ -23,7 +23,7 @@ public class SerializedLiteral implements SerializedValue {
 	private Type type;
 	private Object value;
 
-	public SerializedLiteral(Type type, Object value) {
+	private SerializedLiteral(Type type, Object value) {
 		this.type = type;
 		this.value = value;
 	}
@@ -53,33 +53,6 @@ public class SerializedLiteral implements SerializedValue {
 	@Override
 	public String toString() {
 		return accept(new SerializedValuePrinter());
-	}
-
-	@Override
-	public int hashCode() {
-		return type.getTypeName().hashCode() * 19
-			+ (value == null ? 0 : value.hashCode());
-	}
-
-	@Override
-	public int shortHashcode() {
-		return hashCode();
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		SerializedLiteral that = (SerializedLiteral) obj;
-		return this.type == that.type
-			&& (this.value == null ? that.value == null : this.value.equals(that.value));
 	}
 
 }

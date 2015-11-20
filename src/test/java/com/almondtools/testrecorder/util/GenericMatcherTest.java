@@ -6,8 +6,6 @@ import static org.junit.Assert.assertThat;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 
-import com.almondtools.testrecorder.util.GenericMatcher;
-
 @SuppressWarnings("unused")
 public class GenericMatcherTest {
 

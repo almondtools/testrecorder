@@ -1,6 +1,5 @@
 package com.almondtools.testrecorder.values;
 
-import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefaultEquality;
 import static com.almondtools.testrecorder.values.ParameterizedTypeMatcher.parameterized;
 import static com.almondtools.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -71,17 +70,6 @@ public class SerializedArrayTest {
 		SerializedArray array = new SerializedArray(String[].class).with(literal(String.class, "s1"), literal(String.class, "s2"));
 
 		assertThat(array.toString(), equalTo("<s1, s2>"));
-	}
-
-	@Test
-	public void testEquals() throws Exception {
-		assertThat(new SerializedArray(String[].class), satisfiesDefaultEquality()
-			.andEqualTo(new SerializedArray(String[].class))
-			.andNotEqualTo(new SerializedArray(Integer[].class))
-			.andNotEqualTo(new SerializedArray(String[].class).with(literal(String.class, "s"))));
-		assertThat(new SerializedArray(String[].class).with(literal(String.class, "s1")), satisfiesDefaultEquality()
-			.andEqualTo(new SerializedArray(String[].class).with(literal(String.class, "s1")))
-			.andNotEqualTo(new SerializedArray(String[].class).with(literal(String.class, "s2"))));
 	}
 
 }

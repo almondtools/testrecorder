@@ -61,34 +61,4 @@ public class SerializedObject implements SerializedValue {
 		return accept(new SerializedValuePrinter());
 	}
 
-	@Override
-	public int hashCode() {
-		return (objectType == null ? 0 : objectType.getName().hashCode()) + fields.stream()
-			.mapToInt(field -> field.shortHashcode())
-			.reduce(0, (r, l) -> r * 17 + l);
-	}
-	
-	@Override
-	public int shortHashcode() {
-		return (objectType == null ? 0 : objectType.getName().hashCode());
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		SerializedObject that = (SerializedObject) obj;
-		//TODO handle recursion this -> field -> this
-		return (this.objectType == null ? that.objectType == null : this.objectType == that.objectType)
-			&& this.fields.equals(that.fields);
-		
-	}
-
 }

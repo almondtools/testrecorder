@@ -4,6 +4,7 @@ import static com.almondtools.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.collection.IsArrayContaining.hasItemInArray;
 import static org.junit.Assert.assertThat;
 
@@ -99,10 +100,11 @@ public class ContextSnapshotTest {
 	@Test
 	public void testSetGetExpectException() throws Exception {
 		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		SerializedObject expectException = new SerializedObject(NullPointerException.class);
 		
-		snapshot.setExpectException(new SerializedObject(NullPointerException.class));
+		snapshot.setExpectException(expectException);
 		
-		assertThat(snapshot.getExpectException(), equalTo(new SerializedObject(NullPointerException.class)));
+		assertThat(snapshot.getExpectException(), sameInstance(expectException));
 	}
 
 }
