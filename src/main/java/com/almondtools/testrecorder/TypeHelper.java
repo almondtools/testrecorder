@@ -14,7 +14,7 @@ public final class TypeHelper {
 
 	private TypeHelper() {
 	}
-	
+
 	public static Method getDeclaredMethod(Class<?> clazz, String name, Class<?>... parameterTypes) {
 		try {
 			return clazz.getDeclaredMethod(name, parameterTypes);
@@ -40,6 +40,26 @@ public final class TypeHelper {
 			return getBase(((ParameterizedType) type).getRawType());
 		} else {
 			return Object.class;
+		}
+	}
+
+	public static String getBestName(Type type) {
+		if (type instanceof Class<?>) {
+			Class<?> clazz = (Class<?>) type;
+			if (clazz.getTypeParameters().length > 0) {
+				return clazz.getSimpleName() + "<>";
+			} else {
+				return clazz.getSimpleName();
+			}
+		} else if (type instanceof GenericArrayType) {
+			return getSimpleName(((GenericArrayType) type).getGenericComponentType()) + "[]";
+		} else if (type instanceof ParameterizedType) {
+			return getSimpleName(((ParameterizedType) type).getRawType())
+				+ Stream.of(((ParameterizedType) type).getActualTypeArguments())
+					.map(argtype -> getSimpleName(argtype))
+					.collect(joining(", ", "<", ">"));
+		} else {
+			throw new UnsupportedOperationException();
 		}
 	}
 
@@ -72,6 +92,26 @@ public final class TypeHelper {
 
 	public static boolean isPrimitive(Type type) {
 		return type instanceof Class<?> && ((Class<?>) type).isPrimitive();
+	}
+
+	public static Type parameterized(Type raw, Type owner, Type... typeArgs) {
+		return new ParameterizedType() {
+
+			@Override
+			public Type getRawType() {
+				return raw;
+			}
+
+			@Override
+			public Type getOwnerType() {
+				return owner;
+			}
+
+			@Override
+			public Type[] getActualTypeArguments() {
+				return typeArgs;
+			}
+		};
 	}
 
 }

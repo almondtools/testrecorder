@@ -1,5 +1,6 @@
 package com.almondtools.testrecorder.visitors;
 
+import static com.almondtools.testrecorder.TypeHelper.getBestName;
 import static com.almondtools.testrecorder.TypeHelper.getSimpleName;
 import static com.almondtools.testrecorder.visitors.Templates.assignStatement;
 import static com.almondtools.testrecorder.visitors.Templates.callMethodStatement;
@@ -51,7 +52,7 @@ public class ConstructionPlan {
 			.map(computation -> computation.getValue())
 			.toArray(len -> new String[len]);
 
-		String bean = newObject(getSimpleName(clazz), params);
+		String bean = newObject(getBestName(clazz), params);
 		String constructorStatement = assignStatement(getSimpleName(clazz), name, bean);
 		statements.add(constructorStatement);
 

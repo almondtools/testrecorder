@@ -25,8 +25,8 @@ public class ArrayListSerializer implements Serializer<SerializedList> {
 	}
 
 	@Override
-	public SerializedList generate(Type type) {
-		return new SerializedList(type);
+	public SerializedList generate(Type type, Class<?> valueType) {
+		return new SerializedList(type, valueType);
 	}
 
 	@Override

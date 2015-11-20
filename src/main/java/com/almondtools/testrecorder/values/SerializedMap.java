@@ -1,5 +1,7 @@
 package com.almondtools.testrecorder.values;
 
+import static com.almondtools.testrecorder.TypeHelper.getBase;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -10,17 +12,18 @@ import java.util.Set;
 import com.almondtools.testrecorder.SerializedCollectionVisitor;
 import com.almondtools.testrecorder.SerializedValue;
 import com.almondtools.testrecorder.SerializedValueVisitor;
-import com.almondtools.testrecorder.TypeHelper;
 import com.almondtools.testrecorder.visitors.SerializedValuePrinter;
 
 public class SerializedMap implements SerializedValue, Map<SerializedValue, SerializedValue> {
 
 	private Type type;
+	private Class<?> valueType;
 	private Map<SerializedValue, SerializedValue> map;
 
-	public SerializedMap(Type type) {
+	public SerializedMap(Type type, Class<?> valueType) {
 		this.type = type;
-		map = new LinkedHashMap<>();
+		this.valueType = valueType;
+		this.map = new LinkedHashMap<>();
 	}
 	
 	@Override
@@ -30,7 +33,7 @@ public class SerializedMap implements SerializedValue, Map<SerializedValue, Seri
 
 	@Override
 	public Class<?> getValueType() {
-		return TypeHelper.getBase(type);
+		return getBase(valueType);
 	}
 	
 	public Type getMapKeyType() {

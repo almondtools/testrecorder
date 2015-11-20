@@ -27,8 +27,8 @@ public class LinkedHashMapSerializer implements Serializer<SerializedMap> {
 	}
 
 	@Override
-	public SerializedMap generate(Type type) {
-		return new SerializedMap(type);
+	public SerializedMap generate(Type type, Class<?> valueType) {
+		return new SerializedMap(type, valueType);
 	}
 
 	@Override

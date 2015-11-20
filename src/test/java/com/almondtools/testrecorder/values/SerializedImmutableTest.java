@@ -40,7 +40,7 @@ public class SerializedImmutableTest {
 
 	private static class TestImmutable extends SerializedImmutable<String> {
 		private TestImmutable(Type type) {
-			super(type);
+			super(type, getBase(type));
 		}
 
 		@Override

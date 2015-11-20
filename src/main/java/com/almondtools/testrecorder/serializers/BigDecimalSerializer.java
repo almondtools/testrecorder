@@ -22,8 +22,8 @@ public class BigDecimalSerializer implements Serializer<SerializedBigDecimal> {
 	}
 
 	@Override
-	public SerializedBigDecimal generate(Type type) {
-		return new SerializedBigDecimal(type);
+	public SerializedBigDecimal generate(Type type, Class<?> valueType) {
+		return new SerializedBigDecimal(type, valueType);
 	}
 
 	@Override

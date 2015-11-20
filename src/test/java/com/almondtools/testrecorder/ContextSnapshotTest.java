@@ -9,6 +9,7 @@ import static org.hamcrest.collection.IsArrayContaining.hasItemInArray;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -40,7 +41,7 @@ public class ContextSnapshotTest {
 	@Test
 	public void testGetThisType() throws Exception {
 		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
-		SerializedList setupThis = new SerializedList(ArrayList.class);
+		SerializedList setupThis = new SerializedList(List.class, ArrayList.class);
 		setupThis.add(literal(String.class, "setup"));
 		
 		snapshot.setSetupThis(setupThis);
@@ -51,7 +52,7 @@ public class ContextSnapshotTest {
 	@Test
 	public void testSetGetSetupThis() throws Exception {
 		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
-		SerializedList setupThis = new SerializedList(ArrayList.class);
+		SerializedList setupThis = new SerializedList(List.class, ArrayList.class);
 		setupThis.add(literal(String.class, "setup"));
 		
 		snapshot.setSetupThis(setupThis);
@@ -62,7 +63,7 @@ public class ContextSnapshotTest {
 	@Test
 	public void testSetGetExpectThis() throws Exception {
 		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
-		SerializedList expectedThis = new SerializedList(ArrayList.class);
+		SerializedList expectedThis = new SerializedList(List.class, ArrayList.class);
 		expectedThis.add(literal(String.class, "expected"));
 		
 		snapshot.setExpectThis(expectedThis);
@@ -100,7 +101,7 @@ public class ContextSnapshotTest {
 	@Test
 	public void testSetGetExpectException() throws Exception {
 		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
-		SerializedObject expectException = new SerializedObject(NullPointerException.class);
+		SerializedObject expectException = new SerializedObject(NullPointerException.class, NullPointerException.class);
 		
 		snapshot.setExpectException(expectException);
 		

@@ -22,8 +22,8 @@ public class BigIntegerSerializer implements Serializer<SerializedBigInteger> {
 	}
 
 	@Override
-	public SerializedBigInteger generate(Type type) {
-		return new SerializedBigInteger(type);
+	public SerializedBigInteger generate(Type type, Class<?> valueType) {
+		return new SerializedBigInteger(type, valueType);
 	}
 
 	@Override

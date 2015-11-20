@@ -1,5 +1,7 @@
 package com.almondtools.testrecorder.values;
 
+import static com.almondtools.testrecorder.TypeHelper.getBase;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -10,17 +12,18 @@ import java.util.Set;
 import com.almondtools.testrecorder.SerializedCollectionVisitor;
 import com.almondtools.testrecorder.SerializedValue;
 import com.almondtools.testrecorder.SerializedValueVisitor;
-import com.almondtools.testrecorder.TypeHelper;
 import com.almondtools.testrecorder.visitors.SerializedValuePrinter;
 
 public class SerializedSet implements SerializedValue, Set<SerializedValue> {
 
 	private Type type;
+	private Class<?> valueType;
 	private Set<SerializedValue> set;
 	
-	public SerializedSet(Type type) {
+	public SerializedSet(Type type, Class<?> valueType) {
 		this.type = type;
-		set = new LinkedHashSet<>();
+		this.valueType = valueType;
+		this.set = new LinkedHashSet<>();
 	}
 	
 	@Override
@@ -30,7 +33,7 @@ public class SerializedSet implements SerializedValue, Set<SerializedValue> {
 
 	@Override
 	public Class<?> getValueType() {
-		return TypeHelper.getBase(type);
+		return getBase(valueType);
 	}
 	
 	public Type getComponentType() {

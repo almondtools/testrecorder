@@ -8,13 +8,8 @@ import com.almondtools.testrecorder.SerializedValueVisitor;
 
 public class SerializedBigInteger extends SerializedImmutable<BigInteger> {
 
-	public SerializedBigInteger(Type type) {
-		super(type);
-	}
-
-	@Override
-	public Class<?> getValueType() {
-		return BigInteger.class;
+	public SerializedBigInteger(Type type, Class<?> valueType) {
+		super(type, valueType);
 	}
 
 	@Override

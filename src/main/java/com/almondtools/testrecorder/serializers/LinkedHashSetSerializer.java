@@ -27,8 +27,8 @@ public class LinkedHashSetSerializer implements Serializer<SerializedSet>{
 	}
 
 	@Override
-	public SerializedSet generate(Type type) {
-		return new SerializedSet(type);
+	public SerializedSet generate(Type type, Class<?> valueType) {
+		return new SerializedSet(type, valueType);
 	}
 
 	@Override

@@ -57,16 +57,15 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 		}
 		SerializedValue serializedObject = serialized.get(object);
 		if (serializedObject == null) {
-			Serializer serializer = fetchSerializer(type);
-			serializedObject = serializer.generate(type);
+			Serializer serializer = fetchSerializer(object.getClass());
+			serializedObject = serializer.generate(type, object.getClass());
 			serialized.put(object, serializedObject);
 			serializer.populate(serializedObject, object);
 		}
 		return serializedObject;
 	}
 
-	private Serializer<?> fetchSerializer(Type type) {
-		Class<?> clazz = getClass(type);
+	private Serializer<?> fetchSerializer(Class<?> clazz) {
 		Serializer<?> serializer = serializers.get(clazz);
 		if (serializer != null) {
 			return serializer;
@@ -102,10 +101,6 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 			System.out.println(f.getName());
 			throw new SerializationException(e);
 		}
-	}
-
-	private Class<?> getClass(Type type) {
-		return TypeHelper.getBase(type);
 	}
 
 	@Override

@@ -15,16 +15,17 @@ import java.util.Set;
 import com.almondtools.testrecorder.SerializedCollectionVisitor;
 import com.almondtools.testrecorder.SerializedValue;
 import com.almondtools.testrecorder.SerializedValueVisitor;
-import com.almondtools.testrecorder.TypeHelper;
 import com.almondtools.testrecorder.visitors.SerializedValuePrinter;
 
 public class SerializedList implements SerializedValue, List<SerializedValue> {
 
 	private Type type;
+	private Class<?> valueType;
 	private List<SerializedValue> list;
 
-	public SerializedList(Type type) {
+	public SerializedList(Type type, Class<?> valueType) {
 		this.type = type;
+		this.valueType = valueType;
 		this.list = new ArrayList<>();
 	}
 
@@ -32,12 +33,16 @@ public class SerializedList implements SerializedValue, List<SerializedValue> {
 	public Type getType() {
 		return type;
 	}
-
+	
 	@Override
 	public Class<?> getValueType() {
-		return TypeHelper.getBase(type);
+		return valueType;
 	}
 	
+	public void setValueType(Class<?> valueType) {
+		this.valueType = valueType;
+	}
+
 	public Type getComponentType() {
 		Set<Type> allTypes = findAllTypes(type);
 		return allTypes.stream()

@@ -8,8 +8,8 @@ import com.almondtools.testrecorder.SerializedValueVisitor;
 
 public class SerializedBigDecimal extends SerializedImmutable<BigDecimal> {
 
-	public SerializedBigDecimal(Type type) {
-		super(type);
+	public SerializedBigDecimal(Type type, Class<?> valueType) {
+		super(type, valueType);
 	}
 	
 	@Override

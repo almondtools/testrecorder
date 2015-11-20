@@ -13,21 +13,19 @@ public class SerializedObjectTest {
 
 	@Test
 	public void testGetType() throws Exception {
-		assertThat(new SerializedObject(String.class).getType(), equalTo(String.class));
+		assertThat(new SerializedObject(String.class,String.class).getType(), equalTo(String.class));
 	}
 
 	@Test
 	public void testSetGetObjectType() throws Exception {
-		SerializedObject serializedObject = new SerializedObject(Object.class);
-
-		serializedObject.setObjectType(String.class);
+		SerializedObject serializedObject = new SerializedObject(Object.class, String.class);
 
 		assertThat(serializedObject.getValueType(), equalTo(String.class));
 	}
 
 	@Test
 	public void testGetAddFields() throws Exception {
-		SerializedObject serializedObject = new SerializedObject(Object.class);
+		SerializedObject serializedObject = new SerializedObject(Object.class, Object.class);
 
 		serializedObject.addField(new SerializedField("f1", Object.class, literal(String.class, "str")));
 		serializedObject.addField(new SerializedField("f2", Integer.class, literal(Integer.class, 2)));
@@ -38,15 +36,14 @@ public class SerializedObjectTest {
 
 	@Test
 	public void testAccept() throws Exception {
-		SerializedObject serializedObject = new SerializedObject(Object.class);
+		SerializedObject serializedObject = new SerializedObject(Object.class, Object.class);
 
 		assertThat(serializedObject.accept(new TestValueVisitor()), equalTo("object"));
 	}
 
 	@Test
 	public void testToString() throws Exception {
-		SerializedObject serializedObject = new SerializedObject(Object.class);
-		serializedObject.setObjectType(String.class);
+		SerializedObject serializedObject = new SerializedObject(Object.class, String.class);
 
 		serializedObject.addField(new SerializedField("f1", Object.class, literal(String.class, "str")));
 		serializedObject.addField(new SerializedField("f2", Integer.class, literal(Integer.class, 2)));

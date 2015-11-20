@@ -8,16 +8,18 @@ import java.util.List;
 
 import com.almondtools.testrecorder.SerializedValue;
 import com.almondtools.testrecorder.SerializedValueVisitor;
+import com.almondtools.testrecorder.TypeHelper;
 import com.almondtools.testrecorder.visitors.SerializedValuePrinter;
 
 public class SerializedObject implements SerializedValue {
 
 	private Type type;
-	private Class<?> objectType;
+	private Class<?> valueType;
 	private List<SerializedField> fields;
 
-	public SerializedObject(Type type) {
+	public SerializedObject(Type type, Class<?> valueType) {
 		this.type = type;
+		this.valueType = valueType;
 		this.fields = new ArrayList<>();
 	}
 
@@ -26,23 +28,14 @@ public class SerializedObject implements SerializedValue {
 		return this;
 	}
 
-	public SerializedObject withObjectType(Class<String> objectType) {
-		this.objectType = objectType;
-		return this;
-	}
-
 	@Override
 	public Type getType() {
 		return type;
 	}
 
-	public void setObjectType(Class<?> objectType) {
-		this.objectType = objectType;
-	}
-
 	@Override
 	public Class<?> getValueType() {
-		return objectType;
+		return TypeHelper.getBase(valueType);
 	}
 
 	public List<SerializedField> getFields() {

@@ -24,8 +24,8 @@ public class ArraySerializer implements Serializer<SerializedArray> {
 	}
 
 	@Override
-	public SerializedArray generate(Type type) {
-		return new SerializedArray(type);
+	public SerializedArray generate(Type type, Class<?> valueType) {
+		return new SerializedArray(type, valueType);
 	}
 
 	@Override

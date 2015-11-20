@@ -7,7 +7,7 @@ public interface Serializer<T extends SerializedValue> {
 
 	List<Class<?>> getMatchingClasses();
 
-	T generate(Type type);
+	T generate(Type type, Class<?> valueType);
 
 	void populate(T serializedObject, Object object);
 }

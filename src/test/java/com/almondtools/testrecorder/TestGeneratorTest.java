@@ -196,8 +196,7 @@ public class TestGeneratorTest {
 	}
 
 	private SerializedObject objectOf(Class<MyClass> type, SerializedField... fields) {
-		SerializedObject setupThis = new SerializedObject(type);
-		setupThis.setObjectType(type);
+		SerializedObject setupThis = new SerializedObject(type, type);
 		for (SerializedField field : fields) {
 			setupThis.addField(field);
 		}

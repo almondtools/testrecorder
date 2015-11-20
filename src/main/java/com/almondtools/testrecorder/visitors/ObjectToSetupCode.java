@@ -1,5 +1,6 @@
 package com.almondtools.testrecorder.visitors;
 
+import static com.almondtools.testrecorder.TypeHelper.getBestName;
 import static com.almondtools.testrecorder.TypeHelper.getSimpleName;
 import static com.almondtools.testrecorder.util.TemplateHelper.asLiteral;
 import static com.almondtools.testrecorder.visitors.Templates.arrayLiteral;
@@ -14,10 +15,7 @@ import static java.util.stream.Collectors.toMap;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.IdentityHashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -133,7 +131,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 	}
 
 	private Computation renderListSetup(SerializedList value) {
-		imports.registerImports(value.getType(), ArrayList.class);
+		imports.registerImports(value.getType(), value.getValueType());
 
 		List<Computation> elementTemplates = value.stream()
 			.map(element -> element.accept(this))
@@ -149,7 +147,8 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 
 		String name = localVariable(value, List.class);
 
-		String listInit = assignStatement(getSimpleName(value.getType()), name, "new ArrayList<>()");
+		String list = newObject(getBestName(value.getValueType()));
+		String listInit = assignStatement(getSimpleName(value.getType()), name, list);
 		statements.add(listInit);
 
 		for (String element : elements) {
@@ -169,7 +168,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 	}
 
 	private Computation renderSetSetup(SerializedSet value) {
-		imports.registerImports(value.getType(), LinkedHashSet.class);
+		imports.registerImports(value.getType(), value.getValueType());
 
 		List<Computation> elementTemplates = value.stream()
 			.map(element -> element.accept(this))
@@ -185,7 +184,8 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 
 		String name = localVariable(value, Set.class);
 
-		String setInit = assignStatement(getSimpleName(value.getType()), name, "new LinkedHashSet<>()");
+		String set = newObject(getBestName(value.getValueType()));
+		String setInit = assignStatement(getSimpleName(value.getType()), name, set);
 		statements.add(setInit);
 
 		for (String element : elements) {
@@ -205,7 +205,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 	}
 
 	private Computation renderMapSetup(SerializedMap value) {
-		imports.registerImports(value.getType(), LinkedHashMap.class);
+		imports.registerImports(value.getType(), value.getValueType());
 
 		Map<Computation, Computation> elementTemplates = value.entrySet().stream()
 			.collect(toMap(entry -> entry.getKey().accept(this), entry -> entry.getValue().accept(this)));
@@ -220,7 +220,8 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 
 		String name = localVariable(value, Map.class);
 
-		String mapInit = assignStatement(getSimpleName(value.getType()), name, "new LinkedHashMap<>()");
+		String map = newObject(getBestName(value.getValueType()));
+		String mapInit = assignStatement(getSimpleName(value.getType()), name, map);
 		statements.add(mapInit);
 
 		for (Map.Entry<String, String> element : elements.entrySet()) {

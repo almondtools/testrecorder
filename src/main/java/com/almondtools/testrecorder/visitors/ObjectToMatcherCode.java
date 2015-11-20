@@ -3,6 +3,7 @@ package com.almondtools.testrecorder.visitors;
 import static com.almondtools.testrecorder.TypeHelper.getRawName;
 import static com.almondtools.testrecorder.TypeHelper.getSimpleName;
 import static com.almondtools.testrecorder.TypeHelper.isPrimitive;
+import static com.almondtools.testrecorder.TypeHelper.parameterized;
 import static com.almondtools.testrecorder.util.TemplateHelper.asLiteral;
 import static com.almondtools.testrecorder.visitors.Templates.arrayContainingMatcher;
 import static com.almondtools.testrecorder.visitors.Templates.assignField;
@@ -22,7 +23,6 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -345,23 +345,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 
 		@Override
 		public Type resultType(Type type) {
-			return new ParameterizedType() {
-				
-				@Override
-				public Type getRawType() {
-					return Matcher.class;
-				}
-				
-				@Override
-				public Type getOwnerType() {
-					return null;
-				}
-				
-				@Override
-				public Type[] getActualTypeArguments() {
-					return new Type[]{type};
-				}
-			};
+			return parameterized(Matcher.class, null, type);
 		}
 	}
 

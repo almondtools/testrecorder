@@ -25,13 +25,12 @@ public class GenericSerializer implements Serializer<SerializedObject> {
 	}
 
 	@Override
-	public SerializedObject generate(Type type) {
-		return new SerializedObject(type);
+	public SerializedObject generate(Type type, Class<?> valueType) {
+		return new SerializedObject(type, valueType);
 	}
 
 	@Override
 	public void populate(SerializedObject serializedObject, Object object) {
-		serializedObject.setObjectType(object.getClass());
 		Class<?> objectClass = object.getClass();
 		while (objectClass != Object.class) {
 			for (Field f : objectClass.getDeclaredFields()) {
