@@ -13,17 +13,17 @@ import com.almondtools.testrecorder.SerializerFacade;
 import com.almondtools.testrecorder.SerializerFactory;
 import com.almondtools.testrecorder.values.SerializedSet;
 
-public class LinkedHashSetSerializer implements Serializer<SerializedSet>{
+public class DefaultSetSerializer implements Serializer<SerializedSet>{
 
 	private SerializerFacade facade;
 
-	public LinkedHashSetSerializer(SerializerFacade facade) {
+	public DefaultSetSerializer(SerializerFacade facade) {
 		this.facade = facade;
 	}
 
 	@Override
 	public List<Class<?>> getMatchingClasses() {
-		return asList(Set.class, HashSet.class, LinkedHashSet.class);
+		return asList(HashSet.class, LinkedHashSet.class);
 	}
 
 	@Override
@@ -41,8 +41,8 @@ public class LinkedHashSetSerializer implements Serializer<SerializedSet>{
 	public static class Factory implements SerializerFactory<SerializedSet> {
 
 		@Override
-		public LinkedHashSetSerializer newSerializer(SerializerFacade facade) {
-			return new LinkedHashSetSerializer(facade);
+		public DefaultSetSerializer newSerializer(SerializerFacade facade) {
+			return new DefaultSetSerializer(facade);
 		}
 
 	}

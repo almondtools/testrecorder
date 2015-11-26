@@ -41,7 +41,7 @@ public class ClassicBeanMatcherTest {
 		assertThat(codeSerializer.serialize(createNestedBean()), containsPattern(""
 			+ "Matcher<ClassicBean> serializedObject1 = new GenericMatcher() {*"
 			+ "int i = 22;*"
-			+ "Matcher<ClassicBean> o = new GenericMatcher() {*"
+			+ "Matcher<?> o = new GenericMatcher() {*"
 			+ "int i = 0;*"
 			+ "Object o = null;*"
 			+ "}.matching(ClassicBean.class);*"
@@ -55,7 +55,7 @@ public class ClassicBeanMatcherTest {
 		assertThat(codeSerializer.serialize(createRecursiveBean()), containsPattern(""
 			+ "Matcher<ClassicBean> serializedObject1 = new GenericMatcher() {*"
 			+ "int i = 22;*"
-			+ "Matcher<ClassicBean> o = recursive(ClassicBean.class);*"
+			+ "Matcher<?> o = recursive(ClassicBean.class);*"
 			+ "}.matching(ClassicBean.class);"));
 	}
 

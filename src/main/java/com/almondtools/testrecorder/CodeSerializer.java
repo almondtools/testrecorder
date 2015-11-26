@@ -32,7 +32,7 @@ public class CodeSerializer {
 	}
 	
 	public String serialize(Object value) {
-		return (serialize(serializers.resultType(value.getClass()), value));
+		return serialize(serializers.resultType(value.getClass()), value);
 	}
 	
 	public String serialize(Type type, Object value) {

@@ -9,18 +9,18 @@ import java.util.function.Predicate;
 
 import com.almondtools.testrecorder.SerializationProfile;
 import com.almondtools.testrecorder.SerializerFactory;
-import com.almondtools.testrecorder.serializers.ArrayListSerializer;
+import com.almondtools.testrecorder.serializers.DefaultListSerializer;
 import com.almondtools.testrecorder.serializers.BigDecimalSerializer;
 import com.almondtools.testrecorder.serializers.BigIntegerSerializer;
-import com.almondtools.testrecorder.serializers.LinkedHashMapSerializer;
-import com.almondtools.testrecorder.serializers.LinkedHashSetSerializer;
+import com.almondtools.testrecorder.serializers.DefaultHashMapSerializer;
+import com.almondtools.testrecorder.serializers.DefaultSetSerializer;
 
 public class DefaultSerializationProfile implements SerializationProfile {
 
 	public static final List<SerializerFactory<?>> DEFAULT_SERIALIZERS = asList(
-		(SerializerFactory<?>) new ArrayListSerializer.Factory(),
-		(SerializerFactory<?>) new LinkedHashSetSerializer.Factory(),
-		(SerializerFactory<?>) new LinkedHashMapSerializer.Factory(),
+		(SerializerFactory<?>) new DefaultListSerializer.Factory(),
+		(SerializerFactory<?>) new DefaultSetSerializer.Factory(),
+		(SerializerFactory<?>) new DefaultHashMapSerializer.Factory(),
 		(SerializerFactory<?>) new BigIntegerSerializer.Factory(),
 		(SerializerFactory<?>) new BigDecimalSerializer.Factory());
 	
@@ -28,7 +28,7 @@ public class DefaultSerializationProfile implements SerializationProfile {
 		new ExcludeGenerated(),
 		new ExcludeStatic());
 	
-	private static final List<Predicate<Class<?>>> DEFAULT_CLASS_EXCLUSIONS = emptyList();
+	public static final List<Predicate<Class<?>>> DEFAULT_CLASS_EXCLUSIONS = emptyList();
 	
 	@Override
 	public List<SerializerFactory<?>> getSerializerFactories() {
@@ -44,5 +44,7 @@ public class DefaultSerializationProfile implements SerializationProfile {
 	public List<Predicate<Class<?>>> getClassExclusions() {
 		return DEFAULT_CLASS_EXCLUSIONS;
 	}
+	
+	
 
 }

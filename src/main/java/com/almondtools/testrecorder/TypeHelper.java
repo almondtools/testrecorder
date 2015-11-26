@@ -8,6 +8,7 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 import java.util.stream.Stream;
 
 public final class TypeHelper {
@@ -73,6 +74,8 @@ public final class TypeHelper {
 				+ Stream.of(((ParameterizedType) type).getActualTypeArguments())
 					.map(argtype -> getSimpleName(argtype))
 					.collect(joining(", ", "<", ">"));
+		} else if (type instanceof WildcardType) {
+			return "?";
 		} else {
 			throw new UnsupportedOperationException();
 		}
@@ -110,6 +113,21 @@ public final class TypeHelper {
 			@Override
 			public Type[] getActualTypeArguments() {
 				return typeArgs;
+			}
+		};
+	}
+
+	public static Type wildcard() {
+		return new WildcardType() {
+			
+			@Override
+			public Type[] getUpperBounds() {
+				return new Type[0];
+			}
+			
+			@Override
+			public Type[] getLowerBounds() {
+				return new Type[0];
 			}
 		};
 	}

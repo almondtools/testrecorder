@@ -4,6 +4,7 @@ import static com.almondtools.testrecorder.TypeHelper.getRawName;
 import static com.almondtools.testrecorder.TypeHelper.getSimpleName;
 import static com.almondtools.testrecorder.TypeHelper.isPrimitive;
 import static com.almondtools.testrecorder.TypeHelper.parameterized;
+import static com.almondtools.testrecorder.TypeHelper.wildcard;
 import static com.almondtools.testrecorder.util.TemplateHelper.asLiteral;
 import static com.almondtools.testrecorder.visitors.Templates.arrayContainingMatcher;
 import static com.almondtools.testrecorder.visitors.Templates.assignField;
@@ -13,7 +14,6 @@ import static com.almondtools.testrecorder.visitors.Templates.containsMatcher;
 import static com.almondtools.testrecorder.visitors.Templates.emptyMatcher;
 import static com.almondtools.testrecorder.visitors.Templates.equalToMatcher;
 import static com.almondtools.testrecorder.visitors.Templates.genericObjectMatcher;
-import static com.almondtools.testrecorder.visitors.Templates.genericType;
 import static com.almondtools.testrecorder.visitors.Templates.newObject;
 import static com.almondtools.testrecorder.visitors.Templates.noEntriesMatcher;
 import static com.almondtools.testrecorder.visitors.Templates.nullMatcher;
@@ -85,7 +85,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 			imports.registerImport(Matcher.class);
 			Computation value = fieldValue.accept(this);
 
-			String genericType = genericType("Matcher", matcherType(field.getValue().getValueType()));
+			String genericType = getSimpleName(value.getType());
 
 			String assignField = assignField(genericType, field.getName(), value.getValue());
 			return new Computation(assignField, value.getStatements());
@@ -96,7 +96,8 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 	public Computation visitObject(SerializedObject value) {
 		if (!computed.add(value)) {
 			imports.staticImport(GenericMatcher.class,"recursive");
-			return new Computation(recursiveMatcher(getRawName(value.getValueType())));
+			Type resultType = value.getType().equals(value.getValueType()) ? parameterized(Matcher.class, null, value.getType()) : parameterized(Matcher.class, null, wildcard());
+			return new Computation(recursiveMatcher(getRawName(value.getValueType())), resultType);
 		}
 		Type[] types = { value.getType(), GenericMatcher.class };
 		imports.registerImports(types);
@@ -114,26 +115,23 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 			.map(field -> field.getValue())
 			.collect(toList());
 
-		String matcherResultType = getSimpleName(value.getType());
-		String matcherRealType = getSimpleName(value.getValueType());
 		String matcherRawType = getRawName(value.getValueType());
 		String matcherExpression = genericObjectMatcher(matcherRawType, fieldAssignments);
-		if (!matcherRealType.equals(matcherRawType)) {
-			matcherExpression = Templates.cast(matcherResultType, matcherExpression);
-		}
-		return new Computation(matcherExpression, fieldComputations);
+		Type resultType = value.getType().equals(value.getValueType()) ? parameterized(Matcher.class, null, value.getType()) : parameterized(Matcher.class, null, wildcard());
+
+		return new Computation(matcherExpression, resultType, fieldComputations);
 	}
 
 	@Override
 	public Computation visitList(SerializedList value) {
 		if (!computed.add(value)) {
 			imports.staticImport(GenericMatcher.class,"recursive");
-			return new Computation(recursiveMatcher(getRawName(value.getValueType())));
+			return new Computation(recursiveMatcher(getRawName(value.getValueType())), parameterized(Matcher.class, null, wildcard()));
 		}
 		if (value.isEmpty()) {
 			imports.staticImport(Matchers.class, "empty");
 
-			return new Computation(emptyMatcher(), emptyList());
+			return new Computation(emptyMatcher(), parameterized(Matcher.class, null, wildcard()), emptyList());
 		} else {
 			imports.staticImport(Matchers.class, "contains");
 
@@ -151,7 +149,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 
 			String containsMatcher = containsMatcher(elementValues);
 
-			return new Computation(containsMatcher, elementComputations);
+			return new Computation(containsMatcher, parameterized(Matcher.class, null, wildcard()), elementComputations);
 		}
 	}
 
@@ -159,13 +157,13 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 	public Computation visitSet(SerializedSet value) {
 		if (!computed.add(value)) {
 			imports.staticImport(GenericMatcher.class,"recursive");
-			return new Computation(recursiveMatcher(getRawName(value.getValueType())));
+			return new Computation(recursiveMatcher(getRawName(value.getValueType())), parameterized(Matcher.class, null, wildcard()));
 		}
 		if (value.isEmpty()) {
 			imports.staticImport(Matchers.class, "empty");
 
 			String emptyMatcher = emptyMatcher();
-			return new Computation(emptyMatcher, emptyList());
+			return new Computation(emptyMatcher, parameterized(Matcher.class, null, wildcard()), emptyList());
 		} else {
 			imports.staticImport(Matchers.class, "containsInAnyOrder");
 
@@ -182,7 +180,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 				.toArray(len -> new String[len]);
 
 			String containsInAnyOrderMatcher = containsInAnyOrderMatcher(elementValues);
-			return new Computation(containsInAnyOrderMatcher, elementComputations);
+			return new Computation(containsInAnyOrderMatcher, parameterized(Matcher.class, null, wildcard()), elementComputations);
 		}
 	}
 
@@ -190,7 +188,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 	public Computation visitMap(SerializedMap value) {
 		if (!computed.add(value)) {
 			imports.staticImport(GenericMatcher.class,"recursive");
-			return new Computation(recursiveMatcher(getRawName(value.getValueType())));
+			return new Computation(recursiveMatcher(getRawName(value.getValueType())), parameterized(Matcher.class, null, wildcard()));
 		}
 		String keyType = getSimpleName(value.getMapKeyType());
 		String valueType = getSimpleName(value.getMapValueType());
@@ -199,7 +197,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 
 			String noEntriesMatcher = noEntriesMatcher(keyType, valueType);
 
-			return new Computation(noEntriesMatcher, emptyList());
+			return new Computation(noEntriesMatcher, parameterized(Matcher.class, null, wildcard()), emptyList());
 		} else {
 			imports.staticImport(MapMatcher.class, "containsEntries");
 
@@ -215,7 +213,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 				.entrySet();
 
 			String containsEntriesMatcher = containsEntriesMatcher(keyType, valueType, entryValues);
-			return new Computation(containsEntriesMatcher, entryComputations);
+			return new Computation(containsEntriesMatcher, parameterized(Matcher.class, null, wildcard()), entryComputations);
 		}
 	}
 
@@ -223,7 +221,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 	public Computation visitArray(SerializedArray value) {
 		if (!computed.add(value)) {
 			imports.staticImport(GenericMatcher.class,"recursive");
-			return new Computation(recursiveMatcher(getRawName(value.getValueType())));
+			return new Computation(recursiveMatcher(getRawName(value.getValueType())), parameterized(Matcher.class, null, wildcard()));
 		}
 		if (isPrimitive(value.getComponentType())) {
 			String name = value.getComponentType().getTypeName();
@@ -242,7 +240,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 				.toArray(len -> new String[len]);
 
 			String primitiveArrayContainingMatcher = primitiveArrayContainingMatcher(name, elementValues);
-			return new Computation(primitiveArrayContainingMatcher, elementComputations);
+			return new Computation(primitiveArrayContainingMatcher, parameterized(Matcher.class, null, wildcard()), elementComputations);
 		} else {
 			imports.staticImport(Matchers.class, "arrayContaining");
 
@@ -259,7 +257,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 				.toArray(len -> new String[len]);
 
 			String arrayContainingMatcher = arrayContainingMatcher(elementValues);
-			return new Computation(arrayContainingMatcher, elementComputations);
+			return new Computation(arrayContainingMatcher, parameterized(Matcher.class, null, wildcard()), elementComputations);
 		}
 
 	}
@@ -271,7 +269,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 		String valueExpression = asLiteral(value.getValue());
 
 		String equalToMatcher = equalToMatcher(valueExpression);
-		return new Computation(equalToMatcher, emptyList());
+		return new Computation(equalToMatcher, parameterized(Matcher.class, null, value.getValueType()), emptyList());
 	}
 
 	@Override
@@ -279,7 +277,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 		imports.staticImport(Matchers.class, "nullValue");
 
 		String nullMatcher = nullMatcher();
-		return new Computation(nullMatcher, emptyList());
+		return new Computation(nullMatcher, parameterized(Matcher.class, null, value.getValueType()), emptyList());
 	}
 
 	@Override
@@ -292,7 +290,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 		String bigDecimalLiteral = newObject("BigDecimal", literal);
 
 		String equalToMatcher = equalToMatcher(bigDecimalLiteral);
-		return new Computation(equalToMatcher, emptyList());
+		return new Computation(equalToMatcher, parameterized(Matcher.class, null, value.getValueType()), emptyList());
 	}
 
 	@Override
@@ -305,7 +303,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 		String bigIntegerLiteral = newObject("BigInteger", literal);
 
 		String equalToMatcher = equalToMatcher(bigIntegerLiteral);
-		return new Computation(equalToMatcher, emptyList());
+		return new Computation(equalToMatcher, parameterized(Matcher.class, null, value.getValueType()), emptyList());
 	}
 
 	@Override
@@ -325,14 +323,6 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 			return new Computation(asLiteral(((SerializedLiteral) element).getValue()));
 		} else {
 			return element.accept(this);
-		}
-	}
-
-	private String matcherType(Type clazz) {
-		if (clazz == List.class || clazz == Set.class || clazz == Map.class) {
-			return "?";
-		} else {
-			return getSimpleName(clazz);
 		}
 	}
 

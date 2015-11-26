@@ -4,6 +4,7 @@ import static java.util.Arrays.asList;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.almondtools.testrecorder.Serializer;
@@ -11,17 +12,17 @@ import com.almondtools.testrecorder.SerializerFacade;
 import com.almondtools.testrecorder.SerializerFactory;
 import com.almondtools.testrecorder.values.SerializedList;
 
-public class ArrayListSerializer implements Serializer<SerializedList> {
+public class DefaultListSerializer implements Serializer<SerializedList> {
 
 	private SerializerFacade facade;
 
-	public ArrayListSerializer(SerializerFacade facade) {
+	public DefaultListSerializer(SerializerFacade facade) {
 		this.facade = facade;
 	}
 
 	@Override
 	public List<Class<?>> getMatchingClasses() {
-		return asList(List.class, ArrayList.class);
+		return asList(LinkedList.class, ArrayList.class);
 	}
 
 	@Override
@@ -39,8 +40,8 @@ public class ArrayListSerializer implements Serializer<SerializedList> {
 	public static class Factory implements SerializerFactory<SerializedList> {
 
 		@Override
-		public ArrayListSerializer newSerializer(SerializerFacade facade) {
-			return new ArrayListSerializer(facade);
+		public DefaultListSerializer newSerializer(SerializerFacade facade) {
+			return new DefaultListSerializer(facade);
 		}
 
 	}

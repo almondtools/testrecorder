@@ -38,10 +38,11 @@ public class SubSuperBeanMatcherTest {
 	public void testCodeSerializerNested() throws Exception {
 		CodeSerializer codeSerializer = matcherSerializer();
 		
+		System.out.println(codeSerializer.serialize(createNestedBean()));
 		assertThat(codeSerializer.serialize(createNestedBean()), containsPattern(""
 			+ "Matcher<SubBean> serializedObject1 = new GenericMatcher() {*"
 			+ "int i = 22;*"
-			+ "Matcher<SubBean> o = new GenericMatcher() {*"
+			+ "Matcher<?> o = new GenericMatcher() {*"
 			+ "int i = 0;*"
 			+ "Object o = null;*"
 			+ "}.matching(SubBean.class);*"
@@ -55,7 +56,7 @@ public class SubSuperBeanMatcherTest {
 		assertThat(codeSerializer.serialize(createRecursiveBean()), containsPattern(""
 			+ "Matcher<SubBean> serializedObject1 = new GenericMatcher() {*"
 			+ "int i = 22;*"
-			+ "Matcher<SubBean> o = recursive(SubBean.class);*"
+			+ "Matcher<?> o = recursive(SubBean.class);*"
 			+ "}.matching(SubBean.class);"));
 	}
 

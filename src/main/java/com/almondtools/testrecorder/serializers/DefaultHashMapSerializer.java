@@ -13,17 +13,17 @@ import com.almondtools.testrecorder.SerializerFacade;
 import com.almondtools.testrecorder.SerializerFactory;
 import com.almondtools.testrecorder.values.SerializedMap;
 
-public class LinkedHashMapSerializer implements Serializer<SerializedMap> {
+public class DefaultHashMapSerializer implements Serializer<SerializedMap> {
 
 	private SerializerFacade facade;
 
-	public LinkedHashMapSerializer(SerializerFacade facade) {
+	public DefaultHashMapSerializer(SerializerFacade facade) {
 		this.facade = facade;
 	}
 
 	@Override
 	public List<Class<?>> getMatchingClasses() {
-		return asList(Map.class, HashMap.class, LinkedHashMap.class);
+		return asList(HashMap.class, LinkedHashMap.class);
 	}
 
 	@Override
@@ -43,8 +43,8 @@ public class LinkedHashMapSerializer implements Serializer<SerializedMap> {
 	public static class Factory implements SerializerFactory<SerializedMap> {
 
 		@Override
-		public LinkedHashMapSerializer newSerializer(SerializerFacade facade) {
-			return new LinkedHashMapSerializer(facade);
+		public DefaultHashMapSerializer newSerializer(SerializerFacade facade) {
+			return new DefaultHashMapSerializer(facade);
 		}
 
 	}
