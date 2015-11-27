@@ -29,6 +29,8 @@ public class DefaultSerializationProfile implements SerializationProfile {
 		new ExcludeStatic());
 	
 	public static final List<Predicate<Class<?>>> DEFAULT_CLASS_EXCLUSIONS = emptyList();
+
+	public static final List<Field> DEFAULT_GLOBAL_FIELDS = emptyList();
 	
 	@Override
 	public List<SerializerFactory<?>> getSerializerFactories() {
@@ -45,6 +47,10 @@ public class DefaultSerializationProfile implements SerializationProfile {
 		return DEFAULT_CLASS_EXCLUSIONS;
 	}
 	
+	@Override
+	public List<Field> getGlobalFields() {
+		return DEFAULT_GLOBAL_FIELDS;
+	}
 	
 
 }

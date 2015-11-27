@@ -1,6 +1,8 @@
 package com.almondtools.testrecorder;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.util.List;
 
 import com.almondtools.testrecorder.profile.DefaultSerializationProfile;
 
@@ -32,8 +34,12 @@ public class ContextSnapshotFactory {
 		return profile;
 	}
 
+	public List<Field> getGlobalFields() {
+		return profile.getGlobalFields();
+	}
+
 	public ContextSnapshot createSnapshot() {
 		return new ContextSnapshot(declaringClass, resultType, methodName, argumentTypes);
 	}
-
+	
 }

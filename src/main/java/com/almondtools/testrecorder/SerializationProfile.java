@@ -11,5 +11,7 @@ public interface SerializationProfile {
 	List<Predicate<Field>> getFieldExclusions();
 
 	List<Predicate<Class<?>>> getClassExclusions();
+
+	List<Field> getGlobalFields();
 	
 }

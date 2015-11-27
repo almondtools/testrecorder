@@ -145,7 +145,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 
 			String[] elementValues = elements.stream()
 				.map(element -> element.getValue())
-				.toArray(len -> new String[len]);
+				.toArray(String[]::new);
 
 			String containsMatcher = containsMatcher(elementValues);
 
@@ -177,7 +177,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 
 			String[] elementValues = elements.stream()
 				.map(element -> element.getValue())
-				.toArray(len -> new String[len]);
+				.toArray(String[]::new);
 
 			String containsInAnyOrderMatcher = containsInAnyOrderMatcher(elementValues);
 			return new Computation(containsInAnyOrderMatcher, parameterized(Matcher.class, null, wildcard()), elementComputations);
@@ -237,7 +237,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 
 			String[] elementValues = elements.stream()
 				.map(element -> element.getValue())
-				.toArray(len -> new String[len]);
+				.toArray(String[]::new);
 
 			String primitiveArrayContainingMatcher = primitiveArrayContainingMatcher(name, elementValues);
 			return new Computation(primitiveArrayContainingMatcher, parameterized(Matcher.class, null, wildcard()), elementComputations);
@@ -254,7 +254,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 
 			String[] elementValues = elements.stream()
 				.map(element -> element.getValue())
-				.toArray(len -> new String[len]);
+				.toArray(String[]::new);
 
 			String arrayContainingMatcher = arrayContainingMatcher(elementValues);
 			return new Computation(arrayContainingMatcher, parameterized(Matcher.class, null, wildcard()), elementComputations);

@@ -50,7 +50,7 @@ public class ConstructionPlan {
 
 		String[] params = computedParams.stream()
 			.map(computation -> computation.getValue())
-			.toArray(len -> new String[len]);
+			.toArray(String[]::new);
 
 		String bean = newObject(getBestName(clazz), params);
 		String constructorStatement = assignStatement(getSimpleName(clazz), name, bean);

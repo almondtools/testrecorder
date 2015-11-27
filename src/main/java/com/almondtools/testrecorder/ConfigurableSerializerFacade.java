@@ -82,7 +82,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 	public SerializedValue[] serialize(Type[] clazzes, Object[] objects) {
 		return IntStream.range(0, clazzes.length)
 			.mapToObj(i -> serialize(clazzes[i], objects[i]))
-			.toArray(len -> new SerializedValue[len]);
+			.toArray(SerializedValue[]::new);
 	}
 
 	@Override
