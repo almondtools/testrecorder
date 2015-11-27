@@ -38,7 +38,6 @@ public class SubSuperBeanMatcherTest {
 	public void testCodeSerializerNested() throws Exception {
 		CodeSerializer codeSerializer = matcherSerializer();
 		
-		System.out.println(codeSerializer.serialize(createNestedBean()));
 		assertThat(codeSerializer.serialize(createNestedBean()), containsPattern(""
 			+ "Matcher<SubBean> serializedObject1 = new GenericMatcher() {*"
 			+ "int i = 22;*"
