@@ -11,11 +11,17 @@ public class SerializedField implements Comparable<SerializedField>{
 	private String name;
 	private Type type;
 	private SerializedValue value;
+	private Class<?> clazz;
 
-	public SerializedField(String name, Type type, SerializedValue value) {
+	public SerializedField(Class<?> clazz, String name, Type type, SerializedValue value) {
+		this.clazz = clazz;
 		this.name = name;
 		this.type = type;
 		this.value = value;
+	}
+	
+	public Class<?> getDeclaringClass() {
+		return clazz;
 	}
 
 	public String getName() {
@@ -63,7 +69,8 @@ public class SerializedField implements Comparable<SerializedField>{
 			return false;
 		}
 		SerializedField that = (SerializedField) obj;
-		return this.name.equals(that.name)
+		return this.clazz.equals(that.clazz)
+			&& this.name.equals(that.name)
 			&& this.type == that.type
 			&& this.value.equals(that.value);
 	}

@@ -16,7 +16,8 @@ public class ScheduledTestGenerator extends TestGenerator {
 	private long timeInterval;
 	private String classNameTemplate;
 
-	public ScheduledTestGenerator() {
+	public ScheduledTestGenerator(Class<? extends Runnable> initializer) {
+		super(initializer);
 		this.counter = 0;
 		this.start = System.currentTimeMillis();
 		this.path = Paths.get(".");

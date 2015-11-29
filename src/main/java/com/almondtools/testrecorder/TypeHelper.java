@@ -44,6 +44,14 @@ public final class TypeHelper {
 		}
 	}
 
+	public static Type getArgument(Type type, int i) {
+		if (type instanceof ParameterizedType) {
+			return ((ParameterizedType) type).getActualTypeArguments()[i];
+		} else {
+			return wildcard();
+		}
+	}
+
 	public static String getBestName(Type type) {
 		if (type instanceof Class<?>) {
 			Class<?> clazz = (Class<?>) type;

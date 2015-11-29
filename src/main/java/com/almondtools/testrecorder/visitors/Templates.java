@@ -11,20 +11,21 @@ import org.stringtemplate.v4.ST;
 public final class Templates {
 
 	private static final String GENERIC_OBJECT_CONVERTER = "new GenericObject() {\n<fields; separator=\"\\n\">\n}.as(<type>.class)";
-	private static final String FIELD = "<type> <name> = <value>;";
 	private static final String ARRAY_LITERAL = "new <type>{<elements; separator=\", \">}";
 	private static final String NEW_OBJECT = "new <type>(<args; separator=\", \">)";
 
 	private static final String EXPRESSION_STMT = "<value>;";
-	private static final String ASSIGN_STMT = "<type> <name> = <value>;";
+	private static final String ASSIGN_FIELD_STMT = "<base>.<field> = <value>;";
+	private static final String ASSIGN_LOCAL_VARIABLE_STMT = "<type> <name> = <value>;";
 	private static final String CALL_METHOD_STMT = "<base>.<method>(<arguments; separator=\", \">);";
 	private static final String CALL_LOCAL_METHOD_STMT = "<method>(<arguments; separator=\", \">);";
 	private static final String RETURN_STMT = "return <value>;";
-	private static final String CAST_STMT = "(<type>) <expression>";
+	private static final String FIELD_ACCESS_EXP = "<base>.<field>";
+	private static final String CAST_EXP = "(<type>) <expression>";
 
 	private static final String GENERIC_TYPE = "$type$<$typeParam; separator=\", \"$>";
 
-	private static final String GENERIC_OBJECT_MATCHER = "new GenericMatcher() {\n<fields; separator=\"\\n\">\n}.matching(<type>.class)";
+	private static final String GENERIC_OBJECT_MATCHER = "new GenericMatcher() {\n<fields; separator=\"\\n\">\n}.matching(<type : {type | <type>.class}; separator=\", \">)";
 	private static final String RECURSIVE_MATCHER = "recursive(<type>.class)";
 	private static final String CONTAINS_MATCHER = "contains(<values; separator=\", \">)";
 	private static final String EMPTY_MATCHER = "empty()";
@@ -47,11 +48,10 @@ public final class Templates {
 		return statement.render();
 	}
 
-	public static String assignField(String type, String name, String value) {
-		ST statement = new ST(FIELD);
-		statement.add("type", type);
-		statement.add("name", name);
-		statement.add("value", value);
+	public static String fieldAccess(String base, String field) {
+		ST statement = new ST(FIELD_ACCESS_EXP);
+		statement.add("base", base);
+		statement.add("field", field);
 
 		return statement.render();
 	}
@@ -71,10 +71,19 @@ public final class Templates {
 		return statement.render();
 	}
 
-	public static String assignStatement(String type, String name, String value) {
-		ST assign = new ST(ASSIGN_STMT);
+	public static String assignLocalVariableStatement(String type, String name, String value) {
+		ST assign = new ST(ASSIGN_LOCAL_VARIABLE_STMT);
 		assign.add("type", type);
 		assign.add("name", name);
+		assign.add("value", value);
+
+		return assign.render();
+	}
+
+	public static String assignFieldStatement(String base, String field, String value) {
+		ST assign = new ST(ASSIGN_FIELD_STMT);
+		assign.add("base", base);
+		assign.add("field", field);
 		assign.add("value", value);
 
 		return assign.render();
@@ -123,6 +132,14 @@ public final class Templates {
 	public static String genericObjectMatcher(String type, List<String> fields) {
 		ST matcher = new ST(GENERIC_OBJECT_MATCHER);
 		matcher.add("type", type);
+		matcher.add("fields", fields);
+
+		return matcher.render();
+	}
+
+	public static String genericObjectMatcher(String type, String to, List<String> fields) {
+		ST matcher = new ST(GENERIC_OBJECT_MATCHER);
+		matcher.add("type", asList(type, to));
 		matcher.add("fields", fields);
 
 		return matcher.render();
@@ -209,7 +226,7 @@ public final class Templates {
 	}
 
 	public static String cast(String type, String expression) {
-		ST matcher = new ST(CAST_STMT);
+		ST matcher = new ST(CAST_EXP);
 		matcher.add("type", type);
 		matcher.add("expression", expression);
 

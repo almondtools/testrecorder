@@ -35,17 +35,19 @@ public class TestGeneratorTest {
 
 	@Before
 	public void before() throws Exception {
-		testGenerator = new TestGenerator();
+		testGenerator = new TestGenerator(null);
 	}
 
 	@Test
 	public void testAccept() throws Exception {
 		ContextSnapshot snapshot = new ContextSnapshot(MyClass.class, int.class, "intMethod", int.class);
-		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField("field", int.class, literal(int.class, 12))));
+		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));
-		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField("field", int.class, literal(int.class, 8))));
+		snapshot.setSetupGlobals(new SerializedField[0]);
+		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 8))));
 		snapshot.setExpectArgs(literal(int.class, 16));
 		snapshot.setExpectResult(literal(int.class, 22));
+		snapshot.setExpectGlobals(new SerializedField[0]);
 
 		testGenerator.accept(snapshot);
 
@@ -71,11 +73,13 @@ public class TestGeneratorTest {
 			}
 		});
 		ContextSnapshot snapshot = new ContextSnapshot(MyClass.class, int.class, "intMethod", int.class);
-		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField("field", int.class, literal(int.class, 12))));
+		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));
-		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField("field", int.class, literal(int.class, 8))));
+		snapshot.setSetupGlobals(new SerializedField[0]);
+		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 8))));
 		snapshot.setExpectArgs(literal(int.class, 16));
 		snapshot.setExpectResult(literal(int.class, 22));
+		snapshot.setExpectGlobals(new SerializedField[0]);
 
 		testGenerator.accept(snapshot);
 
@@ -102,11 +106,13 @@ public class TestGeneratorTest {
 			}
 		});
 		ContextSnapshot snapshot = new ContextSnapshot(MyClass.class, int.class, "intMethod", int.class);
-		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField("field", int.class, literal(int.class, 12))));
+		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));
-		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField("field", int.class, literal(int.class, 8))));
+		snapshot.setSetupGlobals(new SerializedField[0]);
+		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 8))));
 		snapshot.setExpectArgs(literal(int.class, 16));
 		snapshot.setExpectResult(literal(int.class, 22));
+		snapshot.setExpectGlobals(new SerializedField[0]);
 
 		testGenerator.accept(snapshot);
 
@@ -126,11 +132,13 @@ public class TestGeneratorTest {
 	@Test
 	public void testTestsForAfterClear() throws Exception {
 		ContextSnapshot snapshot = new ContextSnapshot(MyClass.class, int.class, "intMethod", int.class);
-		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField("field", int.class, literal(int.class, 12))));
+		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));
-		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField("field", int.class, literal(int.class, 8))));
+		snapshot.setSetupGlobals(new SerializedField[0]);
+		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 8))));
 		snapshot.setExpectArgs(literal(int.class, 16));
 		snapshot.setExpectResult(literal(int.class, 22));
+		snapshot.setExpectGlobals(new SerializedField[0]);
 		testGenerator.accept(snapshot);
 
 		testGenerator.clearResults();
@@ -142,17 +150,21 @@ public class TestGeneratorTest {
 	@Test
 	public void testRenderCode() throws Exception {
 		ContextSnapshot snapshot1 = new ContextSnapshot(MyClass.class, int.class, "intMethod", int.class);
-		snapshot1.setSetupThis(objectOf(MyClass.class, new SerializedField("field", int.class, literal(int.class, 12))));
+		snapshot1.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot1.setSetupArgs(literal(int.class, 16));
-		snapshot1.setExpectThis(objectOf(MyClass.class, new SerializedField("field", int.class, literal(int.class, 8))));
+		snapshot1.setSetupGlobals(new SerializedField[0]);
+		snapshot1.setExpectThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 8))));
 		snapshot1.setExpectArgs(literal(int.class, 16));
 		snapshot1.setExpectResult(literal(int.class, 22));
+		snapshot1.setExpectGlobals(new SerializedField[0]);
 		ContextSnapshot snapshot2 = new ContextSnapshot(MyClass.class, int.class, "intMethod", int.class);
-		snapshot2.setSetupThis(objectOf(MyClass.class, new SerializedField("field", int.class, literal(int.class, 13))));
+		snapshot2.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 13))));
 		snapshot2.setSetupArgs(literal(int.class, 17));
-		snapshot2.setExpectThis(objectOf(MyClass.class, new SerializedField("field", int.class, literal(int.class, 9))));
+		snapshot2.setSetupGlobals(new SerializedField[0]);
+		snapshot2.setExpectThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 9))));
 		snapshot2.setExpectArgs(literal(int.class, 17));
 		snapshot2.setExpectResult(literal(int.class, 23));
+		snapshot2.setExpectGlobals(new SerializedField[0]);
 
 		testGenerator.accept(snapshot1);
 		testGenerator.accept(snapshot2);
@@ -182,11 +194,13 @@ public class TestGeneratorTest {
 	@Test
 	public void testWriteResults() throws Exception {
 		ContextSnapshot snapshot = new ContextSnapshot(MyClass.class, int.class, "intMethod", int.class);
-		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField("field", int.class, literal(int.class, 12))));
+		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));
-		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField("field", int.class, literal(int.class, 8))));
+		snapshot.setSetupGlobals(new SerializedField[0]);
+		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 8))));
 		snapshot.setExpectArgs(literal(int.class, 16));
 		snapshot.setExpectResult(literal(int.class, 22));
+		snapshot.setExpectGlobals(new SerializedField[0]);
 
 		testGenerator.accept(snapshot);
 

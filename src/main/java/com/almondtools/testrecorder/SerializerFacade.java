@@ -17,4 +17,6 @@ public interface SerializerFacade {
 
 	boolean excludes(Field field);
 
+	boolean excludes(Class<?> clazz);
+
 }

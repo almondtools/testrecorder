@@ -18,6 +18,10 @@ public class GenericMatcher extends GenericObject {
 		return new InternalsMatcher<T>();
 	}
 
+	public <T, S> Matcher<S> matching(Class<T> clazz, Class<S> to) {
+		return new CastingMatcher<>(to, new InternalsMatcher<T>());
+	}
+
 	public boolean matches(Object o) {
 		Queue<GenericComparison> remainder = new LinkedList<>();
 		for (Field field : getGenericFields()) {
@@ -40,13 +44,13 @@ public class GenericMatcher extends GenericObject {
 		}
 		return true;
 	}
-	
+
 	public static <T> Matcher<T> recursive(Class<T> clazz) {
 		return instanceOf(clazz);
 	}
 
 	private class InternalsMatcher<T> extends TypeSafeMatcher<T> {
-		
+
 		@Override
 		public void describeTo(Description description) {
 			description.appendText("with fields:");
@@ -88,4 +92,31 @@ public class GenericMatcher extends GenericObject {
 
 	}
 
+	private class CastingMatcher<S, T> extends TypeSafeMatcher<S> {
+
+		private Class<S> clazz;
+		private Matcher<T> matcher;
+
+		public CastingMatcher(Class<S> clazz, Matcher<T> matcher) {
+			this.clazz = clazz;
+			this.matcher = matcher;
+		}
+
+		@Override
+		public void describeTo(Description description) {
+			description.appendDescriptionOf(matcher);
+		}
+
+		@Override
+		protected boolean matchesSafely(S item) {
+			if (!clazz.isInstance(item)) {
+				return false;
+			}
+			if (!matcher.matches(item)) {
+				return false;
+			}
+			return true;
+		}
+
+	}
 }

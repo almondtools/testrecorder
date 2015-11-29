@@ -4,8 +4,7 @@ import static com.almondtools.testrecorder.TypeHelper.getBestName;
 import static com.almondtools.testrecorder.TypeHelper.getSimpleName;
 import static com.almondtools.testrecorder.util.TemplateHelper.asLiteral;
 import static com.almondtools.testrecorder.visitors.Templates.arrayLiteral;
-import static com.almondtools.testrecorder.visitors.Templates.assignField;
-import static com.almondtools.testrecorder.visitors.Templates.assignStatement;
+import static com.almondtools.testrecorder.visitors.Templates.assignLocalVariableStatement;
 import static com.almondtools.testrecorder.visitors.Templates.callMethodStatement;
 import static com.almondtools.testrecorder.visitors.Templates.genericObjectConverter;
 import static com.almondtools.testrecorder.visitors.Templates.newObject;
@@ -76,7 +75,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 
 		List<String> statements = valueTemplate.getStatements();
 
-		String assignField = assignField(getSimpleName(field.getType()), field.getName(), valueTemplate.getValue());
+		String assignField = assignLocalVariableStatement(getSimpleName(field.getType()), field.getName(), valueTemplate.getValue());
 		return new Computation(assignField, statements);
 	}
 
@@ -148,7 +147,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 		String name = localVariable(value, List.class);
 
 		String list = newObject(getBestName(value.getValueType()));
-		String listInit = assignStatement(getSimpleName(value.getType()), name, list);
+		String listInit = assignLocalVariableStatement(getSimpleName(value.getType()), name, list);
 		statements.add(listInit);
 
 		for (String element : elements) {
@@ -185,7 +184,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 		String name = localVariable(value, Set.class);
 
 		String set = newObject(getBestName(value.getValueType()));
-		String setInit = assignStatement(getSimpleName(value.getType()), name, set);
+		String setInit = assignLocalVariableStatement(getSimpleName(value.getType()), name, set);
 		statements.add(setInit);
 
 		for (String element : elements) {
@@ -221,7 +220,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 		String name = localVariable(value, Map.class);
 
 		String map = newObject(getBestName(value.getValueType()));
-		String mapInit = assignStatement(getSimpleName(value.getType()), name, map);
+		String mapInit = assignLocalVariableStatement(getSimpleName(value.getType()), name, map);
 		statements.add(mapInit);
 
 		for (Map.Entry<String, String> element : elements.entrySet()) {

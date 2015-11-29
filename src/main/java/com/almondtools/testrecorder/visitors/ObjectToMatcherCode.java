@@ -1,5 +1,7 @@
 package com.almondtools.testrecorder.visitors;
 
+import static com.almondtools.testrecorder.TypeHelper.getArgument;
+import static com.almondtools.testrecorder.TypeHelper.getBase;
 import static com.almondtools.testrecorder.TypeHelper.getRawName;
 import static com.almondtools.testrecorder.TypeHelper.getSimpleName;
 import static com.almondtools.testrecorder.TypeHelper.isPrimitive;
@@ -7,7 +9,7 @@ import static com.almondtools.testrecorder.TypeHelper.parameterized;
 import static com.almondtools.testrecorder.TypeHelper.wildcard;
 import static com.almondtools.testrecorder.util.TemplateHelper.asLiteral;
 import static com.almondtools.testrecorder.visitors.Templates.arrayContainingMatcher;
-import static com.almondtools.testrecorder.visitors.Templates.assignField;
+import static com.almondtools.testrecorder.visitors.Templates.assignLocalVariableStatement;
 import static com.almondtools.testrecorder.visitors.Templates.containsEntriesMatcher;
 import static com.almondtools.testrecorder.visitors.Templates.containsInAnyOrderMatcher;
 import static com.almondtools.testrecorder.visitors.Templates.containsMatcher;
@@ -68,7 +70,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 		this.imports = imports;
 		this.computed = new HashSet<>();
 	}
-	
+
 	public ImportManager getImports() {
 		return imports;
 	}
@@ -79,7 +81,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 		if (isSimpleValue(fieldValue)) {
 			Computation value = getSimpleValue(fieldValue);
 
-			String assignField = assignField(getSimpleName(field.getType()), field.getName(), value.getValue());
+			String assignField = assignLocalVariableStatement(getSimpleName(field.getType()), field.getName(), value.getValue());
 			return new Computation(assignField, value.getStatements());
 		} else {
 			imports.registerImport(Matcher.class);
@@ -87,7 +89,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 
 			String genericType = getSimpleName(value.getType());
 
-			String assignField = assignField(genericType, field.getName(), value.getValue());
+			String assignField = assignLocalVariableStatement(genericType, field.getName(), value.getValue());
 			return new Computation(assignField, value.getStatements());
 		}
 	}
@@ -95,11 +97,11 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 	@Override
 	public Computation visitObject(SerializedObject value) {
 		if (!computed.add(value)) {
-			imports.staticImport(GenericMatcher.class,"recursive");
+			imports.staticImport(GenericMatcher.class, "recursive");
 			Type resultType = value.getType().equals(value.getValueType()) ? parameterized(Matcher.class, null, value.getType()) : parameterized(Matcher.class, null, wildcard());
 			return new Computation(recursiveMatcher(getRawName(value.getValueType())), resultType);
 		}
-		Type[] types = { value.getType(), GenericMatcher.class };
+		Type[] types = { value.getType(), value.getValueType(), GenericMatcher.class };
 		imports.registerImports(types);
 
 		List<Computation> fields = value.getFields().stream()
@@ -115,17 +117,33 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 			.map(field -> field.getValue())
 			.collect(toList());
 
-		String matcherRawType = getRawName(value.getValueType());
-		String matcherExpression = genericObjectMatcher(matcherRawType, fieldAssignments);
-		Type resultType = value.getType().equals(value.getValueType()) ? parameterized(Matcher.class, null, value.getType()) : parameterized(Matcher.class, null, wildcard());
+		Type resultType = parameterized(Matcher.class, null, value.getType());
+
+		String matcherExpression = createMatcherExpression(value, fieldAssignments);
 
 		return new Computation(matcherExpression, resultType, fieldComputations);
+	}
+
+	public String createMatcherExpression(SerializedObject value, List<String> fieldAssignments) {
+		Type type = value.getType();
+		if (getBase(type) == Matcher.class) {
+			type = getArgument(type, 0);
+		}
+		Class<?> valueType = value.getValueType();
+		if (type.equals(valueType)) {
+			String matcherRawType = getRawName(valueType);
+			return genericObjectMatcher(matcherRawType, fieldAssignments);
+		} else {
+			String matcherRawType = getRawName(valueType);
+			String matcherToType = getRawName(type);
+			return genericObjectMatcher(matcherRawType, matcherToType, fieldAssignments);
+		}
 	}
 
 	@Override
 	public Computation visitList(SerializedList value) {
 		if (!computed.add(value)) {
-			imports.staticImport(GenericMatcher.class,"recursive");
+			imports.staticImport(GenericMatcher.class, "recursive");
 			return new Computation(recursiveMatcher(getRawName(value.getValueType())), parameterized(Matcher.class, null, wildcard()));
 		}
 		if (value.isEmpty()) {
@@ -156,7 +174,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 	@Override
 	public Computation visitSet(SerializedSet value) {
 		if (!computed.add(value)) {
-			imports.staticImport(GenericMatcher.class,"recursive");
+			imports.staticImport(GenericMatcher.class, "recursive");
 			return new Computation(recursiveMatcher(getRawName(value.getValueType())), parameterized(Matcher.class, null, wildcard()));
 		}
 		if (value.isEmpty()) {
@@ -187,7 +205,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 	@Override
 	public Computation visitMap(SerializedMap value) {
 		if (!computed.add(value)) {
-			imports.staticImport(GenericMatcher.class,"recursive");
+			imports.staticImport(GenericMatcher.class, "recursive");
 			return new Computation(recursiveMatcher(getRawName(value.getValueType())), parameterized(Matcher.class, null, wildcard()));
 		}
 		String keyType = getSimpleName(value.getMapKeyType());
@@ -220,7 +238,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 	@Override
 	public Computation visitArray(SerializedArray value) {
 		if (!computed.add(value)) {
-			imports.staticImport(GenericMatcher.class,"recursive");
+			imports.staticImport(GenericMatcher.class, "recursive");
 			return new Computation(recursiveMatcher(getRawName(value.getValueType())), parameterized(Matcher.class, null, wildcard()));
 		}
 		if (isPrimitive(value.getComponentType())) {

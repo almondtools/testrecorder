@@ -41,10 +41,10 @@ public class SubSuperBeanMatcherTest {
 		assertThat(codeSerializer.serialize(createNestedBean()), containsPattern(""
 			+ "Matcher<SubBean> serializedObject1 = new GenericMatcher() {*"
 			+ "int i = 22;*"
-			+ "Matcher<?> o = new GenericMatcher() {*"
+			+ "Matcher<Object> o = new GenericMatcher() {*"
 			+ "int i = 0;*"
 			+ "Object o = null;*"
-			+ "}.matching(SubBean.class);*"
+			+ "}.matching(SubBean.class, Object.class);*"
 			+ "}.matching(SubBean.class);"));
 	}
 	

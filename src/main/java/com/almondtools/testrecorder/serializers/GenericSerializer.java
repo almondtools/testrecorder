@@ -32,7 +32,7 @@ public class GenericSerializer implements Serializer<SerializedObject> {
 	@Override
 	public void populate(SerializedObject serializedObject, Object object) {
 		Class<?> objectClass = object.getClass();
-		while (objectClass != Object.class) {
+		while (objectClass != Object.class && !facade.excludes(objectClass)) {
 			for (Field f : objectClass.getDeclaredFields()) {
 				if (isSerializable(f)) {
 					serializedObject.addField(facade.serialize(f, object));

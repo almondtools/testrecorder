@@ -27,10 +27,12 @@ public class SerializedObjectTest {
 	public void testGetAddFields() throws Exception {
 		SerializedObject serializedObject = new SerializedObject(Object.class, Object.class);
 
-		serializedObject.addField(new SerializedField("f1", Object.class, literal(String.class, "str")));
-		serializedObject.addField(new SerializedField("f2", Integer.class, literal(Integer.class, 2)));
+		serializedObject.addField(new SerializedField(Object.class, "f1", Object.class, literal(String.class, "str")));
+		serializedObject.addField(new SerializedField(Object.class, "f2", Integer.class, literal(Integer.class, 2)));
 
-		assertThat(serializedObject.getFields(), contains(new SerializedField("f1", Object.class, literal(String.class, "str")), new SerializedField("f2", Integer.class, literal(Integer.class, 2))));
+		assertThat(serializedObject.getFields(), contains(
+			new SerializedField(Object.class, "f1", Object.class, literal(String.class, "str")), 
+			new SerializedField(Object.class, "f2", Integer.class, literal(Integer.class, 2))));
 
 	}
 
@@ -45,8 +47,8 @@ public class SerializedObjectTest {
 	public void testToString() throws Exception {
 		SerializedObject serializedObject = new SerializedObject(Object.class, String.class);
 
-		serializedObject.addField(new SerializedField("f1", Object.class, literal(String.class, "str")));
-		serializedObject.addField(new SerializedField("f2", Integer.class, literal(Integer.class, 2)));
+		serializedObject.addField(new SerializedField(Object.class, "f1", Object.class, literal(String.class, "str")));
+		serializedObject.addField(new SerializedField(Object.class, "f2", Integer.class, literal(Integer.class, 2)));
 
 		assertThat(serializedObject.toString(), equalTo("java.lang.String/" + System.identityHashCode(serializedObject) + " {\njava.lang.Object f1: str,\njava.lang.Integer f2: 2\n}"));
 	}

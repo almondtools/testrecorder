@@ -2,7 +2,7 @@ package com.almondtools.testrecorder.visitors;
 
 import static com.almondtools.testrecorder.TypeHelper.getBestName;
 import static com.almondtools.testrecorder.TypeHelper.getSimpleName;
-import static com.almondtools.testrecorder.visitors.Templates.assignStatement;
+import static com.almondtools.testrecorder.visitors.Templates.assignLocalVariableStatement;
 import static com.almondtools.testrecorder.visitors.Templates.callMethodStatement;
 import static com.almondtools.testrecorder.visitors.Templates.newObject;
 import static java.util.stream.Collectors.toList;
@@ -53,7 +53,7 @@ public class ConstructionPlan {
 			.toArray(String[]::new);
 
 		String bean = newObject(getBestName(clazz), params);
-		String constructorStatement = assignStatement(getSimpleName(clazz), name, bean);
+		String constructorStatement = assignLocalVariableStatement(getSimpleName(clazz), name, bean);
 		statements.add(constructorStatement);
 
 		for (SetterParam param : setterParams) {

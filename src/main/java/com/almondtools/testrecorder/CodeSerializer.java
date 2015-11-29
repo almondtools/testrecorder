@@ -1,7 +1,7 @@
 package com.almondtools.testrecorder;
 
 import static com.almondtools.testrecorder.TypeHelper.getSimpleName;
-import static com.almondtools.testrecorder.visitors.Templates.assignStatement;
+import static com.almondtools.testrecorder.visitors.Templates.assignLocalVariableStatement;
 import static java.util.stream.Collectors.joining;
 
 import java.lang.reflect.Type;
@@ -65,7 +65,7 @@ public class CodeSerializer {
 			statements.addAll(serialized.getStatements());
 			if (!serialized.isStored()) {
 				String name = locals.fetchName(value.getClass());
-				statements.add(assignStatement(type, name, serialized.getValue()));
+				statements.add(assignLocalVariableStatement(type, name, serialized.getValue()));
 			}
 
 			return statements.stream()

@@ -126,9 +126,13 @@ public class SnapshotGenerator {
 	public void expectVariables(Object... args) {
 		SerializerFacade facade = facade();
 		ContextSnapshot currentSnapshot = fetchSnapshot();
+		List<Field> globals = globals();
 		modify(currentSnapshot, snapshot -> {
 			snapshot.setExpectThis(facade.serialize(self.getClass(), self));
 			snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
+			snapshot.setExpectGlobals(globals.stream()
+				.map(field -> facade.serialize(field, null))
+				.toArray(SerializedField[]::new));
 		});
 		consume(currentSnapshot);
 	}
@@ -136,10 +140,14 @@ public class SnapshotGenerator {
 	public void throwVariables(Throwable throwable, Object... args) {
 		SerializerFacade facade = facade();
 		ContextSnapshot currentSnapshot = fetchSnapshot();
+		List<Field> globals = globals();
 		modify(currentSnapshot, snapshot -> {
 			snapshot.setExpectThis(facade.serialize(self.getClass(), self));
 			snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
 			snapshot.setExpectException(facade.serialize(throwable.getClass(), throwable));
+			snapshot.setExpectGlobals(globals.stream()
+				.map(field -> facade.serialize(field, null))
+				.toArray(SerializedField[]::new));
 		});
 		consume(currentSnapshot);
 	}

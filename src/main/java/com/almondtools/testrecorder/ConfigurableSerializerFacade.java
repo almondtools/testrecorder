@@ -92,7 +92,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 			if (!access) {
 				f.setAccessible(true);
 			}
-			SerializedField field = new SerializedField(f.getName(), f.getType(), serialize(f.getType(), f.get(obj)));
+			SerializedField field = new SerializedField(f.getDeclaringClass(), f.getName(), f.getType(), serialize(f.getType(), f.get(obj)));
 			if (!access) {
 				f.setAccessible(false);
 			}
@@ -113,6 +113,12 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 				.anyMatch(exclusion -> exclusion.test(type));
 		}
 		return excluded;
+	}
+	
+	@Override
+	public boolean excludes(Class<?> clazz) {
+		return classExclusions.stream()
+			.anyMatch(exclusion -> exclusion.test(clazz));
 	}
 
 }

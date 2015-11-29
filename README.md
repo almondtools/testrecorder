@@ -50,6 +50,7 @@ Both, restrictions and assumptions, can be adjusted by modifying the serializati
 TODOs
 =====
 - More readable generated Tests
+- Dealing with Output (Input changes state so it is not a problem, output changes state of systems not under analysis, so it has to be tracked)
 - Less  warnings in generated Tests
 - Other Profiles (than `DefaultSerializationProfile)` that can handle serialization of static or generated data
 - Higher Test Coverage

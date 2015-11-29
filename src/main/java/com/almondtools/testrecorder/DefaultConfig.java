@@ -7,7 +7,7 @@ public class DefaultConfig implements SnapshotConfig {
 
 	@Override
 	public SnapshotConsumer getSnapshotConsumer() {
-		return new TestGenerator();
+		return new TestGenerator(getInitializer());
 	}
 	
 	@Override
@@ -18,5 +18,10 @@ public class DefaultConfig implements SnapshotConfig {
 	@Override
 	public List<String> getPackages() {
 		return Collections.emptyList();
+	}
+	
+	@Override
+	public Class<? extends Runnable> getInitializer() {
+		return null;
 	}
 }

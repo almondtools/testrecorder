@@ -37,11 +37,13 @@ public class ConfigRegistry {
 		private SnapshotConsumer snapshotConsumer;
 		private long timeoutInMillis;
 		private List<String> packages;
+		private Class<? extends Runnable> initializer;
 
 		public ImmutableSnapshotConfig(SnapshotConfig config) {
 			this.snapshotConsumer = config.getSnapshotConsumer();
 			this.timeoutInMillis = config.getTimeoutInMillis();
 			this.packages = config.getPackages();
+			this.initializer = config.getInitializer();
 		}
 
 		@Override
@@ -57,6 +59,11 @@ public class ConfigRegistry {
 		@Override
 		public List<String> getPackages() {
 			return packages;
+		}
+		
+		@Override
+		public Class<? extends Runnable> getInitializer() {
+			return initializer;
 		}
 
 	}
