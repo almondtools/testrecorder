@@ -27,6 +27,7 @@ import com.almondtools.testrecorder.values.SerializedLiteral;
 import com.almondtools.testrecorder.values.SerializedMap;
 import com.almondtools.testrecorder.values.SerializedNull;
 import com.almondtools.testrecorder.values.SerializedObject;
+import com.almondtools.testrecorder.values.SerializedOutput;
 import com.almondtools.testrecorder.values.SerializedSet;
 
 public class Deserializer implements SerializedValueVisitor<Object>, SerializedCollectionVisitor<Object>, SerializedImmutableVisitor<Object> {
@@ -51,6 +52,11 @@ public class Deserializer implements SerializedValueVisitor<Object>, SerializedC
 	@Override
 	public Object visitField(SerializedField field) {
 		throw new DeserializationException(field.toString());
+	}
+	
+	@Override
+	public Object visitOutput(SerializedOutput output) {
+		throw new DeserializationException(output.toString());
 	}
 
 	@Override

@@ -19,6 +19,7 @@ import com.almondtools.testrecorder.values.SerializedLiteral;
 import com.almondtools.testrecorder.values.SerializedMap;
 import com.almondtools.testrecorder.values.SerializedNull;
 import com.almondtools.testrecorder.values.SerializedObject;
+import com.almondtools.testrecorder.values.SerializedOutput;
 import com.almondtools.testrecorder.values.SerializedSet;
 
 public class SerializedValuePrinter implements SerializedValueVisitor<String>, SerializedCollectionVisitor<String>, SerializedImmutableVisitor<String> {
@@ -41,6 +42,13 @@ public class SerializedValuePrinter implements SerializedValueVisitor<String>, S
 		} else {
 			return object.getValueType() + "/" + System.identityHashCode(object);
 		}
+	}
+
+	@Override
+	public String visitOutput(SerializedOutput output) {
+		return ">> " + output.getDeclaringClass().getTypeName() + "." + output.getName() + Stream.of(output.getValues())
+			.map(element -> element.accept(this))
+			.collect(joining(", ", "(", ")"));
 	}
 
 	@Override
@@ -80,7 +88,7 @@ public class SerializedValuePrinter implements SerializedValueVisitor<String>, S
 	public String visitLiteral(SerializedLiteral value) {
 		return value.getValue().toString();
 	}
-	
+
 	@Override
 	public String visitNull(SerializedNull value) {
 		return "null";
@@ -90,7 +98,7 @@ public class SerializedValuePrinter implements SerializedValueVisitor<String>, S
 	public String visitBigDecimal(SerializedBigDecimal value) {
 		return value.getValue().toPlainString();
 	}
-	
+
 	@Override
 	public String visitBigInteger(SerializedBigInteger value) {
 		return value.getValue().toString();

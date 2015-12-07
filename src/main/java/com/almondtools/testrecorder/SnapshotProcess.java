@@ -1,6 +1,8 @@
 package com.almondtools.testrecorder;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -9,8 +11,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import com.almondtools.testrecorder.values.SerializedField;
+import com.almondtools.testrecorder.values.SerializedOutput;
 
 public class SnapshotProcess {
 
@@ -19,6 +23,7 @@ public class SnapshotProcess {
 	private ContextSnapshot snapshot;
 	private SerializerFacade facade;
 	private List<Field> globals;
+	private List<SerializedOutput> output;
 
 	public SnapshotProcess(ExecutorService executor, long timeoutInMillis, ContextSnapshotFactory factory) {
 		this.executor = executor;
@@ -26,12 +31,20 @@ public class SnapshotProcess {
 		this.snapshot = factory.createSnapshot();
 		this.facade = new ConfigurableSerializerFacade(factory.profile());
 		this.globals = factory.getGlobalFields();
+		this.output = new ArrayList<>();
 	}
 	
 	public ContextSnapshot getSnapshot() {
 		return snapshot;
 	}
 	
+	public void outputVariables(Class<?> clazz, String method, Object[] args) {
+		Type[] classes = Stream.of(args)
+			.map(Object::getClass)
+			.toArray(Type[]::new);
+		output.add(new SerializedOutput(clazz, method, facade.serialize(classes, args)));
+	}
+
 	public void setupVariables(String signature, Object self, Object... args) {
 		modify(snapshot -> {
 			snapshot.setSetupThis(facade.serialize(self.getClass(), self));

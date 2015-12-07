@@ -7,10 +7,13 @@ import com.almondtools.testrecorder.values.SerializedField;
 import com.almondtools.testrecorder.values.SerializedLiteral;
 import com.almondtools.testrecorder.values.SerializedNull;
 import com.almondtools.testrecorder.values.SerializedObject;
+import com.almondtools.testrecorder.values.SerializedOutput;
 
 public interface SerializedValueVisitor<T> {
 
 	T visitField(SerializedField field);
+
+	T visitOutput(SerializedOutput output);
 
 	T visitObject(SerializedObject value);
 

@@ -81,8 +81,9 @@ public class SnapshotGenerator {
 		currentGenerator.set(this);
 	}
 
-	public void outputVariables(String method, Object... args) {
-		//TODO make output available to snapshot
+	public void outputVariables(Class<?> clazz, String method, Object... args) {
+		SnapshotProcess process = process();
+		process.outputVariables(clazz, method, args);
 	}
 
 	public void expectVariables(Object result, Object... args) {

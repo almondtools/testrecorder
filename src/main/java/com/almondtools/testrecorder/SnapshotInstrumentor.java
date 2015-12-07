@@ -408,10 +408,11 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		insnList.add(new InsnNode(DUP));
 		insnList.add(new JumpInsnNode(IFNULL, skip));
 		
+		insnList.add(new LdcInsnNode(Type.getObjectType(classNode.name)));
 		insnList.add(new LdcInsnNode(methodNode.name));
 		insnList.add(pushMethodArguments(methodNode));
 		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getInternalName(SnapshotGenerator.class), "outputVariables",
-			Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "outputVariables", String.class, Object[].class)), false));
+			Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "outputVariables", Class.class, String.class, Object[].class)), false));
 		insnList.add(new JumpInsnNode(Opcodes.GOTO, done));
 		insnList.add(skip);
 		insnList.add(new InsnNode(POP));

@@ -54,6 +54,7 @@ import com.almondtools.testrecorder.values.SerializedLiteral;
 import com.almondtools.testrecorder.values.SerializedMap;
 import com.almondtools.testrecorder.values.SerializedNull;
 import com.almondtools.testrecorder.values.SerializedObject;
+import com.almondtools.testrecorder.values.SerializedOutput;
 import com.almondtools.testrecorder.values.SerializedSet;
 
 public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>, SerializedCollectionVisitor<Computation>, SerializedImmutableVisitor<Computation> {
@@ -92,6 +93,12 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 			String assignField = assignLocalVariableStatement(genericType, field.getName(), value.getValue());
 			return new Computation(assignField, value.getStatements());
 		}
+	}
+	
+	@Override
+	public Computation visitOutput(SerializedOutput output) {
+		//TODO
+		return null;
 	}
 
 	@Override
