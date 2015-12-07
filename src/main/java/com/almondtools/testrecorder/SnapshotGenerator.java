@@ -31,7 +31,11 @@ public class SnapshotGenerator {
 		}
 
 	};
+	
+	private static ThreadLocal<SnapshotGenerator> currentGenerator = new ThreadLocal<>();
 
+	private ThreadLocal<SnapshotGenerator> stored = new ThreadLocal<>();
+	
 	private Object self;
 
 	private ExecutorService executor;
@@ -51,6 +55,10 @@ public class SnapshotGenerator {
 
 		this.executor = Executors.newSingleThreadExecutor(THREADS);
 		this.methodSnapshots = new HashMap<>();
+	}
+	
+	public static SnapshotGenerator getCurrentGenerator() {
+		return currentGenerator.get();
 	}
 
 	public SnapshotConsumer getMethodConsumer() {
@@ -96,6 +104,7 @@ public class SnapshotGenerator {
 	}
 
 	public void setupVariables(String signature, Object... args) {
+		init();
 		ContextSnapshotFactory factory = methodSnapshots.get(signature);
 		SerializerFacade facade = facade(factory);
 		List<Field> globals = globals(factory);
@@ -106,6 +115,15 @@ public class SnapshotGenerator {
 				.map(field -> facade.serialize(field, null))
 				.toArray(SerializedField[]::new));
 		});
+	}
+
+	public void init() {
+		stored.set(currentGenerator.get());
+		currentGenerator.set(this);
+	}
+
+	public void outputVariables(String method, Object... args) {
+		//TODO make output available to snapshot
 	}
 
 	public void expectVariables(Object result, Object... args) {
@@ -120,7 +138,13 @@ public class SnapshotGenerator {
 				.map(field -> facade.serialize(field, null))
 				.toArray(SerializedField[]::new));
 		});
+		done();
 		consume(currentSnapshot);
+	}
+
+	public void done() {
+		currentGenerator.set(stored.get());
+		stored.remove();
 	}
 
 	public void expectVariables(Object... args) {

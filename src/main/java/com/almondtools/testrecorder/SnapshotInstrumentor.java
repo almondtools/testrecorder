@@ -12,6 +12,7 @@ import static org.objectweb.asm.Opcodes.DUP2;
 import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
+import static org.objectweb.asm.Opcodes.IFNULL;
 import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
@@ -96,7 +97,9 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 		instrumentConstructors(classNode);
 
-		instrumentMethods(classNode);
+		instrumentSnapshotMethods(classNode);
+
+		instrumentOutputMethods(classNode);
 
 		ClassWriter out = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
 		classNode.accept(out);
@@ -116,7 +119,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		}
 	}
 
-	private void instrumentMethods(ClassNode classNode) {
+	private void instrumentSnapshotMethods(ClassNode classNode) {
 		for (MethodNode method : getSnapshotMethods(classNode)) {
 			LabelNode tryLabel = new LabelNode();
 			LabelNode catchLabel = new LabelNode();
@@ -134,6 +137,12 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 				.findFirst()
 				.orElse(RETURN);
 			method.instructions.add(createCatchFinally(catchLabel, throwVariables(classNode, method), finallyLabel, expectVariables(classNode, method), new InsnNode(returnOpcode)));
+		}
+	}
+
+	private void instrumentOutputMethods(ClassNode classNode) {
+		for (MethodNode method : getOutputMethods(classNode)) {
+			method.instructions.insert(notifyOutput(classNode, method));
 		}
 	}
 
@@ -254,7 +263,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	}
 
 	private List<MethodNode> getSnapshotMethods(ClassNode classNode) {
-		return ((List<MethodNode>) classNode.methods).stream()
+		return classNode.methods.stream()
 			.filter(method -> isSnapshotMethod(method))
 			.collect(toList());
 	}
@@ -265,6 +274,20 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		}
 		return method.visibleAnnotations.stream()
 			.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Snapshot.class)));
+	}
+
+	private List<MethodNode> getOutputMethods(ClassNode classNode) {
+		return classNode.methods.stream()
+			.filter(method -> isOutputMethod(method))
+			.collect(toList());
+	}
+
+	private boolean isOutputMethod(MethodNode method) {
+		if (method.visibleAnnotations == null) {
+			return false;
+		}
+		return method.visibleAnnotations.stream()
+			.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(SnapshotOutput.class)));
 	}
 
 	private List<FieldNode> getSnapshotFields(ClassNode classNode) {
@@ -371,6 +394,28 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getInternalName(SnapshotGenerator.class), "throwVariables",
 			Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "throwVariables", Throwable.class, Object[].class)), false));
 
+		return insnList;
+	}
+
+	private InsnList notifyOutput(ClassNode classNode, MethodNode methodNode) {
+		InsnList insnList = new InsnList();
+
+		LabelNode skip = new LabelNode();
+		LabelNode done = new LabelNode();
+		
+		insnList.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(SnapshotGenerator.class), "getCurrentGenerator",
+			Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "getCurrentGenerator")), false));
+		insnList.add(new InsnNode(DUP));
+		insnList.add(new JumpInsnNode(IFNULL, skip));
+		
+		insnList.add(new LdcInsnNode(methodNode.name));
+		insnList.add(pushMethodArguments(methodNode));
+		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getInternalName(SnapshotGenerator.class), "outputVariables",
+			Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "outputVariables", String.class, Object[].class)), false));
+		insnList.add(new JumpInsnNode(Opcodes.GOTO, done));
+		insnList.add(skip);
+		insnList.add(new InsnNode(POP));
+		insnList.add(done);
 		return insnList;
 	}
 

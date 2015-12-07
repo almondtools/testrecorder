@@ -9,10 +9,10 @@ import java.util.function.Predicate;
 
 import com.almondtools.testrecorder.SerializationProfile;
 import com.almondtools.testrecorder.SerializerFactory;
-import com.almondtools.testrecorder.serializers.DefaultListSerializer;
 import com.almondtools.testrecorder.serializers.BigDecimalSerializer;
 import com.almondtools.testrecorder.serializers.BigIntegerSerializer;
 import com.almondtools.testrecorder.serializers.DefaultHashMapSerializer;
+import com.almondtools.testrecorder.serializers.DefaultListSerializer;
 import com.almondtools.testrecorder.serializers.DefaultSetSerializer;
 
 public class DefaultSerializationProfile implements SerializationProfile {
@@ -31,7 +31,7 @@ public class DefaultSerializationProfile implements SerializationProfile {
 	public static final List<Predicate<Class<?>>> DEFAULT_CLASS_EXCLUSIONS = emptyList();
 
 	public static final List<Field> DEFAULT_GLOBAL_FIELDS = emptyList();
-	
+
 	@Override
 	public List<SerializerFactory<?>> getSerializerFactories() {
 		return DEFAULT_SERIALIZERS;
@@ -51,6 +51,5 @@ public class DefaultSerializationProfile implements SerializationProfile {
 	public List<Field> getGlobalFields() {
 		return DEFAULT_GLOBAL_FIELDS;
 	}
-	
 
 }
