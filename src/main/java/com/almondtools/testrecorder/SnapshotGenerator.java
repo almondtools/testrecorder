@@ -2,22 +2,12 @@ package com.almondtools.testrecorder;
 
 import static com.almondtools.testrecorder.ConfigRegistry.loadConfig;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.function.Consumer;
-
-import com.almondtools.testrecorder.values.SerializedField;
 
 public class SnapshotGenerator {
 
@@ -40,9 +30,7 @@ public class SnapshotGenerator {
 
 	private ExecutorService executor;
 	private Map<String, ContextSnapshotFactory> methodSnapshots;
-	private ThreadLocal<ContextSnapshot> current = new ThreadLocal<>();
-	private ThreadLocal<SerializerFacade> currentFacade = new ThreadLocal<>();
-	private ThreadLocal<List<Field>> currentGlobals = new ThreadLocal<>();
+	private ThreadLocal<SnapshotProcess> current = new ThreadLocal<>();
 
 	private SnapshotConsumer snapshotConsumer;
 	private long timeoutInMillis;
@@ -71,50 +59,21 @@ public class SnapshotGenerator {
 		methodSnapshots.put(signature, factory);
 	}
 
-	public ContextSnapshot newSnapshot(ContextSnapshotFactory factory) {
-		ContextSnapshot snapshot = factory.createSnapshot();
-		current.set(snapshot);
-		return snapshot;
+	public SnapshotProcess process(ContextSnapshotFactory factory) {
+		SnapshotProcess process = new SnapshotProcess(executor, timeoutInMillis, factory);
+		current.set(process);
+		return process;
 	}
 
-	public ContextSnapshot fetchSnapshot() {
+	public SnapshotProcess process() {
 		return current.get();
-	}
-
-	public SerializerFacade facade(ContextSnapshotFactory factory) {
-		ConfigurableSerializerFacade facade = new ConfigurableSerializerFacade(factory.profile());
-		currentFacade.set(facade);
-		return facade;
-	}
-
-	public SerializerFacade facade() {
-		SerializerFacade serializerFacade = currentFacade.get();
-		serializerFacade.reset();
-		return serializerFacade;
-	}
-
-	public List<Field> globals(ContextSnapshotFactory factory) {
-		List<Field> globals = factory.getGlobalFields();
-		currentGlobals.set(globals);
-		return globals;
-	}
-
-	public List<Field> globals() {
-		return currentGlobals.get();
 	}
 
 	public void setupVariables(String signature, Object... args) {
 		init();
 		ContextSnapshotFactory factory = methodSnapshots.get(signature);
-		SerializerFacade facade = facade(factory);
-		List<Field> globals = globals(factory);
-		modify(newSnapshot(factory), snapshot -> {
-			snapshot.setSetupThis(facade.serialize(self.getClass(), self));
-			snapshot.setSetupArgs(facade.serialize(snapshot.getArgumentTypes(), args));
-			snapshot.setSetupGlobals(globals.stream()
-				.map(field -> facade.serialize(field, null))
-				.toArray(SerializedField[]::new));
-		});
+		SnapshotProcess process = process(factory);
+		process.setupVariables(signature, self, args);
 	}
 
 	public void init() {
@@ -127,19 +86,24 @@ public class SnapshotGenerator {
 	}
 
 	public void expectVariables(Object result, Object... args) {
-		SerializerFacade facade = facade();
-		ContextSnapshot currentSnapshot = fetchSnapshot();
-		List<Field> globals = globals();
-		modify(currentSnapshot, snapshot -> {
-			snapshot.setExpectThis(facade.serialize(self.getClass(), self));
-			snapshot.setExpectResult(facade.serialize(snapshot.getResultType(), result));
-			snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
-			snapshot.setExpectGlobals(globals.stream()
-				.map(field -> facade.serialize(field, null))
-				.toArray(SerializedField[]::new));
-		});
+		SnapshotProcess process = process();
+		process.expectVariables(self, result, args);
 		done();
-		consume(currentSnapshot);
+		consume(process.getSnapshot());
+	}
+
+	public void expectVariables(Object... args) {
+		SnapshotProcess process = process();
+		process.expectVariables(self, args);
+		done();
+		consume(process.getSnapshot());
+	}
+
+	public void throwVariables(Throwable throwable, Object... args) {
+		SnapshotProcess process = process();
+		process.throwVariables(self, throwable, args);
+		done();
+		consume(process.getSnapshot());
 	}
 
 	public void done() {
@@ -147,51 +111,11 @@ public class SnapshotGenerator {
 		stored.remove();
 	}
 
-	public void expectVariables(Object... args) {
-		SerializerFacade facade = facade();
-		ContextSnapshot currentSnapshot = fetchSnapshot();
-		List<Field> globals = globals();
-		modify(currentSnapshot, snapshot -> {
-			snapshot.setExpectThis(facade.serialize(self.getClass(), self));
-			snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
-			snapshot.setExpectGlobals(globals.stream()
-				.map(field -> facade.serialize(field, null))
-				.toArray(SerializedField[]::new));
-		});
-		consume(currentSnapshot);
-	}
-
-	public void throwVariables(Throwable throwable, Object... args) {
-		SerializerFacade facade = facade();
-		ContextSnapshot currentSnapshot = fetchSnapshot();
-		List<Field> globals = globals();
-		modify(currentSnapshot, snapshot -> {
-			snapshot.setExpectThis(facade.serialize(self.getClass(), self));
-			snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
-			snapshot.setExpectException(facade.serialize(throwable.getClass(), throwable));
-			snapshot.setExpectGlobals(globals.stream()
-				.map(field -> facade.serialize(field, null))
-				.toArray(SerializedField[]::new));
-		});
-		consume(currentSnapshot);
-	}
-
 	private void consume(ContextSnapshot snapshot) {
 		if (snapshot.isValid()) {
 			if (snapshotConsumer != null) {
 				snapshotConsumer.accept(snapshot);
 			}
-		}
-	}
-
-	private void modify(ContextSnapshot snapshot, Consumer<ContextSnapshot> task) {
-		try {
-			Future<?> future = executor.submit(() -> {
-				task.accept(snapshot);
-			});
-			future.get(timeoutInMillis, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException | ExecutionException | TimeoutException | CancellationException e) {
-			snapshot.invalidate();
 		}
 	}
 
