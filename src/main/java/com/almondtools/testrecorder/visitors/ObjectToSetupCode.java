@@ -2,8 +2,8 @@ package com.almondtools.testrecorder.visitors;
 
 import static com.almondtools.testrecorder.TypeHelper.getBestName;
 import static com.almondtools.testrecorder.TypeHelper.getSimpleName;
-import static com.almondtools.testrecorder.util.TemplateHelper.asLiteral;
 import static com.almondtools.testrecorder.visitors.Templates.arrayLiteral;
+import static com.almondtools.testrecorder.visitors.Templates.asLiteral;
 import static com.almondtools.testrecorder.visitors.Templates.assignLocalVariableStatement;
 import static com.almondtools.testrecorder.visitors.Templates.callMethodStatement;
 import static com.almondtools.testrecorder.visitors.Templates.genericObjectConverter;
@@ -34,7 +34,6 @@ import com.almondtools.testrecorder.values.SerializedLiteral;
 import com.almondtools.testrecorder.values.SerializedMap;
 import com.almondtools.testrecorder.values.SerializedNull;
 import com.almondtools.testrecorder.values.SerializedObject;
-import com.almondtools.testrecorder.values.SerializedOutput;
 import com.almondtools.testrecorder.values.SerializedSet;
 
 public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, SerializedCollectionVisitor<Computation>, SerializedImmutableVisitor<Computation> {
@@ -78,12 +77,6 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 
 		String assignField = assignLocalVariableStatement(getSimpleName(field.getType()), field.getName(), valueTemplate.getValue());
 		return new Computation(assignField, statements);
-	}
-
-	@Override
-	public Computation visitOutput(SerializedOutput output) {
-		//TODO
-		return null;
 	}
 
 	@Override

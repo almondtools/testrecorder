@@ -7,8 +7,8 @@ import static com.almondtools.testrecorder.TypeHelper.getSimpleName;
 import static com.almondtools.testrecorder.TypeHelper.isPrimitive;
 import static com.almondtools.testrecorder.TypeHelper.parameterized;
 import static com.almondtools.testrecorder.TypeHelper.wildcard;
-import static com.almondtools.testrecorder.util.TemplateHelper.asLiteral;
 import static com.almondtools.testrecorder.visitors.Templates.arrayContainingMatcher;
+import static com.almondtools.testrecorder.visitors.Templates.asLiteral;
 import static com.almondtools.testrecorder.visitors.Templates.assignLocalVariableStatement;
 import static com.almondtools.testrecorder.visitors.Templates.containsEntriesMatcher;
 import static com.almondtools.testrecorder.visitors.Templates.containsInAnyOrderMatcher;
@@ -54,7 +54,6 @@ import com.almondtools.testrecorder.values.SerializedLiteral;
 import com.almondtools.testrecorder.values.SerializedMap;
 import com.almondtools.testrecorder.values.SerializedNull;
 import com.almondtools.testrecorder.values.SerializedObject;
-import com.almondtools.testrecorder.values.SerializedOutput;
 import com.almondtools.testrecorder.values.SerializedSet;
 
 public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>, SerializedCollectionVisitor<Computation>, SerializedImmutableVisitor<Computation> {
@@ -93,12 +92,6 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 			String assignField = assignLocalVariableStatement(genericType, field.getName(), value.getValue());
 			return new Computation(assignField, value.getStatements());
 		}
-	}
-	
-	@Override
-	public Computation visitOutput(SerializedOutput output) {
-		//TODO
-		return null;
 	}
 
 	@Override

@@ -1,8 +1,10 @@
 package com.almondtools.testrecorder;
 
 import java.lang.reflect.Type;
+import java.util.List;
 
 import com.almondtools.testrecorder.values.SerializedField;
+import com.almondtools.testrecorder.values.SerializedOutput;
 
 public class ContextSnapshot {
 
@@ -22,6 +24,8 @@ public class ContextSnapshot {
 	private SerializedValue expectException;
 	private SerializedValue[] expectArgs;
 	private SerializedField[] expectGlobals;
+	
+	private List<SerializedOutput> expectOutput;
 
 	public ContextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
 		this.declaringClass = declaringClass;
@@ -121,6 +125,14 @@ public class ContextSnapshot {
 
 	public void setExpectGlobals(SerializedField... expectGlobals) {
 		this.expectGlobals = expectGlobals;
+	}
+	
+	public List<SerializedOutput> getExpectOutput() {
+		return expectOutput;
+	}
+
+	public void setExpectOutput(List<SerializedOutput> expectOutput) {
+		this.expectOutput = expectOutput;
 	}
 
 }

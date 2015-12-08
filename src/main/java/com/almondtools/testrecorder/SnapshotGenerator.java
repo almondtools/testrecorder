@@ -3,6 +3,7 @@ package com.almondtools.testrecorder;
 import static com.almondtools.testrecorder.ConfigRegistry.loadConfig;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -81,9 +82,9 @@ public class SnapshotGenerator {
 		currentGenerator.set(this);
 	}
 
-	public void outputVariables(Class<?> clazz, String method, Object... args) {
+	public void outputVariables(Class<?> clazz, String method, Type[] paramTypes, Object... args) {
 		SnapshotProcess process = process();
-		process.outputVariables(clazz, method, args);
+		process.outputVariables(clazz, method, paramTypes, args);
 	}
 
 	public void expectVariables(Object result, Object... args) {

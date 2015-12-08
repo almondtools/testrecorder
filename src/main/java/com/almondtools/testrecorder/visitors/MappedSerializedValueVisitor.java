@@ -9,7 +9,6 @@ import com.almondtools.testrecorder.values.SerializedField;
 import com.almondtools.testrecorder.values.SerializedLiteral;
 import com.almondtools.testrecorder.values.SerializedNull;
 import com.almondtools.testrecorder.values.SerializedObject;
-import com.almondtools.testrecorder.values.SerializedOutput;
 
 public class MappedSerializedValueVisitor<T, S> implements SerializedValueVisitor<T>{
 
@@ -24,11 +23,6 @@ public class MappedSerializedValueVisitor<T, S> implements SerializedValueVisito
 	@Override
 	public T visitField(SerializedField field) {
 		return mapping.apply(field.accept(visitor));
-	}
-	
-	@Override
-	public T visitOutput(SerializedOutput output) {
-		return mapping.apply(output.accept(visitor));
 	}
 
 	@Override

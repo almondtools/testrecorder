@@ -1,21 +1,27 @@
 package com.almondtools.testrecorder.values;
 
+import static java.util.stream.Collectors.joining;
+
+import java.lang.reflect.Type;
+import java.util.stream.Stream;
+
 import com.almondtools.testrecorder.SerializedValue;
-import com.almondtools.testrecorder.SerializedValueVisitor;
 import com.almondtools.testrecorder.visitors.SerializedValuePrinter;
 
 public class SerializedOutput {
 
 	private Class<?> clazz;
 	private String name;
+	private Type[] types;
 	private SerializedValue[] values;
 
-	public SerializedOutput(Class<?> clazz, String name, SerializedValue... values) {
+	public SerializedOutput(Class<?> clazz, String name, Type[] types, SerializedValue... values) {
 		this.clazz = clazz;
 		this.name = name;
+		this.types = types;
 		this.values = values;
 	}
-	
+
 	public Class<?> getDeclaringClass() {
 		return clazz;
 	}
@@ -23,23 +29,28 @@ public class SerializedOutput {
 	public String getName() {
 		return name;
 	}
+	
+	public Type[] getTypes() {
+		return types;
+	}
 
 	public SerializedValue[] getValues() {
 		return values;
 	}
 
-	public <T> T accept(SerializedValueVisitor<T> visitor) {
-		return visitor.visitOutput(this);
+	@Override
+	public String toString() {
+		SerializedValuePrinter printer = new SerializedValuePrinter();
+		return ">> " + clazz.getTypeName() + "." + name + Stream.of(values)
+			.map(value -> value.accept(printer))
+			.collect(joining(", ", "(", ")"));
 	}
 
 	@Override
-	public String toString() {
-		return accept(new SerializedValuePrinter());
-	}
-	
-	@Override
 	public int hashCode() {
-		return name.hashCode() * 29
+		return clazz.hashCode() * 37 
+			+ name.hashCode() * 29
+			+ types.hashCode() * 11
 			+ values.hashCode();
 	}
 
@@ -57,8 +68,8 @@ public class SerializedOutput {
 		SerializedOutput that = (SerializedOutput) obj;
 		return this.clazz.equals(that.clazz)
 			&& this.name.equals(that.name)
+			&& this.types.equals(that.types)
 			&& this.values.equals(that.values);
 	}
-
 
 }

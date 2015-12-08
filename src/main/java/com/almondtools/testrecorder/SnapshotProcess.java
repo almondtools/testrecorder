@@ -11,7 +11,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import com.almondtools.testrecorder.values.SerializedField;
 import com.almondtools.testrecorder.values.SerializedOutput;
@@ -38,11 +37,8 @@ public class SnapshotProcess {
 		return snapshot;
 	}
 	
-	public void outputVariables(Class<?> clazz, String method, Object[] args) {
-		Type[] classes = Stream.of(args)
-			.map(Object::getClass)
-			.toArray(Type[]::new);
-		output.add(new SerializedOutput(clazz, method, facade.serialize(classes, args)));
+	public void outputVariables(Class<?> clazz, String method, Type[] paramTypes, Object[] args) {
+		output.add(new SerializedOutput(clazz, method, paramTypes, facade.serialize(paramTypes, args)));
 	}
 
 	public void setupVariables(String signature, Object self, Object... args) {
@@ -63,6 +59,7 @@ public class SnapshotProcess {
 			snapshot.setExpectGlobals(globals.stream()
 				.map(field -> facade.serialize(field, null))
 				.toArray(SerializedField[]::new));
+			snapshot.setExpectOutput(output);
 		});
 	}
 
@@ -73,6 +70,7 @@ public class SnapshotProcess {
 			snapshot.setExpectGlobals(globals.stream()
 				.map(field -> facade.serialize(field, null))
 				.toArray(SerializedField[]::new));
+			snapshot.setExpectOutput(output);
 		});
 	}
 	
@@ -84,6 +82,7 @@ public class SnapshotProcess {
 			snapshot.setExpectGlobals(globals.stream()
 				.map(field -> facade.serialize(field, null))
 				.toArray(SerializedField[]::new));
+			snapshot.setExpectOutput(output);
 		});
 	}
 

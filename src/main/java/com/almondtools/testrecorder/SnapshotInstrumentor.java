@@ -410,9 +410,10 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		
 		insnList.add(new LdcInsnNode(Type.getObjectType(classNode.name)));
 		insnList.add(new LdcInsnNode(methodNode.name));
+		insnList.add(pushMethodArgumentTypes(methodNode));
 		insnList.add(pushMethodArguments(methodNode));
 		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getInternalName(SnapshotGenerator.class), "outputVariables",
-			Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "outputVariables", Class.class, String.class, Object[].class)), false));
+			Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "outputVariables", Class.class, String.class, java.lang.reflect.Type[].class, Object[].class)), false));
 		insnList.add(new JumpInsnNode(Opcodes.GOTO, done));
 		insnList.add(skip);
 		insnList.add(new InsnNode(POP));
@@ -420,29 +421,48 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		return insnList;
 	}
 
-	private InsnList pushMethodArguments(MethodNode methodNode) {
-		int params = Type.getArgumentTypes(methodNode.desc).length;
+	private InsnList pushMethodArgumentTypes(MethodNode methodNode) {
+		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
+		int params = argumentTypes.length;
 
 		InsnList insnList = new InsnList();
 
 		insnList.add(new LdcInsnNode(params));
-		insnList.add(new TypeInsnNode(Opcodes.ANEWARRAY, Type.getInternalName(Object.class)));
+		insnList.add(new TypeInsnNode(Opcodes.ANEWARRAY, Type.getInternalName(java.lang.reflect.Type.class)));
 
 		for (int i = 0; i < params; i++) {
 			insnList.add(new InsnNode(DUP));
 			insnList.add(new LdcInsnNode(i));
-			LocalVariableNode node = (LocalVariableNode) methodNode.localVariables.get(i + 1);
-			Type type = Type.getType(node.desc);
-			insnList.add(new VarInsnNode(type.getOpcode(ILOAD), i + 1));
-
-			insnList.add(boxPrimitives(type));
-
+			insnList.add(new LdcInsnNode(argumentTypes[i]));
 			insnList.add(new InsnNode(AASTORE));
 		}
 		return insnList;
 
 	}
 
+	private InsnList pushMethodArguments(MethodNode methodNode) {
+		int params = Type.getArgumentTypes(methodNode.desc).length;
+		
+		InsnList insnList = new InsnList();
+		
+		insnList.add(new LdcInsnNode(params));
+		insnList.add(new TypeInsnNode(Opcodes.ANEWARRAY, Type.getInternalName(Object.class)));
+		
+		for (int i = 0; i < params; i++) {
+			insnList.add(new InsnNode(DUP));
+			insnList.add(new LdcInsnNode(i));
+			LocalVariableNode node = (LocalVariableNode) methodNode.localVariables.get(i + 1);
+			Type type = Type.getType(node.desc);
+			insnList.add(new VarInsnNode(type.getOpcode(ILOAD), i + 1));
+			
+			insnList.add(boxPrimitives(type));
+			
+			insnList.add(new InsnNode(AASTORE));
+		}
+		return insnList;
+		
+	}
+	
 	private AbstractInsnNode pushType(Type type) {
 		if (type.getDescriptor().length() == 1) {
 			Class<?> boxedType = getBoxedType(type.getDescriptor().charAt(0));

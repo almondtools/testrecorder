@@ -7,7 +7,6 @@ import com.almondtools.testrecorder.values.SerializedField;
 import com.almondtools.testrecorder.values.SerializedLiteral;
 import com.almondtools.testrecorder.values.SerializedNull;
 import com.almondtools.testrecorder.values.SerializedObject;
-import com.almondtools.testrecorder.values.SerializedOutput;
 
 public class TestValueVisitor implements SerializedValueVisitor<String> {
 
@@ -19,11 +18,6 @@ public class TestValueVisitor implements SerializedValueVisitor<String> {
 	@Override
 	public String visitObject(SerializedObject value) {
 		return "object";
-	}
-	
-	@Override
-	public String visitOutput(SerializedOutput output) {
-		return ">>";
 	}
 
 	@Override
