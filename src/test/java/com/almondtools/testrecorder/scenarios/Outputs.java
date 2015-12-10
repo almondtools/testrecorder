@@ -21,6 +21,5 @@ public class Outputs {
 	
 	@SnapshotOutput
 	public void print(String s) {
-		System.out.println("out:" + s);
 	}
 }

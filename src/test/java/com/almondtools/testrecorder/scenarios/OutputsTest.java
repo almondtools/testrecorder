@@ -48,7 +48,6 @@ public class OutputsTest {
 		out.recorded();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded(out);
-		System.out.println(testGenerator.renderTest(Outputs.class));
 		assertThat(testGenerator.renderTest(Outputs.class), testsRuns());
 	}
 	

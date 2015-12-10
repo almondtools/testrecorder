@@ -107,7 +107,7 @@ public class TestGenerator implements SnapshotConsumer {
 	private Map<Class<?>, Set<String>> tests;
 	private Set<String> fields;
 	private Set<String> outputClasses;
-	private String before;
+	private Class<? extends Runnable> initializer;
 
 	public TestGenerator(Class<? extends Runnable> initializer) {
 		this.imports = new ImportManager();
@@ -115,21 +115,11 @@ public class TestGenerator implements SnapshotConsumer {
 		this.setup = new ObjectToSetupCode.Factory();
 		this.matcher = new ObjectToMatcherCode.Factory();
 
-		this.before = createBefore(initializer);
+		this.initializer = initializer;
 
 		this.tests = synchronizedMap(new LinkedHashMap<>());
 		this.fields = new LinkedHashSet<>();
 		this.outputClasses = new LinkedHashSet<>();
-	}
-
-	private String createBefore(Class<? extends Runnable> initializer) {
-		if (initializer == null) {
-			return "";
-		}
-		imports.registerImport(initializer);
-		String initObject = newObject(getSimpleName(initializer));
-		String initStmt = callMethodStatement(initObject, "run");
-		return generateBefore(asList(initStmt));
 	}
 
 	public String generateBefore(List<String> statements) {
@@ -203,7 +193,7 @@ public class TestGenerator implements SnapshotConsumer {
 		file.add("runner", computeRunner());
 		file.add("className", computeClassName(clazz));
 		file.add("fields", fields);
-		file.add("before", before);
+		file.add("before", computeBefore());
 		file.add("methods", localtests);
 
 		return file.render();
@@ -213,6 +203,10 @@ public class TestGenerator implements SnapshotConsumer {
 		if (outputClasses.isEmpty()) {
 			return null;
 		}
+		if (initializer != null) {
+			outputClasses.add(initializer.getTypeName());
+		}
+		
 		ST runner = new ST(RUNNER);
 		runner.add("runner", ExpectedOutputRecorder.class.getSimpleName());
 
@@ -221,6 +215,16 @@ public class TestGenerator implements SnapshotConsumer {
 
 		return runner.render()
 			+ recordedOutput.render();
+	}
+
+	private String computeBefore() {
+		if (initializer == null) {
+			return "";
+		}
+		imports.registerImport(initializer);
+		String initObject = newObject(getSimpleName(initializer));
+		String initStmt = callMethodStatement(initObject, "run");
+		return generateBefore(asList(initStmt));
 	}
 
 	public String computeClassName(Class<?> clazz) {
@@ -269,7 +273,7 @@ public class TestGenerator implements SnapshotConsumer {
 						.collect(toList()));
 
 					List<String> arguments = Stream.concat(
-						asList(classOf(out.getDeclaringClass().getName()), stringOf(out.getName())).stream(),
+						asList(classOf(out.getDeclaringClass().getSimpleName()), stringOf(out.getName())).stream(),
 						args.stream()
 							.map(arg -> arg.getValue()))
 						.collect(toList());
