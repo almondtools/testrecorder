@@ -13,15 +13,20 @@ public final class Templates {
 	private static final String GENERIC_OBJECT_CONVERTER = "new GenericObject() {\n<fields; separator=\"\\n\">\n}.as(<type>.class)";
 	private static final String ARRAY_LITERAL = "new <type>{<elements; separator=\", \">}";
 	private static final String NEW_OBJECT = "new <type>(<args; separator=\", \">)";
+	private static final String FIELD_ACCESS_EXP = "<base>.<field>";
+	private static final String CALL_METHOD_EXP = "<base>.<method>(<arguments; separator=\", \">)";
+	private static final String CALL_LOCAL_METHOD_EXP = "<method>(<arguments; separator=\", \">)";
+	private static final String CAST_EXP = "(<type>) <expression>";
 
+	private static final String FIELD_DECLARATION = "<modifiers> <type> <name>;";
 	private static final String EXPRESSION_STMT = "<value>;";
 	private static final String ASSIGN_FIELD_STMT = "<base>.<field> = <value>;";
 	private static final String ASSIGN_LOCAL_VARIABLE_STMT = "<type> <name> = <value>;";
 	private static final String CALL_METHOD_STMT = "<base>.<method>(<arguments; separator=\", \">);";
+	private static final String CALL_METHOD_CHAIN_STMT = "<base>.<methods;separator=\".\">;";
 	private static final String CALL_LOCAL_METHOD_STMT = "<method>(<arguments; separator=\", \">);";
 	private static final String RETURN_STMT = "return <value>;";
-	private static final String FIELD_ACCESS_EXP = "<base>.<field>";
-	private static final String CAST_EXP = "(<type>) <expression>";
+
 
 	private static final String GENERIC_TYPE = "$type$<$typeParam; separator=\", \"$>";
 
@@ -148,6 +153,14 @@ public final class Templates {
 		}
 	}
 
+	public static String classOf(String name) {
+		return name + ".class";
+	}
+
+	public static String stringOf(String name) {
+		return asLiteral(name);
+	}
+
 	public static String expressionStatement(String value) {
 		ST statement = new ST(EXPRESSION_STMT);
 		statement.add("value", value);
@@ -159,6 +172,23 @@ public final class Templates {
 		ST statement = new ST(FIELD_ACCESS_EXP);
 		statement.add("base", base);
 		statement.add("field", field);
+
+		return statement.render();
+	}
+
+	public static String callMethod(String base, String method, List<String> arguments) {
+		ST statement = new ST(CALL_METHOD_EXP);
+		statement.add("base", base);
+		statement.add("method", method);
+		statement.add("arguments", arguments);
+
+		return statement.render();
+	}
+
+	public static String callLocalMethod(String method, List<String> arguments) {
+		ST statement = new ST(CALL_LOCAL_METHOD_EXP);
+		statement.add("method", method);
+		statement.add("arguments", arguments);
 
 		return statement.render();
 	}
@@ -178,15 +208,24 @@ public final class Templates {
 		return statement.render();
 	}
 
+	public static String fieldDeclaration(String modifiers, String type, String name) {
+		ST assign = new ST(FIELD_DECLARATION);
+		assign.add("modifiers", modifiers);
+		assign.add("type", type);
+		assign.add("name", name);
+
+		return assign.render();
+	}
+
 	public static String assignLocalVariableStatement(String type, String name, String value) {
 		ST assign = new ST(ASSIGN_LOCAL_VARIABLE_STMT);
 		assign.add("type", type);
 		assign.add("name", name);
 		assign.add("value", value);
-
+		
 		return assign.render();
 	}
-
+	
 	public static String assignFieldStatement(String base, String field, String value) {
 		ST assign = new ST(ASSIGN_FIELD_STMT);
 		assign.add("base", base);
@@ -201,6 +240,14 @@ public final class Templates {
 		call.add("base", base);
 		call.add("method", method);
 		call.add("arguments", arguments);
+
+		return call.render();
+	}
+
+	public static String callMethodChainStatement(String base, List<String> methods) {
+		ST call = new ST(CALL_METHOD_CHAIN_STMT);
+		call.add("base", base);
+		call.add("methods", methods);
 
 		return call.render();
 	}

@@ -5,11 +5,18 @@ import static com.almondtools.testrecorder.TypeHelper.getBase;
 import static com.almondtools.testrecorder.TypeHelper.getSimpleName;
 import static com.almondtools.testrecorder.TypeHelper.isPrimitive;
 import static com.almondtools.testrecorder.visitors.Templates.assignFieldStatement;
+import static com.almondtools.testrecorder.visitors.Templates.assignLocalVariableStatement;
+import static com.almondtools.testrecorder.visitors.Templates.callLocalMethod;
 import static com.almondtools.testrecorder.visitors.Templates.callLocalMethodStatement;
+import static com.almondtools.testrecorder.visitors.Templates.callMethod;
+import static com.almondtools.testrecorder.visitors.Templates.callMethodChainStatement;
 import static com.almondtools.testrecorder.visitors.Templates.callMethodStatement;
+import static com.almondtools.testrecorder.visitors.Templates.classOf;
 import static com.almondtools.testrecorder.visitors.Templates.expressionStatement;
 import static com.almondtools.testrecorder.visitors.Templates.fieldAccess;
+import static com.almondtools.testrecorder.visitors.Templates.fieldDeclaration;
 import static com.almondtools.testrecorder.visitors.Templates.newObject;
+import static com.almondtools.testrecorder.visitors.Templates.stringOf;
 import static java.lang.Character.toUpperCase;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
@@ -41,16 +48,20 @@ import java.util.stream.Stream;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.stringtemplate.v4.ST;
 
+import com.almondtools.testrecorder.util.ExpectedOutput;
+import com.almondtools.testrecorder.util.ExpectedOutputRecorder;
+import com.almondtools.testrecorder.util.RecordOutput;
 import com.almondtools.testrecorder.values.SerializedField;
+import com.almondtools.testrecorder.values.SerializedOutput;
 import com.almondtools.testrecorder.visitors.Computation;
 import com.almondtools.testrecorder.visitors.ImportManager;
 import com.almondtools.testrecorder.visitors.LocalVariableNameGenerator;
 import com.almondtools.testrecorder.visitors.ObjectToMatcherCode;
 import com.almondtools.testrecorder.visitors.ObjectToSetupCode;
 import com.almondtools.testrecorder.visitors.SerializedValueVisitorFactory;
-import com.almondtools.testrecorder.visitors.Templates;
 
 public class TestGenerator implements SnapshotConsumer {
 
@@ -62,12 +73,19 @@ public class TestGenerator implements SnapshotConsumer {
 	private static final String TEST_FILE = "package <package>;\n\n"
 		+ "<imports: {pkg | import <pkg>;\n}>"
 		+ "\n\n\n"
+		+ "<runner>"
 		+ "public class <className> {\n"
 		+ "\n"
-		+ "  <before>"
+		+ "  <fields; separator=\"\\n\">\n"
+		+ "\n"
+		+ "  <before>\n"
 		+ "\n"
 		+ "  <methods; separator=\"\\n\">"
 		+ "\n}";
+
+	private static final String RUNNER = "@RunWith(<runner>.class)\n";
+
+	private static final String RECORDED_OUTPUT = "@RecordOutput({<classes : {class | \"<class>\"};separator=\", \">})\n";
 
 	private static final String BEFORE_TEMPLATE = "@Before\n"
 		+ "public void before() throws Exception {\n"
@@ -87,6 +105,8 @@ public class TestGenerator implements SnapshotConsumer {
 	private SerializedValueVisitorFactory setup;
 	private SerializedValueVisitorFactory matcher;
 	private Map<Class<?>, Set<String>> tests;
+	private Set<String> fields;
+	private Set<String> outputClasses;
 	private String before;
 
 	public TestGenerator(Class<? extends Runnable> initializer) {
@@ -95,8 +115,11 @@ public class TestGenerator implements SnapshotConsumer {
 		this.setup = new ObjectToSetupCode.Factory();
 		this.matcher = new ObjectToMatcherCode.Factory();
 
-		this.tests = synchronizedMap(new LinkedHashMap<>());
 		this.before = createBefore(initializer);
+
+		this.tests = synchronizedMap(new LinkedHashMap<>());
+		this.fields = new LinkedHashSet<>();
+		this.outputClasses = new LinkedHashSet<>();
 	}
 
 	private String createBefore(Class<? extends Runnable> initializer) {
@@ -105,7 +128,7 @@ public class TestGenerator implements SnapshotConsumer {
 		}
 		imports.registerImport(initializer);
 		String initObject = newObject(getSimpleName(initializer));
-		String initStmt = Templates.callMethodStatement(initObject, "run");
+		String initStmt = callMethodStatement(initObject, "run");
 		return generateBefore(asList(initStmt));
 	}
 
@@ -153,6 +176,8 @@ public class TestGenerator implements SnapshotConsumer {
 
 	public void clearResults() {
 		tests.clear();
+		this.fields = new LinkedHashSet<>();
+		this.outputClasses = new LinkedHashSet<>();
 	}
 
 	private Path locateTestFile(Path dir, Class<?> clazz) throws IOException {
@@ -175,11 +200,27 @@ public class TestGenerator implements SnapshotConsumer {
 		ST file = new ST(TEST_FILE);
 		file.add("package", clazz.getPackage().getName());
 		file.add("imports", imports.getImports());
+		file.add("runner", computeRunner());
 		file.add("className", computeClassName(clazz));
+		file.add("fields", fields);
 		file.add("before", before);
 		file.add("methods", localtests);
 
 		return file.render();
+	}
+
+	private String computeRunner() {
+		if (outputClasses.isEmpty()) {
+			return null;
+		}
+		ST runner = new ST(RUNNER);
+		runner.add("runner", ExpectedOutputRecorder.class.getSimpleName());
+
+		ST recordedOutput = new ST(RECORDED_OUTPUT);
+		recordedOutput.add("classes", outputClasses);
+
+		return runner.render()
+			+ recordedOutput.render();
 	}
 
 	public String computeClassName(Class<?> clazz) {
@@ -209,19 +250,53 @@ public class TestGenerator implements SnapshotConsumer {
 		public MethodGenerator generateArrange() {
 			statements.add(BEGIN_ARRANGE);
 
+			List<SerializedOutput> serializedOutput = snapshot.getExpectOutput();
+			if (serializedOutput != null && !serializedOutput.isEmpty()) {
+				imports.registerImports(RunWith.class, RecordOutput.class, ExpectedOutputRecorder.class, ExpectedOutput.class);
+				fields.add(fieldDeclaration("public", ExpectedOutput.class.getSimpleName(), "expectedOutput"));
+
+				List<String> methods = new ArrayList<>();
+				for (SerializedOutput out : serializedOutput) {
+					imports.registerImport(out.getDeclaringClass());
+					outputClasses.add(out.getDeclaringClass().getTypeName());
+
+					List<Computation> args = Stream.of(out.getValues())
+						.map(arg -> arg.accept(matcher.create(locals, imports)))
+						.collect(toList());
+
+					statements.addAll(args.stream()
+						.flatMap(arg -> arg.getStatements().stream())
+						.collect(toList()));
+
+					List<String> arguments = Stream.concat(
+						asList(classOf(out.getDeclaringClass().getName()), stringOf(out.getName())).stream(),
+						args.stream()
+							.map(arg -> arg.getValue()))
+						.collect(toList());
+
+					methods.add(callLocalMethod("calling", arguments));
+				}
+				String outputExpectation = callMethodChainStatement("expectedOutput", methods);
+				statements.add(outputExpectation);
+			}
+
 			SerializedValueVisitor<Computation> setupCode = setup.create(locals, imports);
 			Computation setupThis = snapshot.getSetupThis().accept(setupCode);
+
+			statements.addAll(setupThis.getStatements());
+
 			List<Computation> setupArgs = Stream.of(snapshot.getSetupArgs())
 				.map(arg -> arg.accept(setupCode))
 				.collect(toList());
+
+			statements.addAll(setupArgs.stream()
+				.flatMap(arg -> arg.getStatements().stream())
+				.collect(toList()));
+
 			List<Computation> setupGlobals = Stream.of(snapshot.getSetupGlobals())
 				.map(global -> assignGlobal(global.getDeclaringClass(), global.getName(), global.getValue().accept(setupCode)))
 				.collect(toList());
 
-			statements.addAll(setupThis.getStatements());
-			statements.addAll(setupArgs.stream()
-				.flatMap(arg -> arg.getStatements().stream())
-				.collect(toList()));
 			statements.addAll(setupGlobals.stream()
 				.flatMap(arg -> arg.getStatements().stream())
 				.collect(toList()));
@@ -251,7 +326,7 @@ public class TestGenerator implements SnapshotConsumer {
 			Type resultType = snapshot.getResultType();
 			String methodName = snapshot.getMethodName();
 
-			String statement = callMethodStatement(base, methodName, args);
+			String statement = callMethod(base, methodName, args);
 			if (resultType != void.class) {
 				result = assign(resultType, statement, true);
 			} else {
@@ -270,11 +345,15 @@ public class TestGenerator implements SnapshotConsumer {
 				.map(o -> createAssertion(o, result))
 				.orElse(emptyList());
 
+			statements.addAll(expectResult);
+
 			List<String> expectThis = Optional.of(snapshot.getExpectThis())
 				.filter(o -> !o.equals(snapshot.getSetupThis()))
 				.map(o -> o.accept(matcher.create(locals, imports)))
 				.map(o -> createAssertion(o, base))
 				.orElse(emptyList());
+
+			statements.addAll(expectThis);
 
 			Type[] argumentTypes = snapshot.getArgumentTypes();
 			SerializedValue[] serializedArgs = snapshot.getExpectArgs();
@@ -285,6 +364,8 @@ public class TestGenerator implements SnapshotConsumer {
 				.flatMap(statements -> statements.stream())
 				.collect(toList());
 
+			statements.addAll(expectArgs);
+
 			SerializedField[] serializedGlobals = snapshot.getExpectGlobals();
 			List<String> expectGlobals = IntStream.range(0, serializedGlobals.length)
 				.filter(i -> !isImmutable(serializedGlobals[i].getType()))
@@ -294,10 +375,12 @@ public class TestGenerator implements SnapshotConsumer {
 				.flatMap(statements -> statements.stream())
 				.collect(toList());
 
-			statements.addAll(expectResult);
-			statements.addAll(expectThis);
-			statements.addAll(expectArgs);
 			statements.addAll(expectGlobals);
+
+			List<SerializedOutput> serializedOutput = snapshot.getExpectOutput();
+			if (serializedOutput != null && !serializedOutput.isEmpty()) {
+				statements.add(callMethodStatement("expectedOutput", "verify"));
+			}
 
 			return this;
 		}
@@ -323,7 +406,7 @@ public class TestGenerator implements SnapshotConsumer {
 			} else {
 				String name = locals.fetchName(type);
 
-				statements.add(Templates.assignLocalVariableStatement(getSimpleName(type), name, value));
+				statements.add(assignLocalVariableStatement(getSimpleName(type), name, value));
 
 				return name;
 			}

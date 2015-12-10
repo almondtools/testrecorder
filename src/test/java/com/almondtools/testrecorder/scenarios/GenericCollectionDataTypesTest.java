@@ -9,9 +9,12 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import com.almondtools.testrecorder.ConfigRegistry;
+import com.almondtools.testrecorder.DefaultConfig;
 import com.almondtools.testrecorder.TestGenerator;
 import com.almondtools.testrecorder.util.Instrumented;
 import com.almondtools.testrecorder.util.InstrumentedClassLoaderRunner;
@@ -20,6 +23,11 @@ import com.almondtools.testrecorder.util.InstrumentedClassLoaderRunner;
 @Instrumented(classes={"com.almondtools.testrecorder.scenarios.GenericCollectionDataTypes"})
 public class GenericCollectionDataTypesTest {
 
+	@Before
+	public void before() throws Exception {
+		((TestGenerator) ConfigRegistry.loadConfig(DefaultConfig.class).getSnapshotConsumer()).clearResults();
+	}
+	
 	@Test
 	public void testCompilable() throws Exception {
 		List<BigInteger> bigInts = new ArrayList<>();
