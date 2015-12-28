@@ -31,7 +31,7 @@ Generating Tests from Productive Code
 - you will also need the jar with dependencies
 - annotate the methods you want to record with `@Snapshot`
 - Write a class `YourConfig implements SnapshotConfig` and configure it
-- start your application with `-javaagent:testrecorder-jar-with-dependencies.jar=YourConfig com.almondtools.testrecorder.examples.FizzBuzz`
+- start your application with `-javaagent:testrecorder-jar-with-dependencies.jar=YourConfig`
 - examples can be found at [testrecorder-examples](https://github.com/almondtools/testrecorder-examples)
 
 Assumptions and Restrictions
