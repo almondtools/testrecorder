@@ -18,7 +18,11 @@ Serializing any Object as Hamcrest Matcher Code
 ===============================================
 Serializing an object to matcher code  is done like this:
 
-	MatcherSerializer codeSerializer = new MatcherSerializer();
+	SerializationProfile profile = new DefaultSerializationProfile();
+	SerializerFacade facade = new ConfigurableSerializerFacade(profile);
+	SerializedValueVisitorFactory factory = new ObjectToMatcherCode.Factory();
+					
+	CodeSerializer codeSerializer = new CodeSerializer(facade, factory);
 	String code = codeSerializer.serialize(objectToSerialize);
 
 Generating Tests from Productive Code
