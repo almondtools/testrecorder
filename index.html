@@ -49,7 +49,128 @@
   </div>
               <div class="container">
                   <section>
+                  <div class="row">
+              <div class="col-md-push-8 col-md-4">
+            
+  </div>
+          <div class="col-md-pull-4 col-md-8">
+                  <p>                  <strong>Testrecorder</strong> is a tool for generating test code from running productive code. The resulting test code can be used as part of 
+                integration tests or unit tests. Even without reusing the generated code it could give valuable insights for code understanding. </p>
+              <p>                It is not recommended to replace a test-driven strategy with generated-test strategy but in many cases the productive code is
+                there and the tests are missing (experts call this   <em>legacy code</em>). In this case the first step should be to fix the current behavior
+                by creating integration tests. This task is often hard and thankless.   <strong>Testrecorder</strong> can support you in this case.</p>
+  </div>
+  </div>
+  </section>
+              <section>
               <h2>Usage</h2>
+              <div class="row">
+              <div class="col-md-push-8 col-md-4">
+                      <div class="panel panel-default">
+              <div class="panel-heading">
+      <h3 class="panel-title">Example Object</h3>
+  </div>
+          <div class="panel-body">
+                          <div>
+      <pre><code class="java">public class ExampleObject {
+    private String name;
+    
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+}</code></pre>
+  </div>
+  </div>
+  </div>
+  </div>
+          <div class="col-md-pull-4 col-md-8">
+                  <p>                The following examples will expect following code setup:
+                      <div>
+      <pre><code class="java">ExampleObject exampleObject = new ExampleObject();
+exampleObject.setName(&quot;Testrecorder&quot;);</code></pre>
+  </div></p>
+              <h3>Serializing any Object as constructing Java Code</h3>
+              <p>                Serializing an Object to constructing code is done this way:
+                      <div>
+      <pre><code class="java">CodeSerializer codeSerializer = new CodeSerializer();
+String code = codeSerializer.serialize(exampleObject);</code></pre>
+  </div></p>
+              <p>                The string       <code >code</code> will then contain:
+                      <div>
+      <pre><code class="java">ExampleObject exampleObject1 = new ExampleObject();
+exampleObject1.setName(&quot;Testrecorder&quot;);
+ExampleObject serializedObject1 = exampleObject1;</code></pre>
+  </div></p>
+              <div class="alert alert-info" role="alert">
+                    Note that   <strong>Testrecorder</strong> recognizes the java bean property and uses it for constructing the object. Yet
+                  <strong>Testrecorder</strong> is not limited to java beans.
+  </div>
+            
+              <h3>Serializing any Object as Hamcrest Matcher Code</h3>
+              <p>                Serializing an Object to Hamcrest matcher code affords some more work:
+                      <div>
+      <pre><code class="java"> SerializationProfile profile = new DefaultSerializationProfile();
+ SerializerFacade facade = new ConfigurableSerializerFacade(profile);
+ SerializedValueVisitorFactory factory = new ObjectToMatcherCode.Factory();
+ 
+ CodeSerializer codeSerializer = new CodeSerializer(facade, factory);
+ String code = codeSerializer.serialize(objectToSerialize);</code></pre>
+  </div></p>
+              <p>                The string       <code >code</code> will then contain:
+                      <div>
+      <pre><code class="java">Matcher&lt;ExampleObject&gt; serializedObject1 = new GenericMatcher() {
+    String name = &quot;Testrecorder&quot;;
+}.matching(ExampleObject.class);</code></pre>
+  </div></p>
+              <div class="alert alert-info" role="alert">
+                    Note that   <strong>Testrecorder</strong> generates a compact custom matcher for this object. One could argue that a java bean could
+                be tested by doing assertions on the properties. But this does not scale well if many properties are involved or if the properties
+                themselves are objects.
+  </div>
+            
+              <h3>Serializing is configurable</h3>
+              <p>                As could be seen in the section for Hamcrest Matcher Code, there are several classes than can be adjusted to
+                change the way the code is serialized. So if somebody decides that the current matcher code is not in readable form, he might
+                write a new       <code >SerializedValueVisitorFactory</code> that serializes small beans as a sequence of property assertions.</p>
+            
+  </div>
+  </div>
+              <div class="row">
+              <div class="col-md-push-8 col-md-4">
+            
+  </div>
+          <div class="col-md-pull-4 col-md-8">
+                  <h3>Generating Tests from Productive Code</h3>
+              <p>                  <ul>
+                          <li>put the test recorder jar on your class path</li>
+                      <li>you will also need the jar with dependencies</li>
+                      <li>annotate the methods you want to record with       <code >@Snapshot</code></li>
+                      <li>Write a class       <code >YourConfig implements SnapshotConfig</code> and configure it</li>
+                      <li>start your application with       <code >-javaagent:testrecorder-jar-with-dependencies.jar=YourConfig</code></li>
+                      <li>examples can be found at   <a href="https://github.com/almondtools/testrecorder-examples">
+    Testrecorder Examples
+  </a></li>
+  </ul></p>
+  </div>
+  </div>
+  </section>
+              <section>
+              <h2>More about Testrecorder</h2>
+          <p>            The current power of Testrecorder is beyond that mentioned in the examples. Testrecorder can:   <ul>
+                      <li>serialize objects by constructor, by property setters or by using a combination of both</li>
+                  <li>fallback to object construction by reflection if the upper will not work (it is quite readable compared to the java reflection api)</li>
+                  <li>deal with (most) java generics problems (reduced errors/warnings in generated code)</li>
+  </ul>
+            To get an impression on the full power you may visit   <a href="https://github.com/almondtools/testrecorder">
+      <strong>Testrecorder on GitHub</strong>
+  </a> or 
+              <a href="https://github.com/almondtools/testrecorder-examples">
+      <strong>Testrecorder Examples on Github</strong>
+  </a>.</p>
   </section>
               <section>
               <h2>Authors</h2>
