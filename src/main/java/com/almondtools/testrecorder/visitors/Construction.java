@@ -1,6 +1,7 @@
 package com.almondtools.testrecorder.visitors;
 
 import static com.almondtools.testrecorder.util.GenericObject.getDefaultValue;
+import static com.almondtools.testrecorder.util.GenericObject.getNonDefaultValue;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -100,27 +101,35 @@ public class Construction {
 
 	private List<Object> buildFromConstructors() {
 		List<Object> objects = new ArrayList<>();
+
 		for (SerializedField field : serialized.getFields()) {
 			String fieldName = field.getName();
 			Object fieldValue = field.getValue().accept(deserializer);
 
 			for (Constructor<?> constructor : serialized.getValueType().getConstructors()) {
+				List<ConstructorParam> params = constructors.computeIfAbsent(constructor, key -> new ArrayList<>());
 				Class<?>[] parameterTypes = constructor.getParameterTypes();
 				for (int i = 0; i < parameterTypes.length; i++) {
 					Class<?> parameterType = parameterTypes[i];
 					if (matches(parameterType, fieldValue)) {
-						Object[] arguments = createArguments(fieldValue, parameterTypes, i);
+						Object uniqueFieldValue = isDefault(parameterType, fieldValue) ? getNonDefaultValue(parameterType) : fieldValue;
+						Object[] arguments = createArguments(uniqueFieldValue, parameterTypes, i);
 						try {
 							Object result = constructor.newInstance(arguments);
-							objects.add(result);
-							if (isSet(result, fieldName, fieldValue)) {
-								List<ConstructorParam> params = constructors.computeIfAbsent(constructor, key -> new ArrayList<>());
+							if (isSet(result, fieldName, uniqueFieldValue)) {
 								params.add(new ConstructorParam(constructor, i, field, fieldValue));
 							}
 						} catch (ReflectiveOperationException e) {
 							continue;
 						}
 					}
+				}
+				Object[] arguments = createArguments(params, parameterTypes);
+				try {
+					Object result = constructor.newInstance(arguments);
+					objects.add(result);
+				} catch (ReflectiveOperationException e) {
+					continue;
 				}
 			}
 		}
@@ -160,9 +169,13 @@ public class Construction {
 	}
 
 	private boolean matches(Class<?> type, Object value) {
-		return (!type.isPrimitive() && value == null)
-			|| (type.isPrimitive() && value != null && getDefaultValue(type).getClass() == value.getClass())
+		return isDefault(type, value)
 			|| type.isInstance(value);
+	}
+
+	private boolean isDefault(Class<?> type, Object value) {
+		return (!type.isPrimitive() && value == null)
+			|| (type.isPrimitive() && value != null && getDefaultValue(type).getClass() == value.getClass());
 	}
 
 	private boolean isSet(Object base, String fieldName, Object expectedValue) throws IllegalAccessException {
@@ -203,6 +216,20 @@ public class Construction {
 			} else {
 				arguments[i] = getDefaultValue(parameterTypes[i]);
 			}
+		}
+		return arguments;
+	}
+
+	private Object[] createArguments(List<ConstructorParam> params, Class<?>[] parameterTypes) {
+		Object[] arguments = new Object[parameterTypes.length];
+		for (int i = 0; i < parameterTypes.length; i++) {
+			final int paramNumber = i;
+			arguments[i] = params.stream()
+				.filter(param -> param.getParamNumber() == paramNumber)
+				.map(param -> param.getValue())
+				.filter(Objects::nonNull)
+				.findFirst()
+				.orElseGet(() -> getDefaultValue(parameterTypes[paramNumber]));
 		}
 		return arguments;
 	}

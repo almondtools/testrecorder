@@ -21,37 +21,37 @@ import com.almondtools.testrecorder.util.Instrumented;
 import com.almondtools.testrecorder.util.InstrumentedClassLoaderRunner;
 
 @RunWith(InstrumentedClassLoaderRunner.class)
-@Instrumented(classes={"com.almondtools.testrecorder.scenarios.ConstructorBean"})
-public class ConstructorBeanTest {
+@Instrumented(classes = { "com.almondtools.testrecorder.scenarios.AmbiguousConstructorBean" })
+public class AmbiguousConstructorBeanTest {
 
 	@Before
 	public void before() throws Exception {
 		((TestGenerator) ConfigRegistry.loadConfig(DefaultConfig.class).getSnapshotConsumer()).clearResults();
 	}
-	
+
 	@Test
 	public void testCompilable() throws Exception {
-		ConstructorBean bean = new ConstructorBean(22, new ConstructorBean(0, null));
-		
-		assertThat(bean.hashCode(), equalTo(191));
+		AmbiguousConstructorBean bean = new AmbiguousConstructorBean(22, 0, new AmbiguousConstructorBean(2, 4, null));
+
+		assertThat(bean.hashCode(), equalTo(217));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded(bean);
-		assertThat(testGenerator.renderTest(ConstructorBean.class), compiles());
-		assertThat(testGenerator.renderTest(ConstructorBean.class), testsRuns());
+		assertThat(testGenerator.renderTest(AmbiguousConstructorBean.class), compiles());
+		assertThat(testGenerator.renderTest(AmbiguousConstructorBean.class), testsRuns());
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testCode() throws Exception {
-		ConstructorBean bean = new ConstructorBean(22, new ConstructorBean(0, null));
-		
-		assertThat(bean.hashCode(), equalTo(191));
+		AmbiguousConstructorBean bean = new AmbiguousConstructorBean(22, 0, new AmbiguousConstructorBean(2, 4, null));
+
+		assertThat(bean.hashCode(), equalTo(217));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded(bean);
-		assertThat(testGenerator.testsFor(ConstructorBean.class), hasSize(2));
-		assertThat(testGenerator.testsFor(ConstructorBean.class), containsInAnyOrder(
-			allOf(containsPattern("new ConstructorBean(0, null)"), containsString("equalTo(13)")), 
-			allOf(containsPattern("new ConstructorBean(22, constructorBean?)"), containsString("equalTo(191)"))));
+		assertThat(testGenerator.testsFor(AmbiguousConstructorBean.class), hasSize(2));
+		assertThat(testGenerator.testsFor(AmbiguousConstructorBean.class), containsInAnyOrder(
+			allOf(containsPattern("new AmbiguousConstructorBean(2, 4, null)"), containsString("equalTo(15)")),
+			allOf(containsPattern("new AmbiguousConstructorBean(22, 0, ambiguousConstructorBean?)"), containsString("equalTo(217)"))));
 	}
 
 }

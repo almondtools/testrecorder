@@ -33,4 +33,8 @@ public class SetterParam {
 		return field.getValue();
 	}
 
+	@Override
+	public String toString() {
+		return method.toString() + "=" + field.getValue() + "=> " + field.getName();
+	}
 }

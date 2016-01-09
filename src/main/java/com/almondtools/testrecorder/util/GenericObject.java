@@ -63,9 +63,36 @@ public abstract class GenericObject {
 			return (long) 0;
 		} else if (clazz == double.class) {
 			return (double) 0;
-		} else{
+		} else {
 			return null;
 		}
+	}
+
+	public static Object getNonDefaultValue(Class<?> clazz) {
+		if (clazz == boolean.class) {
+			return true;
+		} else if (clazz == char.class) {
+			return (char) 1;
+		} else if (clazz == byte.class) {
+			return (byte) 1;
+		} else if (clazz == short.class) {
+			return (short) 1;
+		} else if (clazz == int.class) {
+			return (int) 1;
+		} else if (clazz == float.class) {
+			return (float) 1;
+		} else if (clazz == long.class) {
+			return (long) 1;
+		} else if (clazz == double.class) {
+			return (double) 1;
+		}
+		try {
+			return new GenericObject() {
+			}.as(clazz);
+		} catch (GenericObjectException e) {
+			return null;
+		}
+
 	}
 
 	public <T> T as(Supplier<T> constructor) {
@@ -112,15 +139,17 @@ public abstract class GenericObject {
 		throw new GenericObjectException(new NoSuchFieldException(name));
 	}
 
-
 	public List<Field> getGenericFields() {
 		Field[] declaredFields = getClass().getDeclaredFields();
 		return Stream.of(declaredFields)
 			.filter(field -> isSerializable(field))
-			.map(field -> {field.setAccessible(true); return field;})
+			.map(field -> {
+				field.setAccessible(true);
+				return field;
+			})
 			.collect(toList());
 	}
-	
+
 	private boolean isSerializable(Field field) {
 		return !field.isSynthetic()
 			&& field.getName().indexOf('$') < 0

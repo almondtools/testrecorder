@@ -34,4 +34,8 @@ public class ConstructorParam {
 		return value;
 	}
 
+	@Override
+	public String toString() {
+		return constructor.toString() + ":" + paramNumber + "=" + field.getValue() + "=> " + field.getName();
+	}
 }
