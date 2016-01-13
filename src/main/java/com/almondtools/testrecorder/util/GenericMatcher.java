@@ -4,7 +4,9 @@ import static com.almondtools.testrecorder.util.GenericComparison.getValue;
 import static org.hamcrest.Matchers.instanceOf;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 import org.hamcrest.Description;
@@ -15,11 +17,11 @@ import org.hamcrest.TypeSafeMatcher;
 public class GenericMatcher extends GenericObject {
 
 	public <T> Matcher<T> matching(Class<T> clazz) {
-		return new InternalsMatcher<T>();
+		return new InternalsMatcher<T>(clazz);
 	}
 
 	public <T, S> Matcher<S> matching(Class<T> clazz, Class<S> to) {
-		return new CastingMatcher<>(to, new InternalsMatcher<T>());
+		return new CastingMatcher<>(to, new InternalsMatcher<T>(clazz));
 	}
 
 	public boolean matches(Object o) {
@@ -51,8 +53,15 @@ public class GenericMatcher extends GenericObject {
 
 	private class InternalsMatcher<T> extends TypeSafeMatcher<T> {
 
+		private Class<T> clazz;
+
+		public InternalsMatcher(Class<T> clazz) {
+			this.clazz = clazz;
+		}
+
 		@Override
 		public void describeTo(Description description) {
+			description.appendText("of class : ").appendValue(clazz.getName()).appendText("\n");
 			description.appendText("with fields:");
 			for (Field field : getGenericFields()) {
 				describeField(description, field, GenericMatcher.this);
@@ -61,15 +70,33 @@ public class GenericMatcher extends GenericObject {
 
 		@Override
 		protected boolean matchesSafely(T item) {
-			return GenericMatcher.this.matches(item);
+			return clazz == item.getClass()
+				&& GenericMatcher.this.matches(item);
 		}
 
 		@Override
 		protected void describeMismatchSafely(T item, Description mismatchDescription) {
-			mismatchDescription.appendText("with fields:");
-			for (Field field : item.getClass().getDeclaredFields()) {
-				describeField(mismatchDescription, field, item);
+			if (item == null) {
+				mismatchDescription.appendText("is").appendValue(null);
+			} else {
+				mismatchDescription.appendText("of class : ").appendValue(item.getClass().getName()).appendText("\n");
+				mismatchDescription.appendText("with fields:");
+				for (Field field : fields(item.getClass())) {
+					describeField(mismatchDescription, field, item);
+				}
 			}
+		}
+
+		private List<Field> fields(Class<?> clazz) {
+			List<Field> fields = new ArrayList<>();
+			while (clazz != null && clazz != Object.class) {
+				for (Field field : clazz.getDeclaredFields()) {
+					field.setAccessible(true);
+					fields.add(field);
+				}
+				clazz = clazz.getSuperclass();
+			}
+			return fields;
 		}
 
 		private void describeField(Description description, Field field, Object object) {
