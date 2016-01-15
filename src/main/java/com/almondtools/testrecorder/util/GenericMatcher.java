@@ -14,16 +14,32 @@ import org.hamcrest.Matcher;
 import org.hamcrest.SelfDescribing;
 import org.hamcrest.TypeSafeMatcher;
 
+import com.almondtools.testrecorder.Wrapped;
+
 public class GenericMatcher extends GenericObject {
 
 	public <T> Matcher<T> matching(Class<T> clazz) {
 		return new InternalsMatcher<T>(clazz);
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public Matcher<Wrapped> matching(Wrapped wrapped) {
+		return (Matcher) new InternalsMatcher(wrapped.getWrappedClass());
+	}
+
 	public <T, S> Matcher<S> matching(Class<T> clazz, Class<S> to) {
 		return new CastingMatcher<>(to, new InternalsMatcher<T>(clazz));
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public Matcher<Wrapped> matching(Wrapped clazz, Wrapped to) {
+		return (Matcher) new CastingMatcher(to.getWrappedClass(), new InternalsMatcher(clazz.getWrappedClass()));
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public <S> Matcher<S> matching(Wrapped clazz, Class<S> to) {
+		return (Matcher) new CastingMatcher(to, new InternalsMatcher(clazz.getWrappedClass()));
+	}
 	public boolean matches(Object o) {
 		Queue<GenericComparison> remainder = new LinkedList<>();
 		for (Field field : getGenericFields()) {
@@ -49,6 +65,10 @@ public class GenericMatcher extends GenericObject {
 
 	public static <T> Matcher<T> recursive(Class<T> clazz) {
 		return instanceOf(clazz);
+	}
+
+	public static Matcher<?> recursive(Wrapped wrapped) {
+		return instanceOf(wrapped.getWrappedClass());
 	}
 
 	private class InternalsMatcher<T> extends TypeSafeMatcher<T> {
@@ -146,4 +166,5 @@ public class GenericMatcher extends GenericObject {
 		}
 
 	}
+
 }

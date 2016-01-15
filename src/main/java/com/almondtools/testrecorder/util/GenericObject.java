@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import com.almondtools.testrecorder.Wrapped;
+
 public abstract class GenericObject {
 
 	public <T> T as(Class<T> clazz) {
@@ -99,6 +101,17 @@ public abstract class GenericObject {
 		return as(constructor.get());
 	}
 
+	public Wrapped as(Wrapped wrapped) {
+		for (Field field : getGenericFields()) {
+			try {
+				wrapped.setField(field.getName(), field.get(this));
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				throw new GenericObjectException(e);
+			}
+		}
+		return wrapped;
+	}
+
 	public <T> T as(T o) {
 		for (Field field : getGenericFields()) {
 			try {
@@ -111,6 +124,9 @@ public abstract class GenericObject {
 	}
 
 	public static void setField(Object o, String name, Object value) {
+		if (value instanceof Wrapped) {
+			value = ((Wrapped) value).value();
+		}
 		Field to = findField(name, o.getClass());
 		boolean access = to.isAccessible();
 		if (!access) {

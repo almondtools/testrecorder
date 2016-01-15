@@ -123,7 +123,7 @@ public class TestGenerator implements SnapshotConsumer {
 
 	private ImportManager initImports() {
 		ImportManager imports = new ImportManager();
-		imports.registerImports(Before.class, Test.class);;
+		imports.registerImports(Test.class);;
 		return imports;
 	}
 
@@ -227,7 +227,7 @@ public class TestGenerator implements SnapshotConsumer {
 		if (initializer == null) {
 			return "";
 		}
-		imports.registerImport(initializer);
+		imports.registerImports(Before.class, initializer);
 		String initObject = newObject(getSimpleName(initializer));
 		String initStmt = callMethodStatement(initObject, "run");
 		return generateBefore(asList(initStmt));
@@ -235,6 +235,19 @@ public class TestGenerator implements SnapshotConsumer {
 
 	public String computeClassName(Class<?> clazz) {
 		return clazz.getSimpleName() + RECORDED_TEST;
+	}
+
+
+	public static TestGenerator fromRecorded(Object object) {
+		try {
+			Class<? extends Object> clazz = object.getClass();
+			Field field = clazz.getDeclaredField(SNAPSHOT_GENERATOR_FIELD_NAME);
+			field.setAccessible(true);
+			SnapshotGenerator generator = (SnapshotGenerator) field.get(object);
+			return (TestGenerator) generator.getMethodConsumer();
+		} catch (RuntimeException | ReflectiveOperationException e) {
+			return null;
+		}
 	}
 
 	private class MethodGenerator {
@@ -444,17 +457,5 @@ public class TestGenerator implements SnapshotConsumer {
 			return toUpperCase(testName.charAt(0)) + testName.substring(1) + no;
 		}
 
-	}
-
-	public static TestGenerator fromRecorded(Object object) {
-		try {
-			Class<? extends Object> clazz = object.getClass();
-			Field field = clazz.getDeclaredField(SNAPSHOT_GENERATOR_FIELD_NAME);
-			field.setAccessible(true);
-			SnapshotGenerator generator = (SnapshotGenerator) field.get(object);
-			return (TestGenerator) generator.getMethodConsumer();
-		} catch (RuntimeException | ReflectiveOperationException e) {
-			return null;
-		}
 	}
 }

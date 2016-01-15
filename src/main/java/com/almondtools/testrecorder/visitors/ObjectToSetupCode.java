@@ -1,11 +1,15 @@
 package com.almondtools.testrecorder.visitors;
 
 import static com.almondtools.testrecorder.TypeHelper.getBestName;
+import static com.almondtools.testrecorder.TypeHelper.getRawName;
+import static com.almondtools.testrecorder.TypeHelper.getRawTypeName;
 import static com.almondtools.testrecorder.TypeHelper.getSimpleName;
+import static com.almondtools.testrecorder.TypeHelper.isHidden;
 import static com.almondtools.testrecorder.visitors.Templates.arrayLiteral;
 import static com.almondtools.testrecorder.visitors.Templates.asLiteral;
 import static com.almondtools.testrecorder.visitors.Templates.assignLocalVariableStatement;
 import static com.almondtools.testrecorder.visitors.Templates.callMethodStatement;
+import static com.almondtools.testrecorder.visitors.Templates.cast;
 import static com.almondtools.testrecorder.visitors.Templates.genericObjectConverter;
 import static com.almondtools.testrecorder.visitors.Templates.newObject;
 import static java.util.stream.Collectors.toList;
@@ -75,8 +79,16 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 
 		List<String> statements = valueTemplate.getStatements();
 
-		String assignField = assignLocalVariableStatement(getSimpleName(field.getType()), field.getName(), valueTemplate.getValue());
-		return new Computation(assignField, statements);
+		if (isHidden(field.getValue().getValueType()) && !isHidden(field.getType())) {
+			String unwrapped = callMethodStatement(valueTemplate.getValue() ,"value");
+			String casted = cast(getSimpleName(field.getType()), unwrapped);
+			
+			String assignField = assignLocalVariableStatement(getSimpleName(field.getType()), field.getName(), casted);
+			return new Computation(assignField, statements);
+		} else {
+			String assignField = assignLocalVariableStatement(getSimpleName(field.getType()), field.getName(), valueTemplate.getValue());
+			return new Computation(assignField, statements);
+		}
 	}
 
 	@Override
@@ -117,10 +129,10 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 			.flatMap(template -> template.getStatements().stream())
 			.collect(toList());
 
-		String genericObject = genericObjectConverter(getSimpleName(value.getValueType()), elements);
+		String genericObject = genericObjectConverter(getRawTypeName(value.getValueType()), elements);
 		
 		String name = localVariable(value, value.getValueType());
-		statements.add(assignLocalVariableStatement(getSimpleName(value.getValueType()), name, genericObject));
+		statements.add(assignLocalVariableStatement(getRawName(value.getValueType()), name, genericObject));
 		
 		return new Computation(name, statements);
 	}

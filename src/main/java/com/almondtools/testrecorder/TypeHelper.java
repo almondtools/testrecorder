@@ -6,6 +6,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
@@ -73,7 +74,9 @@ public final class TypeHelper {
 	}
 
 	public static String getSimpleName(Type type) {
-		if (type instanceof Class<?>) {
+		if (isHidden(type)) {
+			return Wrapped.class.getSimpleName();
+		} else if (type instanceof Class<?>) {
 			return ((Class<?>) type).getSimpleName();
 		} else if (type instanceof GenericArrayType) {
 			return getSimpleName(((GenericArrayType) type).getGenericComponentType()) + "[]";
@@ -90,7 +93,9 @@ public final class TypeHelper {
 	}
 
 	public static String getRawName(Type type) {
-		if (type instanceof Class<?>) {
+		if (isHidden(type)) {
+			return Wrapped.class.getSimpleName();
+		} else if (type instanceof Class<?>) {
 			return ((Class<?>) type).getSimpleName();
 		} else if (type instanceof GenericArrayType) {
 			return getRawName(((GenericArrayType) type).getGenericComponentType()) + "[]";
@@ -101,8 +106,25 @@ public final class TypeHelper {
 		}
 	}
 
+	public static String getRawTypeName(Type type) {
+		if (isHidden(type)) {
+			return getWrappedName(type);
+		} else {
+			return getRawName((Class<?>) type) + ".class";
+		}
+	}
+	
 	public static boolean isPrimitive(Type type) {
 		return type instanceof Class<?> && ((Class<?>) type).isPrimitive();
+	}
+
+	public static String getWrappedName(Type type) {
+		return "clazz(\"" + getBase(type).getName() + "\")";
+	}
+
+
+	public static boolean isHidden(Type type) {
+		return !Modifier.isPublic(getBase(type).getModifiers());
 	}
 
 	public static Type parameterized(Type raw, Type owner, Type... typeArgs) {

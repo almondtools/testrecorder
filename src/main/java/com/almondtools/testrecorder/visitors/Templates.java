@@ -10,7 +10,7 @@ import org.stringtemplate.v4.ST;
 
 public final class Templates {
 
-	private static final String GENERIC_OBJECT_CONVERTER = "new GenericObject() {\n<fields; separator=\"\\n\">\n}.as(<type>.class)";
+	private static final String GENERIC_OBJECT_CONVERTER = "new GenericObject() {\n<fields; separator=\"\\n\">\n}.as(<type>)";
 	private static final String ARRAY_LITERAL = "new <type>{<elements; separator=\", \">}";
 	private static final String NEW_OBJECT = "new <type>(<args; separator=\", \">)";
 	private static final String FIELD_ACCESS_EXP = "<base>.<field>";
@@ -30,8 +30,8 @@ public final class Templates {
 
 	private static final String GENERIC_TYPE = "$type$<$typeParam; separator=\", \"$>";
 
-	private static final String GENERIC_OBJECT_MATCHER = "new GenericMatcher() {\n<fields; separator=\"\\n\">\n}.matching(<type : {type | <type>.class}; separator=\", \">)";
-	private static final String RECURSIVE_MATCHER = "recursive(<type>.class)";
+	private static final String GENERIC_OBJECT_MATCHER = "new GenericMatcher() {\n<fields; separator=\"\\n\">\n}.matching(<type : {type | <type>}; separator=\", \">)";
+	private static final String RECURSIVE_MATCHER = "recursive(<type>)";
 	private static final String CONTAINS_MATCHER = "contains(<values; separator=\", \">)";
 	private static final String EMPTY_MATCHER = "empty()";
 	private static final String CONTAINS_IN_ANY_ORDER_MATCHER = "containsInAnyOrder(<values; separator=\", \">)";

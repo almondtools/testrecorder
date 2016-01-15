@@ -3,6 +3,7 @@ package com.almondtools.testrecorder.visitors;
 import static com.almondtools.testrecorder.TypeHelper.getArgument;
 import static com.almondtools.testrecorder.TypeHelper.getBase;
 import static com.almondtools.testrecorder.TypeHelper.getRawName;
+import static com.almondtools.testrecorder.TypeHelper.getRawTypeName;
 import static com.almondtools.testrecorder.TypeHelper.getSimpleName;
 import static com.almondtools.testrecorder.TypeHelper.isPrimitive;
 import static com.almondtools.testrecorder.TypeHelper.parameterized;
@@ -44,6 +45,7 @@ import com.almondtools.testrecorder.SerializedCollectionVisitor;
 import com.almondtools.testrecorder.SerializedImmutableVisitor;
 import com.almondtools.testrecorder.SerializedValue;
 import com.almondtools.testrecorder.SerializedValueVisitor;
+import com.almondtools.testrecorder.TypeHelper;
 import com.almondtools.testrecorder.util.GenericMatcher;
 import com.almondtools.testrecorder.values.SerializedArray;
 import com.almondtools.testrecorder.values.SerializedBigDecimal;
@@ -81,7 +83,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 		if (isSimpleValue(fieldValue)) {
 			Computation value = getSimpleValue(fieldValue);
 
-			String assignField = assignLocalVariableStatement(getSimpleName(field.getType()), field.getName(), value.getValue());
+			String assignField = assignLocalVariableStatement(getRawName(field.getType()), field.getName(), value.getValue());
 			return new Computation(assignField, value.getStatements());
 		} else {
 			imports.registerImport(Matcher.class);
@@ -99,7 +101,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 		if (!computed.add(value)) {
 			imports.staticImport(GenericMatcher.class, "recursive");
 			Type resultType = value.getType().equals(value.getValueType()) ? parameterized(Matcher.class, null, value.getType()) : parameterized(Matcher.class, null, wildcard());
-			return new Computation(recursiveMatcher(getRawName(value.getValueType())), resultType);
+			return new Computation(recursiveMatcher(TypeHelper.getRawTypeName(value.getValueType())), resultType);
 		}
 		Type[] types = { value.getType(), value.getValueType(), GenericMatcher.class };
 		imports.registerImports(types);
@@ -131,11 +133,11 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 		}
 		Class<?> valueType = value.getValueType();
 		if (type.equals(valueType)) {
-			String matcherRawType = getRawName(valueType);
+			String matcherRawType = getRawTypeName(valueType);
 			return genericObjectMatcher(matcherRawType, fieldAssignments);
 		} else {
-			String matcherRawType = getRawName(valueType);
-			String matcherToType = getRawName(type);
+			String matcherRawType = getRawTypeName(valueType);
+			String matcherToType = getRawTypeName(type);
 			return genericObjectMatcher(matcherRawType, matcherToType, fieldAssignments);
 		}
 	}

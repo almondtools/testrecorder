@@ -1,10 +1,14 @@
 package com.almondtools.testrecorder.visitors;
 
+import static com.almondtools.testrecorder.TypeHelper.isHidden;
+
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import com.almondtools.testrecorder.Wrapped;
 
 public class ImportManager {
 
@@ -17,7 +21,7 @@ public class ImportManager {
 	public Set<String> getImports() {
 		return imports;
 	}
-
+	
 	public void staticImport(Class<?> type, String method) {
 		imports.add("static " + type.getName() + "." + method);
 	}
@@ -44,6 +48,10 @@ public class ImportManager {
 			return;
 		} else if (type.isArray()) {
 			registerImport(type.getComponentType());
+		} else if (isHidden(type)) {
+			String name = Wrapped.class.getName();
+			imports.add(name);
+			imports.add("static " + name + ".clazz");
 		} else {
 			imports.add(type.getName().replace('$', '.'));
 		}
