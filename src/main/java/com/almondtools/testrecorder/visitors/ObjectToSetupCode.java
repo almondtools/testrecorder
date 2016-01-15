@@ -118,7 +118,11 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 			.collect(toList());
 
 		String genericObject = genericObjectConverter(getSimpleName(value.getValueType()), elements);
-		return new Computation(genericObject, statements);
+		
+		String name = localVariable(value, value.getValueType());
+		statements.add(assignLocalVariableStatement(getSimpleName(value.getValueType()), name, genericObject));
+		
+		return new Computation(name, statements);
 	}
 
 	@Override
@@ -255,7 +259,11 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 			.collect(toList());
 
 		String arrayLiteral = arrayLiteral(getSimpleName(value.getType()), elements);
-		return new Computation(arrayLiteral, statements);
+
+		String name = localVariable(value, value.getType());
+		statements.add(assignLocalVariableStatement(getSimpleName(value.getType()), name, arrayLiteral));
+
+		return new Computation(name, statements);
 	}
 
 	@Override

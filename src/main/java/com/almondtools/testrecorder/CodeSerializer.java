@@ -25,6 +25,10 @@ public class CodeSerializer {
 		this(new ConfigurableSerializerFacade(new DefaultSerializationProfile()), new ObjectToSetupCode.Factory());
 	}
 	
+	public CodeSerializer(SerializedValueVisitorFactory serializers) {
+		this(new ConfigurableSerializerFacade(new DefaultSerializationProfile()), serializers);
+	}
+	
 	public CodeSerializer(SerializerFacade facade, SerializedValueVisitorFactory serializers) {
 		this.imports = new ImportManager();
 		this.facade = facade;

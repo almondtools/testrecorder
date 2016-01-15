@@ -45,7 +45,7 @@ public class ImportManager {
 		} else if (type.isArray()) {
 			registerImport(type.getComponentType());
 		} else {
-			imports.add(type.getName());
+			imports.add(type.getName().replace('$', '.'));
 		}
 	}
 
