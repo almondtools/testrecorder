@@ -110,8 +110,7 @@ public class TestGenerator implements SnapshotConsumer {
 	private Class<? extends Runnable> initializer;
 
 	public TestGenerator(Class<? extends Runnable> initializer) {
-		this.imports = new ImportManager();
-		this.imports.registerImports(Before.class, Test.class);
+		this.imports = initImports();
 		this.setup = new ObjectToSetupCode.Factory();
 		this.matcher = new ObjectToMatcherCode.Factory();
 
@@ -120,6 +119,12 @@ public class TestGenerator implements SnapshotConsumer {
 		this.tests = synchronizedMap(new LinkedHashMap<>());
 		this.fields = new LinkedHashSet<>();
 		this.outputClasses = new LinkedHashSet<>();
+	}
+
+	private ImportManager initImports() {
+		ImportManager imports = new ImportManager();
+		imports.registerImports(Before.class, Test.class);;
+		return imports;
 	}
 
 	public String generateBefore(List<String> statements) {
@@ -165,6 +170,7 @@ public class TestGenerator implements SnapshotConsumer {
 	}
 
 	public void clearResults() {
+		this.imports = initImports();
 		tests.clear();
 		this.fields = new LinkedHashSet<>();
 		this.outputClasses = new LinkedHashSet<>();
