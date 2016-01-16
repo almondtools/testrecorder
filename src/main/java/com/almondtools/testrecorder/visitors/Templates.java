@@ -176,6 +176,10 @@ public final class Templates {
 		return statement.render();
 	}
 
+	public static String callMethod(String base, String method, String... arguments) {
+		return callMethod(base, method, asList(arguments));
+	}
+
 	public static String callMethod(String base, String method, List<String> arguments) {
 		ST statement = new ST(CALL_METHOD_EXP);
 		statement.add("base", base);

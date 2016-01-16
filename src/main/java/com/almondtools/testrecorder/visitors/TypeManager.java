@@ -22,12 +22,14 @@ import com.almondtools.testrecorder.Wrapped;
 
 public class TypeManager {
 
-	private Map<Type, String> imports;
+	private Map<String, String> imports;
 	private Set<String> staticImports;
+	private Set<Type> noImports;
 
 	public TypeManager() {
 		imports = new LinkedHashMap<>();
 		staticImports = new LinkedHashSet<>();
+		noImports = new LinkedHashSet<>();
 	}
 
 	public List<String> getImports() {
@@ -56,17 +58,27 @@ public class TypeManager {
 		}
 	}
 
-	public void registerImport(Class<?> type) {
-		if (type.isPrimitive()) {
+	public void registerImport(Class<?> clazz) {
+		if (noImports.contains(clazz)) {
 			return;
-		} else if (type.isArray()) {
-			registerImport(type.getComponentType());
-		} else if (isHidden(type)) {
+		} else if (imports.containsKey(clazz.getSimpleName())) {
+			if (!imports.get(clazz.getSimpleName()).equals(getFullName(clazz))) {
+				noImports.add(clazz);
+			}
+		} else if (clazz.isPrimitive()) {
+			return;
+		} else if (clazz.isArray()) {
+			registerImport(clazz.getComponentType());
+		} else if (isHidden(clazz)) {
 			registerImport(Wrapped.class);
 			staticImport(Wrapped.class, "clazz");
 		} else {
-			imports.put(type, type.getName().replace('$', '.'));
+			imports.put(clazz.getSimpleName(), getFullName(clazz));
 		}
+	}
+
+	public String getFullName(Class<?> clazz) {
+		return clazz.getName().replace('$', '.');
 	}
 
 	public static Method getDeclaredMethod(Class<?> clazz, String name, Class<?>... parameterTypes) {
@@ -108,11 +120,9 @@ public class TypeManager {
 	public String getBestName(Type type) {
 		if (type instanceof Class<?>) {
 			Class<?> clazz = (Class<?>) type;
-			if (clazz.getTypeParameters().length > 0) {
-				return clazz.getSimpleName() + "<>";
-			} else {
-				return clazz.getSimpleName();
-			}
+			String base = getSimpleName(clazz);
+			String generics = clazz.getTypeParameters().length > 0 ? "<>" : "";
+			return base + generics;
 		} else if (type instanceof GenericArrayType) {
 			return getSimpleName(((GenericArrayType) type).getGenericComponentType()) + "[]";
 		} else if (type instanceof ParameterizedType) {
@@ -129,7 +139,12 @@ public class TypeManager {
 		if (isHidden(type)) {
 			return Wrapped.class.getSimpleName();
 		} else if (type instanceof Class<?>) {
-			return ((Class<?>) type).getSimpleName();
+			Class<?> clazz = (Class<?>) type;
+			if (noImports.contains(clazz)) {
+				return clazz.getName().replace('$', '.');
+			} else {
+				return clazz.getSimpleName();
+			}
 		} else if (type instanceof GenericArrayType) {
 			return getSimpleName(((GenericArrayType) type).getGenericComponentType()) + "[]";
 		} else if (type instanceof ParameterizedType) {
@@ -145,10 +160,8 @@ public class TypeManager {
 	}
 
 	public String getRawName(Type type) {
-		if (isHidden(type)) {
-			return Wrapped.class.getSimpleName();
-		} else if (type instanceof Class<?>) {
-			return ((Class<?>) type).getSimpleName();
+		if (type instanceof Class<?>) {
+			return getSimpleName(type);
 		} else if (type instanceof GenericArrayType) {
 			return getRawName(((GenericArrayType) type).getGenericComponentType()) + "[]";
 		} else if (type instanceof ParameterizedType) {

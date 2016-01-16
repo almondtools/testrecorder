@@ -1,6 +1,7 @@
 package com.almondtools.testrecorder;
 
 import com.almondtools.testrecorder.util.GenericObject;
+import com.almondtools.testrecorder.util.GenericObjectException;
 
 public class Wrapped {
 
@@ -11,7 +12,8 @@ public class Wrapped {
 		try {
 			this.clazz = Class.forName(name);
 			this.o = GenericObject.newInstance(clazz);
-		} catch (ReflectiveOperationException | RuntimeException e) {
+		} catch (ReflectiveOperationException e) {
+			throw new GenericObjectException(e);
 		}
 	}
 

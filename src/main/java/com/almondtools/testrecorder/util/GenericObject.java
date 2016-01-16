@@ -1,7 +1,9 @@
 package com.almondtools.testrecorder.util;
 
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -26,21 +28,35 @@ public abstract class GenericObject {
 			if (!access) {
 				constructor.setAccessible(true);
 			}
-			try {
-				T instance = constructor.newInstance(createParams(constructor.getParameterTypes()));
-				return instance;
-			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-				exception = e;
-			} finally {
-				if (!access) {
-					constructor.setAccessible(false);
+			for (Supplier<Object[]> params : bestParams(constructor.getParameterTypes())) {
+				try {
+					T instance = constructor.newInstance(params.get());
+					return instance;
+				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+					exception = e;
+				} catch (RuntimeException e) {
+					continue;
 				}
+			}
+			if (!access) {
+				constructor.setAccessible(false);
 			}
 		}
 		throw new GenericObjectException(exception);
 	}
 
-	public static Object[] createParams(Class<?>[] classes) {
+	private static Iterable<Supplier<Object[]>> bestParams(Class<?>[] parameterTypes) {
+		if (parameterTypes.length == 0) {
+			return asList(() -> new Object[0]);
+		} else {
+			return asList(
+				() -> createDefaultParams(parameterTypes),
+				() -> createNonNullParams(parameterTypes),
+				() -> createNonDefaultParams(parameterTypes));
+		}
+	}
+
+	public static Object[] createDefaultParams(Class<?>[] classes) {
 		Object[] params = new Object[classes.length];
 		for (int i = 0; i < params.length; i++) {
 			params[i] = getDefaultValue(classes[i]);
@@ -70,6 +86,46 @@ public abstract class GenericObject {
 		}
 	}
 
+	public static Object[] createNonNullParams(Class<?>[] classes) {
+		Object[] params = new Object[classes.length];
+		for (int i = 0; i < params.length; i++) {
+			params[i] = getNonNullValue(classes[i]);
+		}
+		return params;
+	}
+
+	public static Object getNonNullValue(Class<?> clazz) {
+		if (clazz == boolean.class) {
+			return false;
+		} else if (clazz == char.class) {
+			return (char) 0;
+		} else if (clazz == byte.class) {
+			return (byte) 0;
+		} else if (clazz == short.class) {
+			return (short) 0;
+		} else if (clazz == int.class) {
+			return (int) 0;
+		} else if (clazz == float.class) {
+			return (float) 0;
+		} else if (clazz == long.class) {
+			return (long) 0;
+		} else if (clazz == double.class) {
+			return (double) 0;
+		} else if (clazz.isArray()) {
+			return Array.newInstance(clazz.getComponentType(), 0);
+		} else {
+			return newInstance(clazz);
+		}
+	}
+
+	public static Object[] createNonDefaultParams(Class<?>[] classes) {
+		Object[] params = new Object[classes.length];
+		for (int i = 0; i < params.length; i++) {
+			params[i] = getNonDefaultValue(classes[i]);
+		}
+		return params;
+	}
+
 	public static Object getNonDefaultValue(Class<?> clazz) {
 		if (clazz == boolean.class) {
 			return true;
@@ -87,12 +143,8 @@ public abstract class GenericObject {
 			return (long) 1;
 		} else if (clazz == double.class) {
 			return (double) 1;
-		}
-		try {
-			return new GenericObject() {
-			}.as(clazz);
-		} catch (GenericObjectException e) {
-			return null;
+		} else {
+			return getNonNullValue(clazz);
 		}
 
 	}

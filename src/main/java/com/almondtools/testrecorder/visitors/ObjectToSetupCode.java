@@ -76,7 +76,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 		List<String> statements = valueTemplate.getStatements();
 
 		if (isHidden(field.getValue().getValueType()) && !isHidden(field.getType())) {
-			String unwrapped = callMethodStatement(valueTemplate.getValue(), "value");
+			String unwrapped = Templates.callMethod(valueTemplate.getValue(), "value");
 			String casted = cast(types.getSimpleName(field.getType()), unwrapped);
 
 			String assignField = assignLocalVariableStatement(types.getSimpleName(field.getType()), field.getName(), casted);
