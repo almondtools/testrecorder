@@ -61,6 +61,10 @@ public class TypeManager {
 	public void registerImport(Class<?> clazz) {
 		if (noImports.contains(clazz)) {
 			return;
+		} else if (isHidden(clazz)) {
+			registerImport(Wrapped.class);
+			staticImport(Wrapped.class, "clazz");
+			noImports.add(clazz);
 		} else if (imports.containsKey(clazz.getSimpleName())) {
 			if (!imports.get(clazz.getSimpleName()).equals(getFullName(clazz))) {
 				noImports.add(clazz);
@@ -69,9 +73,6 @@ public class TypeManager {
 			return;
 		} else if (clazz.isArray()) {
 			registerImport(clazz.getComponentType());
-		} else if (isHidden(clazz)) {
-			registerImport(Wrapped.class);
-			staticImport(Wrapped.class, "clazz");
 		} else {
 			imports.put(clazz.getSimpleName(), getFullName(clazz));
 		}
