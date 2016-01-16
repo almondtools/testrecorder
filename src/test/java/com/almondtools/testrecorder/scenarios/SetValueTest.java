@@ -1,6 +1,6 @@
 package com.almondtools.testrecorder.scenarios;
 
-import static com.almondtools.testrecorder.TypeHelper.parameterized;
+import static com.almondtools.testrecorder.visitors.TypeManager.parameterized;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;

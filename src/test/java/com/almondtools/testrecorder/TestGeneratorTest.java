@@ -21,7 +21,7 @@ import org.junit.rules.TemporaryFolder;
 import com.almondtools.testrecorder.values.SerializedField;
 import com.almondtools.testrecorder.values.SerializedObject;
 import com.almondtools.testrecorder.visitors.Computation;
-import com.almondtools.testrecorder.visitors.ImportManager;
+import com.almondtools.testrecorder.visitors.TypeManager;
 import com.almondtools.testrecorder.visitors.LocalVariableNameGenerator;
 import com.almondtools.testrecorder.visitors.SerializedValueVisitorFactory;
 import com.almondtools.testrecorder.visitors.TestComputationValueVisitor;
@@ -63,7 +63,7 @@ public class TestGeneratorTest {
 		testGenerator.setSetup(new SerializedValueVisitorFactory() {
 
 			@Override
-			public SerializedValueVisitor<Computation> create(LocalVariableNameGenerator locals, ImportManager imports) {
+			public SerializedValueVisitor<Computation> create(LocalVariableNameGenerator locals, TypeManager types) {
 				return new TestComputationValueVisitor();
 			}
 
@@ -96,7 +96,7 @@ public class TestGeneratorTest {
 		testGenerator.setMatcher(new SerializedValueVisitorFactory() {
 
 			@Override
-			public SerializedValueVisitor<Computation> create(LocalVariableNameGenerator locals, ImportManager imports) {
+			public SerializedValueVisitor<Computation> create(LocalVariableNameGenerator locals, TypeManager types) {
 				return new TestComputationValueVisitor();
 			}
 			

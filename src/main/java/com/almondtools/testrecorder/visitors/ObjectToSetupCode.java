@@ -1,10 +1,5 @@
 package com.almondtools.testrecorder.visitors;
 
-import static com.almondtools.testrecorder.TypeHelper.getBestName;
-import static com.almondtools.testrecorder.TypeHelper.getRawName;
-import static com.almondtools.testrecorder.TypeHelper.getRawTypeName;
-import static com.almondtools.testrecorder.TypeHelper.getSimpleName;
-import static com.almondtools.testrecorder.TypeHelper.isHidden;
 import static com.almondtools.testrecorder.visitors.Templates.arrayLiteral;
 import static com.almondtools.testrecorder.visitors.Templates.asLiteral;
 import static com.almondtools.testrecorder.visitors.Templates.assignLocalVariableStatement;
@@ -12,6 +7,7 @@ import static com.almondtools.testrecorder.visitors.Templates.callMethodStatemen
 import static com.almondtools.testrecorder.visitors.Templates.cast;
 import static com.almondtools.testrecorder.visitors.Templates.genericObjectConverter;
 import static com.almondtools.testrecorder.visitors.Templates.newObject;
+import static com.almondtools.testrecorder.visitors.TypeManager.isHidden;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
@@ -45,15 +41,15 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 	private LocalVariableNameGenerator locals;
 	private Map<SerializedValue, String> computed;
 
-	private ImportManager imports;
+	private TypeManager types;
 
 	public ObjectToSetupCode() {
-		this(new LocalVariableNameGenerator(), new ImportManager());
+		this(new LocalVariableNameGenerator(), new TypeManager());
 	}
 
-	public ObjectToSetupCode(LocalVariableNameGenerator locals, ImportManager imports) {
+	public ObjectToSetupCode(LocalVariableNameGenerator locals, TypeManager types) {
 		this.locals = locals;
-		this.imports = imports;
+		this.types = types;
 		this.computed = new IdentityHashMap<>();
 	}
 
@@ -61,8 +57,8 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 		return locals;
 	}
 
-	public ImportManager getImports() {
-		return imports;
+	public TypeManager getTypes() {
+		return types;
 	}
 
 	private String localVariable(SerializedValue value, Type type) {
@@ -73,20 +69,20 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 
 	@Override
 	public Computation visitField(SerializedField field) {
-		imports.registerImport(field.getType());
+		types.registerType(field.getType());
 
 		Computation valueTemplate = field.getValue().accept(this);
 
 		List<String> statements = valueTemplate.getStatements();
 
 		if (isHidden(field.getValue().getValueType()) && !isHidden(field.getType())) {
-			String unwrapped = callMethodStatement(valueTemplate.getValue() ,"value");
-			String casted = cast(getSimpleName(field.getType()), unwrapped);
-			
-			String assignField = assignLocalVariableStatement(getSimpleName(field.getType()), field.getName(), casted);
+			String unwrapped = callMethodStatement(valueTemplate.getValue(), "value");
+			String casted = cast(types.getSimpleName(field.getType()), unwrapped);
+
+			String assignField = assignLocalVariableStatement(types.getSimpleName(field.getType()), field.getName(), casted);
 			return new Computation(assignField, statements);
 		} else {
-			String assignField = assignLocalVariableStatement(getSimpleName(field.getType()), field.getName(), valueTemplate.getValue());
+			String assignField = assignLocalVariableStatement(types.getSimpleName(field.getType()), field.getName(), valueTemplate.getValue());
 			return new Computation(assignField, statements);
 		}
 	}
@@ -103,18 +99,17 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 		}
 	}
 
-	private Computation renderBeanSetup(SerializedObject value) throws BeanSetupFailedException  {
+	private Computation renderBeanSetup(SerializedObject value) throws BeanSetupFailedException {
 		try {
 			String name = localVariable(value, value.getValueType());
-			return new Construction(name, value).computeBest(this);
+			return new Construction(name, value).computeBest(types, this);
 		} catch (ReflectiveOperationException | RuntimeException e) {
 			throw new BeanSetupFailedException();
 		}
 	}
 
 	private Computation renderGenericSetup(SerializedObject value) {
-		Type[] types = { value.getType(), GenericObject.class };
-		imports.registerImports(types);
+		types.registerTypes(value.getType(), GenericObject.class);
 
 		List<Computation> elementTemplates = value.getFields().stream()
 			.sorted()
@@ -129,11 +124,11 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 			.flatMap(template -> template.getStatements().stream())
 			.collect(toList());
 
-		String genericObject = genericObjectConverter(getRawTypeName(value.getValueType()), elements);
-		
+		String genericObject = genericObjectConverter(types.getRawTypeName(value.getValueType()), elements);
+
 		String name = localVariable(value, value.getValueType());
-		statements.add(assignLocalVariableStatement(getRawName(value.getValueType()), name, genericObject));
-		
+		statements.add(assignLocalVariableStatement(types.getRawName(value.getValueType()), name, genericObject));
+
 		return new Computation(name, statements);
 	}
 
@@ -146,7 +141,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 	}
 
 	private Computation renderListSetup(SerializedList value) {
-		imports.registerImports(value.getType(), value.getValueType());
+		types.registerTypes(value.getType(), value.getValueType());
 
 		List<Computation> elementTemplates = value.stream()
 			.map(element -> element.accept(this))
@@ -162,8 +157,8 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 
 		String name = localVariable(value, List.class);
 
-		String list = newObject(getBestName(value.getValueType()));
-		String listInit = assignLocalVariableStatement(getSimpleName(value.getType()), name, list);
+		String list = newObject(types.getBestName(value.getValueType()));
+		String listInit = assignLocalVariableStatement(types.getSimpleName(value.getType()), name, list);
 		statements.add(listInit);
 
 		for (String element : elements) {
@@ -183,7 +178,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 	}
 
 	private Computation renderSetSetup(SerializedSet value) {
-		imports.registerImports(value.getType(), value.getValueType());
+		types.registerTypes(value.getType(), value.getValueType());
 
 		List<Computation> elementTemplates = value.stream()
 			.map(element -> element.accept(this))
@@ -199,8 +194,8 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 
 		String name = localVariable(value, Set.class);
 
-		String set = newObject(getBestName(value.getValueType()));
-		String setInit = assignLocalVariableStatement(getSimpleName(value.getType()), name, set);
+		String set = newObject(types.getBestName(value.getValueType()));
+		String setInit = assignLocalVariableStatement(types.getSimpleName(value.getType()), name, set);
 		statements.add(setInit);
 
 		for (String element : elements) {
@@ -220,7 +215,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 	}
 
 	private Computation renderMapSetup(SerializedMap value) {
-		imports.registerImports(value.getType(), value.getValueType());
+		types.registerTypes(value.getType(), value.getValueType());
 
 		Map<Computation, Computation> elementTemplates = value.entrySet().stream()
 			.collect(toMap(entry -> entry.getKey().accept(this), entry -> entry.getValue().accept(this)));
@@ -235,8 +230,8 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 
 		String name = localVariable(value, Map.class);
 
-		String map = newObject(getBestName(value.getValueType()));
-		String mapInit = assignLocalVariableStatement(getSimpleName(value.getType()), name, map);
+		String map = newObject(types.getBestName(value.getValueType()));
+		String mapInit = assignLocalVariableStatement(types.getSimpleName(value.getType()), name, map);
 		statements.add(mapInit);
 
 		for (Map.Entry<String, String> element : elements.entrySet()) {
@@ -256,7 +251,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 	}
 
 	private Computation renderArraySetup(SerializedArray value) {
-		imports.registerImport(value.getType());
+		types.registerType(value.getType());
 
 		List<Computation> elementTemplates = Stream.of(value.getArray())
 			.map(element -> element.accept(this))
@@ -270,10 +265,10 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 			.flatMap(template -> template.getStatements().stream())
 			.collect(toList());
 
-		String arrayLiteral = arrayLiteral(getSimpleName(value.getType()), elements);
+		String arrayLiteral = arrayLiteral(types.getSimpleName(value.getType()), elements);
 
 		String name = localVariable(value, value.getType());
-		statements.add(assignLocalVariableStatement(getSimpleName(value.getType()), name, arrayLiteral));
+		statements.add(assignLocalVariableStatement(types.getSimpleName(value.getType()), name, arrayLiteral));
 
 		return new Computation(name, statements);
 	}
@@ -287,7 +282,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 
 	@Override
 	public Computation visitBigDecimal(SerializedBigDecimal value) {
-		imports.registerImport(BigDecimal.class);
+		types.registerImport(BigDecimal.class);
 
 		String literal = asLiteral(value.getValue().toPlainString());
 		String bigDecimal = newObject("BigDecimal", literal);
@@ -296,7 +291,7 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 
 	@Override
 	public Computation visitBigInteger(SerializedBigInteger value) {
-		imports.registerImport(BigInteger.class);
+		types.registerImport(BigInteger.class);
 
 		String literal = asLiteral(value.getValue().toString());
 		String bigInteger = newObject("BigInteger", literal);
@@ -316,8 +311,8 @@ public class ObjectToSetupCode implements SerializedValueVisitor<Computation>, S
 	public static class Factory implements SerializedValueVisitorFactory {
 
 		@Override
-		public ObjectToSetupCode create(LocalVariableNameGenerator locals, ImportManager imports) {
-			return new ObjectToSetupCode(locals, imports);
+		public ObjectToSetupCode create(LocalVariableNameGenerator locals, TypeManager types) {
+			return new ObjectToSetupCode(locals, types);
 		}
 
 		@Override

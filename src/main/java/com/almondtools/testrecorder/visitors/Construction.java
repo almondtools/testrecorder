@@ -37,13 +37,13 @@ public class Construction {
 		this.setters = new ArrayList<>();
 	}
 
-	public Computation computeBest(SerializedValueVisitor<Computation> compiler) throws InstantiationException {
+	public Computation computeBest(TypeManager types, SerializedValueVisitor<Computation> compiler) throws InstantiationException {
 		fillOrigins();
 		return computeConstructionPlans().stream()
 			.filter(plan -> GenericComparison.equals(plan.execute(), value))
 			.sorted()
 			.findFirst()
-			.map(plan -> plan.compute(compiler))
+			.map(plan -> plan.compute(types, compiler))
 			.orElseThrow(() -> new InstantiationException());
 	}
 

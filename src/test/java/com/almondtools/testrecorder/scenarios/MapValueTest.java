@@ -1,7 +1,7 @@
 package com.almondtools.testrecorder.scenarios;
 
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
-import static com.almondtools.testrecorder.TypeHelper.parameterized;
+import static com.almondtools.testrecorder.visitors.TypeManager.parameterized;
 import static org.junit.Assert.assertThat;
 
 import java.util.HashMap;
@@ -12,13 +12,13 @@ import org.junit.Test;
 import com.almondtools.testrecorder.CodeSerializer;
 
 public class MapValueTest {
-	
+
 	@Test
 	public void testHashMap() throws Exception {
 		CodeSerializer codeSerializer = new CodeSerializer();
-		
-		Map<String,Integer> m = new HashMap<String,Integer>();
-		m.put("bar",new Integer(21));
+
+		Map<String, Integer> m = new HashMap<String, Integer>();
+		m.put("bar", new Integer(21));
 
 		assertThat(codeSerializer.serialize(m), containsPattern(""
 			+ "HashMap map1 = new HashMap<>();*"
@@ -28,9 +28,9 @@ public class MapValueTest {
 	@Test
 	public void testResultType() throws Exception {
 		CodeSerializer codeSerializer = new CodeSerializer();
-		
-		Map<String,Integer> m = new HashMap<String,Integer>();
-		m.put("bar",new Integer(21));
+
+		Map<String, Integer> m = new HashMap<String, Integer>();
+		m.put("bar", new Integer(21));
 
 		assertThat(codeSerializer.serialize(parameterized(Map.class, null, String.class, Integer.class), m), containsPattern(""
 			+ "Map<String, Integer> map1 = new HashMap<>();*"
@@ -38,4 +38,3 @@ public class MapValueTest {
 	}
 
 }
-

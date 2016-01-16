@@ -60,6 +60,8 @@ import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
+import com.almondtools.testrecorder.visitors.TypeManager;
+
 public class SnapshotInstrumentor implements ClassFileTransformer {
 
 	private static final String CONSTRUCTOR_NAME = "<init>";
@@ -244,8 +246,8 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 			insnList.add(new InsnNode(AASTORE));
 		}
 
-		insnList.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(TypeHelper.class), "getDeclaredMethod",
-			Type.getMethodDescriptor(methodOf(TypeHelper.class, "getDeclaredMethod", Class.class, String.class, Class[].class)), false));
+		insnList.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(TypeManager.class), "getDeclaredMethod",
+			Type.getMethodDescriptor(methodOf(TypeManager.class, "getDeclaredMethod", Class.class, String.class, Class[].class)), false));
 		return insnList;
 	}
 
@@ -257,8 +259,8 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 		insnList.add(new LdcInsnNode(field.name));
 
-		insnList.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(TypeHelper.class), "getDeclaredField",
-			Type.getMethodDescriptor(methodOf(TypeHelper.class, "getDeclaredField", Class.class, String.class)), false));
+		insnList.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(TypeManager.class), "getDeclaredField",
+			Type.getMethodDescriptor(methodOf(TypeManager.class, "getDeclaredField", Class.class, String.class)), false));
 		return insnList;
 	}
 

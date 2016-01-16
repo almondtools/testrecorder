@@ -1,6 +1,6 @@
 package com.almondtools.testrecorder.values;
 
-import static com.almondtools.testrecorder.TypeHelper.getBase;
+import static com.almondtools.testrecorder.visitors.TypeManager.getBase;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;

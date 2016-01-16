@@ -1,6 +1,5 @@
 package com.almondtools.testrecorder;
 
-import static com.almondtools.testrecorder.TypeHelper.getSimpleName;
 import static com.almondtools.testrecorder.visitors.Templates.assignLocalVariableStatement;
 import static java.util.stream.Collectors.joining;
 
@@ -10,15 +9,15 @@ import java.util.List;
 
 import com.almondtools.testrecorder.profile.DefaultSerializationProfile;
 import com.almondtools.testrecorder.visitors.Computation;
-import com.almondtools.testrecorder.visitors.ImportManager;
 import com.almondtools.testrecorder.visitors.LocalVariableNameGenerator;
 import com.almondtools.testrecorder.visitors.ObjectToSetupCode;
 import com.almondtools.testrecorder.visitors.SerializedValueVisitorFactory;
+import com.almondtools.testrecorder.visitors.TypeManager;
 
 public class CodeSerializer {
 
 	private SerializerFacade facade;
-	private ImportManager imports;
+	private TypeManager types;
 	private SerializedValueVisitorFactory serializers;
 
 	public CodeSerializer() {
@@ -30,7 +29,7 @@ public class CodeSerializer {
 	}
 	
 	public CodeSerializer(SerializerFacade facade, SerializedValueVisitorFactory serializers) {
-		this.imports = new ImportManager();
+		this.types = new TypeManager();
 		this.facade = facade;
 		this.serializers = serializers;
 	}
@@ -56,13 +55,13 @@ public class CodeSerializer {
 
 		public Generator(SerializedValue value) {
 			this.value = value;
-			this.type = getSimpleName(value.getType());
+			this.type = types.getSimpleName(value.getType());
 			this.locals = new LocalVariableNameGenerator();
 			this.statements = new ArrayList<>();
 		}
 
 		public String generateCode() {
-			SerializedValueVisitor<Computation> serializer = serializers.create(locals, imports);
+			SerializedValueVisitor<Computation> serializer = serializers.create(locals, types);
 			
 			Computation serialized = value.accept(serializer);
 

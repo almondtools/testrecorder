@@ -1,12 +1,13 @@
 package com.almondtools.testrecorder.values;
 
+import static com.almondtools.testrecorder.visitors.TypeManager.getBase;
+
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.almondtools.testrecorder.SerializedValue;
 import com.almondtools.testrecorder.SerializedValueVisitor;
-import com.almondtools.testrecorder.TypeHelper;
 import com.almondtools.testrecorder.visitors.SerializedValuePrinter;
 
 public class SerializedNull implements SerializedValue {
@@ -26,7 +27,7 @@ public class SerializedNull implements SerializedValue {
 	
 	@Override
 	public Class<?> getValueType() {
-		return TypeHelper.getBase(type);
+		return getBase(type);
 	}
 
 	@Override

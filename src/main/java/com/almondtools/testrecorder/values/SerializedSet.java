@@ -1,6 +1,6 @@
 package com.almondtools.testrecorder.values;
 
-import static com.almondtools.testrecorder.TypeHelper.getBase;
+import static com.almondtools.testrecorder.visitors.TypeManager.getBase;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;

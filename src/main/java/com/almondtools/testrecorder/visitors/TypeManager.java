@@ -1,6 +1,7 @@
-package com.almondtools.testrecorder;
+package com.almondtools.testrecorder.visitors;
 
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -10,11 +11,62 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
-public final class TypeHelper {
+import com.almondtools.testrecorder.Wrapped;
 
-	private TypeHelper() {
+public class TypeManager {
+
+	private Map<Type, String> imports;
+	private Set<String> staticImports;
+
+	public TypeManager() {
+		imports = new LinkedHashMap<>();
+		staticImports = new LinkedHashSet<>();
+	}
+
+	public List<String> getImports() {
+		return Stream.concat(imports.values().stream(), staticImports.stream())
+			.collect(toList());
+	}
+
+	public void staticImport(Class<?> type, String method) {
+		staticImports.add("static " + type.getName() + "." + method);
+	}
+
+	public void registerTypes(Type... types) {
+		for (Type type : types) {
+			registerType(type);
+		}
+	}
+
+	public void registerType(Type type) {
+		if (type instanceof Class<?>) {
+			registerImport((Class<?>) type);
+		} else if (type instanceof GenericArrayType) {
+			registerType(((GenericArrayType) type).getGenericComponentType());
+		} else if (type instanceof ParameterizedType) {
+			registerType(((ParameterizedType) type).getRawType());
+			registerTypes(((ParameterizedType) type).getActualTypeArguments());
+		}
+	}
+
+	public void registerImport(Class<?> type) {
+		if (type.isPrimitive()) {
+			return;
+		} else if (type.isArray()) {
+			registerImport(type.getComponentType());
+		} else if (isHidden(type)) {
+			registerImport(Wrapped.class);
+			staticImport(Wrapped.class, "clazz");
+		} else {
+			imports.put(type, type.getName().replace('$', '.'));
+		}
 	}
 
 	public static Method getDeclaredMethod(Class<?> clazz, String name, Class<?>... parameterTypes) {
@@ -53,7 +105,7 @@ public final class TypeHelper {
 		}
 	}
 
-	public static String getBestName(Type type) {
+	public String getBestName(Type type) {
 		if (type instanceof Class<?>) {
 			Class<?> clazz = (Class<?>) type;
 			if (clazz.getTypeParameters().length > 0) {
@@ -73,7 +125,7 @@ public final class TypeHelper {
 		}
 	}
 
-	public static String getSimpleName(Type type) {
+	public String getSimpleName(Type type) {
 		if (isHidden(type)) {
 			return Wrapped.class.getSimpleName();
 		} else if (type instanceof Class<?>) {
@@ -92,7 +144,7 @@ public final class TypeHelper {
 		}
 	}
 
-	public static String getRawName(Type type) {
+	public String getRawName(Type type) {
 		if (isHidden(type)) {
 			return Wrapped.class.getSimpleName();
 		} else if (type instanceof Class<?>) {
@@ -106,22 +158,21 @@ public final class TypeHelper {
 		}
 	}
 
-	public static String getRawTypeName(Type type) {
+	public String getRawTypeName(Type type) {
 		if (isHidden(type)) {
 			return getWrappedName(type);
 		} else {
 			return getRawName((Class<?>) type) + ".class";
 		}
 	}
-	
+
 	public static boolean isPrimitive(Type type) {
 		return type instanceof Class<?> && ((Class<?>) type).isPrimitive();
 	}
 
-	public static String getWrappedName(Type type) {
+	public String getWrappedName(Type type) {
 		return "clazz(\"" + getBase(type).getName() + "\")";
 	}
-
 
 	public static boolean isHidden(Type type) {
 		return !Modifier.isPublic(getBase(type).getModifiers());
@@ -149,12 +200,12 @@ public final class TypeHelper {
 
 	public static Type wildcard() {
 		return new WildcardType() {
-			
+
 			@Override
 			public Type[] getUpperBounds() {
 				return new Type[0];
 			}
-			
+
 			@Override
 			public Type[] getLowerBounds() {
 				return new Type[0];

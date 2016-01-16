@@ -1,9 +1,6 @@
 package com.almondtools.testrecorder;
 
 import static com.almondtools.testrecorder.SnapshotInstrumentor.SNAPSHOT_GENERATOR_FIELD_NAME;
-import static com.almondtools.testrecorder.TypeHelper.getBase;
-import static com.almondtools.testrecorder.TypeHelper.getSimpleName;
-import static com.almondtools.testrecorder.TypeHelper.isPrimitive;
 import static com.almondtools.testrecorder.visitors.Templates.assignFieldStatement;
 import static com.almondtools.testrecorder.visitors.Templates.assignLocalVariableStatement;
 import static com.almondtools.testrecorder.visitors.Templates.callLocalMethod;
@@ -17,6 +14,8 @@ import static com.almondtools.testrecorder.visitors.Templates.fieldAccess;
 import static com.almondtools.testrecorder.visitors.Templates.fieldDeclaration;
 import static com.almondtools.testrecorder.visitors.Templates.newObject;
 import static com.almondtools.testrecorder.visitors.Templates.stringOf;
+import static com.almondtools.testrecorder.visitors.TypeManager.getBase;
+import static com.almondtools.testrecorder.visitors.TypeManager.isPrimitive;
 import static java.lang.Character.toUpperCase;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
@@ -57,11 +56,11 @@ import com.almondtools.testrecorder.util.RecordOutput;
 import com.almondtools.testrecorder.values.SerializedField;
 import com.almondtools.testrecorder.values.SerializedOutput;
 import com.almondtools.testrecorder.visitors.Computation;
-import com.almondtools.testrecorder.visitors.ImportManager;
 import com.almondtools.testrecorder.visitors.LocalVariableNameGenerator;
 import com.almondtools.testrecorder.visitors.ObjectToMatcherCode;
 import com.almondtools.testrecorder.visitors.ObjectToSetupCode;
 import com.almondtools.testrecorder.visitors.SerializedValueVisitorFactory;
+import com.almondtools.testrecorder.visitors.TypeManager;
 
 public class TestGenerator implements SnapshotConsumer {
 
@@ -101,7 +100,7 @@ public class TestGenerator implements SnapshotConsumer {
 	private static final String BEGIN_ACT = "\n//Act";
 	private static final String BEGIN_ASSERT = "\n//Assert";
 
-	private ImportManager imports;
+	private TypeManager types;
 	private SerializedValueVisitorFactory setup;
 	private SerializedValueVisitorFactory matcher;
 	private Map<Class<?>, Set<String>> tests;
@@ -110,7 +109,7 @@ public class TestGenerator implements SnapshotConsumer {
 	private Class<? extends Runnable> initializer;
 
 	public TestGenerator(Class<? extends Runnable> initializer) {
-		this.imports = initImports();
+		this.types = initTypes();
 		this.setup = new ObjectToSetupCode.Factory();
 		this.matcher = new ObjectToMatcherCode.Factory();
 
@@ -121,10 +120,10 @@ public class TestGenerator implements SnapshotConsumer {
 		this.outputClasses = new LinkedHashSet<>();
 	}
 
-	private ImportManager initImports() {
-		ImportManager imports = new ImportManager();
-		imports.registerImports(Test.class);;
-		return imports;
+	private TypeManager initTypes() {
+		TypeManager types = new TypeManager();
+		types.registerTypes(Test.class);;
+		return types;
 	}
 
 	public String generateBefore(List<String> statements) {
@@ -170,7 +169,7 @@ public class TestGenerator implements SnapshotConsumer {
 	}
 
 	public void clearResults() {
-		this.imports = initImports();
+		this.types = initTypes();
 		tests.clear();
 		this.fields = new LinkedHashSet<>();
 		this.outputClasses = new LinkedHashSet<>();
@@ -195,7 +194,7 @@ public class TestGenerator implements SnapshotConsumer {
 
 		ST file = new ST(TEST_FILE);
 		file.add("package", clazz.getPackage().getName());
-		file.add("imports", imports.getImports());
+		file.add("imports", types.getImports());
 		file.add("runner", computeRunner());
 		file.add("className", computeClassName(clazz));
 		file.add("fields", fields);
@@ -227,8 +226,8 @@ public class TestGenerator implements SnapshotConsumer {
 		if (initializer == null) {
 			return "";
 		}
-		imports.registerImports(Before.class, initializer);
-		String initObject = newObject(getSimpleName(initializer));
+		types.registerTypes(Before.class, initializer);
+		String initObject = newObject(types.getSimpleName(initializer));
 		String initStmt = callMethodStatement(initObject, "run");
 		return generateBefore(asList(initStmt));
 	}
@@ -275,16 +274,16 @@ public class TestGenerator implements SnapshotConsumer {
 
 			List<SerializedOutput> serializedOutput = snapshot.getExpectOutput();
 			if (serializedOutput != null && !serializedOutput.isEmpty()) {
-				imports.registerImports(RunWith.class, RecordOutput.class, ExpectedOutputRecorder.class, ExpectedOutput.class);
+				types.registerTypes(RunWith.class, RecordOutput.class, ExpectedOutputRecorder.class, ExpectedOutput.class);
 				fields.add(fieldDeclaration("public", ExpectedOutput.class.getSimpleName(), "expectedOutput"));
 
 				List<String> methods = new ArrayList<>();
 				for (SerializedOutput out : serializedOutput) {
-					imports.registerImport(out.getDeclaringClass());
+					types.registerImport(out.getDeclaringClass());
 					outputClasses.add(out.getDeclaringClass().getTypeName());
 
 					List<Computation> args = Stream.of(out.getValues())
-						.map(arg -> arg.accept(matcher.create(locals, imports)))
+						.map(arg -> arg.accept(matcher.create(locals, types)))
 						.collect(toList());
 
 					statements.addAll(args.stream()
@@ -303,7 +302,7 @@ public class TestGenerator implements SnapshotConsumer {
 				statements.add(outputExpectation);
 			}
 
-			SerializedValueVisitor<Computation> setupCode = setup.create(locals, imports);
+			SerializedValueVisitor<Computation> setupCode = setup.create(locals, types);
 			Computation setupThis = snapshot.getSetupThis().accept(setupCode);
 
 			statements.addAll(setupThis.getStatements());
@@ -337,7 +336,7 @@ public class TestGenerator implements SnapshotConsumer {
 
 		private Computation assignGlobal(Class<?> clazz, String name, Computation global) {
 			List<String> statements = new ArrayList<>(global.getStatements());
-			String base = getSimpleName(clazz);
+			String base = types.getSimpleName(clazz);
 			statements.add(assignFieldStatement(base, name, global.getValue()));
 			String value = fieldAccess(base, name);
 			return new Computation(value, global.getType(), true, statements);
@@ -360,11 +359,11 @@ public class TestGenerator implements SnapshotConsumer {
 		}
 
 		public MethodGenerator generateAssert() {
-			imports.staticImport(Assert.class, "assertThat");
+			types.staticImport(Assert.class, "assertThat");
 			statements.add(BEGIN_ASSERT);
 
 			List<String> expectResult = Optional.ofNullable(snapshot.getExpectResult())
-				.map(o -> o.accept(matcher.create(locals, imports)))
+				.map(o -> o.accept(matcher.create(locals, types)))
 				.map(o -> createAssertion(o, result))
 				.orElse(emptyList());
 
@@ -372,7 +371,7 @@ public class TestGenerator implements SnapshotConsumer {
 
 			List<String> expectThis = Optional.of(snapshot.getExpectThis())
 				.filter(o -> !o.equals(snapshot.getSetupThis()))
-				.map(o -> o.accept(matcher.create(locals, imports)))
+				.map(o -> o.accept(matcher.create(locals, types)))
 				.map(o -> createAssertion(o, base))
 				.orElse(emptyList());
 
@@ -383,7 +382,7 @@ public class TestGenerator implements SnapshotConsumer {
 			List<String> expectArgs = IntStream.range(0, argumentTypes.length)
 				.filter(i -> !isImmutable(argumentTypes[i]))
 				.filter(i -> !serializedArgs[i].equals(snapshot.getSetupArgs()[i]))
-				.mapToObj(i -> createAssertion(serializedArgs[i].accept(matcher.create(locals, imports)), args.get(i)))
+				.mapToObj(i -> createAssertion(serializedArgs[i].accept(matcher.create(locals, types)), args.get(i)))
 				.flatMap(statements -> statements.stream())
 				.collect(toList());
 
@@ -393,8 +392,8 @@ public class TestGenerator implements SnapshotConsumer {
 			List<String> expectGlobals = IntStream.range(0, serializedGlobals.length)
 				.filter(i -> !isImmutable(serializedGlobals[i].getType()))
 				.filter(i -> !serializedGlobals[i].equals(snapshot.getSetupGlobals()[i]))
-				.mapToObj(i -> createAssertion(serializedGlobals[i].getValue().accept(matcher.create(locals, imports)),
-					fieldAccess(getSimpleName(serializedGlobals[i].getDeclaringClass()), serializedGlobals[i].getName())))
+				.mapToObj(i -> createAssertion(serializedGlobals[i].getValue().accept(matcher.create(locals, types)),
+					fieldAccess(types.getSimpleName(serializedGlobals[i].getDeclaringClass()), serializedGlobals[i].getName())))
 				.flatMap(statements -> statements.stream())
 				.collect(toList());
 
@@ -429,7 +428,7 @@ public class TestGenerator implements SnapshotConsumer {
 			} else {
 				String name = locals.fetchName(type);
 
-				statements.add(assignLocalVariableStatement(getSimpleName(type), name, value));
+				statements.add(assignLocalVariableStatement(types.getSimpleName(type), name, value));
 
 				return name;
 			}

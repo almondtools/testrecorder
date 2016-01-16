@@ -1,5 +1,6 @@
 package com.almondtools.testrecorder.values;
 
+import static com.almondtools.testrecorder.visitors.TypeManager.getBase;
 import static java.util.Arrays.asList;
 
 import java.lang.reflect.Type;
@@ -8,7 +9,6 @@ import java.util.List;
 
 import com.almondtools.testrecorder.SerializedValue;
 import com.almondtools.testrecorder.SerializedValueVisitor;
-import com.almondtools.testrecorder.TypeHelper;
 import com.almondtools.testrecorder.visitors.SerializedValuePrinter;
 
 public class SerializedObject implements SerializedValue {
@@ -35,7 +35,7 @@ public class SerializedObject implements SerializedValue {
 
 	@Override
 	public Class<?> getValueType() {
-		return TypeHelper.getBase(valueType);
+		return getBase(valueType);
 	}
 
 	public List<SerializedField> getFields() {

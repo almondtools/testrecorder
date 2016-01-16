@@ -1,7 +1,5 @@
 package com.almondtools.testrecorder.visitors;
 
-import static com.almondtools.testrecorder.TypeHelper.getBestName;
-import static com.almondtools.testrecorder.TypeHelper.getSimpleName;
 import static com.almondtools.testrecorder.visitors.Templates.assignLocalVariableStatement;
 import static com.almondtools.testrecorder.visitors.Templates.callMethodStatement;
 import static com.almondtools.testrecorder.visitors.Templates.newObject;
@@ -36,7 +34,7 @@ public class ConstructionPlan {
 		}
 	}
 
-	public Computation compute(SerializedValueVisitor<Computation> compiler) {
+	public Computation compute(TypeManager types, SerializedValueVisitor<Computation> compiler) {
 		Class<?> clazz = constructorParams.getType();
 		List<String> statements = new ArrayList<>();
 
@@ -52,8 +50,8 @@ public class ConstructionPlan {
 			.map(computation -> computation.getValue())
 			.toArray(String[]::new);
 
-		String bean = newObject(getBestName(clazz), params);
-		String constructorStatement = assignLocalVariableStatement(getSimpleName(clazz), name, bean);
+		String bean = newObject(types.getBestName(clazz), params);
+		String constructorStatement = assignLocalVariableStatement(types.getSimpleName(clazz), name, bean);
 		statements.add(constructorStatement);
 
 		for (SetterParam param : setterParams) {
