@@ -180,6 +180,10 @@ public abstract class GenericObject {
 			value = ((Wrapped) value).value();
 		}
 		Field to = findField(name, o.getClass());
+		setField(o, to, value);
+	}
+
+	public static void setField(Object o, Field to, Object value) {
 		boolean access = to.isAccessible();
 		if (!access) {
 			to.setAccessible(true);
@@ -191,6 +195,33 @@ public abstract class GenericObject {
 		} finally {
 			if (!access) {
 				to.setAccessible(false);
+			}
+		}
+	}
+
+	public static void copyArrayValues(Object from, Object to) {
+		int fromLength = Array.getLength(from);
+		int toLength = Array.getLength(to);
+		int minLength = fromLength < toLength ? fromLength : toLength;
+		for (int i = 0; i < minLength; i++) {
+			Object value = Array.get(from, i);
+			Array.set(to, i, value);
+		}
+	}
+
+	public static void copyField(Field field, Object from, Object to) {
+		boolean access = field.isAccessible();
+		if (!access) {
+			field.setAccessible(true);
+		}
+		try {
+			Object value = field.get(from);
+			field.set(to, value);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			throw new GenericObjectException(e);
+		} finally {
+			if (!access) {
+				field.setAccessible(false);
 			}
 		}
 	}

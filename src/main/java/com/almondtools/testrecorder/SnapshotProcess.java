@@ -13,6 +13,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 import com.almondtools.testrecorder.values.SerializedField;
+import com.almondtools.testrecorder.values.SerializedInput;
 import com.almondtools.testrecorder.values.SerializedOutput;
 
 public class SnapshotProcess {
@@ -22,6 +23,7 @@ public class SnapshotProcess {
 	private ContextSnapshot snapshot;
 	private SerializerFacade facade;
 	private List<Field> globals;
+	private List<SerializedInput> input;
 	private List<SerializedOutput> output;
 
 	public SnapshotProcess(ExecutorService executor, long timeoutInMillis, ContextSnapshotFactory factory) {
@@ -30,6 +32,7 @@ public class SnapshotProcess {
 		this.snapshot = factory.createSnapshot();
 		this.facade = new ConfigurableSerializerFacade(factory.profile());
 		this.globals = factory.getGlobalFields();
+		this.input = new ArrayList<>();
 		this.output = new ArrayList<>();
 	}
 	
@@ -37,6 +40,14 @@ public class SnapshotProcess {
 		return snapshot;
 	}
 	
+	public void inputVariables(Class<?> clazz, String method, Type resultType, Object result, Type[] paramTypes, Object[] args) {
+		input.add(new SerializedInput(clazz, method, resultType, facade.serialize(resultType, result), paramTypes, facade.serialize(paramTypes, args)));
+	}
+
+	public void inputVariables(Class<?> clazz, String method, Type[] paramTypes, Object[] args) {
+		input.add(new SerializedInput(clazz, method, paramTypes, facade.serialize(paramTypes, args)));
+	}
+
 	public void outputVariables(Class<?> clazz, String method, Type[] paramTypes, Object[] args) {
 		output.add(new SerializedOutput(clazz, method, paramTypes, facade.serialize(paramTypes, args)));
 	}
@@ -48,6 +59,7 @@ public class SnapshotProcess {
 			snapshot.setSetupGlobals(globals.stream()
 				.map(field -> facade.serialize(field, null))
 				.toArray(SerializedField[]::new));
+			snapshot.setSetupInput(input);
 		});
 	}
 

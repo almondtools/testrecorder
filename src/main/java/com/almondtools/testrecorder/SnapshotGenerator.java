@@ -82,6 +82,16 @@ public class SnapshotGenerator {
 		currentGenerator.set(this);
 	}
 
+	public void inputVariables(Class<?> clazz, String method, Type resultType, Object result, Type[] paramTypes, Object... args) {
+		SnapshotProcess process = process();
+		process.inputVariables(clazz, method, resultType, result, paramTypes, args);
+	}
+
+	public void inputVariables(Class<?> clazz, String method, Type[] paramTypes, Object... args) {
+		SnapshotProcess process = process();
+		process.inputVariables(clazz, method, paramTypes, args);
+	}
+
 	public void outputVariables(Class<?> clazz, String method, Type[] paramTypes, Object... args) {
 		SnapshotProcess process = process();
 		process.outputVariables(clazz, method, paramTypes, args);

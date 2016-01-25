@@ -16,8 +16,8 @@ import com.almondtools.testrecorder.util.Instrumented;
 import com.almondtools.testrecorder.util.InstrumentedClassLoaderRunner;
 
 @RunWith(InstrumentedClassLoaderRunner.class)
-@Instrumented(classes={"com.almondtools.testrecorder.scenarios.Outputs"})
-public class OutputsTest {
+@Instrumented(classes={"com.almondtools.testrecorder.scenarios.Inputs"})
+public class InputsTest {
 
 	@Before
 	public void before() throws Exception {
@@ -26,47 +26,65 @@ public class OutputsTest {
 	
 	@Test
 	public void testCompilableNotRecorded() throws Exception {
-		Outputs out = new Outputs();
+		Inputs out = new Inputs();
 		out.notrecorded();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded(out);
-		assertThat(testGenerator.testsFor(Outputs.class), empty());
+		assertThat(testGenerator.testsFor(Inputs.class), empty());
 	}
 	
 	@Test
 	public void testCompilable() throws Exception {
-		Outputs out = new Outputs();
+		Inputs out = new Inputs();
 		out.recorded();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded(out);
-		assertThat(testGenerator.renderTest(Outputs.class), compiles());
+		assertThat(testGenerator.renderTest(Inputs.class), compiles());
 	}
 	
 	@Test
 	public void testPrimitivesCompilable() throws Exception {
-		Outputs out = new Outputs();
+		Inputs out = new Inputs();
 		out.primitivesRecorded();
-
+		
 		TestGenerator testGenerator = TestGenerator.fromRecorded(out);
-		assertThat(testGenerator.renderTest(Outputs.class), compiles());
+		assertThat(testGenerator.renderTest(Inputs.class), compiles());
+	}
+	
+	@Test
+	public void testSideEffectsCompilable() throws Exception {
+		Inputs out = new Inputs();
+		out.sideEffectsRecorded();
+		
+		TestGenerator testGenerator = TestGenerator.fromRecorded(out);
+		assertThat(testGenerator.renderTest(Inputs.class), compiles());
 	}
 	
 	@Test
 	public void testRunnable() throws Exception {
-		Outputs out = new Outputs();
+		Inputs out = new Inputs();
 		out.recorded();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded(out);
-		assertThat(testGenerator.renderTest(Outputs.class), testsRuns());
+		assertThat(testGenerator.renderTest(Inputs.class), testsRuns());
 	}
 	
 	@Test
 	public void testPrimitivesRunnable() throws Exception {
-		Outputs out = new Outputs();
+		Inputs out = new Inputs();
 		out.primitivesRecorded();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded(out);
-		assertThat(testGenerator.renderTest(Outputs.class), testsRuns());
+		assertThat(testGenerator.renderTest(Inputs.class), testsRuns());
+	}
+	
+	@Test
+	public void testSideEffectsRunnable() throws Exception {
+		Inputs out = new Inputs();
+		out.sideEffectsRecorded();
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded(out);
+		assertThat(testGenerator.renderTest(Inputs.class), testsRuns());
 	}
 	
 }

@@ -1,19 +1,21 @@
 package com.almondtools.testrecorder;
 
+import static com.almondtools.testrecorder.ByteCode.memorizeLocal;
+import static com.almondtools.testrecorder.ByteCode.pushAsArray;
+import static com.almondtools.testrecorder.ByteCode.pushType;
+import static com.almondtools.testrecorder.ByteCode.pushTypes;
+import static com.almondtools.testrecorder.ByteCode.range;
+import static com.almondtools.testrecorder.ByteCode.recallLocal;
 import static java.util.stream.Collectors.toList;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_SYNTHETIC;
 import static org.objectweb.asm.Opcodes.ALOAD;
-import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.DUP;
-import static org.objectweb.asm.Opcodes.DUP2;
 import static org.objectweb.asm.Opcodes.GETFIELD;
-import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.IFNULL;
-import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
@@ -27,8 +29,6 @@ import static org.objectweb.asm.Opcodes.SWAP;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
@@ -43,7 +43,6 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
@@ -63,6 +62,35 @@ import org.objectweb.asm.tree.VarInsnNode;
 import com.almondtools.testrecorder.visitors.TypeManager;
 
 public class SnapshotInstrumentor implements ClassFileTransformer {
+
+	private static final String Class_name = Type.getInternalName(Class.class);
+	private static final String Object_name = Type.getInternalName(Object.class);
+	private static final String TypeManager_name = Type.getInternalName(TypeManager.class);
+	private static final String SnapShortGenerator_name = Type.getInternalName(SnapshotGenerator.class);
+
+	private static final String SnapshotGenerator_descriptor = Type.getDescriptor(SnapshotGenerator.class);
+	private static final String SnapshotExcluded_descriptor = Type.getDescriptor(SnapshotExcluded.class);
+	private static final String Snapshot_descriptor = Type.getDescriptor(Snapshot.class);
+	private static final String SnapshotInput_descriptor = Type.getDescriptor(SnapshotInput.class);
+	private static final String SnapshotOutput_descriptor = Type.getDescriptor(SnapshotOutput.class);
+
+	private static final String Object_getClass_descriptor = ByteCode.methodDescriptor(Object.class, "getClass");
+
+	private static final String SnapshotGenerator_init_descriptor = ByteCode.constructorDescriptor(SnapshotGenerator.class, Object.class, Class.class);
+	private static final String SnapshotGenerator_registerMethod_descriptor = ByteCode.methodDescriptor(SnapshotGenerator.class, "register", String.class, Method.class);
+	private static final String SnapshotGenerator_getCurrentGenerator_descriptor = ByteCode.methodDescriptor(SnapshotGenerator.class, "getCurrentGenerator");
+	private static final String SnapshotGenerator_setupVariables_descriptor = ByteCode.methodDescriptor(SnapshotGenerator.class, "setupVariables", String.class, Object[].class);
+	private static final String SnapshotGenerator_expectVariablesResult_descriptor = ByteCode.methodDescriptor(SnapshotGenerator.class, "expectVariables", Object.class, Object[].class);
+	private static final String SnapshotGenerator_expectVariablesNoResult_descriptor = ByteCode.methodDescriptor(SnapshotGenerator.class, "expectVariables", Object[].class);
+	private static final String SnapshotGenerator_throwVariables_descriptor = ByteCode.methodDescriptor(SnapshotGenerator.class, "throwVariables", Throwable.class, Object[].class);
+	private static final String SnapshotGenerator_outputVariables_descriptor = ByteCode.methodDescriptor(SnapshotGenerator.class, "outputVariables", Class.class, String.class,
+		java.lang.reflect.Type[].class, Object[].class);
+	private static final String SnapshotGenerator_inputVariablesResult_descriptor = ByteCode.methodDescriptor(SnapshotGenerator.class, "inputVariables", Class.class, String.class,
+		java.lang.reflect.Type.class, Object.class, java.lang.reflect.Type[].class, Object[].class);
+	private static final String SnapshotGenerator_inputVariablesNoResult_descriptor = ByteCode.methodDescriptor(SnapshotGenerator.class, "inputVariables", Class.class, String.class,
+		java.lang.reflect.Type[].class, Object[].class);
+
+	private static final String TypeManager_getDeclaredMethod_descriptor = ByteCode.methodDescriptor(TypeManager.class, "getDeclaredMethod", Class.class, String.class, Class[].class);
 
 	private static final String CONSTRUCTOR_NAME = "<init>";
 
@@ -101,6 +129,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 		instrumentSnapshotMethods(classNode);
 
+		instrumentInputMethods(classNode);
 		instrumentOutputMethods(classNode);
 
 		ClassWriter out = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
@@ -142,6 +171,16 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		}
 	}
 
+	private void instrumentInputMethods(ClassNode classNode) {
+		for (MethodNode method : getInputMethods(classNode)) {
+			List<InsnNode> rets = findReturn(method.instructions);
+			InsnList notifyInput = notifyInput(classNode, method);
+			for (InsnNode ret : rets) {
+				method.instructions.insertBefore(ret, notifyInput);
+			}
+		}
+	}
+
 	private void instrumentOutputMethods(ClassNode classNode) {
 		for (MethodNode method : getOutputMethods(classNode)) {
 			method.instructions.insert(notifyOutput(classNode, method));
@@ -149,9 +188,9 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	}
 
 	private FieldNode createTestAspectField() {
-		FieldNode fieldNode = new FieldNode(ACC_PRIVATE | ACC_SYNTHETIC, SNAPSHOT_GENERATOR_FIELD_NAME, Type.getDescriptor(SnapshotGenerator.class), Type.getDescriptor(SnapshotGenerator.class), null);
+		FieldNode fieldNode = new FieldNode(ACC_PRIVATE | ACC_SYNTHETIC, SNAPSHOT_GENERATOR_FIELD_NAME, SnapshotGenerator_descriptor, SnapshotGenerator_descriptor, null);
 		fieldNode.visibleAnnotations = new ArrayList<>();
-		fieldNode.visibleAnnotations.add(new AnnotationNode(Type.getDescriptor(SnapshotExcluded.class)));
+		fieldNode.visibleAnnotations.add(new AnnotationNode(SnapshotExcluded_descriptor));
 		return fieldNode;
 	}
 
@@ -168,7 +207,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 	private boolean isRoot(MethodNode method, String name) {
 		return stream(method.instructions.iterator())
-			.filter(insn -> insn.getOpcode() == Opcodes.INVOKESPECIAL && insn instanceof MethodInsnNode)
+			.filter(insn -> insn.getOpcode() == INVOKESPECIAL && insn instanceof MethodInsnNode)
 			.map(insn -> (MethodInsnNode) insn)
 			.filter(insn -> insn.name.equals(CONSTRUCTOR_NAME))
 			.noneMatch(insn -> insn.owner != null && insn.owner.equals(name));
@@ -191,16 +230,15 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		InsnList insnList = new InsnList();
 
 		insnList.add(new VarInsnNode(ALOAD, 0));
-		insnList.add(new TypeInsnNode(NEW, Type.getInternalName(SnapshotGenerator.class)));
+		insnList.add(new TypeInsnNode(NEW, SnapShortGenerator_name));
 		insnList.add(new InsnNode(DUP));
 		insnList.add(new VarInsnNode(ALOAD, 0));
 		insnList.add(new LdcInsnNode(Type.getType(config.getClass())));
-		insnList.add(new MethodInsnNode(INVOKESPECIAL, Type.getInternalName(SnapshotGenerator.class), CONSTRUCTOR_NAME,
-			Type.getConstructorDescriptor(constructorOf(SnapshotGenerator.class, Object.class, Class.class)), false));
-		insnList.add(new FieldInsnNode(PUTFIELD, classNode.name, SNAPSHOT_GENERATOR_FIELD_NAME, Type.getDescriptor(SnapshotGenerator.class)));
+		insnList.add(new MethodInsnNode(INVOKESPECIAL, SnapShortGenerator_name, CONSTRUCTOR_NAME, SnapshotGenerator_init_descriptor, false));
+		insnList.add(new FieldInsnNode(PUTFIELD, classNode.name, SNAPSHOT_GENERATOR_FIELD_NAME, SnapshotGenerator_descriptor));
 
 		insnList.add(new VarInsnNode(ALOAD, 0));
-		insnList.add(new FieldInsnNode(GETFIELD, classNode.name, SNAPSHOT_GENERATOR_FIELD_NAME, Type.getDescriptor(SnapshotGenerator.class)));
+		insnList.add(new FieldInsnNode(GETFIELD, classNode.name, SNAPSHOT_GENERATOR_FIELD_NAME, SnapshotGenerator_descriptor));
 
 		for (MethodNode methodNode : getSnapshotMethods(classNode)) {
 			insnList.add(new InsnNode(DUP));
@@ -208,19 +246,9 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 			insnList.add(pushMethod(classNode, methodNode));
 
-			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getInternalName(SnapshotGenerator.class), "register",
-				Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "register", String.class, Method.class)), false));
+			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapShortGenerator_name, "register", SnapshotGenerator_registerMethod_descriptor, false));
 		}
 
-		for (FieldNode fieldNode : getSnapshotFields(classNode)) {
-			insnList.add(new InsnNode(DUP));
-			insnList.add(new LdcInsnNode(keySignature(classNode, fieldNode)));
-
-			insnList.add(pushField(classNode, fieldNode));
-
-			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getInternalName(SnapshotGenerator.class), "register",
-				Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "register", String.class, Field.class)), false));
-		}
 		insnList.add(new InsnNode(POP));
 
 		return insnList;
@@ -233,12 +261,12 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		InsnList insnList = new InsnList();
 
 		insnList.add(new VarInsnNode(ALOAD, 0));
-		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getInternalName(Object.class), "getClass", Type.getMethodDescriptor(methodOf(Object.class, "getClass")), false));
+		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Object_name, "getClass", Object_getClass_descriptor, false));
 
 		insnList.add(new LdcInsnNode(method.name));
 
 		insnList.add(new LdcInsnNode(argCount));
-		insnList.add(new TypeInsnNode(Opcodes.ANEWARRAY, Type.getInternalName(Class.class)));
+		insnList.add(new TypeInsnNode(Opcodes.ANEWARRAY, Class_name));
 		for (int i = 0; i < argCount; i++) {
 			insnList.add(new InsnNode(DUP));
 			insnList.add(new LdcInsnNode(i));
@@ -246,21 +274,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 			insnList.add(new InsnNode(AASTORE));
 		}
 
-		insnList.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(TypeManager.class), "getDeclaredMethod",
-			Type.getMethodDescriptor(methodOf(TypeManager.class, "getDeclaredMethod", Class.class, String.class, Class[].class)), false));
-		return insnList;
-	}
-
-	private InsnList pushField(ClassNode clazz, FieldNode field) {
-		InsnList insnList = new InsnList();
-
-		insnList.add(new VarInsnNode(ALOAD, 0));
-		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getDescriptor(Object.class), "getClass", Type.getMethodDescriptor(methodOf(Object.class, "getClass")), false));
-
-		insnList.add(new LdcInsnNode(field.name));
-
-		insnList.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(TypeManager.class), "getDeclaredField",
-			Type.getMethodDescriptor(methodOf(TypeManager.class, "getDeclaredField", Class.class, String.class)), false));
+		insnList.add(new MethodInsnNode(INVOKESTATIC, TypeManager_name, "getDeclaredMethod", TypeManager_getDeclaredMethod_descriptor, false));
 		return insnList;
 	}
 
@@ -275,7 +289,21 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 			return false;
 		}
 		return method.visibleAnnotations.stream()
-			.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Snapshot.class)));
+			.anyMatch(annotation -> annotation.desc.equals(Snapshot_descriptor));
+	}
+
+	private List<MethodNode> getInputMethods(ClassNode classNode) {
+		return classNode.methods.stream()
+			.filter(method -> isInputMethod(method))
+			.collect(toList());
+	}
+
+	private boolean isInputMethod(MethodNode method) {
+		if (method.visibleAnnotations == null) {
+			return false;
+		}
+		return method.visibleAnnotations.stream()
+			.anyMatch(annotation -> annotation.desc.equals(SnapshotInput_descriptor));
 	}
 
 	private List<MethodNode> getOutputMethods(ClassNode classNode) {
@@ -289,21 +317,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 			return false;
 		}
 		return method.visibleAnnotations.stream()
-			.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(SnapshotOutput.class)));
-	}
-
-	private List<FieldNode> getSnapshotFields(ClassNode classNode) {
-		return ((List<FieldNode>) classNode.fields).stream()
-			.filter(field -> isSnapshotField(field))
-			.collect(toList());
-	}
-
-	private boolean isSnapshotField(FieldNode field) {
-		if (field.visibleAnnotations == null) {
-			return false;
-		}
-		return field.visibleAnnotations.stream()
-			.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Snapshot.class)));
+			.anyMatch(annotation -> annotation.desc.equals(SnapshotOutput_descriptor));
 	}
 
 	private TryCatchBlockNode createTryCatchBlock(LabelNode tryLabel, LabelNode catchLabel) {
@@ -330,92 +344,104 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	}
 
 	private InsnList setupVariables(ClassNode classNode, MethodNode methodNode) {
+		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
+		List<LocalVariableNode> arguments = range(methodNode.localVariables, 1, argumentTypes.length);
+
 		InsnList insnList = new InsnList();
 
 		insnList.add(new VarInsnNode(ALOAD, 0));
-		insnList.add(new FieldInsnNode(GETFIELD, classNode.name, SNAPSHOT_GENERATOR_FIELD_NAME, Type.getDescriptor(SnapshotGenerator.class)));
+		insnList.add(new FieldInsnNode(GETFIELD, classNode.name, SNAPSHOT_GENERATOR_FIELD_NAME, SnapshotGenerator_descriptor));
 
 		insnList.add(new LdcInsnNode(keySignature(classNode, methodNode)));
 
-		insnList.add(pushMethodArguments(methodNode));
+		insnList.add(pushAsArray(arguments, argumentTypes));
 
-		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getInternalName(SnapshotGenerator.class), "setupVariables",
-			Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "setupVariables", String.class, Object[].class)), false));
+		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapShortGenerator_name, "setupVariables", SnapshotGenerator_setupVariables_descriptor, false));
 
 		return insnList;
 	}
 
 	private InsnList expectVariables(ClassNode classNode, MethodNode methodNode) {
-		int newLocal = methodNode.maxLocals;
+		Type returnType = Type.getReturnType(methodNode.desc);
+		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
+		List<LocalVariableNode> arguments = range(methodNode.localVariables, 1, argumentTypes.length);
 
 		InsnList insnList = new InsnList();
-		Type returnType = Type.getReturnType(methodNode.desc);
+		int newLocal = methodNode.maxLocals;
 
-		if (returnType.getSize() == 1) {
-			insnList.add(new InsnNode(DUP));
-			insnList.add(boxPrimitives(returnType));
-			insnList.add(new VarInsnNode(ASTORE, newLocal));
-		} else if (returnType.getSize() == 2) {
-			insnList.add(new InsnNode(DUP2));
-			insnList.add(boxPrimitives(returnType));
-			insnList.add(new VarInsnNode(ASTORE, newLocal));
+		if (returnType.getSize() > 0) {
+			insnList.add(memorizeLocal(returnType, newLocal));
 		}
 
 		insnList.add(new VarInsnNode(ALOAD, 0));
-		insnList.add(new FieldInsnNode(GETFIELD, classNode.name, SNAPSHOT_GENERATOR_FIELD_NAME, Type.getDescriptor(SnapshotGenerator.class)));
+		insnList.add(new FieldInsnNode(GETFIELD, classNode.name, SNAPSHOT_GENERATOR_FIELD_NAME, SnapshotGenerator_descriptor));
 
 		if (returnType.getSize() > 0) {
-			insnList.add(new VarInsnNode(ALOAD, newLocal));
+			insnList.add(recallLocal(newLocal));
 		}
-
-		insnList.add(pushMethodArguments(methodNode));
+		insnList.add(pushAsArray(arguments, argumentTypes));
 
 		if (returnType.getSize() > 0) {
-			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getInternalName(SnapshotGenerator.class), "expectVariables",
-				Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "expectVariables", Object.class, Object[].class)), false));
+			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapShortGenerator_name, "expectVariables", SnapshotGenerator_expectVariablesResult_descriptor, false));
 		} else {
-			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getInternalName(SnapshotGenerator.class), "expectVariables",
-				Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "expectVariables", Object[].class)), false));
+			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapShortGenerator_name, "expectVariables", SnapshotGenerator_expectVariablesNoResult_descriptor, false));
 		}
 
 		return insnList;
 	}
 
 	private InsnList throwVariables(ClassNode classNode, MethodNode methodNode) {
+		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
+		List<LocalVariableNode> arguments = range(methodNode.localVariables, 1, argumentTypes.length);
+
 		InsnList insnList = new InsnList();
 
 		insnList.add(new InsnNode(DUP));
 
 		insnList.add(new VarInsnNode(ALOAD, 0));
-		insnList.add(new FieldInsnNode(GETFIELD, classNode.name, SNAPSHOT_GENERATOR_FIELD_NAME, Type.getDescriptor(SnapshotGenerator.class)));
+		insnList.add(new FieldInsnNode(GETFIELD, classNode.name, SNAPSHOT_GENERATOR_FIELD_NAME, SnapshotGenerator_descriptor));
 
 		insnList.add(new InsnNode(SWAP));
 
-		insnList.add(pushMethodArguments(methodNode));
+		insnList.add(pushAsArray(arguments, argumentTypes));
 
-		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getInternalName(SnapshotGenerator.class), "throwVariables",
-			Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "throwVariables", Throwable.class, Object[].class)), false));
+		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapShortGenerator_name, "throwVariables", SnapshotGenerator_throwVariables_descriptor, false));
 
 		return insnList;
 	}
 
-	private InsnList notifyOutput(ClassNode classNode, MethodNode methodNode) {
+	private InsnList notifyInput(ClassNode classNode, MethodNode methodNode) {
+		Type returnType = Type.getReturnType(methodNode.desc);
+		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
+		List<LocalVariableNode> arguments = range(methodNode.localVariables, 1, argumentTypes.length);
+
 		InsnList insnList = new InsnList();
+		int newLocal = methodNode.maxLocals;
+
+		if (returnType.getSize() > 0) {
+			insnList.add(memorizeLocal(returnType, newLocal));
+		}
 
 		LabelNode skip = new LabelNode();
 		LabelNode done = new LabelNode();
-		
-		insnList.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(SnapshotGenerator.class), "getCurrentGenerator",
-			Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "getCurrentGenerator")), false));
+
+		insnList.add(new MethodInsnNode(INVOKESTATIC, SnapShortGenerator_name, "getCurrentGenerator", SnapshotGenerator_getCurrentGenerator_descriptor, false));
 		insnList.add(new InsnNode(DUP));
 		insnList.add(new JumpInsnNode(IFNULL, skip));
-		
+
 		insnList.add(new LdcInsnNode(Type.getObjectType(classNode.name)));
 		insnList.add(new LdcInsnNode(methodNode.name));
-		insnList.add(pushMethodArgumentTypes(methodNode));
-		insnList.add(pushMethodArguments(methodNode));
-		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getInternalName(SnapshotGenerator.class), "outputVariables",
-			Type.getMethodDescriptor(methodOf(SnapshotGenerator.class, "outputVariables", Class.class, String.class, java.lang.reflect.Type[].class, Object[].class)), false));
+		if (returnType.getSize() > 0) {
+			insnList.add(pushType(returnType));
+			insnList.add(recallLocal(newLocal));
+		}
+		insnList.add(pushTypes(argumentTypes));
+		insnList.add(pushAsArray(arguments, argumentTypes));
+		if (returnType.getSize() > 0) {
+			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapShortGenerator_name, "inputVariables", SnapshotGenerator_inputVariablesResult_descriptor, false));
+		} else {
+			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapShortGenerator_name, "inputVariables", SnapshotGenerator_inputVariablesNoResult_descriptor, false));
+		}
 		insnList.add(new JumpInsnNode(Opcodes.GOTO, done));
 		insnList.add(skip);
 		insnList.add(new InsnNode(POP));
@@ -423,140 +449,33 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		return insnList;
 	}
 
-	private InsnList pushMethodArgumentTypes(MethodNode methodNode) {
+	private InsnList notifyOutput(ClassNode classNode, MethodNode methodNode) {
 		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
-		int params = argumentTypes.length;
+		List<LocalVariableNode> arguments = range(methodNode.localVariables, 1, argumentTypes.length);
 
 		InsnList insnList = new InsnList();
 
-		insnList.add(new LdcInsnNode(params));
-		insnList.add(new TypeInsnNode(Opcodes.ANEWARRAY, Type.getInternalName(java.lang.reflect.Type.class)));
+		LabelNode skip = new LabelNode();
+		LabelNode done = new LabelNode();
 
-		for (int i = 0; i < params; i++) {
-			insnList.add(new InsnNode(DUP));
-			insnList.add(new LdcInsnNode(i));
-			insnList.add(new LdcInsnNode(argumentTypes[i]));
-			insnList.add(new InsnNode(AASTORE));
-		}
-		return insnList;
+		insnList.add(new MethodInsnNode(INVOKESTATIC, SnapShortGenerator_name, "getCurrentGenerator", SnapshotGenerator_getCurrentGenerator_descriptor, false));
+		insnList.add(new InsnNode(DUP));
+		insnList.add(new JumpInsnNode(IFNULL, skip));
 
-	}
-
-	private InsnList pushMethodArguments(MethodNode methodNode) {
-		int params = Type.getArgumentTypes(methodNode.desc).length;
-		
-		InsnList insnList = new InsnList();
-		
-		insnList.add(new LdcInsnNode(params));
-		insnList.add(new TypeInsnNode(Opcodes.ANEWARRAY, Type.getInternalName(Object.class)));
-		
-		for (int i = 0; i < params; i++) {
-			insnList.add(new InsnNode(DUP));
-			insnList.add(new LdcInsnNode(i));
-			LocalVariableNode node = (LocalVariableNode) methodNode.localVariables.get(i + 1);
-			Type type = Type.getType(node.desc);
-			insnList.add(new VarInsnNode(type.getOpcode(ILOAD), i + 1));
-			
-			insnList.add(boxPrimitives(type));
-			
-			insnList.add(new InsnNode(AASTORE));
-		}
-		return insnList;
-		
-	}
-	
-	private AbstractInsnNode pushType(Type type) {
-		if (type.getDescriptor().length() == 1) {
-			Class<?> boxedType = getBoxedType(type.getDescriptor().charAt(0));
-			return new FieldInsnNode(GETSTATIC, Type.getInternalName(boxedType), "TYPE", Type.getDescriptor(Class.class));
-		} else {
-			return new LdcInsnNode(type);
-		}
-	}
-
-	private InsnList boxPrimitives(Type type) {
-		InsnList insnList = new InsnList();
-		if (type.getDescriptor().length() == 1) {
-			char desc = type.getDescriptor().charAt(0);
-			Class<?> raw = getRawType(desc);
-			Class<?> boxed = getBoxedType(desc);
-
-			Method method = methodOf(boxed, "valueOf", raw);
-			insnList.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(boxed), "valueOf", Type.getMethodDescriptor(method), false));
-		}
+		insnList.add(new LdcInsnNode(Type.getObjectType(classNode.name)));
+		insnList.add(new LdcInsnNode(methodNode.name));
+		insnList.add(pushTypes(argumentTypes));
+		insnList.add(pushAsArray(arguments, argumentTypes));
+		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapShortGenerator_name, "outputVariables", SnapshotGenerator_outputVariables_descriptor, false));
+		insnList.add(new JumpInsnNode(Opcodes.GOTO, done));
+		insnList.add(skip);
+		insnList.add(new InsnNode(POP));
+		insnList.add(done);
 		return insnList;
 	}
 
 	private String keySignature(ClassNode classNode, MethodNode methodNode) {
 		return classNode.name + ":" + methodNode.name + methodNode.desc;
-	}
-
-	private String keySignature(ClassNode classNode, FieldNode fieldNode) {
-		return classNode.name + ":" + fieldNode.name + fieldNode.desc;
-	}
-
-	private <T> Constructor<T> constructorOf(Class<T> clazz, Class<?>... arguments) {
-		try {
-			return clazz.getConstructor(arguments);
-		} catch (NoSuchMethodException e) {
-			throw new SerializationException(e);
-		}
-	}
-
-	private Method methodOf(Class<?> clazz, String name, Class<?>... arguments) {
-		try {
-			return clazz.getMethod(name, arguments);
-		} catch (NoSuchMethodException e) {
-			throw new SerializationException(e);
-		}
-	}
-
-	private Class<?> getRawType(char desc) {
-		switch (desc) {
-		case 'Z':
-			return boolean.class;
-		case 'C':
-			return char.class;
-		case 'B':
-			return byte.class;
-		case 'S':
-			return short.class;
-		case 'I':
-			return int.class;
-		case 'F':
-			return float.class;
-		case 'J':
-			return long.class;
-		case 'D':
-			return double.class;
-		case 'V':
-		default:
-			return void.class;
-		}
-	}
-
-	private Class<?> getBoxedType(char desc) {
-		switch (desc) {
-		case 'Z':
-			return Boolean.class;
-		case 'C':
-			return Character.class;
-		case 'B':
-			return Byte.class;
-		case 'S':
-			return Short.class;
-		case 'I':
-			return Integer.class;
-		case 'F':
-			return Float.class;
-		case 'J':
-			return Long.class;
-		case 'D':
-			return Double.class;
-		case 'V':
-		default:
-			return Void.class;
-		}
 	}
 
 }

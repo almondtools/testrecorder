@@ -25,6 +25,7 @@ public class DefaultSerializationProfile implements SerializationProfile {
 		(SerializerFactory<?>) new BigDecimalSerializer.Factory());
 	
 	public static final List<Predicate<Field>> DEFAULT_FIELD_EXCLUDES = asList(
+		new ExcludeExplicitExcluded(),
 		new ExcludeGenerated(),
 		new ExcludeStatic());
 	

@@ -51,9 +51,12 @@ import org.junit.runner.RunWith;
 import org.stringtemplate.v4.ST;
 
 import com.almondtools.testrecorder.util.ExpectedOutput;
-import com.almondtools.testrecorder.util.ExpectedOutputRecorder;
+import com.almondtools.testrecorder.util.IORecorder;
+import com.almondtools.testrecorder.util.RecordInput;
 import com.almondtools.testrecorder.util.RecordOutput;
+import com.almondtools.testrecorder.util.SetupInput;
 import com.almondtools.testrecorder.values.SerializedField;
+import com.almondtools.testrecorder.values.SerializedInput;
 import com.almondtools.testrecorder.values.SerializedOutput;
 import com.almondtools.testrecorder.visitors.Computation;
 import com.almondtools.testrecorder.visitors.LocalVariableNameGenerator;
@@ -84,6 +87,7 @@ public class TestGenerator implements SnapshotConsumer {
 
 	private static final String RUNNER = "@RunWith(<runner>.class)\n";
 
+	private static final String RECORDED_INPUT = "@RecordInput({<classes : {class | \"<class>\"};separator=\", \">})\n";
 	private static final String RECORDED_OUTPUT = "@RecordOutput({<classes : {class | \"<class>\"};separator=\", \">})\n";
 
 	private static final String BEFORE_TEMPLATE = "@Before\n"
@@ -105,6 +109,7 @@ public class TestGenerator implements SnapshotConsumer {
 	private SerializedValueVisitorFactory matcher;
 	private Map<Class<?>, Set<String>> tests;
 	private Set<String> fields;
+	private Set<String> inputClasses;
 	private Set<String> outputClasses;
 	private Class<? extends Runnable> initializer;
 
@@ -117,12 +122,14 @@ public class TestGenerator implements SnapshotConsumer {
 
 		this.tests = synchronizedMap(new LinkedHashMap<>());
 		this.fields = new LinkedHashSet<>();
+		this.inputClasses = new LinkedHashSet<>();
 		this.outputClasses = new LinkedHashSet<>();
 	}
 
 	private TypeManager initTypes() {
 		TypeManager types = new TypeManager();
-		types.registerTypes(Test.class);;
+		types.registerTypes(Test.class);
+		;
 		return types;
 	}
 
@@ -172,6 +179,7 @@ public class TestGenerator implements SnapshotConsumer {
 		this.types = initTypes();
 		tests.clear();
 		this.fields = new LinkedHashSet<>();
+		this.inputClasses = new LinkedHashSet<>();
 		this.outputClasses = new LinkedHashSet<>();
 	}
 
@@ -205,21 +213,26 @@ public class TestGenerator implements SnapshotConsumer {
 	}
 
 	private String computeRunner() {
-		if (outputClasses.isEmpty()) {
+		if (outputClasses.isEmpty() && inputClasses.isEmpty()) {
 			return null;
 		}
 		if (initializer != null) {
 			outputClasses.add(initializer.getTypeName());
+			inputClasses.add(initializer.getTypeName());
 		}
-		
+
 		ST runner = new ST(RUNNER);
-		runner.add("runner", ExpectedOutputRecorder.class.getSimpleName());
+		runner.add("runner", IORecorder.class.getSimpleName());
+
+		ST recordedInput = new ST(RECORDED_INPUT);
+		recordedInput.add("classes", inputClasses);
 
 		ST recordedOutput = new ST(RECORDED_OUTPUT);
 		recordedOutput.add("classes", outputClasses);
 
 		return runner.render()
-			+ recordedOutput.render();
+			+ (inputClasses.isEmpty() ? "" : recordedInput.render())
+			+ (outputClasses.isEmpty() ? "" : recordedOutput.render());
 	}
 
 	private String computeBefore() {
@@ -235,7 +248,6 @@ public class TestGenerator implements SnapshotConsumer {
 	public String computeClassName(Class<?> clazz) {
 		return clazz.getSimpleName() + RECORDED_TEST;
 	}
-
 
 	public static TestGenerator fromRecorded(Object object) {
 		try {
@@ -274,7 +286,7 @@ public class TestGenerator implements SnapshotConsumer {
 
 			List<SerializedOutput> serializedOutput = snapshot.getExpectOutput();
 			if (serializedOutput != null && !serializedOutput.isEmpty()) {
-				types.registerTypes(RunWith.class, RecordOutput.class, ExpectedOutputRecorder.class, ExpectedOutput.class);
+				types.registerTypes(RunWith.class, RecordOutput.class, IORecorder.class, ExpectedOutput.class);
 				fields.add(fieldDeclaration("public", ExpectedOutput.class.getSimpleName(), "expectedOutput"));
 
 				List<String> methods = new ArrayList<>();
@@ -296,10 +308,51 @@ public class TestGenerator implements SnapshotConsumer {
 							.map(arg -> arg.getValue()))
 						.collect(toList());
 
-					methods.add(callLocalMethod("calling", arguments));
+					methods.add(callLocalMethod("expect", arguments));
 				}
 				String outputExpectation = callMethodChainStatement("expectedOutput", methods);
 				statements.add(outputExpectation);
+			}
+			List<SerializedInput> serializedInput = snapshot.getSetupInput();
+			if (serializedInput != null && !serializedInput.isEmpty()) {
+				types.registerTypes(RunWith.class, RecordInput.class, IORecorder.class, SetupInput.class);
+				fields.add(fieldDeclaration("public", SetupInput.class.getSimpleName(), "setupInput"));
+
+				List<String> methods = new ArrayList<>();
+				for (SerializedInput in : serializedInput) {
+					types.registerImport(in.getDeclaringClass());
+					inputClasses.add(in.getDeclaringClass().getTypeName());
+
+					Computation result = null;
+					if (in.getResult() != null) {
+						result = in.getResult().accept(setup.create(locals, types));
+						statements.addAll(result.getStatements());
+					}
+
+					List<Computation> args = Stream.of(in.getValues())
+						.map(arg -> arg.accept(setup.create(locals, types)))
+						.collect(toList());
+
+					statements.addAll(args.stream()
+						.flatMap(arg -> arg.getStatements().stream())
+						.collect(toList()));
+
+					List<String> arguments = new ArrayList<>();
+					arguments.add(classOf(in.getDeclaringClass().getSimpleName()));
+					arguments.add(stringOf(in.getName()));
+					if (result != null) {
+						arguments.add(result.getValue());
+					} else {
+						arguments.add("null");
+					}
+					arguments.addAll(args.stream()
+						.map(arg -> arg.getValue())
+						.collect(toList()));
+
+					methods.add(callLocalMethod("provide", arguments));
+				}
+				String inputSetup = callMethodChainStatement("setupInput", methods);
+				statements.add(inputSetup);
 			}
 
 			SerializedValueVisitor<Computation> setupCode = setup.create(locals, types);

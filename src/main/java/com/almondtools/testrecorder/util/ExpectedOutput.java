@@ -18,7 +18,7 @@ public class ExpectedOutput implements OutputListener {
 		this.expected = new LinkedList<>();
 	}
 
-	public ExpectedOutput calling(Class<?> clazz, String method, Matcher<?>... args) {
+	public ExpectedOutput expect(Class<?> clazz, String method, Matcher<?>... args) {
 		expected.add(new OutputExpectation(clazz, method, args));
 		return this;
 	}
