@@ -129,7 +129,6 @@ public class TestGenerator implements SnapshotConsumer {
 	private TypeManager initTypes() {
 		TypeManager types = new TypeManager();
 		types.registerTypes(Test.class);
-		;
 		return types;
 	}
 
@@ -202,12 +201,12 @@ public class TestGenerator implements SnapshotConsumer {
 
 		ST file = new ST(TEST_FILE);
 		file.add("package", clazz.getPackage().getName());
-		file.add("imports", types.getImports());
 		file.add("runner", computeRunner());
 		file.add("className", computeClassName(clazz));
 		file.add("fields", fields);
 		file.add("before", computeBefore());
 		file.add("methods", localtests);
+		file.add("imports", types.getImports());
 
 		return file.render();
 	}
@@ -217,8 +216,12 @@ public class TestGenerator implements SnapshotConsumer {
 			return null;
 		}
 		if (initializer != null) {
-			outputClasses.add(initializer.getTypeName());
-			inputClasses.add(initializer.getTypeName());
+			if (!outputClasses.isEmpty()) {
+				outputClasses.add(initializer.getTypeName());
+			}
+			if (!inputClasses.isEmpty()) {
+				inputClasses.add(initializer.getTypeName());
+			}
 		}
 
 		ST runner = new ST(RUNNER);
@@ -236,10 +239,11 @@ public class TestGenerator implements SnapshotConsumer {
 	}
 
 	private String computeBefore() {
+		types.registerType(Before.class);
 		if (initializer == null) {
 			return "";
 		}
-		types.registerTypes(Before.class, initializer);
+		types.registerType(initializer);
 		String initObject = newObject(types.getSimpleName(initializer));
 		String initStmt = callMethodStatement(initObject, "run");
 		return generateBefore(asList(initStmt));
