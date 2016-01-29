@@ -54,15 +54,6 @@ Both, restrictions and assumptions, can be adjusted by modifying the serializati
 TODOs
 =====
 - More readable generated Tests
-- Dealing with Output (Input changes state so it is not a problem, output changes state of systems not under analysis, so it has to be tracked)
-  - define methods to spy (a spied class is a class containing at least one spied method)
-  - each class containing a spied method gets an output buffer variable which is thread local
-  - each buffer variable is additionally registered in a central class as weak reference
-  - a snapshot method setup scans all registered buffers and rules out all expired weak references
-  - output generate while the snapshot method is executed is recorded
-  - such a output recording stores an tuple (method, args) for each invocation of a spied method
-  - a snapshot method expect reads all non expired buffer variables and serializes them (ignoring any that did not change)
-  - the test uses the same instrumentation, reading the same buffers and comparing with the serialized output
 - Less  warnings in generated Tests
 - Other Profiles (than `DefaultSerializationProfile)` that can handle serialization of static or generated data
 - Higher Test Coverage
