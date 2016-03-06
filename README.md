@@ -1,11 +1,13 @@
 [Testrecorder](http://almondtools.github.io/testrecorder/)
 ============
 
-Starting with legacy code (meaning "untested code") is usually hard and thankless. The last time I sat together with some developers we agreed that the right way would be to fix the current behavior with automated integration tests and then refactor the system until it is understandable.
+__Testrecorder__ is a tool for generating test code from runnable Java code. The generated tests can then be executed with a JUnit-Runner.
 
-Yet writing integration tests is hard and thankless, too. And wouldn't it be amazing if a tool generates all tests for you. It is important to know that writing integration tests is not really complex if you start with common user scenarios. The tool would have to collect all input and all output of tested methods. An integration test will setup the input objects and assert that the output objects equal the collected output objects.
+* You can use these tests as part of your integration tests
+* Or you can try to refactor them to make up proper unit tests
+* Even without reusing the generated code it could give valuable insights for code understanding
 
-Our tool for this is **testrecorder**.
+It is not recommended to replace a test-driven strategy with generated-test strategy but in many cases the productive code is there and the tests are missing (=legacy code). In this case the first step should be to fix the current behavior by creating integration tests. This task is often hard and thankless. __Testrecorder__ can support you in this case.
 
 Serializing any Object as Java Code
 ===================================
