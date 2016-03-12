@@ -2,11 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.github.almondtools</groupId>
+	<groupId>net.amygdalum</groupId>
 	<artifactId>testrecorder</artifactId>
-	<version>0.1.7-SNAPSHOT</version>
+	<version>0.2.0-SNAPSHOT</version>
 	<name>${project.groupId}:${project.artifactId}</name>
-	<url>https://github.com/almondtools/testrecorder</url>
+	<url>http://testrecorder.amygdalum.net</url>
 
 
 	<licenses>
@@ -18,9 +18,9 @@
 	<developers>
 		<developer>
 			<name>Stefan Mandel</name>
-			<email>mandelst@gmail.com</email>
-			<organization>almondtools</organization>
-			<organizationUrl>https://github.com/almondtools</organizationUrl>
+			<email>mail@amygdalum.net</email>
+			<organization>amygdalum</organization>
+			<organizationUrl>http://www.amygdalum.net/</organizationUrl>
 		</developer>
 	</developers>
 	<scm>
@@ -101,7 +101,7 @@
 							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
 						</manifest>
 						<manifestEntries>
-							<Premain-Class>com.almondtools.testrecorder.TestRecorderAgent</Premain-Class>
+							<Premain-Class>net.amygdalum.testrecorder.TestRecorderAgent</Premain-Class>
 						</manifestEntries>
 					</archive>
 				</configuration>

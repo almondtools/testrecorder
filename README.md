@@ -1,4 +1,4 @@
-[Testrecorder](http://almondtools.github.io/testrecorder/)
+[Testrecorder](http://testrecorder.amygdalum.net/)
 ============
 
 __Testrecorder__ is a tool for generating test code from runnable Java code. The generated tests can then be executed with a JUnit-Runner.
