@@ -36,7 +36,7 @@ public final class Templates {
 	private static final String EMPTY_MATCHER = "empty()";
 	private static final String CONTAINS_IN_ANY_ORDER_MATCHER = "containsInAnyOrder(<values; separator=\", \">)";
 	private static final String EQUAL_TO_MATCHER = "equalTo(<value>)";
-	private static final String NULL_MATCHER = "nullValue()";
+	private static final String NULL_MATCHER = "nullValue(<value>.class)";
 	private static final String NO_ENTRIES_MATCHER = "noEntries(<keytype>.class, <valuetype>.class)";
 	private static final String CONTAINS_ENTRIES_MATCHER = "containsEntries(<keytype>.class, <valuetype>.class)<entries : { entry | .entry(<entry.key>, <entry.value>)}>";
 	private static final String ARRAY_CONTAINING_MATCHER = "arrayContaining(<values; separator=\", \">)";
@@ -377,8 +377,9 @@ public final class Templates {
 		return matcher.render();
 	}
 
-	public static String nullMatcher() {
+	public static String nullMatcher(String value) {
 		ST matcher = new ST(NULL_MATCHER);
+		matcher.add("value", value);
 
 		return matcher.render();
 	}

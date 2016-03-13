@@ -78,6 +78,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 	public Computation visitField(SerializedField field) {
 		SerializedValue fieldValue = field.getValue();
 		if (isSimpleValue(fieldValue)) {
+			types.registerImport(getBase(field.getType()));
 			Computation value = getSimpleValue(fieldValue);
 
 			String assignField = assignLocalVariableStatement(types.getRawName(field.getType()), field.getName(), value.getValue());
@@ -290,9 +291,10 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 
 	@Override
 	public Computation visitNull(SerializedNull value) {
+		types.registerImport(value.getValueType());
 		types.staticImport(Matchers.class, "nullValue");
 
-		String nullMatcher = nullMatcher();
+		String nullMatcher = nullMatcher(types.getRawName(value.getValueType()));
 		return new Computation(nullMatcher, parameterized(Matcher.class, null, value.getValueType()), emptyList());
 	}
 
