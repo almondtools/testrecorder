@@ -27,7 +27,7 @@ public final class Templates {
 	private static final String CALL_LOCAL_METHOD_STMT = "<method>(<arguments; separator=\", \">);";
 	private static final String RETURN_STMT = "return <value>;";
 
-	private static final String CAPTURE_EXCEPTION = "catchException(() -> {<statements>}, <type>)";
+	private static final String CAPTURE_EXCEPTION = "capture(() -> {<statements>}, <type>)";
 
 	private static final String GENERIC_TYPE = "$type$<$typeParam; separator=\", \"$>";
 

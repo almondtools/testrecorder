@@ -52,13 +52,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.stringtemplate.v4.ST;
 
-import com.almondtools.conmatch.exceptions.Exceptions;
-
 import net.amygdalum.testrecorder.util.ExpectedOutput;
 import net.amygdalum.testrecorder.util.IORecorder;
 import net.amygdalum.testrecorder.util.RecordInput;
 import net.amygdalum.testrecorder.util.RecordOutput;
 import net.amygdalum.testrecorder.util.SetupInput;
+import net.amygdalum.testrecorder.util.Throwables;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedInput;
 import net.amygdalum.testrecorder.values.SerializedOutput;
@@ -525,7 +524,7 @@ public class TestGenerator implements SnapshotConsumer {
 		}
 
 		public String capture(List<String> capturedStatements, Type type) {
-			types.staticImport(Exceptions.class, "catchException");
+			types.staticImport(Throwables.class, "capture");
 			String name = locals.fetchName(type);
 
 			String exceptionType = types.getRawTypeName(type);

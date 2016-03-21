@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.serializers;
 
 import static java.util.Arrays.asList;
+import static net.amygdalum.testrecorder.Wrapped.classForName;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -10,7 +11,6 @@ import java.util.List;
 import net.amygdalum.testrecorder.Serializer;
 import net.amygdalum.testrecorder.SerializerFacade;
 import net.amygdalum.testrecorder.SerializerFactory;
-import net.amygdalum.testrecorder.Wrapped;
 import net.amygdalum.testrecorder.values.SerializedList;
 
 public class DefaultListSerializer implements Serializer<SerializedList> {
@@ -23,7 +23,7 @@ public class DefaultListSerializer implements Serializer<SerializedList> {
 
 	@Override
 	public List<Class<?>> getMatchingClasses() {
-		return asList(LinkedList.class, ArrayList.class, Wrapped.classForName("java.util.Collections$UnmodifiableRandomAccessList"));
+		return asList(LinkedList.class, ArrayList.class, classForName("java.util.Collections$UnmodifiableRandomAccessList"));
 	}
 
 	@Override

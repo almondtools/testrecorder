@@ -39,14 +39,13 @@ import org.hamcrest.Matchers;
 import org.hamcrest.collection.IsArrayContainingInOrder;
 import org.hamcrest.collection.IsArrayWithSize;
 
-import com.almondtools.conmatch.datatypes.MapMatcher;
-import com.almondtools.conmatch.datatypes.PrimitiveArrayMatcher;
-
 import net.amygdalum.testrecorder.SerializedCollectionVisitor;
 import net.amygdalum.testrecorder.SerializedImmutableVisitor;
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.SerializedValueVisitor;
 import net.amygdalum.testrecorder.util.GenericMatcher;
+import net.amygdalum.testrecorder.util.MapMatcher;
+import net.amygdalum.testrecorder.util.PrimitiveArrayMatcher;
 import net.amygdalum.testrecorder.values.SerializedArray;
 import net.amygdalum.testrecorder.values.SerializedBigDecimal;
 import net.amygdalum.testrecorder.values.SerializedBigInteger;
