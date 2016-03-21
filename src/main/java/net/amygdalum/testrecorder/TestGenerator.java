@@ -23,6 +23,7 @@ import static net.amygdalum.testrecorder.visitors.Templates.expressionStatement;
 import static net.amygdalum.testrecorder.visitors.Templates.fieldAccess;
 import static net.amygdalum.testrecorder.visitors.Templates.fieldDeclaration;
 import static net.amygdalum.testrecorder.visitors.Templates.newObject;
+import static net.amygdalum.testrecorder.visitors.Templates.returnStatement;
 import static net.amygdalum.testrecorder.visitors.Templates.stringOf;
 import static net.amygdalum.testrecorder.visitors.TypeManager.getBase;
 import static net.amygdalum.testrecorder.visitors.TypeManager.isPrimitive;
@@ -280,6 +281,7 @@ public class TestGenerator implements SnapshotConsumer {
 		private String base;
 		private List<String> args;
 		private String result;
+		private String error;
 
 		public MethodGenerator(ContextSnapshot snapshot, int no) {
 			this.snapshot = snapshot;
@@ -409,18 +411,25 @@ public class TestGenerator implements SnapshotConsumer {
 			String methodName = snapshot.getMethodName();
 			SerializedValue exception = snapshot.getExpectException();
 
+			MethodGenerator gen;
+			if (exception != null) {
+				gen = new MethodGenerator(snapshot, no);
+			} else {
+				gen = this;
+			}
 			String statement = callMethod(base, methodName, args);
 			if (resultType != void.class) {
-				result = assign(resultType, statement, true);
-				if (exception != null) {
-					result = capture(result, exception.getValueType());
-				}
+				result = gen.assign(resultType, statement, true);
 			} else {
-				if (exception != null) {
-					result = capture(statement, exception.getValueType());
-				} else {
-					execute(statement);
+				gen.execute(statement);
+			}
+			if (exception != null) {
+				List<String> exceptionBlock = new ArrayList<>();
+				exceptionBlock.addAll(gen.statements);
+				if (resultType != void.class) {
+					exceptionBlock.add(returnStatement(result));
 				}
+				error = capture(exceptionBlock, exception.getValueType());
 			}
 
 			return this;
@@ -430,8 +439,7 @@ public class TestGenerator implements SnapshotConsumer {
 			types.staticImport(Assert.class, "assertThat");
 			statements.add(BEGIN_ASSERT);
 
-			SerializedValue exception = snapshot.getExpectException();
-			if (exception == null) {
+			if (error == null) {
 				List<String> expectResult = Optional.ofNullable(snapshot.getExpectResult())
 					.map(o -> o.accept(matcher.create(locals, types)))
 					.map(o -> createAssertion(o, result))
@@ -439,9 +447,9 @@ public class TestGenerator implements SnapshotConsumer {
 
 				statements.addAll(expectResult);
 			} else {
-				List<String> expectResult = Optional.ofNullable(exception)
+				List<String> expectResult = Optional.ofNullable(snapshot.getExpectException())
 					.map(o -> o.accept(matcher.create(locals, types)))
-					.map(o -> createAssertion(o, result))
+					.map(o -> createAssertion(o, error))
 					.orElse(emptyList());
 
 				statements.addAll(expectResult);
@@ -516,12 +524,12 @@ public class TestGenerator implements SnapshotConsumer {
 			statements.add(expressionStatement(value));
 		}
 
-		public String capture(String statement, Type type) {
+		public String capture(List<String> capturedStatements, Type type) {
 			types.staticImport(Exceptions.class, "catchException");
 			String name = locals.fetchName(type);
 
 			String exceptionType = types.getRawTypeName(type);
-			String capture = captureException(statement, exceptionType);
+			String capture = captureException(capturedStatements, exceptionType);
 
 			statements.add(assignLocalVariableStatement(types.getSimpleName(type), name, capture));
 

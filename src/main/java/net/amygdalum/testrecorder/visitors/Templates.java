@@ -27,7 +27,7 @@ public final class Templates {
 	private static final String CALL_LOCAL_METHOD_STMT = "<method>(<arguments; separator=\", \">);";
 	private static final String RETURN_STMT = "return <value>;";
 
-	private static final String CAPTURE_EXCEPTION = "catchException(() -> <statement>, <type>)";
+	private static final String CAPTURE_EXCEPTION = "catchException(() -> {<statements>}, <type>)";
 
 	private static final String GENERIC_TYPE = "$type$<$typeParam; separator=\", \"$>";
 
@@ -282,9 +282,9 @@ public final class Templates {
 		return assign.render();
 	}
 
-	public static String captureException(String statement, String type) {
+	public static String captureException(List<String> statements, String type) {
 		ST assign = new ST(CAPTURE_EXCEPTION);
-		assign.add("statement", statement);
+		assign.add("statements", statements);
 		assign.add("type", type);
 
 		return assign.render();
