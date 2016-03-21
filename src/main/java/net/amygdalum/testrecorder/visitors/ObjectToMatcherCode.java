@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static net.amygdalum.testrecorder.visitors.Templates.arrayContainingMatcher;
+import static net.amygdalum.testrecorder.visitors.Templates.arrayEmptyMatcher;
 import static net.amygdalum.testrecorder.visitors.Templates.asLiteral;
 import static net.amygdalum.testrecorder.visitors.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.visitors.Templates.containsEntriesMatcher;
@@ -35,6 +36,8 @@ import java.util.stream.Stream;
 
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
+import org.hamcrest.collection.IsArrayContainingInOrder;
+import org.hamcrest.collection.IsArrayWithSize;
 
 import com.almondtools.conmatch.datatypes.MapMatcher;
 import com.almondtools.conmatch.datatypes.PrimitiveArrayMatcher;
@@ -143,7 +146,8 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 	public Computation visitList(SerializedList value) {
 		if (!computed.add(value)) {
 			types.staticImport(GenericMatcher.class, "recursive");
-			return new Computation(recursiveMatcher(types.getRawName(value.getValueType())), parameterized(Matcher.class, null, wildcard()));
+			types.registerImport(value.getValueType());
+			return new Computation(recursiveMatcher(types.getRawTypeName(value.getValueType())), parameterized(Matcher.class, null, wildcard()));
 		}
 		if (value.isEmpty()) {
 			types.staticImport(Matchers.class, "empty");
@@ -174,7 +178,8 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 	public Computation visitSet(SerializedSet value) {
 		if (!computed.add(value)) {
 			types.staticImport(GenericMatcher.class, "recursive");
-			return new Computation(recursiveMatcher(types.getRawName(value.getValueType())), parameterized(Matcher.class, null, wildcard()));
+			types.registerImport(value.getValueType());
+			return new Computation(recursiveMatcher(types.getRawTypeName(value.getValueType())), parameterized(Matcher.class, null, wildcard()));
 		}
 		if (value.isEmpty()) {
 			types.staticImport(Matchers.class, "empty");
@@ -205,7 +210,8 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 	public Computation visitMap(SerializedMap value) {
 		if (!computed.add(value)) {
 			types.staticImport(GenericMatcher.class, "recursive");
-			return new Computation(recursiveMatcher(types.getRawName(value.getValueType())), parameterized(Matcher.class, null, wildcard()));
+			types.registerImport(value.getValueType());
+			return new Computation(recursiveMatcher(types.getRawTypeName(value.getValueType())), parameterized(Matcher.class, null, wildcard()));
 		}
 		String keyType = types.getSimpleName(value.getMapKeyType());
 		String valueType = types.getSimpleName(value.getMapValueType());
@@ -238,6 +244,7 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 	public Computation visitArray(SerializedArray value) {
 		if (!computed.add(value)) {
 			types.staticImport(GenericMatcher.class, "recursive");
+			types.registerImport(value.getValueType());
 			return new Computation(recursiveMatcher(types.getRawName(value.getValueType())), parameterized(Matcher.class, null, wildcard()));
 		}
 		if (isPrimitive(value.getComponentType())) {
@@ -259,22 +266,29 @@ public class ObjectToMatcherCode implements SerializedValueVisitor<Computation>,
 			String primitiveArrayContainingMatcher = primitiveArrayContainingMatcher(name, elementValues);
 			return new Computation(primitiveArrayContainingMatcher, parameterized(Matcher.class, null, wildcard()), elementComputations);
 		} else {
-			types.staticImport(Matchers.class, "arrayContaining");
+			if (value.getArrayAsList().isEmpty()) {
+				types.staticImport(IsArrayWithSize.class, "emptyArray");
 
-			List<Computation> elements = Stream.of(value.getArray())
-				.map(element -> getSimpleValue(element))
-				.collect(toList());
+				String arrayEmptyMatcher = arrayEmptyMatcher();
+				return new Computation(arrayEmptyMatcher, parameterized(Matcher.class, null, wildcard()));
+			} else {
+				types.staticImport(IsArrayContainingInOrder.class, "arrayContaining");
 
-			List<String> elementComputations = elements.stream()
-				.flatMap(element -> element.getStatements().stream())
-				.collect(toList());
+				List<Computation> elements = Stream.of(value.getArray())
+					.map(element -> getSimpleValue(element))
+					.collect(toList());
 
-			String[] elementValues = elements.stream()
-				.map(element -> element.getValue())
-				.toArray(String[]::new);
+				List<String> elementComputations = elements.stream()
+					.flatMap(element -> element.getStatements().stream())
+					.collect(toList());
 
-			String arrayContainingMatcher = arrayContainingMatcher(elementValues);
-			return new Computation(arrayContainingMatcher, parameterized(Matcher.class, null, wildcard()), elementComputations);
+				String[] elementValues = elements.stream()
+					.map(element -> element.getValue())
+					.toArray(String[]::new);
+
+				String arrayContainingMatcher = arrayContainingMatcher(elementValues);
+				return new Computation(arrayContainingMatcher, parameterized(Matcher.class, null, wildcard()), elementComputations);
+			}
 		}
 
 	}

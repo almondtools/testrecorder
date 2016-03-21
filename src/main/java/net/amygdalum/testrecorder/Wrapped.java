@@ -9,10 +9,14 @@ public class Wrapped {
 	private Object o;
 
 	public Wrapped(String name) {
+		this.clazz = classForName(name);
+		this.o = GenericObject.newInstance(clazz);
+	}
+
+	public static Class<?> classForName(String name) {
 		try {
-			this.clazz = Class.forName(name);
-			this.o = GenericObject.newInstance(clazz);
-		} catch (ReflectiveOperationException e) {
+			return Class.forName(name);
+		} catch (ClassNotFoundException e) {
 			throw new GenericObjectException(e);
 		}
 	}

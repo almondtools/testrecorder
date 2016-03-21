@@ -27,6 +27,7 @@ public final class Templates {
 	private static final String CALL_LOCAL_METHOD_STMT = "<method>(<arguments; separator=\", \">);";
 	private static final String RETURN_STMT = "return <value>;";
 
+	private static final String CAPTURE_EXCEPTION = "catchException(() -> <statement>, <type>)";
 
 	private static final String GENERIC_TYPE = "$type$<$typeParam; separator=\", \"$>";
 
@@ -40,7 +41,9 @@ public final class Templates {
 	private static final String NO_ENTRIES_MATCHER = "noEntries(<keytype>.class, <valuetype>.class)";
 	private static final String CONTAINS_ENTRIES_MATCHER = "containsEntries(<keytype>.class, <valuetype>.class)<entries : { entry | .entry(<entry.key>, <entry.value>)}>";
 	private static final String ARRAY_CONTAINING_MATCHER = "arrayContaining(<values; separator=\", \">)";
-	private static final String PRIMITIVE_ARRAY_CONTAINING = "<type>ArrayContaining(<values; separator=\", \">)";
+	private static final String ARRAY_EMPTY_MATCHER = "emptyArray()";
+	private static final String PRIMITIVE_ARRAY_CONTAINING_MATCHER = "<type>ArrayContaining(<values; separator=\", \">)";
+	private static final String PRIMITIVE_ARRAY_EMPTY_MATCHER = "<type>EmptyArray()";
 
 
 	private Templates() {
@@ -279,6 +282,14 @@ public final class Templates {
 		return assign.render();
 	}
 
+	public static String captureException(String statement, String type) {
+		ST assign = new ST(CAPTURE_EXCEPTION);
+		assign.add("statement", statement);
+		assign.add("type", type);
+
+		return assign.render();
+	}
+
 	public static String genericObjectConverter(String type, List<String> fields) {
 		ST genericObject = new ST(GENERIC_OBJECT_CONVERTER);
 		genericObject.add("type", type);
@@ -362,10 +373,23 @@ public final class Templates {
 		return matcher.render();
 	}
 
+	public static String arrayEmptyMatcher() {
+		ST matcher = new ST(ARRAY_EMPTY_MATCHER);
+
+		return matcher.render();
+	}
+
 	public static String primitiveArrayContainingMatcher(String type, String... elementValues) {
-		ST matcher = new ST(PRIMITIVE_ARRAY_CONTAINING);
+		ST matcher = new ST(PRIMITIVE_ARRAY_CONTAINING_MATCHER);
 		matcher.add("type", type);
 		matcher.add("values", asList(elementValues));
+
+		return matcher.render();
+	}
+
+	public static String primitiveArrayEmptyMatcher(String type) {
+		ST matcher = new ST(PRIMITIVE_ARRAY_EMPTY_MATCHER);
+		matcher.add("type", type);
 
 		return matcher.render();
 	}

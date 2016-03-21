@@ -17,6 +17,7 @@ import static net.amygdalum.testrecorder.visitors.Templates.callLocalMethodState
 import static net.amygdalum.testrecorder.visitors.Templates.callMethod;
 import static net.amygdalum.testrecorder.visitors.Templates.callMethodChainStatement;
 import static net.amygdalum.testrecorder.visitors.Templates.callMethodStatement;
+import static net.amygdalum.testrecorder.visitors.Templates.captureException;
 import static net.amygdalum.testrecorder.visitors.Templates.classOf;
 import static net.amygdalum.testrecorder.visitors.Templates.expressionStatement;
 import static net.amygdalum.testrecorder.visitors.Templates.fieldAccess;
@@ -49,6 +50,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.stringtemplate.v4.ST;
+
+import com.almondtools.conmatch.exceptions.Exceptions;
 
 import net.amygdalum.testrecorder.util.ExpectedOutput;
 import net.amygdalum.testrecorder.util.IORecorder;
@@ -404,12 +407,20 @@ public class TestGenerator implements SnapshotConsumer {
 
 			Type resultType = snapshot.getResultType();
 			String methodName = snapshot.getMethodName();
+			SerializedValue exception = snapshot.getExpectException();
 
 			String statement = callMethod(base, methodName, args);
 			if (resultType != void.class) {
 				result = assign(resultType, statement, true);
+				if (exception != null) {
+					result = capture(result, exception.getValueType());
+				}
 			} else {
-				execute(statement);
+				if (exception != null) {
+					result = capture(statement, exception.getValueType());
+				} else {
+					execute(statement);
+				}
 			}
 
 			return this;
@@ -419,12 +430,22 @@ public class TestGenerator implements SnapshotConsumer {
 			types.staticImport(Assert.class, "assertThat");
 			statements.add(BEGIN_ASSERT);
 
-			List<String> expectResult = Optional.ofNullable(snapshot.getExpectResult())
-				.map(o -> o.accept(matcher.create(locals, types)))
-				.map(o -> createAssertion(o, result))
-				.orElse(emptyList());
+			SerializedValue exception = snapshot.getExpectException();
+			if (exception == null) {
+				List<String> expectResult = Optional.ofNullable(snapshot.getExpectResult())
+					.map(o -> o.accept(matcher.create(locals, types)))
+					.map(o -> createAssertion(o, result))
+					.orElse(emptyList());
 
-			statements.addAll(expectResult);
+				statements.addAll(expectResult);
+			} else {
+				List<String> expectResult = Optional.ofNullable(exception)
+					.map(o -> o.accept(matcher.create(locals, types)))
+					.map(o -> createAssertion(o, result))
+					.orElse(emptyList());
+
+				statements.addAll(expectResult);
+			}
 
 			List<String> expectThis = Optional.of(snapshot.getExpectThis())
 				.filter(o -> !o.equals(snapshot.getSetupThis()))
@@ -493,6 +514,18 @@ public class TestGenerator implements SnapshotConsumer {
 
 		public void execute(String value) {
 			statements.add(expressionStatement(value));
+		}
+
+		public String capture(String statement, Type type) {
+			types.staticImport(Exceptions.class, "catchException");
+			String name = locals.fetchName(type);
+
+			String exceptionType = types.getRawTypeName(type);
+			String capture = captureException(statement, exceptionType);
+
+			statements.add(assignLocalVariableStatement(types.getSimpleName(type), name, capture));
+
+			return name;
 		}
 
 		private boolean isImmutable(Type type) {
