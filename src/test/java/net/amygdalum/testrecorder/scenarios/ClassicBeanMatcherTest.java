@@ -8,7 +8,7 @@ import org.junit.Test;
 import net.amygdalum.testrecorder.CodeSerializer;
 import net.amygdalum.testrecorder.ConfigurableSerializerFacade;
 import net.amygdalum.testrecorder.profile.DefaultSerializationProfile;
-import net.amygdalum.testrecorder.visitors.ObjectToMatcherCode;
+import net.amygdalum.testrecorder.visitors.matcher.ObjectToMatcherCode;
 
 public class ClassicBeanMatcherTest {
 

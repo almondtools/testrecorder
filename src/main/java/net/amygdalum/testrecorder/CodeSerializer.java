@@ -10,9 +10,9 @@ import java.util.List;
 import net.amygdalum.testrecorder.profile.DefaultSerializationProfile;
 import net.amygdalum.testrecorder.visitors.Computation;
 import net.amygdalum.testrecorder.visitors.LocalVariableNameGenerator;
-import net.amygdalum.testrecorder.visitors.ObjectToSetupCode;
 import net.amygdalum.testrecorder.visitors.SerializedValueVisitorFactory;
 import net.amygdalum.testrecorder.visitors.TypeManager;
+import net.amygdalum.testrecorder.visitors.builder.ObjectToSetupCode;
 
 public class CodeSerializer {
 

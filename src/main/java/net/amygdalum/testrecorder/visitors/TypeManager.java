@@ -176,7 +176,7 @@ public class TypeManager {
 		if (isHidden(type)) {
 			return getWrappedName(type);
 		} else {
-			return getRawName((Class<?>) type) + ".class";
+			return getRawName(type) + ".class";
 		}
 	}
 

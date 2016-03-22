@@ -1,28 +1,29 @@
 package net.amygdalum.testrecorder.serializers;
 
-import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Collections;
 import java.util.List;
 
-import net.amygdalum.testrecorder.Serializer;
 import net.amygdalum.testrecorder.SerializerFacade;
 import net.amygdalum.testrecorder.SerializerFactory;
 import net.amygdalum.testrecorder.values.SerializedList;
 
-public class DefaultListSerializer implements Serializer<SerializedList> {
+public class CollectionsListSerializer extends HiddenInnerClassSerializer<SerializedList> {
 
 	private SerializerFacade facade;
 
-	public DefaultListSerializer(SerializerFacade facade) {
-		this.facade = facade;
+	public CollectionsListSerializer(SerializerFacade facade) {
+		super(Collections.class, facade);
 	}
 
 	@Override
 	public List<Class<?>> getMatchingClasses() {
-		return asList(LinkedList.class, ArrayList.class);
+		return innerClasses()
+			.filter(startingWith("Unmodifiable","Synchronized","Checked","Empty","Singleton"))
+			.filter(clazz -> List.class.isAssignableFrom(clazz))
+			.collect(toList());
 	}
 
 	@Override
@@ -40,8 +41,8 @@ public class DefaultListSerializer implements Serializer<SerializedList> {
 	public static class Factory implements SerializerFactory<SerializedList> {
 
 		@Override
-		public DefaultListSerializer newSerializer(SerializerFacade facade) {
-			return new DefaultListSerializer(facade);
+		public CollectionsListSerializer newSerializer(SerializerFacade facade) {
+			return new CollectionsListSerializer(facade);
 		}
 
 	}

@@ -63,10 +63,10 @@ import net.amygdalum.testrecorder.values.SerializedInput;
 import net.amygdalum.testrecorder.values.SerializedOutput;
 import net.amygdalum.testrecorder.visitors.Computation;
 import net.amygdalum.testrecorder.visitors.LocalVariableNameGenerator;
-import net.amygdalum.testrecorder.visitors.ObjectToMatcherCode;
-import net.amygdalum.testrecorder.visitors.ObjectToSetupCode;
 import net.amygdalum.testrecorder.visitors.SerializedValueVisitorFactory;
 import net.amygdalum.testrecorder.visitors.TypeManager;
+import net.amygdalum.testrecorder.visitors.builder.ObjectToSetupCode;
+import net.amygdalum.testrecorder.visitors.matcher.ObjectToMatcherCode;
 
 public class TestGenerator implements SnapshotConsumer {
 
@@ -511,6 +511,7 @@ public class TestGenerator implements SnapshotConsumer {
 			if (isImmutable(type) && !force) {
 				return value;
 			} else {
+				types.registerImport(getBase(type));
 				String name = locals.fetchName(type);
 
 				statements.add(assignLocalVariableStatement(types.getSimpleName(type), name, value));
