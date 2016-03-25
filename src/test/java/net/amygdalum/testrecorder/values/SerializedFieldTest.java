@@ -7,7 +7,7 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.visitors.TestValueVisitor;
+import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 
 import net.amygdalum.testrecorder.values.SerializedField;
 

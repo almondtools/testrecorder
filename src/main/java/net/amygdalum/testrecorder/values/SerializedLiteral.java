@@ -7,11 +7,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.SerializedValueVisitor;
-import net.amygdalum.testrecorder.visitors.SerializedValuePrinter;
+import net.amygdalum.testrecorder.SerializedValueType;
+import net.amygdalum.testrecorder.deserializers.ValuePrinter;
+import net.amygdalum.testrecorder.Deserializer;
 
-public class SerializedLiteral implements SerializedValue {
+public class SerializedLiteral implements SerializedValueType {
 
 	public static Set<Class<?>> LITERAL_TYPES = new HashSet<>(Arrays.asList(
 		boolean.class, char.class, byte.class, short.class, int.class, float.class, long.class, double.class,
@@ -46,18 +46,19 @@ public class SerializedLiteral implements SerializedValue {
 		return value.getClass();
 	}
 
+	@Override
 	public Object getValue() {
 		return value;
 	}
 
 	@Override
-	public <T> T accept(SerializedValueVisitor<T> visitor) {
-		return visitor.visitLiteral(this);
+	public <T> T accept(Deserializer<T> visitor) {
+		return visitor.visitValueType(this);
 	}
 
 	@Override
 	public String toString() {
-		return accept(new SerializedValuePrinter());
+		return accept(new ValuePrinter());
 	}
 
 }

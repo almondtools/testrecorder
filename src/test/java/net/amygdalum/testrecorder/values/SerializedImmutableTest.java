@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.values;
 
-import static net.amygdalum.testrecorder.visitors.TypeManager.getBase;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.getBase;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -10,7 +10,7 @@ import java.lang.reflect.Type;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.SerializedValueVisitor;
+import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 
 public class SerializedImmutableTest {
@@ -45,7 +45,7 @@ public class SerializedImmutableTest {
 		}
 
 		@Override
-		public <T> T accept(SerializedValueVisitor<T> visitor) {
+		public <T> T accept(Deserializer<T> visitor) {
 			return null;
 		}
 

@@ -1,11 +1,11 @@
 package net.amygdalum.testrecorder.values;
 
+import static java.util.Arrays.asList;
 import static net.amygdalum.testrecorder.values.GenericTypes.hashSetOfString;
 import static net.amygdalum.testrecorder.values.GenericTypes.setOfBounded;
 import static net.amygdalum.testrecorder.values.GenericTypes.setOfListOfString;
 import static net.amygdalum.testrecorder.values.GenericTypes.setOfString;
 import static net.amygdalum.testrecorder.values.ParameterizedTypeMatcher.parameterized;
-import static java.util.Arrays.asList;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
@@ -23,10 +23,8 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.visitors.TestValueVisitor;
-
 import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.values.SerializedSet;
+import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 
 public class SerializedSetTest {
 
@@ -238,8 +236,7 @@ public class SerializedSetTest {
 	@Test
 	public void testAccept() throws Exception {
 		SerializedSet set = new SerializedSet(Set.class, HashSet.class);
-		assertThat(set.accept(new TestValueVisitor()), equalTo("unknown"));
-		assertThat(set.accept(new TestCollectionVisitor()), equalTo("set"));
+		assertThat(set.accept(new TestValueVisitor()), equalTo("SerializedSet"));
 	}
 
 }

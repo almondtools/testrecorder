@@ -18,13 +18,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
+import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
+import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedObject;
-import net.amygdalum.testrecorder.visitors.Computation;
-import net.amygdalum.testrecorder.visitors.LocalVariableNameGenerator;
-import net.amygdalum.testrecorder.visitors.SerializedValueVisitorFactory;
-import net.amygdalum.testrecorder.visitors.TestComputationValueVisitor;
-import net.amygdalum.testrecorder.visitors.TypeManager;
+import net.amygdalum.testrecorder.deserializers.TestComputationValueVisitor;
 
 public class TestGeneratorTest {
 
@@ -60,10 +60,10 @@ public class TestGeneratorTest {
 
 	@Test
 	public void testSetSetup() throws Exception {
-		testGenerator.setSetup(new SerializedValueVisitorFactory() {
+		testGenerator.setSetup(new DeserializerFactory() {
 
 			@Override
-			public SerializedValueVisitor<Computation> create(LocalVariableNameGenerator locals, TypeManager types) {
+			public Deserializer<Computation> create(LocalVariableNameGenerator locals, TypeManager types) {
 				return new TestComputationValueVisitor();
 			}
 
@@ -93,10 +93,10 @@ public class TestGeneratorTest {
 
 	@Test
 	public void testSetMatcher() throws Exception {
-		testGenerator.setMatcher(new SerializedValueVisitorFactory() {
+		testGenerator.setMatcher(new DeserializerFactory() {
 
 			@Override
-			public SerializedValueVisitor<Computation> create(LocalVariableNameGenerator locals, TypeManager types) {
+			public Deserializer<Computation> create(LocalVariableNameGenerator locals, TypeManager types) {
 				return new TestComputationValueVisitor();
 			}
 			

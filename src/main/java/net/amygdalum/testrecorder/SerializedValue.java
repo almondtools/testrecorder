@@ -15,7 +15,7 @@ import java.lang.reflect.Type;
  */
 public interface SerializedValue {
 
-	<T> T accept(SerializedValueVisitor<T> visitor);
+	<T> T accept(Deserializer<T> visitor);
 
 	Type getType();
 

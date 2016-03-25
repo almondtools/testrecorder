@@ -7,25 +7,22 @@ import java.math.BigInteger;
 
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.visitors.TestValueVisitor;
-
-import net.amygdalum.testrecorder.values.SerializedBigInteger;
+import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 
 public class SerializedBigIntegerTest {
 
 	@Test
 	public void testGetType() throws Exception {
-		SerializedBigInteger value = new SerializedBigInteger(BigInteger.class, BigInteger.class);
+		SerializedImmutable<BigInteger> value = new SerializedImmutable<BigInteger>(BigInteger.class, BigInteger.class);
 
 		assertThat(value.getType(), equalTo(BigInteger.class));
 	}
 
 	@Test
 	public void testAccept() throws Exception {
-		SerializedBigInteger value = new SerializedBigInteger(BigInteger.class, BigInteger.class);
+		SerializedImmutable<BigInteger> value = new SerializedImmutable<BigInteger>(BigInteger.class, BigInteger.class);
 
-		assertThat(value.accept(new TestValueVisitor()), equalTo("unknown"));
-		assertThat(value.accept(new TestImmutableVisitor()), equalTo("bigInteger"));
+		assertThat(value.accept(new TestValueVisitor()), equalTo("SerializedImmutable"));
 	}
 
 }

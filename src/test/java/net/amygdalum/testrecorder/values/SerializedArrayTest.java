@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.visitors.TestValueVisitor;
+import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 
 import net.amygdalum.testrecorder.values.SerializedArray;
 
@@ -56,7 +56,7 @@ public class SerializedArrayTest {
 	public void testAccept() throws Exception {
 		SerializedArray array = new SerializedArray(String[].class, String[].class);
 		
-		assertThat(array.accept(new TestValueVisitor()), equalTo("array"));
+		assertThat(array.accept(new TestValueVisitor()), equalTo("SerializedArray"));
 	}
 
 	@Test

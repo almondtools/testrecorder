@@ -22,7 +22,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.visitors.TestValueVisitor;
+import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.values.SerializedMap;
@@ -202,8 +202,7 @@ public class SerializedMapTest {
 	@Test
 	public void testAccept() throws Exception {
 		SerializedMap map = new SerializedMap(Map.class, HashMap.class);
-		assertThat(map.accept(new TestValueVisitor()), equalTo("unknown"));
-		assertThat(map.accept(new TestCollectionVisitor()), equalTo("map"));
+		assertThat(map.accept(new TestValueVisitor()), equalTo("SerializedMap"));
 	}
 
 }

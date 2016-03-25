@@ -10,23 +10,23 @@ import static java.util.Collections.emptySet;
 import static java.util.Collections.synchronizedMap;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.SnapshotInstrumentor.SNAPSHOT_GENERATOR_FIELD_NAME;
-import static net.amygdalum.testrecorder.visitors.Templates.assignFieldStatement;
-import static net.amygdalum.testrecorder.visitors.Templates.assignLocalVariableStatement;
-import static net.amygdalum.testrecorder.visitors.Templates.callLocalMethod;
-import static net.amygdalum.testrecorder.visitors.Templates.callLocalMethodStatement;
-import static net.amygdalum.testrecorder.visitors.Templates.callMethod;
-import static net.amygdalum.testrecorder.visitors.Templates.callMethodChainStatement;
-import static net.amygdalum.testrecorder.visitors.Templates.callMethodStatement;
-import static net.amygdalum.testrecorder.visitors.Templates.captureException;
-import static net.amygdalum.testrecorder.visitors.Templates.classOf;
-import static net.amygdalum.testrecorder.visitors.Templates.expressionStatement;
-import static net.amygdalum.testrecorder.visitors.Templates.fieldAccess;
-import static net.amygdalum.testrecorder.visitors.Templates.fieldDeclaration;
-import static net.amygdalum.testrecorder.visitors.Templates.newObject;
-import static net.amygdalum.testrecorder.visitors.Templates.returnStatement;
-import static net.amygdalum.testrecorder.visitors.Templates.stringOf;
-import static net.amygdalum.testrecorder.visitors.TypeManager.getBase;
-import static net.amygdalum.testrecorder.visitors.TypeManager.isPrimitive;
+import static net.amygdalum.testrecorder.deserializers.Templates.assignFieldStatement;
+import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
+import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethod;
+import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethodStatement;
+import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
+import static net.amygdalum.testrecorder.deserializers.Templates.callMethodChainStatement;
+import static net.amygdalum.testrecorder.deserializers.Templates.callMethodStatement;
+import static net.amygdalum.testrecorder.deserializers.Templates.captureException;
+import static net.amygdalum.testrecorder.deserializers.Templates.classOf;
+import static net.amygdalum.testrecorder.deserializers.Templates.expressionStatement;
+import static net.amygdalum.testrecorder.deserializers.Templates.fieldAccess;
+import static net.amygdalum.testrecorder.deserializers.Templates.fieldDeclaration;
+import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
+import static net.amygdalum.testrecorder.deserializers.Templates.returnStatement;
+import static net.amygdalum.testrecorder.deserializers.Templates.stringOf;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.getBase;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.isPrimitive;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -52,6 +52,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.stringtemplate.v4.ST;
 
+import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
+import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
+import net.amygdalum.testrecorder.deserializers.TypeManager;
+import net.amygdalum.testrecorder.deserializers.builder.ObjectToSetupCode;
+import net.amygdalum.testrecorder.deserializers.matcher.ObjectToMatcherCode;
 import net.amygdalum.testrecorder.util.ExpectedOutput;
 import net.amygdalum.testrecorder.util.IORecorder;
 import net.amygdalum.testrecorder.util.RecordInput;
@@ -61,12 +67,6 @@ import net.amygdalum.testrecorder.util.Throwables;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedInput;
 import net.amygdalum.testrecorder.values.SerializedOutput;
-import net.amygdalum.testrecorder.visitors.Computation;
-import net.amygdalum.testrecorder.visitors.LocalVariableNameGenerator;
-import net.amygdalum.testrecorder.visitors.SerializedValueVisitorFactory;
-import net.amygdalum.testrecorder.visitors.TypeManager;
-import net.amygdalum.testrecorder.visitors.builder.ObjectToSetupCode;
-import net.amygdalum.testrecorder.visitors.matcher.ObjectToMatcherCode;
 
 public class TestGenerator implements SnapshotConsumer {
 
@@ -108,8 +108,8 @@ public class TestGenerator implements SnapshotConsumer {
 	private static final String BEGIN_ASSERT = "\n//Assert";
 
 	private TypeManager types;
-	private SerializedValueVisitorFactory setup;
-	private SerializedValueVisitorFactory matcher;
+	private DeserializerFactory setup;
+	private DeserializerFactory matcher;
 	private Map<Class<?>, Set<String>> tests;
 	private Set<String> fields;
 	private Set<String> inputClasses;
@@ -141,11 +141,11 @@ public class TestGenerator implements SnapshotConsumer {
 		return test.render();
 	}
 
-	public void setSetup(SerializedValueVisitorFactory setup) {
+	public void setSetup(DeserializerFactory setup) {
 		this.setup = setup;
 	}
 
-	public void setMatcher(SerializedValueVisitorFactory matcher) {
+	public void setMatcher(DeserializerFactory matcher) {
 		this.matcher = matcher;
 	}
 
@@ -363,7 +363,7 @@ public class TestGenerator implements SnapshotConsumer {
 				statements.add(inputSetup);
 			}
 
-			SerializedValueVisitor<Computation> setupCode = setup.create(locals, types);
+			Deserializer<Computation> setupCode = setup.create(locals, types);
 			Computation setupThis = snapshot.getSetupThis().accept(setupCode);
 
 			statements.addAll(setupThis.getStatements());

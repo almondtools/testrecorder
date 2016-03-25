@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import static net.amygdalum.testrecorder.visitors.TypeManager.parameterized;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.parameterized;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;

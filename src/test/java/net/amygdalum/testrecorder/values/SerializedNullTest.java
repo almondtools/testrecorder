@@ -7,7 +7,7 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.visitors.TestValueVisitor;
+import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 
 import net.amygdalum.testrecorder.values.SerializedNull;
 
@@ -32,7 +32,7 @@ public class SerializedNullTest {
 	public void testAccept() throws Exception {
 		SerializedNull value = nullInstance(String.class);
 
-		assertThat(value.accept(new TestValueVisitor()), equalTo("null"));
+		assertThat(value.accept(new TestValueVisitor()), equalTo("SerializedNull"));
 	}
 
 	@Test

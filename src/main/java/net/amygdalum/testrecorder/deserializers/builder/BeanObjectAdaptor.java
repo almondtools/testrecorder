@@ -1,0 +1,32 @@
+package net.amygdalum.testrecorder.deserializers.builder;
+
+import net.amygdalum.testrecorder.deserializers.Adaptor;
+import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.Construction;
+import net.amygdalum.testrecorder.deserializers.DeserializationException;
+import net.amygdalum.testrecorder.deserializers.TypeManager;
+import net.amygdalum.testrecorder.values.SerializedObject;
+
+public class BeanObjectAdaptor implements Adaptor<SerializedObject, ObjectToSetupCode> {
+
+	@Override
+	public Class<? extends Adaptor<SerializedObject, ObjectToSetupCode>> parent() {
+		return DefaultObjectAdaptor.class;
+	}
+
+	@Override
+	public boolean matches(Class<?> clazz) {
+		return true;
+	}
+
+	@Override
+	public Computation tryDeserialize(SerializedObject value, TypeManager types, ObjectToSetupCode generator) throws DeserializationException {
+		try {
+			String name = generator.localVariable(value, value.getValueType());
+			return new Construction(name, value).computeBest(types, generator);
+		} catch (ReflectiveOperationException | RuntimeException e) {
+			throw new DeserializationException();
+		}
+	}
+
+}

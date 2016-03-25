@@ -12,12 +12,12 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
-import net.amygdalum.testrecorder.SerializedCollectionVisitor;
+import net.amygdalum.testrecorder.SerializedReferenceType;
 import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.SerializedValueVisitor;
-import net.amygdalum.testrecorder.visitors.SerializedValuePrinter;
+import net.amygdalum.testrecorder.deserializers.ValuePrinter;
+import net.amygdalum.testrecorder.Deserializer;
 
-public class SerializedList implements SerializedValue, List<SerializedValue> {
+public class SerializedList implements SerializedReferenceType, List<SerializedValue> {
 
 	private Type type;
 	private Class<?> valueType;
@@ -55,10 +55,8 @@ public class SerializedList implements SerializedValue, List<SerializedValue> {
 	}
 
 	@Override
-	public <T> T accept(SerializedValueVisitor<T> visitor) {
-		return visitor.as(SerializedCollectionVisitor.extend(visitor))
-			.map(v -> v.visitList(this))
-			.orElseGet(() -> visitor.visitUnknown(this));
+	public <T> T accept(Deserializer<T> visitor) {
+		return visitor.visitReferenceType(this);
 	}
 
 	public int size() {
@@ -155,7 +153,7 @@ public class SerializedList implements SerializedValue, List<SerializedValue> {
 
 	@Override
 	public String toString() {
-		return accept(new SerializedValuePrinter());
+		return accept(new ValuePrinter());
 	}
 
 }

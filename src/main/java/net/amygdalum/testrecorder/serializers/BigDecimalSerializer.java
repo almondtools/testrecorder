@@ -9,9 +9,9 @@ import java.util.List;
 import net.amygdalum.testrecorder.Serializer;
 import net.amygdalum.testrecorder.SerializerFacade;
 import net.amygdalum.testrecorder.SerializerFactory;
-import net.amygdalum.testrecorder.values.SerializedBigDecimal;
+import net.amygdalum.testrecorder.values.SerializedImmutable;
 
-public class BigDecimalSerializer implements Serializer<SerializedBigDecimal> {
+public class BigDecimalSerializer implements Serializer<SerializedImmutable<BigDecimal>> {
 
 	public BigDecimalSerializer(SerializerFacade facade) {
 	}
@@ -22,16 +22,16 @@ public class BigDecimalSerializer implements Serializer<SerializedBigDecimal> {
 	}
 
 	@Override
-	public SerializedBigDecimal generate(Type type, Class<?> valueType) {
-		return new SerializedBigDecimal(type, valueType);
+	public SerializedImmutable<BigDecimal> generate(Type type, Class<?> valueType) {
+		return new SerializedImmutable<>(type, valueType);
 	}
 
 	@Override
-	public void populate(SerializedBigDecimal serializedObject, Object object) {
+	public void populate(SerializedImmutable<BigDecimal> serializedObject, Object object) {
 		serializedObject.setValue((BigDecimal) object);
 	}
 
-	public static class Factory implements SerializerFactory<SerializedBigDecimal> {
+	public static class Factory implements SerializerFactory<SerializedImmutable<BigDecimal>> {
 
 		@Override
 		public BigDecimalSerializer newSerializer(SerializerFacade facade) {

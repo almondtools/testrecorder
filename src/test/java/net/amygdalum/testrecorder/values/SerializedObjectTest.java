@@ -7,7 +7,7 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.visitors.TestValueVisitor;
+import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedObject;
@@ -43,7 +43,7 @@ public class SerializedObjectTest {
 	public void testAccept() throws Exception {
 		SerializedObject serializedObject = new SerializedObject(Object.class, Object.class);
 
-		assertThat(serializedObject.accept(new TestValueVisitor()), equalTo("object"));
+		assertThat(serializedObject.accept(new TestValueVisitor()), equalTo("SerializedObject"));
 	}
 
 	@Test

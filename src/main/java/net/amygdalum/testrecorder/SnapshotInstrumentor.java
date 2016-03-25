@@ -59,7 +59,7 @@ import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-import net.amygdalum.testrecorder.visitors.TypeManager;
+import net.amygdalum.testrecorder.deserializers.TypeManager;
 
 public class SnapshotInstrumentor implements ClassFileTransformer {
 

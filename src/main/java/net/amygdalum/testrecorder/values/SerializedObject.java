@@ -1,17 +1,17 @@
 package net.amygdalum.testrecorder.values;
 
 import static java.util.Arrays.asList;
-import static net.amygdalum.testrecorder.visitors.TypeManager.getBase;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.getBase;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.SerializedValueVisitor;
-import net.amygdalum.testrecorder.visitors.SerializedValuePrinter;
+import net.amygdalum.testrecorder.SerializedReferenceType;
+import net.amygdalum.testrecorder.deserializers.ValuePrinter;
+import net.amygdalum.testrecorder.Deserializer;
 
-public class SerializedObject implements SerializedValue {
+public class SerializedObject implements SerializedReferenceType {
 
 	private Type type;
 	private Class<?> valueType;
@@ -46,13 +46,13 @@ public class SerializedObject implements SerializedValue {
 		fields.add(field);
 	}
 
-	public <T> T accept(SerializedValueVisitor<T> visitor) {
-		return visitor.visitObject(this);
+	public <T> T accept(Deserializer<T> visitor) {
+		return visitor.visitReferenceType(this);
 	}
 
 	@Override
 	public String toString() {
-		return accept(new SerializedValuePrinter());
+		return accept(new ValuePrinter());
 	}
 
 }

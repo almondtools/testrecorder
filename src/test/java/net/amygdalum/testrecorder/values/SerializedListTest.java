@@ -22,7 +22,7 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.visitors.TestValueVisitor;
+import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.values.SerializedList;
@@ -360,8 +360,7 @@ public class SerializedListTest {
 	@Test
 	public void testAccept() throws Exception {
 		SerializedList list = new SerializedList(List.class, ArrayList.class);
-		assertThat(list.accept(new TestValueVisitor()), equalTo("unknown"));
-		assertThat(list.accept(new TestCollectionVisitor()), equalTo("list"));
+		assertThat(list.accept(new TestValueVisitor()), equalTo("SerializedList"));
 	}
 
 }

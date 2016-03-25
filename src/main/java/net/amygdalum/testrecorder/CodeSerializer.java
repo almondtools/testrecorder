@@ -1,34 +1,34 @@
 package net.amygdalum.testrecorder;
 
 import static java.util.stream.Collectors.joining;
-import static net.amygdalum.testrecorder.visitors.Templates.assignLocalVariableStatement;
+import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
+import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
+import net.amygdalum.testrecorder.deserializers.TypeManager;
+import net.amygdalum.testrecorder.deserializers.builder.ObjectToSetupCode;
 import net.amygdalum.testrecorder.profile.DefaultSerializationProfile;
-import net.amygdalum.testrecorder.visitors.Computation;
-import net.amygdalum.testrecorder.visitors.LocalVariableNameGenerator;
-import net.amygdalum.testrecorder.visitors.SerializedValueVisitorFactory;
-import net.amygdalum.testrecorder.visitors.TypeManager;
-import net.amygdalum.testrecorder.visitors.builder.ObjectToSetupCode;
 
 public class CodeSerializer {
 
 	private SerializerFacade facade;
 	private TypeManager types;
-	private SerializedValueVisitorFactory serializers;
+	private DeserializerFactory serializers;
 
 	public CodeSerializer() {
 		this(new ConfigurableSerializerFacade(new DefaultSerializationProfile()), new ObjectToSetupCode.Factory());
 	}
 	
-	public CodeSerializer(SerializedValueVisitorFactory serializers) {
+	public CodeSerializer(DeserializerFactory serializers) {
 		this(new ConfigurableSerializerFacade(new DefaultSerializationProfile()), serializers);
 	}
 	
-	public CodeSerializer(SerializerFacade facade, SerializedValueVisitorFactory serializers) {
+	public CodeSerializer(SerializerFacade facade, DeserializerFactory serializers) {
 		this.types = new TypeManager();
 		this.facade = facade;
 		this.serializers = serializers;
@@ -61,7 +61,7 @@ public class CodeSerializer {
 		}
 
 		public String generateCode() {
-			SerializedValueVisitor<Computation> serializer = serializers.create(locals, types);
+			Deserializer<Computation> serializer = serializers.create(locals, types);
 			
 			Computation serialized = value.accept(serializer);
 

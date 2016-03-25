@@ -12,7 +12,7 @@ import java.util.Collection;
 
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.visitors.TestValueVisitor;
+import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 
@@ -57,7 +57,7 @@ public class SerializedLiteralTest {
 	public void testAccept() throws Exception {
 		SerializedLiteral value = literal(String.class, "string");
 
-		assertThat(value.accept(new TestValueVisitor()), equalTo("literal"));
+		assertThat(value.accept(new TestValueVisitor()), equalTo("SerializedLiteral"));
 	}
 
 	@Test

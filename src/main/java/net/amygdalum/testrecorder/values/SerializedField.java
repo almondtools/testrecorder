@@ -3,8 +3,8 @@ package net.amygdalum.testrecorder.values;
 import java.lang.reflect.Type;
 
 import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.SerializedValueVisitor;
-import net.amygdalum.testrecorder.visitors.SerializedValuePrinter;
+import net.amygdalum.testrecorder.deserializers.ValuePrinter;
+import net.amygdalum.testrecorder.Deserializer;
 
 public class SerializedField implements Comparable<SerializedField>{
 
@@ -36,13 +36,13 @@ public class SerializedField implements Comparable<SerializedField>{
 		return value;
 	}
 
-	public <T> T accept(SerializedValueVisitor<T> visitor) {
+	public <T> T accept(Deserializer<T> visitor) {
 		return visitor.visitField(this);
 	}
 
 	@Override
 	public String toString() {
-		return accept(new SerializedValuePrinter());
+		return accept(new ValuePrinter());
 	}
 	
 	@Override

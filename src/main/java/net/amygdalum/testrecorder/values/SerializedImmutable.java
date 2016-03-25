@@ -2,26 +2,27 @@ package net.amygdalum.testrecorder.values;
 
 import java.lang.reflect.Type;
 
-import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.visitors.SerializedValuePrinter;
+import net.amygdalum.testrecorder.SerializedImmutableType;
+import net.amygdalum.testrecorder.deserializers.ValuePrinter;
+import net.amygdalum.testrecorder.Deserializer;
 
-public abstract class SerializedImmutable<T> implements SerializedValue {
+public class SerializedImmutable<V> implements SerializedImmutableType {
 
 	private Type type;
 	private Class<?> valueType;
-	private T value;
+	private V value;
 
 	public SerializedImmutable(Type type, Class<?> valueType) {
 		this.type = type;
 		this.valueType = valueType;
 	}
 
-	public SerializedImmutable<T> withValue(T value) {
+	public SerializedImmutable<V> withValue(V value) {
 		this.value = value;
 		return this;
 	}
 
-	public void setValue(T value) {
+	public void setValue(V value) {
 		this.value = value;
 	}
 
@@ -35,13 +36,18 @@ public abstract class SerializedImmutable<T> implements SerializedValue {
 		return valueType;
 	}
 
-	public T getValue() {
+	public V getValue() {
 		return value;
 	}
 
 	@Override
+	public <T> T accept(Deserializer<T> visitor) {
+		return visitor.visitImmutableType(this);
+	}
+
+	@Override
 	public String toString() {
-		return accept(new SerializedValuePrinter());
+		return accept(new ValuePrinter());
 	}
 
 }

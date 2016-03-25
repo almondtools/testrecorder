@@ -6,7 +6,7 @@ import java.lang.reflect.Type;
 import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.visitors.SerializedValuePrinter;
+import net.amygdalum.testrecorder.deserializers.ValuePrinter;
 
 public class SerializedInput {
 
@@ -59,7 +59,7 @@ public class SerializedInput {
 
 	@Override
 	public String toString() {
-		SerializedValuePrinter printer = new SerializedValuePrinter();
+		ValuePrinter printer = new ValuePrinter();
 		return "<< " + clazz.getTypeName() + "." + name + "(" + result.accept(printer) + ", " + Stream.of(values)
 			.map(value -> value.accept(printer))
 			.collect(joining(", ")) + ")";

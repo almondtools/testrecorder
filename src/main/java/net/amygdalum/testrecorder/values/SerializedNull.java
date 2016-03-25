@@ -1,16 +1,16 @@
 package net.amygdalum.testrecorder.values;
 
-import static net.amygdalum.testrecorder.visitors.TypeManager.getBase;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.getBase;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.SerializedValueVisitor;
-import net.amygdalum.testrecorder.visitors.SerializedValuePrinter;
+import net.amygdalum.testrecorder.SerializedReferenceType;
+import net.amygdalum.testrecorder.deserializers.ValuePrinter;
+import net.amygdalum.testrecorder.Deserializer;
 
-public class SerializedNull implements SerializedValue {
+public class SerializedNull implements SerializedReferenceType {
 
 	private static final Map<Type, SerializedNull> KNOWN_LITERALS = new HashMap<>();
 	
@@ -31,8 +31,8 @@ public class SerializedNull implements SerializedValue {
 	}
 
 	@Override
-	public <T> T accept(SerializedValueVisitor<T> visitor) {
-		return visitor.visitNull(this);
+	public <T> T accept(Deserializer<T> visitor) {
+		return visitor.visitReferenceType(this);
 	}
 
 	public static SerializedNull nullInstance(Type type) {
@@ -41,7 +41,7 @@ public class SerializedNull implements SerializedValue {
 
 	@Override
 	public String toString() {
-		return accept(new SerializedValuePrinter());
+		return accept(new ValuePrinter());
 	}
 
 }
