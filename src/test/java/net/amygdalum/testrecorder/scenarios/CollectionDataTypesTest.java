@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.scenarios;
 
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRuns;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ public class CollectionDataTypesTest {
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		assertThat(testGenerator.testsFor(CollectionDataTypes.class), hasSize(30));
 		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles());
 		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRuns());
 	}

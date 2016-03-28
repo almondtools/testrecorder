@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.scenarios;
 
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRuns;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 import java.math.BigDecimal;
@@ -41,6 +42,7 @@ public class GenericCollectionDataTypesTest {
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		assertThat(testGenerator.testsFor(GenericCollectionDataTypes.class), hasSize(20));
 		assertThat(testGenerator.renderTest(GenericCollectionDataTypes.class), compiles());
 		assertThat(testGenerator.renderTest(GenericCollectionDataTypes.class), testsRuns());
 	}

@@ -10,16 +10,16 @@ import net.amygdalum.testrecorder.SerializerFacade;
 import net.amygdalum.testrecorder.SerializerFactory;
 import net.amygdalum.testrecorder.values.SerializedList;
 
-public class CollectionsListSerializer extends HiddenInnerClassSerializer<SerializedList> {
+public class ArraysListSerializer extends HiddenInnerClassSerializer<SerializedList> {
 
-	public CollectionsListSerializer(SerializerFacade facade) {
+	public ArraysListSerializer(SerializerFacade facade) {
 		super(Collections.class, facade);
 	}
 
 	@Override
 	public List<Class<?>> getMatchingClasses() {
 		return innerClasses()
-			.filter(startingWith("Unmodifiable","Synchronized","Checked","Empty","Singleton"))
+			.filter(in("ArrayList"))
 			.filter(clazz -> List.class.isAssignableFrom(clazz))
 			.collect(toList());
 	}
@@ -39,8 +39,8 @@ public class CollectionsListSerializer extends HiddenInnerClassSerializer<Serial
 	public static class Factory implements SerializerFactory<SerializedList> {
 
 		@Override
-		public CollectionsListSerializer newSerializer(SerializerFacade facade) {
-			return new CollectionsListSerializer(facade);
+		public ArraysListSerializer newSerializer(SerializerFacade facade) {
+			return new ArraysListSerializer(facade);
 		}
 
 	}

@@ -25,6 +25,10 @@ public abstract class HiddenInnerClassSerializer<T extends SerializedValue> impl
 		return cls -> Stream.of(prefixes).anyMatch(prefix -> cls.getSimpleName().startsWith(prefix));
 	}
 
+	public Predicate<Class<?>> in(String... names) {
+		return cls -> Stream.of(names).anyMatch(name -> cls.getSimpleName().equals(names));
+	}
+
 	public Predicate<Class<?>> endingWith(String... suffixes) {
 		return cls -> Stream.of(suffixes).anyMatch(suffix -> cls.getSimpleName().endsWith(suffix));
 	}

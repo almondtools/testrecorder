@@ -9,9 +9,12 @@ import java.util.function.Predicate;
 
 import net.amygdalum.testrecorder.SerializationProfile;
 import net.amygdalum.testrecorder.SerializerFactory;
+import net.amygdalum.testrecorder.serializers.ArraysListSerializer;
 import net.amygdalum.testrecorder.serializers.BigDecimalSerializer;
 import net.amygdalum.testrecorder.serializers.BigIntegerSerializer;
 import net.amygdalum.testrecorder.serializers.CollectionsListSerializer;
+import net.amygdalum.testrecorder.serializers.CollectionsMapSerializer;
+import net.amygdalum.testrecorder.serializers.CollectionsSetSerializer;
 import net.amygdalum.testrecorder.serializers.DefaultHashMapSerializer;
 import net.amygdalum.testrecorder.serializers.DefaultListSerializer;
 import net.amygdalum.testrecorder.serializers.DefaultSetSerializer;
@@ -19,7 +22,10 @@ import net.amygdalum.testrecorder.serializers.DefaultSetSerializer;
 public class DefaultSerializationProfile implements SerializationProfile {
 
 	public static final List<SerializerFactory<?>> DEFAULT_SERIALIZERS = asList(
+		(SerializerFactory<?>) new ArraysListSerializer.Factory(),
 		(SerializerFactory<?>) new CollectionsListSerializer.Factory(),
+		(SerializerFactory<?>) new CollectionsSetSerializer.Factory(),
+		(SerializerFactory<?>) new CollectionsMapSerializer.Factory(),
 		(SerializerFactory<?>) new DefaultListSerializer.Factory(),
 		(SerializerFactory<?>) new DefaultSetSerializer.Factory(),
 		(SerializerFactory<?>) new DefaultHashMapSerializer.Factory(),
