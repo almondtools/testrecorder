@@ -7,17 +7,46 @@ __Testrecorder__ is a tool for generating test code from runnable Java code. The
 * Or you can try to refactor them to make up proper unit tests
 * Even without reusing the generated code it could give valuable insights for code understanding
 
-It is not recommended to replace a test-driven strategy with generated-test strategy but in many cases the productive code is there and the tests are missing (=legacy code). In this case the first step should be to fix the current behavior by creating integration tests. This task is often hard and thankless. __Testrecorder__ can support you in this case.
+It is not recommended to replace a test-driven strategy with generated-test strategy but in many cases the productive code is there and the tests are missing. In this case the first step should be to fix the current behavior by creating integration tests. This task is often hard and thankless. __Testrecorder__ can support you in this case.
+
+We shall start with some basics on Runtime Object Serialization. This action has a simple interface, yet it is not as powerful as test recording. Then we shall dive into the configuration of Test Recording.
+
+Runtime Object Serialization - the Basics
+=========================================
+
+In this section we give you an impression how code can be serialized and directly deserialized to code. The following examples will use the following `ExampleObject`:
+
+    public class ExampleObject {
+        private String name;
+    
+        public void setName(String name) {
+            this.name = name;
+        }
+    
+        public String getName() {
+            return name;
+        }
+    }
+
+    ExampleObject exampleObject = new ExampleObject();
+    exampleObject.setName("Testrecorder");
 
 Serializing any Object as Java Code
-===================================
+-----------------------------------
 Serializing an object to code is done like this:
 
 	CodeSerializer codeSerializer = new CodeSerializer();
-	String code = codeSerializer.serialize(objectToSerialize);
+	String code = codeSerializer.serialize(exampleObject);
+
+The string `code` will then contain:
+
+	ExampleObject exampleObject1 = new ExampleObject();
+	exampleObject1.setName("Testrecorder");
+	ExampleObject serializedObject1 = exampleObject1;
+
 
 Serializing any Object as Hamcrest Matcher Code
-===============================================
+-----------------------------------------------
 Serializing an object to matcher code  is done like this:
 
 	SerializationProfile profile = new DefaultSerializationProfile();
@@ -25,38 +54,66 @@ Serializing an object to matcher code  is done like this:
 	SerializedValueVisitorFactory factory = new ObjectToMatcherCode.Factory();
 					
 	CodeSerializer codeSerializer = new CodeSerializer(facade, factory);
-	String code = codeSerializer.serialize(objectToSerialize);
+	String code = codeSerializer.serialize(exampleObject);
 
-Generating Tests from Productive Code
-=====================================
-- put the test recorder jar on your class path
-- you will also need the jar with dependencies
-- annotate the methods you want to record with `@Snapshot`
-- Write a class `YourConfig implements SnapshotConfig` and configure it
+The string `code` will then contain:
+
+	Matcher<ExampleObject> serializedObject1 = new GenericMatcher() {
+        String name = "Testrecorder";
+    }.matching(ExampleObject.class);
+
+Test Recording - Advanced Topics
+================================
+
+Test Recording is strictly putting together the upper code for Runtime Object Serialization. 
+
+How to start
+------------
+The first step to Test Recording should be to instrument your code.
+
+- Put the test recorder jar on your class path
+- You will also need the jar with dependencies
+- Select one method of interest and annotate it with `@Snapshot`. Now the Testrecorder knows which method has to be recorded.
+- Configure your Testrecording by writing a class `YourConfig implements SnapshotConfig`
+  - `getSnapshotConsumer` should return an instance of `ScheduledTestGenerator`
+  - `getTimeoutMillis` may be set to `100.000`
+  - `getPackages` should return the packages containing the classes/methods you want to record
+  - `getInitializer` may be set to null 
 - start your application with `-javaagent:testrecorder-jar-with-dependencies.jar=YourConfig`
-- examples can be found at [testrecorder-examples](https://github.com/almondtools/testrecorder-examples)
 
-Assumptions and Restrictions
-============================
+Examples
+--------
+Examples can be found at [testrecorder-examples](https://github.com/almondtools/testrecorder-examples)
+
+Custom Serializers
+------------------
+Sometimes you will encounter problems with automatic serialization because the testrecorder engine does not know the best abstraction how to serialize an object. In most times it will choose the `GenericSerializer` class, which is very generic but may contain too much of unnecessary data.
+
+If you depend on an Object that should be serialized in a special way, you can define a new `CustomSerializer implements Serializer<SerializedObject>`. Each serializer has:
+- a method `getMatchingClasses` return all classes this serializer can handle
+- a method `generateType` being just a factor method to create an empty serialized value
+- a method `populate` being a method that is passed both the empty serialized value and the object to serialize. This should store all necessary information into the serialized value
+- (recommended) an inner class `SerializerFactory` to return an instance of this serializer. 
+
+To enable `CustomSerializer` 
+- you should define a `SerializationProfile` and add your serializer's factory to the list returned in `getSerializerFactories`
+- you should set the profile attribute of your `@Snapshot` annotation to this profile class 
+
+
+Custom Serialized Values
+------------------------
+In most cases the existing serialized value types should be sufficient. In most cases `SerializedObject` should do. So if you need your custom serialized value than create it and reference it from your Custom Serializer.
+
+Adaptors (Custom Deserializers) 
+-------------------------------
+TODO
+
+Limitations
+-----------
 TestRecorder serialization (for values and tests) does not cover all of an objects properties. Problems might occur with:
 - static fields
 - synthetic fields (added by some bytecode rewriting framework)
 - native state
 
-Furthermore there are assumptions on the common collection interfaces. The serialized values will not contain the exact type found, but:
-- any field typed `Map<K,V>` will be filled with a `LinkedHashMap<K,V>`  
-- any field typed `Set<T>` will be filled with a `LinkedHashSet<T>`
-- any field typed `List<T>` will be filled with a `ArrayList<T>`
+Testrecorder was not yet tested on a large set of code examples. Some classes are not as easy to serialize as others, so if you encounter problems, try to write an issue. Most fixes to such problems should be solvable with custom serializers or custom deserializers. 
 
-Both, restrictions and assumptions, can be adjusted by modifying the serialization strategies by both
-- defining a new `SerializationProfile` to ensure that the internal representation is correct
-- and modifying your Serializer (e.g. `CodeSerializer` or `TestGenerator`) to use another `SerializedValueVisitorFactory`
-
-
-TODOs
-=====
-- More readable generated Tests
-- Less  warnings in generated Tests
-- Other Profiles (than `DefaultSerializationProfile)` that can handle serialization of static or generated data
-- Higher Test Coverage
-- Tutorial
