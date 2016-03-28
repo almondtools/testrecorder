@@ -63,15 +63,16 @@
                       <li>Or you can try to refactor them to make up proper unit tests</li>
                       <li>Even without reusing the generated code it could give valuable insights for code understanding</li>
   </ul> </p>
-              <p>                It is not recommended to replace a test-driven strategy with generated-test strategy but in many cases the productive code is
-                there and the tests are missing (  <em>=legacy code</em>). In this case the first step should be to fix the current behavior
-                by creating integration tests. This task is often hard and thankless.   <strong>Testrecorder</strong> can support you in this case.</p>
+              <p>                It is not recommended to replace a test-driven strategy with generated-test strategy but in many cases the productive code is there 
+                and the tests are missing. In this case the first step should be to fix the current behavior by creating integration tests. This task 
+                is often hard and thankless.   <strong>Testrecorder</strong> can support you in this case.</p>
+              <p>                We shall start with some basics on Runtime Object Serialization. This action has a simple interface, yet it is not as powerful as test 
+                recording. Then we shall dive into the configuration of Test Recording.</p>
   </div>
   </div>
   </section>
               <section>
-              <h2>Usage</h2>
-              <div class="row">
+                  <div class="row">
               <div class="col-md-push-8 col-md-4">
                       <div class="panel panel-default">
               <div class="panel-heading">
@@ -95,7 +96,8 @@
   </div>
   </div>
           <div class="col-md-pull-4 col-md-8">
-                  <p>                The following examples will expect following code setup:
+                  <h2>Runtime Object Serialization - the Basics</h2>
+              <p>                The following examples will expect following code setup:
                       <div>
       <pre><code class="java">ExampleObject exampleObject = new ExampleObject();
 exampleObject.setName(&quot;Testrecorder&quot;);</code></pre>
@@ -151,17 +153,49 @@ ExampleObject serializedObject1 = exampleObject1;</code></pre>
             
   </div>
           <div class="col-md-pull-4 col-md-8">
-                  <h3>Generating Tests from Productive Code</h3>
+                  <h2>Test Recording - Advanced Topics</h2>
+              <p>                Test Recording is strictly putting together the upper code for Runtime Object Serialization.</p>
+              <h3>How to start</h3>
               <p>                  <ul>
-                          <li>put the test recorder jar on your class path</li>
-                      <li>you will also need the jar with dependencies</li>
-                      <li>annotate the methods you want to record with       <code >@Snapshot</code></li>
-                      <li>Write a class       <code >YourConfig implements SnapshotConfig</code> and configure it</li>
+                          <li>Put the test recorder jar on your class path</li>
+                      <li>You will also need the jar with dependencies</li>
+                      <li>Select one method of interest and annotate it with       <code >@Snapshot</code>. Now the Testrecorder knows which method has to be recorded.</li>
+                      <li>                        Configure your Testrecording by writing a class       <code >YourConfig implements SnapshotConfig</code>
+                          <ul>
+                                  <li>      <code >getSnapshotConsumer</code> should return an instance of       <code >ScheduledTestGenerator</code></li>
+                              <li>      <code >getTimeoutMillis</code> may be set to       <code >100.000</code></li>
+                              <li>      <code >getPackages</code> should return the packages containing the classes/methods you want to record</li>
+                              <li>      <code >getInitializer</code> may be set to       <code >null</code></li>
+  </ul></li>
                       <li>start your application with       <code >-javaagent:testrecorder-jar-with-dependencies.jar=YourConfig</code></li>
-                      <li>examples can be found at   <a href="https://github.com/almondtools/testrecorder-examples">
-    Testrecorder Examples
-  </a></li>
   </ul></p>
+              <h3>Examples</h3>
+              <p>examples can be found at   <a href="https://github.com/almondtools/testrecorder-examples">
+    Testrecorder Examples
+  </a></p>
+              <h3>Custom Serializers</h3>
+              <p>                Sometimes you will encounter problems with automatic serialization because the testrecorder engine does not know the best abstraction how to serialize 
+                an object. In most times it will choose the       <code >GenericSerializer</code> class, which is very generic but may contain too much of unnecessary data.
+
+                If you depend on an Object that should be serialized in a special way, you can define a new       <code >CustomSerializer implements Serializer&lt;SerializedObject&gt;</code>.
+                Each serializer has:
+                  <ul>
+                          <li>a method  return all classes this serializer can handle</li>
+                      <li>a method  being just a factor method to create an empty serialized value</li>
+                      <li>a method  being a method that is passed both the empty serialized value and the object to serialize. This should store all necessary information into the serialized value</li>
+                      <li>(recommended) an inner class  to return an instance of this serializer.</li>
+  </ul></p>
+              <p>                To enable       <code >CustomSerializer</code> 
+                  <ul>
+                          <li>you should define a       <code >SerializationProfile</code> and add your serializer's factory to the list returned in       <code >getSerializerFactories</code></li>
+                      <li>you should set the profile attribute of your       <code >@Snapshot</code> annotation to this profile class</li>
+  </ul></p>
+              <h3>Custom Serialized Values</h3>
+              <p>                In most cases the existing serialized value types should be sufficient. In most cases       <code >SerializedObject</code> should do. So if you need your custom serialized value 
+                than create it and reference it from your Custom Serializer.</p>
+              <h3>Adaptors (Custom Deserializers)</h3>
+              <p>                You can also modify your output code by introducing custom deserializers. More on that in later updates.</p>
+            
   </div>
   </div>
   </section>
