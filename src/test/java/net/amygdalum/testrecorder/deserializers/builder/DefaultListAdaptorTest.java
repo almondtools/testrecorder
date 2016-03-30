@@ -34,9 +34,8 @@ public class DefaultListAdaptorTest {
 
 	@Test
 	public void testMatchesAnyArray() throws Exception {
-		assertThat(adaptor.matches(int[].class),is(true));
-		assertThat(adaptor.matches(Object[].class),is(true));
-		assertThat(adaptor.matches(Integer[].class),is(true));
+		assertThat(adaptor.matches(Object.class),is(true));
+		assertThat(adaptor.matches(new Object(){}.getClass()),is(true));
 	}
 
 	@Test

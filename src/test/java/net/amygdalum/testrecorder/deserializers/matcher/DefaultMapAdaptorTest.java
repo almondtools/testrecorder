@@ -1,14 +1,14 @@
-package net.amygdalum.testrecorder.deserializers.builder;
+package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static net.amygdalum.testrecorder.deserializers.TypeManager.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
+import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -39,19 +39,26 @@ public class DefaultMapAdaptorTest {
 	}
 
 	@Test
-	public void testTryDeserialize() throws Exception {
+	public void testTryDeserializeMap() throws Exception {
 		SerializedMap value = new SerializedMap(parameterized(Map.class, null, Integer.class, Integer.class), LinkedHashMap.class);
 		value.put(literal(Integer.class, 8), literal(Integer.class, 15));
 		value.put(literal(Integer.class, 47), literal(Integer.class, 11));
-		ObjectToSetupCode generator = new ObjectToSetupCode();
+		ObjectToMatcherCode generator = new ObjectToMatcherCode();
+		Computation result = adaptor.tryDeserialize(value, generator);
+		
+		assertThat(result.getStatements(), empty());
+		assertThat(result.getValue(), equalTo("containsEntries(Integer.class, Integer.class).entry(47, 11).entry(8, 15)"));
+	}
+
+	@Test
+	public void testTryDeserializeEmptyMap() throws Exception {
+		SerializedMap value = new SerializedMap(BigInteger[].class, BigInteger[].class);
+		ObjectToMatcherCode generator = new ObjectToMatcherCode();
 		
 		Computation result = adaptor.tryDeserialize(value, generator);
 		
-		assertThat(result.getStatements().toString(), allOf(
-			containsString("Map<Integer, Integer> map1 = new LinkedHashMap<>()"),
-			containsString("map1.put(8, 15)"),
-			containsString("map1.put(47, 11);")));
-		assertThat(result.getValue(), equalTo("map1"));
+		assertThat(result.getStatements(), empty());
+		assertThat(result.getValue(), equalTo("noEntries(Object.class, Object.class)"));
 	}
 
 
