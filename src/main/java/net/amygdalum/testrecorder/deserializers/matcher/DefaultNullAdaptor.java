@@ -16,7 +16,8 @@ import net.amygdalum.testrecorder.values.SerializedNull;
 public class DefaultNullAdaptor extends DefaultAdaptor<SerializedNull, ObjectToMatcherCode> implements Adaptor<SerializedNull, ObjectToMatcherCode> {
 
 	@Override
-	public Computation tryDeserialize(SerializedNull value, TypeManager types, ObjectToMatcherCode generator) {
+	public Computation tryDeserialize(SerializedNull value, ObjectToMatcherCode generator) {
+		TypeManager types = generator.getTypes();
 		types.registerImport(value.getValueType());
 		types.staticImport(Matchers.class, "nullValue");
 

@@ -19,7 +19,8 @@ public class DefaultBigDecimalAdaptor extends DefaultAdaptor<SerializedImmutable
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedImmutable<BigDecimal> value, TypeManager types, ObjectToSetupCode generator) {
+	public Computation tryDeserialize(SerializedImmutable<BigDecimal> value, ObjectToSetupCode generator) {
+		TypeManager types = generator.getTypes();
 		types.registerImport(BigDecimal.class);
 
 		String literal = asLiteral(value.getValue().toPlainString());

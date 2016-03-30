@@ -17,7 +17,8 @@ import net.amygdalum.testrecorder.values.SerializedLiteral;
 public class DefaultLiteralAdaptor extends DefaultAdaptor<SerializedLiteral, ObjectToMatcherCode> implements Adaptor<SerializedLiteral, ObjectToMatcherCode> {
 
 	@Override
-	public Computation tryDeserialize(SerializedLiteral value, TypeManager types, ObjectToMatcherCode generator) {
+	public Computation tryDeserialize(SerializedLiteral value, ObjectToMatcherCode generator) {
+		TypeManager types = generator.getTypes();
 		types.staticImport(Matchers.class, "equalTo");
 
 		String valueExpression = asLiteral(value.getValue());

@@ -16,7 +16,8 @@ import net.amygdalum.testrecorder.values.SerializedArray;
 public class DefaultArrayAdaptor extends DefaultAdaptor<SerializedArray, ObjectToSetupCode> implements Adaptor<SerializedArray, ObjectToSetupCode> {
 
 	@Override
-	public Computation tryDeserialize(SerializedArray value, TypeManager types, ObjectToSetupCode generator) {
+	public Computation tryDeserialize(SerializedArray value, ObjectToSetupCode generator) {
+		TypeManager types = generator.getTypes();
 		types.registerType(value.getType());
 
 		List<Computation> elementTemplates = Stream.of(value.getArray())

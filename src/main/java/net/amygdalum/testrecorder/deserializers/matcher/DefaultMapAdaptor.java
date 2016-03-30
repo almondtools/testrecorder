@@ -26,7 +26,8 @@ import net.amygdalum.testrecorder.values.SerializedMap;
 public class DefaultMapAdaptor extends DefaultAdaptor<SerializedMap, ObjectToMatcherCode> implements Adaptor<SerializedMap, ObjectToMatcherCode> {
 
 	@Override
-	public Computation tryDeserialize(SerializedMap value, TypeManager types, ObjectToMatcherCode generator) {
+	public Computation tryDeserialize(SerializedMap value, ObjectToMatcherCode generator) {
+		TypeManager types = generator.getTypes();
 		String keyType = types.getSimpleName(value.getMapKeyType());
 		String valueType = types.getSimpleName(value.getMapValueType());
 		if (value.isEmpty()) {

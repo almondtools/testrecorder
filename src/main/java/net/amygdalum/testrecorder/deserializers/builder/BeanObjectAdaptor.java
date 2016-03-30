@@ -1,9 +1,9 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
+import net.amygdalum.testrecorder.DeserializationException;
 import net.amygdalum.testrecorder.deserializers.Adaptor;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.Construction;
-import net.amygdalum.testrecorder.deserializers.DeserializationException;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
@@ -20,12 +20,13 @@ public class BeanObjectAdaptor implements Adaptor<SerializedObject, ObjectToSetu
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedObject value, TypeManager types, ObjectToSetupCode generator) throws DeserializationException {
+	public Computation tryDeserialize(SerializedObject value, ObjectToSetupCode generator) throws DeserializationException {
+		TypeManager types = generator.getTypes();
 		try {
 			String name = generator.localVariable(value, value.getValueType());
 			return new Construction(name, value).computeBest(types, generator);
 		} catch (ReflectiveOperationException | RuntimeException e) {
-			throw new DeserializationException();
+			throw new DeserializationException(value.toString());
 		}
 	}
 

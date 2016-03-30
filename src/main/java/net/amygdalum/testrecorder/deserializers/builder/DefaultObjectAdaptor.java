@@ -16,7 +16,8 @@ import net.amygdalum.testrecorder.values.SerializedObject;
 public class DefaultObjectAdaptor extends DefaultAdaptor<SerializedObject, ObjectToSetupCode> implements Adaptor<SerializedObject, ObjectToSetupCode> {
 
 	@Override
-	public Computation tryDeserialize(SerializedObject value, TypeManager types, ObjectToSetupCode generator) {
+	public Computation tryDeserialize(SerializedObject value, ObjectToSetupCode generator) {
+		TypeManager types = generator.getTypes();
 		types.registerTypes(value.getType(), GenericObject.class);
 
 		List<Computation> elementTemplates = value.getFields().stream()

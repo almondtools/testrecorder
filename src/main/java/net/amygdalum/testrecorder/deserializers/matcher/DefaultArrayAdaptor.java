@@ -25,7 +25,8 @@ import net.amygdalum.testrecorder.values.SerializedArray;
 public class DefaultArrayAdaptor extends DefaultAdaptor<SerializedArray, ObjectToMatcherCode> implements Adaptor<SerializedArray, ObjectToMatcherCode> {
 
 	@Override
-	public Computation tryDeserialize(SerializedArray value, TypeManager types, ObjectToMatcherCode generator) {
+	public Computation tryDeserialize(SerializedArray value, ObjectToMatcherCode generator) {
+		TypeManager types = generator.getTypes();
 		if (isPrimitive(value.getComponentType())) {
 			String name = value.getComponentType().getTypeName();
 			types.staticImport(PrimitiveArrayMatcher.class, name + "ArrayContaining");

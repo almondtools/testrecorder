@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
+import net.amygdalum.testrecorder.DeserializationException;
 import net.amygdalum.testrecorder.SerializedValue;
 
 public class Adaptors<G> {
@@ -57,7 +58,7 @@ public class Adaptors<G> {
 		for (Adaptor<?, G> match : matching) {
 			if (match.matches(value.getValueType())) {
 				try {
-					return ((Adaptor<T, G>) match).tryDeserialize(value, types, generator);
+					return ((Adaptor<T, G>) match).tryDeserialize(value, generator);
 				} catch (DeserializationException e) {
 					continue;
 				}

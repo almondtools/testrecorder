@@ -12,11 +12,11 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import net.amygdalum.testrecorder.DeserializationException;
+import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedImmutableType;
 import net.amygdalum.testrecorder.SerializedReferenceType;
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.SerializedValueType;
-import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.util.GenericObject;
 import net.amygdalum.testrecorder.util.GenericObjectException;
 import net.amygdalum.testrecorder.values.SerializedArray;

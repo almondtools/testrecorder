@@ -19,7 +19,8 @@ import net.amygdalum.testrecorder.values.SerializedMap;
 public class DefaultMapAdaptor extends DefaultAdaptor<SerializedMap, ObjectToSetupCode> implements Adaptor<SerializedMap, ObjectToSetupCode> {
 
 	@Override
-	public Computation tryDeserialize(SerializedMap value, TypeManager types, ObjectToSetupCode generator) {
+	public Computation tryDeserialize(SerializedMap value, ObjectToSetupCode generator) {
+		TypeManager types = generator.getTypes();
 		types.registerTypes(value.getType(), value.getValueType());
 
 		Map<Computation, Computation> elementTemplates = value.entrySet().stream()

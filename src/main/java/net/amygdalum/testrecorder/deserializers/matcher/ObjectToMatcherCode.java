@@ -65,6 +65,10 @@ public class ObjectToMatcherCode implements Deserializer<Computation> {
 		this.adaptors = adaptors;
 		this.computed = new HashSet<>();
 	}
+	
+	public TypeManager getTypes() {
+		return types;
+	}
 
 	public boolean isSimpleValue(SerializedValue element) {
 		return element instanceof SerializedNull

@@ -64,6 +64,10 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 		this.locals = locals;
 		this.computed = new IdentityHashMap<>();
 	}
+	
+	public TypeManager getTypes() {
+		return types;
+	}
 
 	public String localVariable(SerializedValue value, Type type) {
 		String name = locals.fetchName(type);

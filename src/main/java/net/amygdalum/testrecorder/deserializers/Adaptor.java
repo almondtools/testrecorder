@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers;
 
+import net.amygdalum.testrecorder.DeserializationException;
 import net.amygdalum.testrecorder.SerializedValue;
 
 public interface Adaptor<T extends SerializedValue, G> {
@@ -8,6 +9,6 @@ public interface Adaptor<T extends SerializedValue, G> {
 	
 	boolean matches(Class<?> clazz);
 
-	Computation tryDeserialize(T value, TypeManager types, G generator) throws DeserializationException;
+	Computation tryDeserialize(T value, G generator) throws DeserializationException;
 
 }

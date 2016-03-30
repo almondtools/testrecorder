@@ -21,7 +21,8 @@ public class DefaultBigIntegerAdaptor extends DefaultAdaptor<SerializedImmutable
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedImmutable<BigInteger> value, TypeManager types, ObjectToSetupCode generator) {
+	public Computation tryDeserialize(SerializedImmutable<BigInteger> value, ObjectToSetupCode generator) {
+		TypeManager types = generator.getTypes();
 		types.registerImport(BigInteger.class);
 
 		String literal = asLiteral(value.getValue().toString());

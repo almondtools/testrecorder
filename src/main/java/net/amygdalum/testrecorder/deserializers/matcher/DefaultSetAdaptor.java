@@ -21,7 +21,8 @@ import net.amygdalum.testrecorder.values.SerializedSet;
 public class DefaultSetAdaptor extends DefaultAdaptor<SerializedSet, ObjectToMatcherCode> implements Adaptor<SerializedSet, ObjectToMatcherCode> {
 
 	@Override
-	public Computation tryDeserialize(SerializedSet value, TypeManager types, ObjectToMatcherCode generator) {
+	public Computation tryDeserialize(SerializedSet value, ObjectToMatcherCode generator) {
+		TypeManager types = generator.getTypes();
 		if (value.isEmpty()) {
 			types.staticImport(Matchers.class, "empty");
 
