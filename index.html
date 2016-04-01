@@ -124,7 +124,7 @@ ExampleObject serializedObject1 = exampleObject1;</code></pre>
                       <div>
       <pre><code class="java"> SerializationProfile profile = new DefaultSerializationProfile();
  SerializerFacade facade = new ConfigurableSerializerFacade(profile);
- SerializedValueVisitorFactory factory = new ObjectToMatcherCode.Factory();
+ DeserializerFactory factory = new ObjectToMatcherCode.Factory();
  
  CodeSerializer codeSerializer = new CodeSerializer(facade, factory);
  String code = codeSerializer.serialize(objectToSerialize);</code></pre>
@@ -144,7 +144,7 @@ ExampleObject serializedObject1 = exampleObject1;</code></pre>
               <h3>Serializing is configurable</h3>
               <p>                As could be seen in the section for Hamcrest Matcher Code, there are several classes than can be adjusted to
                 change the way the code is serialized. So if somebody decides that the current matcher code is not in readable form, he might
-                write a new       <code >SerializedValueVisitorFactory</code> that serializes small beans as a sequence of property assertions.</p>
+                write a new       <code >DeserializerFactory</code> that serializes small beans as a sequence of property assertions.</p>
             
   </div>
   </div>
