@@ -15,12 +15,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import net.amygdalum.testrecorder.util.Instrumented;
-import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
-
 import net.amygdalum.testrecorder.ConfigRegistry;
 import net.amygdalum.testrecorder.DefaultConfig;
 import net.amygdalum.testrecorder.TestGenerator;
+import net.amygdalum.testrecorder.util.Instrumented;
+import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
 
 @RunWith(InstrumentedClassLoaderRunner.class)
 @Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.Imports", "net.amygdalum.testrecorder.scenarios.Imports$List" })
@@ -56,9 +55,7 @@ public class ImportsTest {
 				+ "net.amygdalum.testrecorder.scenarios.Imports.List otherList *"
 				+ "}.as(Imports.class);"),
 			containsPattern("new GenericMatcher() {*"
-				+ "Matcher<List> list = new GenericMatcher() {*"
-				+ "*"
-				+ "}.matching(clazz(\"java.util.Arrays$ArrayList\"), List.class);*"
+				+ "Matcher<?> list = contains(\"name\");*"
 				+ "Matcher<net.amygdalum.testrecorder.scenarios.Imports.List> otherList = new GenericMatcher() {*"
 				+ "String name = \"name\";*"
 				+ "}.matching(net.amygdalum.testrecorder.scenarios.Imports.List.class);*"

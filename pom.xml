@@ -46,6 +46,11 @@
 			<version>0.1.8</version>
 		</dependency>
 		<dependency>
+			<groupId>com.github.almondtools</groupId>
+			<artifactId>xrayinterface</artifactId>
+			<version>0.2.8</version>
+		</dependency>
+		<dependency>
 			<groupId>org.ow2.asm</groupId>
 			<artifactId>asm-debug-all</artifactId>
 			<version>5.0.4</version>

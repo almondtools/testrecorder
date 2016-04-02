@@ -40,8 +40,12 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 		.add(SerializedObject.class, new BeanObjectAdaptor())
 		.add(SerializedObject.class, new DefaultObjectAdaptor())
 		.add(SerializedArray.class, new DefaultArrayAdaptor())
+		.add(SerializedList.class, new ArraysListAdaptor())
+		.add(SerializedList.class, new CollectionsListAdaptor())
 		.add(SerializedList.class, new DefaultListAdaptor())
+		.add(SerializedSet.class, new CollectionsSetAdaptor())
 		.add(SerializedSet.class, new DefaultSetAdaptor())
+		.add(SerializedMap.class, new CollectionsMapAdaptor())
 		.add(SerializedMap.class, new DefaultMapAdaptor());
 
 	private TypeManager types;
@@ -83,7 +87,7 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 
 		List<String> statements = valueTemplate.getStatements();
 
-		if (isHidden(field.getValue().getValueType()) && !isHidden(field.getType())) {
+		if (isHidden(field.getValue().getType()) && !isHidden(field.getType())) {
 			String unwrapped = callMethod(valueTemplate.getValue(), "value");
 			String casted = cast(types.getSimpleName(field.getType()), unwrapped);
 

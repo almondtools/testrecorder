@@ -16,4 +16,7 @@ public class ArraysDecorators {
 		
 	}
 
+	@Snapshot
+	public void consume(List<Object> list) {
+	}
 }

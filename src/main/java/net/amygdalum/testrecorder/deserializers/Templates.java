@@ -192,6 +192,10 @@ public final class Templates {
 		return statement.render();
 	}
 
+	public static String callLocalMethod(String method, String... arguments) {
+		return callLocalMethod(method, asList(arguments));
+	}
+
 	public static String callLocalMethod(String method, List<String> arguments) {
 		ST statement = new ST(CALL_LOCAL_METHOD_EXP);
 		statement.add("method", method);

@@ -2,10 +2,16 @@ package net.amygdalum.testrecorder.values;
 
 import java.lang.reflect.Type;
 
+import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedImmutableType;
 import net.amygdalum.testrecorder.deserializers.ValuePrinter;
-import net.amygdalum.testrecorder.Deserializer;
 
+/**
+ * Serializing to SerializedImmutable is restricted to objects of a class that complies with following criteria:
+ * - it is a class with immutable values (like BigInteger, BigDecimal ...)
+ * - each custom serialized immutable class needs its own deserializer
+ *    
+ */
 public class SerializedImmutable<V> implements SerializedImmutableType {
 
 	private Type type;
@@ -29,6 +35,11 @@ public class SerializedImmutable<V> implements SerializedImmutableType {
 	@Override
 	public Type getType() {
 		return type;
+	}
+	
+	@Override
+	public void setType(Type type) {
+		this.type = type;
 	}
 	
 	@Override

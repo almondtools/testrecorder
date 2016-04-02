@@ -14,8 +14,6 @@ import org.junit.Test;
 
 import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 
-import net.amygdalum.testrecorder.values.SerializedLiteral;
-
 public class SerializedLiteralTest {
 
 	@Test

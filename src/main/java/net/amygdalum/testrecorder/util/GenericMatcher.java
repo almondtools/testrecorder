@@ -40,6 +40,7 @@ public class GenericMatcher extends GenericObject {
 	public <S> Matcher<S> matching(Wrapped clazz, Class<S> to) {
 		return (Matcher) new CastingMatcher(to, new InternalsMatcher(clazz.getWrappedClass()));
 	}
+
 	public boolean matches(Object o) {
 		Queue<GenericComparison> remainder = new LinkedList<>();
 		for (Field field : getGenericFields()) {
@@ -111,7 +112,6 @@ public class GenericMatcher extends GenericObject {
 			List<Field> fields = new ArrayList<>();
 			while (clazz != null && clazz != Object.class) {
 				for (Field field : clazz.getDeclaredFields()) {
-					field.setAccessible(true);
 					fields.add(field);
 				}
 				clazz = clazz.getSuperclass();

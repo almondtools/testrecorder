@@ -7,10 +7,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedValueType;
 import net.amygdalum.testrecorder.deserializers.ValuePrinter;
-import net.amygdalum.testrecorder.Deserializer;
 
+/**
+ * Serializing to SerializedLiteral is only valid for primitive types and non-null Strings. For this use the factory method 
+ * {@link #literal(Type, Object)}
+ */
 public class SerializedLiteral implements SerializedValueType {
 
 	public static Set<Class<?>> LITERAL_TYPES = new HashSet<>(Arrays.asList(
@@ -39,6 +43,11 @@ public class SerializedLiteral implements SerializedValueType {
 	@Override
 	public Type getType() {
 		return type;
+	}
+	
+	@Override
+	public void setType(Type type) {
+		this.type = type;
 	}
 	
 	@Override

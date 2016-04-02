@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import net.amygdalum.testrecorder.Serializer;
 import net.amygdalum.testrecorder.SerializerFacade;
@@ -23,7 +24,7 @@ public class DefaultSetSerializer implements Serializer<SerializedSet>{
 
 	@Override
 	public List<Class<?>> getMatchingClasses() {
-		return asList(HashSet.class, LinkedHashSet.class);
+		return asList(HashSet.class, LinkedHashSet.class, TreeSet.class);
 	}
 
 	@Override

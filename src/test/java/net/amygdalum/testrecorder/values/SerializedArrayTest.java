@@ -12,8 +12,6 @@ import org.junit.Test;
 
 import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 
-import net.amygdalum.testrecorder.values.SerializedArray;
-
 public class SerializedArrayTest {
 
 	@SuppressWarnings("unused")

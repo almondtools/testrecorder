@@ -7,23 +7,24 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import net.amygdalum.testrecorder.Serializer;
 import net.amygdalum.testrecorder.SerializerFacade;
 import net.amygdalum.testrecorder.SerializerFactory;
 import net.amygdalum.testrecorder.values.SerializedMap;
 
-public class DefaultHashMapSerializer implements Serializer<SerializedMap> {
+public class DefaultMapSerializer implements Serializer<SerializedMap> {
 
 	private SerializerFacade facade;
 
-	public DefaultHashMapSerializer(SerializerFacade facade) {
+	public DefaultMapSerializer(SerializerFacade facade) {
 		this.facade = facade;
 	}
 
 	@Override
 	public List<Class<?>> getMatchingClasses() {
-		return asList(HashMap.class, LinkedHashMap.class);
+		return asList(HashMap.class, LinkedHashMap.class, TreeMap.class);
 	}
 
 	@Override
@@ -43,8 +44,8 @@ public class DefaultHashMapSerializer implements Serializer<SerializedMap> {
 	public static class Factory implements SerializerFactory<SerializedMap> {
 
 		@Override
-		public DefaultHashMapSerializer newSerializer(SerializerFacade facade) {
-			return new DefaultHashMapSerializer(facade);
+		public DefaultMapSerializer newSerializer(SerializerFacade facade) {
+			return new DefaultMapSerializer(facade);
 		}
 
 	}

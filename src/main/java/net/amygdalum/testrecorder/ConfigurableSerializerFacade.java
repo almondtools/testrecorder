@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder;
 
+import static net.amygdalum.testrecorder.util.Reflections.accessing;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.isLiteral;
 
 import java.lang.reflect.Field;
@@ -86,19 +87,11 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 	}
 
 	@Override
-	public SerializedField serialize(Field f, Object obj) {
+	public SerializedField serialize(Field field, Object obj) {
 		try {
-			boolean access = f.isAccessible();
-			if (!access) {
-				f.setAccessible(true);
-			}
-			SerializedField field = new SerializedField(f.getDeclaringClass(), f.getName(), f.getType(), serialize(f.getType(), f.get(obj)));
-			if (!access) {
-				f.setAccessible(false);
-			}
-			return field;
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			System.out.println(f.getName());
+			return accessing(field).call(() -> new SerializedField(field.getDeclaringClass(), field.getName(), field.getType(), serialize(field.getType(), field.get(obj))));
+		} catch (ReflectiveOperationException e) {
+			System.out.println(field.getName());
 			throw new SerializationException(e);
 		}
 	}
@@ -114,7 +107,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 		}
 		return excluded;
 	}
-	
+
 	@Override
 	public boolean excludes(Class<?> clazz) {
 		return classExclusions.stream()

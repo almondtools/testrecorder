@@ -13,8 +13,11 @@ import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -82,6 +85,60 @@ public class TypeManager {
 		return clazz.getName().replace('$', '.');
 	}
 
+	public static Type inferType(List<Type> types) {
+		Optional<Class<?>> reduce = types.stream()
+			.map(type -> superTypes(getBase(type)))
+			.reduce((s1, s2) -> intersectClasses(s1, s2))
+			.map(s -> bestClass(s));
+		return reduce.orElse(Object.class);
+	}
+
+	private static Set<Class<?>> superTypes(Class<?> clazz) {
+		Set<Class<?>> done = new LinkedHashSet<>();
+		Queue<Class<?>> todo = new LinkedList<>();
+		todo.add(clazz);
+		while (!todo.isEmpty()) {
+			Class<?> next = todo.remove();
+			if (!done.contains(next) && next != Object.class) {
+				Class<?> superclass = next.getSuperclass();
+				if (superclass != null) {
+					todo.add(superclass);
+				}
+				for (Class<?> nextInterface : next.getInterfaces()) {
+					todo.add(nextInterface);
+				}
+			}
+		}
+		return done;
+	}
+
+	private static Set<Class<?>> intersectClasses(Set<Class<?>> s1, Set<Class<?>> s2) {
+		Set<Class<?>> result = new LinkedHashSet<>(s1);
+		result.retainAll(s2);
+		return result;
+	}
+
+	private static Class<?> bestClass(Set<Class<?>> classes) {
+		Class<?> bestInterface = null;
+		Class<?> bestClass = Object.class;
+		for (Class<?> clazz : classes) {
+			if (clazz.isInterface()) {
+				if (bestInterface == null) {
+					bestInterface = clazz;
+				} else if (bestInterface.isAssignableFrom(clazz)) {
+					bestInterface = clazz;
+				}
+			} else if (bestClass.isAssignableFrom(clazz)) {
+				bestClass = clazz;
+			}
+		}
+		if (bestInterface != null) {
+			return bestInterface;
+		} else {
+			return bestClass;
+		}
+	}
+
 	public static Method getDeclaredMethod(Class<?> clazz, String name, Class<?>... parameterTypes) {
 		try {
 			return clazz.getDeclaredMethod(name, parameterTypes);
@@ -108,6 +165,16 @@ public class TypeManager {
 		} else {
 			return Object.class;
 		}
+	}
+
+	public static Type getArray(Type componentType) {
+		return new GenericArrayType() {
+
+			@Override
+			public Type getGenericComponentType() {
+				return componentType;
+			}
+		};
 	}
 
 	public static Type getArgument(Type type, int i) {

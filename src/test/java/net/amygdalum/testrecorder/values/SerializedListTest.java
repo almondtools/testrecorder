@@ -1,10 +1,10 @@
 package net.amygdalum.testrecorder.values;
 
+import static java.util.Arrays.asList;
 import static net.amygdalum.testrecorder.values.GenericTypes.arrayListOfString;
 import static net.amygdalum.testrecorder.values.GenericTypes.listOfBounded;
 import static net.amygdalum.testrecorder.values.GenericTypes.listOfString;
 import static net.amygdalum.testrecorder.values.ParameterizedTypeMatcher.parameterized;
-import static java.util.Arrays.asList;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
@@ -22,10 +22,8 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
-
 import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.values.SerializedList;
+import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 
 public class SerializedListTest {
 

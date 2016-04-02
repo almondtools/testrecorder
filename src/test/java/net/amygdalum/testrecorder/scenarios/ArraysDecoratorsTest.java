@@ -5,6 +5,8 @@ import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.tes
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
+import java.util.Arrays;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,19 +18,31 @@ import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
 
 @RunWith(InstrumentedClassLoaderRunner.class)
-@Instrumented(classes={"net.amygdalum.testrecorder.scenarios.ArraysDecorators"})
+@Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.ArraysDecorators" })
 public class ArraysDecoratorsTest {
 
 	@Before
 	public void before() throws Exception {
 		((TestGenerator) ConfigRegistry.loadConfig(DefaultConfig.class).getSnapshotConsumer()).clearResults();
 	}
-	
+
 	@Test
-	public void testListsCompilable() throws Exception {
+	public void testListsSetupCompilable() throws Exception {
 		ArraysDecorators dataTypes = new ArraysDecorators();
-		
-		dataTypes.asList("Hello","World");
+
+		dataTypes.consume(Arrays.asList("Hello", "World"));
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		assertThat(testGenerator.testsFor(ArraysDecorators.class), hasSize(1));
+		assertThat(testGenerator.renderTest(ArraysDecorators.class), compiles());
+		assertThat(testGenerator.renderTest(ArraysDecorators.class), testsRuns());
+	}
+
+	@Test
+	public void testListsMatcherCompilable() throws Exception {
+		ArraysDecorators dataTypes = new ArraysDecorators();
+
+		dataTypes.asList("Hello", "World");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
 		assertThat(testGenerator.testsFor(ArraysDecorators.class), hasSize(1));

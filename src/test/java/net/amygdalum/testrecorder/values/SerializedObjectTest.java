@@ -9,9 +9,6 @@ import org.junit.Test;
 
 import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 
-import net.amygdalum.testrecorder.values.SerializedField;
-import net.amygdalum.testrecorder.values.SerializedObject;
-
 public class SerializedObjectTest {
 
 	@Test

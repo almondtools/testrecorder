@@ -2,11 +2,11 @@ package net.amygdalum.testrecorder.util;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
+import static net.amygdalum.testrecorder.util.Reflections.accessing;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.function.Supplier;
@@ -22,24 +22,29 @@ public abstract class GenericObject {
 
 	@SuppressWarnings("unchecked")
 	public static <T> T newInstance(Class<T> clazz) {
-		Exception exception = null;
+		Throwable exception = null;
 		for (Constructor<T> constructor : (Constructor<T>[]) clazz.getDeclaredConstructors()) {
-			boolean access = constructor.isAccessible();
-			if (!access) {
-				constructor.setAccessible(true);
-			}
-			for (Supplier<Object[]> params : bestParams(constructor.getParameterTypes())) {
-				try {
-					T instance = constructor.newInstance(params.get());
-					return instance;
-				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			try {
+				return accessing(constructor).call(() -> {
+					Exception innerexception = null;
+					for (Supplier<Object[]> params : bestParams(constructor.getParameterTypes())) {
+						try {
+							return constructor.newInstance(params.get());
+						} catch (ReflectiveOperationException | RuntimeException e) {
+							innerexception = e;
+						}
+					}
+					throw new RuntimeException(innerexception);
+				});
+			} catch (ReflectiveOperationException e) {
+				exception = e;
+			} catch (RuntimeException e) {
+				Throwable cause = e.getCause();
+				if (cause != null && cause != e) {
+					exception = cause;
+				} else {
 					exception = e;
-				} catch (RuntimeException e) {
-					continue;
 				}
-			}
-			if (!access) {
-				constructor.setAccessible(false);
 			}
 		}
 		throw new GenericObjectException(exception);
@@ -156,8 +161,8 @@ public abstract class GenericObject {
 	public Wrapped as(Wrapped wrapped) {
 		for (Field field : getGenericFields()) {
 			try {
-				wrapped.setField(field.getName(), field.get(this));
-			} catch (IllegalArgumentException | IllegalAccessException e) {
+				accessing(field).exec(() -> wrapped.setField(field.getName(), field.get(this)));
+			} catch (ReflectiveOperationException e) {
 				throw new GenericObjectException(e);
 			}
 		}
@@ -167,8 +172,8 @@ public abstract class GenericObject {
 	public <T> T as(T o) {
 		for (Field field : getGenericFields()) {
 			try {
-				setField(o, field.getName(), field.get(this));
-			} catch (IllegalArgumentException | IllegalAccessException e) {
+				accessing(field).exec(() -> setField(o, field.getName(), field.get(this)));
+			} catch (ReflectiveOperationException e) {
 				throw new GenericObjectException(e);
 			}
 		}
@@ -184,18 +189,10 @@ public abstract class GenericObject {
 	}
 
 	public static void setField(Object o, Field to, Object value) {
-		boolean access = to.isAccessible();
-		if (!access) {
-			to.setAccessible(true);
-		}
 		try {
-			to.set(o, value);
-		} catch (IllegalArgumentException | IllegalAccessException e) {
+			accessing(to).exec(() -> to.set(o, value));
+		} catch (ReflectiveOperationException e) {
 			throw new GenericObjectException(e);
-		} finally {
-			if (!access) {
-				to.setAccessible(false);
-			}
 		}
 	}
 
@@ -210,19 +207,13 @@ public abstract class GenericObject {
 	}
 
 	public static void copyField(Field field, Object from, Object to) {
-		boolean access = field.isAccessible();
-		if (!access) {
-			field.setAccessible(true);
-		}
 		try {
-			Object value = field.get(from);
-			field.set(to, value);
-		} catch (IllegalArgumentException | IllegalAccessException e) {
+			accessing(field).exec(() -> {
+				Object value = field.get(from);
+				field.set(to, value);
+			});
+		} catch (ReflectiveOperationException e) {
 			throw new GenericObjectException(e);
-		} finally {
-			if (!access) {
-				field.setAccessible(false);
-			}
 		}
 	}
 
@@ -243,7 +234,6 @@ public abstract class GenericObject {
 		return Stream.of(declaredFields)
 			.filter(field -> isSerializable(field))
 			.map(field -> {
-				field.setAccessible(true);
 				return field;
 			})
 			.collect(toList());

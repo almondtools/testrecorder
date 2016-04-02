@@ -9,8 +9,6 @@ import org.junit.Test;
 
 import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 
-import net.amygdalum.testrecorder.values.SerializedImmutable;
-
 public class SerializedBigDecimalTest {
 
 	@Test

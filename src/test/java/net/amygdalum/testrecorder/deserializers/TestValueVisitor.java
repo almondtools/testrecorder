@@ -1,9 +1,9 @@
 package net.amygdalum.testrecorder.deserializers;
 
+import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedImmutableType;
 import net.amygdalum.testrecorder.SerializedReferenceType;
 import net.amygdalum.testrecorder.SerializedValueType;
-import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.values.SerializedField;
 
 public class TestValueVisitor implements Deserializer<String> {

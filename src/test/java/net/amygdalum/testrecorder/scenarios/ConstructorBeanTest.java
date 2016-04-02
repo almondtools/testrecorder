@@ -14,12 +14,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import net.amygdalum.testrecorder.util.Instrumented;
-import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
-
 import net.amygdalum.testrecorder.ConfigRegistry;
 import net.amygdalum.testrecorder.DefaultConfig;
 import net.amygdalum.testrecorder.TestGenerator;
+import net.amygdalum.testrecorder.util.Instrumented;
+import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
 
 @RunWith(InstrumentedClassLoaderRunner.class)
 @Instrumented(classes={"net.amygdalum.testrecorder.scenarios.ConstructorBean"})

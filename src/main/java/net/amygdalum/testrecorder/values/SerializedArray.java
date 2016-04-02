@@ -7,11 +7,14 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedReferenceType;
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.deserializers.ValuePrinter;
-import net.amygdalum.testrecorder.Deserializer;
 
+/**
+ * Serializing to SerializedArray is restricted to arrays of any variant. It is recommended not to use another serialized array implementation. 
+ */
 public class SerializedArray implements SerializedReferenceType {
 
 	private Type type;
@@ -32,6 +35,11 @@ public class SerializedArray implements SerializedReferenceType {
 	@Override
 	public Type getType() {
 		return type;
+	}
+	
+	@Override
+	public void setType(Type type) {
+		this.type = type;
 	}
 	
 	@Override

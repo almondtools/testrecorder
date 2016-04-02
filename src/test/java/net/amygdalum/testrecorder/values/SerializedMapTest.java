@@ -22,10 +22,8 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
-
 import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.values.SerializedMap;
+import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 
 public class SerializedMapTest {
 

@@ -1,16 +1,20 @@
 package net.amygdalum.testrecorder.values;
 
 import static java.util.Arrays.asList;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.getBase;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedReferenceType;
 import net.amygdalum.testrecorder.deserializers.ValuePrinter;
-import net.amygdalum.testrecorder.Deserializer;
 
+/**
+ * Serializing to SerializedObject is the default if no other SerializedValue matches.
+ * 
+ * There is no restriction to objects that are serialized in this way other than being non-primitive.
+ */
 public class SerializedObject implements SerializedReferenceType {
 
 	private Type type;
@@ -34,8 +38,13 @@ public class SerializedObject implements SerializedReferenceType {
 	}
 
 	@Override
+	public void setType(Type type) {
+		this.type = type;
+	}
+	
+	@Override
 	public Class<?> getValueType() {
-		return getBase(valueType);
+		return valueType;
 	}
 
 	public List<SerializedField> getFields() {

@@ -1,8 +1,13 @@
 package net.amygdalum.testrecorder.serializers;
 
+import static com.almondtools.xrayinterface.XRayInterface.xray;
 import static java.util.stream.Collectors.toList;
+import static net.amygdalum.testrecorder.TypeSelector.startingWith;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.inferType;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.parameterized;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -32,9 +37,24 @@ public class CollectionsSetSerializer extends HiddenInnerClassSerializer<Seriali
 
 	@Override
 	public void populate(SerializedSet serializedObject, Object object) {
+		List<Type> elementTypes = new ArrayList<>();
 		for (Object element : (Set<?>) object) {
 			serializedObject.add(facade.serialize(element.getClass(), element));
+			if (element != null) {
+				elementTypes.add(element.getClass());
+			}
 		}
+		if (object.getClass().getSimpleName().contains("Checked")) {
+			Type newType = parameterized(Set.class, null, xray(object).to(CheckedSet.class).getType());
+			serializedObject.setType(newType);
+		} else {
+			Type newType = parameterized(Set.class, null, inferType(elementTypes));
+			serializedObject.setType(newType);
+		}
+	}
+	
+	interface CheckedSet {
+		Class<?> getType();
 	}
 
 	public static class Factory implements SerializerFactory<SerializedSet> {

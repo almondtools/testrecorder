@@ -8,19 +8,6 @@ import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.data.FixedBooleanValueGenerator;
-import net.amygdalum.testrecorder.data.FixedByteValueGenerator;
-import net.amygdalum.testrecorder.data.FixedCharValueGenerator;
-import net.amygdalum.testrecorder.data.FixedDoubleValueGenerator;
-import net.amygdalum.testrecorder.data.FixedFloatValueGenerator;
-import net.amygdalum.testrecorder.data.FixedIntValueGenerator;
-import net.amygdalum.testrecorder.data.FixedLongValueGenerator;
-import net.amygdalum.testrecorder.data.FixedShortValueGenerator;
-import net.amygdalum.testrecorder.data.FixedStringValueGenerator;
-import net.amygdalum.testrecorder.data.GenericObjectGenerator;
-import net.amygdalum.testrecorder.data.RandomStringValueGenerator;
-import net.amygdalum.testrecorder.data.TestDataGenerator;
-
 public class TestDataGeneratorTest {
 
 	private TestDataGenerator gen;

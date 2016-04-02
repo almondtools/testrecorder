@@ -6,10 +6,14 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedReferenceType;
 import net.amygdalum.testrecorder.deserializers.ValuePrinter;
-import net.amygdalum.testrecorder.Deserializer;
 
+/**
+ * Serializing to SerializedNull is only valid and strongly recommended for any value that is null. Use the factory method  
+ * {@link #nullInstance(Type)}
+ */
 public class SerializedNull implements SerializedReferenceType {
 
 	private static final Map<Type, SerializedNull> KNOWN_LITERALS = new HashMap<>();
@@ -23,6 +27,11 @@ public class SerializedNull implements SerializedReferenceType {
 	@Override
 	public Type getType() {
 		return type;
+	}
+	
+	@Override
+	public void setType(Type type) {
+		this.type = type;
 	}
 	
 	@Override

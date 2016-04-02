@@ -13,7 +13,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.ContextSnapshot;
 import net.amygdalum.testrecorder.values.SerializedList;
 import net.amygdalum.testrecorder.values.SerializedObject;
 

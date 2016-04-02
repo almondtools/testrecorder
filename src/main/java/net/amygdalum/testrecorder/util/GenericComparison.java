@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.util;
 
+import static net.amygdalum.testrecorder.util.Reflections.accessing;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.isLiteral;
 
 import java.lang.reflect.Field;
@@ -14,11 +15,11 @@ public class GenericComparison {
 		this.left = left;
 		this.right = right;
 	}
-	
+
 	public Object getLeft() {
 		return left;
 	}
-	
+
 	public Object getRight() {
 		return right;
 	}
@@ -85,18 +86,8 @@ public class GenericComparison {
 			return false;
 		}
 	}
-	
+
 	public static Object getValue(Field field, Object item) throws ReflectiveOperationException {
-		boolean access = field.isAccessible();
-		if (!access) {
-			field.setAccessible(true);
-		}
-		try {
-			return field.get(item);
-		} finally {
-			if (!access) {
-				field.setAccessible(false);
-			}
-		}
+		return accessing(field).call(() -> field.get(item));
 	}
 }

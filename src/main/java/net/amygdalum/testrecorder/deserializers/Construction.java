@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.deserializers;
 
 import static net.amygdalum.testrecorder.util.GenericObject.getDefaultValue;
 import static net.amygdalum.testrecorder.util.GenericObject.getNonDefaultValue;
+import static net.amygdalum.testrecorder.util.Reflections.accessing;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -183,11 +184,7 @@ public class Construction {
 		while (clazz != Object.class) {
 			try {
 				Field f = clazz.getDeclaredField(fieldName);
-				boolean accessible = f.isAccessible();
-				try {
-					if (!accessible) {
-						f.setAccessible(true);
-					}
+				return accessing(f).call(() -> {
 					Object foundValue = f.get(base);
 					if (foundValue == expectedValue) {
 						return true;
@@ -196,12 +193,8 @@ public class Construction {
 					} else {
 						return foundValue.equals(expectedValue);
 					}
-				} finally {
-					if (!accessible) {
-						f.setAccessible(true);
-					}
-				}
-			} catch (NoSuchFieldException e) {
+				});
+			} catch (ReflectiveOperationException e) {
 				clazz = clazz.getSuperclass();
 			}
 		}

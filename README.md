@@ -51,7 +51,7 @@ Serializing an object to matcher code  is done like this:
 
 	SerializationProfile profile = new DefaultSerializationProfile();
 	SerializerFacade facade = new ConfigurableSerializerFacade(profile);
-	SerializedValueVisitorFactory factory = new ObjectToMatcherCode.Factory();
+	DeserializerFactory factory = new ObjectToMatcherCode.Factory();
 					
 	CodeSerializer codeSerializer = new CodeSerializer(facade, factory);
 	String code = codeSerializer.serialize(exampleObject);

@@ -15,8 +15,8 @@ import net.amygdalum.testrecorder.serializers.BigIntegerSerializer;
 import net.amygdalum.testrecorder.serializers.CollectionsListSerializer;
 import net.amygdalum.testrecorder.serializers.CollectionsMapSerializer;
 import net.amygdalum.testrecorder.serializers.CollectionsSetSerializer;
-import net.amygdalum.testrecorder.serializers.DefaultHashMapSerializer;
 import net.amygdalum.testrecorder.serializers.DefaultListSerializer;
+import net.amygdalum.testrecorder.serializers.DefaultMapSerializer;
 import net.amygdalum.testrecorder.serializers.DefaultSetSerializer;
 
 public class DefaultSerializationProfile implements SerializationProfile {
@@ -28,7 +28,7 @@ public class DefaultSerializationProfile implements SerializationProfile {
 		(SerializerFactory<?>) new CollectionsMapSerializer.Factory(),
 		(SerializerFactory<?>) new DefaultListSerializer.Factory(),
 		(SerializerFactory<?>) new DefaultSetSerializer.Factory(),
-		(SerializerFactory<?>) new DefaultHashMapSerializer.Factory(),
+		(SerializerFactory<?>) new DefaultMapSerializer.Factory(),
 		(SerializerFactory<?>) new BigIntegerSerializer.Factory(),
 		(SerializerFactory<?>) new BigDecimalSerializer.Factory());
 	

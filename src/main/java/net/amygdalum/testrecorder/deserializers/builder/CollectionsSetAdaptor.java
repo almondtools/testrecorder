@@ -1,0 +1,159 @@
+package net.amygdalum.testrecorder.deserializers.builder;
+
+import static java.util.Arrays.asList;
+import static net.amygdalum.testrecorder.TypeSelector.innerClasses;
+import static net.amygdalum.testrecorder.TypeSelector.startingWith;
+import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
+import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethod;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.parameterized;
+
+import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import net.amygdalum.testrecorder.DeserializationException;
+import net.amygdalum.testrecorder.deserializers.Adaptor;
+import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.TypeManager;
+import net.amygdalum.testrecorder.values.SerializedSet;
+
+public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSetupCode> {
+
+	private DefaultSetAdaptor adaptor;
+	
+	public CollectionsSetAdaptor() {
+		this.adaptor = new DefaultSetAdaptor();
+	}
+
+	@Override
+	public Class<? extends Adaptor<SerializedSet, ObjectToSetupCode>> parent() {
+		return DefaultSetAdaptor.class;
+	}
+
+	@Override
+	public boolean matches(Class<?> clazz) {
+		return innerClasses(Collections.class)
+			.filter(startingWith("Unmodifiable", "Synchronized", "Checked", "Empty", "Singleton"))
+			.filter(element -> Set.class.isAssignableFrom(element))
+			.anyMatch(element -> element.equals(clazz));
+	}
+
+	@Override
+	public Computation tryDeserialize(SerializedSet value, ObjectToSetupCode generator) {
+		TypeManager types = generator.getTypes();
+		types.registerImport(Set.class);
+
+		String name = value.getValueType().getSimpleName();
+		if (name.contains("Empty")) {
+			return tryDeserializeEmpty(value, generator);
+		} else if (name.contains("Singleton")) {
+			return tryDeserializeSingleton(value, generator);
+		} else if (name.contains("Unmodifiable")) {
+			return tryDeserializeUnmodifiable(value, generator);
+		} else if (name.contains("Synchronized")) {
+			return tryDeserializeSynchronized(value, generator);
+		} else if (name.contains("Checked")) {
+			return tryDeserializeChecked(value, generator);
+		} else {
+			throw new DeserializationException(value.toString());
+		}
+	}
+
+	public Computation createOrdinaryList(SerializedSet value, ObjectToSetupCode generator) {
+		SerializedSet baseValue = new SerializedSet(parameterized(LinkedHashSet.class, null, value.getComponentType()), LinkedHashSet.class);
+		baseValue.addAll(value);
+		return adaptor.tryDeserialize(baseValue, generator);
+	}
+
+	public Computation tryDeserializeEmpty(SerializedSet value, ObjectToSetupCode generator) {
+		String factoryMethod = "emptySet";
+		TypeManager types = generator.getTypes();
+		types.staticImport(Collections.class, factoryMethod);
+
+		Type resultType = parameterized(Set.class, null, value.getComponentType());
+		String resultList = generator.localVariable(value, resultType);
+
+		String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), resultList, callLocalMethod(factoryMethod));
+
+		return new Computation(resultList, asList(decoratingStatement));
+	}
+
+	public Computation tryDeserializeSingleton(SerializedSet value, ObjectToSetupCode generator) {
+		String factoryMethod = "singleton";
+		TypeManager types = generator.getTypes();
+		types.registerImport(Set.class);
+		types.staticImport(Collections.class, factoryMethod);
+
+		Computation computation = value.iterator().next().accept(generator);
+		List<String> statements = new LinkedList<>(computation.getStatements());
+		String resultBase = computation.getValue();
+
+		Type resultType = parameterized(Set.class, null, value.getComponentType());
+		String resultList = generator.localVariable(value, resultType);
+
+		String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), resultList, callLocalMethod(factoryMethod, resultBase));
+		statements.add(decoratingStatement);
+
+		return new Computation(resultList, statements);
+	}
+
+	private Computation tryDeserializeUnmodifiable(SerializedSet value, ObjectToSetupCode generator) {
+		String factoryMethod = "unmodifiableSet";
+
+		TypeManager types = generator.getTypes();
+		types.staticImport(Collections.class, factoryMethod);
+
+		Computation computation = createOrdinaryList(value, generator);
+		List<String> statements = new LinkedList<>(computation.getStatements());
+		String resultBase = computation.getValue();
+
+		Type resultType = parameterized(Set.class, null, value.getComponentType());
+		String resultList = generator.localVariable(value, resultType);
+
+		String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), resultList, callLocalMethod(factoryMethod, resultBase));
+		statements.add(decoratingStatement);
+
+		return new Computation(resultList, statements);
+	}
+
+	public Computation tryDeserializeSynchronized(SerializedSet value, ObjectToSetupCode generator) {
+		String factoryMethod = "synchronizedSet";
+		TypeManager types = generator.getTypes();
+		types.staticImport(Collections.class, factoryMethod);
+
+		Computation computation = createOrdinaryList(value, generator);
+		List<String> statements = new LinkedList<>(computation.getStatements());
+		String resultBase = computation.getValue();
+
+		Type resultType = parameterized(Set.class, null, value.getComponentType());
+		String resultList = generator.localVariable(value, resultType);
+
+		String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), resultList, callLocalMethod(factoryMethod, resultBase));
+		statements.add(decoratingStatement);
+
+		return new Computation(resultList, statements);
+	}
+
+	public Computation tryDeserializeChecked(SerializedSet value, ObjectToSetupCode generator) {
+		String factoryMethod = "checkedSet";
+		TypeManager types = generator.getTypes();
+		types.staticImport(Collections.class, factoryMethod);
+
+		Computation computation = createOrdinaryList(value, generator);
+		List<String> statements = new LinkedList<>(computation.getStatements());
+		String resultBase = computation.getValue();
+		String checkedType = types.getRawTypeName(value.getComponentType());
+
+		Type resultType = parameterized(Set.class, null, value.getComponentType());
+		String resultList = generator.localVariable(value, resultType);
+
+		String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), resultList, callLocalMethod(factoryMethod, resultBase, checkedType));
+		statements.add(decoratingStatement);
+
+		return new Computation(resultList, statements);
+	}
+
+}

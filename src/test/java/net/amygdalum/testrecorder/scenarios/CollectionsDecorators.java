@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.scenarios;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,14 @@ import net.amygdalum.testrecorder.Snapshot;
 public class CollectionsDecorators {
 
 	public CollectionsDecorators() {
+	}
+
+	@Snapshot
+	public void consume(Collection<?> list) {
+	}
+
+	@Snapshot
+	public void consume(Map<?,?> map) {
 	}
 
 	@Snapshot

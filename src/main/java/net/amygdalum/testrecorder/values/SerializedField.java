@@ -2,9 +2,9 @@ package net.amygdalum.testrecorder.values;
 
 import java.lang.reflect.Type;
 
+import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.deserializers.ValuePrinter;
-import net.amygdalum.testrecorder.Deserializer;
 
 public class SerializedField implements Comparable<SerializedField>{
 

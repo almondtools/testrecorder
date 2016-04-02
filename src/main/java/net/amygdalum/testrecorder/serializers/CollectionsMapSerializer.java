@@ -1,8 +1,13 @@
 package net.amygdalum.testrecorder.serializers;
 
+import static com.almondtools.xrayinterface.XRayInterface.xray;
 import static java.util.stream.Collectors.toList;
+import static net.amygdalum.testrecorder.TypeSelector.startingWith;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.inferType;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.parameterized;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -32,11 +37,31 @@ public class CollectionsMapSerializer extends HiddenInnerClassSerializer<Seriali
 
 	@Override
 	public void populate(SerializedMap serializedObject, Object object) {
+		List<Type> keyTypes = new ArrayList<>();
+		List<Type> valueTypes = new ArrayList<>();
 		for (Map.Entry<?, ?> element : ((Map<?, ?>) object).entrySet()) {
 			Object key = element.getKey();
 			Object value = element.getValue();
 			serializedObject.put(facade.serialize(key.getClass(), key), facade.serialize(value.getClass(), value));
+			if (key != null) {
+				keyTypes.add(key.getClass());
+			}
+			if (value != null) {
+				valueTypes.add(value.getClass());
+			}
 		}
+		if (object.getClass().getSimpleName().contains("Checked")) {
+			Type newType = parameterized(Map.class, null, xray(object).to(CheckedMap.class).getKeyType(), xray(object).to(CheckedMap.class).getValueType());
+			serializedObject.setType(newType);
+		} else {
+			Type newType = parameterized(Map.class, null, inferType(keyTypes), inferType(valueTypes));
+			serializedObject.setType(newType);
+		}
+	}
+
+	interface CheckedMap {
+		Class<?> getKeyType();
+		Class<?> getValueType();
 	}
 
 	public static class Factory implements SerializerFactory<SerializedMap> {

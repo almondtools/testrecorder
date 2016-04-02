@@ -1,0 +1,68 @@
+package net.amygdalum.testrecorder.deserializers.builder;
+
+import static net.amygdalum.testrecorder.TypeSelector.in;
+import static net.amygdalum.testrecorder.TypeSelector.innerClasses;
+import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
+import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethod;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.getArray;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.getBase;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.parameterized;
+
+import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
+import net.amygdalum.testrecorder.SerializedValue;
+import net.amygdalum.testrecorder.deserializers.Adaptor;
+import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.TypeManager;
+import net.amygdalum.testrecorder.values.SerializedArray;
+import net.amygdalum.testrecorder.values.SerializedList;
+
+public class ArraysListAdaptor implements Adaptor<SerializedList, ObjectToSetupCode> {
+	
+	private DefaultArrayAdaptor adaptor;
+	
+	public ArraysListAdaptor() {
+		this.adaptor = new DefaultArrayAdaptor();
+	}
+
+	@Override
+	public Class<? extends Adaptor<SerializedList, ObjectToSetupCode>> parent() {
+		return DefaultListAdaptor.class;
+	}
+
+	@Override
+	public boolean matches(Class<?> clazz) {
+		return innerClasses(Arrays.class)
+			.filter(in("ArrayList"))
+			.filter(element -> List.class.isAssignableFrom(element))
+			.anyMatch(element -> element.equals(clazz));
+	}
+
+	@Override
+	public Computation tryDeserialize(SerializedList value, ObjectToSetupCode generator) {
+		TypeManager types = generator.getTypes();
+		types.staticImport(Arrays.class, "asList");
+
+		Type type = getArray(value.getComponentType());
+		SerializedArray baseValue = new SerializedArray(type, getBase(type));
+		for (SerializedValue element : value) {
+			baseValue.add(element);
+		}
+		Computation computation = adaptor.tryDeserialize(baseValue, generator);
+		List<String> statements = new LinkedList<>(computation.getStatements());
+		String resultArray = computation.getValue();
+		
+		Type resultType = parameterized(List.class, null, value.getComponentType());
+		String resultList = generator.localVariable(value, resultType);
+		
+		String asListStatement = assignLocalVariableStatement(types.getBestName(resultType), resultList, callLocalMethod("asList", resultArray));
+		statements.add(asListStatement);
+		
+		
+		return new Computation(resultList, statements);
+	}
+
+}

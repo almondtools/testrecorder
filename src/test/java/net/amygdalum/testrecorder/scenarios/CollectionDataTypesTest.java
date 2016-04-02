@@ -8,37 +8,149 @@ import static org.junit.Assert.assertThat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import net.amygdalum.testrecorder.ConfigRegistry;
+import net.amygdalum.testrecorder.DefaultConfig;
+import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
 
-import net.amygdalum.testrecorder.TestGenerator;
-
 @RunWith(InstrumentedClassLoaderRunner.class)
-@Instrumented(classes={"net.amygdalum.testrecorder.scenarios.CollectionDataTypes"})
+@Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.CollectionDataTypes" })
 public class CollectionDataTypesTest {
 
+	@Before
+	public void before() throws Exception {
+		((TestGenerator) ConfigRegistry.loadConfig(DefaultConfig.class).getSnapshotConsumer()).clearResults();
+	}
+	
 	@Test
-	public void testCompilable() throws Exception {
+	public void testArrayListCompilable() throws Exception {
 		List<Integer> list = new ArrayList<>();
-		Set<Integer> set = new HashSet<>();
-		Map<Integer, Integer> map = new HashMap<>();
+
+		CollectionDataTypes dataTypes = new CollectionDataTypes();
+		for (int i = 1; i <= 10; i++) {
+			dataTypes.lists(list, i);
+		}
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		assertThat(testGenerator.testsFor(CollectionDataTypes.class), hasSize(10));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles());
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRuns());
+	}
+
+	@Test
+	public void testLinkedListCompilable() throws Exception {
+		List<Integer> list = new LinkedList<>();
 		
 		CollectionDataTypes dataTypes = new CollectionDataTypes();
 		for (int i = 1; i <= 10; i++) {
 			dataTypes.lists(list, i);
+		}
+		
+		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		assertThat(testGenerator.testsFor(CollectionDataTypes.class), hasSize(10));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles());
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRuns());
+	}
+	
+	@Test
+	public void testHashSetCompilable() throws Exception {
+		Set<Integer> set = new HashSet<>();
+
+		CollectionDataTypes dataTypes = new CollectionDataTypes();
+		for (int i = 1; i <= 10; i++) {
 			dataTypes.sets(set, i);
+		}
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		assertThat(testGenerator.testsFor(CollectionDataTypes.class), hasSize(10));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles());
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRuns());
+	}
+
+	@Test
+	public void testTreeSetCompilable() throws Exception {
+		Set<Integer> set = new HashSet<>();
+
+		CollectionDataTypes dataTypes = new CollectionDataTypes();
+		for (int i = 1; i <= 10; i++) {
+			dataTypes.sets(set, i);
+		}
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		assertThat(testGenerator.testsFor(CollectionDataTypes.class), hasSize(10));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles());
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRuns());
+	}
+
+	@Test
+	public void testLinkedHashSetCompilable() throws Exception {
+		Set<Integer> set = new LinkedHashSet<>();
+
+		CollectionDataTypes dataTypes = new CollectionDataTypes();
+		for (int i = 1; i <= 10; i++) {
+			dataTypes.sets(set, i);
+		}
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		assertThat(testGenerator.testsFor(CollectionDataTypes.class), hasSize(10));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles());
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRuns());
+	}
+
+	@Test
+	public void testHashMapCompilable() throws Exception {
+		Map<Integer, Integer> map = new HashMap<>();
+
+		CollectionDataTypes dataTypes = new CollectionDataTypes();
+		for (int i = 1; i <= 10; i++) {
 			dataTypes.maps(map, i);
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
-		assertThat(testGenerator.testsFor(CollectionDataTypes.class), hasSize(30));
+		assertThat(testGenerator.testsFor(CollectionDataTypes.class), hasSize(10));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles());
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRuns());
+	}
+
+	@Test
+	public void testTreeMapCompilable() throws Exception {
+		Map<Integer, Integer> map = new TreeMap<>();
+
+		CollectionDataTypes dataTypes = new CollectionDataTypes();
+		for (int i = 1; i <= 10; i++) {
+			dataTypes.maps(map, i);
+		}
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		assertThat(testGenerator.testsFor(CollectionDataTypes.class), hasSize(10));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles());
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRuns());
+	}
+
+	@Test
+	public void testLinkedHashMapCompilable() throws Exception {
+		Map<Integer, Integer> map = new LinkedHashMap<>();
+
+		CollectionDataTypes dataTypes = new CollectionDataTypes();
+		for (int i = 1; i <= 10; i++) {
+			dataTypes.maps(map, i);
+		}
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		assertThat(testGenerator.testsFor(CollectionDataTypes.class), hasSize(10));
 		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles());
 		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRuns());
 	}

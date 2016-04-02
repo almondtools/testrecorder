@@ -11,7 +11,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.Deserializer;
-import net.amygdalum.testrecorder.values.SerializedImmutable;
 
 public class SerializedImmutableTest {
 

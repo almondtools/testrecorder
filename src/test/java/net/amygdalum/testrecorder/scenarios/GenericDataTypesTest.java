@@ -7,10 +7,9 @@ import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
-
-import net.amygdalum.testrecorder.TestGenerator;
 
 @RunWith(InstrumentedClassLoaderRunner.class)
 @Instrumented(classes={"net.amygdalum.testrecorder.scenarios.GenericDataTypes"})

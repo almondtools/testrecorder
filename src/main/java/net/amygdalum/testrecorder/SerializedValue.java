@@ -9,7 +9,7 @@ import java.lang.reflect.Type;
  * - that if two objects are the same, their serialized value must also be the same
  * - that if two serialized values are the same, their original value is the same
  * 
- * The hascode method should reflect the identity of the serialized or nonserialized value (identity hash code should be fine)
+ * The hashcode method should reflect the identity of the serialized or nonserialized value (identity hash code should be fine)
  * The equals method of a serialized value must return true if both values are the same (==) and false otherwise (default equal should be fine)
  *
  */
@@ -18,6 +18,8 @@ public interface SerializedValue {
 	<T> T accept(Deserializer<T> visitor);
 
 	Type getType();
+	
+	void setType(Type type);
 
 	Class<?> getValueType();
 

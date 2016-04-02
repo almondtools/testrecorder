@@ -12,11 +12,19 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
+import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedReferenceType;
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.deserializers.ValuePrinter;
-import net.amygdalum.testrecorder.Deserializer;
 
+/**
+ * Serializing to SerializedList is restricted to objects of a class that complies with following criteria:
+ * - is a sub class of java.util.List (deserializers can depend on the java.util.Set interface)
+ * - has an empty public default constructor (deserializers potentially call the standard constructor)
+ * - has an add method that is sequence invariant (deserializers potentially call the add method)
+ * 
+ * Serializing objects not complying to this criteria is possible, just make sure that their exists a custom deserializer for these objects  
+ */
 public class SerializedList implements SerializedReferenceType, List<SerializedValue> {
 
 	private Type type;
@@ -32,6 +40,11 @@ public class SerializedList implements SerializedReferenceType, List<SerializedV
 	@Override
 	public Type getType() {
 		return type;
+	}
+	
+	@Override
+	public void setType(Type type) {
+		this.type = type;
 	}
 	
 	@Override

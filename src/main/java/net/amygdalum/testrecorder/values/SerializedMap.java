@@ -1,7 +1,5 @@
 package net.amygdalum.testrecorder.values;
 
-import static net.amygdalum.testrecorder.deserializers.TypeManager.getBase;
-
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -9,11 +7,19 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedReferenceType;
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.deserializers.ValuePrinter;
-import net.amygdalum.testrecorder.Deserializer;
 
+/**
+ * Serializing to SerializedMap is restricted to objects of a class that complies with following criteria:
+ * - is a sub class of java.util.Map (deserializers can depend on the java.util.Set interface)
+ * - has an empty public default constructor (deserializers potentially call the standard constructor)
+ * - has a put method that is sequence invariant (deserializers potentially call the put method)
+ * 
+ * Serializing objects not complying to this criteria is possible, just make sure that their exists a custom deserializer for these objects  
+ */
 public class SerializedMap implements SerializedReferenceType, Map<SerializedValue, SerializedValue> {
 
 	private Type type;
@@ -32,8 +38,13 @@ public class SerializedMap implements SerializedReferenceType, Map<SerializedVal
 	}
 
 	@Override
+	public void setType(Type type) {
+		this.type = type;
+	}
+	
+	@Override
 	public Class<?> getValueType() {
-		return getBase(valueType);
+		return valueType;
 	}
 
 	public Type getMapKeyType() {

@@ -1,5 +1,20 @@
 package net.amygdalum.testrecorder.scenarios;
 
+import static java.util.Collections.checkedList;
+import static java.util.Collections.checkedMap;
+import static java.util.Collections.checkedSet;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
+import static java.util.Collections.synchronizedList;
+import static java.util.Collections.synchronizedMap;
+import static java.util.Collections.synchronizedSet;
+import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableMap;
+import static java.util.Collections.unmodifiableSet;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRuns;
 import static org.hamcrest.Matchers.hasSize;
@@ -231,6 +246,213 @@ public class CollectionsDecoratorsTest {
 		CollectionsDecorators dataTypes = new CollectionsDecorators();
 
 		dataTypes.singletonMap("Foo", "Bar");
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles());
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRuns());
+	}
+
+	@Test
+	public void testConsumeUnmodifiableListsCompilable() throws Exception {
+		CollectionsDecorators dataTypes = new CollectionsDecorators();
+		List<Object> base = new ArrayList<>();
+		base.add("Hello");
+		base.add("World");
+
+		dataTypes.consume(unmodifiableList(base));
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles());
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRuns());
+	}
+
+	@Test
+	public void testConsumeSynchronizedListsCompilable() throws Exception {
+		CollectionsDecorators dataTypes = new CollectionsDecorators();
+		List<Object> base = new ArrayList<>();
+		base.add("Hello");
+		base.add("World");
+
+		dataTypes.consume(synchronizedList(base));
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles());
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRuns());
+	}
+
+	@Test
+	public void testConsumeCheckedListsCompilable() throws Exception {
+		CollectionsDecorators dataTypes = new CollectionsDecorators();
+		List<String> base = new ArrayList<>();
+		base.add("Hello");
+		base.add("World");
+
+		dataTypes.consume(checkedList(base, String.class));
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles());
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRuns());
+	}
+
+	@Test
+	public void testConsumeEmptyListsCompilable() throws Exception {
+		CollectionsDecorators dataTypes = new CollectionsDecorators();
+
+		dataTypes.consume(emptyList());
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles());
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRuns());
+	}
+
+	@Test
+	public void testConsumeSingletonListsCompilable() throws Exception {
+		CollectionsDecorators dataTypes = new CollectionsDecorators();
+
+		dataTypes.consume(singletonList("FooBar"));
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles());
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRuns());
+	}
+
+	@Test
+	public void testConsumeUnmodifiableSetsCompilable() throws Exception {
+		CollectionsDecorators dataTypes = new CollectionsDecorators();
+		Set<Object> base = new HashSet<>();
+		base.add("Hello");
+		base.add("World");
+
+		dataTypes.consume(unmodifiableSet(base));
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles());
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRuns());
+	}
+
+	@Test
+	public void testConsumeSynchronizedSetsCompilable() throws Exception {
+		CollectionsDecorators dataTypes = new CollectionsDecorators();
+		Set<Object> base = new HashSet<>();
+		base.add("Hello");
+		base.add("World");
+
+		dataTypes.consume(synchronizedSet(base));
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles());
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRuns());
+	}
+
+	@Test
+	public void testConsumeCheckedSetsCompilable() throws Exception {
+		CollectionsDecorators dataTypes = new CollectionsDecorators();
+		Set<String> base = new HashSet<>();
+		base.add("Hello");
+		base.add("World");
+
+		dataTypes.consume(checkedSet(base, String.class));
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles());
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRuns());
+	}
+
+	@Test
+	public void testConsumeEmptySetsCompilable() throws Exception {
+		CollectionsDecorators dataTypes = new CollectionsDecorators();
+
+		dataTypes.consume(emptySet());
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles());
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRuns());
+	}
+
+	@Test
+	public void testConsumeSingletonSetsCompilable() throws Exception {
+		CollectionsDecorators dataTypes = new CollectionsDecorators();
+
+		dataTypes.consume(singleton("FooBar"));
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles());
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRuns());
+	}
+
+	@Test
+	public void testConsumeUnmodifiableMapsCompilable() throws Exception {
+		CollectionsDecorators dataTypes = new CollectionsDecorators();
+		Map<Object, Object> base = new HashMap<>();
+		base.put("Hello", "World");
+		base.put("Foo", "Bar");
+
+		dataTypes.consume(unmodifiableMap(base));
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles());
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRuns());
+	}
+
+	@Test
+	public void testConsumeSynchronizedMapsCompilable() throws Exception {
+		CollectionsDecorators dataTypes = new CollectionsDecorators();
+		Map<Object, Object> base = new HashMap<>();
+		base.put("Hello", "World");
+		base.put("Foo", "Bar");
+
+		dataTypes.consume(synchronizedMap(base));
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles());
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRuns());
+	}
+
+	@Test
+	public void testConsumeCheckedMapsCompilable() throws Exception {
+		CollectionsDecorators dataTypes = new CollectionsDecorators();
+		Map<String, String> base = new HashMap<>();
+		base.put("Hello", "World");
+		base.put("Foo", "Bar");
+
+		dataTypes.consume(checkedMap(base, String.class, String.class));
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles());
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRuns());
+	}
+
+	@Test
+	public void testConsumeEmptyMapsCompilable() throws Exception {
+		CollectionsDecorators dataTypes = new CollectionsDecorators();
+
+		dataTypes.consume(emptyMap());
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles());
+		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRuns());
+	}
+
+	@Test
+	public void testConsumeSingletonMapsCompilable() throws Exception {
+		CollectionsDecorators dataTypes = new CollectionsDecorators();
+
+		dataTypes.consume(singletonMap("Foo", "Bar"));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
 		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));

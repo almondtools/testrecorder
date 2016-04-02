@@ -6,8 +6,6 @@ import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.data.RandomStringValueGenerator;
-
 public class RandomStringValueGeneratorTest {
 
 	private RandomStringValueGenerator gen;
