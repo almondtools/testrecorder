@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.values;
 
-import static net.amygdalum.testrecorder.deserializers.TypeManager.typeArgument;
+import static net.amygdalum.testrecorder.util.Types.typeArgument;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;

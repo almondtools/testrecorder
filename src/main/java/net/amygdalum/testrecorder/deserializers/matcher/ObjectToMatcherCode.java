@@ -3,9 +3,9 @@ package net.amygdalum.testrecorder.deserializers.matcher;
 import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.recursiveMatcher;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.baseType;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.parameterized;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.wildcard;
+import static net.amygdalum.testrecorder.util.Types.baseType;
+import static net.amygdalum.testrecorder.util.Types.parameterized;
+import static net.amygdalum.testrecorder.util.Types.wildcard;
 
 import java.lang.reflect.Type;
 import java.util.HashSet;

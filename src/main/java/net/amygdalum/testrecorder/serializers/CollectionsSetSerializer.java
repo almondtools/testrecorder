@@ -3,8 +3,8 @@ package net.amygdalum.testrecorder.serializers;
 import static com.almondtools.xrayinterface.XRayInterface.xray;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.TypeSelector.startingWith;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.inferType;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.parameterized;
+import static net.amygdalum.testrecorder.util.Types.inferType;
+import static net.amygdalum.testrecorder.util.Types.parameterized;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;

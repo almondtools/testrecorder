@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.parameterized;
+import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static org.junit.Assert.assertThat;
 
 import java.util.HashMap;

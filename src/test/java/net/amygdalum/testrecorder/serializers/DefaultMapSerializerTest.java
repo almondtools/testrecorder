@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.serializers;
 
 import static java.util.Collections.singletonMap;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.parameterized;
+import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;

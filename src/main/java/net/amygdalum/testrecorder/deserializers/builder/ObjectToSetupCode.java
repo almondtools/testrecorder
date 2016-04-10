@@ -3,7 +3,8 @@ package net.amygdalum.testrecorder.deserializers.builder;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
 import static net.amygdalum.testrecorder.deserializers.Templates.cast;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.isHidden;
+import static net.amygdalum.testrecorder.util.Types.isHidden;
+import static net.amygdalum.testrecorder.util.Types.wrapHidden;
 
 import java.lang.reflect.Type;
 import java.util.IdentityHashMap;
@@ -82,7 +83,7 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 	@Override
 	public Computation visitField(SerializedField field) {
 		Type type = field.getType();
-		Type resultType = TypeManager.wrapHidden(type);
+		Type resultType = wrapHidden(type);
 		types.registerType(type);
 		types.registerType(resultType);
 

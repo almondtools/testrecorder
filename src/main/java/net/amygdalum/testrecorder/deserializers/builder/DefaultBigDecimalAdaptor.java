@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.deserializers.builder;
 
 import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.equalTypes;
+import static net.amygdalum.testrecorder.util.Types.equalTypes;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;

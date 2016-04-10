@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.deserializers.matcher;
 import static java.util.Collections.emptyList;
 import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
 import static net.amygdalum.testrecorder.deserializers.Templates.equalToMatcher;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.parameterized;
+import static net.amygdalum.testrecorder.util.Types.parameterized;
 
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;

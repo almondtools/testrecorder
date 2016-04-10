@@ -4,9 +4,9 @@ import static net.amygdalum.testrecorder.TypeSelector.in;
 import static net.amygdalum.testrecorder.TypeSelector.innerClasses;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethod;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.array;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.equalTypes;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.parameterized;
+import static net.amygdalum.testrecorder.util.Types.array;
+import static net.amygdalum.testrecorder.util.Types.equalTypes;
+import static net.amygdalum.testrecorder.util.Types.parameterized;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;

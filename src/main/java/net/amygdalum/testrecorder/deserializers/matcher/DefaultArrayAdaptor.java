@@ -4,9 +4,9 @@ import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.deserializers.Templates.arrayContainingMatcher;
 import static net.amygdalum.testrecorder.deserializers.Templates.arrayEmptyMatcher;
 import static net.amygdalum.testrecorder.deserializers.Templates.primitiveArrayContainingMatcher;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.isPrimitive;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.parameterized;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.wildcard;
+import static net.amygdalum.testrecorder.util.Types.isPrimitive;
+import static net.amygdalum.testrecorder.util.Types.parameterized;
+import static net.amygdalum.testrecorder.util.Types.wildcard;
 
 import java.util.List;
 import java.util.stream.Stream;

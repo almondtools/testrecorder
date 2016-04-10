@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.deserializers;
 
-import static net.amygdalum.testrecorder.deserializers.TypeManager.baseType;
+import static net.amygdalum.testrecorder.util.Types.baseType;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;

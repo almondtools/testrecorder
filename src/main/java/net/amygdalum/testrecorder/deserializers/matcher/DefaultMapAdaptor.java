@@ -5,8 +5,8 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static net.amygdalum.testrecorder.deserializers.Templates.containsEntriesMatcher;
 import static net.amygdalum.testrecorder.deserializers.Templates.noEntriesMatcher;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.parameterized;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.wildcard;
+import static net.amygdalum.testrecorder.util.Types.parameterized;
+import static net.amygdalum.testrecorder.util.Types.wildcard;
 
 import java.util.List;
 import java.util.Map;

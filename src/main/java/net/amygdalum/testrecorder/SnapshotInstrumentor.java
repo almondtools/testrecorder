@@ -59,13 +59,13 @@ import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-import net.amygdalum.testrecorder.deserializers.TypeManager;
+import net.amygdalum.testrecorder.util.Types;
 
 public class SnapshotInstrumentor implements ClassFileTransformer {
 
 	private static final String Class_name = Type.getInternalName(Class.class);
 	private static final String Object_name = Type.getInternalName(Object.class);
-	private static final String TypeManager_name = Type.getInternalName(TypeManager.class);
+	private static final String Types_name = Type.getInternalName(Types.class);
 	private static final String SnapShortGenerator_name = Type.getInternalName(SnapshotGenerator.class);
 
 	private static final String SnapshotGenerator_descriptor = Type.getDescriptor(SnapshotGenerator.class);
@@ -90,7 +90,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	private static final String SnapshotGenerator_inputVariablesNoResult_descriptor = ByteCode.methodDescriptor(SnapshotGenerator.class, "inputVariables", Class.class, String.class,
 		java.lang.reflect.Type[].class, Object[].class);
 
-	private static final String TypeManager_getDeclaredMethod_descriptor = ByteCode.methodDescriptor(TypeManager.class, "getDeclaredMethod", Class.class, String.class, Class[].class);
+	private static final String Types_getDeclaredMethod_descriptor = ByteCode.methodDescriptor(Types.class, "getDeclaredMethod", Class.class, String.class, Class[].class);
 
 	private static final String CONSTRUCTOR_NAME = "<init>";
 
@@ -274,7 +274,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 			insnList.add(new InsnNode(AASTORE));
 		}
 
-		insnList.add(new MethodInsnNode(INVOKESTATIC, TypeManager_name, "getDeclaredMethod", TypeManager_getDeclaredMethod_descriptor, false));
+		insnList.add(new MethodInsnNode(INVOKESTATIC, Types_name, "getDeclaredMethod", Types_getDeclaredMethod_descriptor, false));
 		return insnList;
 	}
 

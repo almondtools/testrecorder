@@ -2,11 +2,11 @@ package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.deserializers.Templates.genericObjectMatcher;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.typeArgument;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.wildcard;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.wrapHidden;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.baseType;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.parameterized;
+import static net.amygdalum.testrecorder.util.Types.baseType;
+import static net.amygdalum.testrecorder.util.Types.parameterized;
+import static net.amygdalum.testrecorder.util.Types.typeArgument;
+import static net.amygdalum.testrecorder.util.Types.wildcard;
+import static net.amygdalum.testrecorder.util.Types.wrapHidden;
 
 import java.lang.reflect.Type;
 import java.util.List;

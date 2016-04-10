@@ -1,8 +1,8 @@
 package net.amygdalum.testrecorder.values;
 
 import static java.util.Arrays.asList;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.baseType;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.component;
+import static net.amygdalum.testrecorder.util.Types.baseType;
+import static net.amygdalum.testrecorder.util.Types.component;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;

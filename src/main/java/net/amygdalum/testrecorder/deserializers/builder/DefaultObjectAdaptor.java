@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.deserializers.builder;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.genericObjectConverter;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.wrapHidden;
+import static net.amygdalum.testrecorder.util.Types.wrapHidden;
 
 import java.lang.reflect.Type;
 import java.util.List;

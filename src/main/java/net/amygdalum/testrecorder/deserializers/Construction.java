@@ -1,9 +1,9 @@
 package net.amygdalum.testrecorder.deserializers;
 
-import static net.amygdalum.testrecorder.deserializers.TypeManager.baseType;
 import static net.amygdalum.testrecorder.util.GenericObject.getDefaultValue;
 import static net.amygdalum.testrecorder.util.GenericObject.getNonDefaultValue;
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
+import static net.amygdalum.testrecorder.util.Types.baseType;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

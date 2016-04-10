@@ -25,8 +25,8 @@ import static net.amygdalum.testrecorder.deserializers.Templates.fieldDeclaratio
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
 import static net.amygdalum.testrecorder.deserializers.Templates.returnStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.stringOf;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.baseType;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.isPrimitive;
+import static net.amygdalum.testrecorder.util.Types.baseType;
+import static net.amygdalum.testrecorder.util.Types.isPrimitive;
 
 import java.io.IOException;
 import java.io.Writer;
