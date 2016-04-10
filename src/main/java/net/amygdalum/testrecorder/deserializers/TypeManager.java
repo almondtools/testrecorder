@@ -87,7 +87,7 @@ public class TypeManager {
 
 	public static Type inferType(List<Type> types) {
 		Optional<Class<?>> reduce = types.stream()
-			.map(type -> superTypes(getBase(type)))
+			.map(type -> superTypes(baseType(type)))
 			.reduce((s1, s2) -> intersectClasses(s1, s2))
 			.map(s -> bestClass(s));
 		return reduce.orElse(Object.class);
@@ -155,33 +155,41 @@ public class TypeManager {
 		}
 	}
 
-	public static Class<?> getBase(Type type) {
+	public static Class<?> baseType(Type type) {
 		if (type instanceof Class<?>) {
 			return ((Class<?>) type);
 		} else if (type instanceof GenericArrayType) {
-			return Array.newInstance(getBase(((GenericArrayType) type).getGenericComponentType()), 0).getClass();
+			return Array.newInstance(baseType(((GenericArrayType) type).getGenericComponentType()), 0).getClass();
 		} else if (type instanceof ParameterizedType) {
-			return getBase(((ParameterizedType) type).getRawType());
+			return baseType(((ParameterizedType) type).getRawType());
 		} else {
 			return Object.class;
 		}
 	}
 
 	public static Type array(Type componentType) {
-		return new GenericArrayType() {
-
-			@Override
-			public Type getGenericComponentType() {
-				return componentType;
-			}
-		};
+		return new GenericArrayTypeImplementation(componentType);
 	}
 
-	public static Type getArgument(Type type, int i) {
-		if (type instanceof ParameterizedType) {
-			return ((ParameterizedType) type).getActualTypeArguments()[i];
+	public static Type component(Type arrayType) {
+		if (arrayType instanceof Class<?> && ((Class<?>) arrayType).isArray()) {
+			return ((Class<?>) arrayType).getComponentType();
+		} else if (arrayType instanceof GenericArrayType) {
+			return ((GenericArrayType) arrayType).getGenericComponentType();
 		} else {
-			return wildcard();
+			return Object.class;
+		}
+	}
+
+	public static boolean equalTypes(Type type1, Type type2) {
+		return baseType(type1).equals(baseType(type2));
+	}
+
+	public static Optional<Type> typeArgument(Type type, int i) {
+		if (type instanceof ParameterizedType) {
+			return Optional.of(((ParameterizedType) type).getActualTypeArguments()[i]);
+		} else {
+			return Optional.empty();
 		}
 	}
 
@@ -204,9 +212,7 @@ public class TypeManager {
 	}
 
 	public String getSimpleName(Type type) {
-		if (isHidden(type)) {
-			return Wrapped.class.getSimpleName();
-		} else if (type instanceof Class<?>) {
+		if (type instanceof Class<?>) {
 			Class<?> clazz = (Class<?>) type;
 			if (noImports.contains(clazz)) {
 				return clazz.getName().replace('$', '.');
@@ -252,46 +258,81 @@ public class TypeManager {
 	}
 
 	public String getWrappedName(Type type) {
-		return "clazz(\"" + getBase(type).getName() + "\")";
+		return "clazz(\"" + baseType(type).getName() + "\")";
+	}
+
+	public static Type wrapHidden(Type type) {
+		if (isHidden(type)) {
+			return Wrapped.class;
+		} else {
+			return type;
+		}
 	}
 
 	public static boolean isHidden(Type type) {
-		return !Modifier.isPublic(getBase(type).getModifiers());
+		return !Modifier.isPublic(baseType(type).getModifiers());
 	}
 
 	public static Type parameterized(Type raw, Type owner, Type... typeArgs) {
-		return new ParameterizedType() {
-
-			@Override
-			public Type getRawType() {
-				return raw;
-			}
-
-			@Override
-			public Type getOwnerType() {
-				return owner;
-			}
-
-			@Override
-			public Type[] getActualTypeArguments() {
-				return typeArgs;
-			}
-		};
+		return new ParameterizedTypeImplementation(raw, owner, typeArgs);
 	}
 
 	public static Type wildcard() {
-		return new WildcardType() {
+		return new WildcardTypeImplementation();
+	}
 
-			@Override
-			public Type[] getUpperBounds() {
-				return new Type[0];
-			}
+	private static final class GenericArrayTypeImplementation implements GenericArrayType {
 
-			@Override
-			public Type[] getLowerBounds() {
-				return new Type[0];
-			}
-		};
+		private Type componentType;
+
+		public GenericArrayTypeImplementation(Type componentType) {
+			this.componentType = componentType;
+		}
+
+		@Override
+		public Type getGenericComponentType() {
+			return componentType;
+		}
+	}
+
+	private static final class ParameterizedTypeImplementation implements ParameterizedType {
+
+		private Type raw;
+		private Type owner;
+		private Type[] typeArgs;
+
+		public ParameterizedTypeImplementation(Type raw, Type owner, Type... typeArgs) {
+			this.raw = raw;
+			this.owner = owner;
+			this.typeArgs = typeArgs;
+		}
+
+		@Override
+		public Type getRawType() {
+			return raw;
+		}
+
+		@Override
+		public Type getOwnerType() {
+			return owner;
+		}
+
+		@Override
+		public Type[] getActualTypeArguments() {
+			return typeArgs;
+		}
+	}
+
+	private static final class WildcardTypeImplementation implements WildcardType {
+		@Override
+		public Type[] getUpperBounds() {
+			return new Type[0];
+		}
+
+		@Override
+		public Type[] getLowerBounds() {
+			return new Type[0];
+		}
 	}
 
 }

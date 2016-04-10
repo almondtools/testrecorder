@@ -38,11 +38,11 @@ public class SerializedLiteralTest {
 	}
 
 	@Test
-	public void testGetType() throws Exception {
-		SerializedLiteral value = literal(String.class, "string");
-
-		assertThat(value.getType(), equalTo(String.class));
-	}
+		public void testGetResultType() throws Exception {
+			SerializedLiteral value = literal(String.class, "string");
+	
+			assertThat(value.getResultType(), equalTo(String.class));
+		}
 
 	@Test
 	public void testGetValue() throws Exception {

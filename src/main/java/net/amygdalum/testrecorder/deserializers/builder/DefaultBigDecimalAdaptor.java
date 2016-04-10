@@ -2,7 +2,9 @@ package net.amygdalum.testrecorder.deserializers.builder;
 
 import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.equalTypes;
 
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 
 import net.amygdalum.testrecorder.deserializers.Adaptor;
@@ -14,8 +16,8 @@ import net.amygdalum.testrecorder.values.SerializedImmutable;
 public class DefaultBigDecimalAdaptor extends DefaultAdaptor<SerializedImmutable<BigDecimal>, ObjectToSetupCode> implements Adaptor<SerializedImmutable<BigDecimal>, ObjectToSetupCode> {
 
 	@Override
-	public boolean matches(Class<?> clazz) {
-		return clazz.equals(BigDecimal.class);
+	public boolean matches(Type type) {
+		return equalTypes(type, BigDecimal.class);
 	}
 
 	@Override

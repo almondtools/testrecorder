@@ -38,13 +38,13 @@ public class ValuePrinter implements Deserializer<String> {
 			SerializedObject value = (SerializedObject) rt;
 			boolean inserted = known.add(value);
 			if (inserted) {
-				return value.getValueType().getTypeName() + "/" + System.identityHashCode(value) + " "
+				return value.getType().getTypeName() + "/" + System.identityHashCode(value) + " "
 					+ value.getFields().stream()
 						.sorted()
 						.map(field -> field.accept(this))
 						.collect(joining(",\n", "{\n", "\n}"));
 			} else {
-				return value.getValueType() + "/" + System.identityHashCode(value);
+				return value.getType() + "/" + System.identityHashCode(value);
 			}
 		} else if (rt instanceof SerializedList) {
 			SerializedList value = (SerializedList) rt;

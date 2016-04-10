@@ -42,8 +42,8 @@ public class GenericSerializerTest {
 	public void testGenerate() throws Exception {
 		SerializedObject value = serializer.generate(GenericObject.class, GenericObject.class);
 
+		assertThat(value.getResultType(), equalTo(GenericObject.class));
 		assertThat(value.getType(), equalTo(GenericObject.class));
-		assertThat(value.getValueType(), equalTo(GenericObject.class));
 	}
 
 	@Test

@@ -22,8 +22,8 @@ public class BigIntegerSerializer implements Serializer<SerializedImmutable<BigI
 	}
 
 	@Override
-	public SerializedImmutable<BigInteger> generate(Type type, Class<?> valueType) {
-		return new SerializedImmutable<>(type, valueType);
+	public SerializedImmutable<BigInteger> generate(Type resultType, Type type) {
+		return new SerializedImmutable<>(type);
 	}
 
 	@Override

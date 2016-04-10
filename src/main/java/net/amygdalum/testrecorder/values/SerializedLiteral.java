@@ -41,7 +41,7 @@ public class SerializedLiteral implements SerializedValueType {
 	}
 
 	@Override
-	public Type getType() {
+	public Type getResultType() {
 		return type;
 	}
 	
@@ -51,7 +51,7 @@ public class SerializedLiteral implements SerializedValueType {
 	}
 	
 	@Override
-	public Class<?> getValueType() {
+	public Class<?> getType() {
 		return value.getClass();
 	}
 

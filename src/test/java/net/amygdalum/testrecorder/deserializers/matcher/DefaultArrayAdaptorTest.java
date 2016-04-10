@@ -39,7 +39,7 @@ public class DefaultArrayAdaptorTest {
 
 	@Test
 	public void testTryDeserializePrimitiveArray() throws Exception {
-		SerializedArray value = new SerializedArray(int[].class, int[].class);
+		SerializedArray value = new SerializedArray(int[].class);
 		value.add(literal(int.class, 0));
 		value.add(literal(int.class, 8));
 		value.add(literal(int.class, 15));
@@ -53,10 +53,10 @@ public class DefaultArrayAdaptorTest {
 
 	@Test
 	public void testTryDeserializeObjectArray() throws Exception {
-		SerializedArray value = new SerializedArray(BigInteger[].class, BigInteger[].class);
-		value.add(new SerializedImmutable<>(BigInteger.class, BigInteger.class).withValue(BigInteger.valueOf(0)));
-		value.add(new SerializedImmutable<>(BigInteger.class, BigInteger.class).withValue(BigInteger.valueOf(8)));
-		value.add(new SerializedImmutable<>(BigInteger.class, BigInteger.class).withValue(BigInteger.valueOf(15)));
+		SerializedArray value = new SerializedArray(BigInteger[].class);
+		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(0)));
+		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(8)));
+		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(15)));
 		ObjectToMatcherCode generator = new ObjectToMatcherCode();
 		
 		Computation result = adaptor.tryDeserialize(value, generator);
@@ -67,7 +67,7 @@ public class DefaultArrayAdaptorTest {
 
 	@Test
 	public void testTryDeserializeEmptyObjectArray() throws Exception {
-		SerializedArray value = new SerializedArray(BigInteger[].class, BigInteger[].class);
+		SerializedArray value = new SerializedArray(BigInteger[].class);
 		ObjectToMatcherCode generator = new ObjectToMatcherCode();
 		
 		Computation result = adaptor.tryDeserialize(value, generator);

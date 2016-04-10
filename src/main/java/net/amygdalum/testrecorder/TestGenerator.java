@@ -25,7 +25,7 @@ import static net.amygdalum.testrecorder.deserializers.Templates.fieldDeclaratio
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
 import static net.amygdalum.testrecorder.deserializers.Templates.returnStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.stringOf;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.getBase;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.baseType;
 import static net.amygdalum.testrecorder.deserializers.TypeManager.isPrimitive;
 
 import java.io.IOException;
@@ -151,7 +151,7 @@ public class TestGenerator implements SnapshotConsumer {
 
 	@Override
 	public void accept(ContextSnapshot snapshot) {
-		Set<String> localtests = tests.computeIfAbsent(getBase(snapshot.getThisType()), key -> new LinkedHashSet<>());
+		Set<String> localtests = tests.computeIfAbsent(baseType(snapshot.getThisType()), key -> new LinkedHashSet<>());
 
 		MethodGenerator methodGenerator = new MethodGenerator(snapshot, localtests.size())
 			.generateArrange()
@@ -386,11 +386,11 @@ public class TestGenerator implements SnapshotConsumer {
 
 			this.base = setupThis.isStored()
 				? setupThis.getValue()
-				: assign(snapshot.getSetupThis().getType(), setupThis.getValue());
+				: assign(snapshot.getSetupThis().getResultType(), setupThis.getValue());
 			this.args = IntStream.range(0, setupArgs.size())
 				.mapToObj(i -> setupArgs.get(i).isStored()
 					? setupArgs.get(i).getValue()
-					: assign(snapshot.getSetupArgs()[i].getType(), setupArgs.get(i).getValue()))
+					: assign(snapshot.getSetupArgs()[i].getResultType(), setupArgs.get(i).getValue()))
 				.collect(toList());
 			return this;
 		}
@@ -428,7 +428,7 @@ public class TestGenerator implements SnapshotConsumer {
 				if (resultType != void.class) {
 					exceptionBlock.add(returnStatement(result));
 				}
-				error = capture(exceptionBlock, exception.getValueType());
+				error = capture(exceptionBlock, exception.getType());
 			}
 
 			return this;
@@ -511,7 +511,7 @@ public class TestGenerator implements SnapshotConsumer {
 			if (isImmutable(type) && !force) {
 				return value;
 			} else {
-				types.registerImport(getBase(type));
+				types.registerImport(baseType(type));
 				String name = locals.fetchName(type);
 
 				statements.add(assignLocalVariableStatement(types.getSimpleName(type), name, value));

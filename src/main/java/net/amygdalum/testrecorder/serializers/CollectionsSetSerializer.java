@@ -25,14 +25,14 @@ public class CollectionsSetSerializer extends HiddenInnerClassSerializer<Seriali
 	@Override
 	public List<Class<?>> getMatchingClasses() {
 		return innerClasses()
-			.filter(startingWith("Unmodifiable","Synchronized","Checked","Empty","Singleton"))
+			.filter(startingWith("Unmodifiable", "Synchronized", "Checked", "Empty", "Singleton"))
 			.filter(clazz -> Set.class.isAssignableFrom(clazz))
 			.collect(toList());
 	}
 
 	@Override
-	public SerializedSet generate(Type type, Class<?> valueType) {
-		return new SerializedSet(type, valueType);
+	public SerializedSet generate(Type resultType, Type type) {
+		return new SerializedSet(type).withResult(resultType);
 	}
 
 	@Override
@@ -46,13 +46,13 @@ public class CollectionsSetSerializer extends HiddenInnerClassSerializer<Seriali
 		}
 		if (object.getClass().getSimpleName().contains("Checked")) {
 			Type newType = parameterized(Set.class, null, xray(object).to(CheckedSet.class).getType());
-			serializedObject.setType(newType);
+			serializedObject.setResultType(newType);
 		} else {
 			Type newType = parameterized(Set.class, null, inferType(elementTypes));
-			serializedObject.setType(newType);
+			serializedObject.setResultType(newType);
 		}
 	}
-	
+
 	interface CheckedSet {
 		Class<?> getType();
 	}

@@ -1,11 +1,13 @@
 package net.amygdalum.testrecorder.deserializers;
 
+import java.lang.reflect.Type;
+
 import net.amygdalum.testrecorder.SerializedValue;
 
 public abstract class DefaultAdaptor<T extends SerializedValue,G> implements Adaptor<T,G> {
 
 	@Override
-	public boolean matches(Class<?> clazz) {
+	public boolean matches(Type type) {
 		return true;
 	}
 

@@ -31,8 +31,8 @@ public class CollectionsMapSerializer extends HiddenInnerClassSerializer<Seriali
 	}
 
 	@Override
-	public SerializedMap generate(Type type, Class<?> valueType) {
-		return new SerializedMap(type, valueType);
+	public SerializedMap generate(Type resultType, Type type) {
+		return new SerializedMap(type).withResult(resultType);
 	}
 
 	@Override
@@ -52,10 +52,10 @@ public class CollectionsMapSerializer extends HiddenInnerClassSerializer<Seriali
 		}
 		if (object.getClass().getSimpleName().contains("Checked")) {
 			Type newType = parameterized(Map.class, null, xray(object).to(CheckedMap.class).getKeyType(), xray(object).to(CheckedMap.class).getValueType());
-			serializedObject.setType(newType);
+			serializedObject.setResultType(newType);
 		} else {
 			Type newType = parameterized(Map.class, null, inferType(keyTypes), inferType(valueTypes));
-			serializedObject.setType(newType);
+			serializedObject.setResultType(newType);
 		}
 	}
 

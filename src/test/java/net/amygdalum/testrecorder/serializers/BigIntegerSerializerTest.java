@@ -38,8 +38,8 @@ public class BigIntegerSerializerTest {
 	public void testGenerate() throws Exception {
 		SerializedImmutable<BigInteger> value = serializer.generate(BigInteger.class, BigInteger.class);
 
+		assertThat(value.getResultType(), equalTo(BigInteger.class));
 		assertThat(value.getType(), equalTo(BigInteger.class));
-		assertThat(value.getValueType(), equalTo(BigInteger.class));
 	}
 
 	@Test

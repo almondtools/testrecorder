@@ -56,7 +56,7 @@ public class Adaptors<G> {
 		Class<? extends SerializedValue> clazz = value.getClass();
 		List<Adaptor<?, G>> matching = adaptors.getOrDefault(clazz, emptyList());
 		for (Adaptor<?, G> match : matching) {
-			if (match.matches(value.getValueType())) {
+			if (match.matches(value.getType())) {
 				try {
 					return ((Adaptor<T, G>) match).tryDeserialize(value, generator);
 				} catch (DeserializationException e) {

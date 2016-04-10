@@ -13,14 +13,14 @@ public class SerializedBigDecimalTest {
 
 	@Test
 	public void testGetType() throws Exception {
-		SerializedImmutable<BigDecimal> value = new SerializedImmutable<BigDecimal>(BigDecimal.class, BigDecimal.class);
+		SerializedImmutable<BigDecimal> value = new SerializedImmutable<BigDecimal>(BigDecimal.class);
 
-		assertThat(value.getType(), equalTo(BigDecimal.class));
+		assertThat(value.getResultType(), equalTo(BigDecimal.class));
 	}
 
 	@Test
 	public void testAccept() throws Exception {
-		SerializedImmutable<BigDecimal> value = new SerializedImmutable<BigDecimal>(BigDecimal.class, BigDecimal.class);
+		SerializedImmutable<BigDecimal> value = new SerializedImmutable<BigDecimal>(BigDecimal.class);
 
 		assertThat(value.accept(new TestValueVisitor()), equalTo("SerializedImmutable"));
 	}

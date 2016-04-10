@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.values;
 
-import java.lang.reflect.ParameterizedType;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.typeArgument;
+
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -20,47 +21,30 @@ import net.amygdalum.testrecorder.deserializers.ValuePrinter;
  * 
  * Serializing objects not complying to this criteria is possible, just make sure that their exists a custom deserializer for these objects  
  */
-public class SerializedMap implements SerializedReferenceType, Map<SerializedValue, SerializedValue> {
+public class SerializedMap extends AbstractSerializedReferenceType implements SerializedReferenceType, Map<SerializedValue, SerializedValue> {
 
-	private Type type;
-	private Class<?> valueType;
 	private Map<SerializedValue, SerializedValue> map;
 
-	public SerializedMap(Type type, Class<?> valueType) {
-		this.type = type;
-		this.valueType = valueType;
+	public SerializedMap(Type type) {
+		super(type);
 		this.map = new LinkedHashMap<>();
 	}
 
-	@Override
-	public Type getType() {
-		return type;
-	}
-
-	@Override
-	public void setType(Type type) {
-		this.type = type;
-	}
-	
-	@Override
-	public Class<?> getValueType() {
-		return valueType;
+	public SerializedMap withResult(Type resultType) {
+		setResultType(resultType);
+		return this;
 	}
 
 	public Type getMapKeyType() {
-		if (type instanceof ParameterizedType) {
-			return ((ParameterizedType) type).getActualTypeArguments()[0];
-		} else {
-			return Object.class;
-		}
+		 return typeArgument(getType(), 0)
+			.orElse(typeArgument(getResultType(), 0)
+				.orElse(Object.class));
 	}
 
 	public Type getMapValueType() {
-		if (type instanceof ParameterizedType) {
-			return ((ParameterizedType) type).getActualTypeArguments()[1];
-		} else {
-			return Object.class;
-		}
+		 return typeArgument(getType(), 1)
+			.orElse(typeArgument(getResultType(), 1)
+				.orElse(Object.class));
 	}
 
 	@Override

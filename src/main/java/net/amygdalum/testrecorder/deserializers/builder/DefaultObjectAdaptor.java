@@ -3,7 +3,9 @@ package net.amygdalum.testrecorder.deserializers.builder;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.genericObjectConverter;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.wrapHidden;
 
+import java.lang.reflect.Type;
 import java.util.List;
 
 import net.amygdalum.testrecorder.deserializers.Adaptor;
@@ -18,7 +20,7 @@ public class DefaultObjectAdaptor extends DefaultAdaptor<SerializedObject, Objec
 	@Override
 	public Computation tryDeserialize(SerializedObject value, ObjectToSetupCode generator) {
 		TypeManager types = generator.getTypes();
-		types.registerTypes(value.getType(), GenericObject.class);
+		types.registerTypes(value.getResultType(), GenericObject.class);
 
 		List<Computation> elementTemplates = value.getFields().stream()
 			.sorted()
@@ -33,10 +35,12 @@ public class DefaultObjectAdaptor extends DefaultAdaptor<SerializedObject, Objec
 			.flatMap(template -> template.getStatements().stream())
 			.collect(toList());
 
-		String genericObject = genericObjectConverter(types.getRawTypeName(value.getValueType()), elements);
+		Type type = value.getType();
+		Type resultType = wrapHidden(type);
+		String genericObject = genericObjectConverter(types.getRawTypeName(type), elements);
 
-		String name = generator.localVariable(value, value.getValueType());
-		statements.add(assignLocalVariableStatement(types.getRawName(value.getValueType()), name, genericObject));
+		String name = generator.localVariable(value, type);
+		statements.add(assignLocalVariableStatement(types.getRawName(resultType), name, genericObject));
 
 		return new Computation(name, statements);
 	}

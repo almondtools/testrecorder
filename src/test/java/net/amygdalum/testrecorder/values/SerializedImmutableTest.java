@@ -1,6 +1,5 @@
 package net.amygdalum.testrecorder.values;
 
-import static net.amygdalum.testrecorder.deserializers.TypeManager.getBase;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -22,9 +21,9 @@ public class SerializedImmutableTest {
 	}
 
 	@Test
-	public void testGetType() throws Exception {
-		assertThat(value.getType(), equalTo(String.class));
-	}
+		public void testGetResultType() throws Exception {
+			assertThat(value.getResultType(), equalTo(String.class));
+		}
 
 	@Test
 	public void testSetGetValue() throws Exception {
@@ -40,7 +39,7 @@ public class SerializedImmutableTest {
 
 	private static class TestImmutable extends SerializedImmutable<String> {
 		private TestImmutable(Type type) {
-			super(type, getBase(type));
+			super(type);
 		}
 
 		@Override
@@ -48,10 +47,6 @@ public class SerializedImmutableTest {
 			return null;
 		}
 
-		@Override
-		public Class<?> getValueType() {
-			return getBase(getType());
-		}
 	}
 
 }

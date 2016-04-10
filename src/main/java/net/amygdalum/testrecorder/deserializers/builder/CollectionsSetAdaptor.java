@@ -5,6 +5,7 @@ import static net.amygdalum.testrecorder.TypeSelector.innerClasses;
 import static net.amygdalum.testrecorder.TypeSelector.startingWith;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethod;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.equalTypes;
 import static net.amygdalum.testrecorder.deserializers.TypeManager.parameterized;
 
 import java.lang.reflect.Type;
@@ -34,11 +35,11 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 	}
 
 	@Override
-	public boolean matches(Class<?> clazz) {
+	public boolean matches(Type type) {
 		return innerClasses(Collections.class)
 			.filter(startingWith("Unmodifiable", "Synchronized", "Checked", "Empty", "Singleton"))
 			.filter(element -> Set.class.isAssignableFrom(element))
-			.anyMatch(element -> element.equals(clazz));
+			.anyMatch(element -> equalTypes(element, type));
 	}
 
 	@Override
@@ -46,7 +47,7 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 		TypeManager types = generator.getTypes();
 		types.registerImport(Set.class);
 
-		String name = value.getValueType().getSimpleName();
+		String name = types.getSimpleName(value.getType());
 		if (name.contains("Empty")) {
 			return tryDeserializeEmpty(value, generator);
 		} else if (name.contains("Singleton")) {
@@ -62,8 +63,8 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 		}
 	}
 
-	public Computation createOrdinaryList(SerializedSet value, ObjectToSetupCode generator) {
-		SerializedSet baseValue = new SerializedSet(parameterized(LinkedHashSet.class, null, value.getComponentType()), LinkedHashSet.class);
+	public Computation createOrdinarySet(SerializedSet value, ObjectToSetupCode generator) {
+		SerializedSet baseValue = new SerializedSet(parameterized(LinkedHashSet.class, null, value.getComponentType()));
 		baseValue.addAll(value);
 		return adaptor.tryDeserialize(baseValue, generator);
 	}
@@ -74,11 +75,11 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 		types.staticImport(Collections.class, factoryMethod);
 
 		Type resultType = parameterized(Set.class, null, value.getComponentType());
-		String resultList = generator.localVariable(value, resultType);
+		String resultSet = generator.localVariable(value, resultType);
 
-		String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), resultList, callLocalMethod(factoryMethod));
+		String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), resultSet, callLocalMethod(factoryMethod));
 
-		return new Computation(resultList, asList(decoratingStatement));
+		return new Computation(resultSet, asList(decoratingStatement));
 	}
 
 	public Computation tryDeserializeSingleton(SerializedSet value, ObjectToSetupCode generator) {
@@ -106,7 +107,7 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
 
-		Computation computation = createOrdinaryList(value, generator);
+		Computation computation = createOrdinarySet(value, generator);
 		List<String> statements = new LinkedList<>(computation.getStatements());
 		String resultBase = computation.getValue();
 
@@ -124,7 +125,7 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
 
-		Computation computation = createOrdinaryList(value, generator);
+		Computation computation = createOrdinarySet(value, generator);
 		List<String> statements = new LinkedList<>(computation.getStatements());
 		String resultBase = computation.getValue();
 
@@ -142,7 +143,7 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
 
-		Computation computation = createOrdinaryList(value, generator);
+		Computation computation = createOrdinarySet(value, generator);
 		List<String> statements = new LinkedList<>(computation.getStatements());
 		String resultBase = computation.getValue();
 		String checkedType = types.getRawTypeName(value.getComponentType());

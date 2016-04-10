@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.deserializers.matcher;
 import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.recursiveMatcher;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.getBase;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.baseType;
 import static net.amygdalum.testrecorder.deserializers.TypeManager.parameterized;
 import static net.amygdalum.testrecorder.deserializers.TypeManager.wildcard;
 
@@ -89,7 +89,7 @@ public class ObjectToMatcherCode implements Deserializer<Computation> {
 	public Computation visitField(SerializedField field) {
 		SerializedValue fieldValue = field.getValue();
 		if (isSimpleValue(fieldValue)) {
-			types.registerImport(getBase(field.getType()));
+			types.registerImport(baseType(field.getType()));
 			Computation value = simpleValue(fieldValue);
 
 			String assignField = assignLocalVariableStatement(types.getRawName(field.getType()), field.getName(), value.getValue());
@@ -109,8 +109,8 @@ public class ObjectToMatcherCode implements Deserializer<Computation> {
 	public Computation visitReferenceType(SerializedReferenceType value) {
 		if (!computed.add(value)) {
 			types.staticImport(GenericMatcher.class, "recursive");
-			Type resultType = value.getType().equals(value.getValueType()) ? parameterized(Matcher.class, null, value.getType()) : parameterized(Matcher.class, null, wildcard());
-			return new Computation(recursiveMatcher(types.getRawTypeName(value.getValueType())), resultType);
+			Type resultType = value.getResultType().equals(value.getType()) ? parameterized(Matcher.class, null, value.getResultType()) : parameterized(Matcher.class, null, wildcard());
+			return new Computation(recursiveMatcher(types.getRawTypeName(value.getType())), resultType);
 		}
 		return adaptors.tryDeserialize(value, types, this);
 	}

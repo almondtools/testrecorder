@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.values;
 
-import java.lang.reflect.ParameterizedType;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.typeArgument;
+
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Iterator;
@@ -20,39 +21,24 @@ import net.amygdalum.testrecorder.deserializers.ValuePrinter;
  * 
  * Serializing objects not complying to this criteria is possible, just make sure that their exists a custom deserializer for these objects  
  */
-public class SerializedSet implements SerializedReferenceType, Set<SerializedValue> {
+public class SerializedSet extends AbstractSerializedReferenceType implements SerializedReferenceType, Set<SerializedValue> {
 
-	private Type type;
-	private Class<?> valueType;
 	private Set<SerializedValue> set;
 	
-	public SerializedSet(Type type, Class<?> valueType) {
-		this.type = type;
-		this.valueType = valueType;
+	public SerializedSet(Type type) {
+		super(type);
 		this.set = new LinkedHashSet<>();
 	}
-	
-	@Override
-	public Type getType() {
-		return type;
-	}
 
-	@Override
-	public void setType(Type type) {
-		this.type = type;
-	}
-	
-	@Override
-	public Class<?> getValueType() {
-		return valueType;
+	public SerializedSet withResult(Type resultType) {
+		setResultType(resultType);
+		return this;
 	}
 	
 	public Type getComponentType() {
-		if (type instanceof ParameterizedType) {
-			return ((ParameterizedType) type).getActualTypeArguments()[0];
-		} else {
-			return Object.class;
-		}
+		return typeArgument(getType(), 0)
+			.orElse(typeArgument(getResultType(), 0)
+				.orElse(Object.class));
 	}
 
 	@Override

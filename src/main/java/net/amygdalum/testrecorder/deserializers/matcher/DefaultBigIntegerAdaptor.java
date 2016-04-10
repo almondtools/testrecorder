@@ -6,6 +6,7 @@ import static net.amygdalum.testrecorder.deserializers.Templates.equalToMatcher;
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
 import static net.amygdalum.testrecorder.deserializers.TypeManager.parameterized;
 
+import java.lang.reflect.Type;
 import java.math.BigInteger;
 
 import org.hamcrest.Matcher;
@@ -17,14 +18,13 @@ import net.amygdalum.testrecorder.deserializers.DefaultAdaptor;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 
-
 public class DefaultBigIntegerAdaptor extends DefaultAdaptor<SerializedImmutable<BigInteger>, ObjectToMatcherCode> implements Adaptor<SerializedImmutable<BigInteger>, ObjectToMatcherCode> {
 
 	@Override
-	public boolean matches(Class<?> clazz) {
-		return clazz.equals(BigInteger.class);
+	public boolean matches(Type type) {
+		return TypeManager.equalTypes(type, BigInteger.class);
 	}
-	
+
 	@Override
 	public Computation tryDeserialize(SerializedImmutable<BigInteger> value, ObjectToMatcherCode generator) {
 		TypeManager types = generator.getTypes();
@@ -36,7 +36,7 @@ public class DefaultBigIntegerAdaptor extends DefaultAdaptor<SerializedImmutable
 		String bigIntegerLiteral = newObject("BigInteger", literal);
 
 		String equalToMatcher = equalToMatcher(bigIntegerLiteral);
-		return new Computation(equalToMatcher, parameterized(Matcher.class, null, value.getValueType()), emptyList());
+		return new Computation(equalToMatcher, parameterized(Matcher.class, null, value.getType()), emptyList());
 	}
 
 }

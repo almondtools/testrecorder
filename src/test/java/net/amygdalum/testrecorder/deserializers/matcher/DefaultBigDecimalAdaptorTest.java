@@ -36,7 +36,7 @@ public class DefaultBigDecimalAdaptorTest {
 
 	@Test
 	public void testTryDeserialize() throws Exception {
-		SerializedImmutable<BigDecimal> value = new SerializedImmutable<>(BigDecimal.class, BigDecimal.class);
+		SerializedImmutable<BigDecimal> value = new SerializedImmutable<>(BigDecimal.class);
 		value.setValue(new BigDecimal("0.815"));
 		ObjectToMatcherCode generator = new ObjectToMatcherCode();
 

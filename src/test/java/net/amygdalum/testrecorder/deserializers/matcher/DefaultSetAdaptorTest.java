@@ -37,10 +37,10 @@ public class DefaultSetAdaptorTest {
 
 	@Test
 	public void testTryDeserializeSet() throws Exception {
-		SerializedSet value = new SerializedSet(BigInteger[].class, BigInteger[].class);
-		value.add(new SerializedImmutable<>(BigInteger.class, BigInteger.class).withValue(BigInteger.valueOf(0)));
-		value.add(new SerializedImmutable<>(BigInteger.class, BigInteger.class).withValue(BigInteger.valueOf(8)));
-		value.add(new SerializedImmutable<>(BigInteger.class, BigInteger.class).withValue(BigInteger.valueOf(15)));
+		SerializedSet value = new SerializedSet(BigInteger[].class);
+		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(0)));
+		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(8)));
+		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(15)));
 
 		ObjectToMatcherCode generator = new ObjectToMatcherCode();
 		
@@ -52,7 +52,7 @@ public class DefaultSetAdaptorTest {
 
 	@Test
 	public void testTryDeserializeEmptySet() throws Exception {
-		SerializedSet value = new SerializedSet(BigInteger[].class, BigInteger[].class);
+		SerializedSet value = new SerializedSet(BigInteger[].class);
 		ObjectToMatcherCode generator = new ObjectToMatcherCode();
 		
 		Computation result = adaptor.tryDeserialize(value, generator);

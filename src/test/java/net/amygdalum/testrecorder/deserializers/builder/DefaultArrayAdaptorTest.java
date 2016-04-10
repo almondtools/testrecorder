@@ -36,7 +36,7 @@ public class DefaultArrayAdaptorTest {
 
 	@Test
 	public void testTryDeserialize() throws Exception {
-		SerializedArray value = new SerializedArray(int[].class, int[].class);
+		SerializedArray value = new SerializedArray(int[].class);
 		value.add(literal(int.class, 0));
 		value.add(literal(int.class, 8));
 		value.add(literal(int.class, 15));

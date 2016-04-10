@@ -15,36 +15,23 @@ import net.amygdalum.testrecorder.deserializers.ValuePrinter;
  * 
  * There is no restriction to objects that are serialized in this way other than being non-primitive.
  */
-public class SerializedObject implements SerializedReferenceType {
+public class SerializedObject extends AbstractSerializedReferenceType implements SerializedReferenceType {
 
-	private Type type;
-	private Class<?> valueType;
 	private List<SerializedField> fields;
 
-	public SerializedObject(Type type, Class<?> valueType) {
-		this.type = type;
-		this.valueType = valueType;
+	public SerializedObject(Type type) {
+		super(type);
 		this.fields = new ArrayList<>();
+	}
+
+	public SerializedObject withResult(Type resultType) {
+		setResultType(resultType);
+		return this;
 	}
 
 	public SerializedObject withFields(SerializedField... fields) {
 		this.fields.addAll(asList(fields));
 		return this;
-	}
-
-	@Override
-	public Type getType() {
-		return type;
-	}
-
-	@Override
-	public void setType(Type type) {
-		this.type = type;
-	}
-	
-	@Override
-	public Class<?> getValueType() {
-		return valueType;
 	}
 
 	public List<SerializedField> getFields() {

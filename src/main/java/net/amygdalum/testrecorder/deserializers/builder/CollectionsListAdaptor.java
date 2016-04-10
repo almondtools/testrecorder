@@ -5,6 +5,7 @@ import static net.amygdalum.testrecorder.TypeSelector.innerClasses;
 import static net.amygdalum.testrecorder.TypeSelector.startingWith;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethod;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.equalTypes;
 import static net.amygdalum.testrecorder.deserializers.TypeManager.parameterized;
 
 import java.lang.reflect.Type;
@@ -33,11 +34,11 @@ public class CollectionsListAdaptor implements Adaptor<SerializedList, ObjectToS
 	}
 
 	@Override
-	public boolean matches(Class<?> clazz) {
+	public boolean matches(Type type) {
 		return innerClasses(Collections.class)
 			.filter(startingWith("Unmodifiable", "Synchronized", "Checked", "Empty", "Singleton"))
 			.filter(element -> List.class.isAssignableFrom(element))
-			.anyMatch(element -> element.equals(clazz));
+			.anyMatch(element -> equalTypes(element,type));
 	}
 
 	@Override
@@ -45,7 +46,7 @@ public class CollectionsListAdaptor implements Adaptor<SerializedList, ObjectToS
 		TypeManager types = generator.getTypes();
 		types.registerImport(List.class);
 
-		String name = value.getValueType().getSimpleName();
+		String name = types.getSimpleName(value.getType());
 		if (name.contains("Empty")) {
 			return tryDeserializeEmpty(value, generator);
 		} else if (name.contains("Singleton")) {
@@ -62,10 +63,9 @@ public class CollectionsListAdaptor implements Adaptor<SerializedList, ObjectToS
 	}
 
 	public Computation createOrdinaryList(SerializedList value, ObjectToSetupCode generator) {
-		SerializedList baseValue = new SerializedList(parameterized(ArrayList.class, null, value.getComponentType()), ArrayList.class);
+		SerializedList baseValue = new SerializedList(parameterized(ArrayList.class, null, value.getComponentType()));
 		baseValue.addAll(value);
-		Computation computation = adaptor.tryDeserialize(baseValue, generator);
-		return computation;
+		return adaptor.tryDeserialize(baseValue, generator);
 	}
 
 	public Computation tryDeserializeEmpty(SerializedList value, ObjectToSetupCode generator) {

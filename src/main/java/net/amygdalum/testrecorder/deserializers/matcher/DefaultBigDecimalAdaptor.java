@@ -6,6 +6,7 @@ import static net.amygdalum.testrecorder.deserializers.Templates.equalToMatcher;
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
 import static net.amygdalum.testrecorder.deserializers.TypeManager.parameterized;
 
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 
 import org.hamcrest.Matcher;
@@ -21,8 +22,8 @@ import net.amygdalum.testrecorder.values.SerializedImmutable;
 public class DefaultBigDecimalAdaptor extends DefaultAdaptor<SerializedImmutable<BigDecimal>, ObjectToMatcherCode> implements Adaptor<SerializedImmutable<BigDecimal>, ObjectToMatcherCode> {
 
 	@Override
-	public boolean matches(Class<?> clazz) {
-		return clazz.equals(BigDecimal.class);
+	public boolean matches(Type type) {
+		return TypeManager.equalTypes(type, BigDecimal.class);
 	}
 	
 	@Override
@@ -36,7 +37,7 @@ public class DefaultBigDecimalAdaptor extends DefaultAdaptor<SerializedImmutable
 		String bigDecimalLiteral = newObject("BigDecimal", literal);
 
 		String equalToMatcher = equalToMatcher(bigDecimalLiteral);
-		return new Computation(equalToMatcher, parameterized(Matcher.class, null, value.getValueType()), emptyList());
+		return new Computation(equalToMatcher, parameterized(Matcher.class, null, value.getType()), emptyList());
 	}
 
 }

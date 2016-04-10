@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers;
 
+import static net.amygdalum.testrecorder.deserializers.TypeManager.baseType;
 import static net.amygdalum.testrecorder.util.GenericObject.getDefaultValue;
 import static net.amygdalum.testrecorder.util.GenericObject.getNonDefaultValue;
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
@@ -92,7 +93,7 @@ public class Construction {
 
 	private Object buildFromStandardConstructor() {
 		try {
-			Constructor<?> constructor = serialized.getValueType().getConstructor();
+			Constructor<?> constructor = baseType(serialized.getType()).getConstructor();
 			constructors.put(constructor, new ArrayList<>());
 			return constructor.newInstance();
 		} catch (ReflectiveOperationException e) {
@@ -107,7 +108,7 @@ public class Construction {
 			String fieldName = field.getName();
 			Object fieldValue = field.getValue().accept(deserializer);
 
-			for (Constructor<?> constructor : serialized.getValueType().getConstructors()) {
+			for (Constructor<?> constructor : baseType(serialized.getType()).getConstructors()) {
 				List<ConstructorParam> params = constructors.computeIfAbsent(constructor, key -> new ArrayList<>());
 				Class<?>[] parameterTypes = constructor.getParameterTypes();
 				for (int i = 0; i < parameterTypes.length; i++) {
@@ -142,7 +143,7 @@ public class Construction {
 			String fieldName = field.getName();
 			Object fieldValue = field.getValue().accept(deserializer);
 
-			nextmethod: for (Method method : serialized.getValueType().getMethods()) {
+			nextmethod: for (Method method : baseType(serialized.getType()).getMethods()) {
 				if (method.getName().startsWith("set")) {
 					Class<?>[] parameterTypes = method.getParameterTypes();
 					if (parameterTypes.length == 1 && matches(parameterTypes[0], fieldValue)) {

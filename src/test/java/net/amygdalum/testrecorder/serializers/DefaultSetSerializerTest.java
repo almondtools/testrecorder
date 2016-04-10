@@ -48,8 +48,8 @@ public class DefaultSetSerializerTest {
 		
 		SerializedSet value = serializer.generate(hashSetOfString, HashSet.class);
 		
-		assertThat(value.getType(), equalTo(hashSetOfString));
-		assertThat(value.getValueType(), equalTo(HashSet.class));
+		assertThat(value.getResultType(), equalTo(hashSetOfString));
+		assertThat(value.getType(), equalTo(HashSet.class));
 		assertThat(value.getComponentType(), equalTo(String.class));
 	}
 

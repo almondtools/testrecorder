@@ -28,8 +28,8 @@ public class DefaultMapSerializer implements Serializer<SerializedMap> {
 	}
 
 	@Override
-	public SerializedMap generate(Type type, Class<?> valueType) {
-		return new SerializedMap(type, valueType);
+	public SerializedMap generate(Type resultType, Type type) {
+		return new SerializedMap(type).withResult(resultType);
 	}
 
 	@Override

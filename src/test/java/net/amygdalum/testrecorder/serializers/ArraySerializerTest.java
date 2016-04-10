@@ -39,8 +39,8 @@ public class ArraySerializerTest {
 	public void testGenerate() throws Exception {
 		SerializedArray value = serializer.generate(String[].class, String[].class);
 
+		assertThat(value.getResultType(), equalTo(String[].class));
 		assertThat(value.getType(), equalTo(String[].class));
-		assertThat(value.getValueType(), equalTo(String[].class));
 		assertThat(value.getComponentType(), equalTo(String.class));
 	}
 

@@ -25,8 +25,8 @@ public class GenericSerializer implements Serializer<SerializedObject> {
 	}
 
 	@Override
-	public SerializedObject generate(Type type, Class<?> valueType) {
-		return new SerializedObject(type, valueType);
+	public SerializedObject generate(Type resultType, Type type) {
+		return new SerializedObject(type).withResult(resultType);
 	}
 
 	@Override

@@ -28,8 +28,8 @@ public class DefaultSetSerializer implements Serializer<SerializedSet>{
 	}
 
 	@Override
-	public SerializedSet generate(Type type, Class<?> valueType) {
-		return new SerializedSet(type, valueType);
+	public SerializedSet generate(Type resultType, Type type) {
+		return new SerializedSet(type).withResult(resultType);
 	}
 
 	@Override

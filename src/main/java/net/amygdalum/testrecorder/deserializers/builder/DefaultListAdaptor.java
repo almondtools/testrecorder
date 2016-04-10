@@ -18,7 +18,7 @@ public class DefaultListAdaptor extends DefaultAdaptor<SerializedList, ObjectToS
 	@Override
 	public Computation tryDeserialize(SerializedList value, ObjectToSetupCode generator) {
 		TypeManager types = generator.getTypes();
-		types.registerTypes(value.getType(), value.getValueType());
+		types.registerTypes(value.getResultType(), value.getType());
 
 		List<Computation> elementTemplates = value.stream()
 			.map(element -> element.accept(generator))
@@ -34,8 +34,8 @@ public class DefaultListAdaptor extends DefaultAdaptor<SerializedList, ObjectToS
 
 		String name = generator.localVariable(value, List.class);
 
-		String list = newObject(types.getBestName(value.getValueType()));
-		String listInit = assignLocalVariableStatement(types.getSimpleName(value.getType()), name, list);
+		String list = newObject(types.getBestName(value.getType()));
+		String listInit = assignLocalVariableStatement(types.getSimpleName(value.getResultType()), name, list);
 		statements.add(listInit);
 
 		for (String element : elements) {

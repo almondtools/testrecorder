@@ -48,8 +48,8 @@ public class DefaultListSerializerTest {
 
 		SerializedList value = serializer.generate(linkedListOfString, LinkedList.class);
 
-		assertThat(value.getType(), equalTo(linkedListOfString));
-		assertThat(value.getValueType(), equalTo(LinkedList.class));
+		assertThat(value.getResultType(), equalTo(linkedListOfString));
+		assertThat(value.getType(), equalTo(LinkedList.class));
 		assertThat(value.getComponentType(), equalTo(String.class));
 	}
 

@@ -45,7 +45,11 @@ public class GenericComparison {
 	}
 
 	public boolean eval(Queue<GenericComparison> todo) {
-		if (left.getClass() != right.getClass()) {
+		if (left == right) {
+			return true;
+		} else if (left == null || right == null) {
+			return false;
+		} else if (left.getClass() != right.getClass()) {
 			return false;
 		}
 		Class<?> clazz = left.getClass();

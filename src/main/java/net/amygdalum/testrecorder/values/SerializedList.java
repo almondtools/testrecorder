@@ -1,16 +1,13 @@
 package net.amygdalum.testrecorder.values;
 
-import static net.amygdalum.testrecorder.values.GenericTypeResolver.findAllTypes;
-import static net.amygdalum.testrecorder.values.GenericTypeResolver.resolve;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.typeArgument;
 
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Set;
 
 import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedReferenceType;
@@ -25,46 +22,24 @@ import net.amygdalum.testrecorder.deserializers.ValuePrinter;
  * 
  * Serializing objects not complying to this criteria is possible, just make sure that their exists a custom deserializer for these objects  
  */
-public class SerializedList implements SerializedReferenceType, List<SerializedValue> {
+public class SerializedList extends AbstractSerializedReferenceType implements SerializedReferenceType, List<SerializedValue> {
 
-	private Type type;
-	private Class<?> valueType;
 	private List<SerializedValue> list;
 
-	public SerializedList(Type type, Class<?> valueType) {
-		this.type = type;
-		this.valueType = valueType;
+	public SerializedList(Type type) {
+		super(type);
 		this.list = new ArrayList<>();
 	}
 
-	@Override
-	public Type getType() {
-		return type;
-	}
-	
-	@Override
-	public void setType(Type type) {
-		this.type = type;
-	}
-	
-	@Override
-	public Class<?> getValueType() {
-		return valueType;
-	}
-	
-	public void setValueType(Class<?> valueType) {
-		this.valueType = valueType;
+	public SerializedList withResult(Type resultType) {
+		setResultType(resultType);
+		return this;
 	}
 
 	public Type getComponentType() {
-		Set<Type> allTypes = findAllTypes(type);
-		return allTypes.stream()
-			.filter(type -> type instanceof ParameterizedType)
-			.map(type -> (ParameterizedType) type)
-			.filter(type -> type.getRawType().equals(List.class))
-			.map(type -> resolve(allTypes, type.getActualTypeArguments()[0]))
-			.findFirst()
-			.orElse(Object.class);
+		return typeArgument(getType(), 0)
+			.orElse(typeArgument(getResultType(), 0)
+				.orElse(Object.class));
 	}
 
 	@Override

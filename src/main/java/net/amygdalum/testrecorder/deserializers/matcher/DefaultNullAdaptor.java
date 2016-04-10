@@ -18,11 +18,11 @@ public class DefaultNullAdaptor extends DefaultAdaptor<SerializedNull, ObjectToM
 	@Override
 	public Computation tryDeserialize(SerializedNull value, ObjectToMatcherCode generator) {
 		TypeManager types = generator.getTypes();
-		types.registerImport(value.getValueType());
+		types.registerType(value.getType());
 		types.staticImport(Matchers.class, "nullValue");
 
-		String nullMatcher = nullMatcher(types.getRawName(value.getValueType()));
-		return new Computation(nullMatcher, parameterized(Matcher.class, null, value.getValueType()), emptyList());
+		String nullMatcher = nullMatcher(types.getRawName(value.getType()));
+		return new Computation(nullMatcher, parameterized(Matcher.class, null, value.getType()), emptyList());
 	}
 
 }

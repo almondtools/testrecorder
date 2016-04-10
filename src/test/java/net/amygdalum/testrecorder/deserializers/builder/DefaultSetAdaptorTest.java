@@ -40,7 +40,7 @@ public class DefaultSetAdaptorTest {
 
 	@Test
 	public void testTryDeserialize() throws Exception {
-		SerializedSet value = new SerializedSet(parameterized(Set.class, null, Integer.class), LinkedHashSet.class);
+		SerializedSet value = new SerializedSet(parameterized(LinkedHashSet.class, null, Integer.class)).withResult(parameterized(Set.class, null, Integer.class));
 		value.add(literal(Integer.class, 0));
 		value.add(literal(Integer.class, 8));
 		value.add(literal(Integer.class, 15));
@@ -49,7 +49,7 @@ public class DefaultSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 		
 		assertThat(result.getStatements().toString(), allOf(
-			containsString("Set<Integer> set1 = new LinkedHashSet<>()"),
+			containsString("Set<Integer> set1 = new LinkedHashSet<Integer>()"),
 			containsString("set1.add(0)"),
 			containsString("set1.add(8)"),
 			containsString("set1.add(15);")));

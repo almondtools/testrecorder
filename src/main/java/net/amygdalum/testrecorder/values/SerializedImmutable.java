@@ -12,15 +12,12 @@ import net.amygdalum.testrecorder.deserializers.ValuePrinter;
  * - each custom serialized immutable class needs its own deserializer
  *    
  */
-public class SerializedImmutable<V> implements SerializedImmutableType {
+public class SerializedImmutable<V> extends AbstractSerializedReferenceType implements SerializedImmutableType {
 
-	private Type type;
-	private Class<?> valueType;
 	private V value;
 
-	public SerializedImmutable(Type type, Class<?> valueType) {
-		this.type = type;
-		this.valueType = valueType;
+	public SerializedImmutable(Type type) {
+		super(type);
 	}
 
 	public SerializedImmutable<V> withValue(V value) {
@@ -28,27 +25,12 @@ public class SerializedImmutable<V> implements SerializedImmutableType {
 		return this;
 	}
 
-	public void setValue(V value) {
-		this.value = value;
-	}
-
-	@Override
-	public Type getType() {
-		return type;
-	}
-	
-	@Override
-	public void setType(Type type) {
-		this.type = type;
-	}
-	
-	@Override
-	public Class<?> getValueType() {
-		return valueType;
-	}
-
 	public V getValue() {
 		return value;
+	}
+
+	public void setValue(V value) {
+		this.value = value;
 	}
 
 	@Override

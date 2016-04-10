@@ -37,7 +37,7 @@ public class DefaultObjectAdaptorTest {
 
 	@Test
 	public void testTryDeserializeWithNonBean() throws Exception {
-		SerializedObject value = new SerializedObject(TestObject.class, TestObject.class);
+		SerializedObject value = new SerializedObject(TestObject.class);
 		value.addField(new SerializedField(String.class, "attribute", String.class, SerializedLiteral.literal(String.class, "Hello World")));
 		ObjectToSetupCode generator = new ObjectToSetupCode();
 		

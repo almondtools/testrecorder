@@ -24,7 +24,7 @@ public class DefaultLiteralAdaptor extends DefaultAdaptor<SerializedLiteral, Obj
 		String valueExpression = asLiteral(value.getValue());
 
 		String equalToMatcher = equalToMatcher(valueExpression);
-		return new Computation(equalToMatcher, parameterized(Matcher.class, null, value.getValueType()), emptyList());
+		return new Computation(equalToMatcher, parameterized(Matcher.class, null, value.getType()), emptyList());
 	}
 
 }

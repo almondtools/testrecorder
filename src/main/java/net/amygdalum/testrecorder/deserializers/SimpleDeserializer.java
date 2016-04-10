@@ -1,5 +1,7 @@
 package net.amygdalum.testrecorder.deserializers;
 
+import static net.amygdalum.testrecorder.deserializers.TypeManager.baseType;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -58,7 +60,7 @@ public class SimpleDeserializer implements Deserializer<Object> {
 		if (rt instanceof SerializedObject) {
 			SerializedObject value = (SerializedObject) rt;
 			try {
-				Object object = fetch(value, () -> GenericObject.newInstance(value.getValueType()), base -> {
+				Object object = fetch(value, () -> GenericObject.newInstance(baseType(value.getType())), base -> {
 					for (SerializedField field : value.getFields()) {
 						GenericObject.setField(base, field.getName(), field.getValue().accept(this));
 					}

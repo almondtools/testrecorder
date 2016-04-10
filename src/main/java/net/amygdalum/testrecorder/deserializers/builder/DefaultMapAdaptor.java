@@ -21,7 +21,7 @@ public class DefaultMapAdaptor extends DefaultAdaptor<SerializedMap, ObjectToSet
 	@Override
 	public Computation tryDeserialize(SerializedMap value, ObjectToSetupCode generator) {
 		TypeManager types = generator.getTypes();
-		types.registerTypes(value.getType(), value.getValueType());
+		types.registerTypes(value.getResultType(), value.getType());
 
 		Map<Computation, Computation> elementTemplates = value.entrySet().stream()
 			.collect(toMap(entry -> entry.getKey().accept(generator), entry -> entry.getValue().accept(generator)));
@@ -36,8 +36,8 @@ public class DefaultMapAdaptor extends DefaultAdaptor<SerializedMap, ObjectToSet
 
 		String name = generator.localVariable(value, Map.class);
 
-		String map = newObject(types.getBestName(value.getValueType()));
-		String mapInit = assignLocalVariableStatement(types.getSimpleName(value.getType()), name, map);
+		String map = newObject(types.getBestName(value.getType()));
+		String mapInit = assignLocalVariableStatement(types.getSimpleName(value.getResultType()), name, map);
 		statements.add(mapInit);
 
 		for (Map.Entry<String, String> element : elements.entrySet()) {

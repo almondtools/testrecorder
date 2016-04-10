@@ -49,8 +49,8 @@ public class DefaultMapSerializerTest {
 		
 		SerializedMap value = serializer.generate(hashMapOfStringInteger, HashMap.class);
 		
-		assertThat(value.getType(), equalTo(hashMapOfStringInteger));
-		assertThat(value.getValueType(), equalTo(HashMap.class));
+		assertThat(value.getResultType(), equalTo(hashMapOfStringInteger));
+		assertThat(value.getType(), equalTo(HashMap.class));
 		assertThat(value.getMapKeyType(), equalTo(String.class));
 		assertThat(value.getMapValueType(), equalTo(Integer.class));
 	}

@@ -36,7 +36,7 @@ public class DefaultBigIntegerAdaptorTest {
 
 	@Test
 	public void testTryDeserialize() throws Exception {
-		SerializedImmutable<BigInteger> value = new SerializedImmutable<>(BigInteger.class, BigInteger.class);
+		SerializedImmutable<BigInteger> value = new SerializedImmutable<>(BigInteger.class);
 		value.setValue(new BigInteger("0815"));
 		ObjectToSetupCode generator = new ObjectToSetupCode();
 

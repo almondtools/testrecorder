@@ -19,7 +19,7 @@ public class DefaultSetAdaptor extends DefaultAdaptor<SerializedSet, ObjectToSet
 	@Override
 	public Computation tryDeserialize(SerializedSet value, ObjectToSetupCode generator) {
 		TypeManager types = generator.getTypes();
-		types.registerTypes(value.getType(), value.getValueType());
+		types.registerTypes(value.getResultType(), value.getType());
 
 		List<Computation> elementTemplates = value.stream()
 			.map(element -> element.accept(generator))
@@ -35,8 +35,8 @@ public class DefaultSetAdaptor extends DefaultAdaptor<SerializedSet, ObjectToSet
 
 		String name = generator.localVariable(value, Set.class);
 
-		String set = newObject(types.getBestName(value.getValueType()));
-		String setInit = assignLocalVariableStatement(types.getSimpleName(value.getType()), name, set);
+		String set = newObject(types.getBestName(value.getType()));
+		String setInit = assignLocalVariableStatement(types.getSimpleName(value.getResultType()), name, set);
 		statements.add(setInit);
 
 		for (String element : elements) {

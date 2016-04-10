@@ -68,7 +68,7 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 		this.locals = locals;
 		this.computed = new IdentityHashMap<>();
 	}
-	
+
 	public TypeManager getTypes() {
 		return types;
 	}
@@ -81,22 +81,22 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 
 	@Override
 	public Computation visitField(SerializedField field) {
-		types.registerType(field.getType());
+		Type type = field.getType();
+		Type resultType = TypeManager.wrapHidden(type);
+		types.registerType(type);
+		types.registerType(resultType);
 
 		Computation valueTemplate = field.getValue().accept(this);
 
 		List<String> statements = valueTemplate.getStatements();
 
-		if (isHidden(field.getValue().getType()) && !isHidden(field.getType())) {
-			String unwrapped = callMethod(valueTemplate.getValue(), "value");
-			String casted = cast(types.getSimpleName(field.getType()), unwrapped);
-
-			String assignField = assignLocalVariableStatement(types.getSimpleName(field.getType()), field.getName(), casted);
-			return new Computation(assignField, statements);
-		} else {
-			String assignField = assignLocalVariableStatement(types.getSimpleName(field.getType()), field.getName(), valueTemplate.getValue());
-			return new Computation(assignField, statements);
-		}
+		String value = valueTemplate.getValue();
+		if (isHidden(field.getValue().getResultType()) && !isHidden(type)) {
+			String unwrapped = callMethod(value, "value");
+			value = cast(types.getSimpleName(type), unwrapped);
+		} 
+		String assignField = assignLocalVariableStatement(types.getSimpleName(resultType), field.getName(), value);
+		return new Computation(assignField, statements);
 	}
 
 	@Override

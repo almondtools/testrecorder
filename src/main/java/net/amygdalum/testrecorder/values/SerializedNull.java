@@ -1,7 +1,5 @@
 package net.amygdalum.testrecorder.values;
 
-import static net.amygdalum.testrecorder.deserializers.TypeManager.getBase;
-
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,29 +12,12 @@ import net.amygdalum.testrecorder.deserializers.ValuePrinter;
  * Serializing to SerializedNull is only valid and strongly recommended for any value that is null. Use the factory method  
  * {@link #nullInstance(Type)}
  */
-public class SerializedNull implements SerializedReferenceType {
+public class SerializedNull extends AbstractSerializedReferenceType implements SerializedReferenceType {
 
 	private static final Map<Type, SerializedNull> KNOWN_LITERALS = new HashMap<>();
-	
-	private Type type;
-	
+
 	private SerializedNull(Type type) {
-		this.type = type;
-	}
-	
-	@Override
-	public Type getType() {
-		return type;
-	}
-	
-	@Override
-	public void setType(Type type) {
-		this.type = type;
-	}
-	
-	@Override
-	public Class<?> getValueType() {
-		return getBase(type);
+		super(type);
 	}
 
 	@Override

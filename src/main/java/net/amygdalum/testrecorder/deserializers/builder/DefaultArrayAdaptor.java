@@ -18,7 +18,7 @@ public class DefaultArrayAdaptor extends DefaultAdaptor<SerializedArray, ObjectT
 	@Override
 	public Computation tryDeserialize(SerializedArray value, ObjectToSetupCode generator) {
 		TypeManager types = generator.getTypes();
-		types.registerType(value.getType());
+		types.registerType(value.getResultType());
 
 		List<Computation> elementTemplates = Stream.of(value.getArray())
 			.map(element -> element.accept(generator))
@@ -32,10 +32,10 @@ public class DefaultArrayAdaptor extends DefaultAdaptor<SerializedArray, ObjectT
 			.flatMap(template -> template.getStatements().stream())
 			.collect(toList());
 
-		String arrayLiteral = arrayLiteral(types.getSimpleName(value.getType()), elements);
+		String arrayLiteral = arrayLiteral(types.getSimpleName(value.getResultType()), elements);
 
-		String name = generator.localVariable(value, value.getType());
-		statements.add(assignLocalVariableStatement(types.getSimpleName(value.getType()), name, arrayLiteral));
+		String name = generator.localVariable(value, value.getResultType());
+		statements.add(assignLocalVariableStatement(types.getSimpleName(value.getResultType()), name, arrayLiteral));
 
 		return new Computation(name, statements);
 	}

@@ -12,20 +12,20 @@ import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 public class SerializedObjectTest {
 
 	@Test
-	public void testGetType() throws Exception {
-		assertThat(new SerializedObject(String.class,String.class).getType(), equalTo(String.class));
-	}
+		public void testGetResultType() throws Exception {
+			assertThat(new SerializedObject(String.class).getResultType(), equalTo(String.class));
+		}
 
 	@Test
 	public void testSetGetObjectType() throws Exception {
-		SerializedObject serializedObject = new SerializedObject(Object.class, String.class);
+		SerializedObject serializedObject = new SerializedObject(String.class).withResult(Object.class);
 
-		assertThat(serializedObject.getValueType(), equalTo(String.class));
+		assertThat(serializedObject.getType(), equalTo(String.class));
 	}
 
 	@Test
 	public void testGetAddFields() throws Exception {
-		SerializedObject serializedObject = new SerializedObject(Object.class, Object.class);
+		SerializedObject serializedObject = new SerializedObject(Object.class);
 
 		serializedObject.addField(new SerializedField(Object.class, "f1", Object.class, literal(String.class, "str")));
 		serializedObject.addField(new SerializedField(Object.class, "f2", Integer.class, literal(Integer.class, 2)));
@@ -38,14 +38,14 @@ public class SerializedObjectTest {
 
 	@Test
 	public void testAccept() throws Exception {
-		SerializedObject serializedObject = new SerializedObject(Object.class, Object.class);
+		SerializedObject serializedObject = new SerializedObject(Object.class);
 
 		assertThat(serializedObject.accept(new TestValueVisitor()), equalTo("SerializedObject"));
 	}
 
 	@Test
 	public void testToString() throws Exception {
-		SerializedObject serializedObject = new SerializedObject(Object.class, String.class);
+		SerializedObject serializedObject = new SerializedObject(String.class).withResult(Object.class);
 
 		serializedObject.addField(new SerializedField(Object.class, "f1", Object.class, literal(String.class, "str")));
 		serializedObject.addField(new SerializedField(Object.class, "f2", Integer.class, literal(Integer.class, 2)));

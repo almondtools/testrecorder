@@ -17,10 +17,10 @@ public interface SerializedValue {
 
 	<T> T accept(Deserializer<T> visitor);
 
-	Type getType();
+	Type getResultType();
 	
 	void setType(Type type);
 
-	Class<?> getValueType();
+	Type getType();
 
 }

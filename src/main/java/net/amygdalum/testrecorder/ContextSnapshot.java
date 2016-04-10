@@ -62,7 +62,7 @@ public class ContextSnapshot {
 	}
 
 	public Type getThisType() {
-		return setupThis.getValueType();
+		return setupThis.getType();
 	}
 
 	public SerializedValue getSetupThis() {

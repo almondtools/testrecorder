@@ -22,8 +22,8 @@ public class BigDecimalSerializer implements Serializer<SerializedImmutable<BigD
 	}
 
 	@Override
-	public SerializedImmutable<BigDecimal> generate(Type type, Class<?> valueType) {
-		return new SerializedImmutable<>(type, valueType);
+	public SerializedImmutable<BigDecimal> generate(Type resultType, Type type) {
+		return new SerializedImmutable<>(type);
 	}
 
 	@Override

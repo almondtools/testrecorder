@@ -30,8 +30,8 @@ public class CollectionsListSerializer extends HiddenInnerClassSerializer<Serial
 	}
 
 	@Override
-	public SerializedList generate(Type type, Class<?> valueType) {
-		return new SerializedList(type, valueType);
+	public SerializedList generate(Type resultType, Type type) {
+		return new SerializedList(type).withResult(resultType);
 	}
 
 	@Override
@@ -45,10 +45,10 @@ public class CollectionsListSerializer extends HiddenInnerClassSerializer<Serial
 		}
 		if (object.getClass().getSimpleName().contains("Checked")) {
 			Type newType = parameterized(List.class, null, xray(object).to(CheckedList.class).getType());
-			serializedObject.setType(newType);
+			serializedObject.setResultType(newType);
 		} else {
 			Type newType = parameterized(List.class, null, inferType(elementTypes));
-			serializedObject.setType(newType);
+			serializedObject.setResultType(newType);
 		}
 	}
 	

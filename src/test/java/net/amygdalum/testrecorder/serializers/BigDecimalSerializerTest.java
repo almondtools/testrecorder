@@ -38,8 +38,8 @@ public class BigDecimalSerializerTest {
 	public void testGenerate() throws Exception {
 		SerializedImmutable<BigDecimal> value = serializer.generate(BigDecimal.class, BigDecimal.class);
 
+		assertThat(value.getResultType(), equalTo(BigDecimal.class));
 		assertThat(value.getType(), equalTo(BigDecimal.class));
-		assertThat(value.getValueType(), equalTo(BigDecimal.class));
 	}
 
 	@Test

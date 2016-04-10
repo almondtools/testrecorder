@@ -40,7 +40,7 @@ public class DefaultListAdaptorTest {
 
 	@Test
 	public void testTryDeserialize() throws Exception {
-		SerializedList value = new SerializedList(parameterized(List.class, null, Integer.class), ArrayList.class);
+		SerializedList value = new SerializedList(parameterized(ArrayList.class, null, Integer.class)).withResult(parameterized(List.class, null, Integer.class));
 		value.add(literal(Integer.class, 0));
 		value.add(literal(Integer.class, 8));
 		value.add(literal(Integer.class, 15));
@@ -49,7 +49,7 @@ public class DefaultListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 		
 		assertThat(result.getStatements().toString(), allOf(
-			containsString("List<Integer> list1 = new ArrayList<>()"),
+			containsString("List<Integer> list1 = new ArrayList<Integer>()"),
 			containsString("list1.add(0)"),
 			containsString("list1.add(8)"),
 			containsString("list1.add(15);")));

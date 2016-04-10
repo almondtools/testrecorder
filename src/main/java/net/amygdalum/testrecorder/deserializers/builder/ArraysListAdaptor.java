@@ -5,7 +5,7 @@ import static net.amygdalum.testrecorder.TypeSelector.innerClasses;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethod;
 import static net.amygdalum.testrecorder.deserializers.TypeManager.array;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.getBase;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.equalTypes;
 import static net.amygdalum.testrecorder.deserializers.TypeManager.parameterized;
 
 import java.lang.reflect.Type;
@@ -34,11 +34,11 @@ public class ArraysListAdaptor implements Adaptor<SerializedList, ObjectToSetupC
 	}
 
 	@Override
-	public boolean matches(Class<?> clazz) {
+	public boolean matches(Type type) {
 		return innerClasses(Arrays.class)
 			.filter(in("ArrayList"))
 			.filter(element -> List.class.isAssignableFrom(element))
-			.anyMatch(element -> element.equals(clazz));
+			.anyMatch(element -> equalTypes(element, type));
 	}
 
 	@Override
@@ -47,7 +47,7 @@ public class ArraysListAdaptor implements Adaptor<SerializedList, ObjectToSetupC
 		types.staticImport(Arrays.class, "asList");
 
 		Type type = array(value.getComponentType());
-		SerializedArray baseValue = new SerializedArray(type, getBase(type));
+		SerializedArray baseValue = new SerializedArray(type);
 		for (SerializedValue element : value) {
 			baseValue.add(element);
 		}

@@ -2,8 +2,10 @@ package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.deserializers.Templates.genericObjectMatcher;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.getArgument;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.getBase;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.typeArgument;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.wildcard;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.wrapHidden;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.baseType;
 import static net.amygdalum.testrecorder.deserializers.TypeManager.parameterized;
 
 import java.lang.reflect.Type;
@@ -23,7 +25,7 @@ public class DefaultObjectAdaptor extends DefaultAdaptor<SerializedObject, Objec
 	@Override
 	public Computation tryDeserialize(SerializedObject value, ObjectToMatcherCode generator) {
 		TypeManager types = generator.getTypes();
-		types.registerTypes(value.getType(), value.getValueType(), GenericMatcher.class);
+		types.registerTypes(value.getResultType(), value.getType(), GenericMatcher.class);
 
 		List<Computation> fields = value.getFields().stream()
 			.sorted()
@@ -38,7 +40,7 @@ public class DefaultObjectAdaptor extends DefaultAdaptor<SerializedObject, Objec
 			.map(field -> field.getValue())
 			.collect(toList());
 
-		Type resultType = parameterized(Matcher.class, null, value.getType());
+		Type resultType = parameterized(Matcher.class, null, wrapHidden(value.getResultType()));
 
 		String matcherExpression = with(types).createMatcherExpression(value, fieldAssignments);
 
@@ -58,17 +60,17 @@ public class DefaultObjectAdaptor extends DefaultAdaptor<SerializedObject, Objec
 		}
 
 		public String createMatcherExpression(SerializedObject value, List<String> fieldAssignments) {
-			Type type = value.getType();
-			if (getBase(type) == Matcher.class) {
-				type = getArgument(type, 0);
+			Type resultType = value.getResultType();
+			if (baseType(resultType) == Matcher.class) {
+				resultType = typeArgument(resultType, 0).orElse(wildcard());
 			}
-			Class<?> valueType = value.getValueType();
-			if (type.equals(valueType)) {
-				String matcherRawType = types.getRawTypeName(valueType);
+			Type type = value.getType();
+			if (resultType.equals(type)) {
+				String matcherRawType = types.getRawTypeName(type);
 				return genericObjectMatcher(matcherRawType, fieldAssignments);
 			} else {
-				String matcherRawType = types.getRawTypeName(valueType);
-				String matcherToType = types.getRawTypeName(type);
+				String matcherRawType = types.getRawTypeName(type);
+				String matcherToType = types.getRawTypeName(resultType);
 				return genericObjectMatcher(matcherRawType, matcherToType, fieldAssignments);
 			}
 		}

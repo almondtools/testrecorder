@@ -13,16 +13,19 @@ public class GenericTypes<T, L extends List<T>, S extends Set<T>, M extends Map<
 	public L listOfBounded;
 	public List<String> listOfString;
 	public ArrayList<String> arrayListOfString;
+	public ArrayList<Set<String>> arrayListOfSetOfString;
 	public List<Set<String>> listOfSetOfString;
 	
 	public S setOfBounded;
 	public Set<String> setOfString;
 	public HashSet<String> hashSetOfString;
+	public HashSet<List<String>> hashSetOfListOfString;
 	public Set<List<String>> setOfListOfString;
 
 	public M mapOfBounded;
 	public Map<String, String> mapOfStringString;
 	public HashMap<String,String> hashMapOfStringString;
+	public HashMap<String,List<String>> hashMapOfStringListOfString;
 	public Map<String,List<String>> mapOfStringListOfString;
 
 	public static Type listOfString() {
@@ -49,6 +52,14 @@ public class GenericTypes<T, L extends List<T>, S extends Set<T>, M extends Map<
 		}
 	}
 	
+	public static Type arrayListOfSetOfString() {
+		try {
+			return GenericTypes.class.getDeclaredField("arrayListOfSetOfString").getGenericType();
+		} catch (ReflectiveOperationException e) {
+			return List.class;
+		}
+	}
+	
 	public static Type listOfBounded() {
 		try {
 			return GenericTypes.class.getDeclaredField("listOfBounded").getGenericType();
@@ -68,6 +79,14 @@ public class GenericTypes<T, L extends List<T>, S extends Set<T>, M extends Map<
 	public static Type setOfListOfString() {
 		try {
 			return GenericTypes.class.getDeclaredField("setOfListOfString").getGenericType();
+		} catch (ReflectiveOperationException e) {
+			return Set.class;
+		}
+	}
+	
+	public static Type hashSetOfListOfString() {
+		try {
+			return GenericTypes.class.getDeclaredField("hashSetOfListOfString").getGenericType();
 		} catch (ReflectiveOperationException e) {
 			return Set.class;
 		}
@@ -105,6 +124,14 @@ public class GenericTypes<T, L extends List<T>, S extends Set<T>, M extends Map<
 		}
 	}
 	
+	public static Type hashMapOfStringListOfString() {
+		try {
+			return GenericTypes.class.getDeclaredField("hashMapOfStringListOfString").getGenericType();
+		} catch (ReflectiveOperationException e) {
+			return Map.class;
+		}
+	}
+	
 	public static Type hashMapOfStringString() {
 		try {
 			return GenericTypes.class.getDeclaredField("hashMapOfStringString").getGenericType();
@@ -120,4 +147,5 @@ public class GenericTypes<T, L extends List<T>, S extends Set<T>, M extends Map<
 			return Map.class;
 		}
 	}
+
 }

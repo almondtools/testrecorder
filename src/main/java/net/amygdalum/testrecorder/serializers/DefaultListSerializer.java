@@ -26,8 +26,8 @@ public class DefaultListSerializer implements Serializer<SerializedList> {
 	}
 
 	@Override
-	public SerializedList generate(Type type, Class<?> valueType) {
-		return new SerializedList(type, valueType);
+	public SerializedList generate(Type resultType, Type type) {
+		return new SerializedList(type).withResult(resultType);
 	}
 
 	@Override
