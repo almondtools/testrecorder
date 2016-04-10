@@ -167,7 +167,7 @@ public class TypeManager {
 		}
 	}
 
-	public static Type getArray(Type componentType) {
+	public static Type array(Type componentType) {
 		return new GenericArrayType() {
 
 			@Override

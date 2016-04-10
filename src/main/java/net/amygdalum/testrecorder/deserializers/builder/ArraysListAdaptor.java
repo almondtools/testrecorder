@@ -4,7 +4,7 @@ import static net.amygdalum.testrecorder.TypeSelector.in;
 import static net.amygdalum.testrecorder.TypeSelector.innerClasses;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethod;
-import static net.amygdalum.testrecorder.deserializers.TypeManager.getArray;
+import static net.amygdalum.testrecorder.deserializers.TypeManager.array;
 import static net.amygdalum.testrecorder.deserializers.TypeManager.getBase;
 import static net.amygdalum.testrecorder.deserializers.TypeManager.parameterized;
 
@@ -46,7 +46,7 @@ public class ArraysListAdaptor implements Adaptor<SerializedList, ObjectToSetupC
 		TypeManager types = generator.getTypes();
 		types.staticImport(Arrays.class, "asList");
 
-		Type type = getArray(value.getComponentType());
+		Type type = array(value.getComponentType());
 		SerializedArray baseValue = new SerializedArray(type, getBase(type));
 		for (SerializedValue element : value) {
 			baseValue.add(element);
