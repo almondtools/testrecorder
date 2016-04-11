@@ -124,7 +124,11 @@ public class Types {
 
 	public static Optional<Type> typeArgument(Type type, int i) {
 		if (type instanceof ParameterizedType) {
-			return Optional.of(((ParameterizedType) type).getActualTypeArguments()[i]);
+			Type[] actualTypeArguments = ((ParameterizedType) type).getActualTypeArguments();
+			if (actualTypeArguments == null || actualTypeArguments.length <= i) {
+				return Optional.empty();
+			}
+			return Optional.of(actualTypeArguments[i]);
 		} else {
 			return Optional.empty();
 		}

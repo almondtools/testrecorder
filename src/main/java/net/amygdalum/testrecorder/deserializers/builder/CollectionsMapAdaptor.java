@@ -65,13 +65,13 @@ public class CollectionsMapAdaptor implements Adaptor<SerializedMap, ObjectToSet
 		}
 	}
 
-	public Computation createOrdinaryMap(SerializedMap value, ObjectToSetupCode generator) {
+	private Computation createOrdinaryMap(SerializedMap value, ObjectToSetupCode generator) {
 		SerializedMap baseValue = new SerializedMap(parameterized(LinkedHashMap.class, null, value.getMapKeyType(), value.getMapValueType()));
 		baseValue.putAll(value);
 		return adaptor.tryDeserialize(baseValue, generator);
 	}
 
-	public Computation tryDeserializeEmpty(SerializedMap value, ObjectToSetupCode generator) {
+	private Computation tryDeserializeEmpty(SerializedMap value, ObjectToSetupCode generator) {
 		String factoryMethod = "emptyMap";
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
@@ -84,7 +84,7 @@ public class CollectionsMapAdaptor implements Adaptor<SerializedMap, ObjectToSet
 		return new Computation(resultMap, asList(decoratingStatement));
 	}
 
-	public Computation tryDeserializeSingleton(SerializedMap value, ObjectToSetupCode generator) {
+	private Computation tryDeserializeSingleton(SerializedMap value, ObjectToSetupCode generator) {
 		String factoryMethod = "singletonMap";
 		TypeManager types = generator.getTypes();
 		types.registerImport(Map.class);
@@ -129,7 +129,7 @@ public class CollectionsMapAdaptor implements Adaptor<SerializedMap, ObjectToSet
 		return new Computation(resultList, statements);
 	}
 
-	public Computation tryDeserializeSynchronized(SerializedMap value, ObjectToSetupCode generator) {
+	private Computation tryDeserializeSynchronized(SerializedMap value, ObjectToSetupCode generator) {
 		String factoryMethod = "synchronizedMap";
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
@@ -147,7 +147,7 @@ public class CollectionsMapAdaptor implements Adaptor<SerializedMap, ObjectToSet
 		return new Computation(resultList, statements);
 	}
 
-	public Computation tryDeserializeChecked(SerializedMap value, ObjectToSetupCode generator) {
+	private Computation tryDeserializeChecked(SerializedMap value, ObjectToSetupCode generator) {
 		String factoryMethod = "checkedMap";
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);

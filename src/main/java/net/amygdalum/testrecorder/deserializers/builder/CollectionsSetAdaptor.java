@@ -63,13 +63,13 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 		}
 	}
 
-	public Computation createOrdinarySet(SerializedSet value, ObjectToSetupCode generator) {
+	private Computation createOrdinarySet(SerializedSet value, ObjectToSetupCode generator) {
 		SerializedSet baseValue = new SerializedSet(parameterized(LinkedHashSet.class, null, value.getComponentType()));
 		baseValue.addAll(value);
 		return adaptor.tryDeserialize(baseValue, generator);
 	}
 
-	public Computation tryDeserializeEmpty(SerializedSet value, ObjectToSetupCode generator) {
+	private Computation tryDeserializeEmpty(SerializedSet value, ObjectToSetupCode generator) {
 		String factoryMethod = "emptySet";
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
@@ -82,7 +82,7 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 		return new Computation(resultSet, asList(decoratingStatement));
 	}
 
-	public Computation tryDeserializeSingleton(SerializedSet value, ObjectToSetupCode generator) {
+	private Computation tryDeserializeSingleton(SerializedSet value, ObjectToSetupCode generator) {
 		String factoryMethod = "singleton";
 		TypeManager types = generator.getTypes();
 		types.registerImport(Set.class);
@@ -120,7 +120,7 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 		return new Computation(resultList, statements);
 	}
 
-	public Computation tryDeserializeSynchronized(SerializedSet value, ObjectToSetupCode generator) {
+	private Computation tryDeserializeSynchronized(SerializedSet value, ObjectToSetupCode generator) {
 		String factoryMethod = "synchronizedSet";
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
@@ -138,7 +138,7 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 		return new Computation(resultList, statements);
 	}
 
-	public Computation tryDeserializeChecked(SerializedSet value, ObjectToSetupCode generator) {
+	private Computation tryDeserializeChecked(SerializedSet value, ObjectToSetupCode generator) {
 		String factoryMethod = "checkedSet";
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);

@@ -56,5 +56,4 @@ public class DefaultListAdaptorTest {
 		assertThat(result.getValue(), equalTo("list1"));
 	}
 
-
 }
