@@ -134,6 +134,16 @@ public class Types {
 		}
 	}
 
+
+	public static Class<?> innerType(Class<?> clazz, String name) {
+		for (Class<?> inner : clazz.getDeclaredClasses()) {
+			if (inner.getSimpleName().equals(name)) {
+				return inner;
+			}
+		}
+		throw new TypeNotPresentException(clazz.getName() + "$" + name, new ClassNotFoundException(clazz.getName() + "$" + name));
+	}
+
 	public static Type wrapHidden(Type type) {
 		if (isHidden(type)) {
 			return Wrapped.class;
