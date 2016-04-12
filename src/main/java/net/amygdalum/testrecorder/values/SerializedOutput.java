@@ -3,6 +3,7 @@ package net.amygdalum.testrecorder.values;
 import static java.util.stream.Collectors.joining;
 
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.SerializedValue;
@@ -50,8 +51,8 @@ public class SerializedOutput {
 	public int hashCode() {
 		return clazz.hashCode() * 37 
 			+ name.hashCode() * 29
-			+ types.hashCode() * 11
-			+ values.hashCode();
+			+ Arrays.hashCode(types) * 11
+			+ Arrays.hashCode(values);
 	}
 
 	@Override
@@ -68,8 +69,8 @@ public class SerializedOutput {
 		SerializedOutput that = (SerializedOutput) obj;
 		return this.clazz.equals(that.clazz)
 			&& this.name.equals(that.name)
-			&& this.types.equals(that.types)
-			&& this.values.equals(that.values);
+			&& Arrays.equals(this.types,that.types)
+			&& Arrays.equals(this.values,that.values);
 	}
 
 }

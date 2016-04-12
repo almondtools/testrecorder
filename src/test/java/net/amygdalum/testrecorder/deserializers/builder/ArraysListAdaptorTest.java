@@ -53,7 +53,7 @@ public class ArraysListAdaptorTest {
 	private SerializedList listOf(String className, int... elements) throws ClassNotFoundException {
 		SerializedList value = new SerializedList(Class.forName(className)).withResult(parameterized(List.class, null, Integer.class));
 		for (int element : elements) {
-			value.add(literal(Integer.class, element));
+			value.add(literal(element));
 		}
 		return value;
 	}

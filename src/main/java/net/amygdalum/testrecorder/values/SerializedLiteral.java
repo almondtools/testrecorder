@@ -15,7 +15,7 @@ import net.amygdalum.testrecorder.deserializers.ValuePrinter;
  * Serializing to SerializedLiteral is only valid for primitive types and non-null Strings. For this use the factory method 
  * {@link #literal(Type, Object)}
  */
-public class SerializedLiteral implements SerializedValueType {
+public class SerializedLiteral extends AbstractSerializedValue implements SerializedValueType {
 
 	public static Set<Class<?>> LITERAL_TYPES = new HashSet<>(Arrays.asList(
 		boolean.class, char.class, byte.class, short.class, int.class, float.class, long.class, double.class,
@@ -24,11 +24,12 @@ public class SerializedLiteral implements SerializedValueType {
 
 	private static final Map<Object, SerializedLiteral> KNOWN_LITERALS = new HashMap<>();
 
-	private Type type;
+	private Type resultType;
 	private Object value;
 
 	private SerializedLiteral(Type type, Object value) {
-		this.type = type;
+		super(value.getClass());
+		this.resultType = type;
 		this.value = value;
 	}
 
@@ -36,23 +37,17 @@ public class SerializedLiteral implements SerializedValueType {
 		return LITERAL_TYPES.contains(type);
 	}
 
+	public static SerializedLiteral literal(Object value) {
+		return literal(value.getClass(), value);
+	}
+	
 	public static SerializedLiteral literal(Type type, Object value) {
 		return KNOWN_LITERALS.computeIfAbsent(value, val -> new SerializedLiteral(type, val));
 	}
 
 	@Override
 	public Type getResultType() {
-		return type;
-	}
-	
-	@Override
-	public void setType(Type type) {
-		this.type = type;
-	}
-	
-	@Override
-	public Class<?> getType() {
-		return value.getClass();
+		return resultType;
 	}
 
 	@Override

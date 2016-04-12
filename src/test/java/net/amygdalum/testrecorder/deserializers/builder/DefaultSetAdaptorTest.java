@@ -41,9 +41,9 @@ public class DefaultSetAdaptorTest {
 	@Test
 	public void testTryDeserialize() throws Exception {
 		SerializedSet value = new SerializedSet(parameterized(LinkedHashSet.class, null, Integer.class)).withResult(parameterized(Set.class, null, Integer.class));
-		value.add(literal(Integer.class, 0));
-		value.add(literal(Integer.class, 8));
-		value.add(literal(Integer.class, 15));
+		value.add(literal(0));
+		value.add(literal(8));
+		value.add(literal(15));
 		ObjectToSetupCode generator = new ObjectToSetupCode();
 		
 		Computation result = adaptor.tryDeserialize(value, generator);

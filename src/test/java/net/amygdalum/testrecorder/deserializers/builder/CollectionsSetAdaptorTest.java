@@ -183,7 +183,7 @@ public class CollectionsSetAdaptorTest {
 	private SerializedSet setOf(String className, int... elements) throws ClassNotFoundException {
 		SerializedSet value = new SerializedSet(Class.forName(className)).withResult(parameterized(Set.class, null, Integer.class));
 		for (int element : elements) {
-			value.add(literal(Integer.class, element));
+			value.add(literal(element));
 		}
 		return value;
 	}

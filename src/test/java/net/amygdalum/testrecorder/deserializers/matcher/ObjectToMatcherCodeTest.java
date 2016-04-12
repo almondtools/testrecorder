@@ -49,9 +49,9 @@ public class ObjectToMatcherCodeTest {
 
 	@Test
 	public void testLiteralIsSimpleValue() throws Exception {
-		assertThat(matcherCode.isSimpleValue(literal(String.class, "str")), is(true));
-		assertThat(matcherCode.simpleValue(literal(String.class, "str")).getStatements(), empty());
-		assertThat(matcherCode.simpleValue(literal(String.class, "str")).getValue(), equalTo("\"str\""));
+		assertThat(matcherCode.isSimpleValue(literal("str")), is(true));
+		assertThat(matcherCode.simpleValue(literal("str")).getStatements(), empty());
+		assertThat(matcherCode.simpleValue(literal("str")).getValue(), equalTo("\"str\""));
 	}
 
 	@Test

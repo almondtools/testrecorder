@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.serializers;
 
 import static java.util.Arrays.asList;
+import static net.amygdalum.testrecorder.util.Types.innerType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.Matchers.contains;
@@ -11,8 +12,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Collections;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +26,7 @@ import net.amygdalum.testrecorder.SerializerFacade;
 import net.amygdalum.testrecorder.values.SerializedList;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DefaultListSerializerTest {
+public class CollectionsListSerializerTest {
 
 	private SerializerFacade facade;
 	private Serializer<SerializedList> serializer;
@@ -33,23 +34,32 @@ public class DefaultListSerializerTest {
 	@Before
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
-		serializer = new DefaultListSerializer.Factory().newSerializer(facade);
+		serializer = new CollectionsListSerializer.Factory().newSerializer(facade);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetMatchingClasses() throws Exception {
-		assertThat(serializer.getMatchingClasses(), containsInAnyOrder(LinkedList.class, ArrayList.class));
+		assertThat(serializer.getMatchingClasses(), containsInAnyOrder(
+			innerType(Collections.class, "UnmodifiableList"),
+			innerType(Collections.class, "UnmodifiableRandomAccessList"),
+			innerType(Collections.class, "SynchronizedList"),
+			innerType(Collections.class, "SynchronizedRandomAccessList"),
+			innerType(Collections.class, "EmptyList"),
+			innerType(Collections.class, "SingletonList"),
+			innerType(Collections.class, "CheckedList"),
+			innerType(Collections.class, "CheckedRandomAccessList")));
 	}
 
 	@Test
 	public void testGenerate() throws Exception {
-		Type linkedListOfString = parameterized(LinkedList.class, null, String.class);
+		Type unmodifiableListOfString = parameterized(innerType(Collections.class, "UnmodifiableList"), null, String.class);
+		Type listOfString = parameterized(List.class, null, String.class);
 
-		SerializedList value = serializer.generate(linkedListOfString, LinkedList.class);
+		SerializedList value = serializer.generate(listOfString, unmodifiableListOfString);
 
-		assertThat(value.getResultType(), equalTo(linkedListOfString));
-		assertThat(value.getType(), equalTo(LinkedList.class));
+		assertThat(value.getResultType(), equalTo(listOfString));
+		assertThat(value.getType(), equalTo(unmodifiableListOfString));
 		assertThat(value.getComponentType(), equalTo(String.class));
 	}
 
@@ -59,8 +69,9 @@ public class DefaultListSerializerTest {
 		SerializedValue bar = literal("Bar");
 		when(facade.serialize(String.class, "Foo")).thenReturn(foo);
 		when(facade.serialize(String.class, "Bar")).thenReturn(bar);
-		Type linkedListOfString = parameterized(LinkedList.class, null, String.class);
-		SerializedList value = serializer.generate(linkedListOfString, LinkedList.class);
+		Type unmodifiableListOfString = parameterized(innerType(Collections.class, "UnmodifiableList"), null, String.class);
+		Type listOfString = parameterized(List.class, null, String.class);
+		SerializedList value = serializer.generate(listOfString, unmodifiableListOfString);
 
 		serializer.populate(value, asList("Foo", "Bar"));
 

@@ -42,7 +42,7 @@ public class BeanObjectAdaptorTest {
 	@Test(expected=DeserializationException.class)
 	public void testTryDeserializeWithNonBean() throws Exception {
 		SerializedObject value = new SerializedObject(TestObject.class);
-		value.addField(new SerializedField(String.class, "attribute", String.class, SerializedLiteral.literal(String.class, "Hello World")));
+		value.addField(new SerializedField(String.class, "attribute", String.class, SerializedLiteral.literal("Hello World")));
 		TypeManager types = new TypeManager();
 		ObjectToSetupCode generator = new ObjectToSetupCode(new LocalVariableNameGenerator(), types);
 		
@@ -53,7 +53,7 @@ public class BeanObjectAdaptorTest {
 	@Test
 	public void testTryDeserializeWithBean() throws Exception {
 		SerializedObject value = new SerializedObject(TestBean.class);
-		value.addField(new SerializedField(String.class, "attribute", String.class, literal(String.class, "Hello World")));
+		value.addField(new SerializedField(String.class, "attribute", String.class, literal("Hello World")));
 		ObjectToSetupCode generator = new ObjectToSetupCode();
 		
 		Computation result = adaptor.tryDeserialize(value, generator);

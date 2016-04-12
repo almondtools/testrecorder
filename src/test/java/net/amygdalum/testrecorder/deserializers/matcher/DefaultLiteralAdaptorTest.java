@@ -37,7 +37,7 @@ public class DefaultLiteralAdaptorTest {
 
 	@Test
 	public void testTryDeserialize() throws Exception {
-		SerializedLiteral value = literal(String.class, "string");
+		SerializedLiteral value = literal("string");
 		ObjectToMatcherCode generator = new ObjectToMatcherCode();
 
 		Computation result = adaptor.tryDeserialize(value, generator);

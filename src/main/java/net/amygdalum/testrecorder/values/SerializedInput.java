@@ -3,6 +3,8 @@ package net.amygdalum.testrecorder.values;
 import static java.util.stream.Collectors.joining;
 
 import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.SerializedValue;
@@ -40,15 +42,15 @@ public class SerializedInput {
 	public String getName() {
 		return name;
 	}
-	
+
 	public Type getResultType() {
 		return resultType;
 	}
-	
+
 	public SerializedValue getResult() {
 		return result;
 	}
-	
+
 	public Type[] getTypes() {
 		return types;
 	}
@@ -60,19 +62,19 @@ public class SerializedInput {
 	@Override
 	public String toString() {
 		ValuePrinter printer = new ValuePrinter();
-		return "<< " + clazz.getTypeName() + "." + name + "(" + result.accept(printer) + ", " + Stream.of(values)
+		return "<< " + clazz.getTypeName() + "." + name + "(" + Optional.ofNullable(result).map(r -> r.accept(printer)).orElse("void") + ", " + Stream.of(values)
 			.map(value -> value.accept(printer))
 			.collect(joining(", ")) + ")";
 	}
 
 	@Override
 	public int hashCode() {
-		return clazz.hashCode() * 31 
+		return clazz.hashCode() * 31
 			+ name.hashCode() * 19
 			+ resultType.hashCode() * 7
 			+ result.hashCode() * 3
-			+ types.hashCode() * 17
-			+ values.hashCode();
+			+ Arrays.hashCode(types) * 17
+			+ Arrays.hashCode(values);
 	}
 
 	@Override
@@ -91,8 +93,8 @@ public class SerializedInput {
 			&& this.name.equals(that.name)
 			&& this.resultType.equals(that.resultType)
 			&& this.result.equals(that.result)
-			&& this.types.equals(that.types)
-			&& this.values.equals(that.values);
+			&& Arrays.equals(this.types, that.types)
+			&& Arrays.equals(this.values, that.values);
 	}
 
 }

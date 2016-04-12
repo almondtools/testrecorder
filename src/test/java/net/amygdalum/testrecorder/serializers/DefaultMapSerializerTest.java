@@ -57,8 +57,8 @@ public class DefaultMapSerializerTest {
 
 	@Test
 	public void testPopulate() throws Exception {
-		SerializedValue foo = literal(String.class, "Foo");
-		SerializedValue bar = literal(String.class, "Bar");
+		SerializedValue foo = literal("Foo");
+		SerializedValue bar = literal("Bar");
 		when(facade.serialize(String.class, "Foo")).thenReturn(foo);
 		when(facade.serialize(String.class, "Bar")).thenReturn(bar);
 		Type hashMapOfStringInteger = parameterized(HashMap.class, null, String.class, Integer.class);

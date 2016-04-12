@@ -1,18 +1,18 @@
 package net.amygdalum.testrecorder.serializers;
 
 import static java.util.Arrays.asList;
+import static net.amygdalum.testrecorder.util.Types.innerType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Type;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.TreeSet;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -22,34 +22,35 @@ import org.mockito.runners.MockitoJUnitRunner;
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.Serializer;
 import net.amygdalum.testrecorder.SerializerFacade;
-import net.amygdalum.testrecorder.values.SerializedSet;
+import net.amygdalum.testrecorder.values.SerializedList;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DefaultSetSerializerTest {
+public class ArraysListSerializerTest {
 
 	private SerializerFacade facade;
-	private Serializer<SerializedSet> serializer;
-	
+	private Serializer<SerializedList> serializer;
+
 	@Before
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
-		serializer = new DefaultSetSerializer.Factory().newSerializer(facade);
+		serializer = new ArraysListSerializer.Factory().newSerializer(facade);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetMatchingClasses() throws Exception {
-		assertThat(serializer.getMatchingClasses(), containsInAnyOrder(HashSet.class, TreeSet.class, LinkedHashSet.class));
+		assertThat(serializer.getMatchingClasses(), contains(innerType(Arrays.class, "ArrayList")));
 	}
 
 	@Test
 	public void testGenerate() throws Exception {
-		Type hashSetOfString = parameterized(HashSet.class, null, String.class);
-		
-		SerializedSet value = serializer.generate(hashSetOfString, HashSet.class);
-		
-		assertThat(value.getResultType(), equalTo(hashSetOfString));
-		assertThat(value.getType(), equalTo(HashSet.class));
+		Type arrayListOfString = parameterized(innerType(Arrays.class, "ArrayList"), null, String.class);
+		Type listOfString = parameterized(List.class, null, String.class);
+
+		SerializedList value = serializer.generate(listOfString, arrayListOfString);
+
+		assertThat(value.getResultType(), equalTo(listOfString));
+		assertThat(value.getType(), equalTo(arrayListOfString));
 		assertThat(value.getComponentType(), equalTo(String.class));
 	}
 
@@ -59,12 +60,13 @@ public class DefaultSetSerializerTest {
 		SerializedValue bar = literal("Bar");
 		when(facade.serialize(String.class, "Foo")).thenReturn(foo);
 		when(facade.serialize(String.class, "Bar")).thenReturn(bar);
-		Type hashSetOfString = parameterized(HashSet.class, null, String.class);
-		SerializedSet value = serializer.generate(hashSetOfString, HashSet.class);
+		Type arrayListOfString = parameterized(innerType(Arrays.class, "ArrayList"), null, String.class);
+		Type listOfString = parameterized(List.class, null, String.class);
+		SerializedList value = serializer.generate(listOfString, arrayListOfString);
 
-		serializer.populate(value, new HashSet<>(asList("Foo", "Bar")));
+		serializer.populate(value, asList("Foo", "Bar"));
 
-		assertThat(value, containsInAnyOrder(foo, bar));
+		assertThat(value, contains(foo, bar));
 	}
 
 }

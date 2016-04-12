@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.serializers;
 
 import static java.util.Arrays.asList;
+import static net.amygdalum.testrecorder.util.Types.innerType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -10,9 +11,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.TreeSet;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -25,31 +26,43 @@ import net.amygdalum.testrecorder.SerializerFacade;
 import net.amygdalum.testrecorder.values.SerializedSet;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DefaultSetSerializerTest {
+public class CollectionsSetSerializerTest {
 
 	private SerializerFacade facade;
 	private Serializer<SerializedSet> serializer;
-	
+
 	@Before
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
-		serializer = new DefaultSetSerializer.Factory().newSerializer(facade);
+		serializer = new CollectionsSetSerializer.Factory().newSerializer(facade);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetMatchingClasses() throws Exception {
-		assertThat(serializer.getMatchingClasses(), containsInAnyOrder(HashSet.class, TreeSet.class, LinkedHashSet.class));
+		assertThat(serializer.getMatchingClasses(), containsInAnyOrder(
+			innerType(Collections.class, "UnmodifiableSet"),
+			innerType(Collections.class, "UnmodifiableSortedSet"),
+			innerType(Collections.class, "UnmodifiableNavigableSet"),
+			innerType(Collections.class, "SynchronizedSet"),
+			innerType(Collections.class, "SynchronizedSortedSet"),
+			innerType(Collections.class, "SynchronizedNavigableSet"),
+			innerType(Collections.class, "EmptySet"),
+			innerType(Collections.class, "SingletonSet"),
+			innerType(Collections.class, "CheckedSet"),
+			innerType(Collections.class, "CheckedSortedSet"),
+			innerType(Collections.class, "CheckedNavigableSet")));
 	}
 
 	@Test
 	public void testGenerate() throws Exception {
-		Type hashSetOfString = parameterized(HashSet.class, null, String.class);
-		
-		SerializedSet value = serializer.generate(hashSetOfString, HashSet.class);
-		
-		assertThat(value.getResultType(), equalTo(hashSetOfString));
-		assertThat(value.getType(), equalTo(HashSet.class));
+		Type unmodifiableSetOfString = parameterized(innerType(Collections.class, "UnmodifiableSet"), null, String.class);
+		Type setOfString = parameterized(Set.class, null, String.class);
+
+		SerializedSet value = serializer.generate(setOfString, unmodifiableSetOfString);
+
+		assertThat(value.getResultType(), equalTo(setOfString));
+		assertThat(value.getType(), equalTo(unmodifiableSetOfString));
 		assertThat(value.getComponentType(), equalTo(String.class));
 	}
 
@@ -59,8 +72,9 @@ public class DefaultSetSerializerTest {
 		SerializedValue bar = literal("Bar");
 		when(facade.serialize(String.class, "Foo")).thenReturn(foo);
 		when(facade.serialize(String.class, "Bar")).thenReturn(bar);
-		Type hashSetOfString = parameterized(HashSet.class, null, String.class);
-		SerializedSet value = serializer.generate(hashSetOfString, HashSet.class);
+		Type unmodifiableSetOfString = parameterized(innerType(Collections.class, "UnmodifiableSet"), null, String.class);
+		Type setOfString = parameterized(Set.class, null, String.class);
+		SerializedSet value = serializer.generate(setOfString, unmodifiableSetOfString);
 
 		serializer.populate(value, new HashSet<>(asList("Foo", "Bar")));
 

@@ -20,11 +20,11 @@ public class SerializedNullTest {
 	}
 
 	@Test
-		public void testGetResultType() throws Exception {
-			SerializedNull value = nullInstance(String.class);
-	
-			assertThat(value.getResultType(), equalTo(String.class));
-		}
+	public void testGetResultType() throws Exception {
+		SerializedNull value = nullInstance(String.class);
+
+		assertThat(value.getResultType(), equalTo(String.class));
+	}
 
 	@Test
 	public void testAccept() throws Exception {

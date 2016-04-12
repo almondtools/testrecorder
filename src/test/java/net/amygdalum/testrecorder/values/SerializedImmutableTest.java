@@ -21,9 +21,16 @@ public class SerializedImmutableTest {
 	}
 
 	@Test
-		public void testGetResultType() throws Exception {
-			assertThat(value.getResultType(), equalTo(String.class));
-		}
+	public void testGetResultType() throws Exception {
+		assertThat(value.getResultType(), equalTo(String.class));
+	}
+
+	@Test
+	public void testWithValue() throws Exception {
+		value = value.withValue("newvalue");
+
+		assertThat(value.getValue(), equalTo("newvalue"));
+	}
 
 	@Test
 	public void testSetGetValue() throws Exception {

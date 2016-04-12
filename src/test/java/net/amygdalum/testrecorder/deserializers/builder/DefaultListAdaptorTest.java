@@ -41,9 +41,9 @@ public class DefaultListAdaptorTest {
 	@Test
 	public void testTryDeserialize() throws Exception {
 		SerializedList value = new SerializedList(parameterized(ArrayList.class, null, Integer.class)).withResult(parameterized(List.class, null, Integer.class));
-		value.add(literal(Integer.class, 0));
-		value.add(literal(Integer.class, 8));
-		value.add(literal(Integer.class, 15));
+		value.add(literal(0));
+		value.add(literal(8));
+		value.add(literal(15));
 		ObjectToSetupCode generator = new ObjectToSetupCode();
 		
 		Computation result = adaptor.tryDeserialize(value, generator);

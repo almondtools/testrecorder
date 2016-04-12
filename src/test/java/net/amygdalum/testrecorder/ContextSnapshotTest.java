@@ -42,7 +42,7 @@ public class ContextSnapshotTest {
 	public void testGetThisType() throws Exception {
 		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		SerializedList setupThis = new SerializedList(ArrayList.class).withResult(List.class);
-		setupThis.add(literal(String.class, "setup"));
+		setupThis.add(literal("setup"));
 
 		snapshot.setSetupThis(setupThis);
 
@@ -53,7 +53,7 @@ public class ContextSnapshotTest {
 	public void testSetGetSetupThis() throws Exception {
 		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		SerializedList setupThis = new SerializedList(ArrayList.class).withResult(List.class);
-		setupThis.add(literal(String.class, "setup"));
+		setupThis.add(literal("setup"));
 
 		snapshot.setSetupThis(setupThis);
 
@@ -64,7 +64,7 @@ public class ContextSnapshotTest {
 	public void testSetGetExpectThis() throws Exception {
 		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		SerializedList expectedThis = new SerializedList(ArrayList.class).withResult(List.class);
-		expectedThis.add(literal(String.class, "expected"));
+		expectedThis.add(literal("expected"));
 
 		snapshot.setExpectThis(expectedThis);
 
@@ -75,18 +75,18 @@ public class ContextSnapshotTest {
 	public void testSetGetSetupArgs() throws Exception {
 		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
-		snapshot.setSetupArgs(literal(String.class, "a"), literal(String.class, "b"));
+		snapshot.setSetupArgs(literal("a"), literal("b"));
 
-		assertThat(snapshot.getSetupArgs(), arrayContaining(literal(String.class, "a"), literal(String.class, "b")));
+		assertThat(snapshot.getSetupArgs(), arrayContaining(literal("a"), literal("b")));
 	}
 
 	@Test
 	public void testSetGetExpectArgs() throws Exception {
 		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
-		snapshot.setExpectArgs(literal(String.class, "c"), literal(String.class, "d"));
+		snapshot.setExpectArgs(literal("c"), literal("d"));
 
-		assertThat(snapshot.getExpectArgs(), arrayContaining(literal(String.class, "c"), literal(String.class, "d")));
+		assertThat(snapshot.getExpectArgs(), arrayContaining(literal("c"), literal("d")));
 	}
 
 	@Test

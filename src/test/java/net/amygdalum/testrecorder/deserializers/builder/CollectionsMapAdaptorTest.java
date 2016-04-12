@@ -183,7 +183,7 @@ public class CollectionsMapAdaptorTest {
 	private SerializedMap mapOf(String className, int[]... elements) throws ClassNotFoundException {
 		SerializedMap value = new SerializedMap(Class.forName(className)).withResult(parameterized(Map.class, null, Integer.class, Integer.class));
 		for (int[] element : elements) {
-			value.put(literal(Integer.class, element[0]), literal(Integer.class, element[1]));
+			value.put(literal(element[0]), literal(Integer.class, element[1]));
 		}
 		return value;
 	}

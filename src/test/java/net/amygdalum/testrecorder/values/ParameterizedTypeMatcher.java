@@ -32,7 +32,7 @@ public class ParameterizedTypeMatcher extends TypeSafeDiagnosingMatcher<Type> {
 			mismatchDescription.appendText("raw type was ").appendValue(rawType);
 			return false;
 		}
-		
+
 		Type[] typeArgsItem = parameterizedType.getActualTypeArguments();
 		if (typeArgsItem.length != args.length) {
 			mismatchDescription.appendText("type argument number not matching: ").appendValue(typeArgsItem);
@@ -44,7 +44,7 @@ public class ParameterizedTypeMatcher extends TypeSafeDiagnosingMatcher<Type> {
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
 
@@ -55,7 +55,7 @@ public class ParameterizedTypeMatcher extends TypeSafeDiagnosingMatcher<Type> {
 		description.appendText("  and type arguments ").appendList("", ",", "", asList(args));
 	}
 
-	public static ParameterizedTypeMatcher parameterized(Class<?> raw, Class<?>... args) {
+	public static ParameterizedTypeMatcher parameterizedType(Class<?> raw, Class<?>... args) {
 		return new ParameterizedTypeMatcher(raw, toMatchers(args));
 	}
 

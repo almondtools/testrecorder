@@ -41,8 +41,8 @@ public class DefaultMapAdaptorTest {
 	@Test
 	public void testTryDeserializeMap() throws Exception {
 		SerializedMap value = new SerializedMap(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class)).withResult(parameterized(Map.class, null, Integer.class, Integer.class));
-		value.put(literal(Integer.class, 8), literal(Integer.class, 15));
-		value.put(literal(Integer.class, 47), literal(Integer.class, 11));
+		value.put(literal(8), literal(15));
+		value.put(literal(47), literal(11));
 		ObjectToMatcherCode generator = new ObjectToMatcherCode();
 		Computation result = adaptor.tryDeserialize(value, generator);
 		

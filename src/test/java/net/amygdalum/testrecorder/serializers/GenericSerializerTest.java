@@ -48,7 +48,7 @@ public class GenericSerializerTest {
 
 	@Test
 	public void testPopulate() throws Exception {
-		SerializedValue foo = literal(String.class, "Foo");
+		SerializedValue foo = literal("Foo");
 		SerializedField fooField = new SerializedField(GenericObject.class, "stringField", String.class, foo);
 		SerializedValue bar = literal(int.class, 1);
 		SerializedField barField = new SerializedField(GenericObject.class, "intField", int.class, bar);

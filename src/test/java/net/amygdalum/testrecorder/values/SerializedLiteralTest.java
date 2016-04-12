@@ -31,36 +31,36 @@ public class SerializedLiteralTest {
 
 	@Test
 	public void testLiteral() throws Exception {
-		SerializedLiteral value = literal(String.class, "string");
-		SerializedLiteral testvalue = literal(String.class, "string");
+		SerializedLiteral value = literal("string");
+		SerializedLiteral testvalue = literal("string");
 
 		assertThat(testvalue, sameInstance(value));
 	}
 
 	@Test
-		public void testGetResultType() throws Exception {
-			SerializedLiteral value = literal(String.class, "string");
-	
-			assertThat(value.getResultType(), equalTo(String.class));
-		}
+	public void testGetResultType() throws Exception {
+		SerializedLiteral value = literal("string");
+
+		assertThat(value.getResultType(), equalTo(String.class));
+	}
 
 	@Test
 	public void testGetValue() throws Exception {
-		SerializedLiteral value = literal(String.class, "string");
+		SerializedLiteral value = literal("string");
 
 		assertThat(value.getValue(), equalTo("string"));
 	}
 
 	@Test
 	public void testAccept() throws Exception {
-		SerializedLiteral value = literal(String.class, "string");
+		SerializedLiteral value = literal("string");
 
 		assertThat(value.accept(new TestValueVisitor()), equalTo("SerializedLiteral"));
 	}
 
 	@Test
 	public void testToString() throws Exception {
-		SerializedLiteral value = literal(String.class, "string");
+		SerializedLiteral value = literal("string");
 
 		assertThat(value.toString(), equalTo("string"));
 	}
