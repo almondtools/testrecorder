@@ -12,6 +12,7 @@ import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 import net.amygdalum.testrecorder.serializers.ArraySerializer;
+import net.amygdalum.testrecorder.serializers.EnumSerializer;
 import net.amygdalum.testrecorder.serializers.GenericSerializer;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
@@ -73,6 +74,8 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 		}
 		if (clazz.isArray()) {
 			serializer = new ArraySerializer(this);
+		} else if (clazz.isEnum()) {
+			serializer = new EnumSerializer(this);
 		} else {
 			serializer = new GenericSerializer(this);
 		}

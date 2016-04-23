@@ -25,6 +25,7 @@ import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.util.GenericMatcher;
 import net.amygdalum.testrecorder.values.SerializedArray;
+import net.amygdalum.testrecorder.values.SerializedEnum;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 import net.amygdalum.testrecorder.values.SerializedList;
@@ -41,6 +42,7 @@ public class ObjectToMatcherCode implements Deserializer<Computation> {
 		.add(SerializedNull.class, new DefaultNullAdaptor())
 		.add(SerializedImmutable.class, new DefaultBigIntegerAdaptor())
 		.add(SerializedImmutable.class, new DefaultBigDecimalAdaptor())
+		.add(SerializedEnum.class, new DefaultEnumAdaptor())
 		.add(SerializedObject.class, new DefaultObjectAdaptor())
 		.add(SerializedArray.class, new DefaultArrayAdaptor())
 		.add(SerializedList.class, new DefaultListAdaptor())

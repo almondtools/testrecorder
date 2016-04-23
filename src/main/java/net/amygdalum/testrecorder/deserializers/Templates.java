@@ -32,11 +32,13 @@ public final class Templates {
 	private static final String GENERIC_TYPE = "$type$<$typeParam; separator=\", \"$>";
 
 	private static final String GENERIC_OBJECT_MATCHER = "new GenericMatcher() {\n<fields; separator=\"\\n\">\n}.matching(<type : {type | <type>}; separator=\", \">)";
+	private static final String ENUM_MATCHER = "matchingEnum(<value>)";
 	private static final String RECURSIVE_MATCHER = "recursive(<type>)";
 	private static final String CONTAINS_MATCHER = "contains(<values; separator=\", \">)";
 	private static final String EMPTY_MATCHER = "empty()";
 	private static final String CONTAINS_IN_ANY_ORDER_MATCHER = "containsInAnyOrder(<values; separator=\", \">)";
 	private static final String EQUAL_TO_MATCHER = "equalTo(<value>)";
+	private static final String SAME_INSTANCE_MATCHER = "sameInstance(<value>)";
 	private static final String NULL_MATCHER = "nullValue(<value>.class)";
 	private static final String NO_ENTRIES_MATCHER = "noEntries(<keytype>.class, <valuetype>.class)";
 	private static final String CONTAINS_ENTRIES_MATCHER = "containsEntries(<keytype>.class, <valuetype>.class)<entries : { entry | .entry(<entry.key>, <entry.value>)}>";
@@ -318,6 +320,13 @@ public final class Templates {
 		return matcher.render();
 	}
 
+	public static String enumMatcher(String value) {
+		ST matcher = new ST(ENUM_MATCHER);
+		matcher.add("value", value);
+
+		return matcher.render();
+	}
+
 	public static String genericType(String type, String... typeParams) {
 		ST genericType = new ST(GENERIC_TYPE, '$','$');
 		genericType.add("type", type);
@@ -400,6 +409,13 @@ public final class Templates {
 
 	public static String equalToMatcher(String value) {
 		ST matcher = new ST(EQUAL_TO_MATCHER);
+		matcher.add("value", value);
+
+		return matcher.render();
+	}
+
+	public static String sameInstanceMatcher(String value) {
+		ST matcher = new ST(SAME_INSTANCE_MATCHER);
 		matcher.add("value", value);
 
 		return matcher.render();

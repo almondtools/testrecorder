@@ -11,6 +11,7 @@ import net.amygdalum.testrecorder.SerializedImmutableType;
 import net.amygdalum.testrecorder.SerializedReferenceType;
 import net.amygdalum.testrecorder.SerializedValueType;
 import net.amygdalum.testrecorder.values.SerializedArray;
+import net.amygdalum.testrecorder.values.SerializedEnum;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 import net.amygdalum.testrecorder.values.SerializedList;
@@ -78,7 +79,10 @@ public class ValuePrinter implements Deserializer<String> {
 		if (rt instanceof SerializedImmutable<?>) {
 			SerializedImmutable<?> value = (SerializedImmutable<?>) rt;
 			return value.getValue().toString();
-		} else {
+		} else if (rt instanceof SerializedEnum) {
+			SerializedEnum value = (SerializedEnum) rt;
+			return value.getName();
+		} else{
 			return "";
 		}
 	}

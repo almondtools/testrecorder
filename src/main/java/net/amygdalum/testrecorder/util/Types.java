@@ -168,6 +168,14 @@ public class Types {
 		return new WildcardTypeImplementation();
 	}
 
+	public static Type wildcardExtends(Type... bounds) {
+		return new WildcardTypeImplementation().extending(bounds);
+	}
+
+	public static Type wildcardSuper(Type... bounds) {
+		return new WildcardTypeImplementation().limiting(bounds);
+	}
+
 	private static final class GenericArrayTypeImplementation implements GenericArrayType {
 
 		private Type componentType;
@@ -211,14 +219,33 @@ public class Types {
 	}
 
 	private static final class WildcardTypeImplementation implements WildcardType {
+
+		private Type[] upperBounds;
+		private Type[] lowerBounds;
+		
+		public WildcardTypeImplementation() {
+			 upperBounds = new Type[0];
+			 lowerBounds = new Type[0];
+		}
+		
+		public WildcardTypeImplementation extending(Type... bounds) {
+			this.upperBounds = bounds;
+			return this;
+		}
+
+		public WildcardTypeImplementation limiting(Type... bounds) {
+			this.lowerBounds = bounds;
+			return this;
+		}
+
 		@Override
 		public Type[] getUpperBounds() {
-			return new Type[0];
+			return upperBounds;
 		}
 
 		@Override
 		public Type[] getLowerBounds() {
-			return new Type[0];
+			return lowerBounds;
 		}
 	}
 

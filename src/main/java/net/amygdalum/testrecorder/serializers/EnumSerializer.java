@@ -1,0 +1,33 @@
+package net.amygdalum.testrecorder.serializers;
+
+import static java.util.Collections.emptyList;
+
+import java.lang.reflect.Type;
+import java.util.List;
+
+import net.amygdalum.testrecorder.Serializer;
+import net.amygdalum.testrecorder.SerializerFacade;
+import net.amygdalum.testrecorder.values.SerializedEnum;
+
+public class EnumSerializer implements Serializer<SerializedEnum> {
+
+	public EnumSerializer(SerializerFacade facade) {
+	}
+
+	@Override
+	public List<Class<?>> getMatchingClasses() {
+		return emptyList();
+	}
+
+	@Override
+	public SerializedEnum generate(Type resultType, Type type) {
+		return new SerializedEnum(type).withResult(resultType);
+	}
+
+	@Override
+	public void populate(SerializedEnum serializedEnum, Object object) {
+		Enum<?> e = (Enum<?>) object;
+		serializedEnum.setName(e.name());
+	}
+
+}

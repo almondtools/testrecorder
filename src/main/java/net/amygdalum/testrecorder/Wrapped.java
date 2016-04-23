@@ -10,7 +10,7 @@ public class Wrapped {
 
 	public Wrapped(String name) {
 		this.clazz = classForName(name);
-		this.o = GenericObject.newInstance(clazz);
+		this.o = clazz.isInterface() || clazz.isEnum() ? null : GenericObject.newInstance(clazz);
 	}
 
 	public static Class<?> classForName(String name) {
