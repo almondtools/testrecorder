@@ -8,6 +8,9 @@ import static net.amygdalum.testrecorder.ByteCode.pushTypes;
 import static net.amygdalum.testrecorder.ByteCode.range;
 import static net.amygdalum.testrecorder.ByteCode.recallLocal;
 import static org.objectweb.asm.Opcodes.AASTORE;
+import static org.objectweb.asm.Opcodes.ACC_ANNOTATION;
+import static org.objectweb.asm.Opcodes.ACC_ENUM;
+import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_SYNTHETIC;
 import static org.objectweb.asm.Opcodes.ALOAD;
@@ -122,7 +125,10 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		ClassNode classNode = new ClassNode();
 
 		cr.accept(classNode, 0);
-
+		if (!isClass(classNode)) {
+			return null;
+		}
+		
 		instrumentFields(classNode);
 
 		instrumentConstructors(classNode);
@@ -135,6 +141,10 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		ClassWriter out = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
 		classNode.accept(out);
 		return out.toByteArray();
+	}
+
+	private boolean isClass(ClassNode classNode) {
+		return (classNode.access & (ACC_INTERFACE | ACC_ENUM | ACC_ANNOTATION)) == 0;
 	}
 
 	private void instrumentFields(ClassNode classNode) {
