@@ -29,7 +29,7 @@ public class ContextSnapshotFactory {
 			return new DefaultSerializationProfile();
 		}
 	}
-	
+
 	public SerializationProfile profile() {
 		return profile;
 	}
@@ -41,5 +41,5 @@ public class ContextSnapshotFactory {
 	public ContextSnapshot createSnapshot() {
 		return new ContextSnapshot(declaringClass, resultType, methodName, argumentTypes);
 	}
-	
+
 }

@@ -70,7 +70,7 @@ import net.amygdalum.testrecorder.values.SerializedOutput;
 
 public class TestGenerator implements SnapshotConsumer {
 
-	private static final Set<Class<?>> IMMUTABLE_TYPES = new HashSet<>(Arrays.asList(
+	private static final Set<Class<?>> LITERAL_TYPES = new HashSet<>(Arrays.asList(
 		Boolean.class, Character.class, Byte.class, Short.class, Integer.class, Float.class, Long.class, Double.class, String.class));
 
 	private static final String RECORDED_TEST = "RecordedTest";
@@ -465,7 +465,6 @@ public class TestGenerator implements SnapshotConsumer {
 			Type[] argumentTypes = snapshot.getArgumentTypes();
 			SerializedValue[] serializedArgs = snapshot.getExpectArgs();
 			List<String> expectArgs = IntStream.range(0, argumentTypes.length)
-				.filter(i -> !isImmutable(argumentTypes[i]))
 				.filter(i -> !serializedArgs[i].equals(snapshot.getSetupArgs()[i]))
 				.mapToObj(i -> createAssertion(serializedArgs[i].accept(matcher.create(locals, types)), args.get(i)))
 				.flatMap(statements -> statements.stream())
@@ -475,7 +474,6 @@ public class TestGenerator implements SnapshotConsumer {
 
 			SerializedField[] serializedGlobals = snapshot.getExpectGlobals();
 			List<String> expectGlobals = IntStream.range(0, serializedGlobals.length)
-				.filter(i -> !isImmutable(serializedGlobals[i].getType()))
 				.filter(i -> !serializedGlobals[i].equals(snapshot.getSetupGlobals()[i]))
 				.mapToObj(i -> createAssertion(serializedGlobals[i].getValue().accept(matcher.create(locals, types)),
 					fieldAccess(types.getSimpleName(serializedGlobals[i].getDeclaringClass()), serializedGlobals[i].getName())))
@@ -508,7 +506,7 @@ public class TestGenerator implements SnapshotConsumer {
 		}
 
 		public String assign(Type type, String value, boolean force) {
-			if (isImmutable(type) && !force) {
+			if (isLiteral(type) && !force) {
 				return value;
 			} else {
 				types.registerImport(baseType(type));
@@ -536,9 +534,9 @@ public class TestGenerator implements SnapshotConsumer {
 			return name;
 		}
 
-		private boolean isImmutable(Type type) {
+		private boolean isLiteral(Type type) {
 			return isPrimitive(type)
-				|| IMMUTABLE_TYPES.contains(type);
+				|| LITERAL_TYPES.contains(type);
 		}
 
 		public String generateTest() {

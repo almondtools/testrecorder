@@ -16,7 +16,10 @@ import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
 
 @RunWith(InstrumentedClassLoaderRunner.class)
-@Instrumented(classes={"net.amygdalum.testrecorder.scenarios.CustomProfileWithPublicStaticVariable"})
+@Instrumented(classes={
+	"net.amygdalum.testrecorder.scenarios.OtherProfile",
+	"net.amygdalum.testrecorder.scenarios.CustomProfileWithPublicStaticVariable"
+	})
 public class CustomProfileWithPublicStaticVariableTest {
 
 	@Before
