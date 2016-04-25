@@ -77,19 +77,27 @@ public class Types {
 	}
 
 	public static Method getDeclaredMethod(Class<?> clazz, String name, Class<?>... parameterTypes) {
-		try {
-			return clazz.getDeclaredMethod(name, parameterTypes);
-		} catch (NoSuchMethodException | SecurityException e) {
-			return null;
+		Class<?> current = clazz;
+		while (current != Object.class) {
+			try {
+				return current.getDeclaredMethod(name, parameterTypes);
+			} catch (NoSuchMethodException e) {
+				current = current.getSuperclass();
+			}
 		}
+		return null;
 	}
 
 	public static Field getDeclaredField(Class<?> clazz, String name) {
-		try {
-			return clazz.getDeclaredField(name);
-		} catch (NoSuchFieldException | SecurityException e) {
-			return null;
+		Class<?> current = clazz;
+		while (current != Object.class) {
+			try {
+				return current.getDeclaredField(name);
+			} catch (NoSuchFieldException e) {
+				current = current.getSuperclass();
+			}
 		}
+		return null;
 	}
 
 	public static Class<?> baseType(Type type) {

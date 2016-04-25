@@ -218,15 +218,12 @@ public abstract class GenericObject {
 	}
 
 	public static Field findField(String name, Class<?> clazz) {
-		Class<?> current = clazz;
-		while (current != Object.class) {
-			try {
-				return current.getDeclaredField(name);
-			} catch (NoSuchFieldException e) {
-				current = current.getSuperclass();
-			}
+		Field field = Types.getDeclaredField(clazz, name);
+		if (field != null) {
+			return field;
+		} else {
+			throw new GenericObjectException(new NoSuchFieldException(name));
 		}
-		throw new GenericObjectException(new NoSuchFieldException(name));
 	}
 
 	public List<Field> getGenericFields() {
