@@ -13,6 +13,7 @@ import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_SYNTHETIC;
 import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETFIELD;
@@ -76,6 +77,8 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	private static final String SnapshotInput_descriptor = Type.getDescriptor(SnapshotInput.class);
 	private static final String SnapshotOutput_descriptor = Type.getDescriptor(SnapshotOutput.class);
 
+	private static final String this_generator_descriptor = Type.getMethodDescriptor(Type.getType(SnapshotGenerator.class), new Type[0]);
+
 	private static final String Object_getClass_descriptor = ByteCode.methodDescriptor(Object.class, "getClass");
 
 	private static final String SnapshotGenerator_init_descriptor = ByteCode.constructorDescriptor(SnapshotGenerator.class, Object.class, Class.class);
@@ -97,6 +100,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	private static final String CONSTRUCTOR_NAME = "<init>";
 
 	public static final String SNAPSHOT_GENERATOR_FIELD_NAME = "generator";
+	public static final String SNAPSHOT_GENERATOR_METHOD_NAME = "generator";
 
 	private SnapshotConfig config;
 
@@ -126,9 +130,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		cr.accept(classNode, 0);
 		if (isClass(classNode)) {
 
-			instrumentFields(classNode);
-
-			instrumentConstructors(classNode);
+			instrumentMembers(classNode);
 
 			instrumentSnapshotMethods(classNode);
 
@@ -145,17 +147,9 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		return (classNode.access & (ACC_INTERFACE | ACC_ANNOTATION)) == 0;
 	}
 
-	private void instrumentFields(ClassNode classNode) {
+	private void instrumentMembers(ClassNode classNode) {
 		classNode.fields.add(createTestAspectField());
-	}
-
-	private void instrumentConstructors(ClassNode classNode) {
-		for (MethodNode method : getRootConstructors(classNode)) {
-			List<InsnNode> rets = findReturn(method.instructions);
-			for (InsnNode ret : rets) {
-				method.instructions.insertBefore(ret, createTestAspectInitializer(classNode));
-			}
-		}
+		classNode.methods.add(createTestAspectMethod(classNode));
 	}
 
 	private void instrumentSnapshotMethods(ClassNode classNode) {
@@ -202,23 +196,25 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		return fieldNode;
 	}
 
-	private List<MethodNode> getRootConstructors(ClassNode classNode) {
-		return (classNode.methods).stream()
-			.filter(method -> isConstructor(method))
-			.filter(method -> isRoot(method, classNode.name))
-			.collect(toList());
-	}
+	private MethodNode createTestAspectMethod(ClassNode classNode) {
+		MethodNode methodNode = new MethodNode(ACC_PRIVATE | ACC_SYNTHETIC, SNAPSHOT_GENERATOR_METHOD_NAME, this_generator_descriptor, this_generator_descriptor, null);
+		methodNode.visibleAnnotations = new ArrayList<>();
+		methodNode.visibleAnnotations.add(new AnnotationNode(SnapshotExcluded_descriptor));
 
-	private boolean isConstructor(MethodNode method) {
-		return method.name.equals(CONSTRUCTOR_NAME);
-	}
+		InsnList insnList = methodNode.instructions;
 
-	private boolean isRoot(MethodNode method, String name) {
-		return stream(method.instructions.iterator())
-			.filter(insn -> insn.getOpcode() == INVOKESPECIAL && insn instanceof MethodInsnNode)
-			.map(insn -> (MethodInsnNode) insn)
-			.filter(insn -> insn.name.equals(CONSTRUCTOR_NAME))
-			.noneMatch(insn -> insn.owner != null && insn.owner.equals(name));
+		LabelNode done = new LabelNode();
+
+		insnList.add(new VarInsnNode(ALOAD, 0));
+		insnList.add(new FieldInsnNode(GETFIELD, classNode.name, SNAPSHOT_GENERATOR_FIELD_NAME, SnapshotGenerator_descriptor));
+		insnList.add(new InsnNode(DUP));
+		insnList.add(new JumpInsnNode(Opcodes.IFNONNULL, done));
+		insnList.add(new InsnNode(POP));
+		insnList.add(createTestAspectInitializer(classNode));
+
+		insnList.add(done);
+		insnList.add(new InsnNode(ARETURN));
+		return methodNode;
 	}
 
 	private <T> Stream<T> stream(Iterator<T> iterator) {
@@ -256,8 +252,6 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapShortGenerator_name, "register", SnapshotGenerator_registerMethod_descriptor, false));
 		}
-
-		insnList.add(new InsnNode(POP));
 
 		return insnList;
 	}
@@ -358,7 +352,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		InsnList insnList = new InsnList();
 
 		insnList.add(new VarInsnNode(ALOAD, 0));
-		insnList.add(new FieldInsnNode(GETFIELD, classNode.name, SNAPSHOT_GENERATOR_FIELD_NAME, SnapshotGenerator_descriptor));
+		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, classNode.name, SNAPSHOT_GENERATOR_METHOD_NAME, this_generator_descriptor, false));
 
 		insnList.add(new LdcInsnNode(keySignature(classNode, methodNode)));
 
@@ -382,7 +376,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		}
 
 		insnList.add(new VarInsnNode(ALOAD, 0));
-		insnList.add(new FieldInsnNode(GETFIELD, classNode.name, SNAPSHOT_GENERATOR_FIELD_NAME, SnapshotGenerator_descriptor));
+		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, classNode.name, SNAPSHOT_GENERATOR_METHOD_NAME, this_generator_descriptor, false));
 
 		if (returnType.getSize() > 0) {
 			insnList.add(recallLocal(newLocal));
@@ -407,7 +401,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		insnList.add(new InsnNode(DUP));
 
 		insnList.add(new VarInsnNode(ALOAD, 0));
-		insnList.add(new FieldInsnNode(GETFIELD, classNode.name, SNAPSHOT_GENERATOR_FIELD_NAME, SnapshotGenerator_descriptor));
+		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, classNode.name, SNAPSHOT_GENERATOR_METHOD_NAME, this_generator_descriptor, false));
 
 		insnList.add(new InsnNode(SWAP));
 
