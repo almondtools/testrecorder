@@ -38,7 +38,7 @@ public class PrimitiveArrayDataTypesTest {
 			dataTypes.doubles(doubles);
 		}
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(PrimitiveArrayDataTypes.class), compiles());
 		assertThat(testGenerator.renderTest(PrimitiveArrayDataTypes.class), testsRuns());
 	}

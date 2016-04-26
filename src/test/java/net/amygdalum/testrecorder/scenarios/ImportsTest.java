@@ -15,8 +15,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import net.amygdalum.testrecorder.ConfigRegistry;
-import net.amygdalum.testrecorder.DefaultConfig;
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
@@ -27,7 +25,7 @@ public class ImportsTest {
 
 	@Before
 	public void before() throws Exception {
-		((TestGenerator) ConfigRegistry.loadConfig(DefaultConfig.class).getSnapshotConsumer()).clearResults();
+		TestGenerator.fromRecorded().clearResults();
 	}
 
 	@Test
@@ -36,7 +34,7 @@ public class ImportsTest {
 
 		assertThat(object.toString(), equalTo("[name]:name"));
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(object);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Imports.class), compiles());
 		assertThat(testGenerator.renderTest(Imports.class), testsRuns());
 	}
@@ -47,7 +45,7 @@ public class ImportsTest {
 
 		assertThat(object.toString(), equalTo("[name]:name"));
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(object);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(Imports.class), hasSize(1));
 		assertThat(testGenerator.testsFor(Imports.class), contains(allOf(
 			containsPattern("Imports imports? = new GenericObject() {*"

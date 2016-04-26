@@ -24,7 +24,7 @@ public class GenericDataTypesTest {
 			dataTypes.objects(buffer, i);
 		}
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(GenericDataTypes.class), compiles());
 		assertThat(testGenerator.renderTest(GenericDataTypes.class), testsRuns());
 	}

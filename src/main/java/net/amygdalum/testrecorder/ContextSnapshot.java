@@ -9,6 +9,8 @@ import net.amygdalum.testrecorder.values.SerializedOutput;
 
 public class ContextSnapshot {
 
+	protected static final ContextSnapshot INVALID = new ContextSnapshot();
+	
 	private Class<?> declaringClass;
 	private Type resultType;
 	private String methodName;
@@ -29,6 +31,10 @@ public class ContextSnapshot {
 	private List<SerializedInput> setupInput;
 	private List<SerializedOutput> expectOutput;
 
+	private ContextSnapshot() {
+		this.valid = false;
+	}
+	
 	public ContextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
 		this.declaringClass = declaringClass;
 		this.resultType = resultType;

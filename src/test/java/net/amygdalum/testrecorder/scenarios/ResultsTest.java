@@ -14,8 +14,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import net.amygdalum.testrecorder.ConfigRegistry;
-import net.amygdalum.testrecorder.DefaultConfig;
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
@@ -26,7 +24,7 @@ public class ResultsTest {
 
 	@Before
 	public void before() throws Exception {
-		((TestGenerator) ConfigRegistry.loadConfig(DefaultConfig.class).getSnapshotConsumer()).clearResults();
+		TestGenerator.fromRecorded().clearResults();
 	}
 	
 	@Test
@@ -37,7 +35,7 @@ public class ResultsTest {
 			results.add(pow.pow(i));
 		}
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(pow);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(results, hasSize(10));
 		assertThat(testGenerator.testsFor(Results.class), hasSize(10));
 	}
@@ -49,7 +47,7 @@ public class ResultsTest {
 			pow.pow(i);
 		}
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(pow);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(Results.class), everyItem(containsString("assert")));
 	}
 
@@ -60,7 +58,7 @@ public class ResultsTest {
 			pow.pow(i);
 		}
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(pow);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Results.class), compiles());
 	}
 	
@@ -71,7 +69,7 @@ public class ResultsTest {
 			pow.pow(i);
 		}
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(pow);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Results.class), testsRuns());
 	}
 	

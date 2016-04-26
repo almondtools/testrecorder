@@ -18,6 +18,8 @@ import net.amygdalum.testrecorder.values.SerializedOutput;
 
 public class SnapshotProcess {
 
+	public static final SnapshotProcess PASSIVE = passiveProcess();
+	
 	private ExecutorService executor;
 	private long timeoutInMillis;
 	private ContextSnapshot snapshot;
@@ -26,6 +28,9 @@ public class SnapshotProcess {
 	private List<SerializedInput> input;
 	private List<SerializedOutput> output;
 
+	private SnapshotProcess() {
+	}
+	
 	public SnapshotProcess(ExecutorService executor, long timeoutInMillis, ContextSnapshotFactory factory) {
 		this.executor = executor;
 		this.timeoutInMillis = timeoutInMillis;
@@ -108,6 +113,43 @@ public class SnapshotProcess {
 		} catch (InterruptedException | ExecutionException | TimeoutException | CancellationException e) {
 			snapshot.invalidate();
 		}
+	}
+
+	private static SnapshotProcess passiveProcess() {
+		return new SnapshotProcess() {
+			@Override
+			public void inputVariables(Class<?> clazz, String method, Type resultType, Object result, Type[] paramTypes, Object[] args) {
+			}
+			
+			@Override
+			public void inputVariables(Class<?> clazz, String method, Type[] paramTypes, Object[] args) {
+			}
+			
+			@Override
+			public void outputVariables(Class<?> clazz, String method, Type[] paramTypes, Object[] args) {
+			}
+			
+			@Override
+			public void setupVariables(String signature, Object self, Object... args) {
+			}
+			
+			@Override
+			public void expectVariables(Object self, Object result, Object... args) {
+			}
+			
+			@Override
+			public void expectVariables(Object self, Object... args) {
+			}
+			
+			@Override
+			public void throwVariables(Object self, Throwable throwable, Object[] args) {
+			}
+			
+			@Override
+			public ContextSnapshot getSnapshot() {
+				return ContextSnapshot.INVALID;
+			}
+		};
 	}
 
 }

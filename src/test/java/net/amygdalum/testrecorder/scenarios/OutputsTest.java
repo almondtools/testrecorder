@@ -9,8 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import net.amygdalum.testrecorder.ConfigRegistry;
-import net.amygdalum.testrecorder.DefaultConfig;
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
@@ -21,7 +19,7 @@ public class OutputsTest {
 
 	@Before
 	public void before() throws Exception {
-		((TestGenerator) ConfigRegistry.loadConfig(DefaultConfig.class).getSnapshotConsumer()).clearResults();
+		TestGenerator.fromRecorded().clearResults();
 	}
 	
 	@Test
@@ -29,7 +27,7 @@ public class OutputsTest {
 		Outputs out = new Outputs();
 		out.notrecorded();
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(out);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(Outputs.class), empty());
 	}
 	
@@ -38,7 +36,7 @@ public class OutputsTest {
 		Outputs out = new Outputs();
 		out.recorded();
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(out);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Outputs.class), compiles());
 	}
 	
@@ -47,7 +45,7 @@ public class OutputsTest {
 		Outputs out = new Outputs();
 		out.primitivesRecorded();
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(out);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Outputs.class), compiles());
 	}
 	
@@ -56,7 +54,7 @@ public class OutputsTest {
 		Outputs out = new Outputs();
 		out.recorded();
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(out);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Outputs.class), testsRuns());
 	}
 	
@@ -65,7 +63,7 @@ public class OutputsTest {
 		Outputs out = new Outputs();
 		out.primitivesRecorded();
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(out);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Outputs.class), testsRuns());
 	}
 	

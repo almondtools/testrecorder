@@ -29,7 +29,7 @@ public class PrimitiveDataTypesTest {
 			dataTypes.doubles((double) i);
 		}
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(PrimitiveDataTypes.class), compiles());
 		assertThat(testGenerator.renderTest(PrimitiveDataTypes.class), testsRuns());
 	}

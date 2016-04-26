@@ -11,8 +11,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import net.amygdalum.testrecorder.ConfigRegistry;
-import net.amygdalum.testrecorder.DefaultConfig;
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
@@ -23,7 +21,7 @@ public class SideEffectsTest {
 
 	@Before
 	public void before() throws Exception {
-		((TestGenerator) ConfigRegistry.loadConfig(DefaultConfig.class).getSnapshotConsumer()).clearResults();
+		TestGenerator.fromRecorded().clearResults();
 	}
 	
 	@Test
@@ -33,7 +31,7 @@ public class SideEffectsTest {
 			sideEffects.methodWithSideEffectOnThis(i);
 		}
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(sideEffects);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(SideEffects.class), hasSize(7));
 		assertThat(testGenerator.testsFor(SideEffects.class), everyItem(containsString("assert")));
 	}
@@ -46,7 +44,7 @@ public class SideEffectsTest {
 			sideEffects.methodWithSideEffectOnArgument(array);
 		}
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(sideEffects);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(SideEffects.class), hasSize(10));
 		assertThat(testGenerator.testsFor(SideEffects.class), everyItem(containsString("assert")));
 	}
@@ -62,7 +60,7 @@ public class SideEffectsTest {
 			sideEffects.methodWithSideEffectOnArgument(array);
 		}
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(sideEffects);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(SideEffects.class), compiles());
 		assertThat(testGenerator.renderTest(SideEffects.class), testsRuns());
 	}

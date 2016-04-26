@@ -16,8 +16,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import net.amygdalum.testrecorder.ConfigRegistry;
-import net.amygdalum.testrecorder.DefaultConfig;
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
@@ -28,7 +26,7 @@ public class GenericFieldsTest {
 
 	@Before
 	public void before() throws Exception {
-		((TestGenerator) ConfigRegistry.loadConfig(DefaultConfig.class).getSnapshotConsumer()).clearResults();
+		TestGenerator.fromRecorded().clearResults();
 	}
 
 	@Test
@@ -38,7 +36,7 @@ public class GenericFieldsTest {
 
 		assertThat(bean.hashCode(), equalTo(0));
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(bean);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(GenericFields.class), compiles());
 		assertThat(testGenerator.renderTest(GenericFields.class), testsRuns());
 	}
@@ -50,7 +48,7 @@ public class GenericFieldsTest {
 
 		assertThat(bean.hashCode(), equalTo(1));
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(bean);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(GenericFields.class), compiles());
 		assertThat(testGenerator.renderTest(GenericFields.class), testsRuns());
 	}
@@ -62,7 +60,7 @@ public class GenericFieldsTest {
 
 		assertThat(bean.hashCode(), equalTo(0));
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(bean);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(GenericFields.class), hasSize(1));
 		assertThat(testGenerator.testsFor(GenericFields.class), contains(allOf(
 			containsPattern("genericFields?.setSet(set?)"),
@@ -77,7 +75,7 @@ public class GenericFieldsTest {
 
 		assertThat(bean.hashCode(), equalTo(1));
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(bean);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(GenericFields.class), hasSize(1));
 		assertThat(testGenerator.testsFor(GenericFields.class), contains(allOf(
 			containsString("equalTo(1)"),

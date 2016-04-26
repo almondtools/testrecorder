@@ -9,8 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import net.amygdalum.testrecorder.ConfigRegistry;
-import net.amygdalum.testrecorder.DefaultConfig;
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
@@ -21,7 +19,7 @@ public class InputsTest {
 
 	@Before
 	public void before() throws Exception {
-		((TestGenerator) ConfigRegistry.loadConfig(DefaultConfig.class).getSnapshotConsumer()).clearResults();
+		TestGenerator.fromRecorded().clearResults();
 	}
 	
 	@Test
@@ -29,7 +27,7 @@ public class InputsTest {
 		Inputs out = new Inputs();
 		out.notrecorded();
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(out);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(Inputs.class), empty());
 	}
 	
@@ -38,7 +36,7 @@ public class InputsTest {
 		Inputs out = new Inputs();
 		out.recorded();
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(out);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Inputs.class), compiles());
 	}
 	
@@ -47,7 +45,7 @@ public class InputsTest {
 		Inputs out = new Inputs();
 		out.primitivesRecorded();
 		
-		TestGenerator testGenerator = TestGenerator.fromRecorded(out);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Inputs.class), compiles());
 	}
 	
@@ -56,7 +54,7 @@ public class InputsTest {
 		Inputs out = new Inputs();
 		out.sideEffectsRecorded();
 		
-		TestGenerator testGenerator = TestGenerator.fromRecorded(out);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Inputs.class), compiles());
 	}
 	
@@ -65,7 +63,7 @@ public class InputsTest {
 		Inputs out = new Inputs();
 		out.recorded();
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(out);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Inputs.class), testsRuns());
 	}
 	
@@ -74,7 +72,7 @@ public class InputsTest {
 		Inputs out = new Inputs();
 		out.primitivesRecorded();
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(out);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Inputs.class), testsRuns());
 	}
 	
@@ -83,7 +81,7 @@ public class InputsTest {
 		Inputs out = new Inputs();
 		out.sideEffectsRecorded();
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(out);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Inputs.class), testsRuns());
 	}
 	

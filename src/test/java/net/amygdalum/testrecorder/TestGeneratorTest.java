@@ -8,12 +8,15 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -28,11 +31,23 @@ import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class TestGeneratorTest {
 
+	private static SnapshotManager saveManager;
+
 	@Rule
 	public TemporaryFolder folder = new TemporaryFolder();
 
 	private TestGenerator testGenerator;
 
+	@BeforeClass
+	public static void beforeClass() throws Exception {
+		saveManager = SnapshotManager.MANAGER;
+	}
+	
+	@AfterClass
+	public static void afterClass() throws Exception {
+		SnapshotManager.MANAGER = saveManager;
+	}
+	
 	@Before
 	public void before() throws Exception {
 		testGenerator = new TestGenerator(null);
@@ -186,11 +201,45 @@ public class TestGeneratorTest {
 	}
 
 	@Test
-	public void testFromRecorded() throws Exception {
-		assertThat(TestGenerator.fromRecorded(new MyClass()), nullValue());
-		assertThat(TestGenerator.fromRecorded(null), nullValue());
+	public void testFromRecordedIfConsumerIsNull() throws Exception {
+		SnapshotManager.MANAGER = new SnapshotManager(new DefaultConfig() {
+			@Override
+			public SnapshotConsumer getSnapshotConsumer() {
+				return null;
+			}
+		});
+		assertThat(TestGenerator.fromRecorded(), nullValue());
+		assertThat(TestGenerator.fromRecorded(), nullValue());
 	}
 
+	@Test
+	public void testFromRecordedIfConsumerIsNonNull() throws Exception {
+		TestGenerator tg = new TestGenerator(null);
+		SnapshotManager.MANAGER = new SnapshotManager(new DefaultConfig() {
+			@Override
+			public SnapshotConsumer getSnapshotConsumer() {
+				return tg;
+			}
+		});
+		assertThat(TestGenerator.fromRecorded(), sameInstance(tg));
+		assertThat(TestGenerator.fromRecorded(), sameInstance(tg));
+	}
+
+	@Test(expected=ClassCastException.class)
+	public void testFromRecordedIfConsumerIsNotTestGenerator() throws Exception {
+		SnapshotManager.MANAGER = new SnapshotManager(new DefaultConfig() {
+			@Override
+			public SnapshotConsumer getSnapshotConsumer() {
+				return new SnapshotConsumer() {
+					
+					@Override
+					public void accept(ContextSnapshot snapshot) {
+					}
+				};
+			}
+		});
+		TestGenerator.fromRecorded();
+	}
 	@Test
 	public void testWriteResults() throws Exception {
 		ContextSnapshot snapshot = new ContextSnapshot(MyClass.class, int.class, "intMethod", int.class);

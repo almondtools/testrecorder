@@ -14,8 +14,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import net.amygdalum.testrecorder.ConfigRegistry;
-import net.amygdalum.testrecorder.DefaultConfig;
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
@@ -26,7 +24,7 @@ public class GenericCollectionDataTypesTest {
 
 	@Before
 	public void before() throws Exception {
-		((TestGenerator) ConfigRegistry.loadConfig(DefaultConfig.class).getSnapshotConsumer()).clearResults();
+		TestGenerator.fromRecorded().clearResults();
 	}
 	
 	@Test
@@ -40,7 +38,7 @@ public class GenericCollectionDataTypesTest {
 			dataTypes.bigDecimalLists(bigDecs);
 		}
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(dataTypes);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(GenericCollectionDataTypes.class), hasSize(20));
 		assertThat(testGenerator.renderTest(GenericCollectionDataTypes.class), compiles());
 		assertThat(testGenerator.renderTest(GenericCollectionDataTypes.class), testsRuns());

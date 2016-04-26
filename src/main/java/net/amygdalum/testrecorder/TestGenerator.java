@@ -9,7 +9,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.synchronizedMap;
 import static java.util.stream.Collectors.toList;
-import static net.amygdalum.testrecorder.SnapshotInstrumentor.SNAPSHOT_GENERATOR_METHOD_NAME;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignFieldStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethod;
@@ -30,7 +29,6 @@ import static net.amygdalum.testrecorder.util.Types.isPrimitive;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,6 +41,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -256,14 +256,11 @@ public class TestGenerator implements SnapshotConsumer {
 		return clazz.getSimpleName() + RECORDED_TEST;
 	}
 
-	public static TestGenerator fromRecorded(Object object) {
+	public static TestGenerator fromRecorded() {
 		try {
-			Class<? extends Object> clazz = object.getClass();
-			Method method = clazz.getDeclaredMethod(SNAPSHOT_GENERATOR_METHOD_NAME);
-			method.setAccessible(true);
-			SnapshotGenerator generator = (SnapshotGenerator) method.invoke(object);
-			return (TestGenerator) generator.getMethodConsumer();
-		} catch (RuntimeException | ReflectiveOperationException e) {
+			Future<SnapshotConsumer> methodConsumer = SnapshotManager.MANAGER.getMethodConsumer();
+			return (TestGenerator) methodConsumer.get();
+		} catch (InterruptedException | ExecutionException e) {
 			return null;
 		}
 	}

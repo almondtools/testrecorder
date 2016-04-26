@@ -15,8 +15,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import net.amygdalum.testrecorder.ConfigRegistry;
-import net.amygdalum.testrecorder.DefaultConfig;
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
@@ -27,7 +25,7 @@ public class ClassicBeanTest {
 
 	@Before
 	public void before() throws Exception {
-		((TestGenerator) ConfigRegistry.loadConfig(DefaultConfig.class).getSnapshotConsumer()).clearResults();
+		TestGenerator.fromRecorded().clearResults();
 	}
 	
 	@Test
@@ -38,7 +36,7 @@ public class ClassicBeanTest {
 		
 		assertThat(bean.hashCode(), equalTo(191));
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(bean);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(ClassicBean.class), compiles());
 		assertThat(testGenerator.renderTest(ClassicBean.class), testsRuns());
 	}
@@ -52,7 +50,7 @@ public class ClassicBeanTest {
 		
 		assertThat(bean.hashCode(), equalTo(191));
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(bean);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(ClassicBean.class), hasSize(2));
 		assertThat(testGenerator.testsFor(ClassicBean.class), containsInAnyOrder(
 			allOf(containsString("new ClassicBean()"), not(containsPattern("classicBean?.set")), containsString("equalTo(13)")), 

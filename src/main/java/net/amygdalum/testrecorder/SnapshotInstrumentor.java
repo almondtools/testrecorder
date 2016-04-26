@@ -10,22 +10,16 @@ import static net.amygdalum.testrecorder.ByteCode.recallLocal;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_ANNOTATION;
 import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
-import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
-import static org.objectweb.asm.Opcodes.ACC_SYNTHETIC;
+import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ALOAD;
-import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.DUP;
-import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.IFNULL;
-import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.IRETURN;
-import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
-import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.SWAP;
 
@@ -34,7 +28,6 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Spliterator;
@@ -46,10 +39,8 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
-import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
@@ -66,46 +57,43 @@ import net.amygdalum.testrecorder.util.Types;
 
 public class SnapshotInstrumentor implements ClassFileTransformer {
 
-	private static final String Class_name = Type.getInternalName(Class.class);
-	private static final String Object_name = Type.getInternalName(Object.class);
-	private static final String Types_name = Type.getInternalName(Types.class);
-	private static final String SnapShortGenerator_name = Type.getInternalName(SnapshotGenerator.class);
+	private static final String STATIC_INIT_NAME = "<clinit>";
 
-	private static final String SnapshotGenerator_descriptor = Type.getDescriptor(SnapshotGenerator.class);
-	private static final String SnapshotExcluded_descriptor = Type.getDescriptor(SnapshotExcluded.class);
+	private static final String GET_DECLARED_METHOD = "getDeclaredMethod";
+
+	public static final String SNAPSHOT_MANAGER_FIELD_NAME = "MANAGER";
+	private static final String REGISTER = "register";
+	private static final String SETUP_VARIABLES = "setupVariables";
+	private static final String INPUT_VARIABLES = "inputVariables";
+	private static final String OUTPUT_VARIABLES = "outputVariables";
+	private static final String THROW_VARIABLES = "throwVariables";
+	private static final String EXPECT_VARIABLES = "expectVariables";
+
+	private static final String Class_name = Type.getInternalName(Class.class);
+	private static final String Types_name = Type.getInternalName(Types.class);
+	private static final String SnapshotManager_name = Type.getInternalName(SnapshotManager.class);
+
+	private static final String SnaphotManager_descriptor = Type.getDescriptor(SnapshotManager.class);
 	private static final String Snapshot_descriptor = Type.getDescriptor(Snapshot.class);
 	private static final String SnapshotInput_descriptor = Type.getDescriptor(SnapshotInput.class);
 	private static final String SnapshotOutput_descriptor = Type.getDescriptor(SnapshotOutput.class);
 
-	private static final String this_generator_descriptor = Type.getMethodDescriptor(Type.getType(SnapshotGenerator.class), new Type[0]);
+	private static final String SnaphotManager_registerMethod_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, REGISTER, String.class, Method.class);
+	private static final String SnaphotManager_setupVariables_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, SETUP_VARIABLES, Object.class, String.class, Object[].class);
+	private static final String SnaphotManager_expectVariablesResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, EXPECT_VARIABLES, Object.class, Object.class, Object[].class);
+	private static final String SnaphotManager_expectVariablesNoResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, EXPECT_VARIABLES, Object.class, Object[].class);
+	private static final String SnaphotManager_throwVariables_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, THROW_VARIABLES, Object.class, Throwable.class, Object[].class);
+	private static final String SnaphotManager_outputVariables_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, OUTPUT_VARIABLES, Class.class, String.class, java.lang.reflect.Type[].class, Object[].class);
+	private static final String SnaphotManager_inputVariablesResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, INPUT_VARIABLES, Class.class, String.class, java.lang.reflect.Type.class, Object.class, java.lang.reflect.Type[].class, Object[].class);
+	private static final String SnaphotManager_inputVariablesNoResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, INPUT_VARIABLES, Class.class, String.class, java.lang.reflect.Type[].class, Object[].class);
 
-	private static final String Object_getClass_descriptor = ByteCode.methodDescriptor(Object.class, "getClass");
-
-	private static final String SnapshotGenerator_init_descriptor = ByteCode.constructorDescriptor(SnapshotGenerator.class, Object.class, Class.class);
-	private static final String SnapshotGenerator_registerMethod_descriptor = ByteCode.methodDescriptor(SnapshotGenerator.class, "register", String.class, Method.class);
-	private static final String SnapshotGenerator_getCurrentGenerator_descriptor = ByteCode.methodDescriptor(SnapshotGenerator.class, "getCurrentGenerator");
-	private static final String SnapshotGenerator_setupVariables_descriptor = ByteCode.methodDescriptor(SnapshotGenerator.class, "setupVariables", String.class, Object[].class);
-	private static final String SnapshotGenerator_expectVariablesResult_descriptor = ByteCode.methodDescriptor(SnapshotGenerator.class, "expectVariables", Object.class, Object[].class);
-	private static final String SnapshotGenerator_expectVariablesNoResult_descriptor = ByteCode.methodDescriptor(SnapshotGenerator.class, "expectVariables", Object[].class);
-	private static final String SnapshotGenerator_throwVariables_descriptor = ByteCode.methodDescriptor(SnapshotGenerator.class, "throwVariables", Throwable.class, Object[].class);
-	private static final String SnapshotGenerator_outputVariables_descriptor = ByteCode.methodDescriptor(SnapshotGenerator.class, "outputVariables", Class.class, String.class,
-		java.lang.reflect.Type[].class, Object[].class);
-	private static final String SnapshotGenerator_inputVariablesResult_descriptor = ByteCode.methodDescriptor(SnapshotGenerator.class, "inputVariables", Class.class, String.class,
-		java.lang.reflect.Type.class, Object.class, java.lang.reflect.Type[].class, Object[].class);
-	private static final String SnapshotGenerator_inputVariablesNoResult_descriptor = ByteCode.methodDescriptor(SnapshotGenerator.class, "inputVariables", Class.class, String.class,
-		java.lang.reflect.Type[].class, Object[].class);
-
-	private static final String Types_getDeclaredMethod_descriptor = ByteCode.methodDescriptor(Types.class, "getDeclaredMethod", Class.class, String.class, Class[].class);
-
-	private static final String CONSTRUCTOR_NAME = "<init>";
-
-	public static final String SNAPSHOT_GENERATOR_FIELD_NAME = "generator";
-	public static final String SNAPSHOT_GENERATOR_METHOD_NAME = "generator";
+	private static final String Types_getDeclaredMethod_descriptor = ByteCode.methodDescriptor(Types.class, GET_DECLARED_METHOD, Class.class, String.class, Class[].class);
 
 	private SnapshotConfig config;
 
 	public SnapshotInstrumentor(SnapshotConfig config) {
 		this.config = config;
+		SnapshotManager.init(config);
 	}
 
 	@Override
@@ -130,7 +118,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		cr.accept(classNode, 0);
 		if (isClass(classNode)) {
 
-			instrumentMembers(classNode);
+			instrumentStaticInitializer(classNode);
 
 			instrumentSnapshotMethods(classNode);
 
@@ -147,9 +135,36 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		return (classNode.access & (ACC_INTERFACE | ACC_ANNOTATION)) == 0;
 	}
 
-	private void instrumentMembers(ClassNode classNode) {
-		classNode.fields.add(createTestAspectField());
-		classNode.methods.add(createTestAspectMethod(classNode));
+	private void instrumentStaticInitializer(ClassNode classNode) {
+		MethodNode method = findStaticInitializer(classNode.methods);
+
+		InsnList insnList = new InsnList();
+
+		insnList.add(new FieldInsnNode(Opcodes.GETSTATIC, SnapshotManager_name, SNAPSHOT_MANAGER_FIELD_NAME, SnaphotManager_descriptor));
+		for (MethodNode methodNode : getSnapshotMethods(classNode)) {
+			insnList.add(new InsnNode(DUP));
+			insnList.add(new LdcInsnNode(keySignature(classNode, methodNode)));
+
+			insnList.add(pushMethod(classNode, methodNode));
+
+			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapshotManager_name, REGISTER, SnaphotManager_registerMethod_descriptor, false));
+		}
+		insnList.add(new InsnNode(POP));
+
+		method.instructions.insert(insnList);
+
+	}
+
+	private MethodNode findStaticInitializer(List<MethodNode> methods) {
+		for (MethodNode method : methods) {
+			if (method.name.equals(STATIC_INIT_NAME)) {
+				return method;
+			}
+		}
+		MethodNode method = new MethodNode(ACC_STATIC, STATIC_INIT_NAME, "()V", "()V", new String[0]);
+		method.instructions.add(new InsnNode(RETURN));
+		methods.add(method);
+		return method;
 	}
 
 	private void instrumentSnapshotMethods(ClassNode classNode) {
@@ -189,34 +204,6 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		}
 	}
 
-	private FieldNode createTestAspectField() {
-		FieldNode fieldNode = new FieldNode(ACC_PRIVATE | ACC_SYNTHETIC, SNAPSHOT_GENERATOR_FIELD_NAME, SnapshotGenerator_descriptor, SnapshotGenerator_descriptor, null);
-		fieldNode.visibleAnnotations = new ArrayList<>();
-		fieldNode.visibleAnnotations.add(new AnnotationNode(SnapshotExcluded_descriptor));
-		return fieldNode;
-	}
-
-	private MethodNode createTestAspectMethod(ClassNode classNode) {
-		MethodNode methodNode = new MethodNode(ACC_PRIVATE | ACC_SYNTHETIC, SNAPSHOT_GENERATOR_METHOD_NAME, this_generator_descriptor, this_generator_descriptor, null);
-		methodNode.visibleAnnotations = new ArrayList<>();
-		methodNode.visibleAnnotations.add(new AnnotationNode(SnapshotExcluded_descriptor));
-
-		InsnList insnList = methodNode.instructions;
-
-		LabelNode done = new LabelNode();
-
-		insnList.add(new VarInsnNode(ALOAD, 0));
-		insnList.add(new FieldInsnNode(GETFIELD, classNode.name, SNAPSHOT_GENERATOR_FIELD_NAME, SnapshotGenerator_descriptor));
-		insnList.add(new InsnNode(DUP));
-		insnList.add(new JumpInsnNode(Opcodes.IFNONNULL, done));
-		insnList.add(new InsnNode(POP));
-		insnList.add(createTestAspectInitializer(classNode));
-
-		insnList.add(done);
-		insnList.add(new InsnNode(ARETURN));
-		return methodNode;
-	}
-
 	private <T> Stream<T> stream(Iterator<T> iterator) {
 		Spliterator<T> spliterator = Spliterators.spliteratorUnknownSize(iterator, 0);
 		return StreamSupport.stream(spliterator, false);
@@ -230,40 +217,13 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 			.collect(toList());
 	}
 
-	private InsnList createTestAspectInitializer(ClassNode classNode) {
-		InsnList insnList = new InsnList();
-
-		insnList.add(new VarInsnNode(ALOAD, 0));
-		insnList.add(new TypeInsnNode(NEW, SnapShortGenerator_name));
-		insnList.add(new InsnNode(DUP));
-		insnList.add(new VarInsnNode(ALOAD, 0));
-		insnList.add(new LdcInsnNode(Type.getType(config.getClass())));
-		insnList.add(new MethodInsnNode(INVOKESPECIAL, SnapShortGenerator_name, CONSTRUCTOR_NAME, SnapshotGenerator_init_descriptor, false));
-		insnList.add(new FieldInsnNode(PUTFIELD, classNode.name, SNAPSHOT_GENERATOR_FIELD_NAME, SnapshotGenerator_descriptor));
-
-		insnList.add(new VarInsnNode(ALOAD, 0));
-		insnList.add(new FieldInsnNode(GETFIELD, classNode.name, SNAPSHOT_GENERATOR_FIELD_NAME, SnapshotGenerator_descriptor));
-
-		for (MethodNode methodNode : getSnapshotMethods(classNode)) {
-			insnList.add(new InsnNode(DUP));
-			insnList.add(new LdcInsnNode(keySignature(classNode, methodNode)));
-
-			insnList.add(pushMethod(classNode, methodNode));
-
-			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapShortGenerator_name, "register", SnapshotGenerator_registerMethod_descriptor, false));
-		}
-
-		return insnList;
-	}
-
-	private InsnList pushMethod(ClassNode clazz, MethodNode method) {
+	private InsnList pushMethod(ClassNode classNode, MethodNode method) {
 		Type[] argumentTypes = Type.getArgumentTypes(method.desc);
 		int argCount = argumentTypes.length;
 
 		InsnList insnList = new InsnList();
 
-		insnList.add(new VarInsnNode(ALOAD, 0));
-		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Object_name, "getClass", Object_getClass_descriptor, false));
+		insnList.add(new LdcInsnNode(Type.getObjectType(classNode.name)));
 
 		insnList.add(new LdcInsnNode(method.name));
 
@@ -276,7 +236,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 			insnList.add(new InsnNode(AASTORE));
 		}
 
-		insnList.add(new MethodInsnNode(INVOKESTATIC, Types_name, "getDeclaredMethod", Types_getDeclaredMethod_descriptor, false));
+		insnList.add(new MethodInsnNode(INVOKESTATIC, Types_name, GET_DECLARED_METHOD, Types_getDeclaredMethod_descriptor, false));
 		return insnList;
 	}
 
@@ -351,14 +311,15 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 		InsnList insnList = new InsnList();
 
+		insnList.add(new FieldInsnNode(Opcodes.GETSTATIC, SnapshotManager_name, SNAPSHOT_MANAGER_FIELD_NAME, SnaphotManager_descriptor));
+
 		insnList.add(new VarInsnNode(ALOAD, 0));
-		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, classNode.name, SNAPSHOT_GENERATOR_METHOD_NAME, this_generator_descriptor, false));
 
 		insnList.add(new LdcInsnNode(keySignature(classNode, methodNode)));
 
 		insnList.add(pushAsArray(arguments, argumentTypes));
 
-		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapShortGenerator_name, "setupVariables", SnapshotGenerator_setupVariables_descriptor, false));
+		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapshotManager_name, SETUP_VARIABLES, SnaphotManager_setupVariables_descriptor, false));
 
 		return insnList;
 	}
@@ -375,8 +336,9 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 			insnList.add(memorizeLocal(returnType, newLocal));
 		}
 
+		insnList.add(new FieldInsnNode(Opcodes.GETSTATIC, SnapshotManager_name, SNAPSHOT_MANAGER_FIELD_NAME, SnaphotManager_descriptor));
+
 		insnList.add(new VarInsnNode(ALOAD, 0));
-		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, classNode.name, SNAPSHOT_GENERATOR_METHOD_NAME, this_generator_descriptor, false));
 
 		if (returnType.getSize() > 0) {
 			insnList.add(recallLocal(newLocal));
@@ -384,9 +346,9 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		insnList.add(pushAsArray(arguments, argumentTypes));
 
 		if (returnType.getSize() > 0) {
-			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapShortGenerator_name, "expectVariables", SnapshotGenerator_expectVariablesResult_descriptor, false));
+			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapshotManager_name, EXPECT_VARIABLES, SnaphotManager_expectVariablesResult_descriptor, false));
 		} else {
-			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapShortGenerator_name, "expectVariables", SnapshotGenerator_expectVariablesNoResult_descriptor, false));
+			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapshotManager_name, EXPECT_VARIABLES, SnaphotManager_expectVariablesNoResult_descriptor, false));
 		}
 
 		return insnList;
@@ -400,14 +362,17 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 		insnList.add(new InsnNode(DUP));
 
+		insnList.add(new FieldInsnNode(Opcodes.GETSTATIC, SnapshotManager_name, SNAPSHOT_MANAGER_FIELD_NAME, SnaphotManager_descriptor));
+
+		insnList.add(new InsnNode(SWAP));
+
 		insnList.add(new VarInsnNode(ALOAD, 0));
-		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, classNode.name, SNAPSHOT_GENERATOR_METHOD_NAME, this_generator_descriptor, false));
 
 		insnList.add(new InsnNode(SWAP));
 
 		insnList.add(pushAsArray(arguments, argumentTypes));
 
-		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapShortGenerator_name, "throwVariables", SnapshotGenerator_throwVariables_descriptor, false));
+		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapshotManager_name, THROW_VARIABLES, SnaphotManager_throwVariables_descriptor, false));
 
 		return insnList;
 	}
@@ -427,7 +392,8 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		LabelNode skip = new LabelNode();
 		LabelNode done = new LabelNode();
 
-		insnList.add(new MethodInsnNode(INVOKESTATIC, SnapShortGenerator_name, "getCurrentGenerator", SnapshotGenerator_getCurrentGenerator_descriptor, false));
+		insnList.add(new FieldInsnNode(Opcodes.GETSTATIC, SnapshotManager_name, SNAPSHOT_MANAGER_FIELD_NAME, SnaphotManager_descriptor));
+
 		insnList.add(new InsnNode(DUP));
 		insnList.add(new JumpInsnNode(IFNULL, skip));
 
@@ -440,9 +406,9 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		insnList.add(pushTypes(argumentTypes));
 		insnList.add(pushAsArray(arguments, argumentTypes));
 		if (returnType.getSize() > 0) {
-			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapShortGenerator_name, "inputVariables", SnapshotGenerator_inputVariablesResult_descriptor, false));
+			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapshotManager_name, INPUT_VARIABLES, SnaphotManager_inputVariablesResult_descriptor, false));
 		} else {
-			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapShortGenerator_name, "inputVariables", SnapshotGenerator_inputVariablesNoResult_descriptor, false));
+			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapshotManager_name, INPUT_VARIABLES, SnaphotManager_inputVariablesNoResult_descriptor, false));
 		}
 		insnList.add(new JumpInsnNode(Opcodes.GOTO, done));
 		insnList.add(skip);
@@ -460,7 +426,8 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		LabelNode skip = new LabelNode();
 		LabelNode done = new LabelNode();
 
-		insnList.add(new MethodInsnNode(INVOKESTATIC, SnapShortGenerator_name, "getCurrentGenerator", SnapshotGenerator_getCurrentGenerator_descriptor, false));
+		insnList.add(new FieldInsnNode(Opcodes.GETSTATIC, SnapshotManager_name, SNAPSHOT_MANAGER_FIELD_NAME, SnaphotManager_descriptor));
+
 		insnList.add(new InsnNode(DUP));
 		insnList.add(new JumpInsnNode(IFNULL, skip));
 
@@ -468,7 +435,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		insnList.add(new LdcInsnNode(methodNode.name));
 		insnList.add(pushTypes(argumentTypes));
 		insnList.add(pushAsArray(arguments, argumentTypes));
-		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapShortGenerator_name, "outputVariables", SnapshotGenerator_outputVariables_descriptor, false));
+		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapshotManager_name, OUTPUT_VARIABLES, SnaphotManager_outputVariables_descriptor, false));
 		insnList.add(new JumpInsnNode(Opcodes.GOTO, done));
 		insnList.add(skip);
 		insnList.add(new InsnNode(POP));

@@ -13,8 +13,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import net.amygdalum.testrecorder.ConfigRegistry;
-import net.amygdalum.testrecorder.DefaultConfig;
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
@@ -25,7 +23,7 @@ public class HiddenInnerClassTest {
 
 	@Before
 	public void before() throws Exception {
-		((TestGenerator) ConfigRegistry.loadConfig(DefaultConfig.class).getSnapshotConsumer()).clearResults();
+		TestGenerator.fromRecorded().clearResults();
 	}
 
 	@Test
@@ -34,7 +32,7 @@ public class HiddenInnerClassTest {
 
 		assertThat(object.toString(), equalTo("hidden name"));
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(object);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(HiddenInnerClass.class), compiles());
 		assertThat(testGenerator.renderTest(HiddenInnerClass.class), testsRuns());
 	}
@@ -45,7 +43,7 @@ public class HiddenInnerClassTest {
 
 		assertThat(object.toString(), equalTo("hidden name"));
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded(object);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(HiddenInnerClass.class), hasSize(1));
 		assertThat(testGenerator.testsFor(HiddenInnerClass.class), contains(allOf(
 			containsPattern("Wrapped hidden? = new GenericObject() {*String name = \"hidden name\";*}.as(clazz(\"net.amygdalum.testrecorder.scenarios.HiddenInnerClass$Hidden\"));"),
