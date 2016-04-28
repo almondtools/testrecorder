@@ -32,8 +32,9 @@ public class DefaultListSerializer implements Serializer<SerializedList> {
 
 	@Override
 	public void populate(SerializedList serializedObject, Object object) {
+		Type resultType = serializedObject.getComponentType();
 		for (Object element : (List<?>) object) {
-			serializedObject.add(facade.serialize(element.getClass(), element));
+			serializedObject.add(facade.serialize(resultType, element));
 		}
 	}
 

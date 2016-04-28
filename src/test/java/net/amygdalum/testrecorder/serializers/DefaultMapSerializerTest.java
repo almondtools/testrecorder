@@ -58,15 +58,15 @@ public class DefaultMapSerializerTest {
 	@Test
 	public void testPopulate() throws Exception {
 		SerializedValue foo = literal("Foo");
-		SerializedValue bar = literal("Bar");
+		SerializedValue i42 = literal(Integer.class, 42);
 		when(facade.serialize(String.class, "Foo")).thenReturn(foo);
-		when(facade.serialize(String.class, "Bar")).thenReturn(bar);
+		when(facade.serialize(Integer.class, 42)).thenReturn(i42);
 		Type hashMapOfStringInteger = parameterized(HashMap.class, null, String.class, Integer.class);
 		SerializedMap value = serializer.generate(hashMapOfStringInteger, HashMap.class);
 
-		serializer.populate(value, singletonMap("Foo", "Bar"));
+		serializer.populate(value, singletonMap("Foo", 42));
 
-		assertThat(value, hasEntry(foo, bar));
+		assertThat(value, hasEntry(foo, i42));
 	}
 
 }

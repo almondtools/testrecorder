@@ -34,10 +34,12 @@ public class DefaultMapSerializer implements Serializer<SerializedMap> {
 
 	@Override
 	public void populate(SerializedMap serializedObject, Object object) {
+		Type keyType = serializedObject.getMapKeyType();
+		Type valueType = serializedObject.getMapValueType();
 		for (Map.Entry<?,?> entry : ((Map<?,?>) object).entrySet()) {
 			Object key = entry.getKey(); 
 			Object value = entry.getValue();
-			serializedObject.put(facade.serialize(key.getClass(), key), facade.serialize(value.getClass(), value));
+			serializedObject.put(facade.serialize(keyType, key), facade.serialize(valueType, value));
 		}
 	}
 

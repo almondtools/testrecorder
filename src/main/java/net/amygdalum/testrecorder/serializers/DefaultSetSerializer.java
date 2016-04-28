@@ -34,8 +34,9 @@ public class DefaultSetSerializer implements Serializer<SerializedSet>{
 
 	@Override
 	public void populate(SerializedSet serializedObject, Object object) {
+		Type resultType = serializedObject.getComponentType();
 		for (Object element : (Set<?>) object) {
-			serializedObject.add(facade.serialize(element.getClass(), element));
+			serializedObject.add(facade.serialize(resultType, element));
 		}
 	}
 
