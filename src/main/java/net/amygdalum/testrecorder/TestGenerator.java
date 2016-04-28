@@ -8,6 +8,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.synchronizedMap;
+import static java.util.Collections.synchronizedSet;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignFieldStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
@@ -42,6 +43,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -107,6 +110,7 @@ public class TestGenerator implements SnapshotConsumer {
 	private static final String BEGIN_ACT = "\n//Act";
 	private static final String BEGIN_ASSERT = "\n//Assert";
 
+	private ExecutorService executor;
 	private TypeManager types;
 	private DeserializerFactory setup;
 	private DeserializerFactory matcher;
@@ -117,6 +121,7 @@ public class TestGenerator implements SnapshotConsumer {
 	private Class<? extends Runnable> initializer;
 
 	public TestGenerator(Class<? extends Runnable> initializer) {
+		this.executor = Executors.newSingleThreadExecutor(new TestrecorderThreadFactory(false, "$consume"));
 		this.types = initTypes();
 		this.setup = new ObjectToSetupCode.Factory();
 		this.matcher = new ObjectToMatcherCode.Factory();
@@ -150,15 +155,17 @@ public class TestGenerator implements SnapshotConsumer {
 	}
 
 	@Override
-	public void accept(ContextSnapshot snapshot) {
-		Set<String> localtests = tests.computeIfAbsent(baseType(snapshot.getThisType()), key -> new LinkedHashSet<>());
+	public synchronized void accept(ContextSnapshot snapshot) {
+		executor.submit(() -> {
+			Set<String> localtests = tests.computeIfAbsent(baseType(snapshot.getThisType()), key -> synchronizedSet(new LinkedHashSet<>()));
 
-		MethodGenerator methodGenerator = new MethodGenerator(snapshot, localtests.size())
-			.generateArrange()
-			.generateAct()
-			.generateAssert();
+			MethodGenerator methodGenerator = new MethodGenerator(snapshot, localtests.size())
+				.generateArrange()
+				.generateAct()
+				.generateAssert();
 
-		localtests.add(methodGenerator.generateTest());
+			localtests.add(methodGenerator.generateTest());
+		});
 	}
 
 	public void writeResults(Path dir) {
@@ -257,11 +264,28 @@ public class TestGenerator implements SnapshotConsumer {
 	}
 
 	public static TestGenerator fromRecorded() {
+		SnapshotConsumer consumer = SnapshotManager.MANAGER.getMethodConsumer();
+		if (!(consumer instanceof TestGenerator)) {
+			return null;
+		}
+		TestGenerator testGenerator = (TestGenerator) consumer;
+		return testGenerator.await();
+	}
+
+	public TestGenerator await() {
 		try {
-			Future<SnapshotConsumer> methodConsumer = SnapshotManager.MANAGER.getMethodConsumer();
-			return (TestGenerator) methodConsumer.get();
+			Future<TestGenerator> waiting = executor.submit(() -> this);
+			return waiting.get();
 		} catch (InterruptedException | ExecutionException e) {
 			return null;
+		}
+	}
+
+	public void andThen(Runnable runnable) {
+		try {
+			Future<Void> waiting = executor.submit(runnable, null);
+			waiting.get();
+		} catch (InterruptedException | ExecutionException e) {
 		}
 	}
 
@@ -550,4 +574,5 @@ public class TestGenerator implements SnapshotConsumer {
 		}
 
 	}
+
 }

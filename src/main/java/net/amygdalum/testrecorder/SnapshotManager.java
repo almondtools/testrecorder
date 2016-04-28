@@ -12,14 +12,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 public class SnapshotManager {
 
 	public static SnapshotManager MANAGER;
 
 	private ExecutorService snapshot;
-	private ExecutorService consumer;
 
 	private Map<String, ContextSnapshotFactory> methodSnapshots;
 
@@ -33,7 +31,6 @@ public class SnapshotManager {
 		this.timeoutInMillis = config.getTimeoutInMillis();
 
 		this.snapshot = Executors.newSingleThreadExecutor(new TestrecorderThreadFactory(true, "$snapshot"));
-		this.consumer = Executors.newSingleThreadExecutor(new TestrecorderThreadFactory(false, "$consume"));
 		this.methodSnapshots = new HashMap<>();
 	}
 
@@ -42,8 +39,8 @@ public class SnapshotManager {
 		return MANAGER;
 	}
 
-	public Future<SnapshotConsumer> getMethodConsumer() {
-		return consumer.submit(()-> snapshotConsumer);
+	public SnapshotConsumer getMethodConsumer() {
+		return snapshotConsumer;
 	}
 
 	public void register(String signature, Method method) {
@@ -110,7 +107,7 @@ public class SnapshotManager {
 	private void consume(ContextSnapshot snapshot) {
 		if (snapshot.isValid()) {
 			if (snapshotConsumer != null) {
-				consumer.submit(() -> snapshotConsumer.accept(snapshot));
+				snapshotConsumer.accept(snapshot);
 			}
 		}
 	}

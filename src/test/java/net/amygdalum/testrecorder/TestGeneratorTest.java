@@ -42,12 +42,12 @@ public class TestGeneratorTest {
 	public static void beforeClass() throws Exception {
 		saveManager = SnapshotManager.MANAGER;
 	}
-	
+
 	@AfterClass
 	public static void afterClass() throws Exception {
 		SnapshotManager.MANAGER = saveManager;
 	}
-	
+
 	@Before
 	public void before() throws Exception {
 		testGenerator = new TestGenerator(null);
@@ -66,11 +66,13 @@ public class TestGeneratorTest {
 
 		testGenerator.accept(snapshot);
 
-		assertThat(testGenerator.testsFor(MyClass.class), contains(allOf(
-			containsString("int field = 12;"),
-			containsString("intMethod(16);"),
-			containsString("equalTo(22)"),
-			containsString("int field = 8;"))));
+		testGenerator.andThen(() -> {
+			assertThat(testGenerator.testsFor(MyClass.class), contains(allOf(
+				containsString("int field = 12;"),
+				containsString("intMethod(16);"),
+				containsString("equalTo(22)"),
+				containsString("int field = 8;"))));
+		});
 	}
 
 	@Test
@@ -98,12 +100,14 @@ public class TestGeneratorTest {
 
 		testGenerator.accept(snapshot);
 
-		assertThat(testGenerator.testsFor(MyClass.class), contains(allOf(
-			containsString("(net.amygdalum.testrecorder.TestGeneratorTest$MyClass/"),
-			containsString("int field: 12"),
-			containsString("intMethod((16))"),
-			containsString("equalTo(22)"),
-			containsString("int field = 8;"))));
+		testGenerator.andThen(() -> {
+			assertThat(testGenerator.testsFor(MyClass.class), contains(allOf(
+				containsString("(net.amygdalum.testrecorder.TestGeneratorTest$MyClass/"),
+				containsString("int field: 12"),
+				containsString("intMethod((16))"),
+				containsString("equalTo(22)"),
+				containsString("int field = 8;"))));
+		});
 	}
 
 	@Test
@@ -114,7 +118,7 @@ public class TestGeneratorTest {
 			public Deserializer<Computation> create(LocalVariableNameGenerator locals, TypeManager types) {
 				return new TestComputationValueVisitor();
 			}
-			
+
 			@Override
 			public Type resultType(Type value) {
 				return value;
@@ -131,12 +135,14 @@ public class TestGeneratorTest {
 
 		testGenerator.accept(snapshot);
 
-		assertThat(testGenerator.testsFor(MyClass.class), contains(allOf(
-			containsString("int field = 12;"),
-			containsString("intMethod(16);"),
-			containsString("(22)"),
-			containsString("(net.amygdalum.testrecorder.TestGeneratorTest$MyClass/"),
-			containsString("int field: 8"))));
+		testGenerator.andThen(() -> {
+			assertThat(testGenerator.testsFor(MyClass.class), contains(allOf(
+				containsString("int field = 12;"),
+				containsString("intMethod(16);"),
+				containsString("(22)"),
+				containsString("(net.amygdalum.testrecorder.TestGeneratorTest$MyClass/"),
+				containsString("int field: 8"))));
+		});
 	}
 
 	@Test
@@ -184,15 +190,17 @@ public class TestGeneratorTest {
 		testGenerator.accept(snapshot1);
 		testGenerator.accept(snapshot2);
 
-		assertThat(testGenerator.renderTest(MyClass.class), allOf(
-			containsString("int field = 12;"),
-			containsString("intMethod(16);"),
-			containsString("equalTo(22)"),
-			containsString("int field = 8;"),
-			containsString("int field = 13;"),
-			containsString("intMethod(17);"),
-			containsString("equalTo(23)"),
-			containsString("int field = 9;")));
+		testGenerator.andThen(() -> {
+			assertThat(testGenerator.renderTest(MyClass.class), allOf(
+				containsString("int field = 12;"),
+				containsString("intMethod(16);"),
+				containsString("equalTo(22)"),
+				containsString("int field = 8;"),
+				containsString("int field = 13;"),
+				containsString("intMethod(17);"),
+				containsString("equalTo(23)"),
+				containsString("int field = 9;")));
+		});
 	}
 
 	@Test
@@ -225,21 +233,22 @@ public class TestGeneratorTest {
 		assertThat(TestGenerator.fromRecorded(), sameInstance(tg));
 	}
 
-	@Test(expected=ClassCastException.class)
+	@Test
 	public void testFromRecordedIfConsumerIsNotTestGenerator() throws Exception {
 		SnapshotManager.MANAGER = new SnapshotManager(new DefaultConfig() {
 			@Override
 			public SnapshotConsumer getSnapshotConsumer() {
 				return new SnapshotConsumer() {
-					
+
 					@Override
 					public void accept(ContextSnapshot snapshot) {
 					}
 				};
 			}
 		});
-		TestGenerator.fromRecorded();
+		assertThat(TestGenerator.fromRecorded(), nullValue());
 	}
+
 	@Test
 	public void testWriteResults() throws Exception {
 		ContextSnapshot snapshot = new ContextSnapshot(MyClass.class, int.class, "intMethod", int.class);
@@ -253,9 +262,11 @@ public class TestGeneratorTest {
 
 		testGenerator.accept(snapshot);
 
-		testGenerator.writeResults(folder.getRoot().toPath());
+		testGenerator.andThen(() -> {
+			testGenerator.writeResults(folder.getRoot().toPath());
 
-		assertThat(Files.exists(folder.getRoot().toPath().resolve("net/amygdalum/testrecorder/MyClassRecordedTest.java")), is(true));
+			assertThat(Files.exists(folder.getRoot().toPath().resolve("net/amygdalum/testrecorder/MyClassRecordedTest.java")), is(true));
+		});
 	}
 
 	private SerializedObject objectOf(Class<MyClass> type, SerializedField... fields) {

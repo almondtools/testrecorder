@@ -90,8 +90,10 @@ public class ScheduledTestGenerator extends TestGenerator {
 	}
 
 	public void dumpResults() {
-		writeResults(path);
-		clearResults();
+		andThen(() -> {
+			writeResults(path);
+			clearResults();
+		});
 	}
 
 	@Override
