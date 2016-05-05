@@ -31,29 +31,42 @@ public class LocalVariableNameGenerator {
 		if (type instanceof Class<?>) {
 			return base((Class<?>) type);
 		} else if (type instanceof GenericArrayType) {
-			return base(((GenericArrayType) type).getGenericComponentType()) + "_";
+			return base(((GenericArrayType) type).getGenericComponentType()) + "Array";
 		} else if (type instanceof ParameterizedType) {
 			return base(((ParameterizedType) type).getRawType());
 		} else {
-			return type.getTypeName().replace('.', '_');
+			return normalize(type.getTypeName());
 		}
 	}
 
 	private String base(Class<?> clazz) {
 		if (clazz.isArray()) {
-			return base(clazz.getComponentType()) + "_";
+			return base(clazz.getComponentType()) + "Array";
 		} else {
-			String simpleName = findSimpleName(clazz);
-			return toLowerCase(simpleName.charAt(0)) + simpleName.substring(1);
+			return variableName(clazz);
 		}
 	}
 
-	private String findSimpleName(Class<?> clazz) {
-		String simpleName = clazz.getSimpleName();
-		if (simpleName.isEmpty()) {
-			String[] parts = clazz.getName().split("\\.");
-			simpleName = parts[parts.length - 1] + "_";
+	private String variableName(Class<?> clazz) {
+		String variableName = clazz.getSimpleName();
+		if (variableName.isEmpty()) {
+			String fullName = clazz.getName();
+			int lastdot = fullName.lastIndexOf('.');
+			variableName = fullName.substring(lastdot + 1);
 		}
-		return simpleName;
+		return normalize(variableName);
 	}
+
+	private String normalize(String name) {
+		if (name.isEmpty()) {
+			return "_";
+		}
+		name = name.replaceAll("[^\\w$]+", "_").replaceAll("^_+|_+$","");
+		char lastChar = name.charAt(name.length() - 1);
+		if (Character.isDigit(lastChar)) {
+			name = name + '_';
+		}
+		return toLowerCase(name.charAt(0)) + name.substring(1);
+	}
+
 }

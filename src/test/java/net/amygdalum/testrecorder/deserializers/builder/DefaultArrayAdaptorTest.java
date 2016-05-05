@@ -44,8 +44,8 @@ public class DefaultArrayAdaptorTest {
 		
 		Computation result = adaptor.tryDeserialize(value, generator);
 		
-		assertThat(result.getStatements().toString(), containsString("int[] int_1 = new int[]{0, 8, 15}"));
-		assertThat(result.getValue(), equalTo("int_1"));
+		assertThat(result.getStatements().toString(), containsString("int[] intArray1 = new int[]{0, 8, 15}"));
+		assertThat(result.getValue(), equalTo("intArray1"));
 	}
 
 

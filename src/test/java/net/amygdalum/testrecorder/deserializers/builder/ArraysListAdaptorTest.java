@@ -45,8 +45,8 @@ public class ArraysListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString(), allOf(
-			containsString("Integer[] integer_1 = new Integer[]{0, 8, 15}"),
-			containsString("List<Integer> list1 = asList(integer_1)")));
+			containsString("Integer[] integerArray1 = new Integer[]{0, 8, 15}"),
+			containsString("List<Integer> list1 = asList(integerArray1)")));
 		assertThat(result.getValue(), equalTo("list1"));
 	}
 

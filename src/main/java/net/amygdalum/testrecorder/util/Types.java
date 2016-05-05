@@ -1,5 +1,7 @@
 package net.amygdalum.testrecorder.util;
 
+import static java.util.stream.Collectors.joining;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
@@ -14,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.Wrapped;
 
@@ -196,6 +199,14 @@ public class Types {
 		public Type getGenericComponentType() {
 			return componentType;
 		}
+
+		@Override
+		public String getTypeName() {
+			StringBuilder buffer = new StringBuilder();
+			buffer.append(componentType.getTypeName());
+			buffer.append("[]");
+			return buffer.toString();
+		}
 	}
 
 	private static final class ParameterizedTypeImplementation implements ParameterizedType {
@@ -223,6 +234,20 @@ public class Types {
 		@Override
 		public Type[] getActualTypeArguments() {
 			return typeArgs;
+		}
+		
+		@Override
+		public String getTypeName() {
+			StringBuilder buffer = new StringBuilder();
+			buffer.append(raw.getTypeName());
+			buffer.append('<');
+			if (typeArgs != null && typeArgs.length > 0) {
+				buffer.append(Stream.of(typeArgs)
+					.map(type -> type.getTypeName())
+					.collect(joining(", ")));
+			}
+			buffer.append('>');
+			return buffer.toString();
 		}
 	}
 
@@ -254,6 +279,23 @@ public class Types {
 		@Override
 		public Type[] getLowerBounds() {
 			return lowerBounds;
+		}
+		
+		@Override
+		public String getTypeName() {
+			StringBuilder buffer = new StringBuilder();
+			buffer.append("?");
+			if (lowerBounds != null && lowerBounds.length > 0) {
+				buffer.append(" super ").append(Stream.of(lowerBounds)
+					.map(type -> type.getTypeName())
+					.collect(joining(", ")));
+			}
+			if (upperBounds != null && upperBounds.length > 0) {
+				buffer.append(" extends ").append(Stream.of(upperBounds)
+					.map(type -> type.getTypeName())
+					.collect(joining(", ")));
+			}
+			return buffer.toString();
 		}
 	}
 
