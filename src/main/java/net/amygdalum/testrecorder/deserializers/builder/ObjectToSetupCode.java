@@ -37,6 +37,7 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 	public static final Adaptors<ObjectToSetupCode> DEFAULT = new Adaptors<ObjectToSetupCode>()
 		.add(SerializedLiteral.class, new DefaultLiteralAdaptor())
 		.add(SerializedNull.class, new DefaultNullAdaptor())
+		.add(SerializedImmutable.class, new DefaultClassAdaptor())
 		.add(SerializedImmutable.class, new DefaultBigIntegerAdaptor())
 		.add(SerializedImmutable.class, new DefaultBigDecimalAdaptor())
 		.add(SerializedEnum.class, new DefaultEnumAdaptor())

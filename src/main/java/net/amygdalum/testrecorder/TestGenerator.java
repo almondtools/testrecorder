@@ -158,7 +158,6 @@ public class TestGenerator implements SnapshotConsumer {
 	public synchronized void accept(ContextSnapshot snapshot) {
 		executor.submit(() -> {
 			Set<String> localtests = tests.computeIfAbsent(baseType(snapshot.getThisType()), key -> synchronizedSet(new LinkedHashSet<>()));
-
 			MethodGenerator methodGenerator = new MethodGenerator(snapshot, localtests.size())
 				.generateArrange()
 				.generateAct()
