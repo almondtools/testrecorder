@@ -74,7 +74,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 		}
 		if (clazz.isArray()) {
 			serializer = new ArraySerializer(this);
-		} else if (clazz.isEnum()) {
+		} else if (clazz.isEnum() || (clazz.getSuperclass() != null && clazz.getSuperclass().isEnum())) {
 			serializer = new EnumSerializer(this);
 		} else {
 			serializer = new GenericSerializer(this);

@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.serializers;
 
 import static java.util.Collections.emptyList;
+import static net.amygdalum.testrecorder.util.Types.baseType;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -21,6 +22,9 @@ public class EnumSerializer implements Serializer<SerializedEnum> {
 
 	@Override
 	public SerializedEnum generate(Type resultType, Type type) {
+		while (!baseType(type).isEnum()) {
+			type = baseType(type).getSuperclass();
+		}
 		return new SerializedEnum(type).withResult(resultType);
 	}
 
