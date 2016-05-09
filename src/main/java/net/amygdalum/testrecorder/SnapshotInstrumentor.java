@@ -14,6 +14,7 @@ import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.IFNULL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
@@ -311,7 +312,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 		InsnList insnList = new InsnList();
 
-		insnList.add(new FieldInsnNode(Opcodes.GETSTATIC, SnapshotManager_name, SNAPSHOT_MANAGER_FIELD_NAME, SnaphotManager_descriptor));
+		insnList.add(new FieldInsnNode(GETSTATIC, SnapshotManager_name, SNAPSHOT_MANAGER_FIELD_NAME, SnaphotManager_descriptor));
 
 		insnList.add(new VarInsnNode(ALOAD, 0));
 
@@ -336,7 +337,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 			insnList.add(memorizeLocal(returnType, newLocal));
 		}
 
-		insnList.add(new FieldInsnNode(Opcodes.GETSTATIC, SnapshotManager_name, SNAPSHOT_MANAGER_FIELD_NAME, SnaphotManager_descriptor));
+		insnList.add(new FieldInsnNode(GETSTATIC, SnapshotManager_name, SNAPSHOT_MANAGER_FIELD_NAME, SnaphotManager_descriptor));
 
 		insnList.add(new VarInsnNode(ALOAD, 0));
 
@@ -362,7 +363,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 		insnList.add(new InsnNode(DUP));
 
-		insnList.add(new FieldInsnNode(Opcodes.GETSTATIC, SnapshotManager_name, SNAPSHOT_MANAGER_FIELD_NAME, SnaphotManager_descriptor));
+		insnList.add(new FieldInsnNode(GETSTATIC, SnapshotManager_name, SNAPSHOT_MANAGER_FIELD_NAME, SnaphotManager_descriptor));
 
 		insnList.add(new InsnNode(SWAP));
 
@@ -392,7 +393,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		LabelNode skip = new LabelNode();
 		LabelNode done = new LabelNode();
 
-		insnList.add(new FieldInsnNode(Opcodes.GETSTATIC, SnapshotManager_name, SNAPSHOT_MANAGER_FIELD_NAME, SnaphotManager_descriptor));
+		insnList.add(new FieldInsnNode(GETSTATIC, SnapshotManager_name, SNAPSHOT_MANAGER_FIELD_NAME, SnaphotManager_descriptor));
 
 		insnList.add(new InsnNode(DUP));
 		insnList.add(new JumpInsnNode(IFNULL, skip));
@@ -426,7 +427,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		LabelNode skip = new LabelNode();
 		LabelNode done = new LabelNode();
 
-		insnList.add(new FieldInsnNode(Opcodes.GETSTATIC, SnapshotManager_name, SNAPSHOT_MANAGER_FIELD_NAME, SnaphotManager_descriptor));
+		insnList.add(new FieldInsnNode(GETSTATIC, SnapshotManager_name, SNAPSHOT_MANAGER_FIELD_NAME, SnaphotManager_descriptor));
 
 		insnList.add(new InsnNode(DUP));
 		insnList.add(new JumpInsnNode(IFNULL, skip));
