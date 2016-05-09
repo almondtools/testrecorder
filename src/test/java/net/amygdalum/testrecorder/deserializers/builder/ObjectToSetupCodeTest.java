@@ -37,7 +37,7 @@ public class ObjectToSetupCodeTest {
 	@Before
 	public void before() throws Exception {
 		facade = new ConfigurableSerializerFacade(new DefaultSerializationProfile());
-		setupCode = new ObjectToSetupCode();
+		setupCode = new ObjectToSetupCode(getClass());
 	}
 	
 	@Test

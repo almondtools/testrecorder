@@ -41,7 +41,7 @@ public class DefaultListAdaptorTest {
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(0)));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(8)));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(15)));
-		ObjectToMatcherCode generator = new ObjectToMatcherCode();
+		ObjectToMatcherCode generator = new ObjectToMatcherCode(getClass());
 		
 		Computation result = adaptor.tryDeserialize(value, generator);
 		
@@ -53,7 +53,7 @@ public class DefaultListAdaptorTest {
 	public void testTryDeserializeEmptyList() throws Exception {
 		SerializedList value = new SerializedList(BigInteger[].class);
 
-		ObjectToMatcherCode generator = new ObjectToMatcherCode();
+		ObjectToMatcherCode generator = new ObjectToMatcherCode(getClass());
 		
 		Computation result = adaptor.tryDeserialize(value, generator);
 		

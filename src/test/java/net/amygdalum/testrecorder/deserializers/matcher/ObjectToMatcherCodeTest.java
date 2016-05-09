@@ -37,7 +37,7 @@ public class ObjectToMatcherCodeTest {
 	@Before
 	public void before() throws Exception {
 		facade = new ConfigurableSerializerFacade(new DefaultSerializationProfile());
-		matcherCode = new ObjectToMatcherCode();
+		matcherCode = new ObjectToMatcherCode(getClass());
 	}
 
 	@Test

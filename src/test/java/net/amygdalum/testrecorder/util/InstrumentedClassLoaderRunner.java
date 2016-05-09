@@ -10,7 +10,7 @@ import net.amygdalum.testrecorder.SnapshotInstrumentor;
 
 public class InstrumentedClassLoaderRunner extends BlockJUnit4ClassRunner {
 
-	private InstrumentedClassLoader loader;
+	public static InstrumentedClassLoader loader;
 
 	public InstrumentedClassLoaderRunner(Class<?> klass) throws InitializationError {
 		super(klass);

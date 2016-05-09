@@ -55,8 +55,8 @@ public class ObjectToMatcherCode implements Deserializer<Computation> {
 
 	private Set<SerializedValue> computed;
 
-	public ObjectToMatcherCode() {
-		this(new LocalVariableNameGenerator(), new TypeManager(), DEFAULT);
+	public ObjectToMatcherCode(Class<?> clazz) {
+		this(new LocalVariableNameGenerator(), new TypeManager(clazz.getPackage().getName()), DEFAULT);
 	}
 
 	public ObjectToMatcherCode(LocalVariableNameGenerator locals, TypeManager types) {

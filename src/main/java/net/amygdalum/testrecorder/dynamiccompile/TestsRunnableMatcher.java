@@ -1,5 +1,8 @@
 package net.amygdalum.testrecorder.dynamiccompile;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.junit.runner.JUnitCore;
@@ -9,9 +12,11 @@ import org.junit.runner.notification.Failure;
 public class TestsRunnableMatcher extends TypeSafeDiagnosingMatcher<String> {
 
 	private DynamicClassCompiler compiler;
+	private Map<Class<?>, Result> results;
 
 	public TestsRunnableMatcher() {
 		compiler = new DynamicClassCompiler();
+		results = new HashMap<>();
 	}
 
 	@Override
@@ -23,8 +28,7 @@ public class TestsRunnableMatcher extends TypeSafeDiagnosingMatcher<String> {
 	protected boolean matchesSafely(String item, Description mismatchDescription) {
 		try {
 			Class<?> clazz = compiler.compile(item);
-			JUnitCore junit = new JUnitCore();
-			Result result = junit.run(clazz);
+			Result result = run(clazz);
 			if (result.wasSuccessful()) {
 				return true;
 			}
@@ -41,6 +45,13 @@ public class TestsRunnableMatcher extends TypeSafeDiagnosingMatcher<String> {
 			}
 			return false;
 		}
+	}
+
+	public Result run(Class<?> clazz) {
+		return results.computeIfAbsent(clazz, c -> {
+			JUnitCore junit = new JUnitCore();
+			return junit.run(c);
+		});
 	}
 
 	public static TestsRunnableMatcher testsRuns() {

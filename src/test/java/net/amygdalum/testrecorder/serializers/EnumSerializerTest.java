@@ -40,6 +40,14 @@ public class EnumSerializerTest {
 	}
 
 	@Test
+	public void testGenerateWithExtendedEnum() throws Exception {
+		SerializedEnum value = serializer.generate(MyInterface.class, ExtendedEnum.VALUE1.getClass());
+
+		assertThat(value.getResultType(), equalTo(MyInterface.class));
+		assertThat(value.getType(), equalTo(ExtendedEnum.class));
+	}
+
+	@Test
 	public void testPopulate() throws Exception {
 		SerializedEnum value = serializer.generate(MyInterface.class, MyEnum.class);
 
@@ -54,5 +62,9 @@ public class EnumSerializerTest {
 	
 	private static enum MyEnum implements MyInterface {
 		VALUE1, VALUE2;
+	}
+
+	private static enum ExtendedEnum {
+		VALUE1 {};
 	}
 }

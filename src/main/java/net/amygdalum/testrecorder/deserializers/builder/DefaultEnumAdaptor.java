@@ -4,7 +4,6 @@ import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
 import static net.amygdalum.testrecorder.deserializers.Templates.fieldAccess;
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
 import static net.amygdalum.testrecorder.util.Types.baseType;
-import static net.amygdalum.testrecorder.util.Types.isHidden;
 
 import java.lang.reflect.Type;
 
@@ -27,7 +26,7 @@ public class DefaultEnumAdaptor extends DefaultAdaptor<SerializedEnum, ObjectToS
 		TypeManager types = generator.getTypes();
 		types.registerType(value.getType());
 
-		if (isHidden(value.getType())) {
+		if (types.isHidden(value.getType())) {
 			String typeName = types.getBestName(value.getType());
 			String typeArgument = asLiteral(typeName);
 			String wrapped = newObject(types.getRawName(Wrapped.class), typeArgument);

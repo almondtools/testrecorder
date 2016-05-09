@@ -38,7 +38,7 @@ public class DefaultEnumAdaptorTest {
 	public void testTryDeserialize() throws Exception {
 		SerializedEnum value = new SerializedEnum(MyEnum.class);
 		value.setName("VALUE1");
-		ObjectToMatcherCode generator = new ObjectToMatcherCode();
+		ObjectToMatcherCode generator = new ObjectToMatcherCode(getClass());
 
 		Computation result = adaptor.tryDeserialize(value, generator);
 
@@ -50,7 +50,7 @@ public class DefaultEnumAdaptorTest {
 	public void testTryDeserializeHidden() throws Exception {
 		SerializedEnum value = new SerializedEnum(MyHiddenEnum.class);
 		value.setName("VALUE2");
-		ObjectToMatcherCode generator = new ObjectToMatcherCode();
+		ObjectToMatcherCode generator = new ObjectToMatcherCode(getClass());
 
 		Computation result = adaptor.tryDeserialize(value, generator);
 

@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.util;
 
+import static java.lang.reflect.Modifier.isPublic;
 import static java.util.stream.Collectors.joining;
 
 import java.lang.reflect.Array;
@@ -17,8 +18,6 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import net.amygdalum.testrecorder.Wrapped;
 
 public class Types {
 
@@ -155,16 +154,16 @@ public class Types {
 		throw new TypeNotPresentException(clazz.getName() + "$" + name, new ClassNotFoundException(clazz.getName() + "$" + name));
 	}
 
-	public static Type wrapHidden(Type type) {
-		if (isHidden(type)) {
-			return Wrapped.class;
+	public static boolean isHidden(Type type, String pkg) {
+		Class<?> clazz = baseType(type);
+		int modifiers = clazz.getModifiers();
+		if (isPublic(modifiers)) {
+			return false;
+		} else if (Modifier.isPrivate(modifiers)) {
+			return true;
 		} else {
-			return type;
+			return pkg.equals(clazz.getPackage());
 		}
-	}
-
-	public static boolean isHidden(Type type) {
-		return !Modifier.isPublic(baseType(type).getModifiers());
 	}
 
 	public static boolean isPrimitive(Type type) {

@@ -40,7 +40,7 @@ public class DefaultArrayAdaptorTest {
 		value.add(literal(int.class, 0));
 		value.add(literal(int.class, 8));
 		value.add(literal(int.class, 15));
-		ObjectToSetupCode generator = new ObjectToSetupCode();
+		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
 		
 		Computation result = adaptor.tryDeserialize(value, generator);
 		

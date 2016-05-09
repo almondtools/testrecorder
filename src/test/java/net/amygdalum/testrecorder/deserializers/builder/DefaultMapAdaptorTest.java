@@ -43,7 +43,7 @@ public class DefaultMapAdaptorTest {
 		SerializedMap value = new SerializedMap(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class)).withResult(parameterized(Map.class, null, Integer.class, Integer.class));
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
-		ObjectToSetupCode generator = new ObjectToSetupCode();
+		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
 		
 		Computation result = adaptor.tryDeserialize(value, generator);
 		

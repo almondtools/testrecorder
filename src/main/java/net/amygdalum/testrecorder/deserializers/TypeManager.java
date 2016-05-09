@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder.deserializers;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.util.Types.baseType;
-import static net.amygdalum.testrecorder.util.Types.isHidden;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
@@ -17,19 +16,30 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.Wrapped;
+import net.amygdalum.testrecorder.util.Types;
 
 public class TypeManager {
 
+	private String pkg;
 	private Map<String, String> imports;
 	private Set<String> staticImports;
 	private Set<Type> noImports;
 
 	public TypeManager() {
-		imports = new LinkedHashMap<>();
-		staticImports = new LinkedHashSet<>();
-		noImports = new LinkedHashSet<>();
+		this("");
 	}
-
+	
+	public TypeManager(String pkg) {
+		this.pkg = pkg;
+		this.imports = new LinkedHashMap<>();
+		this.staticImports = new LinkedHashSet<>();
+		this.noImports = new LinkedHashSet<>();
+	}
+	
+	public String getPackage() {
+		return pkg;
+	}
+	
 	public List<String> getImports() {
 		return Stream.concat(imports.values().stream(), staticImports.stream())
 			.collect(toList());
@@ -137,6 +147,18 @@ public class TypeManager {
 			return getWrappedName(type);
 		} else {
 			return getRawName(type) + ".class";
+		}
+	}
+
+	public boolean isHidden(Type type) {
+		return Types.isHidden(type, pkg);
+	}
+
+	public Type wrapHidden(Type type) {
+		if (isHidden(type)) {
+			return Wrapped.class;
+		} else {
+			return type;
 		}
 	}
 

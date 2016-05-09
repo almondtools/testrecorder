@@ -3,8 +3,6 @@ package net.amygdalum.testrecorder.deserializers.builder;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
 import static net.amygdalum.testrecorder.deserializers.Templates.cast;
-import static net.amygdalum.testrecorder.util.Types.isHidden;
-import static net.amygdalum.testrecorder.util.Types.wrapHidden;
 
 import java.lang.reflect.Type;
 import java.util.IdentityHashMap;
@@ -58,8 +56,8 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 
 	private Map<SerializedValue, String> computed;
 
-	public ObjectToSetupCode() {
-		this(new LocalVariableNameGenerator(), new TypeManager(), DEFAULT);
+	public ObjectToSetupCode(Class<?> clazz) {
+		this(new LocalVariableNameGenerator(), new TypeManager(clazz.getPackage().getName()), DEFAULT);
 	}
 
 	public ObjectToSetupCode(LocalVariableNameGenerator locals, TypeManager types) {
@@ -86,7 +84,7 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 	@Override
 	public Computation visitField(SerializedField field) {
 		Type type = field.getType();
-		Type resultType = wrapHidden(type);
+		Type resultType = types.wrapHidden(type);
 		types.registerType(type);
 		types.registerType(resultType);
 
@@ -95,7 +93,7 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 		List<String> statements = valueTemplate.getStatements();
 
 		String value = valueTemplate.getValue();
-		if (isHidden(field.getValue().getResultType()) && !isHidden(type)) {
+		if (types.isHidden(field.getValue().getResultType()) && !types.isHidden(type)) {
 			String unwrapped = callMethod(value, "value");
 			value = cast(types.getSimpleName(type), unwrapped);
 		} 

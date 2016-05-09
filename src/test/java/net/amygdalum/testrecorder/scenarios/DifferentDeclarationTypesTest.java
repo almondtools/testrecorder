@@ -2,12 +2,14 @@ package net.amygdalum.testrecorder.scenarios;
 
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRuns;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import net.amygdalum.testrecorder.CodeSerializer;
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
@@ -16,6 +18,7 @@ import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
 @Instrumented(classes={
 	"net.amygdalum.testrecorder.scenarios.DifferentDeclarationTypes",
 	"net.amygdalum.testrecorder.scenarios.MyEnum",
+	"net.amygdalum.testrecorder.scenarios.MyExtendedEnum",
 	"net.amygdalum.testrecorder.scenarios.MyAnnotation",
 	"net.amygdalum.testrecorder.scenarios.MyInterface",
 	"net.amygdalum.testrecorder.scenarios.MyClass"})
@@ -35,6 +38,13 @@ public class DifferentDeclarationTypesTest {
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(DifferentDeclarationTypes.class), compiles());
 		assertThat(testGenerator.renderTest(DifferentDeclarationTypes.class), testsRuns());
+	}
+
+	@Test
+	public void testCodeEnum() throws Exception {
+		CodeSerializer codeSerializer = new CodeSerializer();
+		
+		assertThat(codeSerializer.serialize(MyEnum.VALUE1), containsString("serializedEnum1 = MyEnum.VALUE1"));
 	}
 
 }

@@ -54,7 +54,7 @@ public class BeanObjectAdaptorTest {
 	public void testTryDeserializeWithBean() throws Exception {
 		SerializedObject value = new SerializedObject(TestBean.class);
 		value.addField(new SerializedField(String.class, "attribute", String.class, literal("Hello World")));
-		ObjectToSetupCode generator = new ObjectToSetupCode();
+		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
 		
 		Computation result = adaptor.tryDeserialize(value, generator);
 		

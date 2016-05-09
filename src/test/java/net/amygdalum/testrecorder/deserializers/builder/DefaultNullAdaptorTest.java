@@ -36,7 +36,7 @@ public class DefaultNullAdaptorTest {
 	@Test
 	public void testTryDeserialize() throws Exception {
 		SerializedNull value = nullInstance(String.class);
-		ObjectToSetupCode generator = new ObjectToSetupCode();
+		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
 		
 		Computation result = adaptor.tryDeserialize(value, generator);
 		

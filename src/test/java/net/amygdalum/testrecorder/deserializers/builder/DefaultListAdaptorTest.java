@@ -44,7 +44,7 @@ public class DefaultListAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		ObjectToSetupCode generator = new ObjectToSetupCode();
+		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
 		
 		Computation result = adaptor.tryDeserialize(value, generator);
 		

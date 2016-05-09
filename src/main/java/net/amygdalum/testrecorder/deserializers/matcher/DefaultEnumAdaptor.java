@@ -6,7 +6,6 @@ import static net.amygdalum.testrecorder.deserializers.Templates.enumMatcher;
 import static net.amygdalum.testrecorder.deserializers.Templates.fieldAccess;
 import static net.amygdalum.testrecorder.deserializers.Templates.sameInstanceMatcher;
 import static net.amygdalum.testrecorder.util.Types.baseType;
-import static net.amygdalum.testrecorder.util.Types.isHidden;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.wildcardExtends;
 
@@ -34,7 +33,7 @@ public class DefaultEnumAdaptor extends DefaultAdaptor<SerializedEnum, ObjectToM
 		TypeManager types = generator.getTypes();
 		types.registerType(value.getType());
 
-		if (isHidden(value.getType())) {
+		if (types.isHidden(value.getType())) {
 			types.staticImport(EnumMatcher.class, "matchingEnum");
 		} else {
 			types.staticImport(Matchers.class, "sameInstance");
@@ -45,7 +44,7 @@ public class DefaultEnumAdaptor extends DefaultAdaptor<SerializedEnum, ObjectToM
 		String name = value.getName();
 
 		String matchingValue = fieldAccess(typeName, name);
-		if (isHidden(value.getType())) {
+		if (types.isHidden(value.getType())) {
 			String enumMatcher = enumMatcher(asLiteral(value.getName()));
 			return new Computation(enumMatcher, parameterized(Matcher.class, null, wildcardExtends(Enum.class)), emptyList());
 		} else {

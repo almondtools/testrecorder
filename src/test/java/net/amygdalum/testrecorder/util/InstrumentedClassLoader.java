@@ -28,10 +28,11 @@ public class InstrumentedClassLoader extends URLClassLoader {
 	}
 
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
+		String topLevelName = topLevelName(name);
 		if (name.equals(root)) {
 			return findClass(name);
 		}
-		if (!classes.contains(name)) {
+		if (!classes.contains(name) && !classes.contains(topLevelName)) {
 			return super.loadClass(name);
 		}
 
@@ -43,5 +44,13 @@ public class InstrumentedClassLoader extends URLClassLoader {
 			throw new ClassNotFoundException(t.getMessage(), t);
 		}
 
+	}
+
+	public String topLevelName(String name) {
+		int specialIndicator = name.indexOf('$');
+		if (specialIndicator < 0) {
+			return name;
+		}
+		return name.substring(0, specialIndicator);
 	}
 }

@@ -6,7 +6,6 @@ import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.typeArgument;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
-import static net.amygdalum.testrecorder.util.Types.wrapHidden;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -40,7 +39,7 @@ public class DefaultObjectAdaptor extends DefaultAdaptor<SerializedObject, Objec
 			.map(field -> field.getValue())
 			.collect(toList());
 
-		Type resultType = parameterized(Matcher.class, null, wrapHidden(value.getResultType()));
+		Type resultType = parameterized(Matcher.class, null, types.wrapHidden(value.getResultType()));
 
 		String matcherExpression = with(types).createMatcherExpression(value, fieldAssignments);
 

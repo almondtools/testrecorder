@@ -43,7 +43,7 @@ public class DefaultMapAdaptorTest {
 		SerializedMap value = new SerializedMap(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class)).withResult(parameterized(Map.class, null, Integer.class, Integer.class));
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
-		ObjectToMatcherCode generator = new ObjectToMatcherCode();
+		ObjectToMatcherCode generator = new ObjectToMatcherCode(getClass());
 		Computation result = adaptor.tryDeserialize(value, generator);
 		
 		assertThat(result.getStatements(), empty());
@@ -53,7 +53,7 @@ public class DefaultMapAdaptorTest {
 	@Test
 	public void testTryDeserializeEmptyMap() throws Exception {
 		SerializedMap value = new SerializedMap(BigInteger[].class);
-		ObjectToMatcherCode generator = new ObjectToMatcherCode();
+		ObjectToMatcherCode generator = new ObjectToMatcherCode(getClass());
 		
 		Computation result = adaptor.tryDeserialize(value, generator);
 		
