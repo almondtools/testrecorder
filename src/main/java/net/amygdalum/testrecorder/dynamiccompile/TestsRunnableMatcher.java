@@ -1,8 +1,5 @@
 package net.amygdalum.testrecorder.dynamiccompile;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.junit.runner.JUnitCore;
@@ -12,11 +9,9 @@ import org.junit.runner.notification.Failure;
 public class TestsRunnableMatcher extends TypeSafeDiagnosingMatcher<String> {
 
 	private DynamicClassCompiler compiler;
-	private Map<Class<?>, Result> results;
 
-	public TestsRunnableMatcher() {
-		compiler = new DynamicClassCompiler();
-		results = new HashMap<>();
+	public TestsRunnableMatcher(ClassLoader loader) {
+		compiler = new DynamicClassCompiler(loader);
 	}
 
 	@Override
@@ -28,13 +23,17 @@ public class TestsRunnableMatcher extends TypeSafeDiagnosingMatcher<String> {
 	protected boolean matchesSafely(String item, Description mismatchDescription) {
 		try {
 			Class<?> clazz = compiler.compile(item);
-			Result result = run(clazz);
+			JUnitCore junit = new JUnitCore();
+			Result result = junit.run(clazz);
 			if (result.wasSuccessful()) {
 				return true;
 			}
 			mismatchDescription.appendText("compiled successfully but got test failures : " + result.getFailureCount());
 			for (Failure failure : result.getFailures()) {
 				String message = failure.getMessage();
+				if (failure.getException() != null) {
+					message = failure.getException().getClass().getSimpleName() + ": " + message;
+				}
 				mismatchDescription.appendText("\n- " + message);
 			}
 			return false;
@@ -47,15 +46,12 @@ public class TestsRunnableMatcher extends TypeSafeDiagnosingMatcher<String> {
 		}
 	}
 
-	public Result run(Class<?> clazz) {
-		return results.computeIfAbsent(clazz, c -> {
-			JUnitCore junit = new JUnitCore();
-			return junit.run(c);
-		});
+	public static TestsRunnableMatcher testsRun(ClassLoader loader) {
+		return new TestsRunnableMatcher(loader);
 	}
 
-	public static TestsRunnableMatcher testsRuns() {
-		return new TestsRunnableMatcher();
+	public static TestsRunnableMatcher testsRun(Class<?> clazz) {
+		return testsRun(clazz.getClassLoader());
 	}
 
 }

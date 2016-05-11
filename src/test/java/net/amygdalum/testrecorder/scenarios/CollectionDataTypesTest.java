@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRuns;
+import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
@@ -44,8 +44,8 @@ public class CollectionDataTypesTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(CollectionDataTypes.class), hasSize(10));
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles());
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRuns());
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles(CollectionDataTypes.class));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRun(CollectionDataTypes.class));
 	}
 
 	@Test
@@ -59,8 +59,8 @@ public class CollectionDataTypesTest {
 		
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(CollectionDataTypes.class), hasSize(10));
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles());
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRuns());
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles(CollectionDataTypes.class));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRun(CollectionDataTypes.class));
 	}
 	
 	@Test
@@ -74,8 +74,8 @@ public class CollectionDataTypesTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(CollectionDataTypes.class), hasSize(10));
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles());
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRuns());
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles(CollectionDataTypes.class));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRun(CollectionDataTypes.class));
 	}
 
 	@Test
@@ -89,8 +89,8 @@ public class CollectionDataTypesTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(CollectionDataTypes.class), hasSize(10));
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles());
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRuns());
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles(CollectionDataTypes.class));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRun(CollectionDataTypes.class));
 	}
 
 	@Test
@@ -104,8 +104,8 @@ public class CollectionDataTypesTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(CollectionDataTypes.class), hasSize(10));
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles());
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRuns());
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles(CollectionDataTypes.class));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRun(CollectionDataTypes.class));
 	}
 
 	@Test
@@ -119,8 +119,8 @@ public class CollectionDataTypesTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(CollectionDataTypes.class), hasSize(10));
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles());
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRuns());
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles(CollectionDataTypes.class));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRun(CollectionDataTypes.class));
 	}
 
 	@Test
@@ -134,8 +134,8 @@ public class CollectionDataTypesTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(CollectionDataTypes.class), hasSize(10));
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles());
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRuns());
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles(CollectionDataTypes.class));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRun(CollectionDataTypes.class));
 	}
 
 	@Test
@@ -149,7 +149,7 @@ public class CollectionDataTypesTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(CollectionDataTypes.class), hasSize(10));
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles());
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRuns());
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles(CollectionDataTypes.class));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRun(CollectionDataTypes.class));
 	}
 }

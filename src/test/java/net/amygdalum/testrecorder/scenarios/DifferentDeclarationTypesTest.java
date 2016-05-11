@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRuns;
+import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;
 
@@ -36,8 +36,8 @@ public class DifferentDeclarationTypesTest {
 		types.test();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(DifferentDeclarationTypes.class), compiles());
-		assertThat(testGenerator.renderTest(DifferentDeclarationTypes.class), testsRuns());
+		assertThat(testGenerator.renderTest(DifferentDeclarationTypes.class), compiles(DifferentDeclarationTypes.class));
+		assertThat(testGenerator.renderTest(DifferentDeclarationTypes.class), testsRun(DifferentDeclarationTypes.class));
 	}
 
 	@Test

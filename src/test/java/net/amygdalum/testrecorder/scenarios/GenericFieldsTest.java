@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.scenarios;
 
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRuns;
+import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
@@ -37,8 +37,8 @@ public class GenericFieldsTest {
 		assertThat(bean.hashCode(), equalTo(0));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(GenericFields.class), compiles());
-		assertThat(testGenerator.renderTest(GenericFields.class), testsRuns());
+		assertThat(testGenerator.renderTest(GenericFields.class), compiles(GenericFields.class));
+		assertThat(testGenerator.renderTest(GenericFields.class), testsRun(GenericFields.class));
 	}
 
 	@Test
@@ -49,8 +49,8 @@ public class GenericFieldsTest {
 		assertThat(bean.hashCode(), equalTo(1));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(GenericFields.class), compiles());
-		assertThat(testGenerator.renderTest(GenericFields.class), testsRuns());
+		assertThat(testGenerator.renderTest(GenericFields.class), compiles(GenericFields.class));
+		assertThat(testGenerator.renderTest(GenericFields.class), testsRun(GenericFields.class));
 	}
 
 	@Test

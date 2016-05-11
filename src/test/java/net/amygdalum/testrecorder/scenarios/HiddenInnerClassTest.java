@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.scenarios;
 
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRuns;
+import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
@@ -18,7 +18,7 @@ import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
 
 @RunWith(InstrumentedClassLoaderRunner.class)
-@Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.HiddenInnerClass", "net.amygdalum.testrecorder.scenarios.HiddenInnerClass$Hidden" })
+@Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.HiddenInnerClass" })
 public class HiddenInnerClassTest {
 
 	@Before
@@ -33,8 +33,8 @@ public class HiddenInnerClassTest {
 		assertThat(object.toString(), equalTo("hidden name"));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(HiddenInnerClass.class), compiles());
-		assertThat(testGenerator.renderTest(HiddenInnerClass.class), testsRuns());
+		assertThat(testGenerator.renderTest(HiddenInnerClass.class), compiles(HiddenInnerClass.class));
+		assertThat(testGenerator.renderTest(HiddenInnerClass.class), testsRun(HiddenInnerClass.class));
 	}
 
 	@Test

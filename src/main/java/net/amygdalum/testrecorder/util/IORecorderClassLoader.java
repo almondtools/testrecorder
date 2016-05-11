@@ -24,8 +24,8 @@ import static org.objectweb.asm.Opcodes.LRETURN;
 import static org.objectweb.asm.Opcodes.POP;
 
 import java.io.IOException;
-import java.net.URLClassLoader;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.objectweb.asm.ClassReader;
@@ -46,9 +46,8 @@ import org.objectweb.asm.tree.TypeInsnNode;
 import net.amygdalum.testrecorder.ByteCode;
 import net.amygdalum.testrecorder.SnapshotInput;
 import net.amygdalum.testrecorder.SnapshotOutput;
-import net.amygdalum.testrecorder.dynamiccompile.DynamicClassLoader;
 
-public class IORecorderClassLoader extends URLClassLoader {
+public class IORecorderClassLoader extends AbstractInstrumentedClassLoader {
 
 	private static final String Class_name = Type.getInternalName(Class.class);
 	private static final String IORecorderClassLoader_name = Type.getInternalName(IORecorderClassLoader.class);
@@ -59,28 +58,39 @@ public class IORecorderClassLoader extends URLClassLoader {
 	private static final String SnapshotOutput_descriptor = Type.getDescriptor(SnapshotOutput.class);
 
 	private static final String Class_getClassLoader_descriptor = ByteCode.methodDescriptor(Class.class, "getClassLoader");
-	
+
 	private static final String IORecorderClassLoader_getOut_descriptor = ByteCode.methodDescriptor(IORecorderClassLoader.class, "getOut");
 	private static final String IORecorderClassLoader_getIn_descriptor = ByteCode.methodDescriptor(IORecorderClassLoader.class, "getIn");
-	
+
 	private static final String InputProvider_requestInput_descriptor = ByteCode.methodDescriptor(InputProvider.class, "requestInput", Class.class, String.class, Object[].class);
-	
+
 	private static final String OutputListener_notifyOutput_descriptor = ByteCode.methodDescriptor(OutputListener.class, "notifyOutput", Class.class, String.class, Object[].class);
-	
-	
-	private ClassLoader orig;
+
 	private InputProvider in;
 	private OutputListener out;
-	private Set<String> classes;
 	private String root;
+	private Set<String> classes;
 
-	public IORecorderClassLoader(ClassLoader orig, String root, InputProvider in, OutputListener out, Set<String> classes) {
-		super(((URLClassLoader) getSystemClassLoader()).getURLs());
-		this.orig = orig;
-		this.root = root;
+	public IORecorderClassLoader(Class<?> clazz, InputProvider in, OutputListener out, Set<String> classes) {
+		super(clazz.getClassLoader());
+		this.root = clazz.getName();
 		this.in = in;
 		this.out = out;
 		this.classes = classes;
+		adoptInstrumentations(clazz.getClassLoader());
+	}
+
+	private final void adoptInstrumentations(ClassLoader loader) {
+		if (loader instanceof ClassInstrumenting) {
+			Map<String, byte[]> instrumentations = ((ClassInstrumenting) loader).getInstrumentations();
+			for (Map.Entry<String, byte[]> instrumentation : instrumentations.entrySet()) {
+				String name = instrumentation.getKey();
+				byte[] bytes = instrumentation.getValue();
+				if (!classes.contains(name) && findLoadedClass(name) == null) {
+					define(name, bytes);
+				}
+			}
+		}
 	}
 
 	public InputProvider getIn() {
@@ -92,24 +102,24 @@ public class IORecorderClassLoader extends URLClassLoader {
 	}
 
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
-		if (!classes.contains(name)) {
-			if (orig instanceof DynamicClassLoader) {
-				byte[] bytes = ((DynamicClassLoader) orig).getBytes(name);
-				if (bytes != null) {
-					return defineClass(name, bytes, 0, bytes.length);
-				}
-			}
-			if (name.contains(root)) {
-				return findClass(name);
+		if (name.startsWith(root) ) {
+			Class<?> clazz = findLoadedClass(name);
+			if (clazz != null) {
+				return clazz;
 			} else {
-				return super.loadClass(name);
+				return findClass(name);
 			}
+		}
+		if (isInstrumented(name)) {
+			return findLoadedClass(name);
+		}
+		if (!classes.contains(name)) {
+			return super.loadClass(name);
 		}
 
 		try {
 			byte[] bytes = instrument(name);
-
-			return defineClass(name, bytes, 0, bytes.length);
+			return define(name, bytes);
 		} catch (Throwable t) {
 			throw new ClassNotFoundException(t.getMessage(), t);
 		}

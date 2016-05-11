@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRuns;
+import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
 import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
 
@@ -37,7 +37,7 @@ public class InputsTest {
 		out.recorded();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Inputs.class), compiles());
+		assertThat(testGenerator.renderTest(Inputs.class), compiles(Inputs.class));
 	}
 	
 	@Test
@@ -46,7 +46,7 @@ public class InputsTest {
 		out.primitivesRecorded();
 		
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Inputs.class), compiles());
+		assertThat(testGenerator.renderTest(Inputs.class), compiles(Inputs.class));
 	}
 	
 	@Test
@@ -55,7 +55,7 @@ public class InputsTest {
 		out.sideEffectsRecorded();
 		
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Inputs.class), compiles());
+		assertThat(testGenerator.renderTest(Inputs.class), compiles(Inputs.class));
 	}
 	
 	@Test
@@ -64,7 +64,7 @@ public class InputsTest {
 		out.recorded();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Inputs.class), testsRuns());
+		assertThat(testGenerator.renderTest(Inputs.class), testsRun(Inputs.class));
 	}
 	
 	@Test
@@ -73,7 +73,7 @@ public class InputsTest {
 		out.primitivesRecorded();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Inputs.class), testsRuns());
+		assertThat(testGenerator.renderTest(Inputs.class), testsRun(Inputs.class));
 	}
 	
 	@Test
@@ -82,7 +82,7 @@ public class InputsTest {
 		out.sideEffectsRecorded();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Inputs.class), testsRuns());
+		assertThat(testGenerator.renderTest(Inputs.class), testsRun(Inputs.class));
 	}
 	
 }

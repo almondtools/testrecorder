@@ -7,8 +7,8 @@ public class CompilableMatcher extends TypeSafeDiagnosingMatcher<String> {
 
 	private DynamicClassCompiler compiler;
 
-	public CompilableMatcher() {
-		compiler = new DynamicClassCompiler();
+	public CompilableMatcher(ClassLoader loader) {
+		compiler = new DynamicClassCompiler(loader);
 	}
 
 	@Override
@@ -30,8 +30,12 @@ public class CompilableMatcher extends TypeSafeDiagnosingMatcher<String> {
 		}
 	}
 
-	public static CompilableMatcher compiles() {
-		return new CompilableMatcher();
+	public static CompilableMatcher compiles(ClassLoader loader) {
+		return new CompilableMatcher(loader);
+	}
+
+	public static CompilableMatcher compiles(Class<?> clazz) {
+		return compiles(clazz.getClassLoader());
 	}
 
 }

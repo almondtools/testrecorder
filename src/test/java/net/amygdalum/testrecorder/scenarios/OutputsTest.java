@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRuns;
+import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
 import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
 
@@ -37,7 +37,7 @@ public class OutputsTest {
 		out.recorded();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Outputs.class), compiles());
+		assertThat(testGenerator.renderTest(Outputs.class), compiles(Outputs.class));
 	}
 	
 	@Test
@@ -46,7 +46,7 @@ public class OutputsTest {
 		out.primitivesRecorded();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Outputs.class), compiles());
+		assertThat(testGenerator.renderTest(Outputs.class), compiles(Outputs.class));
 	}
 	
 	@Test
@@ -55,7 +55,7 @@ public class OutputsTest {
 		out.recorded();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Outputs.class), testsRuns());
+		assertThat(testGenerator.renderTest(Outputs.class), testsRun(Outputs.class));
 	}
 	
 	@Test
@@ -64,7 +64,7 @@ public class OutputsTest {
 		out.primitivesRecorded();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Outputs.class), testsRuns());
+		assertThat(testGenerator.renderTest(Outputs.class), testsRun(Outputs.class));
 	}
 	
 }

@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder;
 
+import net.amygdalum.testrecorder.util.ClassInstrumenting;
 import net.amygdalum.testrecorder.util.GenericObject;
 import net.amygdalum.testrecorder.util.GenericObjectException;
 
@@ -15,7 +16,11 @@ public class Wrapped {
 
 	public static Class<?> classForName(String name) {
 		try {
-			return Class.forName(name);
+			ClassLoader loader = Thread.currentThread().getContextClassLoader();
+			if (loader == null || !(loader instanceof ClassInstrumenting)) {
+				loader = Wrapped.class.getClassLoader();
+			}
+			return loader.loadClass(name);
 		} catch (ClassNotFoundException e) {
 			throw new GenericObjectException(e);
 		}

@@ -37,7 +37,7 @@ public class InstrumentedClassLoaderRunner extends BlockJUnit4ClassRunner {
 			SnapshotInstrumentor instrumentor = new SnapshotInstrumentor(config);
 
 			String[] classes = instrumented == null ? new String[0] : instrumented.classes();
-			return new InstrumentedClassLoader(instrumentor, klass.getName(), classes);
+			return new InstrumentedClassLoader(instrumentor, klass, classes);
 		} catch (InstantiationException | IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}

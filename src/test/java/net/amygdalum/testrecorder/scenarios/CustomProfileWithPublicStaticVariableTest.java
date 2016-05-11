@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRuns;
+import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -32,8 +32,8 @@ public class CustomProfileWithPublicStaticVariableTest {
 		assertThat(bean.inc(), equalTo(1));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(CustomProfileWithPublicStaticVariable.class), compiles());
-		assertThat(testGenerator.renderTest(CustomProfileWithPublicStaticVariable.class), testsRuns());
+		assertThat(testGenerator.renderTest(CustomProfileWithPublicStaticVariable.class), compiles(CustomProfileWithPublicStaticVariable.class));
+		assertThat(testGenerator.renderTest(CustomProfileWithPublicStaticVariable.class), testsRun(CustomProfileWithPublicStaticVariable.class));
 	}
 
 }

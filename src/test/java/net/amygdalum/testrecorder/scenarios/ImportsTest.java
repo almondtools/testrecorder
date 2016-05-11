@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.scenarios;
 
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRuns;
+import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.contains;
@@ -35,8 +35,8 @@ public class ImportsTest {
 		assertThat(object.toString(), equalTo("[name]:name"));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Imports.class), compiles());
-		assertThat(testGenerator.renderTest(Imports.class), testsRuns());
+		assertThat(testGenerator.renderTest(Imports.class), compiles(Imports.class));
+		assertThat(testGenerator.renderTest(Imports.class), testsRun(Imports.class));
 	}
 
 	@Test

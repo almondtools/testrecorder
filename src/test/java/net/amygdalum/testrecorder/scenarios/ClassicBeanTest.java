@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.scenarios;
 
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRuns;
+import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -37,8 +37,8 @@ public class ClassicBeanTest {
 		assertThat(bean.hashCode(), equalTo(191));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(ClassicBean.class), compiles());
-		assertThat(testGenerator.renderTest(ClassicBean.class), testsRuns());
+		assertThat(testGenerator.renderTest(ClassicBean.class), compiles(ClassicBean.class));
+		assertThat(testGenerator.renderTest(ClassicBean.class), testsRun(ClassicBean.class));
 	}
 
 	@SuppressWarnings("unchecked")

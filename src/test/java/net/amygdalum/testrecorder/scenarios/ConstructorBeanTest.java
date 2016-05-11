@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.scenarios;
 
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRuns;
+import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
@@ -34,8 +34,8 @@ public class ConstructorBeanTest {
 		assertThat(bean.hashCode(), equalTo(191));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(ConstructorBean.class), compiles());
-		assertThat(testGenerator.renderTest(ConstructorBean.class), testsRuns());
+		assertThat(testGenerator.renderTest(ConstructorBean.class), compiles(ConstructorBean.class));
+		assertThat(testGenerator.renderTest(ConstructorBean.class), testsRun(ConstructorBean.class));
 	}
 
 	@SuppressWarnings("unchecked")

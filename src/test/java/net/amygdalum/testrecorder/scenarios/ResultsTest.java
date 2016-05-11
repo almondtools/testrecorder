@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRuns;
+import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Every.everyItem;
@@ -59,7 +59,7 @@ public class ResultsTest {
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Results.class), compiles());
+		assertThat(testGenerator.renderTest(Results.class), compiles(Results.class));
 	}
 	
 	@Test
@@ -70,7 +70,7 @@ public class ResultsTest {
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Results.class), testsRuns());
+		assertThat(testGenerator.renderTest(Results.class), testsRun(Results.class));
 	}
 	
 }

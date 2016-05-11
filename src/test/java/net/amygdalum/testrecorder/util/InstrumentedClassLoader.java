@@ -2,55 +2,52 @@ package net.amygdalum.testrecorder.util;
 
 import static java.util.Arrays.asList;
 
-import java.net.URLClassLoader;
 import java.util.HashSet;
 import java.util.Set;
 
 import net.amygdalum.testrecorder.DefaultConfig;
 import net.amygdalum.testrecorder.SnapshotInstrumentor;
 
-public class InstrumentedClassLoader extends URLClassLoader {
+public class InstrumentedClassLoader extends AbstractInstrumentedClassLoader {
 
 	private SnapshotInstrumentor instrumentor;
 	private String root;
 	private Set<String> classes;
 
-	public InstrumentedClassLoader(SnapshotInstrumentor instrumentor, String root, String... classes) {
-		super(((URLClassLoader) getSystemClassLoader()).getURLs());
+	public InstrumentedClassLoader(SnapshotInstrumentor instrumentor, Class<?> clazz, String... classes) {
+		super(clazz.getClassLoader());
 		this.instrumentor = createInstrumentor();
-		this.root = root;
+		this.root = clazz.getPackage().getName();
 		this.classes = new HashSet<>(asList(classes));
 	}
-
+	
 	private SnapshotInstrumentor createInstrumentor() {
-		SnapshotInstrumentor snapshotInstrumentor = new SnapshotInstrumentor(new DefaultConfig());
-		return snapshotInstrumentor;
+		return new SnapshotInstrumentor(new DefaultConfig());
 	}
 
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
-		String topLevelName = topLevelName(name);
-		if (name.equals(root)) {
-			return findClass(name);
+		if (!classes.contains(name)) {
+			String enclosing = enclosingClassName(name);
+			if (classes.contains(enclosing)) {
+				Class<?> find  = findLoadedClass(name);
+				if (find == null) {
+					find = findClass(name);
+				}
+				return find;
+			} else if (name.startsWith(root)) {
+				return findClass(name);
+			} else {
+				return super.loadClass(name);
+			}
 		}
-		if (!classes.contains(name) && !classes.contains(topLevelName)) {
-			return super.loadClass(name);
-		}
-
+		
 		try {
 			byte[] bytes = instrumentor.instrument(name);
-
-			return defineClass(name, bytes, 0, bytes.length);
+			return define(name, bytes);
 		} catch (Throwable t) {
 			throw new ClassNotFoundException(t.getMessage(), t);
 		}
 
 	}
-
-	public String topLevelName(String name) {
-		int specialIndicator = name.indexOf('$');
-		if (specialIndicator < 0) {
-			return name;
-		}
-		return name.substring(0, specialIndicator);
-	}
+	
 }

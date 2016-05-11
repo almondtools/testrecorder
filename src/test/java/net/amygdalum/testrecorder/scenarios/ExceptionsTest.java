@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRuns;
+import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Before;
@@ -30,7 +30,7 @@ public class ExceptionsTest {
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Exceptions.class), compiles());
+		assertThat(testGenerator.renderTest(Exceptions.class), compiles(Exceptions.class));
 	}
 
 	@Test
@@ -42,7 +42,7 @@ public class ExceptionsTest {
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Exceptions.class), testsRuns());
+		assertThat(testGenerator.renderTest(Exceptions.class), testsRun(Exceptions.class));
 	}
 
 }

@@ -60,8 +60,7 @@ public class IORecorder extends BlockJUnit4ClassRunner {
 		if (input != null) {
 			classes.addAll(asList(input.value()));
 		}
-		IORecorderClassLoader classLoader = new IORecorderClassLoader(klass.getClassLoader(), klass.getName(), fetchSetupInput(), fetchExpectedOutput(), classes);
-		return classLoader;
+		return new IORecorderClassLoader(klass, fetchSetupInput(), fetchExpectedOutput(), classes);
 	}
 
 	private synchronized ExpectedOutput fetchExpectedOutput() {
