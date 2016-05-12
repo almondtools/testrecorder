@@ -10,6 +10,7 @@ public class DifferentDeclarationTypes {
 
 	private MyEnum myEnum = MyEnum.VALUE1;
 	private MyClass myClass;
+	private MySingletonClass mySingletonClass;
 	private MyInterface myInterface;
 	private MyExtendedEnum myExtendedEnum = MyExtendedEnum.VALUE1;
 
@@ -17,6 +18,7 @@ public class DifferentDeclarationTypes {
 	public void test() {
 		myEnum = MyEnum.VALUE2;
 		myClass = new MyClass();
+		mySingletonClass = MySingletonClass.SINGLE;
 		myInterface = new MyClass();
 		myExtendedEnum = MyExtendedEnum.VALUE2;
 	}
@@ -44,4 +46,11 @@ interface MyInterface {
 @Retention(RetentionPolicy.RUNTIME)
 @interface MyAnnotation {
 
+}
+
+class MySingletonClass implements MyInterface {
+	public static MySingletonClass SINGLE = new MySingletonClass();
+	
+	private MySingletonClass() {
+	}
 }

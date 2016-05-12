@@ -9,6 +9,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import com.almondtools.conmatch.strings.WildcardStringMatcher;
+
 import net.amygdalum.testrecorder.CodeSerializer;
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.Instrumented;
@@ -21,7 +23,8 @@ import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
 	"net.amygdalum.testrecorder.scenarios.MyExtendedEnum",
 	"net.amygdalum.testrecorder.scenarios.MyAnnotation",
 	"net.amygdalum.testrecorder.scenarios.MyInterface",
-	"net.amygdalum.testrecorder.scenarios.MyClass"})
+	"net.amygdalum.testrecorder.scenarios.MyClass",
+	"net.amygdalum.testrecorder.scenarios.MySingletonClass"})
 public class DifferentDeclarationTypesTest {
 
 	@Before
@@ -41,10 +44,32 @@ public class DifferentDeclarationTypesTest {
 	}
 
 	@Test
+	public void testCodeClass() throws Exception {
+		CodeSerializer codeSerializer = new CodeSerializer();
+		
+		assertThat(codeSerializer.serialize(new MyClass()), containsString("myClass1 = new MyClass()"));
+	}
+
+	@Test
+	public void testCodeSingletonClass() throws Exception {
+		CodeSerializer codeSerializer = new CodeSerializer();
+		
+		assertThat(codeSerializer.serialize(MySingletonClass.SINGLE), WildcardStringMatcher.containsPattern("mySingletonClass2 = new GenericObject() {*"
+			+ "}.as(MySingletonClass.class)"));
+	}
+
+	@Test
 	public void testCodeEnum() throws Exception {
 		CodeSerializer codeSerializer = new CodeSerializer();
 		
 		assertThat(codeSerializer.serialize(MyEnum.VALUE1), containsString("serializedEnum1 = MyEnum.VALUE1"));
+	}
+
+	@Test
+	public void testCodeExtendedEnum() throws Exception {
+		CodeSerializer codeSerializer = new CodeSerializer();
+		
+		assertThat(codeSerializer.serialize(MyExtendedEnum.VALUE1), containsString("serializedEnum1 = MyExtendedEnum.VALUE1"));
 	}
 
 }

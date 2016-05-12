@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers;
 
+import static java.lang.reflect.Modifier.isPrivate;
 import static net.amygdalum.testrecorder.util.GenericObject.getDefaultValue;
 import static net.amygdalum.testrecorder.util.GenericObject.getNonDefaultValue;
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
@@ -40,7 +41,7 @@ public class Construction {
 	}
 
 	public Computation computeBest(TypeManager types, Deserializer<Computation> compiler) throws InstantiationException {
-		fillOrigins();
+		fillOrigins(types);
 		return computeConstructionPlans().stream()
 			.filter(plan -> GenericComparison.equals(plan.execute(), value))
 			.sorted()
@@ -59,10 +60,7 @@ public class Construction {
 
 	private ConstructionPlan computeConstructionPlan(Constructor<?> constructor) {
 		Set<SerializedField> todo = new HashSet<>(serialized.getFields());
-		List<ConstructorParam> setByConstructor = constructors.get(constructor);
-		for (ConstructorParam param : setByConstructor) {
-			todo.remove(param.getField());
-		}
+		ConstructorParams constructorParams = computeConstructorParams(constructor, todo);
 		List<SetterParam> setBySetter = new ArrayList<>();
 		for (SetterParam param : setters) {
 			SerializedField field = param.getField();
@@ -71,8 +69,15 @@ public class Construction {
 				setBySetter.add(param);
 			}
 		}
-		ConstructorParams constructorOf = constructorOf(constructor, setByConstructor);
-		return new ConstructionPlan(name, constructorOf, setBySetter);
+		return new ConstructionPlan(name, constructorParams, setBySetter);
+	}
+
+	public ConstructorParams computeConstructorParams(Constructor<?> constructor, Set<SerializedField> todo) {
+		List<ConstructorParam> setByConstructor = constructors.get(constructor);
+		for (ConstructorParam param : setByConstructor) {
+			todo.remove(param.getField());
+		}
+		return constructorOf(constructor, setByConstructor);
 	}
 
 	private ConstructorParams constructorOf(Constructor<?> constructor, List<ConstructorParam> params) {
@@ -83,17 +88,21 @@ public class Construction {
 		return constructorParams;
 	}
 
-	private void fillOrigins() {
+	private void fillOrigins(TypeManager types) {
 		List<Object> bases = new ArrayList<>();
-		bases.add(buildFromStandardConstructor());
-		bases.addAll(buildFromConstructors());
+		bases.add(buildFromStandardConstructor(types));
+		bases.addAll(buildFromConstructors(types));
 		bases.removeIf(Objects::isNull);
 		applySetters(bases);
 	}
 
-	private Object buildFromStandardConstructor() {
+	private Object buildFromStandardConstructor(TypeManager types) {
 		try {
-			Constructor<?> constructor = baseType(serialized.getType()).getConstructor();
+			Constructor<?> constructor = baseType(serialized.getType()).getDeclaredConstructor();
+			if (types.isHidden(constructor.getDeclaringClass()) || isPrivate(constructor.getModifiers())) {
+				return null;
+			}
+			constructor.setAccessible(true);
 			constructors.put(constructor, new ArrayList<>());
 			return constructor.newInstance();
 		} catch (ReflectiveOperationException e) {
@@ -101,7 +110,7 @@ public class Construction {
 		}
 	}
 
-	private List<Object> buildFromConstructors() {
+	private List<Object> buildFromConstructors(TypeManager types) {
 		List<Object> objects = new ArrayList<>();
 
 		for (SerializedField field : serialized.getFields()) {
@@ -109,6 +118,9 @@ public class Construction {
 			Object fieldValue = field.getValue().accept(deserializer);
 
 			for (Constructor<?> constructor : baseType(serialized.getType()).getConstructors()) {
+				if (types.isHidden(constructor.getDeclaringClass())) {
+					continue;
+				}
 				List<ConstructorParam> params = constructors.computeIfAbsent(constructor, key -> new ArrayList<>());
 				Class<?>[] parameterTypes = constructor.getParameterTypes();
 				for (int i = 0; i < parameterTypes.length; i++) {
