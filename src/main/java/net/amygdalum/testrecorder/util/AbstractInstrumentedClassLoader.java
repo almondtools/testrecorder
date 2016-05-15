@@ -32,7 +32,7 @@ public abstract class AbstractInstrumentedClassLoader extends URLClassLoader imp
 	}
 
 	private static ClassLoader uninstrument(ClassLoader loader) {
-		if (loader instanceof InstrumentedClassLoader) {
+		if (loader instanceof ClassInstrumenting) {
 			return loader.getParent();
 		} else {
 			return loader;

@@ -12,6 +12,7 @@ public class ScheduledTestGenerator extends TestGenerator {
 	private Path path;
 	private int counter;
 	private int counterInterval;
+	private int counterMaximum;
 	private long start;
 	private long timeInterval;
 	private String classNameTemplate;
@@ -25,6 +26,11 @@ public class ScheduledTestGenerator extends TestGenerator {
 
 	public ScheduledTestGenerator withDumpTo(Path path) {
 		this.path = path;
+		return this;
+	}
+
+	public ScheduledTestGenerator withDumpMaximum(int maximum) {
+		this.counterMaximum = maximum;
 		return this;
 	}
 
@@ -76,7 +82,7 @@ public class ScheduledTestGenerator extends TestGenerator {
 
 	private void checkCounterInterval() {
 		counter++;
-		if (counterInterval > 0 && counter % counterInterval == 0) {
+		if (counterInterval > 0 && counter <= counterMaximum && counter % counterInterval == 0) {
 			dumpResults();
 		}
 	}
@@ -84,7 +90,7 @@ public class ScheduledTestGenerator extends TestGenerator {
 	private void checkTimeInterval() {
 		long oldStart = start;
 		start = System.currentTimeMillis();
-		if (timeInterval > 0 && start - oldStart >= timeInterval) {
+		if (timeInterval > 0 && start - oldStart >= timeInterval && counter <= counterMaximum) {
 			dumpResults();
 		}
 	}
@@ -106,4 +112,5 @@ public class ScheduledTestGenerator extends TestGenerator {
 			.replace("${counter}", String.valueOf(counter))
 			.replace("${millis}", String.valueOf(start));
 	}
+
 }
