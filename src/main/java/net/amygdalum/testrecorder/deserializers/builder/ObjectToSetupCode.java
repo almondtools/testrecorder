@@ -54,7 +54,7 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 	private Adaptors<ObjectToSetupCode> adaptors;
 	private LocalVariableNameGenerator locals;
 
-	private Map<SerializedValue, String> computed;
+	private Map<SerializedValue, String> defined;
 
 	public ObjectToSetupCode(Class<?> clazz) {
 		this(new LocalVariableNameGenerator(), new TypeManager(clazz.getPackage().getName()), DEFAULT);
@@ -68,7 +68,7 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 		this.adaptors = adaptors;
 		this.types = types;
 		this.locals = locals;
-		this.computed = new IdentityHashMap<>();
+		this.defined = new IdentityHashMap<>();
 	}
 
 	public TypeManager getTypes() {
@@ -77,12 +77,12 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 
 	public String localVariable(SerializedValue value, Type type) {
 		String name = locals.fetchName(type);
-		computed.put(value, name);
+		defined.put(value, name);
 		return name;
 	}
 
 	public void resetVariable(SerializedValue value) {
-		computed.remove(value);
+		defined.remove(value);
 	}
 
 	@Override
@@ -100,15 +100,15 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 		if (types.isHidden(field.getValue().getResultType()) && !types.isHidden(type)) {
 			String unwrapped = callMethod(value, "value");
 			value = cast(types.getSimpleName(type), unwrapped);
-		} 
+		}
 		String assignField = assignLocalVariableStatement(types.getSimpleName(resultType), field.getName(), value);
 		return new Computation(assignField, statements);
 	}
 
 	@Override
 	public Computation visitReferenceType(SerializedReferenceType value) {
-		if (computed.containsKey(value)) {
-			return new Computation(computed.get(value), true);
+		if (defined.containsKey(value)) {
+			return new Computation(defined.get(value), true);
 		}
 		return adaptors.tryDeserialize(value, types, this);
 	}
