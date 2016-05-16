@@ -23,6 +23,8 @@ public class DefaultMapAdaptor extends DefaultAdaptor<SerializedMap, ObjectToSet
 		TypeManager types = generator.getTypes();
 		types.registerTypes(value.getResultType(), value.getType());
 
+		String name = generator.localVariable(value, Map.class);
+
 		Map<Computation, Computation> elementTemplates = value.entrySet().stream()
 			.collect(toMap(entry -> entry.getKey().accept(generator), entry -> entry.getValue().accept(generator)));
 
@@ -34,8 +36,6 @@ public class DefaultMapAdaptor extends DefaultAdaptor<SerializedMap, ObjectToSet
 			.distinct()
 			.collect(toList());
 
-		String name = generator.localVariable(value, Map.class);
-
 		String map = newObject(types.getBestName(value.getType()));
 		String mapInit = assignLocalVariableStatement(types.getSimpleName(value.getResultType()), name, map);
 		statements.add(mapInit);
@@ -45,6 +45,8 @@ public class DefaultMapAdaptor extends DefaultAdaptor<SerializedMap, ObjectToSet
 			statements.add(putEntry);
 		}
 
+		generator.finishVariable(value);
+		
 		return new Computation(name, true, statements);
 	}
 

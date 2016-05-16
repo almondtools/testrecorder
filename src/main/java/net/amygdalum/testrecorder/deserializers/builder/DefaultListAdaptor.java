@@ -20,6 +20,8 @@ public class DefaultListAdaptor extends DefaultAdaptor<SerializedList, ObjectToS
 		TypeManager types = generator.getTypes();
 		types.registerTypes(value.getResultType(), value.getType());
 
+		String name = generator.localVariable(value, List.class);
+
 		List<Computation> elementTemplates = value.stream()
 			.map(element -> element.accept(generator))
 			.collect(toList());
@@ -32,8 +34,6 @@ public class DefaultListAdaptor extends DefaultAdaptor<SerializedList, ObjectToS
 			.flatMap(template -> template.getStatements().stream())
 			.collect(toList());
 
-		String name = generator.localVariable(value, List.class);
-
 		String list = newObject(types.getBestName(value.getType()));
 		String listInit = assignLocalVariableStatement(types.getSimpleName(value.getResultType()), name, list);
 		statements.add(listInit);
@@ -43,6 +43,8 @@ public class DefaultListAdaptor extends DefaultAdaptor<SerializedList, ObjectToS
 			statements.add(addElement);
 		}
 
+		generator.finishVariable(value);
+		
 		return new Computation(name, true, statements);
 	}
 

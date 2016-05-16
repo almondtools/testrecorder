@@ -16,6 +16,20 @@ import net.amygdalum.testrecorder.Wrapped;
 
 public abstract class GenericObject {
 
+	public static <T> T forward(Class<T> clazz) {
+		return newInstance(clazz);
+	}
+
+	public static void define(Object o, GenericObject genericObject) {
+		for (Field field : genericObject.getGenericFields()) {
+			try {
+				accessing(field).exec(() -> setField(o, field.getName(), field.get(genericObject)));
+			} catch (ReflectiveOperationException e) {
+				throw new GenericObjectException(e);
+			}
+		}
+	}
+
 	public <T> T as(Class<T> clazz) {
 		return as(newInstance(clazz));
 	}

@@ -81,6 +81,8 @@ public class CollectionsMapAdaptor implements Adaptor<SerializedMap, ObjectToSet
 
 		String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), resultMap, callLocalMethod(factoryMethod));
 
+		generator.finishVariable(value);
+		
 		return new Computation(resultMap, asList(decoratingStatement));
 	}
 
@@ -89,6 +91,9 @@ public class CollectionsMapAdaptor implements Adaptor<SerializedMap, ObjectToSet
 		TypeManager types = generator.getTypes();
 		types.registerImport(Map.class);
 		types.staticImport(Collections.class, factoryMethod);
+
+		Type resultType = parameterized(Map.class, null, value.getMapKeyType(), value.getMapValueType());
+		String resultList = generator.localVariable(value, resultType);
 
 		Entry<SerializedValue, SerializedValue> entry = value.entrySet().iterator().next();
 		List<String> statements = new LinkedList<>();
@@ -101,31 +106,31 @@ public class CollectionsMapAdaptor implements Adaptor<SerializedMap, ObjectToSet
 		statements.addAll(valueComputation.getStatements());
 		String resultValue = valueComputation.getValue();
 		
-		Type resultType = parameterized(Map.class, null, value.getMapKeyType(), value.getMapValueType());
-		String resultList = generator.localVariable(value, resultType);
-
 		String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), resultList, callLocalMethod(factoryMethod, resultKey, resultValue));
 		statements.add(decoratingStatement);
 
+		generator.finishVariable(value);
+		
 		return new Computation(resultList, statements);
 	}
 
 	private Computation tryDeserializeUnmodifiable(SerializedMap value, ObjectToSetupCode generator) {
 		String factoryMethod = "unmodifiableMap";
-
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
+
+		Type resultType = parameterized(Map.class, null, value.getMapKeyType(), value.getMapValueType());
+		String resultList = generator.localVariable(value, resultType);
 
 		Computation computation = createOrdinaryMap(value, generator);
 		List<String> statements = new LinkedList<>(computation.getStatements());
 		String resultBase = computation.getValue();
 
-		Type resultType = parameterized(Map.class, null, value.getMapKeyType(), value.getMapValueType());
-		String resultList = generator.localVariable(value, resultType);
-
 		String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), resultList, callLocalMethod(factoryMethod, resultBase));
 		statements.add(decoratingStatement);
 
+		generator.finishVariable(value);
+		
 		return new Computation(resultList, statements);
 	}
 
@@ -134,16 +139,18 @@ public class CollectionsMapAdaptor implements Adaptor<SerializedMap, ObjectToSet
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
 
+		Type resultType = parameterized(Map.class, null, value.getMapKeyType(), value.getMapValueType());
+		String resultList = generator.localVariable(value, resultType);
+
 		Computation computation = createOrdinaryMap(value, generator);
 		List<String> statements = new LinkedList<>(computation.getStatements());
 		String resultBase = computation.getValue();
 
-		Type resultType = parameterized(Map.class, null, value.getMapKeyType(), value.getMapValueType());
-		String resultList = generator.localVariable(value, resultType);
-
 		String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), resultList, callLocalMethod(factoryMethod, resultBase));
 		statements.add(decoratingStatement);
 
+		generator.finishVariable(value);
+		
 		return new Computation(resultList, statements);
 	}
 
@@ -152,18 +159,20 @@ public class CollectionsMapAdaptor implements Adaptor<SerializedMap, ObjectToSet
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
 
+		Type resultType = parameterized(Map.class, null, value.getMapKeyType(), value.getMapValueType());
+		String resultList = generator.localVariable(value, resultType);
+
 		Computation computation = createOrdinaryMap(value, generator);
 		List<String> statements = new LinkedList<>(computation.getStatements());
 		String resultBase = computation.getValue();
 		String checkedKeyType = types.getRawTypeName(value.getMapKeyType());
 		String checkedValueType = types.getRawTypeName(value.getMapValueType());
 
-		Type resultType = parameterized(Map.class, null, value.getMapKeyType(), value.getMapValueType());
-		String resultList = generator.localVariable(value, resultType);
-
 		String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), resultList, callLocalMethod(factoryMethod, resultBase, checkedKeyType, checkedValueType));
 		statements.add(decoratingStatement);
 
+		generator.finishVariable(value);
+		
 		return new Computation(resultList, statements);
 	}
 

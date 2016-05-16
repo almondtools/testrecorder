@@ -26,7 +26,12 @@ public class BeanObjectAdaptor implements Adaptor<SerializedObject, ObjectToSetu
 		TypeManager types = generator.getTypes();
 		try {
 			String name = generator.localVariable(value, value.getType());
-			return new Construction(name, value).computeBest(types, generator);
+			
+			Computation best = new Construction(name, value).computeBest(types, generator);
+
+			generator.finishVariable(value);
+			
+			return best;
 		} catch (ReflectiveOperationException | RuntimeException e) {
 			generator.resetVariable(value);
 			throw new DeserializationException(value.toString());

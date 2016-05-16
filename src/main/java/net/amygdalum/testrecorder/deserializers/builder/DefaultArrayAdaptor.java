@@ -20,6 +20,8 @@ public class DefaultArrayAdaptor extends DefaultAdaptor<SerializedArray, ObjectT
 		TypeManager types = generator.getTypes();
 		types.registerType(value.getResultType());
 
+		String name = generator.localVariable(value, value.getResultType());
+
 		List<Computation> elementTemplates = Stream.of(value.getArray())
 			.map(element -> element.accept(generator))
 			.collect(toList());
@@ -34,9 +36,10 @@ public class DefaultArrayAdaptor extends DefaultAdaptor<SerializedArray, ObjectT
 
 		String arrayLiteral = arrayLiteral(types.getSimpleName(value.getResultType()), elements);
 
-		String name = generator.localVariable(value, value.getResultType());
 		statements.add(assignLocalVariableStatement(types.getSimpleName(value.getResultType()), name, arrayLiteral));
 
+		generator.finishVariable(value);
+		
 		return new Computation(name, statements);
 	}
 

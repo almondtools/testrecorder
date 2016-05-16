@@ -21,6 +21,8 @@ public class DefaultSetAdaptor extends DefaultAdaptor<SerializedSet, ObjectToSet
 		TypeManager types = generator.getTypes();
 		types.registerTypes(value.getResultType(), value.getType());
 
+		String name = generator.localVariable(value, Set.class);
+
 		List<Computation> elementTemplates = value.stream()
 			.map(element -> element.accept(generator))
 			.collect(toList());
@@ -33,8 +35,6 @@ public class DefaultSetAdaptor extends DefaultAdaptor<SerializedSet, ObjectToSet
 			.flatMap(template -> template.getStatements().stream())
 			.collect(toList());
 
-		String name = generator.localVariable(value, Set.class);
-
 		String set = newObject(types.getBestName(value.getType()));
 		String setInit = assignLocalVariableStatement(types.getSimpleName(value.getResultType()), name, set);
 		statements.add(setInit);
@@ -44,6 +44,8 @@ public class DefaultSetAdaptor extends DefaultAdaptor<SerializedSet, ObjectToSet
 			statements.add(addElement);
 		}
 
+		generator.finishVariable(value);
+		
 		return new Computation(name, true, statements);
 	}
 

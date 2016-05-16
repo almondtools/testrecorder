@@ -59,7 +59,7 @@ public class CollectionsSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString(), setDecoratedBy("unmodifiableSet", 0, 8, 15));
-		assertThat(result.getValue(), equalTo("set2"));
+		assertThat(result.getValue(), equalTo("set1"));
 	}
 
 	@Test
@@ -70,7 +70,7 @@ public class CollectionsSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 		
 		assertThat(result.getStatements().toString(), setDecoratedBy("unmodifiableSet", 0, 8, 15));
-		assertThat(result.getValue(), equalTo("set2"));
+		assertThat(result.getValue(), equalTo("set1"));
 	}
 	
 	@Test
@@ -81,7 +81,7 @@ public class CollectionsSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString(), setDecoratedBy("unmodifiableSet", 0, 8, 15));
-		assertThat(result.getValue(), equalTo("set2"));
+		assertThat(result.getValue(), equalTo("set1"));
 	}
 
 	@Test
@@ -92,7 +92,7 @@ public class CollectionsSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString(), setDecoratedBy("synchronizedSet", 0, 8, 15));
-		assertThat(result.getValue(), equalTo("set2"));
+		assertThat(result.getValue(), equalTo("set1"));
 	}
 
 	@Test
@@ -103,7 +103,7 @@ public class CollectionsSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString(), setDecoratedBy("synchronizedSet", 0, 8, 15));
-		assertThat(result.getValue(), equalTo("set2"));
+		assertThat(result.getValue(), equalTo("set1"));
 	}
 
 	@Test
@@ -114,7 +114,7 @@ public class CollectionsSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString(), setDecoratedBy("synchronizedSet", 0, 8, 15));
-		assertThat(result.getValue(), equalTo("set2"));
+		assertThat(result.getValue(), equalTo("set1"));
 	}
 
 	@Test
@@ -125,7 +125,7 @@ public class CollectionsSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString(), setDecoratedBy("checkedSet", Integer.class, 0, 8, 15));
-		assertThat(result.getValue(), equalTo("set2"));
+		assertThat(result.getValue(), equalTo("set1"));
 	}
 
 	@Test
@@ -136,7 +136,7 @@ public class CollectionsSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString(), setDecoratedBy("checkedSet", Integer.class, 0, 8, 15));
-		assertThat(result.getValue(), equalTo("set2"));
+		assertThat(result.getValue(), equalTo("set1"));
 	}
 
 	@Test
@@ -147,7 +147,7 @@ public class CollectionsSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString(), setDecoratedBy("checkedSet", Integer.class, 0, 8, 15));
-		assertThat(result.getValue(), equalTo("set2"));
+		assertThat(result.getValue(), equalTo("set1"));
 	}
 
 	@Test
@@ -191,11 +191,11 @@ public class CollectionsSetAdaptorTest {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Matcher<String> setDecoratedBy(String factory, int... elements) {
 		List<Matcher<String>> matchers = new ArrayList<>();
-		matchers.add(containsString("LinkedHashSet<Integer> set1 = new LinkedHashSet<Integer>()"));
+		matchers.add(containsString("LinkedHashSet<Integer> set2 = new LinkedHashSet<Integer>()"));
 		for (int element : elements) {
-			matchers.add(containsString("set1.add(" + element + ")"));
+			matchers.add(containsString("set2.add(" + element + ")"));
 		}
-		matchers.add(containsString("Set<Integer> set2 = " + factory + "(set1)"));
+		matchers.add(containsString("Set<Integer> set1 = " + factory + "(set2)"));
 
 		return Matchers.<String> allOf((Iterable<Matcher<? super String>>) (Iterable) matchers);
 	}
@@ -203,11 +203,11 @@ public class CollectionsSetAdaptorTest {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Matcher<String> setDecoratedBy(String factory, Class<?> clazz, int... elements) {
 		List<Matcher<String>> matchers = new ArrayList<>();
-		matchers.add(containsString("LinkedHashSet<Integer> set1 = new LinkedHashSet<Integer>()"));
+		matchers.add(containsString("LinkedHashSet<Integer> set2 = new LinkedHashSet<Integer>()"));
 		for (int element : elements) {
-			matchers.add(containsString("set1.add(" + element + ")"));
+			matchers.add(containsString("set2.add(" + element + ")"));
 		}
-		matchers.add(containsString("Set<Integer> set2 = " + factory + "(set1, " + clazz.getSimpleName() +".class)"));
+		matchers.add(containsString("Set<Integer> set1 = " + factory + "(set2, " + clazz.getSimpleName() +".class)"));
 
 		return Matchers.<String> allOf((Iterable<Matcher<? super String>>) (Iterable) matchers);
 	}

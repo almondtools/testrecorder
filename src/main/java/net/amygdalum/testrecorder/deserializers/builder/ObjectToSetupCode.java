@@ -5,6 +5,7 @@ import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
 import static net.amygdalum.testrecorder.deserializers.Templates.cast;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +18,11 @@ import net.amygdalum.testrecorder.SerializedValueType;
 import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
+import net.amygdalum.testrecorder.deserializers.LocalVariableDefinition;
 import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
+import net.amygdalum.testrecorder.deserializers.Templates;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
+import net.amygdalum.testrecorder.util.GenericObject;
 import net.amygdalum.testrecorder.values.SerializedArray;
 import net.amygdalum.testrecorder.values.SerializedEnum;
 import net.amygdalum.testrecorder.values.SerializedField;
@@ -54,7 +58,7 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 	private Adaptors<ObjectToSetupCode> adaptors;
 	private LocalVariableNameGenerator locals;
 
-	private Map<SerializedValue, String> defined;
+	private Map<SerializedValue, LocalVariableDefinition> defined;
 
 	public ObjectToSetupCode(Class<?> clazz) {
 		this(new LocalVariableNameGenerator(), new TypeManager(clazz.getPackage().getName()), DEFAULT);
@@ -77,12 +81,28 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 
 	public String localVariable(SerializedValue value, Type type) {
 		String name = locals.fetchName(type);
-		defined.put(value, name);
+		defined.put(value, new LocalVariableDefinition(name));
 		return name;
+	}
+
+	public void defineVariable(SerializedValue value) {
+		defined.computeIfPresent(value, (val, def) -> def.define());
+	}
+
+	public void finishVariable(SerializedValue value) {
+		defined.computeIfPresent(value, (val, def) -> def.finish());
 	}
 
 	public void resetVariable(SerializedValue value) {
 		defined.remove(value);
+	}
+
+	public boolean isForwardDefined(SerializedObject value) {
+		LocalVariableDefinition definition = defined.get(value);
+		if (definition == null) {
+			return false;
+		}
+		return definition.isDefined() && !definition.isReady();
 	}
 
 	@Override
@@ -108,7 +128,16 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 	@Override
 	public Computation visitReferenceType(SerializedReferenceType value) {
 		if (defined.containsKey(value)) {
-			return new Computation(defined.get(value), true);
+			LocalVariableDefinition definition = defined.get(value);
+			String name = definition.getName();
+			if (definition.isDefined()) {
+				return new Computation(name, true);
+			} else {
+				List<String> statements = new ArrayList<>();
+				statements.add(Templates.assignLocalVariableStatement(types.getBestName(value.getType()), name, callMethod(types.getBestName(GenericObject.class), "forward", types.getRawTypeName(value.getType()))));
+				definition.define();
+				return new Computation(name, true, statements);
+			}
 		}
 		return adaptors.tryDeserialize(value, types, this);
 	}

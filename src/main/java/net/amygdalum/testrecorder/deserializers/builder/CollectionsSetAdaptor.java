@@ -79,6 +79,8 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 
 		String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), resultSet, callLocalMethod(factoryMethod));
 
+		generator.finishVariable(value);
+		
 		return new Computation(resultSet, asList(decoratingStatement));
 	}
 
@@ -88,16 +90,18 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 		types.registerImport(Set.class);
 		types.staticImport(Collections.class, factoryMethod);
 
+		Type resultType = parameterized(Set.class, null, value.getComponentType());
+		String resultList = generator.localVariable(value, resultType);
+
 		Computation computation = value.iterator().next().accept(generator);
 		List<String> statements = new LinkedList<>(computation.getStatements());
 		String resultBase = computation.getValue();
 
-		Type resultType = parameterized(Set.class, null, value.getComponentType());
-		String resultList = generator.localVariable(value, resultType);
-
 		String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), resultList, callLocalMethod(factoryMethod, resultBase));
 		statements.add(decoratingStatement);
 
+		generator.finishVariable(value);
+		
 		return new Computation(resultList, statements);
 	}
 
@@ -107,16 +111,18 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
 
+		Type resultType = parameterized(Set.class, null, value.getComponentType());
+		String resultList = generator.localVariable(value, resultType);
+
 		Computation computation = createOrdinarySet(value, generator);
 		List<String> statements = new LinkedList<>(computation.getStatements());
 		String resultBase = computation.getValue();
 
-		Type resultType = parameterized(Set.class, null, value.getComponentType());
-		String resultList = generator.localVariable(value, resultType);
-
 		String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), resultList, callLocalMethod(factoryMethod, resultBase));
 		statements.add(decoratingStatement);
 
+		generator.finishVariable(value);
+		
 		return new Computation(resultList, statements);
 	}
 
@@ -125,16 +131,18 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
 
+		Type resultType = parameterized(Set.class, null, value.getComponentType());
+		String resultList = generator.localVariable(value, resultType);
+
 		Computation computation = createOrdinarySet(value, generator);
 		List<String> statements = new LinkedList<>(computation.getStatements());
 		String resultBase = computation.getValue();
 
-		Type resultType = parameterized(Set.class, null, value.getComponentType());
-		String resultList = generator.localVariable(value, resultType);
-
 		String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), resultList, callLocalMethod(factoryMethod, resultBase));
 		statements.add(decoratingStatement);
 
+		generator.finishVariable(value);
+		
 		return new Computation(resultList, statements);
 	}
 
@@ -143,17 +151,19 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
 
+		Type resultType = parameterized(Set.class, null, value.getComponentType());
+		String resultList = generator.localVariable(value, resultType);
+
 		Computation computation = createOrdinarySet(value, generator);
 		List<String> statements = new LinkedList<>(computation.getStatements());
 		String resultBase = computation.getValue();
 		String checkedType = types.getRawTypeName(value.getComponentType());
 
-		Type resultType = parameterized(Set.class, null, value.getComponentType());
-		String resultList = generator.localVariable(value, resultType);
-
 		String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), resultList, callLocalMethod(factoryMethod, resultBase, checkedType));
 		statements.add(decoratingStatement);
 
+		generator.finishVariable(value);
+		
 		return new Computation(resultList, statements);
 	}
 

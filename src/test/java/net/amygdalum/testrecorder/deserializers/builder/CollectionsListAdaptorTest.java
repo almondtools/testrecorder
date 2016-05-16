@@ -55,7 +55,7 @@ public class CollectionsListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString(), listDecoratedBy("unmodifiableList", 0, 8, 15));
-		assertThat(result.getValue(), equalTo("list2"));
+		assertThat(result.getValue(), equalTo("list1"));
 	}
 
 	@Test
@@ -66,7 +66,7 @@ public class CollectionsListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString(), listDecoratedBy("unmodifiableList", 0, 8, 15));
-		assertThat(result.getValue(), equalTo("list2"));
+		assertThat(result.getValue(), equalTo("list1"));
 	}
 
 	@Test
@@ -77,7 +77,7 @@ public class CollectionsListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString(), listDecoratedBy("synchronizedList", 0, 8, 15));
-		assertThat(result.getValue(), equalTo("list2"));
+		assertThat(result.getValue(), equalTo("list1"));
 	}
 
 	@Test
@@ -88,7 +88,7 @@ public class CollectionsListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString(), listDecoratedBy("synchronizedList", 0, 8, 15));
-		assertThat(result.getValue(), equalTo("list2"));
+		assertThat(result.getValue(), equalTo("list1"));
 	}
 
 	@Test
@@ -99,7 +99,7 @@ public class CollectionsListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString(), listDecoratedBy("checkedList", Integer.class, 0, 8, 15));
-		assertThat(result.getValue(), equalTo("list2"));
+		assertThat(result.getValue(), equalTo("list1"));
 	}
 
 	@Test
@@ -110,7 +110,7 @@ public class CollectionsListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString(), listDecoratedBy("checkedList", Integer.class, 0, 8, 15));
-		assertThat(result.getValue(), equalTo("list2"));
+		assertThat(result.getValue(), equalTo("list1"));
 	}
 
 	@Test
@@ -154,11 +154,11 @@ public class CollectionsListAdaptorTest {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Matcher<String> listDecoratedBy(String factory, int... elements) {
 		List<Matcher<String>> matchers = new ArrayList<>();
-		matchers.add(containsString("ArrayList<Integer> list1 = new ArrayList<Integer>()"));
+		matchers.add(containsString("ArrayList<Integer> list2 = new ArrayList<Integer>()"));
 		for (int element : elements) {
-			matchers.add(containsString("list1.add(" + element + ")"));
+			matchers.add(containsString("list2.add(" + element + ")"));
 		}
-		matchers.add(containsString("List<Integer> list2 = " + factory + "(list1)"));
+		matchers.add(containsString("List<Integer> list1 = " + factory + "(list2)"));
 
 		return Matchers.<String> allOf((Iterable<Matcher<? super String>>) (Iterable) matchers);
 	}
@@ -166,11 +166,11 @@ public class CollectionsListAdaptorTest {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Matcher<String> listDecoratedBy(String factory, Class<?> clazz, int... elements) {
 		List<Matcher<String>> matchers = new ArrayList<>();
-		matchers.add(containsString("ArrayList<Integer> list1 = new ArrayList<Integer>()"));
+		matchers.add(containsString("ArrayList<Integer> list2 = new ArrayList<Integer>()"));
 		for (int element : elements) {
-			matchers.add(containsString("list1.add(" + element + ")"));
+			matchers.add(containsString("list2.add(" + element + ")"));
 		}
-		matchers.add(containsString("List<Integer> list2 = " + factory + "(list1, " + clazz.getSimpleName() +".class)"));
+		matchers.add(containsString("List<Integer> list1 = " + factory + "(list2, " + clazz.getSimpleName() +".class)"));
 
 		return Matchers.<String> allOf((Iterable<Matcher<? super String>>) (Iterable) matchers);
 	}

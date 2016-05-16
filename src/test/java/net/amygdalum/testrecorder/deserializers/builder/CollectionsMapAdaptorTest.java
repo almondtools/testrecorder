@@ -59,7 +59,7 @@ public class CollectionsMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString(), mapDecoratedBy("unmodifiableMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
-		assertThat(result.getValue(), equalTo("map2"));
+		assertThat(result.getValue(), equalTo("map1"));
 	}
 
 	@Test
@@ -70,7 +70,7 @@ public class CollectionsMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString(), mapDecoratedBy("unmodifiableMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
-		assertThat(result.getValue(), equalTo("map2"));
+		assertThat(result.getValue(), equalTo("map1"));
 	}
 
 	@Test
@@ -81,7 +81,7 @@ public class CollectionsMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString(), mapDecoratedBy("unmodifiableMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
-		assertThat(result.getValue(), equalTo("map2"));
+		assertThat(result.getValue(), equalTo("map1"));
 	}
 
 	@Test
@@ -92,7 +92,7 @@ public class CollectionsMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString(), mapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
-		assertThat(result.getValue(), equalTo("map2"));
+		assertThat(result.getValue(), equalTo("map1"));
 	}
 
 	@Test
@@ -103,7 +103,7 @@ public class CollectionsMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString(), mapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
-		assertThat(result.getValue(), equalTo("map2"));
+		assertThat(result.getValue(), equalTo("map1"));
 	}
 
 	@Test
@@ -114,7 +114,7 @@ public class CollectionsMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString(), mapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
-		assertThat(result.getValue(), equalTo("map2"));
+		assertThat(result.getValue(), equalTo("map1"));
 	}
 
 	@Test
@@ -125,7 +125,7 @@ public class CollectionsMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString(), mapDecoratedBy("checkedMap", Integer.class, Integer.class, new int[] { 8, 15 }, new int[] { 47, 11 }));
-		assertThat(result.getValue(), equalTo("map2"));
+		assertThat(result.getValue(), equalTo("map1"));
 	}
 
 	@Test
@@ -136,7 +136,7 @@ public class CollectionsMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString(), mapDecoratedBy("checkedMap", Integer.class, Integer.class, new int[] { 8, 15 }, new int[] { 47, 11 }));
-		assertThat(result.getValue(), equalTo("map2"));
+		assertThat(result.getValue(), equalTo("map1"));
 	}
 
 	@Test
@@ -147,7 +147,7 @@ public class CollectionsMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString(), mapDecoratedBy("checkedMap", Integer.class, Integer.class, new int[] { 8, 15 }, new int[] { 47, 11 }));
-		assertThat(result.getValue(), equalTo("map2"));
+		assertThat(result.getValue(), equalTo("map1"));
 	}
 
 	@Test
@@ -191,11 +191,11 @@ public class CollectionsMapAdaptorTest {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Matcher<String> mapDecoratedBy(String factory, int[]... elements) {
 		List<Matcher<String>> matchers = new ArrayList<>();
-		matchers.add(containsString("LinkedHashMap<Integer, Integer> map1 = new LinkedHashMap<Integer, Integer>()"));
+		matchers.add(containsString("LinkedHashMap<Integer, Integer> map2 = new LinkedHashMap<Integer, Integer>()"));
 		for (int[] element : elements) {
-			matchers.add(containsString("map1.put(" + element[0] + ", " + element[1] + ")"));
+			matchers.add(containsString("map2.put(" + element[0] + ", " + element[1] + ")"));
 		}
-		matchers.add(containsString("Map<Integer, Integer> map2 = " + factory + "(map1)"));
+		matchers.add(containsString("Map<Integer, Integer> map1 = " + factory + "(map2)"));
 
 		return Matchers.<String> allOf((Iterable<Matcher<? super String>>) (Iterable) matchers);
 	}
@@ -203,11 +203,11 @@ public class CollectionsMapAdaptorTest {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Matcher<String> mapDecoratedBy(String factory, Class<?> keyClazz, Class<?> valueClazz, int[]... elements) {
 		List<Matcher<String>> matchers = new ArrayList<>();
-		matchers.add(containsString("LinkedHashMap<Integer, Integer> map1 = new LinkedHashMap<Integer, Integer>()"));
+		matchers.add(containsString("LinkedHashMap<Integer, Integer> map2 = new LinkedHashMap<Integer, Integer>()"));
 		for (int element[] : elements) {
-			matchers.add(containsString("map1.put(" + element[0] + ", " + element[1] + ")"));
+			matchers.add(containsString("map2.put(" + element[0] + ", " + element[1] + ")"));
 		}
-		matchers.add(containsString("Map<Integer, Integer> map2 = " + factory + "(map1, " + keyClazz.getSimpleName() + ".class, " + valueClazz.getSimpleName() + ".class)"));
+		matchers.add(containsString("Map<Integer, Integer> map1 = " + factory + "(map2, " + keyClazz.getSimpleName() + ".class, " + valueClazz.getSimpleName() + ".class)"));
 
 		return Matchers.<String> allOf((Iterable<Matcher<? super String>>) (Iterable) matchers);
 	}

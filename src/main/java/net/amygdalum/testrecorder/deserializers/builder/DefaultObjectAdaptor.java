@@ -2,6 +2,8 @@ package net.amygdalum.testrecorder.deserializers.builder;
 
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
+import static net.amygdalum.testrecorder.deserializers.Templates.callMethodStatement;
+import static net.amygdalum.testrecorder.deserializers.Templates.genericObject;
 import static net.amygdalum.testrecorder.deserializers.Templates.genericObjectConverter;
 
 import java.lang.reflect.Type;
@@ -38,10 +40,17 @@ public class DefaultObjectAdaptor extends DefaultAdaptor<SerializedObject, Objec
 			.collect(toList());
 
 		Type resultType = types.wrapHidden(type);
-		String genericObject = genericObjectConverter(types.getRawTypeName(type), elements);
 
-		statements.add(assignLocalVariableStatement(types.getRawName(resultType), name, genericObject));
-
+		if (generator.isForwardDefined(value)) {
+			String genericObject = genericObject(types.getRawTypeName(type), elements);
+			statements.add(callMethodStatement(types.getBestName(GenericObject.class), "define", name, genericObject));
+		} else {
+			String genericObject = genericObjectConverter(types.getRawTypeName(type), elements);
+			statements.add(assignLocalVariableStatement(types.getRawName(resultType), name, genericObject));
+		}
+		generator.finishVariable(value);
+		
+		
 		return new Computation(name, statements);
 	}
 

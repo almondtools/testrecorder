@@ -51,16 +51,18 @@ public class ArraysListAdaptor implements Adaptor<SerializedList, ObjectToSetupC
 		for (SerializedValue element : value) {
 			baseValue.add(element);
 		}
+
+		Type resultType = parameterized(List.class, null, value.getComponentType());
+		String resultList = generator.localVariable(value, resultType);
+		
 		Computation computation = adaptor.tryDeserialize(baseValue, generator);
 		List<String> statements = new LinkedList<>(computation.getStatements());
 		String resultArray = computation.getValue();
 		
-		Type resultType = parameterized(List.class, null, value.getComponentType());
-		String resultList = generator.localVariable(value, resultType);
-		
 		String asListStatement = assignLocalVariableStatement(types.getBestName(resultType), resultList, callLocalMethod("asList", resultArray));
 		statements.add(asListStatement);
 		
+		generator.finishVariable(value);
 		
 		return new Computation(resultList, statements);
 	}

@@ -10,6 +10,7 @@ import org.stringtemplate.v4.ST;
 
 public final class Templates {
 
+	private static final String GENERIC_OBJECT = "new GenericObject() {\n<fields; separator=\"\\n\">\n}";
 	private static final String GENERIC_OBJECT_CONVERTER = "new GenericObject() {\n<fields; separator=\"\\n\">\n}.as(<type>)";
 	private static final String ARRAY_LITERAL = "new <type>{<elements; separator=\", \">}";
 	private static final String NEW_OBJECT = "new <type>(<args; separator=\", \">)";
@@ -296,14 +297,22 @@ public final class Templates {
 		return assign.render();
 	}
 
-	public static String genericObjectConverter(String type, List<String> fields) {
-		ST genericObject = new ST(GENERIC_OBJECT_CONVERTER);
+	public static String genericObject(String type, List<String> fields) {
+		ST genericObject = new ST(GENERIC_OBJECT);
 		genericObject.add("type", type);
 		genericObject.add("fields", fields);
 
 		return genericObject.render();
 	}
 
+	public static String genericObjectConverter(String type, List<String> fields) {
+		ST genericObject = new ST(GENERIC_OBJECT_CONVERTER);
+		genericObject.add("type", type);
+		genericObject.add("fields", fields);
+		
+		return genericObject.render();
+	}
+	
 	public static String genericObjectMatcher(String type, List<String> fields) {
 		ST matcher = new ST(GENERIC_OBJECT_MATCHER);
 		matcher.add("type", type);
