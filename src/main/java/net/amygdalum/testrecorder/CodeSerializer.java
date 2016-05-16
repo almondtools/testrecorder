@@ -21,15 +21,19 @@ public class CodeSerializer {
 	private DeserializerFactory serializers;
 
 	public CodeSerializer() {
-		this(new ConfigurableSerializerFacade(new DefaultSerializationProfile()), new ObjectToSetupCode.Factory());
+		this("");
 	}
 	
-	public CodeSerializer(DeserializerFactory serializers) {
-		this(new ConfigurableSerializerFacade(new DefaultSerializationProfile()), serializers);
+	public CodeSerializer(String pkg) {
+		this(pkg, new ConfigurableSerializerFacade(new DefaultSerializationProfile()), new ObjectToSetupCode.Factory());
 	}
 	
-	public CodeSerializer(SerializerFacade facade, DeserializerFactory serializers) {
-		this.types = new TypeManager();
+	public CodeSerializer(String pkg, DeserializerFactory serializers) {
+		this(pkg, new ConfigurableSerializerFacade(new DefaultSerializationProfile()), serializers);
+	}
+	
+	public CodeSerializer(String pkg, SerializerFacade facade, DeserializerFactory serializers) {
+		this.types = new TypeManager(pkg);
 		this.facade = facade;
 		this.serializers = serializers;
 	}

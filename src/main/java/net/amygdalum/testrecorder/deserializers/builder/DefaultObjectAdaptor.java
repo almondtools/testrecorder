@@ -21,6 +21,9 @@ public class DefaultObjectAdaptor extends DefaultAdaptor<SerializedObject, Objec
 		TypeManager types = generator.getTypes();
 		types.registerTypes(value.getResultType(), GenericObject.class);
 
+		Type type = value.getType();
+		String name = generator.localVariable(value, type);
+
 		List<Computation> elementTemplates = value.getFields().stream()
 			.sorted()
 			.map(element -> element.accept(generator))
@@ -34,11 +37,9 @@ public class DefaultObjectAdaptor extends DefaultAdaptor<SerializedObject, Objec
 			.flatMap(template -> template.getStatements().stream())
 			.collect(toList());
 
-		Type type = value.getType();
 		Type resultType = types.wrapHidden(type);
 		String genericObject = genericObjectConverter(types.getRawTypeName(type), elements);
 
-		String name = generator.localVariable(value, type);
 		statements.add(assignLocalVariableStatement(types.getRawName(resultType), name, genericObject));
 
 		return new Computation(name, statements);

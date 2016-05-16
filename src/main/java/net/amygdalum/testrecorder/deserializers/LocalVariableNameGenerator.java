@@ -27,6 +27,11 @@ public class LocalVariableNameGenerator {
 		});
 	}
 
+	public void retractName(Type type) {
+		String base = base(type);
+		names.compute(base, (key, value) -> value - 1);
+	}
+
 	private String base(Type type) {
 		if (type instanceof Class<?>) {
 			return base((Class<?>) type);

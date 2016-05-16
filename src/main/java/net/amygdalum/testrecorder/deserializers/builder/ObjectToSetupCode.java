@@ -81,6 +81,10 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 		return name;
 	}
 
+	public void resetVariable(SerializedValue value) {
+		computed.remove(value);
+	}
+
 	@Override
 	public Computation visitField(SerializedField field) {
 		Type type = field.getType();

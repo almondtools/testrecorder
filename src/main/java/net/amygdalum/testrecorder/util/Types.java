@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.util;
 
+import static java.lang.reflect.Modifier.isPrivate;
 import static java.lang.reflect.Modifier.isPublic;
 import static java.util.stream.Collectors.joining;
 
@@ -7,7 +8,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
@@ -159,10 +159,12 @@ public class Types {
 		int modifiers = clazz.getModifiers();
 		if (isPublic(modifiers)) {
 			return false;
-		} else if (Modifier.isPrivate(modifiers)) {
+		} else if (isPrivate(modifiers)) {
+			return true;
+		} else if (clazz.getEnclosingClass() != null) { 
 			return true;
 		} else {
-			return pkg.equals(clazz.getPackage());
+			return !pkg.equals(clazz.getPackage().getName());
 		}
 	}
 

@@ -99,9 +99,9 @@ public class SimpleDeserializer implements Deserializer<Object> {
 			SerializedArray value = (SerializedArray) rt;
 			Class<?> componentType = value.getRawType();
 			SerializedValue[] rawArray = value.getArray();
-			Object[] array = fetch(value, () -> (Object[]) Array.newInstance(componentType, rawArray.length), base -> {
+			Object array = fetch(value, () -> Array.newInstance(componentType, rawArray.length), base -> {
 				for (int i = 0; i < rawArray.length; i++) {
-					base[i] = rawArray[i].accept(this);
+					Array.set(base, i, rawArray[i].accept(this));
 				}
 			});
 			return array;

@@ -45,14 +45,14 @@ public class DifferentDeclarationTypesTest {
 
 	@Test
 	public void testCodeClass() throws Exception {
-		CodeSerializer codeSerializer = new CodeSerializer();
+		CodeSerializer codeSerializer = setupSerializer();
 		
 		assertThat(codeSerializer.serialize(new MyClass()), containsString("myClass1 = new MyClass()"));
 	}
 
 	@Test
 	public void testCodeSingletonClass() throws Exception {
-		CodeSerializer codeSerializer = new CodeSerializer();
+		CodeSerializer codeSerializer = setupSerializer();
 		
 		assertThat(codeSerializer.serialize(MySingletonClass.SINGLE), WildcardStringMatcher.containsPattern("mySingletonClass2 = new GenericObject() {*"
 			+ "}.as(MySingletonClass.class)"));
@@ -60,16 +60,20 @@ public class DifferentDeclarationTypesTest {
 
 	@Test
 	public void testCodeEnum() throws Exception {
-		CodeSerializer codeSerializer = new CodeSerializer();
+		CodeSerializer codeSerializer = setupSerializer();
 		
 		assertThat(codeSerializer.serialize(MyEnum.VALUE1), containsString("serializedEnum1 = MyEnum.VALUE1"));
 	}
 
 	@Test
 	public void testCodeExtendedEnum() throws Exception {
-		CodeSerializer codeSerializer = new CodeSerializer();
+		CodeSerializer codeSerializer = setupSerializer();
 		
 		assertThat(codeSerializer.serialize(MyExtendedEnum.VALUE1), containsString("serializedEnum1 = MyExtendedEnum.VALUE1"));
+	}
+
+	private static CodeSerializer setupSerializer() {
+		return new CodeSerializer("net.amygdalum.testrecorder.scenarios");
 	}
 
 }
