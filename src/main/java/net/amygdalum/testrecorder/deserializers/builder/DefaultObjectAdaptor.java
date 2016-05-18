@@ -21,7 +21,7 @@ public class DefaultObjectAdaptor extends DefaultAdaptor<SerializedObject, Objec
 	@Override
 	public Computation tryDeserialize(SerializedObject value, ObjectToSetupCode generator) {
 		TypeManager types = generator.getTypes();
-		types.registerTypes(value.getResultType(), GenericObject.class);
+		types.registerTypes(value.getType(), value.getResultType(), GenericObject.class);
 
 		Type type = value.getType();
 		String name = generator.localVariable(value, type);
