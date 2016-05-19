@@ -81,7 +81,7 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 
 		generator.finishVariable(value);
 		
-		return new Computation(resultSet, asList(decoratingStatement));
+		return new Computation(resultSet, value.getResultType(), asList(decoratingStatement));
 	}
 
 	private Computation tryDeserializeSingleton(SerializedSet value, ObjectToSetupCode generator) {
@@ -102,7 +102,7 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 
 		generator.finishVariable(value);
 		
-		return new Computation(resultList, statements);
+		return new Computation(resultList, value.getResultType(), statements);
 	}
 
 	private Computation tryDeserializeUnmodifiable(SerializedSet value, ObjectToSetupCode generator) {
@@ -123,7 +123,7 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 
 		generator.finishVariable(value);
 		
-		return new Computation(resultList, statements);
+		return new Computation(resultList, value.getResultType(), statements);
 	}
 
 	private Computation tryDeserializeSynchronized(SerializedSet value, ObjectToSetupCode generator) {
@@ -143,7 +143,7 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 
 		generator.finishVariable(value);
 		
-		return new Computation(resultList, statements);
+		return new Computation(resultList, value.getResultType(), statements);
 	}
 
 	private Computation tryDeserializeChecked(SerializedSet value, ObjectToSetupCode generator) {
@@ -164,7 +164,7 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 
 		generator.finishVariable(value);
 		
-		return new Computation(resultList, statements);
+		return new Computation(resultList, value.getResultType(), statements);
 	}
 
 }

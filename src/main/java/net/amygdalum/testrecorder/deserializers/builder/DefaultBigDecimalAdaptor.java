@@ -27,7 +27,7 @@ public class DefaultBigDecimalAdaptor extends DefaultAdaptor<SerializedImmutable
 
 		String literal = asLiteral(value.getValue().toPlainString());
 		String bigDecimal = newObject("BigDecimal", literal);
-		return new Computation(bigDecimal);
+		return new Computation(bigDecimal, value.getResultType());
 	}
 
 }

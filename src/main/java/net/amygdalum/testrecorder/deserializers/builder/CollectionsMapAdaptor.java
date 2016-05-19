@@ -83,7 +83,7 @@ public class CollectionsMapAdaptor implements Adaptor<SerializedMap, ObjectToSet
 
 		generator.finishVariable(value);
 		
-		return new Computation(resultMap, asList(decoratingStatement));
+		return new Computation(resultMap, value.getResultType(), asList(decoratingStatement));
 	}
 
 	private Computation tryDeserializeSingleton(SerializedMap value, ObjectToSetupCode generator) {
@@ -111,7 +111,7 @@ public class CollectionsMapAdaptor implements Adaptor<SerializedMap, ObjectToSet
 
 		generator.finishVariable(value);
 		
-		return new Computation(resultList, statements);
+		return new Computation(resultList, value.getResultType(), statements);
 	}
 
 	private Computation tryDeserializeUnmodifiable(SerializedMap value, ObjectToSetupCode generator) {
@@ -131,7 +131,7 @@ public class CollectionsMapAdaptor implements Adaptor<SerializedMap, ObjectToSet
 
 		generator.finishVariable(value);
 		
-		return new Computation(resultList, statements);
+		return new Computation(resultList, value.getResultType(), statements);
 	}
 
 	private Computation tryDeserializeSynchronized(SerializedMap value, ObjectToSetupCode generator) {
@@ -151,7 +151,7 @@ public class CollectionsMapAdaptor implements Adaptor<SerializedMap, ObjectToSet
 
 		generator.finishVariable(value);
 		
-		return new Computation(resultList, statements);
+		return new Computation(resultList, value.getResultType(), statements);
 	}
 
 	private Computation tryDeserializeChecked(SerializedMap value, ObjectToSetupCode generator) {
@@ -173,7 +173,7 @@ public class CollectionsMapAdaptor implements Adaptor<SerializedMap, ObjectToSet
 
 		generator.finishVariable(value);
 		
-		return new Computation(resultList, statements);
+		return new Computation(resultList, value.getResultType(), statements);
 	}
 
 }

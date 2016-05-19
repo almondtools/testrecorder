@@ -32,7 +32,7 @@ public class DefaultSetAdaptor extends DefaultAdaptor<SerializedSet, ObjectToMat
 			types.staticImport(Matchers.class, "containsInAnyOrder");
 
 			List<Computation> elements = value.stream()
-				.map(element -> generator.simpleValue(element))
+				.map(element -> generator.simpleMatcher(element))
 				.collect(toList());
 
 			List<String> elementComputations = elements.stream()

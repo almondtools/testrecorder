@@ -9,7 +9,7 @@ public class DefaultNullAdaptor extends DefaultAdaptor<SerializedNull, ObjectToS
 
 	@Override
 	public Computation tryDeserialize(SerializedNull value, ObjectToSetupCode generator) {
-		return new Computation("null");
+		return new Computation("null", value.getResultType());
 	}
 
 }

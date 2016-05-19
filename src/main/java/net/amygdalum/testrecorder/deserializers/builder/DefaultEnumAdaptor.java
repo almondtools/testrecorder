@@ -30,13 +30,13 @@ public class DefaultEnumAdaptor extends DefaultAdaptor<SerializedEnum, ObjectToS
 			String typeName = types.getBestName(value.getType());
 			String typeArgument = asLiteral(typeName);
 			String wrapped = newObject(types.getRawName(Wrapped.class), typeArgument);
-			return new Computation(wrapped);
+			return new Computation(wrapped, value.getResultType());
 		} else {
 			String typeName = types.getBestName(value.getType());
 			String name = value.getName();
 
 			String enumConstant = fieldAccess(typeName, name);
-			return new Computation(enumConstant);
+			return new Computation(enumConstant, value.getResultType());
 		}
 	}
 

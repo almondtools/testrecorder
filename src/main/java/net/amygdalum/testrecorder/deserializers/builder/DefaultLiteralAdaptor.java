@@ -13,7 +13,7 @@ public class DefaultLiteralAdaptor extends DefaultAdaptor<SerializedLiteral, Obj
 	public Computation tryDeserialize(SerializedLiteral value, ObjectToSetupCode generator) {
 		Object literalValue = value.getValue();
 		String literal = asLiteral(literalValue);
-		return new Computation(literal);
+		return new Computation(literal, value.getResultType());
 	}
 
 }

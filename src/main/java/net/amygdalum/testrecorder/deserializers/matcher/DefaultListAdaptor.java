@@ -31,7 +31,7 @@ public class DefaultListAdaptor extends DefaultAdaptor<SerializedList, ObjectToM
 			types.staticImport(Matchers.class, "contains");
 
 			List<Computation> elements = value.stream()
-				.map(element -> generator.simpleValue(element))
+				.map(element -> generator.simpleMatcher(element))
 				.collect(toList());
 
 			List<String> elementComputations = elements.stream()

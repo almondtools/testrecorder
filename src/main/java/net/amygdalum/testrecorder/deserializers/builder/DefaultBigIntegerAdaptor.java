@@ -27,7 +27,7 @@ public class DefaultBigIntegerAdaptor extends DefaultAdaptor<SerializedImmutable
 
 		String literal = asLiteral(value.getValue().toString());
 		String bigInteger = newObject("BigInteger", literal);
-		return new Computation(bigInteger);
+		return new Computation(bigInteger, value.getResultType());
 	}
 
 }

@@ -27,7 +27,7 @@ public class DefaultClassAdaptor extends DefaultAdaptor<SerializedImmutable<Clas
 
 		Class<?> clazz = value.getValue();
 
-		return new Computation(types.getRawTypeName(clazz));
+		return new Computation(types.getRawTypeName(clazz), value.getResultType());
 	}
 
 }

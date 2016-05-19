@@ -64,7 +64,7 @@ public class ArraysListAdaptor implements Adaptor<SerializedList, ObjectToSetupC
 		
 		generator.finishVariable(value);
 		
-		return new Computation(resultList, statements);
+		return new Computation(resultList, value.getResultType(), statements);
 	}
 
 }

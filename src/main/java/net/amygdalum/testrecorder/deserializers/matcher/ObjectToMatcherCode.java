@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
+import static net.amygdalum.testrecorder.deserializers.Templates.nullMatcher;
 import static net.amygdalum.testrecorder.deserializers.Templates.recursiveMatcher;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
@@ -12,6 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 
 import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedImmutableType;
@@ -78,11 +80,22 @@ public class ObjectToMatcherCode implements Deserializer<Computation> {
 			|| element instanceof SerializedLiteral;
 	}
 
+	public Computation simpleMatcher(SerializedValue element) {
+		if (element instanceof SerializedNull) {
+			types.staticImport(Matchers.class, "nullValue");
+			return new Computation(nullMatcher(""), element.getResultType());
+		} else if (element instanceof SerializedLiteral) {
+			return new Computation(asLiteral(((SerializedLiteral) element).getValue()), element.getResultType());
+		} else {
+			return element.accept(this);
+		}
+	}
+
 	public Computation simpleValue(SerializedValue element) {
 		if (element instanceof SerializedNull) {
-			return new Computation("null");
+			return new Computation("null", element.getResultType());
 		} else if (element instanceof SerializedLiteral) {
-			return new Computation(asLiteral(((SerializedLiteral) element).getValue()));
+			return new Computation(asLiteral(((SerializedLiteral) element).getValue()), element.getResultType());
 		} else {
 			return element.accept(this);
 		}
@@ -96,7 +109,7 @@ public class ObjectToMatcherCode implements Deserializer<Computation> {
 			Computation value = simpleValue(fieldValue);
 
 			String assignField = assignLocalVariableStatement(types.getRawName(field.getType()), field.getName(), value.getValue());
-			return new Computation(assignField, value.getStatements());
+			return new Computation(assignField, null, value.getStatements());
 		} else {
 			types.registerImport(Matcher.class);
 			Computation value = fieldValue.accept(this);
@@ -104,7 +117,7 @@ public class ObjectToMatcherCode implements Deserializer<Computation> {
 			String genericType = types.getSimpleName(value.getType());
 
 			String assignField = assignLocalVariableStatement(genericType, field.getName(), value.getValue());
-			return new Computation(assignField, value.getStatements());
+			return new Computation(assignField, null, value.getStatements());
 		}
 	}
 	

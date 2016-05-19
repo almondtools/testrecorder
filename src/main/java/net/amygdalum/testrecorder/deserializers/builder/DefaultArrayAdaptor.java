@@ -40,7 +40,7 @@ public class DefaultArrayAdaptor extends DefaultAdaptor<SerializedArray, ObjectT
 
 		generator.finishVariable(value);
 		
-		return new Computation(name, statements);
+		return new Computation(name, value.getResultType(), statements);
 	}
 
 }

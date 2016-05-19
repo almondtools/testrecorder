@@ -21,7 +21,7 @@ public class DefaultNullAdaptor extends DefaultAdaptor<SerializedNull, ObjectToM
 		types.registerType(value.getType());
 		types.staticImport(Matchers.class, "nullValue");
 
-		String nullMatcher = nullMatcher(types.getRawName(value.getType()));
+		String nullMatcher = nullMatcher(types.getRawTypeName(value.getType()));
 		return new Computation(nullMatcher, parameterized(Matcher.class, null, value.getType()), emptyList());
 	}
 

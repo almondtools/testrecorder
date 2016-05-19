@@ -20,7 +20,6 @@ import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.deserializers.LocalVariableDefinition;
 import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
-import net.amygdalum.testrecorder.deserializers.Templates;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.util.GenericObject;
 import net.amygdalum.testrecorder.values.SerializedArray;
@@ -75,6 +74,15 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 		this.defined = new IdentityHashMap<>();
 	}
 
+	public String unwrapHidden(String value, Type resultType, Type type) {
+		if (types.isHidden(type) && !types.isHidden(resultType)) {
+			String unwrapped = callMethod(value, "value");
+			return cast(types.getSimpleName(resultType), unwrapped);
+		} else {
+			return value;
+		}
+	}
+
 	public TypeManager getTypes() {
 		return types;
 	}
@@ -86,7 +94,7 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 	}
 
 	public void defineVariable(SerializedValue value) {
-		defined.computeIfPresent(value, (val, def) -> def.define());
+		defined.computeIfPresent(value, (val, def) -> def.define(value.getResultType()));
 	}
 
 	public void finishVariable(SerializedValue value) {
@@ -116,13 +124,10 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 
 		List<String> statements = valueTemplate.getStatements();
 
-		String value = valueTemplate.getValue();
-		if (types.isHidden(field.getValue().getResultType()) && !types.isHidden(type)) {
-			String unwrapped = callMethod(value, "value");
-			value = cast(types.getSimpleName(type), unwrapped);
-		}
+		String value = unwrapHidden(valueTemplate.getValue(), type, field.getValue().getResultType());
+		
 		String assignField = assignLocalVariableStatement(types.getSimpleName(resultType), field.getName(), value);
-		return new Computation(assignField, statements);
+		return new Computation(assignField, null, statements);
 	}
 
 	@Override
@@ -131,12 +136,13 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 			LocalVariableDefinition definition = defined.get(value);
 			String name = definition.getName();
 			if (definition.isDefined()) {
-				return new Computation(name, true);
+				return new Computation(name, definition.getType(), true);
 			} else {
 				List<String> statements = new ArrayList<>();
-				statements.add(Templates.assignLocalVariableStatement(types.getBestName(value.getType()), name, callMethod(types.getBestName(GenericObject.class), "forward", types.getRawTypeName(value.getType()))));
-				definition.define();
-				return new Computation(name, true, statements);
+				statements.add(assignLocalVariableStatement(types.getBestName(value.getType()), name,
+					callMethod(types.getBestName(GenericObject.class), "forward", types.getRawTypeName(value.getType()))));
+				definition.define(value.getResultType());
+				return new Computation(name, definition.getType(), true, statements);
 			}
 		}
 		return adaptors.tryDeserialize(value, types, this);

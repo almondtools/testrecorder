@@ -62,6 +62,6 @@ public class ConstructionPlan {
 			statements.add(setStatement);
 		}
 
-		return new Computation(name, true, statements);
+		return new Computation(name, null, true, statements);
 	}
 }

@@ -29,7 +29,9 @@ public class DefaultMapAdaptor extends DefaultAdaptor<SerializedMap, ObjectToSet
 			.collect(toMap(entry -> entry.getKey().accept(generator), entry -> entry.getValue().accept(generator)));
 
 		Map<String, String> elements = elementTemplates.entrySet().stream()
-			.collect(toMap(entry -> entry.getKey().getValue(), entry -> entry.getValue().getValue()));
+			.collect(toMap(
+				entry -> generator.unwrapHidden(entry.getKey().getValue(), value.getMapKeyType(), entry.getKey().getType()), 
+				entry -> generator.unwrapHidden(entry.getValue().getValue(), value.getMapValueType(), entry.getValue().getType())));
 
 		List<String> statements = elementTemplates.entrySet().stream()
 			.flatMap(entry -> Stream.concat(entry.getKey().getStatements().stream(), entry.getValue().getStatements().stream()))
@@ -47,7 +49,7 @@ public class DefaultMapAdaptor extends DefaultAdaptor<SerializedMap, ObjectToSet
 
 		generator.finishVariable(value);
 		
-		return new Computation(name, true, statements);
+		return new Computation(name, value.getResultType(), true, statements);
 	}
 
 }

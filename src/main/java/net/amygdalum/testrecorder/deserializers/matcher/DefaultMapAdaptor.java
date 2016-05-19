@@ -40,7 +40,7 @@ public class DefaultMapAdaptor extends DefaultAdaptor<SerializedMap, ObjectToMat
 			types.staticImport(MapMatcher.class, "containsEntries");
 
 			Map<Computation, Computation> elements = value.entrySet().stream()
-				.collect(toMap(entry -> generator.simpleValue(entry.getKey()), entry -> generator.simpleValue(entry.getValue())));
+				.collect(toMap(entry -> generator.simpleMatcher(entry.getKey()), entry -> generator.simpleMatcher(entry.getValue())));
 
 			List<String> entryComputations = elements.entrySet().stream()
 				.flatMap(entry -> Stream.concat(entry.getKey().getStatements().stream(), entry.getValue().getStatements().stream()))

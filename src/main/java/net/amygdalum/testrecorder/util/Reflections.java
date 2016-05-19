@@ -1,11 +1,18 @@
 package net.amygdalum.testrecorder.util;
 
+import static java.lang.reflect.Modifier.isFinal;
 import static java.lang.reflect.Modifier.isPublic;
 
 import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Field;
 import java.lang.reflect.Member;
+import java.lang.reflect.Modifier;
+
+import com.almondtools.xrayinterface.ReflectionFailedException;
 
 public class Reflections {
+
+	private static final String MODIFIERS = "modifiers";
 
 	public static <T extends AccessibleObject & Member> Accessing<T> accessing(T o) {
 		return new Accessing<>(o);
@@ -39,13 +46,27 @@ public class Reflections {
 		}
 
 		private boolean ensureAccess() {
-			if (isPublic(object.getModifiers()) && isPublic(object.getDeclaringClass().getModifiers())) {
+			int modifiers = object.getModifiers();
+			if (isFinal(modifiers) && object instanceof Field) {
+				makeNonFinal((Field) object);
+			}
+			if (isPublic(modifiers) && isPublic(object.getDeclaringClass().getModifiers())) {
 				return false;
 			} else if (!object.isAccessible()) {
 				object.setAccessible(true);
 				return true;
 			} else {
 				return false;
+			}
+		}
+
+		private void makeNonFinal(Field field) {
+			try {
+				Field modifiersField = Field.class.getDeclaredField(MODIFIERS);
+				modifiersField.setAccessible(true);
+				modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+			} catch (ReflectiveOperationException e) {
+				throw new ReflectionFailedException(e);
 			}
 		}
 

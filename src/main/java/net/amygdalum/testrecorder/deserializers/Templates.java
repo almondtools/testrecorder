@@ -40,7 +40,7 @@ public final class Templates {
 	private static final String CONTAINS_IN_ANY_ORDER_MATCHER = "containsInAnyOrder(<values; separator=\", \">)";
 	private static final String EQUAL_TO_MATCHER = "equalTo(<value>)";
 	private static final String SAME_INSTANCE_MATCHER = "sameInstance(<value>)";
-	private static final String NULL_MATCHER = "nullValue(<value>.class)";
+	private static final String NULL_MATCHER = "nullValue(<value>)";
 	private static final String NO_ENTRIES_MATCHER = "noEntries(<keytype>.class, <valuetype>.class)";
 	private static final String CONTAINS_ENTRIES_MATCHER = "containsEntries(<keytype>.class, <valuetype>.class)<entries : { entry | .entry(<entry.key>, <entry.value>)}>";
 	private static final String ARRAY_CONTAINING_MATCHER = "arrayContaining(<values; separator=\", \">)";

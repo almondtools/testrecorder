@@ -51,7 +51,7 @@ public class DefaultObjectAdaptor extends DefaultAdaptor<SerializedObject, Objec
 		generator.finishVariable(value);
 		
 		
-		return new Computation(name, statements);
+		return new Computation(name, type, statements);
 	}
 
 }

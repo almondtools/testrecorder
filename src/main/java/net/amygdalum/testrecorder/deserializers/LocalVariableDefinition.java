@@ -1,8 +1,11 @@
 package net.amygdalum.testrecorder.deserializers;
 
+import java.lang.reflect.Type;
+
 public class LocalVariableDefinition {
 
 	private String name;
+	private Type type;
 	private Progress progress;
 	
 	public LocalVariableDefinition(String name) {
@@ -14,7 +17,12 @@ public class LocalVariableDefinition {
 		return name;
 	}
 	
-	public LocalVariableDefinition define() {
+	public Type getType() {
+		return type;
+	}
+	
+	public LocalVariableDefinition define(Type type) {
+		this.type = type;
 		this.progress = Progress.DEFINED;
 		return this;
 	}

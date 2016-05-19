@@ -27,7 +27,7 @@ public class DefaultListAdaptor extends DefaultAdaptor<SerializedList, ObjectToS
 			.collect(toList());
 
 		List<String> elements = elementTemplates.stream()
-			.map(template -> template.getValue())
+			.map(template -> generator.unwrapHidden(template.getValue(), value.getComponentType(), template.getType()))
 			.collect(toList());
 
 		List<String> statements = elementTemplates.stream()
@@ -45,7 +45,7 @@ public class DefaultListAdaptor extends DefaultAdaptor<SerializedList, ObjectToS
 
 		generator.finishVariable(value);
 		
-		return new Computation(name, true, statements);
+		return new Computation(name, value.getResultType(), true, statements);
 	}
 
 }
