@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import net.amygdalum.testrecorder.SerializedReferenceType;
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.Serializer;
 import net.amygdalum.testrecorder.SerializerFacade;
@@ -25,7 +26,7 @@ import net.amygdalum.testrecorder.values.SerializedObject;
 public class GenericSerializerTest {
 
 	private SerializerFacade facade;
-	private Serializer<SerializedObject> serializer;
+	private Serializer<SerializedReferenceType> serializer;
 
 	@Before
 	public void before() throws Exception {
@@ -40,7 +41,7 @@ public class GenericSerializerTest {
 
 	@Test
 	public void testGenerate() throws Exception {
-		SerializedObject value = serializer.generate(GenericObject.class, GenericObject.class);
+		SerializedObject value = (SerializedObject) serializer.generate(GenericObject.class, GenericObject.class);
 
 		assertThat(value.getResultType(), equalTo(GenericObject.class));
 		assertThat(value.getType(), equalTo(GenericObject.class));
@@ -54,7 +55,7 @@ public class GenericSerializerTest {
 		SerializedField barField = new SerializedField(GenericObject.class, "intField", int.class, bar);
 		when(facade.serialize(eq(GenericObject.class.getDeclaredField("stringField")), any())).thenReturn(fooField);
 		when(facade.serialize(eq(GenericObject.class.getDeclaredField("intField")), any())).thenReturn(barField);
-		SerializedObject value = serializer.generate(GenericObject.class, GenericObject.class);
+		SerializedObject value = (SerializedObject) serializer.generate(GenericObject.class, GenericObject.class);
 
 		serializer.populate(value, new GenericObject("Foo", 1));
 

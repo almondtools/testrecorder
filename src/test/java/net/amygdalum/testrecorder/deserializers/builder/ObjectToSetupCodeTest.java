@@ -116,7 +116,7 @@ public class ObjectToSetupCodeTest {
 
 	private SerializedObject object(Type type, Object object) {
 		GenericSerializer serializer = new GenericSerializer(facade);
-		SerializedObject value = serializer.generate(type, type);
+		SerializedObject value = (SerializedObject) serializer.generate(type, type);
 		serializer.populate(value, object);
 		return value;
 	}

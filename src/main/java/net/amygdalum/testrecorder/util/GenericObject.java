@@ -7,7 +7,10 @@ import static net.amygdalum.testrecorder.util.Reflections.accessing;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -35,6 +38,16 @@ public abstract class GenericObject {
 	}
 
 	@SuppressWarnings("unchecked")
+	public static <T> T newProxy(Class<T> clazz) {
+		return (T) Proxy.newProxyInstance(clazz.getClassLoader(), new Class[]{clazz}, new InvocationHandler() {
+			
+			@Override
+			public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+				return null;
+			}
+		});
+	}
+	@SuppressWarnings("unchecked")
 	public static <T> T newInstance(Class<T> clazz) {
 		Throwable exception = null;
 		for (Constructor<T> constructor : (Constructor<T>[]) clazz.getDeclaredConstructors()) {
@@ -61,7 +74,11 @@ public abstract class GenericObject {
 				}
 			}
 		}
-		throw new GenericObjectException(exception);
+		if (exception instanceof GenericObjectException) {
+			throw new GenericObjectException(exception.getCause());
+		} else {
+			throw new GenericObjectException(exception);
+		}
 	}
 
 	private static Iterable<Supplier<Object[]>> bestParams(Class<?>[] parameterTypes) {
@@ -132,6 +149,8 @@ public abstract class GenericObject {
 			return (double) 0;
 		} else if (clazz.isArray()) {
 			return Array.newInstance(clazz.getComponentType(), 0);
+		} else if (clazz.isInterface()) {
+			return newProxy(clazz);
 		} else {
 			return newInstance(clazz);
 		}
