@@ -1,11 +1,15 @@
 package net.amygdalum.testrecorder.values;
 
+import static java.util.Collections.emptyList;
+
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedReferenceType;
+import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.deserializers.ValuePrinter;
 
 /**
@@ -18,6 +22,11 @@ public class SerializedNull extends AbstractSerializedReferenceType implements S
 
 	private SerializedNull(Type type) {
 		super(type);
+	}
+
+	@Override
+	public List<SerializedValue> referencedValues() {
+		return emptyList();
 	}
 
 	@Override

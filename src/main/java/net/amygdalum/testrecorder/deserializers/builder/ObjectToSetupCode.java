@@ -3,6 +3,8 @@ package net.amygdalum.testrecorder.deserializers.builder;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
 import static net.amygdalum.testrecorder.deserializers.Templates.cast;
+import static net.amygdalum.testrecorder.util.Types.boxingEquivalentTypes;
+import static net.amygdalum.testrecorder.util.Types.subsumingTypes;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -74,10 +76,11 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 		this.defined = new IdentityHashMap<>();
 	}
 
-	public String unwrapHidden(String value, Type resultType, Type type) {
+	public String adapt(String value, Type resultType, Type type) {
 		if (types.isHidden(type) && !types.isHidden(resultType)) {
-			String unwrapped = callMethod(value, "value");
-			return cast(types.getSimpleName(resultType), unwrapped);
+			return cast(types.getSimpleName(resultType), callMethod(value, "value"));
+		} else if (!subsumingTypes(resultType, type) && !boxingEquivalentTypes(resultType, type)) {
+			return cast(types.getSimpleName(resultType), value);
 		} else {
 			return value;
 		}
@@ -115,18 +118,18 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 
 	@Override
 	public Computation visitField(SerializedField field) {
-		Type type = field.getType();
-		Type resultType = types.wrapHidden(type);
-		types.registerType(type);
-		types.registerType(resultType);
+		Type fieldType = field.getType();
+		Type resultType = field.getValue().getResultType();
+		Type fieldResultType = types.wrapHidden(fieldType);
+		types.registerTypes(fieldType, resultType, fieldResultType);
 
 		Computation valueTemplate = field.getValue().accept(this);
 
 		List<String> statements = valueTemplate.getStatements();
 
-		String value = unwrapHidden(valueTemplate.getValue(), type, field.getValue().getResultType());
-		
-		String assignField = assignLocalVariableStatement(types.getSimpleName(resultType), field.getName(), value);
+		String value = adapt(valueTemplate.getValue(), fieldType, resultType);
+
+		String assignField = assignLocalVariableStatement(types.getSimpleName(fieldResultType), field.getName(), value);
 		return new Computation(assignField, null, statements);
 	}
 

@@ -12,12 +12,15 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.Set;
 
 import net.amygdalum.testrecorder.Deserializer;
+import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.util.GenericComparison;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedObject;
@@ -94,6 +97,7 @@ public class Construction {
 		bases.addAll(buildFromConstructors(types));
 		bases.removeIf(Objects::isNull);
 		applySetters(bases);
+		removeSelfRecursiveConstructions();
 	}
 
 	private Object buildFromStandardConstructor(TypeManager types) {
@@ -121,6 +125,7 @@ public class Construction {
 				if (types.isHidden(constructor.getDeclaringClass())) {
 					continue;
 				}
+				
 				List<ConstructorParam> params = constructors.computeIfAbsent(constructor, key -> new ArrayList<>());
 				Class<?>[] parameterTypes = constructor.getParameterTypes();
 				for (int i = 0; i < parameterTypes.length; i++) {
@@ -180,6 +185,32 @@ public class Construction {
 				}
 			}
 		}
+	}
+
+	private void removeSelfRecursiveConstructions() {
+		constructors.values().removeIf(params -> {
+			return params.stream()
+				.map(param -> param.getField().getValue())
+				.anyMatch(value -> closure(value).contains(serialized));
+		});
+	}
+
+	private Set<SerializedValue> closure(SerializedValue root) {
+		Set<SerializedValue> closure = new HashSet<>();
+		
+		Queue<SerializedValue> todo = new LinkedList<>();
+		todo.add(root);
+		while (!todo.isEmpty()) {
+			SerializedValue current = todo.poll();
+			if (closure.contains(current)) {
+				continue;
+			} else {
+				closure.add(current);
+				todo.addAll(current.referencedValues());
+			}
+		}
+		
+		return closure;
 	}
 
 	private boolean matches(Class<?> type, Object value) {

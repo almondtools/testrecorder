@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder;
 
 import java.lang.reflect.Type;
+import java.util.List;
 
 /**
  * A serialized value.
@@ -22,5 +23,7 @@ public interface SerializedValue {
 	void setType(Type type);
 
 	Type getType();
+
+	List<SerializedValue> referencedValues();
 
 }

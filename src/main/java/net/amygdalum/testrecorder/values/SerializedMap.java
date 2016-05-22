@@ -3,8 +3,10 @@ package net.amygdalum.testrecorder.values;
 import static net.amygdalum.testrecorder.util.Types.typeArgument;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -98,6 +100,13 @@ public class SerializedMap extends AbstractSerializedReferenceType implements Se
 
 	public Set<java.util.Map.Entry<SerializedValue, SerializedValue>> entrySet() {
 		return map.entrySet();
+	}
+
+	@Override
+	public List<SerializedValue> referencedValues() {
+		List<SerializedValue> referenced = new ArrayList<>(map.keySet());
+		referenced.addAll(map.values());
+		return referenced;
 	}
 
 	@Override

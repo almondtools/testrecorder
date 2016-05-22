@@ -27,7 +27,7 @@ public class DefaultArrayAdaptor extends DefaultAdaptor<SerializedArray, ObjectT
 			.collect(toList());
 
 		List<String> elements = elementTemplates.stream()
-			.map(template -> template.getValue())
+			.map(template -> generator.adapt(template.getValue(), value.getComponentType(), template.getType()))
 			.collect(toList());
 
 		List<String> statements = elementTemplates.stream()

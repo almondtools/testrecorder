@@ -28,7 +28,7 @@ public class DefaultSetAdaptor extends DefaultAdaptor<SerializedSet, ObjectToSet
 			.collect(toList());
 
 		List<String> elements = elementTemplates.stream()
-			.map(template -> generator.unwrapHidden(template.getValue(), value.getComponentType(), template.getType()))
+			.map(template -> generator.adapt(template.getValue(), value.getComponentType(), template.getType()))
 			.collect(toList());
 
 		List<String> statements = elementTemplates.stream()

@@ -24,6 +24,7 @@ public class DefaultObjectAdaptor extends DefaultAdaptor<SerializedObject, Objec
 		types.registerTypes(value.getType(), value.getResultType(), GenericObject.class);
 
 		Type type = value.getType();
+		Type resultType = value.getResultType();
 		String name = generator.localVariable(value, type);
 
 		List<Computation> elementTemplates = value.getFields().stream()
@@ -39,19 +40,18 @@ public class DefaultObjectAdaptor extends DefaultAdaptor<SerializedObject, Objec
 			.flatMap(template -> template.getStatements().stream())
 			.collect(toList());
 
-		Type resultType = types.wrapHidden(type);
-
 		if (generator.isForwardDefined(value)) {
 			String genericObject = genericObject(types.getRawTypeName(type), elements);
 			statements.add(callMethodStatement(types.getBestName(GenericObject.class), "define", name, genericObject));
 		} else {
 			String genericObject = genericObjectConverter(types.getRawTypeName(type), elements);
-			statements.add(assignLocalVariableStatement(types.getRawName(resultType), name, genericObject));
+			genericObject = generator.adapt(genericObject, resultType, type);
+			statements.add(assignLocalVariableStatement(types.getRawName(types.wrapHidden(resultType)), name, genericObject));
 		}
 		generator.finishVariable(value);
 		
 		
-		return new Computation(name, type, statements);
+		return new Computation(name, resultType, statements);
 	}
 
 }

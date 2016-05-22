@@ -1,13 +1,16 @@
 package net.amygdalum.testrecorder.values;
 
+import static java.util.Collections.emptyList;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Type;
+import java.util.List;
 
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.Deserializer;
+import net.amygdalum.testrecorder.SerializedValue;
 
 public class AbstractSerializedReferenceTypeTest {
 
@@ -31,6 +34,11 @@ public class AbstractSerializedReferenceTypeTest {
 	private static class ASerializedReferenceType extends AbstractSerializedReferenceType {
 		public ASerializedReferenceType(Type type) {
 			super(type);
+		}
+		
+		@Override
+		public List<SerializedValue> referencedValues() {
+			return emptyList();
 		}
 
 		@Override

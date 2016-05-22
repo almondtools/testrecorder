@@ -140,6 +140,11 @@ public class SerializedList extends AbstractSerializedReferenceType implements S
 	}
 
 	@Override
+	public List<SerializedValue> referencedValues() {
+		return new ArrayList<>(list);
+	}
+
+	@Override
 	public String toString() {
 		return accept(new ValuePrinter());
 	}

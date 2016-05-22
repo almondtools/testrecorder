@@ -1,9 +1,13 @@
 package net.amygdalum.testrecorder.values;
 
+import static java.util.Collections.emptyList;
+
 import java.lang.reflect.Type;
+import java.util.List;
 
 import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedImmutableType;
+import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.deserializers.ValuePrinter;
 
 /**
@@ -28,6 +32,11 @@ public class SerializedEnum extends AbstractSerializedReferenceType implements S
 	
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public List<SerializedValue> referencedValues() {
+		return emptyList();
 	}
 
 	public <T> T accept(Deserializer<T> visitor) {

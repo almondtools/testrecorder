@@ -47,6 +47,11 @@ public class SerializedArray extends AbstractSerializedReferenceType implements 
 	}
 	
 	@Override
+	public List<SerializedValue> referencedValues() {
+		return new ArrayList<>(array);
+	}
+
+	@Override
 	public <T> T accept(Deserializer<T> visitor) {
 		return visitor.visitReferenceType(this);
 	}
@@ -59,5 +64,5 @@ public class SerializedArray extends AbstractSerializedReferenceType implements 
 	public String toString() {
 		return accept(new ValuePrinter());
 	}
-
+	
 }

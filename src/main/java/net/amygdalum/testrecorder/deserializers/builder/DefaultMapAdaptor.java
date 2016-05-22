@@ -30,8 +30,8 @@ public class DefaultMapAdaptor extends DefaultAdaptor<SerializedMap, ObjectToSet
 
 		Map<String, String> elements = elementTemplates.entrySet().stream()
 			.collect(toMap(
-				entry -> generator.unwrapHidden(entry.getKey().getValue(), value.getMapKeyType(), entry.getKey().getType()), 
-				entry -> generator.unwrapHidden(entry.getValue().getValue(), value.getMapValueType(), entry.getValue().getType())));
+				entry -> generator.adapt(entry.getKey().getValue(), value.getMapKeyType(), entry.getKey().getType()), 
+				entry -> generator.adapt(entry.getValue().getValue(), value.getMapValueType(), entry.getValue().getType())));
 
 		List<String> statements = elementTemplates.entrySet().stream()
 			.flatMap(entry -> Stream.concat(entry.getKey().getStatements().stream(), entry.getValue().getStatements().stream()))

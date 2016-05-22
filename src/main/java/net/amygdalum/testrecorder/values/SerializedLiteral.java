@@ -1,13 +1,17 @@
 package net.amygdalum.testrecorder.values;
 
+import static java.util.Collections.emptyList;
+
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import net.amygdalum.testrecorder.Deserializer;
+import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.SerializedValueType;
 import net.amygdalum.testrecorder.deserializers.ValuePrinter;
 
@@ -53,6 +57,11 @@ public class SerializedLiteral extends AbstractSerializedValue implements Serial
 	@Override
 	public Object getValue() {
 		return value;
+	}
+
+	@Override
+	public List<SerializedValue> referencedValues() {
+		return emptyList();
 	}
 
 	@Override

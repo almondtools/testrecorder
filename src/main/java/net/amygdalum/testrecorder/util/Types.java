@@ -23,7 +23,7 @@ public class Types {
 
 	private Types() {
 	}
-	
+
 	public static Type inferType(List<Type> types) {
 		Optional<Class<?>> reduce = types.stream()
 			.map(type -> superTypes(baseType(type)))
@@ -114,6 +114,32 @@ public class Types {
 		}
 	}
 
+	public static Class<?> boxedType(Type type) {
+		if (!(type instanceof Class<?>)) {
+			return baseType(type);
+		}
+		Class<?> clazz = (Class<?>) type;
+		if (clazz == boolean.class) {
+			return Boolean.class;
+		} else if (clazz == char.class) {
+			return Character.class;
+		} else if (clazz == byte.class) {
+			return Byte.class;
+		} else if (clazz == short.class) {
+			return Short.class;
+		} else if (clazz == int.class) {
+			return Integer.class;
+		} else if (clazz == float.class) {
+			return Float.class;
+		} else if (clazz == long.class) {
+			return Long.class;
+		} else if (clazz == double.class) {
+			return Double.class;
+		} else {
+			return clazz;
+		}
+	}
+
 	public static Type array(Type componentType) {
 		return new GenericArrayTypeImplementation(componentType);
 	}
@@ -128,10 +154,18 @@ public class Types {
 		}
 	}
 
+	public static boolean subsumingTypes(Type superType, Type subType) {
+		return baseType(superType).isAssignableFrom(baseType(subType));
+	}
+
 	public static boolean equalTypes(Type type1, Type type2) {
 		return baseType(type1).equals(baseType(type2));
 	}
 
+	public static boolean boxingEquivalentTypes(Type type1, Type type2) {
+		return boxedType(type1).equals(boxedType(type2));
+	}
+	
 	public static Optional<Type> typeArgument(Type type, int i) {
 		if (type instanceof ParameterizedType) {
 			Type[] actualTypeArguments = ((ParameterizedType) type).getActualTypeArguments();
@@ -143,7 +177,6 @@ public class Types {
 			return Optional.empty();
 		}
 	}
-
 
 	public static Class<?> innerType(Class<?> clazz, String name) {
 		for (Class<?> inner : clazz.getDeclaredClasses()) {
@@ -161,7 +194,7 @@ public class Types {
 			return false;
 		} else if (isPrivate(modifiers)) {
 			return true;
-		} else if (clazz.getEnclosingClass() != null) { 
+		} else if (clazz.getEnclosingClass() != null) {
 			return true;
 		} else {
 			return !pkg.equals(clazz.getPackage().getName());
@@ -236,7 +269,7 @@ public class Types {
 		public Type[] getActualTypeArguments() {
 			return typeArgs;
 		}
-		
+
 		@Override
 		public String getTypeName() {
 			StringBuilder buffer = new StringBuilder();
@@ -256,12 +289,12 @@ public class Types {
 
 		private Type[] upperBounds;
 		private Type[] lowerBounds;
-		
+
 		public WildcardTypeImplementation() {
-			 upperBounds = new Type[0];
-			 lowerBounds = new Type[0];
+			upperBounds = new Type[0];
+			lowerBounds = new Type[0];
 		}
-		
+
 		public WildcardTypeImplementation extending(Type... bounds) {
 			this.upperBounds = bounds;
 			return this;
@@ -281,7 +314,7 @@ public class Types {
 		public Type[] getLowerBounds() {
 			return lowerBounds;
 		}
-		
+
 		@Override
 		public String getTypeName() {
 			StringBuilder buffer = new StringBuilder();

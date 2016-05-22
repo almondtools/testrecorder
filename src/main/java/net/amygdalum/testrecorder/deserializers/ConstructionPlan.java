@@ -49,7 +49,7 @@ public class ConstructionPlan {
 		String[] params = computedParams.stream()
 			.map(computation -> computation.getValue())
 			.toArray(String[]::new);
-
+		
 		String bean = newObject(types.getBestName(clazz), params);
 		String constructorStatement = assignLocalVariableStatement(types.getSimpleName(clazz), name, bean);
 		statements.add(constructorStatement);

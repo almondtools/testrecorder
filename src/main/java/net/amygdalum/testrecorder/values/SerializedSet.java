@@ -3,9 +3,11 @@ package net.amygdalum.testrecorder.values;
 import static net.amygdalum.testrecorder.util.Types.typeArgument;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import net.amygdalum.testrecorder.Deserializer;
@@ -96,6 +98,11 @@ public class SerializedSet extends AbstractSerializedReferenceType implements Se
 
 	public void clear() {
 		set.clear();
+	}
+
+	@Override
+	public List<SerializedValue> referencedValues() {
+		return new ArrayList<>(set);
 	}
 
 	@Override
