@@ -4,9 +4,9 @@ import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.TestClass;
 
-import net.amygdalum.testrecorder.DefaultConfig;
-import net.amygdalum.testrecorder.SnapshotConfig;
+import net.amygdalum.testrecorder.DefaultTestRecorderAgentConfig;
 import net.amygdalum.testrecorder.SnapshotInstrumentor;
+import net.amygdalum.testrecorder.TestRecorderAgentConfig;
 
 public class InstrumentedClassLoaderRunner extends BlockJUnit4ClassRunner {
 
@@ -33,7 +33,7 @@ public class InstrumentedClassLoaderRunner extends BlockJUnit4ClassRunner {
 
 	private InstrumentedClassLoader createLoader(Class<?> klass, Instrumented instrumented) {
 		try {
-			SnapshotConfig config = instrumented == null ? new DefaultConfig() : instrumented.config().newInstance();
+			TestRecorderAgentConfig config = instrumented == null ? new DefaultTestRecorderAgentConfig() : instrumented.config().newInstance();
 			SnapshotInstrumentor instrumentor = new SnapshotInstrumentor(config);
 
 			String[] classes = instrumented == null ? new String[0] : instrumented.classes();

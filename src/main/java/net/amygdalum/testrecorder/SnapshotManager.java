@@ -23,35 +23,55 @@ public class SnapshotManager {
 
 	private ThreadLocal<Deque<SnapshotProcess>> current = ThreadLocal.withInitial(() -> newStack());
 
-	private SnapshotConsumer snapshotConsumer;
-	private long timeoutInMillis;
+	private TestRecorderAgentConfig config;
 
-	public SnapshotManager(SnapshotConfig config) {
-		this.snapshotConsumer = config.getSnapshotConsumer();
-		this.timeoutInMillis = config.getTimeoutInMillis();
+	public SnapshotManager(TestRecorderAgentConfig config) {
+		this.config = new FixedTestRecorderAgentConfig(config);
 
 		this.snapshot = Executors.newSingleThreadExecutor(new TestrecorderThreadFactory(true, "$snapshot"));
 		this.methodSnapshots = new HashMap<>();
 	}
 
-	public static SnapshotManager init(SnapshotConfig config) {
+	public static SnapshotManager init(TestRecorderAgentConfig config) {
 		MANAGER = new SnapshotManager(config);
 		return MANAGER;
 	}
 
 	public SnapshotConsumer getMethodConsumer() {
-		return snapshotConsumer;
+		return config.getSnapshotConsumer();
 	}
 
 	public void register(String signature, Method method) {
-		ContextSnapshotFactory factory = new ContextSnapshotFactory(method.getDeclaringClass(), method.getAnnotation(Snapshot.class), method.getGenericReturnType(), method.getName(),
-			method.getGenericParameterTypes());
+		Class<?> declaringClass = method.getDeclaringClass();
+		SerializationProfile profile = createProfileFor(method.getAnnotation(Snapshot.class));
+		Type returnType = method.getGenericReturnType();
+		String name = method.getName();
+		Type[] parameterTypes = method.getGenericParameterTypes();
+		
+		ContextSnapshotFactory factory = new ContextSnapshotFactory(declaringClass, profile, returnType, name, parameterTypes);
+		
 		methodSnapshots.put(signature, factory);
 	}
 
+	private SerializationProfile createProfileFor(Snapshot snapshot) {
+		if (snapshot == null) {
+			return config;
+		}
+		Class<? extends SerializationProfile> profile = snapshot.profile();
+		if (profile == null || profile.isInterface()) {
+			return config;
+		}
+		try {
+			return new DefaultingSerializationProfile(profile.newInstance(), config);
+		} catch (InstantiationException | IllegalAccessException | NullPointerException e) {
+			return config;
+		}
+	}
+
+
 	public SnapshotProcess push(String signature) {
 		ContextSnapshotFactory factory = methodSnapshots.get(signature);
-		SnapshotProcess process = new SnapshotProcess(snapshot, timeoutInMillis, factory);
+		SnapshotProcess process = new SnapshotProcess(snapshot, config.getTimeoutInMillis(), factory);
 		current.get().push(process);
 		return process;
 	}
@@ -106,6 +126,7 @@ public class SnapshotManager {
 
 	private void consume(ContextSnapshot snapshot) {
 		if (snapshot.isValid()) {
+			SnapshotConsumer snapshotConsumer = config.getSnapshotConsumer();
 			if (snapshotConsumer != null) {
 				snapshotConsumer.accept(snapshot);
 			}

@@ -5,7 +5,7 @@ import static java.util.Arrays.asList;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.amygdalum.testrecorder.DefaultConfig;
+import net.amygdalum.testrecorder.DefaultTestRecorderAgentConfig;
 import net.amygdalum.testrecorder.SnapshotInstrumentor;
 
 public class InstrumentedClassLoader extends AbstractInstrumentedClassLoader {
@@ -22,7 +22,7 @@ public class InstrumentedClassLoader extends AbstractInstrumentedClassLoader {
 	}
 	
 	private SnapshotInstrumentor createInstrumentor() {
-		return new SnapshotInstrumentor(new DefaultConfig());
+		return new SnapshotInstrumentor(new DefaultTestRecorderAgentConfig());
 	}
 
 	public Class<?> loadClass(String name) throws ClassNotFoundException {

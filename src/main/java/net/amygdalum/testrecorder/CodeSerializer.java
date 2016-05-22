@@ -12,7 +12,6 @@ import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.deserializers.builder.ObjectToSetupCode;
-import net.amygdalum.testrecorder.profile.DefaultSerializationProfile;
 
 public class CodeSerializer {
 
@@ -25,11 +24,11 @@ public class CodeSerializer {
 	}
 	
 	public CodeSerializer(String pkg) {
-		this(pkg, new ConfigurableSerializerFacade(new DefaultSerializationProfile()), new ObjectToSetupCode.Factory());
+		this(pkg, new ConfigurableSerializerFacade(new DefaultTestRecorderAgentConfig()), new ObjectToSetupCode.Factory());
 	}
 	
 	public CodeSerializer(String pkg, DeserializerFactory serializers) {
-		this(pkg, new ConfigurableSerializerFacade(new DefaultSerializationProfile()), serializers);
+		this(pkg, new ConfigurableSerializerFacade(new DefaultTestRecorderAgentConfig()), serializers);
 	}
 	
 	public CodeSerializer(String pkg, SerializerFacade facade, DeserializerFactory serializers) {

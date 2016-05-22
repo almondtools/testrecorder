@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder;
 
 import java.util.List;
 
-public interface SnapshotConfig {
+public interface TestRecorderAgentConfig extends SerializationProfile {
 
 	public static final Runnable NONE = new Runnable() {
 		

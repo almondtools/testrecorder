@@ -18,8 +18,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.ConfigurableSerializerFacade;
+import net.amygdalum.testrecorder.DefaultTestRecorderAgentConfig;
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.profile.DefaultSerializationProfile;
 import net.amygdalum.testrecorder.serializers.BigIntegerSerializer;
 import net.amygdalum.testrecorder.serializers.DefaultListSerializer;
 import net.amygdalum.testrecorder.serializers.GenericSerializer;
@@ -36,7 +36,7 @@ public class ObjectToSetupCodeTest {
 	
 	@Before
 	public void before() throws Exception {
-		facade = new ConfigurableSerializerFacade(new DefaultSerializationProfile());
+		facade = new ConfigurableSerializerFacade(new DefaultTestRecorderAgentConfig());
 		setupCode = new ObjectToSetupCode(getClass());
 	}
 	

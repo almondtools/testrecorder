@@ -90,9 +90,9 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 	private static final String Types_getDeclaredMethod_descriptor = ByteCode.methodDescriptor(Types.class, GET_DECLARED_METHOD, Class.class, String.class, Class[].class);
 
-	private SnapshotConfig config;
+	private TestRecorderAgentConfig config;
 
-	public SnapshotInstrumentor(SnapshotConfig config) {
+	public SnapshotInstrumentor(TestRecorderAgentConfig config) {
 		this.config = config;
 		SnapshotManager.init(config);
 	}

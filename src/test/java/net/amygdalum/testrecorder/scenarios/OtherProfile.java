@@ -6,9 +6,9 @@ import static java.util.Collections.emptyList;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import net.amygdalum.testrecorder.profile.DefaultSerializationProfile;
+import net.amygdalum.testrecorder.DefaultTestRecorderAgentConfig;
 
-public class OtherProfile extends DefaultSerializationProfile {
+public class OtherProfile extends DefaultTestRecorderAgentConfig {
 	@Override
 	public List<Field> getGlobalFields()  {
 		try {

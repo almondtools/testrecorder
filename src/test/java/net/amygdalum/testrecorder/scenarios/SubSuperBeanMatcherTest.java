@@ -7,8 +7,8 @@ import org.junit.Test;
 
 import net.amygdalum.testrecorder.CodeSerializer;
 import net.amygdalum.testrecorder.ConfigurableSerializerFacade;
+import net.amygdalum.testrecorder.DefaultTestRecorderAgentConfig;
 import net.amygdalum.testrecorder.deserializers.matcher.ObjectToMatcherCode;
-import net.amygdalum.testrecorder.profile.DefaultSerializationProfile;
 
 public class SubSuperBeanMatcherTest {
 
@@ -88,7 +88,7 @@ public class SubSuperBeanMatcherTest {
 	}
 
 	private static CodeSerializer matcherSerializer() {
-		return new CodeSerializer("net.amygdalum.testrecorder.scenarios", new ConfigurableSerializerFacade(new DefaultSerializationProfile()), new ObjectToMatcherCode.Factory());
+		return new CodeSerializer("net.amygdalum.testrecorder.scenarios", new ConfigurableSerializerFacade(new DefaultTestRecorderAgentConfig()), new ObjectToMatcherCode.Factory());
 	}
 
 }

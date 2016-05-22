@@ -210,7 +210,7 @@ public class TestGeneratorTest {
 
 	@Test
 	public void testFromRecordedIfConsumerIsNull() throws Exception {
-		SnapshotManager.MANAGER = new SnapshotManager(new DefaultConfig() {
+		SnapshotManager.MANAGER = new SnapshotManager(new DefaultTestRecorderAgentConfig() {
 			@Override
 			public SnapshotConsumer getSnapshotConsumer() {
 				return null;
@@ -223,7 +223,7 @@ public class TestGeneratorTest {
 	@Test
 	public void testFromRecordedIfConsumerIsNonNull() throws Exception {
 		TestGenerator tg = new TestGenerator(null);
-		SnapshotManager.MANAGER = new SnapshotManager(new DefaultConfig() {
+		SnapshotManager.MANAGER = new SnapshotManager(new DefaultTestRecorderAgentConfig() {
 			@Override
 			public SnapshotConsumer getSnapshotConsumer() {
 				return tg;
@@ -235,7 +235,7 @@ public class TestGeneratorTest {
 
 	@Test
 	public void testFromRecordedIfConsumerIsNotTestGenerator() throws Exception {
-		SnapshotManager.MANAGER = new SnapshotManager(new DefaultConfig() {
+		SnapshotManager.MANAGER = new SnapshotManager(new DefaultTestRecorderAgentConfig() {
 			@Override
 			public SnapshotConsumer getSnapshotConsumer() {
 				return new SnapshotConsumer() {
