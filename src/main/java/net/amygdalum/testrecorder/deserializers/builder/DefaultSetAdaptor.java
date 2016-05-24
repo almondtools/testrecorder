@@ -21,32 +21,31 @@ public class DefaultSetAdaptor extends DefaultAdaptor<SerializedSet, ObjectToSet
 		TypeManager types = generator.getTypes();
 		types.registerTypes(value.getResultType(), value.getType());
 
-		String name = generator.localVariable(value, Set.class);
+		return generator.forVariable(value, Set.class, local -> {
 
-		List<Computation> elementTemplates = value.stream()
-			.map(element -> element.accept(generator))
-			.collect(toList());
+			List<Computation> elementTemplates = value.stream()
+				.map(element -> element.accept(generator))
+				.collect(toList());
 
-		List<String> elements = elementTemplates.stream()
-			.map(template -> generator.adapt(template.getValue(), value.getComponentType(), template.getType()))
-			.collect(toList());
+			List<String> elements = elementTemplates.stream()
+				.map(template -> generator.adapt(template.getValue(), value.getComponentType(), template.getType()))
+				.collect(toList());
 
-		List<String> statements = elementTemplates.stream()
-			.flatMap(template -> template.getStatements().stream())
-			.collect(toList());
+			List<String> statements = elementTemplates.stream()
+				.flatMap(template -> template.getStatements().stream())
+				.collect(toList());
 
-		String set = newObject(types.getBestName(value.getType()));
-		String setInit = assignLocalVariableStatement(types.getSimpleName(value.getResultType()), name, set);
-		statements.add(setInit);
+			String set = newObject(types.getBestName(value.getType()));
+			String setInit = assignLocalVariableStatement(types.getSimpleName(value.getResultType()), local.getName(), set);
+			statements.add(setInit);
 
-		for (String element : elements) {
-			String addElement = callMethodStatement(name, "add", element);
-			statements.add(addElement);
-		}
+			for (String element : elements) {
+				String addElement = callMethodStatement(local.getName(), "add", element);
+				statements.add(addElement);
+			}
 
-		generator.finishVariable(value);
-		
-		return new Computation(name, value.getResultType(), true, statements);
+			return new Computation(local.getName(), value.getResultType(), true, statements);
+		});
 	}
 
 }

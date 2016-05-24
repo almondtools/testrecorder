@@ -21,9 +21,9 @@ import net.amygdalum.testrecorder.values.SerializedArray;
 import net.amygdalum.testrecorder.values.SerializedList;
 
 public class ArraysListAdaptor implements Adaptor<SerializedList, ObjectToSetupCode> {
-	
+
 	private DefaultArrayAdaptor adaptor;
-	
+
 	public ArraysListAdaptor() {
 		this.adaptor = new DefaultArrayAdaptor();
 	}
@@ -53,18 +53,17 @@ public class ArraysListAdaptor implements Adaptor<SerializedList, ObjectToSetupC
 		}
 
 		Type resultType = parameterized(List.class, null, value.getComponentType());
-		String resultList = generator.localVariable(value, resultType);
-		
-		Computation computation = adaptor.tryDeserialize(baseValue, generator);
-		List<String> statements = new LinkedList<>(computation.getStatements());
-		String resultArray = computation.getValue();
-		
-		String asListStatement = assignLocalVariableStatement(types.getBestName(resultType), resultList, callLocalMethod("asList", resultArray));
-		statements.add(asListStatement);
-		
-		generator.finishVariable(value);
-		
-		return new Computation(resultList, value.getResultType(), statements);
+		return generator.forVariable(value, resultType, local -> {
+
+			Computation computation = adaptor.tryDeserialize(baseValue, generator);
+			List<String> statements = new LinkedList<>(computation.getStatements());
+			String resultArray = computation.getValue();
+
+			String asListStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod("asList", resultArray));
+			statements.add(asListStatement);
+
+			return new Computation(local.getName(), value.getResultType(), statements);
+		});
 	}
 
 }

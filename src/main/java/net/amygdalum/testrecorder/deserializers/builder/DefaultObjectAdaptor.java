@@ -25,33 +25,32 @@ public class DefaultObjectAdaptor extends DefaultAdaptor<SerializedObject, Objec
 
 		Type type = value.getType();
 		Type resultType = value.getResultType();
-		String name = generator.localVariable(value, type);
+		return generator.forVariable(value, type, definition -> {
 
-		List<Computation> elementTemplates = value.getFields().stream()
-			.sorted()
-			.map(element -> element.accept(generator))
-			.collect(toList());
+			List<Computation> elementTemplates = value.getFields().stream()
+				.sorted()
+				.map(element -> element.accept(generator))
+				.collect(toList());
 
-		List<String> elements = elementTemplates.stream()
-			.map(template -> template.getValue())
-			.collect(toList());
+			List<String> elements = elementTemplates.stream()
+				.map(template -> template.getValue())
+				.collect(toList());
 
-		List<String> statements = elementTemplates.stream()
-			.flatMap(template -> template.getStatements().stream())
-			.collect(toList());
+			List<String> statements = elementTemplates.stream()
+				.flatMap(template -> template.getStatements().stream())
+				.collect(toList());
 
-		if (generator.isForwardDefined(value)) {
-			String genericObject = genericObject(types.getRawTypeName(type), elements);
-			statements.add(callMethodStatement(types.getBestName(GenericObject.class), "define", name, genericObject));
-		} else {
-			String genericObject = genericObjectConverter(types.getRawTypeName(type), elements);
-			genericObject = generator.adapt(genericObject, resultType, type);
-			statements.add(assignLocalVariableStatement(types.getRawName(types.wrapHidden(resultType)), name, genericObject));
-		}
-		generator.finishVariable(value);
-		
-		
-		return new Computation(name, resultType, statements);
+			if (definition.isDefined() && !definition.isReady()) {
+				String genericObject = genericObject(types.getRawTypeName(type), elements);
+				statements.add(callMethodStatement(types.getBestName(GenericObject.class), "define", definition.getName(), genericObject));
+			} else {
+				String genericObject = genericObjectConverter(types.getRawTypeName(type), elements);
+				genericObject = generator.adapt(genericObject, resultType, type);
+				statements.add(assignLocalVariableStatement(types.getRawName(types.wrapHidden(resultType)), definition.getName(), genericObject));
+			}
+
+			return new Computation(definition.getName(), resultType, statements);
+		});
 	}
 
 }

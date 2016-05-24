@@ -23,33 +23,32 @@ public class DefaultMapAdaptor extends DefaultAdaptor<SerializedMap, ObjectToSet
 		TypeManager types = generator.getTypes();
 		types.registerTypes(value.getResultType(), value.getType());
 
-		String name = generator.localVariable(value, Map.class);
+		return generator.forVariable(value, Map.class, local -> {
 
-		Map<Computation, Computation> elementTemplates = value.entrySet().stream()
-			.collect(toMap(entry -> entry.getKey().accept(generator), entry -> entry.getValue().accept(generator)));
+			Map<Computation, Computation> elementTemplates = value.entrySet().stream()
+				.collect(toMap(entry -> entry.getKey().accept(generator), entry -> entry.getValue().accept(generator)));
 
-		Map<String, String> elements = elementTemplates.entrySet().stream()
-			.collect(toMap(
-				entry -> generator.adapt(entry.getKey().getValue(), value.getMapKeyType(), entry.getKey().getType()), 
-				entry -> generator.adapt(entry.getValue().getValue(), value.getMapValueType(), entry.getValue().getType())));
+			Map<String, String> elements = elementTemplates.entrySet().stream()
+				.collect(toMap(
+					entry -> generator.adapt(entry.getKey().getValue(), value.getMapKeyType(), entry.getKey().getType()),
+					entry -> generator.adapt(entry.getValue().getValue(), value.getMapValueType(), entry.getValue().getType())));
 
-		List<String> statements = elementTemplates.entrySet().stream()
-			.flatMap(entry -> Stream.concat(entry.getKey().getStatements().stream(), entry.getValue().getStatements().stream()))
-			.distinct()
-			.collect(toList());
+			List<String> statements = elementTemplates.entrySet().stream()
+				.flatMap(entry -> Stream.concat(entry.getKey().getStatements().stream(), entry.getValue().getStatements().stream()))
+				.distinct()
+				.collect(toList());
 
-		String map = newObject(types.getBestName(value.getType()));
-		String mapInit = assignLocalVariableStatement(types.getSimpleName(value.getResultType()), name, map);
-		statements.add(mapInit);
+			String map = newObject(types.getBestName(value.getType()));
+			String mapInit = assignLocalVariableStatement(types.getSimpleName(value.getResultType()), local.getName(), map);
+			statements.add(mapInit);
 
-		for (Map.Entry<String, String> element : elements.entrySet()) {
-			String putEntry = callMethodStatement(name, "put", element.getKey(), element.getValue());
-			statements.add(putEntry);
-		}
+			for (Map.Entry<String, String> element : elements.entrySet()) {
+				String putEntry = callMethodStatement(local.getName(), "put", element.getKey(), element.getValue());
+				statements.add(putEntry);
+			}
 
-		generator.finishVariable(value);
-		
-		return new Computation(name, value.getResultType(), true, statements);
+			return new Computation(local.getName(), value.getResultType(), true, statements);
+		});
 	}
 
 }

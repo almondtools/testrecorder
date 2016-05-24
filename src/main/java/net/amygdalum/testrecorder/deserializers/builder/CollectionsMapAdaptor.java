@@ -26,7 +26,7 @@ import net.amygdalum.testrecorder.values.SerializedMap;
 public class CollectionsMapAdaptor implements Adaptor<SerializedMap, ObjectToSetupCode> {
 
 	private DefaultMapAdaptor adaptor;
-	
+
 	public CollectionsMapAdaptor() {
 		this.adaptor = new DefaultMapAdaptor();
 	}
@@ -77,13 +77,12 @@ public class CollectionsMapAdaptor implements Adaptor<SerializedMap, ObjectToSet
 		types.staticImport(Collections.class, factoryMethod);
 
 		Type resultType = parameterized(Map.class, null, value.getMapKeyType(), value.getMapValueType());
-		String resultMap = generator.localVariable(value, resultType);
+		return generator.forVariable(value, resultType, local -> {
 
-		String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), resultMap, callLocalMethod(factoryMethod));
+			String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod(factoryMethod));
 
-		generator.finishVariable(value);
-		
-		return new Computation(resultMap, value.getResultType(), asList(decoratingStatement));
+			return new Computation(local.getName(), value.getResultType(), asList(decoratingStatement));
+		});
 	}
 
 	private Computation tryDeserializeSingleton(SerializedMap value, ObjectToSetupCode generator) {
@@ -93,25 +92,25 @@ public class CollectionsMapAdaptor implements Adaptor<SerializedMap, ObjectToSet
 		types.staticImport(Collections.class, factoryMethod);
 
 		Type resultType = parameterized(Map.class, null, value.getMapKeyType(), value.getMapValueType());
-		String resultList = generator.localVariable(value, resultType);
+		return generator.forVariable(value, resultType, local -> {
 
-		Entry<SerializedValue, SerializedValue> entry = value.entrySet().iterator().next();
-		List<String> statements = new LinkedList<>();
-		
-		Computation keyComputation = entry.getKey().accept(generator);
-		statements.addAll(keyComputation.getStatements());
-		String resultKey = keyComputation.getValue();
+			Entry<SerializedValue, SerializedValue> entry = value.entrySet().iterator().next();
+			List<String> statements = new LinkedList<>();
 
-		Computation valueComputation = entry.getValue().accept(generator);
-		statements.addAll(valueComputation.getStatements());
-		String resultValue = valueComputation.getValue();
-		
-		String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), resultList, callLocalMethod(factoryMethod, resultKey, resultValue));
-		statements.add(decoratingStatement);
+			Computation keyComputation = entry.getKey().accept(generator);
+			statements.addAll(keyComputation.getStatements());
+			String resultKey = keyComputation.getValue();
 
-		generator.finishVariable(value);
-		
-		return new Computation(resultList, value.getResultType(), statements);
+			Computation valueComputation = entry.getValue().accept(generator);
+			statements.addAll(valueComputation.getStatements());
+			String resultValue = valueComputation.getValue();
+
+			String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod(factoryMethod, resultKey, resultValue));
+			statements.add(decoratingStatement);
+
+			return new Computation(local.getName(), value.getResultType(), statements);
+		});
+
 	}
 
 	private Computation tryDeserializeUnmodifiable(SerializedMap value, ObjectToSetupCode generator) {
@@ -120,18 +119,18 @@ public class CollectionsMapAdaptor implements Adaptor<SerializedMap, ObjectToSet
 		types.staticImport(Collections.class, factoryMethod);
 
 		Type resultType = parameterized(Map.class, null, value.getMapKeyType(), value.getMapValueType());
-		String resultList = generator.localVariable(value, resultType);
+		return generator.forVariable(value, resultType, local -> {
 
-		Computation computation = createOrdinaryMap(value, generator);
-		List<String> statements = new LinkedList<>(computation.getStatements());
-		String resultBase = computation.getValue();
+			Computation computation = createOrdinaryMap(value, generator);
+			List<String> statements = new LinkedList<>(computation.getStatements());
+			String resultBase = computation.getValue();
 
-		String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), resultList, callLocalMethod(factoryMethod, resultBase));
-		statements.add(decoratingStatement);
+			String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase));
+			statements.add(decoratingStatement);
 
-		generator.finishVariable(value);
-		
-		return new Computation(resultList, value.getResultType(), statements);
+			return new Computation(local.getName(), value.getResultType(), statements);
+		});
+
 	}
 
 	private Computation tryDeserializeSynchronized(SerializedMap value, ObjectToSetupCode generator) {
@@ -140,18 +139,18 @@ public class CollectionsMapAdaptor implements Adaptor<SerializedMap, ObjectToSet
 		types.staticImport(Collections.class, factoryMethod);
 
 		Type resultType = parameterized(Map.class, null, value.getMapKeyType(), value.getMapValueType());
-		String resultList = generator.localVariable(value, resultType);
+		return generator.forVariable(value, resultType, local -> {
 
-		Computation computation = createOrdinaryMap(value, generator);
-		List<String> statements = new LinkedList<>(computation.getStatements());
-		String resultBase = computation.getValue();
+			Computation computation = createOrdinaryMap(value, generator);
+			List<String> statements = new LinkedList<>(computation.getStatements());
+			String resultBase = computation.getValue();
 
-		String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), resultList, callLocalMethod(factoryMethod, resultBase));
-		statements.add(decoratingStatement);
+			String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase));
+			statements.add(decoratingStatement);
 
-		generator.finishVariable(value);
-		
-		return new Computation(resultList, value.getResultType(), statements);
+			return new Computation(local.getName(), value.getResultType(), statements);
+		});
+
 	}
 
 	private Computation tryDeserializeChecked(SerializedMap value, ObjectToSetupCode generator) {
@@ -160,20 +159,19 @@ public class CollectionsMapAdaptor implements Adaptor<SerializedMap, ObjectToSet
 		types.staticImport(Collections.class, factoryMethod);
 
 		Type resultType = parameterized(Map.class, null, value.getMapKeyType(), value.getMapValueType());
-		String resultList = generator.localVariable(value, resultType);
+		return generator.forVariable(value, resultType, local -> {
 
-		Computation computation = createOrdinaryMap(value, generator);
-		List<String> statements = new LinkedList<>(computation.getStatements());
-		String resultBase = computation.getValue();
-		String checkedKeyType = types.getRawTypeName(value.getMapKeyType());
-		String checkedValueType = types.getRawTypeName(value.getMapValueType());
+			Computation computation = createOrdinaryMap(value, generator);
+			List<String> statements = new LinkedList<>(computation.getStatements());
+			String resultBase = computation.getValue();
+			String checkedKeyType = types.getRawTypeName(value.getMapKeyType());
+			String checkedValueType = types.getRawTypeName(value.getMapValueType());
 
-		String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), resultList, callLocalMethod(factoryMethod, resultBase, checkedKeyType, checkedValueType));
-		statements.add(decoratingStatement);
+			String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase, checkedKeyType, checkedValueType));
+			statements.add(decoratingStatement);
 
-		generator.finishVariable(value);
-		
-		return new Computation(resultList, value.getResultType(), statements);
+			return new Computation(local.getName(), value.getResultType(), statements);
+		});
 	}
 
 }

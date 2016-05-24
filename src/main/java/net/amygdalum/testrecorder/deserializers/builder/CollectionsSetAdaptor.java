@@ -24,7 +24,7 @@ import net.amygdalum.testrecorder.values.SerializedSet;
 public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSetupCode> {
 
 	private DefaultSetAdaptor adaptor;
-	
+
 	public CollectionsSetAdaptor() {
 		this.adaptor = new DefaultSetAdaptor();
 	}
@@ -75,13 +75,12 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 		types.staticImport(Collections.class, factoryMethod);
 
 		Type resultType = parameterized(Set.class, null, value.getComponentType());
-		String resultSet = generator.localVariable(value, resultType);
+		return generator.forVariable(value, resultType, local -> {
 
-		String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), resultSet, callLocalMethod(factoryMethod));
+			String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod(factoryMethod));
 
-		generator.finishVariable(value);
-		
-		return new Computation(resultSet, value.getResultType(), asList(decoratingStatement));
+			return new Computation(local.getName(), value.getResultType(), asList(decoratingStatement));
+		});
 	}
 
 	private Computation tryDeserializeSingleton(SerializedSet value, ObjectToSetupCode generator) {
@@ -91,18 +90,17 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 		types.staticImport(Collections.class, factoryMethod);
 
 		Type resultType = parameterized(Set.class, null, value.getComponentType());
-		String resultList = generator.localVariable(value, resultType);
+		return generator.forVariable(value, resultType, local -> {
 
-		Computation computation = value.iterator().next().accept(generator);
-		List<String> statements = new LinkedList<>(computation.getStatements());
-		String resultBase = computation.getValue();
+			Computation computation = value.iterator().next().accept(generator);
+			List<String> statements = new LinkedList<>(computation.getStatements());
+			String resultBase = computation.getValue();
 
-		String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), resultList, callLocalMethod(factoryMethod, resultBase));
-		statements.add(decoratingStatement);
+			String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase));
+			statements.add(decoratingStatement);
 
-		generator.finishVariable(value);
-		
-		return new Computation(resultList, value.getResultType(), statements);
+			return new Computation(local.getName(), value.getResultType(), statements);
+		});
 	}
 
 	private Computation tryDeserializeUnmodifiable(SerializedSet value, ObjectToSetupCode generator) {
@@ -112,18 +110,17 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 		types.staticImport(Collections.class, factoryMethod);
 
 		Type resultType = parameterized(Set.class, null, value.getComponentType());
-		String resultList = generator.localVariable(value, resultType);
+		return generator.forVariable(value, resultType, local -> {
 
-		Computation computation = createOrdinarySet(value, generator);
-		List<String> statements = new LinkedList<>(computation.getStatements());
-		String resultBase = computation.getValue();
+			Computation computation = createOrdinarySet(value, generator);
+			List<String> statements = new LinkedList<>(computation.getStatements());
+			String resultBase = computation.getValue();
 
-		String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), resultList, callLocalMethod(factoryMethod, resultBase));
-		statements.add(decoratingStatement);
+			String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase));
+			statements.add(decoratingStatement);
 
-		generator.finishVariable(value);
-		
-		return new Computation(resultList, value.getResultType(), statements);
+			return new Computation(local.getName(), value.getResultType(), statements);
+		});
 	}
 
 	private Computation tryDeserializeSynchronized(SerializedSet value, ObjectToSetupCode generator) {
@@ -132,18 +129,17 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 		types.staticImport(Collections.class, factoryMethod);
 
 		Type resultType = parameterized(Set.class, null, value.getComponentType());
-		String resultList = generator.localVariable(value, resultType);
+		return generator.forVariable(value, resultType, local -> {
 
-		Computation computation = createOrdinarySet(value, generator);
-		List<String> statements = new LinkedList<>(computation.getStatements());
-		String resultBase = computation.getValue();
+			Computation computation = createOrdinarySet(value, generator);
+			List<String> statements = new LinkedList<>(computation.getStatements());
+			String resultBase = computation.getValue();
 
-		String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), resultList, callLocalMethod(factoryMethod, resultBase));
-		statements.add(decoratingStatement);
+			String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase));
+			statements.add(decoratingStatement);
 
-		generator.finishVariable(value);
-		
-		return new Computation(resultList, value.getResultType(), statements);
+			return new Computation(local.getName(), value.getResultType(), statements);
+		});
 	}
 
 	private Computation tryDeserializeChecked(SerializedSet value, ObjectToSetupCode generator) {
@@ -152,19 +148,18 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 		types.staticImport(Collections.class, factoryMethod);
 
 		Type resultType = parameterized(Set.class, null, value.getComponentType());
-		String resultList = generator.localVariable(value, resultType);
+		return generator.forVariable(value, resultType, local -> {
 
-		Computation computation = createOrdinarySet(value, generator);
-		List<String> statements = new LinkedList<>(computation.getStatements());
-		String resultBase = computation.getValue();
-		String checkedType = types.getRawTypeName(value.getComponentType());
+			Computation computation = createOrdinarySet(value, generator);
+			List<String> statements = new LinkedList<>(computation.getStatements());
+			String resultBase = computation.getValue();
+			String checkedType = types.getRawTypeName(value.getComponentType());
 
-		String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), resultList, callLocalMethod(factoryMethod, resultBase, checkedType));
-		statements.add(decoratingStatement);
+			String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase, checkedType));
+			statements.add(decoratingStatement);
 
-		generator.finishVariable(value);
-		
-		return new Computation(resultList, value.getResultType(), statements);
+			return new Computation(local.getName(), value.getResultType(), statements);
+		});
 	}
 
 }

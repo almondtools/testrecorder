@@ -20,27 +20,26 @@ public class DefaultArrayAdaptor extends DefaultAdaptor<SerializedArray, ObjectT
 		TypeManager types = generator.getTypes();
 		types.registerType(value.getResultType());
 
-		String name = generator.localVariable(value, value.getResultType());
+		return generator.forVariable(value, value.getResultType(), local -> {
 
-		List<Computation> elementTemplates = Stream.of(value.getArray())
-			.map(element -> element.accept(generator))
-			.collect(toList());
+			List<Computation> elementTemplates = Stream.of(value.getArray())
+				.map(element -> element.accept(generator))
+				.collect(toList());
 
-		List<String> elements = elementTemplates.stream()
-			.map(template -> generator.adapt(template.getValue(), value.getComponentType(), template.getType()))
-			.collect(toList());
+			List<String> elements = elementTemplates.stream()
+				.map(template -> generator.adapt(template.getValue(), value.getComponentType(), template.getType()))
+				.collect(toList());
 
-		List<String> statements = elementTemplates.stream()
-			.flatMap(template -> template.getStatements().stream())
-			.collect(toList());
+			List<String> statements = elementTemplates.stream()
+				.flatMap(template -> template.getStatements().stream())
+				.collect(toList());
 
-		String arrayLiteral = arrayLiteral(types.getSimpleName(value.getResultType()), elements);
+			String arrayLiteral = arrayLiteral(types.getSimpleName(value.getResultType()), elements);
 
-		statements.add(assignLocalVariableStatement(types.getSimpleName(value.getResultType()), name, arrayLiteral));
+			statements.add(assignLocalVariableStatement(types.getSimpleName(value.getResultType()), local.getName(), arrayLiteral));
 
-		generator.finishVariable(value);
-		
-		return new Computation(name, value.getResultType(), statements);
+			return new Computation(local.getName(), value.getResultType(), statements);
+		});
 	}
 
 }

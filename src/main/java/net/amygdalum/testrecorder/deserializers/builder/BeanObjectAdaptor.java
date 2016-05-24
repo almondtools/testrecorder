@@ -24,18 +24,13 @@ public class BeanObjectAdaptor implements Adaptor<SerializedObject, ObjectToSetu
 	@Override
 	public Computation tryDeserialize(SerializedObject value, ObjectToSetupCode generator) throws DeserializationException {
 		TypeManager types = generator.getTypes();
-		try {
-			String name = generator.localVariable(value, value.getType());
-			
-			Computation best = new Construction(name, value).computeBest(types, generator);
-
-			generator.finishVariable(value);
-			
-			return best;
-		} catch (ReflectiveOperationException | RuntimeException e) {
-			generator.resetVariable(value);
-			throw new DeserializationException(value.toString());
-		}
+		return generator.forVariable(value, value.getType(), local -> {
+			try {
+				return new Construction(local.getName(), value).computeBest(types, generator);
+			} catch (ReflectiveOperationException | RuntimeException e) {
+				throw new DeserializationException(value.toString());
+			}
+		});
 	}
 
 }
