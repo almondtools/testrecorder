@@ -39,19 +39,20 @@ public class DefaultObjectAdaptor extends DefaultAdaptor<SerializedObject, Objec
 			.map(field -> field.getValue())
 			.collect(toList());
 
-		Type resultType = parameterized(Matcher.class, null, types.wrapHidden(value.getResultType()));
+		Type matchedType = types.isHidden(value.getResultType()) ? wildcard() : value.getResultType();
+		Type resultType = parameterized(Matcher.class, null, matchedType);
 
 		String matcherExpression = with(types).createMatcherExpression(value, fieldAssignments);
 
 		return new Computation(matcherExpression, resultType, fieldComputations);
 	}
-	
+
 	public TypesAware with(TypeManager types) {
 		return new TypesAware(types);
 	}
-	
+
 	private static class TypesAware {
-		
+
 		private TypeManager types;
 
 		public TypesAware(TypeManager types) {

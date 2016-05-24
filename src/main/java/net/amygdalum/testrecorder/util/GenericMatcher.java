@@ -23,7 +23,7 @@ public class GenericMatcher extends GenericObject {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Matcher<Wrapped> matching(Wrapped wrapped) {
+	public Matcher<Object> matching(Wrapped wrapped) {
 		return (Matcher) new InternalsMatcher(wrapped.getWrappedClass());
 	}
 

@@ -49,7 +49,7 @@ public class HiddenInnerClassTest {
 			containsPattern("Wrapped hidden? = new GenericObject() {*String name = \"hidden name\";*}.as(clazz(\"net.amygdalum.testrecorder.scenarios.HiddenInnerClass$Hidden\"));"),
 			containsPattern("HiddenInnerClass hiddenInnerClass? = new GenericObject() {*Wrapped o = hidden2;*}.as(HiddenInnerClass.class)"),
 			containsPattern("new GenericMatcher() {*"
-				+ "Matcher<Wrapped> o = new GenericMatcher() {*"
+				+ "Matcher<?> o = new GenericMatcher() {*"
 				+ "String name = \"hidden name\";*"
 				+ "}.matching(clazz(\"net.amygdalum.testrecorder.scenarios.HiddenInnerClass$Hidden\"));*"
 				+ "}"

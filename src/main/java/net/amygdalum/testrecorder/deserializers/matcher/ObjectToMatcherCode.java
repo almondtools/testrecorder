@@ -104,7 +104,15 @@ public class ObjectToMatcherCode implements Deserializer<Computation> {
 	@Override
 	public Computation visitField(SerializedField field) {
 		SerializedValue fieldValue = field.getValue();
-		if (isSimpleValue(fieldValue)) {
+		if (types.isHidden(field.getType())) {
+			types.registerImport(Matcher.class);
+			Computation value = fieldValue.accept(this);
+
+			String genericType = types.getSimpleName(value.getType());
+
+			String assignField = assignLocalVariableStatement(genericType, field.getName(), value.getValue());
+			return new Computation(assignField, null, value.getStatements());
+		} else if (isSimpleValue(fieldValue)) {
 			types.registerImport(baseType(field.getType()));
 			Computation value = simpleValue(fieldValue);
 
@@ -126,7 +134,13 @@ public class ObjectToMatcherCode implements Deserializer<Computation> {
 		if (!computed.add(value)) {
 			types.staticImport(GenericMatcher.class, "recursive");
 			Type resultType = value.getResultType().equals(value.getType()) ? parameterized(Matcher.class, null, value.getResultType()) : parameterized(Matcher.class, null, wildcard());
-			return new Computation(recursiveMatcher(types.getRawTypeName(value.getType())), resultType);
+			if (!types.isHidden(value.getType())) {
+				return new Computation(recursiveMatcher(types.getRawTypeName(value.getType())), resultType);
+			} else if (!types.isHidden(value.getResultType())) {
+				return new Computation(recursiveMatcher(types.getRawTypeName(value.getResultType())), resultType);
+			} else {
+				return new Computation(recursiveMatcher(types.getRawTypeName(Object.class)), parameterized(Matcher.class, null, wildcard()));
+			}
 		}
 		return adaptors.tryDeserialize(value, types, this);
 	}
