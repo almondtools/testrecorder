@@ -5,6 +5,7 @@ import static java.lang.reflect.Modifier.isPublic;
 import static java.util.stream.Collectors.joining;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
@@ -198,6 +199,19 @@ public class Types {
 			return true;
 		} else {
 			return !pkg.equals(clazz.getPackage().getName());
+		}
+	}
+
+	public static boolean isHidden(Constructor<?> constructor, String pkg) {
+		int modifiers = constructor.getModifiers();
+		if (isPublic(modifiers)) {
+			return isHidden(constructor.getDeclaringClass(), pkg);
+		} else if (isPrivate(modifiers)) {
+			return true;
+		} else if (constructor.getDeclaringClass().getEnclosingClass() != null) {
+			return true;
+		} else {
+			return isHidden(constructor.getDeclaringClass(), pkg);
 		}
 	}
 

@@ -1,6 +1,5 @@
 package net.amygdalum.testrecorder.deserializers;
 
-import static java.lang.reflect.Modifier.isPrivate;
 import static net.amygdalum.testrecorder.util.GenericObject.getDefaultValue;
 import static net.amygdalum.testrecorder.util.GenericObject.getNonDefaultValue;
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
@@ -103,7 +102,7 @@ public class Construction {
 	private Object buildFromStandardConstructor(TypeManager types) {
 		try {
 			Constructor<?> constructor = baseType(serialized.getType()).getDeclaredConstructor();
-			if (types.isHidden(constructor.getDeclaringClass()) || isPrivate(constructor.getModifiers())) {
+			if (types.isHidden(constructor)) {
 				return null;
 			}
 			constructor.setAccessible(true);
@@ -122,7 +121,7 @@ public class Construction {
 			Object fieldValue = field.getValue().accept(deserializer);
 
 			for (Constructor<?> constructor : baseType(serialized.getType()).getConstructors()) {
-				if (types.isHidden(constructor.getDeclaringClass())) {
+				if (types.isHidden(constructor)) {
 					continue;
 				}
 				

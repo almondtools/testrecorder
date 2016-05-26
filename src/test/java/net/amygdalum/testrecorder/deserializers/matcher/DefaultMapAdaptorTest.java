@@ -47,7 +47,7 @@ public class DefaultMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 		
 		assertThat(result.getStatements(), empty());
-		assertThat(result.getValue(), equalTo("containsEntries(Integer.class, Integer.class).entry(47, 11).entry(8, 15)"));
+		assertThat(result.getValue(), equalTo("containsEntries(Integer.class, Integer.class).entry(8, 15).entry(47, 11)"));
 	}
 
 	@Test

@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -148,6 +149,11 @@ public class TypeManager {
 		} else {
 			return getRawName(type) + ".class";
 		}
+	}
+
+
+	public boolean isHidden(Constructor<?> constructor) {
+		return Types.isHidden(constructor, pkg);
 	}
 
 	public boolean isHidden(Type type) {
