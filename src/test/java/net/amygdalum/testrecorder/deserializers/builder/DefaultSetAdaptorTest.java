@@ -49,12 +49,30 @@ public class DefaultSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 		
 		assertThat(result.getStatements().toString(), allOf(
-			containsString("Set<Integer> set1 = new LinkedHashSet<Integer>()"),
-			containsString("set1.add(0)"),
-			containsString("set1.add(8)"),
-			containsString("set1.add(15);")));
+			containsString("LinkedHashSet<Integer> temp1 = new LinkedHashSet<Integer>()"),
+			containsString("temp1.add(0)"),
+			containsString("temp1.add(8)"),
+			containsString("temp1.add(15)"),
+			containsString("Set<Integer> set1 = temp1;")));
 		assertThat(result.getValue(), equalTo("set1"));
 	}
 
+	@Test
+	public void testTryDeserializeSameResultTypes() throws Exception {
+		SerializedSet value = new SerializedSet(parameterized(LinkedHashSet.class, null, Integer.class)).withResult(parameterized(LinkedHashSet.class, null, Integer.class));
+		value.add(literal(0));
+		value.add(literal(8));
+		value.add(literal(15));
+		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		
+		Computation result = adaptor.tryDeserialize(value, generator);
+		
+		assertThat(result.getStatements().toString(), allOf(
+			containsString("LinkedHashSet<Integer> set1 = new LinkedHashSet<Integer>()"),
+			containsString("set1.add(0)"),
+			containsString("set1.add(8)"),
+			containsString("set1.add(15)")));
+		assertThat(result.getValue(), equalTo("set1"));
+	}
 
 }

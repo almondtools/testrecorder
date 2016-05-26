@@ -49,10 +49,29 @@ public class DefaultListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 		
 		assertThat(result.getStatements().toString(), allOf(
-			containsString("List<Integer> list1 = new ArrayList<Integer>()"),
+			containsString("ArrayList<Integer> temp1 = new ArrayList<Integer>()"),
+			containsString("temp1.add(0)"),
+			containsString("temp1.add(8)"),
+			containsString("temp1.add(15)"),
+			containsString("List<Integer> list1 = temp1;")));
+		assertThat(result.getValue(), equalTo("list1"));
+	}
+	
+	@Test
+	public void testTryDeserializeSameResultTypes() throws Exception {
+		SerializedList value = new SerializedList(parameterized(ArrayList.class, null, Integer.class)).withResult(parameterized(ArrayList.class, null, Integer.class));
+		value.add(literal(0));
+		value.add(literal(8));
+		value.add(literal(15));
+		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		
+		Computation result = adaptor.tryDeserialize(value, generator);
+		
+		assertThat(result.getStatements().toString(), allOf(
+			containsString("ArrayList<Integer> list1 = new ArrayList<Integer>()"),
 			containsString("list1.add(0)"),
 			containsString("list1.add(8)"),
-			containsString("list1.add(15);")));
+			containsString("list1.add(15)")));
 		assertThat(result.getValue(), equalTo("list1"));
 	}
 	

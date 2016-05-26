@@ -3,6 +3,7 @@ package net.amygdalum.testrecorder.deserializers.builder;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethodStatement;
+import static net.amygdalum.testrecorder.deserializers.Templates.cast;
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
 
 import java.util.List;
@@ -34,13 +35,20 @@ public class DefaultListAdaptor extends DefaultAdaptor<SerializedList, ObjectToS
 				.flatMap(template -> template.getStatements().stream())
 				.collect(toList());
 
+			String tempVar = equalResultTypes(value) ? local.getName() : generator.temporaryLocal();
+			
 			String list = newObject(types.getBestName(value.getType()));
-			String listInit = assignLocalVariableStatement(types.getSimpleName(value.getResultType()), local.getName(), list);
+			String listInit = assignLocalVariableStatement(types.getSimpleName(value.getType()), tempVar, list);
 			statements.add(listInit);
 
 			for (String element : elements) {
-				String addElement = callMethodStatement(local.getName(), "add", element);
+				String addElement = callMethodStatement(tempVar, "add", element);
 				statements.add(addElement);
+			}
+
+			if (!equalResultTypes(value)) {
+				String leftValue = assignableResultTypes(value) ? tempVar : cast(types.getSimpleName(value.getResultType()), tempVar);
+				statements.add(assignLocalVariableStatement(types.getSimpleName(value.getResultType()), local.getName(), leftValue));
 			}
 
 			return new Computation(local.getName(), value.getResultType(), true, statements);

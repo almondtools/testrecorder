@@ -36,9 +36,10 @@ public class ListValueTest {
 		m.add("bar");
 
 		assertThat(codeSerializer.serialize(parameterized(List.class, null, String.class), m), containsPattern(""
-			+ "List<String> list1 = new ArrayList<>();*"
-			+ "list1.add(\"foo\");*"
-			+ "list1.add(\"bar\");"));
+			+ "ArrayList temp1 = new ArrayList<>();*"
+			+ "temp1.add(\"foo\");*"
+			+ "temp1.add(\"bar\");*"
+			+ "List<String> list1 = temp1;"));
 	}
 
 }

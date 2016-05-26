@@ -17,7 +17,10 @@ public class LocalVariableNameGenerator {
 	}
 
 	public String fetchName(Type type) {
-		String base = base(type);
+		return fetchName(base(type));
+	}
+
+	public String fetchName(String base) {
 		return base + names.compute(base, (key, value) -> {
 			if (value == null) {
 				return 1;

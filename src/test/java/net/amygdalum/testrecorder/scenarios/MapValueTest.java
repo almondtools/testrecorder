@@ -5,6 +5,7 @@ import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static org.junit.Assert.assertThat;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.junit.Test;
@@ -29,12 +30,13 @@ public class MapValueTest {
 	public void testResultType() throws Exception {
 		CodeSerializer codeSerializer = new CodeSerializer();
 
-		Map<String, Integer> m = new HashMap<String, Integer>();
+		Map<String, Integer> m = new LinkedHashMap<String, Integer>();
 		m.put("bar", new Integer(21));
 
 		assertThat(codeSerializer.serialize(parameterized(Map.class, null, String.class, Integer.class), m), containsPattern(""
-			+ "Map<String, Integer> map1 = new HashMap<>();*"
-			+ "map1.put(\"bar\", 21);"));
+			+ "LinkedHashMap temp1 = new LinkedHashMap<>();*"
+			+ "temp1.put(\"bar\", 21);*"
+			+ "Map<String, Integer> map1 = temp1;"));
 	}
 
 }

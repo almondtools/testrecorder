@@ -4,7 +4,7 @@ import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVari
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
 import static net.amygdalum.testrecorder.deserializers.Templates.cast;
 import static net.amygdalum.testrecorder.util.Types.boxingEquivalentTypes;
-import static net.amygdalum.testrecorder.util.Types.subsumingTypes;
+import static net.amygdalum.testrecorder.util.Types.assignableTypes;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -81,7 +81,7 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 	public String adapt(String value, Type resultType, Type type) {
 		if (types.isHidden(type) && !types.isHidden(resultType)) {
 			return cast(types.getSimpleName(resultType), callMethod(value, "value"));
-		} else if (!subsumingTypes(resultType, type) && !boxingEquivalentTypes(resultType, type)) {
+		} else if (!assignableTypes(resultType, type) && !boxingEquivalentTypes(resultType, type)) {
 			return cast(types.getSimpleName(resultType), value);
 		} else {
 			return value;
@@ -102,6 +102,10 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 			resetVariable(value);
 			throw e;
 		}
+	}
+
+	public String temporaryLocal() {
+		return locals.fetchName("temp");
 	}
 
 	private LocalVariable localVariable(SerializedValue value, Type type) {

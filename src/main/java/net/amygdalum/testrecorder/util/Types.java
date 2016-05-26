@@ -155,8 +155,14 @@ public class Types {
 		}
 	}
 
-	public static boolean subsumingTypes(Type superType, Type subType) {
-		return baseType(superType).isAssignableFrom(baseType(subType));
+	public static boolean assignableTypes(Type toType, Type fromType) {
+		Class<?> toClass = baseType(toType);
+		Class<?> fromClass = baseType(fromType);
+		if (!toClass.isAssignableFrom(fromClass)) {
+			return false;
+		} else {
+			return true;
+		}
 	}
 
 	public static boolean equalTypes(Type type1, Type type2) {
