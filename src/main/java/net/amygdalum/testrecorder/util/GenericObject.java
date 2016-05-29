@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.util;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
+import static net.amygdalum.testrecorder.util.Params.NONE;
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
 
 import java.lang.reflect.Array;
@@ -11,6 +12,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -39,65 +41,49 @@ public abstract class GenericObject {
 
 	@SuppressWarnings("unchecked")
 	public static <T> T newProxy(Class<T> clazz) {
-		return (T) Proxy.newProxyInstance(clazz.getClassLoader(), new Class[]{clazz}, new InvocationHandler() {
-			
+		return (T) Proxy.newProxyInstance(clazz.getClassLoader(), new Class[] { clazz }, new InvocationHandler() {
+
 			@Override
 			public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 				return null;
 			}
 		});
 	}
+
 	@SuppressWarnings("unchecked")
 	public static <T> T newInstance(Class<T> clazz) {
-		Throwable exception = null;
+		List<String> tries = new ArrayList<>();
 		for (Constructor<T> constructor : (Constructor<T>[]) clazz.getDeclaredConstructors()) {
 			try {
 				return accessing(constructor).call(() -> {
-					Exception innerexception = null;
-					for (Supplier<Object[]> params : bestParams(constructor.getParameterTypes())) {
+					List<String> innertries = new ArrayList<>();
+					for (Params params : bestParams(constructor.getParameterTypes())) {
 						try {
-							return constructor.newInstance(params.get());
+							return constructor.newInstance(params.values());
 						} catch (ReflectiveOperationException | RuntimeException e) {
-							innerexception = e;
+							innertries.add(params.getDescription());
 						}
 					}
-					throw new RuntimeException(innerexception);
+					throw new FailedInstantiationException(clazz, innertries);
 				});
 			} catch (ReflectiveOperationException e) {
-				exception = e;
-			} catch (RuntimeException e) {
-				Throwable cause = e.getCause();
-				if (cause != null && cause != e) {
-					exception = cause;
-				} else {
-					exception = e;
-				}
+				throw new GenericObjectException(e);
+			} catch (FailedInstantiationException e) {
+				tries.addAll(e.getTries());
 			}
 		}
-		if (exception instanceof GenericObjectException) {
-			throw new GenericObjectException(exception.getCause());
-		} else {
-			throw new GenericObjectException(exception);
-		}
+		throw new FailedInstantiationException(clazz, tries);
 	}
 
-	private static Iterable<Supplier<Object[]>> bestParams(Class<?>[] parameterTypes) {
+	private static Iterable<Params> bestParams(Class<?>[] parameterTypes) {
 		if (parameterTypes.length == 0) {
-			return asList(() -> new Object[0]);
+			return asList(NONE);
 		} else {
 			return asList(
-				() -> createDefaultParams(parameterTypes),
-				() -> createNonNullParams(parameterTypes),
-				() -> createNonDefaultParams(parameterTypes));
+				new DefaultParams(parameterTypes),
+				new NonNullParams(parameterTypes),
+				new NonDefaultParams(parameterTypes));
 		}
-	}
-
-	public static Object[] createDefaultParams(Class<?>[] classes) {
-		Object[] params = new Object[classes.length];
-		for (int i = 0; i < params.length; i++) {
-			params[i] = getDefaultValue(classes[i]);
-		}
-		return params;
 	}
 
 	public static Object getDefaultValue(Class<?> clazz) {
@@ -120,14 +106,6 @@ public abstract class GenericObject {
 		} else {
 			return null;
 		}
-	}
-
-	public static Object[] createNonNullParams(Class<?>[] classes) {
-		Object[] params = new Object[classes.length];
-		for (int i = 0; i < params.length; i++) {
-			params[i] = getNonNullValue(classes[i]);
-		}
-		return params;
 	}
 
 	public static Object getNonNullValue(Class<?> clazz) {
@@ -154,14 +132,6 @@ public abstract class GenericObject {
 		} else {
 			return newInstance(clazz);
 		}
-	}
-
-	public static Object[] createNonDefaultParams(Class<?>[] classes) {
-		Object[] params = new Object[classes.length];
-		for (int i = 0; i < params.length; i++) {
-			params[i] = getNonDefaultValue(classes[i]);
-		}
-		return params;
 	}
 
 	public static Object getNonDefaultValue(Class<?> clazz) {
@@ -274,6 +244,70 @@ public abstract class GenericObject {
 			&& field.getName().indexOf('$') < 0
 			&& ((field.getModifiers() & Modifier.STATIC) != Modifier.STATIC)
 			&& ((field.getModifiers() & Modifier.FINAL) != Modifier.FINAL);
+	}
+
+	private static class DefaultParams extends Params {
+
+		public DefaultParams(Class<?>[] classes) {
+			super(classes);
+		}
+		
+		@Override
+		public Object getValue(Class<?> clazz) {
+			return getDefaultValue(clazz);
+		}
+
+	}
+
+	private static class NonNullParams extends Params {
+		public NonNullParams(Class<?>[] classes) {
+			super(classes);
+		}
+
+		@Override
+		public String getDescription(Class<?> clazz) {
+			if (clazz.isPrimitive()) {
+				return super.getDescription(clazz);
+			} else if (clazz.isArray()) {
+				return "new " + clazz.getComponentType().getSimpleName() + "[0]";
+			} else if (clazz.isInterface()) {
+				return "proxy " + clazz.getSimpleName() + "()";
+			} else {
+				return "new " + clazz.getSimpleName() + "()";
+			}
+		}
+		
+		@Override
+		public Object getValue(Class<?> clazz) {
+			return getNonNullValue(clazz);
+		}
+
+	}
+	
+	private static class NonDefaultParams extends Params {
+
+		public NonDefaultParams(Class<?>[] classes) {
+			super(classes);
+		}
+
+		@Override
+		public String getDescription(Class<?> clazz) {
+			if (clazz.isPrimitive()) {
+				return super.getDescription(clazz);
+			} else if (clazz.isArray()) {
+				return "new " + clazz.getComponentType().getSimpleName() + "[0]";
+			} else if (clazz.isInterface()) {
+				return "proxy " + clazz.getSimpleName() + "()";
+			} else {
+				return "new " + clazz.getSimpleName() + "()";
+			}
+		}
+		
+		@Override
+		public Object getValue(Class<?> clazz) {
+			return getNonDefaultValue(clazz);
+		}
+		
 	}
 
 }
