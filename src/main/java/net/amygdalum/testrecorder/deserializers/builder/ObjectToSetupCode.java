@@ -150,8 +150,8 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 				return new Computation(name, definition.getType(), true);
 			} else {
 				List<String> statements = new ArrayList<>();
-				statements.add(assignLocalVariableStatement(types.getBestName(value.getType()), name,
-					callMethod(types.getBestName(GenericObject.class), "forward", types.getRawTypeName(value.getType()))));
+				String forwardExpression = callMethod(types.getBestName(GenericObject.class), "forward", types.getRawTypeName(value.getType()));
+				statements.add(assignLocalVariableStatement(types.getBestName(types.wrapHidden(value.getType())), name, forwardExpression));
 				definition.define(value.getResultType());
 				return new Computation(name, definition.getType(), true, statements);
 			}
