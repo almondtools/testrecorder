@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethodStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
@@ -14,6 +13,7 @@ import net.amygdalum.testrecorder.deserializers.Adaptor;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DefaultAdaptor;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
+import net.amygdalum.testrecorder.util.Pair;
 import net.amygdalum.testrecorder.values.SerializedMap;
 
 public class DefaultMapAdaptor extends DefaultAdaptor<SerializedMap, ObjectToSetupCode> implements Adaptor<SerializedMap, ObjectToSetupCode> {
@@ -25,16 +25,18 @@ public class DefaultMapAdaptor extends DefaultAdaptor<SerializedMap, ObjectToSet
 
 		return generator.forVariable(value, Map.class, local -> {
 
-			Map<Computation, Computation> elementTemplates = value.entrySet().stream()
-				.collect(toMap(entry -> entry.getKey().accept(generator), entry -> entry.getValue().accept(generator)));
+			List<Pair<Computation, Computation>> elementTemplates = value.entrySet().stream()
+				.map(entry -> new Pair<>(entry.getKey().accept(generator), entry.getValue().accept(generator)))
+				.collect(toList());
 
-			Map<String, String> elements = elementTemplates.entrySet().stream()
-				.collect(toMap(
-					entry -> generator.adapt(entry.getKey().getValue(), value.getMapKeyType(), entry.getKey().getType()),
-					entry -> generator.adapt(entry.getValue().getValue(), value.getMapValueType(), entry.getValue().getType())));
+			List<Pair<String, String>> elements = elementTemplates.stream()
+				.map(pair -> new Pair<>(
+					generator.adapt(pair.getElement1().getValue(), value.getMapKeyType(), pair.getElement1().getType()),
+					generator.adapt(pair.getElement2().getValue(), value.getMapValueType(), pair.getElement2().getType())))
+				.collect(toList());
 
-			List<String> statements = elementTemplates.entrySet().stream()
-				.flatMap(entry -> Stream.concat(entry.getKey().getStatements().stream(), entry.getValue().getStatements().stream()))
+			List<String> statements = elementTemplates.stream()
+				.flatMap(pair -> Stream.concat(pair.getElement1().getStatements().stream(), pair.getElement2().getStatements().stream()))
 				.distinct()
 				.collect(toList());
 
@@ -42,8 +44,8 @@ public class DefaultMapAdaptor extends DefaultAdaptor<SerializedMap, ObjectToSet
 			String mapInit = assignLocalVariableStatement(types.getSimpleName(value.getResultType()), local.getName(), map);
 			statements.add(mapInit);
 
-			for (Map.Entry<String, String> element : elements.entrySet()) {
-				String putEntry = callMethodStatement(local.getName(), "put", element.getKey(), element.getValue());
+			for (Pair<String, String> element : elements) {
+				String putEntry = callMethodStatement(local.getName(), "put", element.getElement1(), element.getElement2());
 				statements.add(putEntry);
 			}
 

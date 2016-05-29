@@ -3,10 +3,10 @@ package net.amygdalum.testrecorder.deserializers;
 import static java.util.Arrays.asList;
 
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.stringtemplate.v4.ST;
+
+import net.amygdalum.testrecorder.util.Pair;
 
 public final class Templates {
 
@@ -42,7 +42,7 @@ public final class Templates {
 	private static final String SAME_INSTANCE_MATCHER = "sameInstance(<value>)";
 	private static final String NULL_MATCHER = "nullValue(<value>)";
 	private static final String NO_ENTRIES_MATCHER = "noEntries(<keytype>.class, <valuetype>.class)";
-	private static final String CONTAINS_ENTRIES_MATCHER = "containsEntries(<keytype>.class, <valuetype>.class)<entries : { entry | .entry(<entry.key>, <entry.value>)}>";
+	private static final String CONTAINS_ENTRIES_MATCHER = "containsEntries(<keytype>.class, <valuetype>.class)<entries : { entry | .entry(<entry.element1>, <entry.element2>)}>";
 	private static final String ARRAY_CONTAINING_MATCHER = "arrayContaining(<values; separator=\", \">)";
 	private static final String ARRAY_EMPTY_MATCHER = "emptyArray()";
 	private static final String PRIMITIVE_ARRAY_CONTAINING_MATCHER = "<type>ArrayContaining(<values; separator=\", \">)";
@@ -366,7 +366,7 @@ public final class Templates {
 		return matcher.render();
 	}
 
-	public static String containsEntriesMatcher(String keyType, String valueType, Set<Entry<String, String>> entryValues) {
+	public static String containsEntriesMatcher(String keyType, String valueType, List<Pair<String, String>> entryValues) {
 		ST matcher = new ST(CONTAINS_ENTRIES_MATCHER);
 		matcher.add("keytype", keyType);
 		matcher.add("valuetype", valueType);
