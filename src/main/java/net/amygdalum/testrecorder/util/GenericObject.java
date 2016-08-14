@@ -128,6 +128,8 @@ public abstract class GenericObject {
 			return (long) 0;
 		} else if (clazz == double.class) {
 			return (double) 0;
+		} else if (clazz == String.class) {
+			return "";
 		} else if (clazz.isArray()) {
 			return Array.newInstance(clazz.getComponentType(), 0);
 		} else if (clazz.isInterface()) {

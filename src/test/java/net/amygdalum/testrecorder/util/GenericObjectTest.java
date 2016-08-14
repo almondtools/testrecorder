@@ -104,4 +104,16 @@ public class GenericObjectTest {
 		}
 	}
 
+	@Test
+	public void testGetNonNullValue() throws Exception {
+		assertThat(GenericObject.getNonNullValue(byte.class), equalTo(Byte.valueOf((byte) 0)));
+		assertThat(GenericObject.getNonNullValue(short.class), equalTo(Short.valueOf((short) 0)));
+		assertThat(GenericObject.getNonNullValue(int.class), equalTo(Integer.valueOf(0)));
+		assertThat(GenericObject.getNonNullValue(long.class), equalTo(Long.valueOf(0)));
+		assertThat(GenericObject.getNonNullValue(float.class), equalTo(Float.valueOf(0)));
+		assertThat(GenericObject.getNonNullValue(double.class), equalTo(Double.valueOf(0)));
+		assertThat(GenericObject.getNonNullValue(boolean.class), equalTo(Boolean.valueOf("false")));
+		assertThat(GenericObject.getNonNullValue(String.class), equalTo(""));
+	}
+
 }
