@@ -50,7 +50,7 @@ public abstract class GenericObject {
 		});
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "restriction" })
 	public static <T> T newInstance(Class<T> clazz) {
 		List<String> tries = new ArrayList<>();
 		for (Constructor<T> constructor : (Constructor<T>[]) clazz.getDeclaredConstructors()) {
@@ -72,17 +72,20 @@ public abstract class GenericObject {
 				tries.addAll(e.getTries());
 			}
 		}
-		throw new FailedInstantiationException(clazz, tries);
+		try {
+			sun.reflect.ReflectionFactory rf = sun.reflect.ReflectionFactory.getReflectionFactory();
+			Constructor<T> serializationConstructor = (Constructor<T>) rf.newConstructorForSerialization(clazz, Object.class.getDeclaredConstructor());
+			return clazz.cast(serializationConstructor.newInstance());
+		} catch (ReflectiveOperationException | Error e) {
+			throw new FailedInstantiationException(clazz, tries);
+		}
 	}
 
 	private static Iterable<Params> bestParams(Class<?>[] parameterTypes) {
 		if (parameterTypes.length == 0) {
 			return asList(NONE);
 		} else {
-			return asList(
-				new DefaultParams(parameterTypes),
-				new NonNullParams(parameterTypes),
-				new NonDefaultParams(parameterTypes));
+			return asList(new DefaultParams(parameterTypes), new NonNullParams(parameterTypes), new NonDefaultParams(parameterTypes));
 		}
 	}
 
@@ -231,19 +234,15 @@ public abstract class GenericObject {
 
 	public List<Field> getGenericFields() {
 		Field[] declaredFields = getClass().getDeclaredFields();
-		return Stream.of(declaredFields)
-			.filter(field -> isSerializable(field))
-			.map(field -> {
-				return field;
-			})
-			.collect(toList());
+		return Stream.of(declaredFields).filter(field -> isSerializable(field)).map(field -> {
+			return field;
+		}).collect(toList());
 	}
 
 	private boolean isSerializable(Field field) {
-		return !field.isSynthetic()
-			&& field.getName().indexOf('$') < 0
-			&& ((field.getModifiers() & Modifier.STATIC) != Modifier.STATIC)
-			&& ((field.getModifiers() & Modifier.FINAL) != Modifier.FINAL);
+		return !field.isSynthetic() && field.getName().indexOf('$') < 0
+				&& ((field.getModifiers() & Modifier.STATIC) != Modifier.STATIC)
+				&& ((field.getModifiers() & Modifier.FINAL) != Modifier.FINAL);
 	}
 
 	private static class DefaultParams extends Params {
@@ -251,7 +250,7 @@ public abstract class GenericObject {
 		public DefaultParams(Class<?>[] classes) {
 			super(classes);
 		}
-		
+
 		@Override
 		public Object getValue(Class<?> clazz) {
 			return getDefaultValue(clazz);
@@ -276,14 +275,14 @@ public abstract class GenericObject {
 				return "new " + clazz.getSimpleName() + "()";
 			}
 		}
-		
+
 		@Override
 		public Object getValue(Class<?> clazz) {
 			return getNonNullValue(clazz);
 		}
 
 	}
-	
+
 	private static class NonDefaultParams extends Params {
 
 		public NonDefaultParams(Class<?>[] classes) {
@@ -302,12 +301,12 @@ public abstract class GenericObject {
 				return "new " + clazz.getSimpleName() + "()";
 			}
 		}
-		
+
 		@Override
 		public Object getValue(Class<?> clazz) {
 			return getNonDefaultValue(clazz);
 		}
-		
+
 	}
 
 }
