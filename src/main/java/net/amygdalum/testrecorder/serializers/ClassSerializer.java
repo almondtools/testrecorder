@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder.serializers;
 import static java.util.Arrays.asList;
 
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
 import java.util.List;
 
 import net.amygdalum.testrecorder.Serializer;
@@ -18,7 +17,7 @@ public class ClassSerializer implements Serializer<SerializedImmutable<Class<?>>
 
 	@Override
 	public List<Class<?>> getMatchingClasses() {
-		return asList(BigDecimal.class);
+		return asList(Class.class);
 	}
 
 	@Override

@@ -27,7 +27,7 @@ public class DefaultEnumAdaptor extends DefaultAdaptor<SerializedEnum, ObjectToS
 		types.registerType(value.getType());
 
 		if (types.isHidden(value.getType())) {
-			String typeName = types.getBestName(value.getType());
+			String typeName = types.getBestSignature(value.getType());
 			String typeArgument = asLiteral(typeName);
 			String wrapped = newObject(types.getRawName(Wrapped.class), typeArgument);
 			return new Computation(wrapped, value.getResultType());

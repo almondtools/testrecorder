@@ -40,14 +40,15 @@ public class DefaultEnumAdaptor extends DefaultAdaptor<SerializedEnum, ObjectToM
 		}
 
 
-		String typeName = types.getBestName(value.getType());
-		String name = value.getName();
-
-		String matchingValue = fieldAccess(typeName, name);
+		
 		if (types.isHidden(value.getType())) {
 			String enumMatcher = enumMatcher(asLiteral(value.getName()));
 			return new Computation(enumMatcher, parameterized(Matcher.class, null, wildcardExtends(Enum.class)), emptyList());
 		} else {
+			String typeName = types.getBestName(value.getType());
+			String name = value.getName();
+
+			String matchingValue = fieldAccess(typeName, name);
 			String enumMatcher = sameInstanceMatcher(matchingValue);
 			return new Computation(enumMatcher, parameterized(Matcher.class, null, value.getType()), emptyList());
 		}

@@ -108,12 +108,34 @@ public class TypeManager {
 			throw new UnsupportedOperationException();
 		}
 	}
+	
+	public String getBestSignature(Type type) {
+		if (type instanceof Class<?>) {
+			Class<?> clazz = (Class<?>) type;
+			String base = getSimpleSignature(clazz);
+			String generics = clazz.getTypeParameters().length > 0 ? "<>" : "";
+			return base + generics;
+		} else if (type instanceof GenericArrayType) {
+			return getSimpleName(((GenericArrayType) type).getGenericComponentType()) + "[]";
+		} else if (type instanceof ParameterizedType) {
+			return getSimpleName(((ParameterizedType) type).getRawType())
+				+ Stream.of(((ParameterizedType) type).getActualTypeArguments())
+					.map(argtype -> getSimpleName(argtype))
+					.collect(joining(", ", "<", ">"));
+		} else {
+			throw new UnsupportedOperationException();
+		}
+	}
 
 	public String getSimpleName(Type type) {
+		return getSimpleSignature(type).replace('$', '.');
+	}
+
+	public String getSimpleSignature(Type type) {
 		if (type instanceof Class<?>) {
 			Class<?> clazz = (Class<?>) type;
 			if (noImports.contains(clazz)) {
-				return clazz.getName().replace('$', '.');
+				return clazz.getName();
 			} else {
 				return clazz.getSimpleName();
 			}
@@ -130,7 +152,6 @@ public class TypeManager {
 			throw new UnsupportedOperationException();
 		}
 	}
-
 	public String getRawName(Type type) {
 		if (type instanceof Class<?>) {
 			return getSimpleName(type);
