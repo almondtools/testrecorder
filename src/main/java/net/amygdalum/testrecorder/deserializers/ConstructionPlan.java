@@ -12,12 +12,12 @@ import net.amygdalum.testrecorder.Deserializer;
 
 public class ConstructionPlan {
 
-	private String name;
+	private LocalVariable var;
 	private ConstructorParams constructorParams;
 	private List<SetterParam> setterParams;
 
-	public ConstructionPlan(String name, ConstructorParams constructorParams, List<SetterParam> setterParams) {
-		this.name = name;
+	public ConstructionPlan(LocalVariable var, ConstructorParams constructorParams, List<SetterParam> setterParams) {
+		this.var = var;
 		this.constructorParams = constructorParams;
 		this.setterParams = setterParams;
 	}
@@ -51,17 +51,18 @@ public class ConstructionPlan {
 			.toArray(String[]::new);
 		
 		String bean = newObject(types.getBestName(clazz), params);
-		String constructorStatement = assignLocalVariableStatement(types.getSimpleName(clazz), name, bean);
+		String constructorStatement = assignLocalVariableStatement(types.getSimpleName(clazz), var.getName(), bean);
 		statements.add(constructorStatement);
+		var.define(clazz);
 
 		for (SetterParam param : setterParams) {
 			Computation fieldComputation = param.computeValue().accept(compiler);
 			statements.addAll(fieldComputation.getStatements());
 
-			String setStatement = callMethodStatement(name, param.getName(), fieldComputation.getValue());
+			String setStatement = callMethodStatement(var.getName(), param.getName(), fieldComputation.getValue());
 			statements.add(setStatement);
 		}
 
-		return new Computation(name, null, true, statements);
+		return new Computation(var.getName(), null, true, statements);
 	}
 }

@@ -28,14 +28,14 @@ public class Construction {
 
 	private SimpleDeserializer deserializer;
 	private SerializedObject serialized;
-	private String name;
+	private LocalVariable var;
 	private Object value;
 	private Map<Constructor<?>, List<ConstructorParam>> constructors;
 	private List<SetterParam> setters;
 
-	public Construction(String name, SerializedObject value) {
+	public Construction(LocalVariable var, SerializedObject value) {
 		this.deserializer = new SimpleDeserializer();
-		this.name = name;
+		this.var = var;
 		this.serialized = value;
 		this.value = serialized.accept(deserializer);
 		this.constructors = new HashMap<>();
@@ -71,7 +71,7 @@ public class Construction {
 				setBySetter.add(param);
 			}
 		}
-		return new ConstructionPlan(name, constructorParams, setBySetter);
+		return new ConstructionPlan(var, constructorParams, setBySetter);
 	}
 
 	public ConstructorParams computeConstructorParams(Constructor<?> constructor, Set<SerializedField> todo) {
