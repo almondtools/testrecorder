@@ -38,8 +38,8 @@ public class ConstructionPlan {
 		Class<?> clazz = constructorParams.getType();
 		List<String> statements = new ArrayList<>();
 
-		List<Computation> computedParams = constructorParams.getValues().stream()
-			.map(value -> value.accept(compiler))
+		List<Computation> computedParams = constructorParams.getParams().stream()
+			.map(value -> value.compile(types, compiler))
 			.collect(toList());
 
 		statements.addAll(computedParams.stream()
