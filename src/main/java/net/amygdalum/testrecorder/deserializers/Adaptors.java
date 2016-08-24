@@ -19,6 +19,10 @@ public class Adaptors<G> {
 		this.adaptors = new LinkedHashMap<>();
 	}
 
+	public Adaptors(Adaptors<G> base) {
+		this.adaptors = new LinkedHashMap<>(base.adaptors);
+	}
+
 	public Adaptors<G> add(Class<? extends SerializedValue> clazz, Adaptor<?, G> adaptor) {
 		List<Adaptor<?, G>> matching = adaptors.computeIfAbsent(clazz, key -> new LinkedList<>());
 		if (matching.isEmpty() || adaptor.parent() == null) {
