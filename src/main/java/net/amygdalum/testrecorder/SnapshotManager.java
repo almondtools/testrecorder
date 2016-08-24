@@ -28,8 +28,16 @@ public class SnapshotManager {
 	public SnapshotManager(TestRecorderAgentConfig config) {
 		this.config = new FixedTestRecorderAgentConfig(config);
 
-		this.snapshot = Executors.newSingleThreadExecutor(new TestrecorderThreadFactory(true, "$snapshot"));
+		this.snapshot = Executors.newSingleThreadExecutor(new TestrecorderThreadFactory("$snapshot"));
 		this.methodSnapshots = new HashMap<>();
+	}
+
+	public void close() throws Throwable {
+		snapshot.shutdown();
+		SnapshotConsumer snapshotConsumer = config.getSnapshotConsumer();
+		if (snapshotConsumer != null) {
+			snapshotConsumer.close();
+		}
 	}
 
 	public static SnapshotManager init(TestRecorderAgentConfig config) {
@@ -47,9 +55,9 @@ public class SnapshotManager {
 		Type returnType = method.getGenericReturnType();
 		String name = method.getName();
 		Type[] parameterTypes = method.getGenericParameterTypes();
-		
+
 		ContextSnapshotFactory factory = new ContextSnapshotFactory(declaringClass, profile, returnType, name, parameterTypes);
-		
+
 		methodSnapshots.put(signature, factory);
 	}
 
@@ -67,7 +75,6 @@ public class SnapshotManager {
 			return config;
 		}
 	}
-
 
 	public SnapshotProcess push(String signature) {
 		ContextSnapshotFactory factory = methodSnapshots.get(signature);

@@ -117,7 +117,8 @@ public class TestGenerator implements SnapshotConsumer {
 	private Class<? extends Runnable> initializer;
 
 	public TestGenerator(Class<? extends Runnable> initializer) {
-		this.executor = Executors.newSingleThreadExecutor(new TestrecorderThreadFactory(false, "$consume"));
+		this.executor = Executors.newSingleThreadExecutor(new TestrecorderThreadFactory("$consume"));
+
 		this.setup = new ObjectToSetupCode.Factory();
 		this.matcher = new ObjectToMatcherCode.Factory();
 
@@ -128,7 +129,12 @@ public class TestGenerator implements SnapshotConsumer {
 		this.inputClasses = new LinkedHashSet<>();
 		this.outputClasses = new LinkedHashSet<>();
 	}
-
+	
+	@Override
+	public void close() {
+		executor.shutdown();
+	}
+	
 	public String generateBefore(List<String> statements) {
 		ST test = new ST(BEFORE_TEMPLATE);
 		test.add("statements", statements);

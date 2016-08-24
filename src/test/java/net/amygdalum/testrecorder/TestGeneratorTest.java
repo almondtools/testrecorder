@@ -243,6 +243,10 @@ public class TestGeneratorTest {
 					@Override
 					public void accept(ContextSnapshot snapshot) {
 					}
+
+					@Override
+					public void close() {
+					}
 				};
 			}
 		});
