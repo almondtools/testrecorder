@@ -36,6 +36,8 @@ public class ConstructionPlan {
 
 	public Computation compute(TypeManager types, Deserializer<Computation> compiler) {
 		Class<?> clazz = constructorParams.getType();
+		types.registerTypes(clazz);
+		
 		List<String> statements = new ArrayList<>();
 
 		List<Computation> computedParams = constructorParams.getParams().stream()
