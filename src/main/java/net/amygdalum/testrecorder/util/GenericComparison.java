@@ -4,8 +4,6 @@ import static net.amygdalum.testrecorder.util.Reflections.accessing;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.isLiteral;
 
 import java.lang.reflect.Field;
-import java.util.LinkedList;
-import java.util.Queue;
 
 public class GenericComparison {
 	private Object left;
@@ -29,14 +27,14 @@ public class GenericComparison {
 	}
 
 	public static boolean equals(GenericComparison p) {
-		Queue<GenericComparison> todo = new LinkedList<>();
-		todo.add(p);
+		WorkSet<GenericComparison> todo = new WorkSet<>();
+		todo.enqueue(p);
 		return equals(todo);
 	}
 
-	public static boolean equals(Queue<GenericComparison> todo) {
-		while (!todo.isEmpty()) {
-			GenericComparison current = todo.remove();
+	public static boolean equals(WorkSet<GenericComparison> todo) {
+		while (todo.hasMoreElements()) {
+			GenericComparison current = todo.dequeue();
 			if (!current.eval(todo)) {
 				return false;
 			}
@@ -44,7 +42,7 @@ public class GenericComparison {
 		return true;
 	}
 
-	public boolean eval(Queue<GenericComparison> todo) {
+	public boolean eval(WorkSet<GenericComparison> todo) {
 		if (left == right) {
 			return true;
 		} else if (left == null || right == null) {
@@ -70,7 +68,7 @@ public class GenericComparison {
 		return true;
 	}
 
-	public static boolean equals(Object left, Field lfield, Object right, Field rfield, Queue<GenericComparison> todo) {
+	public static boolean equals(Object left, Field lfield, Object right, Field rfield, WorkSet<GenericComparison> todo) {
 		try {
 			Object f1 = getValue(lfield, left);
 			Object f2 = getValue(rfield, right);
@@ -83,7 +81,7 @@ public class GenericComparison {
 			} else if (f1.equals(f2)) {
 				return true;
 			} else {
-				todo.add(new GenericComparison(f1, f2));
+				todo.enqueue(new GenericComparison(f1, f2));
 				return true;
 			}
 		} catch (ReflectiveOperationException e) {
@@ -94,4 +92,26 @@ public class GenericComparison {
 	public static Object getValue(Field field, Object item) throws ReflectiveOperationException {
 		return accessing(field).call(() -> field.get(item));
 	}
+
+	@Override
+	public int hashCode() {
+		return 17 + System.identityHashCode(left) * 13 + System.identityHashCode(right) * 7;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		GenericComparison that = (GenericComparison) obj;
+		return this.right == that.right
+			&& this.left == that.left;
+	}
+
 }

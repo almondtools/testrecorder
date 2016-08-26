@@ -5,9 +5,7 @@ import static org.hamcrest.Matchers.instanceOf;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -42,15 +40,15 @@ public class GenericMatcher extends GenericObject {
 	}
 
 	public boolean matches(Object o) {
-		Queue<GenericComparison> remainder = new LinkedList<>();
+		WorkSet<GenericComparison> remainder = new WorkSet<>();
 		for (Field field : getGenericFields()) {
 			Field to = findField(field.getName(), o.getClass());
 			if (!GenericComparison.equals(this, field, o, to, remainder)) {
 				return false;
 			}
 		}
-		while (!remainder.isEmpty()) {
-			GenericComparison current = remainder.remove();
+		while (remainder.hasMoreElements()) {
+			GenericComparison current = remainder.dequeue();
 			if (current.getLeft() instanceof Matcher<?>) {
 				Matcher<?> matcher = (Matcher<?>) current.getLeft();
 				Object value = current.getRight();
