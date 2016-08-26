@@ -3,27 +3,28 @@ package net.amygdalum.testrecorder.serializers;
 import static java.util.Arrays.asList;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.List;
-import java.util.Vector;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import net.amygdalum.testrecorder.Serializer;
 import net.amygdalum.testrecorder.SerializerFacade;
 import net.amygdalum.testrecorder.SerializerFactory;
 import net.amygdalum.testrecorder.values.SerializedList;
 
-public class DefaultListSerializer implements Serializer<SerializedList> {
+public class DefaultDequeSerializer implements Serializer<SerializedList> {
 
 	private SerializerFacade facade;
 
-	public DefaultListSerializer(SerializerFacade facade) {
+	public DefaultDequeSerializer(SerializerFacade facade) {
 		this.facade = facade;
 	}
 
 	@Override
 	public List<Class<?>> getMatchingClasses() {
-		return asList(LinkedList.class, ArrayList.class, Vector.class);
+		return asList(ArrayDeque.class, ConcurrentLinkedDeque.class, LinkedBlockingDeque.class);
 	}
 
 	@Override
@@ -34,7 +35,7 @@ public class DefaultListSerializer implements Serializer<SerializedList> {
 	@Override
 	public void populate(SerializedList serializedObject, Object object) {
 		Type resultType = serializedObject.getComponentType();
-		for (Object element : (List<?>) object) {
+		for (Object element : (Deque<?>) object) {
 			serializedObject.add(facade.serialize(resultType, element));
 		}
 	}
@@ -42,8 +43,8 @@ public class DefaultListSerializer implements Serializer<SerializedList> {
 	public static class Factory implements SerializerFactory<SerializedList> {
 
 		@Override
-		public DefaultListSerializer newSerializer(SerializerFacade facade) {
-			return new DefaultListSerializer(facade);
+		public DefaultDequeSerializer newSerializer(SerializerFacade facade) {
+			return new DefaultDequeSerializer(facade);
 		}
 
 	}

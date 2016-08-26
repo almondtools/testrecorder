@@ -18,8 +18,10 @@ import net.amygdalum.testrecorder.serializers.ClassSerializer;
 import net.amygdalum.testrecorder.serializers.CollectionsListSerializer;
 import net.amygdalum.testrecorder.serializers.CollectionsMapSerializer;
 import net.amygdalum.testrecorder.serializers.CollectionsSetSerializer;
+import net.amygdalum.testrecorder.serializers.DefaultDequeSerializer;
 import net.amygdalum.testrecorder.serializers.DefaultListSerializer;
 import net.amygdalum.testrecorder.serializers.DefaultMapSerializer;
+import net.amygdalum.testrecorder.serializers.DefaultQueueSerializer;
 import net.amygdalum.testrecorder.serializers.DefaultSetSerializer;
 
 public class DefaultTestRecorderAgentConfig implements TestRecorderAgentConfig {
@@ -30,6 +32,8 @@ public class DefaultTestRecorderAgentConfig implements TestRecorderAgentConfig {
 		(SerializerFactory<?>) new CollectionsSetSerializer.Factory(),
 		(SerializerFactory<?>) new CollectionsMapSerializer.Factory(),
 		(SerializerFactory<?>) new DefaultListSerializer.Factory(),
+		(SerializerFactory<?>) new DefaultQueueSerializer.Factory(),
+		(SerializerFactory<?>) new DefaultDequeSerializer.Factory(),
 		(SerializerFactory<?>) new DefaultSetSerializer.Factory(),
 		(SerializerFactory<?>) new DefaultMapSerializer.Factory(),
 		(SerializerFactory<?>) new ClassSerializer.Factory(),

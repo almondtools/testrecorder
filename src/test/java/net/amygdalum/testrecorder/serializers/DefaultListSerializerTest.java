@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Vector;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +40,7 @@ public class DefaultListSerializerTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetMatchingClasses() throws Exception {
-		assertThat(serializer.getMatchingClasses(), containsInAnyOrder(LinkedList.class, ArrayList.class));
+		assertThat(serializer.getMatchingClasses(), containsInAnyOrder(LinkedList.class, ArrayList.class, Vector.class));
 	}
 
 	@Test

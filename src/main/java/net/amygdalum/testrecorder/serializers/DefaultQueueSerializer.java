@@ -3,27 +3,31 @@ package net.amygdalum.testrecorder.serializers;
 import static java.util.Arrays.asList;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Vector;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.DelayQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.LinkedTransferQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 
 import net.amygdalum.testrecorder.Serializer;
 import net.amygdalum.testrecorder.SerializerFacade;
 import net.amygdalum.testrecorder.SerializerFactory;
 import net.amygdalum.testrecorder.values.SerializedList;
 
-public class DefaultListSerializer implements Serializer<SerializedList> {
+public class DefaultQueueSerializer implements Serializer<SerializedList> {
 
 	private SerializerFacade facade;
 
-	public DefaultListSerializer(SerializerFacade facade) {
+	public DefaultQueueSerializer(SerializerFacade facade) {
 		this.facade = facade;
 	}
 
 	@Override
 	public List<Class<?>> getMatchingClasses() {
-		return asList(LinkedList.class, ArrayList.class, Vector.class);
+		return asList(LinkedBlockingQueue.class, ArrayBlockingQueue.class, ConcurrentLinkedQueue.class, PriorityBlockingQueue.class, LinkedTransferQueue.class, DelayQueue.class);
 	}
 
 	@Override
@@ -34,7 +38,7 @@ public class DefaultListSerializer implements Serializer<SerializedList> {
 	@Override
 	public void populate(SerializedList serializedObject, Object object) {
 		Type resultType = serializedObject.getComponentType();
-		for (Object element : (List<?>) object) {
+		for (Object element : (Queue<?>) object) {
 			serializedObject.add(facade.serialize(resultType, element));
 		}
 	}
@@ -42,8 +46,8 @@ public class DefaultListSerializer implements Serializer<SerializedList> {
 	public static class Factory implements SerializerFactory<SerializedList> {
 
 		@Override
-		public DefaultListSerializer newSerializer(SerializerFacade facade) {
-			return new DefaultListSerializer(facade);
+		public DefaultQueueSerializer newSerializer(SerializerFacade facade) {
+			return new DefaultQueueSerializer(facade);
 		}
 
 	}
