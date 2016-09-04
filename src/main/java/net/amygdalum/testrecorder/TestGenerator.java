@@ -169,6 +169,7 @@ public class TestGenerator implements SnapshotConsumer {
 
 			try {
 				Path testfile = locateTestFile(dir, clazz);
+				System.out.println("writing tests to " + testfile);
 				try (Writer writer = Files.newBufferedWriter(testfile, CREATE, WRITE, TRUNCATE_EXISTING)) {
 					writer.write(rendered);
 				}
