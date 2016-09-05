@@ -1,8 +1,8 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
+import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
 import static net.amygdalum.testrecorder.deserializers.Templates.fieldAccess;
-import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 
 import java.lang.reflect.Type;
@@ -29,8 +29,9 @@ public class DefaultEnumAdaptor extends DefaultAdaptor<SerializedEnum, ObjectToS
 		if (types.isHidden(value.getType())) {
 			String typeName = types.getBestSignature(value.getType());
 			String typeArgument = asLiteral(typeName);
-			String wrapped = newObject(types.getRawName(Wrapped.class), typeArgument);
-			return new Computation(wrapped, value.getResultType());
+			String wrapped = callMethod(types.getRawName(Wrapped.class), "enumType", typeArgument, asLiteral(value.getName()));
+			String unwrapped = callMethod(wrapped, "value");
+			return new Computation(unwrapped, value.getResultType());
 		} else {
 			String typeName = types.getBestName(value.getType());
 			String name = value.getName();

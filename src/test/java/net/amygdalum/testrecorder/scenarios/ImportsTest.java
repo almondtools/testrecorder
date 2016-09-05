@@ -53,7 +53,7 @@ public class ImportsTest {
 				+ "net.amygdalum.testrecorder.scenarios.Imports.List otherList *"
 				+ "}.as(Imports.class);"),
 			containsPattern("new GenericMatcher() {*"
-				+ "Matcher<?> list = contains(\"name\");*"
+				+ "Matcher<?> list = containsInOrder(Object.class, \"name\");*"
 				+ "Matcher<net.amygdalum.testrecorder.scenarios.Imports.List> otherList = new GenericMatcher() {*"
 				+ "String name = \"name\";*"
 				+ "}.matching(net.amygdalum.testrecorder.scenarios.Imports.List.class);*"

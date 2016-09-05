@@ -16,6 +16,7 @@ import net.amygdalum.testrecorder.deserializers.Adaptor;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DefaultAdaptor;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
+import net.amygdalum.testrecorder.util.ContainsMatcher;
 import net.amygdalum.testrecorder.values.SerializedSet;
 
 public class DefaultSetAdaptor extends DefaultAdaptor<SerializedSet, ObjectToMatcherCode> implements Adaptor<SerializedSet, ObjectToMatcherCode> {
@@ -23,13 +24,15 @@ public class DefaultSetAdaptor extends DefaultAdaptor<SerializedSet, ObjectToMat
 	@Override
 	public Computation tryDeserialize(SerializedSet value, ObjectToMatcherCode generator) {
 		TypeManager types = generator.getTypes();
+		String componentType = types.getSimpleName(value.getComponentType());
+
 		if (value.isEmpty()) {
 			types.staticImport(Matchers.class, "empty");
 
 			String emptyMatcher = emptyMatcher();
 			return new Computation(emptyMatcher, parameterized(Matcher.class, null, wildcard()), emptyList());
 		} else {
-			types.staticImport(Matchers.class, "containsInAnyOrder");
+			types.staticImport(ContainsMatcher.class, "contains");
 
 			List<Computation> elements = value.stream()
 				.map(element -> generator.simpleMatcher(element))
@@ -43,7 +46,7 @@ public class DefaultSetAdaptor extends DefaultAdaptor<SerializedSet, ObjectToMat
 				.map(element -> element.getValue())
 				.toArray(String[]::new);
 
-			String containsInAnyOrderMatcher = containsInAnyOrderMatcher(elementValues);
+			String containsInAnyOrderMatcher = containsInAnyOrderMatcher(componentType, elementValues);
 			return new Computation(containsInAnyOrderMatcher, parameterized(Matcher.class, null, wildcard()), elementComputations);
 		}
 	}

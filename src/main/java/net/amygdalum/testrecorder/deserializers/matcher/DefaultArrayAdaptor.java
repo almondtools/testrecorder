@@ -8,17 +8,18 @@ import static net.amygdalum.testrecorder.util.Types.isPrimitive;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.stream.Stream;
 
 import org.hamcrest.Matcher;
-import org.hamcrest.collection.IsArrayContainingInOrder;
 import org.hamcrest.collection.IsArrayWithSize;
 
 import net.amygdalum.testrecorder.deserializers.Adaptor;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DefaultAdaptor;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
+import net.amygdalum.testrecorder.util.ArrayMatcher;
 import net.amygdalum.testrecorder.util.PrimitiveArrayMatcher;
 import net.amygdalum.testrecorder.values.SerializedArray;
 
@@ -27,8 +28,10 @@ public class DefaultArrayAdaptor extends DefaultAdaptor<SerializedArray, ObjectT
 	@Override
 	public Computation tryDeserialize(SerializedArray value, ObjectToMatcherCode generator) {
 		TypeManager types = generator.getTypes();
-		if (isPrimitive(value.getComponentType())) {
-			String name = value.getComponentType().getTypeName();
+		Type componentType = value.getComponentType();
+
+		if (isPrimitive(componentType)) {
+			String name = componentType.getTypeName();
 			types.staticImport(PrimitiveArrayMatcher.class, name + "ArrayContaining");
 
 			List<Computation> elements = Stream.of(value.getArray())
@@ -52,7 +55,8 @@ public class DefaultArrayAdaptor extends DefaultAdaptor<SerializedArray, ObjectT
 				String arrayEmptyMatcher = arrayEmptyMatcher();
 				return new Computation(arrayEmptyMatcher, parameterized(Matcher.class, null, wildcard()));
 			} else {
-				types.staticImport(IsArrayContainingInOrder.class, "arrayContaining");
+				types.staticImport(ArrayMatcher.class, "arrayContaining");
+				String name = types.getSimpleName(componentType);
 
 				List<Computation> elements = Stream.of(value.getArray())
 					.map(element -> generator.simpleValue(element))
@@ -66,7 +70,7 @@ public class DefaultArrayAdaptor extends DefaultAdaptor<SerializedArray, ObjectT
 					.map(element -> element.getValue())
 					.toArray(String[]::new);
 
-				String arrayContainingMatcher = arrayContainingMatcher(elementValues);
+				String arrayContainingMatcher = arrayContainingMatcher(name, elementValues);
 				return new Computation(arrayContainingMatcher, parameterized(Matcher.class, null, wildcard()), elementComputations);
 			}
 		}

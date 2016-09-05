@@ -9,9 +9,9 @@ public class Wrapped {
 	private Class<?> clazz;
 	private Object o;
 
-	public Wrapped(String name) {
-		this.clazz = classForName(name);
-		this.o = clazz.isInterface() || clazz.isEnum() ? null : GenericObject.newInstance(clazz);
+	private Wrapped(Class<?> clazz, Object o) {
+		this.clazz = clazz;
+		this.o = o;
 	}
 
 	public static Class<?> classForName(String name) {
@@ -26,10 +26,6 @@ public class Wrapped {
 		}
 	}
 
-	public static Wrapped clazz(String name) {
-		return new Wrapped(name);
-	}
-
 	public Class<?> getWrappedClass() {
 		return clazz;
 	}
@@ -40,6 +36,19 @@ public class Wrapped {
 
 	public Object value() {
 		return o;
+	}
+
+	public static Wrapped clazz(String name) {
+		Class<?> clazz = classForName(name);
+		Object o = clazz.isInterface() || clazz.isEnum() ? null : GenericObject.newInstance(clazz);
+		return new Wrapped(clazz, o);
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static Wrapped enumType(String name, String value) {
+		Class<?> clazz = classForName(name);
+		Object o = clazz.isEnum() ? Enum.valueOf((Class<? extends Enum>) clazz, value) : null;
+		return new Wrapped(clazz, o);
 	}
 
 }

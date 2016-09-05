@@ -74,7 +74,7 @@ public class ObjectToMatcherCodeTest {
 		Computation result = matcherCode.visitField(new SerializedField(ListContainer.class, "list", type, value));
 
 		assertThat(result.getStatements(), empty());
-		assertThat(result.getValue(), equalTo("Matcher<?> list = contains(\"Foo\", \"Bar\");"));
+		assertThat(result.getValue(), equalTo("Matcher<?> list = containsInOrder(String.class, \"Foo\", \"Bar\");"));
 	}
 
 	@Test
