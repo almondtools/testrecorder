@@ -55,7 +55,7 @@ public class DefaultEnumAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 		
 		assertThat(result.getStatements(), empty());
-		assertThat(result.getValue(), equalTo("new Wrapped(\"net.amygdalum.testrecorder.deserializers.builder.DefaultEnumAdaptorTest$MyHiddenEnum\")"));
+		assertThat(result.getValue(), equalTo("Wrapped.enumType(\"net.amygdalum.testrecorder.deserializers.builder.DefaultEnumAdaptorTest$MyHiddenEnum\", \"VALUE2\").value()"));
 	}
 	
 	public static enum MyEnum {
