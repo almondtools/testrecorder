@@ -11,35 +11,9 @@ import java.util.function.Predicate;
 import net.amygdalum.testrecorder.profile.ExcludeExplicitExcluded;
 import net.amygdalum.testrecorder.profile.ExcludeGenerated;
 import net.amygdalum.testrecorder.profile.ExcludeStatic;
-import net.amygdalum.testrecorder.serializers.ArraysListSerializer;
-import net.amygdalum.testrecorder.serializers.BigDecimalSerializer;
-import net.amygdalum.testrecorder.serializers.BigIntegerSerializer;
-import net.amygdalum.testrecorder.serializers.ClassSerializer;
-import net.amygdalum.testrecorder.serializers.CollectionsListSerializer;
-import net.amygdalum.testrecorder.serializers.CollectionsMapSerializer;
-import net.amygdalum.testrecorder.serializers.CollectionsSetSerializer;
-import net.amygdalum.testrecorder.serializers.DefaultDequeSerializer;
-import net.amygdalum.testrecorder.serializers.DefaultListSerializer;
-import net.amygdalum.testrecorder.serializers.DefaultMapSerializer;
-import net.amygdalum.testrecorder.serializers.DefaultQueueSerializer;
-import net.amygdalum.testrecorder.serializers.DefaultSetSerializer;
 
 public class DefaultTestRecorderAgentConfig implements TestRecorderAgentConfig {
 
-	public static final List<SerializerFactory<?>> DEFAULT_SERIALIZERS = asList(
-		(SerializerFactory<?>) new ArraysListSerializer.Factory(),
-		(SerializerFactory<?>) new CollectionsListSerializer.Factory(),
-		(SerializerFactory<?>) new CollectionsSetSerializer.Factory(),
-		(SerializerFactory<?>) new CollectionsMapSerializer.Factory(),
-		(SerializerFactory<?>) new DefaultListSerializer.Factory(),
-		(SerializerFactory<?>) new DefaultQueueSerializer.Factory(),
-		(SerializerFactory<?>) new DefaultDequeSerializer.Factory(),
-		(SerializerFactory<?>) new DefaultSetSerializer.Factory(),
-		(SerializerFactory<?>) new DefaultMapSerializer.Factory(),
-		(SerializerFactory<?>) new ClassSerializer.Factory(),
-		(SerializerFactory<?>) new BigIntegerSerializer.Factory(),
-		(SerializerFactory<?>) new BigDecimalSerializer.Factory());
-	
 	public static final List<Predicate<Field>> DEFAULT_FIELD_EXCLUDES = asList(
 		new ExcludeExplicitExcluded(),
 		new ExcludeGenerated(),
@@ -48,11 +22,6 @@ public class DefaultTestRecorderAgentConfig implements TestRecorderAgentConfig {
 	public static final List<Predicate<Class<?>>> DEFAULT_CLASS_EXCLUSIONS = emptyList();
 
 	public static final List<Field> DEFAULT_GLOBAL_FIELDS = emptyList();
-
-	@Override
-	public List<SerializerFactory<?>> getSerializerFactories() {
-		return DEFAULT_SERIALIZERS;
-	}
 
 	@Override
 	public List<Predicate<Field>> getFieldExclusions() {

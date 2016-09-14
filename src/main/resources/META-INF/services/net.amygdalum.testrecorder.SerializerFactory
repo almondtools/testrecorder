@@ -1,0 +1,13 @@
+net.amygdalum.testrecorder.serializers.ArraysListSerializer$Factory
+net.amygdalum.testrecorder.serializers.CollectionsListSerializer$Factory
+net.amygdalum.testrecorder.serializers.CollectionsSetSerializer$Factory
+net.amygdalum.testrecorder.serializers.CollectionsMapSerializer$Factory
+net.amygdalum.testrecorder.serializers.DefaultListSerializer$Factory
+net.amygdalum.testrecorder.serializers.DefaultQueueSerializer$Factory
+net.amygdalum.testrecorder.serializers.DefaultDequeSerializer$Factory
+net.amygdalum.testrecorder.serializers.DefaultSetSerializer$Factory
+net.amygdalum.testrecorder.serializers.DefaultMapSerializer$Factory
+net.amygdalum.testrecorder.serializers.ClassSerializer$Factory
+net.amygdalum.testrecorder.serializers.BigIntegerSerializer$Factory
+net.amygdalum.testrecorder.serializers.BigDecimalSerializer$Factory
+	

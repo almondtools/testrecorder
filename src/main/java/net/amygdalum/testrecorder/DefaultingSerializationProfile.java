@@ -15,16 +15,6 @@ public class DefaultingSerializationProfile implements SerializationProfile {
 	}
 
 	@Override
-	public List<SerializerFactory<?>> getSerializerFactories() {
-		List<SerializerFactory<?>> serializerFactories = profile.getSerializerFactories();
-		if (serializerFactories == null) {
-			return defaultProfile.getSerializerFactories();
-		} else {
-			return serializerFactories;
-		}
-	}
-
-	@Override
 	public List<Predicate<Field>> getFieldExclusions() {
 		List<Predicate<Field>> fieldExclusions = profile.getFieldExclusions();
 		if (fieldExclusions == null) {

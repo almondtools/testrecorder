@@ -78,14 +78,13 @@ public class Adaptors<G> {
 	}
 	@SuppressWarnings({ "rawtypes", "unchecked" }) 
 	public Adaptors<G> load(Class<? extends Adaptor> clazz) {
-		ServiceLoader<? extends Adaptor> loader = ServiceLoader.load(clazz);
 		try {
+			ServiceLoader<? extends Adaptor> loader = ServiceLoader.load(clazz);
 			for (Adaptor<?, G> adaptor : loader) {
 				add(adaptor);
 			}
 		} catch (ServiceConfigurationError serviceError) {
 			System.out.println("failed loading adaptors: " + serviceError.getMessage());
-
 		}
 		return this;
 	}

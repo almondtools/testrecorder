@@ -6,7 +6,6 @@ import java.util.function.Predicate;
 
 public class FixedTestRecorderAgentConfig implements TestRecorderAgentConfig {
 
-	private List<SerializerFactory<?>> serializerFactories;
 	private List<Predicate<Field>> fieldExclusions;
 	private List<Predicate<Class<?>>> classExclusions;
 	private List<Field> globalFields;
@@ -17,7 +16,6 @@ public class FixedTestRecorderAgentConfig implements TestRecorderAgentConfig {
 	private Class<? extends Runnable> initializer;
 
 	public FixedTestRecorderAgentConfig(TestRecorderAgentConfig config) {
-		this.serializerFactories = config.getSerializerFactories();
 		this.fieldExclusions = config.getFieldExclusions();
 		this.classExclusions = config.getClassExclusions();
 		this.globalFields = config.getGlobalFields();
@@ -25,11 +23,6 @@ public class FixedTestRecorderAgentConfig implements TestRecorderAgentConfig {
 		this.timeoutInMillis = config.getTimeoutInMillis();
 		this.packages = config.getPackages();
 		this.initializer = config.getInitializer();
-	}
-
-	@Override
-	public List<SerializerFactory<?>> getSerializerFactories() {
-		return serializerFactories;
 	}
 
 	@Override
@@ -61,7 +54,7 @@ public class FixedTestRecorderAgentConfig implements TestRecorderAgentConfig {
 	public List<String> getPackages() {
 		return packages;
 	}
-	
+
 	@Override
 	public Class<? extends Runnable> getInitializer() {
 		return initializer;

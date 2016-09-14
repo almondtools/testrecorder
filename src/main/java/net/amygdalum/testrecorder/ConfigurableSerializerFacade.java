@@ -8,8 +8,11 @@ import java.lang.reflect.Type;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceConfigurationError;
+import java.util.ServiceLoader;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
 
 import net.amygdalum.testrecorder.serializers.ArraySerializer;
 import net.amygdalum.testrecorder.serializers.EnumSerializer;
@@ -26,21 +29,29 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 	private List<Predicate<Field>> fieldExclusions;
 
 	public ConfigurableSerializerFacade(SerializationProfile profile) {
-		serializers = setupSerializers(this, profile.getSerializerFactories());
+		serializers = setupSerializers(this);
 		serialized = new IdentityHashMap<>();
 		classExclusions = profile.getClassExclusions();
 		fieldExclusions = profile.getFieldExclusions();
 	}
 
-	private static Map<Class<?>, Serializer<?>> setupSerializers(SerializerFacade facade, List<SerializerFactory<?>> serializerFactories) {
+	@SuppressWarnings("rawtypes")
+	private static Map<Class<?>, Serializer<?>> setupSerializers(SerializerFacade facade) {
 		IdentityHashMap<Class<?>, Serializer<?>> serializers = new IdentityHashMap<>();
-		serializerFactories.stream()
-			.map(factory -> factory.newSerializer(facade))
-			.forEach(serializer -> {
-				for (Class<?> clazz : serializer.getMatchingClasses()) {
-					serializers.put(clazz, serializer);
-				}
-			});
+		try {
+			ServiceLoader<SerializerFactory> loader = ServiceLoader.load(SerializerFactory.class);
+
+			StreamSupport.stream(loader.spliterator(), false)
+				.map(factory -> (Serializer<?>) factory.newSerializer(facade))
+				.forEach(serializer -> {
+					for (Class<?> clazz : serializer.getMatchingClasses()) {
+						serializers.put(clazz, serializer);
+					}
+				});
+		} catch (ServiceConfigurationError serviceError) {
+			System.out.println("failed loading serializers: " + serviceError.getMessage());
+		}
+
 		return serializers;
 	}
 

@@ -6,8 +6,6 @@ import java.util.function.Predicate;
 
 public interface SerializationProfile {
 
-	List<SerializerFactory<?>> getSerializerFactories();
-
 	List<Predicate<Field>> getFieldExclusions();
 
 	List<Predicate<Class<?>>> getClassExclusions();
