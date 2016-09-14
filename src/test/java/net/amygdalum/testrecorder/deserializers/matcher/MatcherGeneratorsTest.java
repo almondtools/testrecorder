@@ -29,15 +29,15 @@ import net.amygdalum.testrecorder.values.SerializedList;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
-public class ObjectToMatcherCodeTest {
+public class MatcherGeneratorsTest {
 
 	private ConfigurableSerializerFacade facade;
-	private ObjectToMatcherCode matcherCode;
+	private MatcherGenerators matcherCode;
 
 	@Before
 	public void before() throws Exception {
 		facade = new ConfigurableSerializerFacade(new DefaultTestRecorderAgentConfig());
-		matcherCode = new ObjectToMatcherCode(getClass());
+		matcherCode = new MatcherGenerators(getClass());
 	}
 
 	@Test

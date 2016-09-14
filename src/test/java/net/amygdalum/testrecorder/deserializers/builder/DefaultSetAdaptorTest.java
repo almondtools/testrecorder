@@ -44,7 +44,7 @@ public class DefaultSetAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		SetupGenerators generator = new SetupGenerators(getClass());
 		
 		Computation result = adaptor.tryDeserialize(value, generator);
 		
@@ -63,7 +63,7 @@ public class DefaultSetAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		SetupGenerators generator = new SetupGenerators(getClass());
 		
 		Computation result = adaptor.tryDeserialize(value, generator);
 		

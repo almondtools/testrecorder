@@ -40,7 +40,7 @@ public class ArraysListAdaptorTest {
 	@Test
 	public void testTryDeserialize() throws Exception {
 		SerializedList value = listOf("java.util.Arrays$ArrayList", 0, 8, 15);
-		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		SetupGenerators generator = new SetupGenerators(getClass());
 
 		Computation result = adaptor.tryDeserialize(value, generator);
 

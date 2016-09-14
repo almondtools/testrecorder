@@ -54,7 +54,7 @@ public class CollectionsMapAdaptorTest {
 	@Test
 	public void testTryDeserializeUnmodifiable() throws Exception {
 		SerializedMap value = mapOf("java.util.Collections$UnmodifiableMap", new int[] { 8, 15 }, new int[] { 47, 11 });
-		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		SetupGenerators generator = new SetupGenerators(getClass());
 
 		Computation result = adaptor.tryDeserialize(value, generator);
 
@@ -65,7 +65,7 @@ public class CollectionsMapAdaptorTest {
 	@Test
 	public void testTryDeserializeUnmodifiableNavigable() throws Exception {
 		SerializedMap value = mapOf("java.util.Collections$UnmodifiableNavigableMap", new int[] { 8, 15 }, new int[] { 47, 11 });
-		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		SetupGenerators generator = new SetupGenerators(getClass());
 
 		Computation result = adaptor.tryDeserialize(value, generator);
 
@@ -76,7 +76,7 @@ public class CollectionsMapAdaptorTest {
 	@Test
 	public void testTryDeserializeUnmodifiableSorted() throws Exception {
 		SerializedMap value = mapOf("java.util.Collections$UnmodifiableSortedMap", new int[] { 8, 15 }, new int[] { 47, 11 });
-		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		SetupGenerators generator = new SetupGenerators(getClass());
 
 		Computation result = adaptor.tryDeserialize(value, generator);
 
@@ -87,7 +87,7 @@ public class CollectionsMapAdaptorTest {
 	@Test
 	public void testTryDeserializeSynchronized() throws Exception {
 		SerializedMap value = mapOf("java.util.Collections$SynchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 });
-		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		SetupGenerators generator = new SetupGenerators(getClass());
 
 		Computation result = adaptor.tryDeserialize(value, generator);
 
@@ -98,7 +98,7 @@ public class CollectionsMapAdaptorTest {
 	@Test
 	public void testTryDeserializeSynchronizedNavigable() throws Exception {
 		SerializedMap value = mapOf("java.util.Collections$SynchronizedNavigableMap", new int[] { 8, 15 }, new int[] { 47, 11 });
-		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		SetupGenerators generator = new SetupGenerators(getClass());
 
 		Computation result = adaptor.tryDeserialize(value, generator);
 
@@ -109,7 +109,7 @@ public class CollectionsMapAdaptorTest {
 	@Test
 	public void testTryDeserializeSynchronizedSorted() throws Exception {
 		SerializedMap value = mapOf("java.util.Collections$SynchronizedSortedMap", new int[] { 8, 15 }, new int[] { 47, 11 });
-		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		SetupGenerators generator = new SetupGenerators(getClass());
 
 		Computation result = adaptor.tryDeserialize(value, generator);
 
@@ -120,7 +120,7 @@ public class CollectionsMapAdaptorTest {
 	@Test
 	public void testTryDeserializeChecked() throws Exception {
 		SerializedMap value = mapOf("java.util.Collections$CheckedMap", new int[] { 8, 15 }, new int[] { 47, 11 });
-		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		SetupGenerators generator = new SetupGenerators(getClass());
 
 		Computation result = adaptor.tryDeserialize(value, generator);
 
@@ -131,7 +131,7 @@ public class CollectionsMapAdaptorTest {
 	@Test
 	public void testTryDeserializeCheckedSorted() throws Exception {
 		SerializedMap value = mapOf("java.util.Collections$CheckedSortedMap", new int[] { 8, 15 }, new int[] { 47, 11 });
-		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		SetupGenerators generator = new SetupGenerators(getClass());
 
 		Computation result = adaptor.tryDeserialize(value, generator);
 
@@ -142,7 +142,7 @@ public class CollectionsMapAdaptorTest {
 	@Test
 	public void testTryDeserializeCheckedNavigable() throws Exception {
 		SerializedMap value = mapOf("java.util.Collections$CheckedNavigableMap", new int[] { 8, 15 }, new int[] { 47, 11 });
-		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		SetupGenerators generator = new SetupGenerators(getClass());
 
 		Computation result = adaptor.tryDeserialize(value, generator);
 
@@ -153,7 +153,7 @@ public class CollectionsMapAdaptorTest {
 	@Test
 	public void testTryDeserializeEmpty() throws Exception {
 		SerializedMap value = mapOf("java.util.Collections$EmptyMap");
-		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		SetupGenerators generator = new SetupGenerators(getClass());
 
 		Computation result = adaptor.tryDeserialize(value, generator);
 
@@ -164,7 +164,7 @@ public class CollectionsMapAdaptorTest {
 	@Test
 	public void testTryDeserializeSingleton() throws Exception {
 		SerializedMap value = mapOf("java.util.Collections$SingletonMap", new int[] { 8, 15 });
-		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		SetupGenerators generator = new SetupGenerators(getClass());
 
 		Computation result = adaptor.tryDeserialize(value, generator);
 
@@ -175,7 +175,7 @@ public class CollectionsMapAdaptorTest {
 	@Test(expected = DeserializationException.class)
 	public void testTryDeserializeOther() throws Exception {
 		SerializedMap value = mapOf("java.lang.Object");
-		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		SetupGenerators generator = new SetupGenerators(getClass());
 
 		adaptor.tryDeserialize(value, generator);
 	}

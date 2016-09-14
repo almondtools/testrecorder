@@ -15,12 +15,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import net.amygdalum.testrecorder.DeserializationException;
-import net.amygdalum.testrecorder.deserializers.Adaptor;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedList;
 
-public class CollectionsListAdaptor implements Adaptor<SerializedList, ObjectToSetupCode> {
+public class CollectionsListAdaptor implements SetupGenerator<SerializedList> {
 
 	private DefaultListAdaptor adaptor;
 
@@ -29,7 +28,12 @@ public class CollectionsListAdaptor implements Adaptor<SerializedList, ObjectToS
 	}
 
 	@Override
-	public Class<? extends Adaptor<SerializedList, ObjectToSetupCode>> parent() {
+	public Class<SerializedList> getAdaptedClass() {
+		return SerializedList.class;
+	}
+
+	@Override
+	public Class<? extends SetupGenerator<SerializedList>> parent() {
 		return DefaultListAdaptor.class;
 	}
 
@@ -42,7 +46,7 @@ public class CollectionsListAdaptor implements Adaptor<SerializedList, ObjectToS
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedList value, ObjectToSetupCode generator) {
+	public Computation tryDeserialize(SerializedList value, SetupGenerators generator) {
 		TypeManager types = generator.getTypes();
 		types.registerImport(List.class);
 
@@ -62,13 +66,13 @@ public class CollectionsListAdaptor implements Adaptor<SerializedList, ObjectToS
 		}
 	}
 
-	private Computation createOrdinaryList(SerializedList value, ObjectToSetupCode generator) {
+	private Computation createOrdinaryList(SerializedList value, SetupGenerators generator) {
 		SerializedList baseValue = new SerializedList(parameterized(ArrayList.class, null, value.getComponentType()));
 		baseValue.addAll(value);
 		return adaptor.tryDeserialize(baseValue, generator);
 	}
 
-	private Computation tryDeserializeEmpty(SerializedList value, ObjectToSetupCode generator) {
+	private Computation tryDeserializeEmpty(SerializedList value, SetupGenerators generator) {
 		String factoryMethod = "emptyList";
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
@@ -82,7 +86,7 @@ public class CollectionsListAdaptor implements Adaptor<SerializedList, ObjectToS
 		});
 	}
 
-	private Computation tryDeserializeSingleton(SerializedList value, ObjectToSetupCode generator) {
+	private Computation tryDeserializeSingleton(SerializedList value, SetupGenerators generator) {
 		String factoryMethod = "singletonList";
 		TypeManager types = generator.getTypes();
 		types.registerImport(List.class);
@@ -102,7 +106,7 @@ public class CollectionsListAdaptor implements Adaptor<SerializedList, ObjectToS
 		});
 	}
 
-	private Computation tryDeserializeUnmodifiable(SerializedList value, ObjectToSetupCode generator) {
+	private Computation tryDeserializeUnmodifiable(SerializedList value, SetupGenerators generator) {
 		String factoryMethod = "unmodifiableList";
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
@@ -121,7 +125,7 @@ public class CollectionsListAdaptor implements Adaptor<SerializedList, ObjectToS
 		});
 	}
 
-	private Computation tryDeserializeSynchronized(SerializedList value, ObjectToSetupCode generator) {
+	private Computation tryDeserializeSynchronized(SerializedList value, SetupGenerators generator) {
 		String factoryMethod = "synchronizedList";
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
@@ -141,7 +145,7 @@ public class CollectionsListAdaptor implements Adaptor<SerializedList, ObjectToS
 
 	}
 
-	private Computation tryDeserializeChecked(SerializedList value, ObjectToSetupCode generator) {
+	private Computation tryDeserializeChecked(SerializedList value, SetupGenerators generator) {
 		String factoryMethod = "checkedList";
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);

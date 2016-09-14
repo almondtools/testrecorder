@@ -26,52 +26,28 @@ import net.amygdalum.testrecorder.deserializers.LocalVariableDefinition;
 import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.util.GenericObject;
-import net.amygdalum.testrecorder.values.SerializedArray;
-import net.amygdalum.testrecorder.values.SerializedEnum;
 import net.amygdalum.testrecorder.values.SerializedField;
-import net.amygdalum.testrecorder.values.SerializedImmutable;
-import net.amygdalum.testrecorder.values.SerializedList;
-import net.amygdalum.testrecorder.values.SerializedLiteral;
-import net.amygdalum.testrecorder.values.SerializedMap;
-import net.amygdalum.testrecorder.values.SerializedNull;
-import net.amygdalum.testrecorder.values.SerializedObject;
-import net.amygdalum.testrecorder.values.SerializedSet;
 
-public class ObjectToSetupCode implements Deserializer<Computation> {
+public class SetupGenerators implements Deserializer<Computation> {
 
-	public static final Adaptors<ObjectToSetupCode> DEFAULT = new Adaptors<ObjectToSetupCode>()
-		.add(SerializedLiteral.class, new DefaultLiteralAdaptor())
-		.add(SerializedNull.class, new DefaultNullAdaptor())
-		.add(SerializedImmutable.class, new DefaultClassAdaptor())
-		.add(SerializedImmutable.class, new DefaultBigIntegerAdaptor())
-		.add(SerializedImmutable.class, new DefaultBigDecimalAdaptor())
-		.add(SerializedEnum.class, new DefaultEnumAdaptor())
-		.add(SerializedObject.class, new BeanObjectAdaptor())
-		.add(SerializedObject.class, new DefaultObjectAdaptor())
-		.add(SerializedArray.class, new DefaultArrayAdaptor())
-		.add(SerializedList.class, new ArraysListAdaptor())
-		.add(SerializedList.class, new CollectionsListAdaptor())
-		.add(SerializedList.class, new DefaultListAdaptor())
-		.add(SerializedSet.class, new CollectionsSetAdaptor())
-		.add(SerializedSet.class, new DefaultSetAdaptor())
-		.add(SerializedMap.class, new CollectionsMapAdaptor())
-		.add(SerializedMap.class, new DefaultMapAdaptor());
+	public static final Adaptors<SetupGenerators> DEFAULT = new Adaptors<SetupGenerators>()
+		.load(SetupGenerator.class);
 
 	private TypeManager types;
-	private Adaptors<ObjectToSetupCode> adaptors;
+	private Adaptors<SetupGenerators> adaptors;
 	private LocalVariableNameGenerator locals;
 
 	private Map<SerializedValue, LocalVariable> defined;
 
-	public ObjectToSetupCode(Class<?> clazz) {
+	public SetupGenerators(Class<?> clazz) {
 		this(new LocalVariableNameGenerator(), new TypeManager(clazz.getPackage().getName()), DEFAULT);
 	}
 
-	public ObjectToSetupCode(LocalVariableNameGenerator locals, TypeManager types) {
+	public SetupGenerators(LocalVariableNameGenerator locals, TypeManager types) {
 		this(locals, types, DEFAULT);
 	}
 
-	public ObjectToSetupCode(LocalVariableNameGenerator locals, TypeManager types, Adaptors<ObjectToSetupCode> adaptors) {
+	public SetupGenerators(LocalVariableNameGenerator locals, TypeManager types, Adaptors<SetupGenerators> adaptors) {
 		this.adaptors = adaptors;
 		this.types = types;
 		this.locals = locals;
@@ -114,7 +90,6 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 		defined.put(value, definition);
 		return definition;
 	}
-
 
 	private void finishVariable(SerializedValue value) {
 		defined.computeIfPresent(value, (val, def) -> def.finish());
@@ -172,8 +147,8 @@ public class ObjectToSetupCode implements Deserializer<Computation> {
 	public static class Factory implements DeserializerFactory {
 
 		@Override
-		public ObjectToSetupCode create(LocalVariableNameGenerator locals, TypeManager types) {
-			return new ObjectToSetupCode(locals, types);
+		public SetupGenerators create(LocalVariableNameGenerator locals, TypeManager types) {
+			return new SetupGenerators(locals, types);
 		}
 
 		@Override

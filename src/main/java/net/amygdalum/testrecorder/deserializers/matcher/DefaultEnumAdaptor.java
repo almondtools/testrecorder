@@ -14,14 +14,17 @@ import java.lang.reflect.Type;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
-import net.amygdalum.testrecorder.deserializers.Adaptor;
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DefaultAdaptor;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.util.EnumMatcher;
 import net.amygdalum.testrecorder.values.SerializedEnum;
 
-public class DefaultEnumAdaptor extends DefaultAdaptor<SerializedEnum, ObjectToMatcherCode> implements Adaptor<SerializedEnum, ObjectToMatcherCode> {
+public class DefaultEnumAdaptor extends DefaultMatcherGenerator<SerializedEnum> implements MatcherGenerator<SerializedEnum> {
+	
+	@Override
+	public Class<SerializedEnum> getAdaptedClass() {
+		return SerializedEnum.class;
+	}
 
 	@Override
 	public boolean matches(Type type) {
@@ -29,7 +32,7 @@ public class DefaultEnumAdaptor extends DefaultAdaptor<SerializedEnum, ObjectToM
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedEnum value, ObjectToMatcherCode generator) {
+	public Computation tryDeserialize(SerializedEnum value, MatcherGenerators generator) {
 		TypeManager types = generator.getTypes();
 		types.registerType(value.getType());
 
@@ -39,8 +42,6 @@ public class DefaultEnumAdaptor extends DefaultAdaptor<SerializedEnum, ObjectToM
 			types.staticImport(Matchers.class, "sameInstance");
 		}
 
-
-		
 		if (types.isHidden(value.getType())) {
 			String enumMatcher = enumMatcher(asLiteral(value.getName()));
 			return new Computation(enumMatcher, parameterized(Matcher.class, null, wildcardExtends(Enum.class)), emptyList());

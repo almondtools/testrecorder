@@ -7,16 +7,19 @@ import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVari
 import java.util.List;
 import java.util.stream.Stream;
 
-import net.amygdalum.testrecorder.deserializers.Adaptor;
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DefaultAdaptor;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedArray;
 
-public class DefaultArrayAdaptor extends DefaultAdaptor<SerializedArray, ObjectToSetupCode> implements Adaptor<SerializedArray, ObjectToSetupCode> {
+public class DefaultArrayAdaptor extends DefaultSetupGenerator<SerializedArray> implements SetupGenerator<SerializedArray> {
 
 	@Override
-	public Computation tryDeserialize(SerializedArray value, ObjectToSetupCode generator) {
+	public Class<SerializedArray> getAdaptedClass() {
+		return SerializedArray.class;
+	}
+
+	@Override
+	public Computation tryDeserialize(SerializedArray value, SetupGenerators generator) {
 		TypeManager types = generator.getTypes();
 		types.registerType(value.getResultType());
 

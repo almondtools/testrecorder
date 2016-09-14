@@ -38,7 +38,7 @@ public class DefaultObjectAdaptorTest {
 	public void testTryDeserialize() throws Exception {
 		SerializedObject value = new SerializedObject(TestObject.class);
 		value.addField(new SerializedField(String.class, "attribute", String.class, SerializedLiteral.literal("Hello World")));
-		ObjectToMatcherCode generator = new ObjectToMatcherCode(getClass());
+		MatcherGenerators generator = new MatcherGenerators(getClass());
 		
 		Computation result = adaptor.tryDeserialize(value, generator);
 		

@@ -9,11 +9,16 @@ import java.math.BigInteger;
 
 import net.amygdalum.testrecorder.deserializers.Adaptor;
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DefaultAdaptor;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 
-public class DefaultBigIntegerAdaptor extends DefaultAdaptor<SerializedImmutable<BigInteger>, ObjectToSetupCode> implements Adaptor<SerializedImmutable<BigInteger>, ObjectToSetupCode> {
+public class DefaultBigIntegerAdaptor extends DefaultSetupGenerator<SerializedImmutable<BigInteger>> implements Adaptor<SerializedImmutable<BigInteger>, SetupGenerators> {
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Class<SerializedImmutable> getAdaptedClass() {
+		return SerializedImmutable.class;
+	}
 
 	@Override
 	public boolean matches(Type type) {
@@ -21,7 +26,7 @@ public class DefaultBigIntegerAdaptor extends DefaultAdaptor<SerializedImmutable
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedImmutable<BigInteger> value, ObjectToSetupCode generator) {
+	public Computation tryDeserialize(SerializedImmutable<BigInteger> value, SetupGenerators generator) {
 		TypeManager types = generator.getTypes();
 		types.registerImport(BigInteger.class);
 

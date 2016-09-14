@@ -8,16 +8,19 @@ import static net.amygdalum.testrecorder.util.Types.parameterized;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
-import net.amygdalum.testrecorder.deserializers.Adaptor;
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DefaultAdaptor;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 
-public class DefaultLiteralAdaptor extends DefaultAdaptor<SerializedLiteral, ObjectToMatcherCode> implements Adaptor<SerializedLiteral, ObjectToMatcherCode> {
+public class DefaultLiteralAdaptor extends DefaultMatcherGenerator<SerializedLiteral> implements MatcherGenerator<SerializedLiteral> {
 
 	@Override
-	public Computation tryDeserialize(SerializedLiteral value, ObjectToMatcherCode generator) {
+	public Class<SerializedLiteral> getAdaptedClass() {
+		return SerializedLiteral.class;
+	}
+
+	@Override
+	public Computation tryDeserialize(SerializedLiteral value, MatcherGenerators generator) {
 		TypeManager types = generator.getTypes();
 		types.staticImport(Matchers.class, "equalTo");
 

@@ -14,13 +14,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.deserializers.Adaptor;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedArray;
 import net.amygdalum.testrecorder.values.SerializedList;
 
-public class ArraysListAdaptor implements Adaptor<SerializedList, ObjectToSetupCode> {
+public class ArraysListAdaptor implements SetupGenerator<SerializedList> {
 
 	private DefaultArrayAdaptor adaptor;
 
@@ -29,7 +28,12 @@ public class ArraysListAdaptor implements Adaptor<SerializedList, ObjectToSetupC
 	}
 
 	@Override
-	public Class<? extends Adaptor<SerializedList, ObjectToSetupCode>> parent() {
+	public Class<SerializedList> getAdaptedClass() {
+		return SerializedList.class;
+	}
+
+	@Override
+	public Class<? extends SetupGenerator<SerializedList>> parent() {
 		return DefaultListAdaptor.class;
 	}
 
@@ -42,7 +46,7 @@ public class ArraysListAdaptor implements Adaptor<SerializedList, ObjectToSetupC
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedList value, ObjectToSetupCode generator) {
+	public Computation tryDeserialize(SerializedList value, SetupGenerators generator) {
 		TypeManager types = generator.getTypes();
 		types.staticImport(Arrays.class, "asList");
 

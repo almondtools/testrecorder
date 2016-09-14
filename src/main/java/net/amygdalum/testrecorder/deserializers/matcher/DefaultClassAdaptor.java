@@ -10,13 +10,17 @@ import java.lang.reflect.Type;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
-import net.amygdalum.testrecorder.deserializers.Adaptor;
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DefaultAdaptor;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 
-public class DefaultClassAdaptor extends DefaultAdaptor<SerializedImmutable<Class<?>>, ObjectToMatcherCode> implements Adaptor<SerializedImmutable<Class<?>>, ObjectToMatcherCode> {
+public class DefaultClassAdaptor extends DefaultMatcherGenerator<SerializedImmutable<Class<?>>> implements MatcherGenerator<SerializedImmutable<Class<?>>> {
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Class<SerializedImmutable> getAdaptedClass() {
+		return SerializedImmutable.class;
+	}
 
 	@Override
 	public boolean matches(Type type) {
@@ -24,7 +28,7 @@ public class DefaultClassAdaptor extends DefaultAdaptor<SerializedImmutable<Clas
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedImmutable<Class<?>> value, ObjectToMatcherCode generator) {
+	public Computation tryDeserialize(SerializedImmutable<Class<?>> value, MatcherGenerators generator) {
 		TypeManager types = generator.getTypes();
 		types.registerImport(Class.class);
 		types.staticImport(Matchers.class, "equalTo");

@@ -13,22 +13,25 @@ import java.math.BigDecimal;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
-import net.amygdalum.testrecorder.deserializers.Adaptor;
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DefaultAdaptor;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 
+public class DefaultBigDecimalAdaptor extends DefaultMatcherGenerator<SerializedImmutable<BigDecimal>> implements MatcherGenerator<SerializedImmutable<BigDecimal>> {
 
-public class DefaultBigDecimalAdaptor extends DefaultAdaptor<SerializedImmutable<BigDecimal>, ObjectToMatcherCode> implements Adaptor<SerializedImmutable<BigDecimal>, ObjectToMatcherCode> {
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Class<SerializedImmutable> getAdaptedClass() {
+		return SerializedImmutable.class;
+	}
 
 	@Override
 	public boolean matches(Type type) {
 		return equalTypes(type, BigDecimal.class);
 	}
-	
+
 	@Override
-	public Computation tryDeserialize(SerializedImmutable<BigDecimal> value, ObjectToMatcherCode generator) {
+	public Computation tryDeserialize(SerializedImmutable<BigDecimal> value, MatcherGenerators generator) {
 		TypeManager types = generator.getTypes();
 		types.registerImport(BigDecimal.class);
 		types.staticImport(Matchers.class, "equalTo");

@@ -8,16 +8,19 @@ import static net.amygdalum.testrecorder.util.Types.wildcard;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
-import net.amygdalum.testrecorder.deserializers.Adaptor;
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DefaultAdaptor;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedNull;
 
-public class DefaultNullAdaptor extends DefaultAdaptor<SerializedNull, ObjectToMatcherCode> implements Adaptor<SerializedNull, ObjectToMatcherCode> {
+public class DefaultNullAdaptor extends DefaultMatcherGenerator<SerializedNull> implements MatcherGenerator<SerializedNull> {
 
 	@Override
-	public Computation tryDeserialize(SerializedNull value, ObjectToMatcherCode generator) {
+	public Class<SerializedNull> getAdaptedClass() {
+		return SerializedNull.class;
+	}
+
+	@Override
+	public Computation tryDeserialize(SerializedNull value, MatcherGenerators generator) {
 		TypeManager types = generator.getTypes();
 		types.registerType(value.getType());
 		types.staticImport(Matchers.class, "nullValue");

@@ -8,13 +8,16 @@ import static net.amygdalum.testrecorder.util.Types.baseType;
 import java.lang.reflect.Type;
 
 import net.amygdalum.testrecorder.Wrapped;
-import net.amygdalum.testrecorder.deserializers.Adaptor;
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DefaultAdaptor;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedEnum;
 
-public class DefaultEnumAdaptor extends DefaultAdaptor<SerializedEnum, ObjectToSetupCode> implements Adaptor<SerializedEnum, ObjectToSetupCode> {
+public class DefaultEnumAdaptor extends DefaultSetupGenerator<SerializedEnum> implements SetupGenerator<SerializedEnum> {
+
+	@Override
+	public Class<SerializedEnum> getAdaptedClass() {
+		return SerializedEnum.class;
+	}
 
 	@Override
 	public boolean matches(Type type) {
@@ -22,7 +25,7 @@ public class DefaultEnumAdaptor extends DefaultAdaptor<SerializedEnum, ObjectToS
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedEnum value, ObjectToSetupCode generator) {
+	public Computation tryDeserialize(SerializedEnum value, SetupGenerators generator) {
 		TypeManager types = generator.getTypes();
 		types.registerType(value.getType());
 

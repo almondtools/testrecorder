@@ -18,21 +18,25 @@ import java.util.Map.Entry;
 
 import net.amygdalum.testrecorder.DeserializationException;
 import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.deserializers.Adaptor;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedMap;
 
-public class CollectionsMapAdaptor implements Adaptor<SerializedMap, ObjectToSetupCode> {
+public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 
 	private DefaultMapAdaptor adaptor;
+
+	@Override
+	public Class<SerializedMap> getAdaptedClass() {
+		return SerializedMap.class;
+	}
 
 	public CollectionsMapAdaptor() {
 		this.adaptor = new DefaultMapAdaptor();
 	}
 
 	@Override
-	public Class<? extends Adaptor<SerializedMap, ObjectToSetupCode>> parent() {
+	public Class<? extends SetupGenerator<SerializedMap>> parent() {
 		return DefaultMapAdaptor.class;
 	}
 
@@ -45,7 +49,7 @@ public class CollectionsMapAdaptor implements Adaptor<SerializedMap, ObjectToSet
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedMap value, ObjectToSetupCode generator) {
+	public Computation tryDeserialize(SerializedMap value, SetupGenerators generator) {
 		TypeManager types = generator.getTypes();
 		types.registerImport(Map.class);
 
@@ -65,13 +69,13 @@ public class CollectionsMapAdaptor implements Adaptor<SerializedMap, ObjectToSet
 		}
 	}
 
-	private Computation createOrdinaryMap(SerializedMap value, ObjectToSetupCode generator) {
+	private Computation createOrdinaryMap(SerializedMap value, SetupGenerators generator) {
 		SerializedMap baseValue = new SerializedMap(parameterized(LinkedHashMap.class, null, value.getMapKeyType(), value.getMapValueType()));
 		baseValue.putAll(value);
 		return adaptor.tryDeserialize(baseValue, generator);
 	}
 
-	private Computation tryDeserializeEmpty(SerializedMap value, ObjectToSetupCode generator) {
+	private Computation tryDeserializeEmpty(SerializedMap value, SetupGenerators generator) {
 		String factoryMethod = "emptyMap";
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
@@ -85,7 +89,7 @@ public class CollectionsMapAdaptor implements Adaptor<SerializedMap, ObjectToSet
 		});
 	}
 
-	private Computation tryDeserializeSingleton(SerializedMap value, ObjectToSetupCode generator) {
+	private Computation tryDeserializeSingleton(SerializedMap value, SetupGenerators generator) {
 		String factoryMethod = "singletonMap";
 		TypeManager types = generator.getTypes();
 		types.registerImport(Map.class);
@@ -113,7 +117,7 @@ public class CollectionsMapAdaptor implements Adaptor<SerializedMap, ObjectToSet
 
 	}
 
-	private Computation tryDeserializeUnmodifiable(SerializedMap value, ObjectToSetupCode generator) {
+	private Computation tryDeserializeUnmodifiable(SerializedMap value, SetupGenerators generator) {
 		String factoryMethod = "unmodifiableMap";
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
@@ -133,7 +137,7 @@ public class CollectionsMapAdaptor implements Adaptor<SerializedMap, ObjectToSet
 
 	}
 
-	private Computation tryDeserializeSynchronized(SerializedMap value, ObjectToSetupCode generator) {
+	private Computation tryDeserializeSynchronized(SerializedMap value, SetupGenerators generator) {
 		String factoryMethod = "synchronizedMap";
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
@@ -153,7 +157,7 @@ public class CollectionsMapAdaptor implements Adaptor<SerializedMap, ObjectToSet
 
 	}
 
-	private Computation tryDeserializeChecked(SerializedMap value, ObjectToSetupCode generator) {
+	private Computation tryDeserializeChecked(SerializedMap value, SetupGenerators generator) {
 		String factoryMethod = "checkedMap";
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);

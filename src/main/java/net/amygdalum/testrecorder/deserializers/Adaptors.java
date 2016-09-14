@@ -7,6 +7,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.ServiceConfigurationError;
+import java.util.ServiceLoader;
 
 import net.amygdalum.testrecorder.DeserializationException;
 import net.amygdalum.testrecorder.SerializedValue;
@@ -21,6 +23,10 @@ public class Adaptors<G> {
 
 	public Adaptors(Adaptors<G> base) {
 		this.adaptors = new LinkedHashMap<>(base.adaptors);
+	}
+
+	public Adaptors<G> add(Adaptor<?, G> adaptor) {
+		return add(adaptor.getAdaptedClass(), adaptor);
 	}
 
 	public Adaptors<G> add(Class<? extends SerializedValue> clazz, Adaptor<?, G> adaptor) {
@@ -69,6 +75,19 @@ public class Adaptors<G> {
 			}
 		}
 		return null;
+	}
+	@SuppressWarnings({ "rawtypes", "unchecked" }) 
+	public Adaptors<G> load(Class<? extends Adaptor> clazz) {
+		ServiceLoader<? extends Adaptor> loader = ServiceLoader.load(clazz);
+		try {
+			for (Adaptor<?, G> adaptor : loader) {
+				add(adaptor);
+			}
+		} catch (ServiceConfigurationError serviceError) {
+			System.out.println("failed loading adaptors: " + serviceError.getMessage());
+
+		}
+		return this;
 	}
 
 }

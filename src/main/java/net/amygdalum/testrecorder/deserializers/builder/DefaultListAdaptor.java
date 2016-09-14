@@ -13,24 +13,27 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Queue;
 
-import net.amygdalum.testrecorder.deserializers.Adaptor;
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DefaultAdaptor;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.util.Types;
 import net.amygdalum.testrecorder.values.SerializedList;
 
-public class DefaultListAdaptor extends DefaultAdaptor<SerializedList, ObjectToSetupCode> implements Adaptor<SerializedList, ObjectToSetupCode> {
+public class DefaultListAdaptor extends DefaultSetupGenerator<SerializedList> implements SetupGenerator<SerializedList> {
 
 	private static final List<Class<?>> LIST_CLASSES = asList(List.class, Queue.class, Deque.class);
 
 	@Override
-	public Computation tryDeserialize(SerializedList value, ObjectToSetupCode generator) {
+	public Class<SerializedList> getAdaptedClass() {
+		return SerializedList.class;
+	}
+
+	@Override
+	public Computation tryDeserialize(SerializedList value, SetupGenerators generator) {
 		TypeManager types = generator.getTypes();
 		types.registerTypes(value.getResultType(), value.getType());
 
 		Class<?> listType = listClassFor(value.getType());
-		
+
 		return generator.forVariable(value, listType, local -> {
 
 			List<Computation> elementTemplates = value.stream()
@@ -46,7 +49,7 @@ public class DefaultListAdaptor extends DefaultAdaptor<SerializedList, ObjectToS
 				.collect(toList());
 
 			String tempVar = equalResultTypes(value) ? local.getName() : generator.temporaryLocal();
-			
+
 			String list = newObject(types.getBestName(value.getType()));
 			String listInit = assignLocalVariableStatement(types.getSimpleName(value.getType()), tempVar, list);
 			statements.add(listInit);

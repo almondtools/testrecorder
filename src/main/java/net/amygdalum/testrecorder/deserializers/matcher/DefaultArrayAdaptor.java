@@ -15,18 +15,21 @@ import java.util.stream.Stream;
 import org.hamcrest.Matcher;
 import org.hamcrest.collection.IsArrayWithSize;
 
-import net.amygdalum.testrecorder.deserializers.Adaptor;
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DefaultAdaptor;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.util.ArrayMatcher;
 import net.amygdalum.testrecorder.util.PrimitiveArrayMatcher;
 import net.amygdalum.testrecorder.values.SerializedArray;
 
-public class DefaultArrayAdaptor extends DefaultAdaptor<SerializedArray, ObjectToMatcherCode> implements Adaptor<SerializedArray, ObjectToMatcherCode> {
+public class DefaultArrayAdaptor extends DefaultMatcherGenerator<SerializedArray> implements MatcherGenerator<SerializedArray> {
 
 	@Override
-	public Computation tryDeserialize(SerializedArray value, ObjectToMatcherCode generator) {
+	public Class<SerializedArray> getAdaptedClass() {
+		return SerializedArray.class;
+	}
+
+	@Override
+	public Computation tryDeserialize(SerializedArray value, MatcherGenerators generator) {
 		TypeManager types = generator.getTypes();
 		Type componentType = value.getComponentType();
 

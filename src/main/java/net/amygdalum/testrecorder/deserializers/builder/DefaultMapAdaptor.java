@@ -10,17 +10,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import net.amygdalum.testrecorder.deserializers.Adaptor;
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DefaultAdaptor;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.util.Pair;
 import net.amygdalum.testrecorder.values.SerializedMap;
 
-public class DefaultMapAdaptor extends DefaultAdaptor<SerializedMap, ObjectToSetupCode> implements Adaptor<SerializedMap, ObjectToSetupCode> {
+public class DefaultMapAdaptor extends DefaultSetupGenerator<SerializedMap> implements SetupGenerator<SerializedMap> {
 
 	@Override
-	public Computation tryDeserialize(SerializedMap value, ObjectToSetupCode generator) {
+	public Class<SerializedMap> getAdaptedClass() {
+		return SerializedMap.class;
+	}
+
+	@Override
+	public Computation tryDeserialize(SerializedMap value, SetupGenerators generator) {
 		TypeManager types = generator.getTypes();
 		types.registerTypes(value.getResultType(), value.getType());
 
@@ -42,7 +45,7 @@ public class DefaultMapAdaptor extends DefaultAdaptor<SerializedMap, ObjectToSet
 				.collect(toList());
 
 			String tempVar = equalResultTypes(value) ? local.getName() : generator.temporaryLocal();
-			
+
 			String map = newObject(types.getBestName(value.getType()));
 			String mapInit = assignLocalVariableStatement(types.getSimpleName(value.getType()), tempVar, map);
 			statements.add(mapInit);
@@ -51,7 +54,7 @@ public class DefaultMapAdaptor extends DefaultAdaptor<SerializedMap, ObjectToSet
 				String putEntry = callMethodStatement(tempVar, "put", element.getElement1(), element.getElement2());
 				statements.add(putEntry);
 			}
-			
+
 			if (!equalResultTypes(value)) {
 				String leftValue = assignableResultTypes(value) ? tempVar : cast(types.getSimpleName(value.getResultType()), tempVar);
 				statements.add(assignLocalVariableStatement(types.getSimpleName(value.getResultType()), local.getName(), leftValue));

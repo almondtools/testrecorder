@@ -56,8 +56,8 @@ import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
-import net.amygdalum.testrecorder.deserializers.builder.ObjectToSetupCode;
-import net.amygdalum.testrecorder.deserializers.matcher.ObjectToMatcherCode;
+import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
+import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerators;
 import net.amygdalum.testrecorder.util.ExpectedOutput;
 import net.amygdalum.testrecorder.util.IORecorder;
 import net.amygdalum.testrecorder.util.RecordInput;
@@ -119,8 +119,8 @@ public class TestGenerator implements SnapshotConsumer {
 	public TestGenerator(Class<? extends Runnable> initializer) {
 		this.executor = Executors.newSingleThreadExecutor(new TestrecorderThreadFactory("$consume"));
 
-		this.setup = new ObjectToSetupCode.Factory();
-		this.matcher = new ObjectToMatcherCode.Factory();
+		this.setup = new SetupGenerators.Factory();
+		this.matcher = new MatcherGenerators.Factory();
 
 		this.initializer = initializer;
 

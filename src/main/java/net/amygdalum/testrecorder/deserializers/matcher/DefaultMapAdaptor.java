@@ -12,18 +12,21 @@ import java.util.stream.Stream;
 
 import org.hamcrest.Matcher;
 
-import net.amygdalum.testrecorder.deserializers.Adaptor;
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DefaultAdaptor;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.util.MapMatcher;
 import net.amygdalum.testrecorder.util.Pair;
 import net.amygdalum.testrecorder.values.SerializedMap;
 
-public class DefaultMapAdaptor extends DefaultAdaptor<SerializedMap, ObjectToMatcherCode> implements Adaptor<SerializedMap, ObjectToMatcherCode> {
+public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> implements MatcherGenerator<SerializedMap> {
 
 	@Override
-	public Computation tryDeserialize(SerializedMap value, ObjectToMatcherCode generator) {
+	public Class<SerializedMap> getAdaptedClass() {
+		return SerializedMap.class;
+	}
+
+	@Override
+	public Computation tryDeserialize(SerializedMap value, MatcherGenerators generator) {
 		TypeManager types = generator.getTypes();
 		String keyType = types.getSimpleName(value.getMapKeyType());
 		String valueType = types.getSimpleName(value.getMapValueType());
@@ -38,7 +41,7 @@ public class DefaultMapAdaptor extends DefaultAdaptor<SerializedMap, ObjectToMat
 
 			List<Pair<Computation, Computation>> elements = value.entrySet().stream()
 				.map(entry -> new Pair<>(
-					generator.simpleMatcher(entry.getKey()), 
+					generator.simpleMatcher(entry.getKey()),
 					generator.simpleMatcher(entry.getValue())))
 				.collect(toList());
 

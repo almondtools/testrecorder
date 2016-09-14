@@ -29,15 +29,15 @@ import net.amygdalum.testrecorder.values.SerializedList;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
-public class ObjectToSetupCodeTest {
+public class SetupGeneratorsTest {
 
 	private ConfigurableSerializerFacade facade;
-	private ObjectToSetupCode setupCode;
+	private SetupGenerators setupCode;
 	
 	@Before
 	public void before() throws Exception {
 		facade = new ConfigurableSerializerFacade(new DefaultTestRecorderAgentConfig());
-		setupCode = new ObjectToSetupCode(getClass());
+		setupCode = new SetupGenerators(getClass());
 	}
 	
 	@Test
@@ -55,7 +55,7 @@ public class ObjectToSetupCodeTest {
 
 	@Test
 	public void testVisitFieldWithHiddenTypeAndVisibleResult() throws Exception {
-		SerializedObject value = object(parameterized(innerType(ObjectToSetupCodeTest.class, "HiddenList"),null, String.class), hidden("Foo","Bar"));
+		SerializedObject value = object(parameterized(innerType(SetupGeneratorsTest.class, "HiddenList"),null, String.class), hidden("Foo","Bar"));
 		
 		Computation result = setupCode.visitField(new SerializedField(ListContainer.class, "list", parameterized(List.class,null, String.class), value));
 		
@@ -65,9 +65,9 @@ public class ObjectToSetupCodeTest {
 
 	@Test
 	public void testVisitFieldWithHiddenTypeAndHiddenResult() throws Exception {
-		SerializedObject value = object(parameterized(innerType(ObjectToSetupCodeTest.class, "HiddenList"),null, String.class), hidden("Foo","Bar"));
+		SerializedObject value = object(parameterized(innerType(SetupGeneratorsTest.class, "HiddenList"),null, String.class), hidden("Foo","Bar"));
 		
-		Computation result = setupCode.visitField(new SerializedField(ListContainer.class, "list", parameterized(innerType(ObjectToSetupCodeTest.class, "HiddenList"),null, String.class), value));
+		Computation result = setupCode.visitField(new SerializedField(ListContainer.class, "list", parameterized(innerType(SetupGeneratorsTest.class, "HiddenList"),null, String.class), value));
 		
 		assertThat(result.getStatements().toString(), containsPattern("Wrapped hiddenList2 = new GenericObject*"));
 		assertThat(result.getValue(), equalTo("Wrapped list = hiddenList2;"));

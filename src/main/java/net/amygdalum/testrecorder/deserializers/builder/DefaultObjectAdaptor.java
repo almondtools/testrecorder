@@ -9,17 +9,20 @@ import static net.amygdalum.testrecorder.deserializers.Templates.genericObjectCo
 import java.lang.reflect.Type;
 import java.util.List;
 
-import net.amygdalum.testrecorder.deserializers.Adaptor;
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DefaultAdaptor;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.util.GenericObject;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
-public class DefaultObjectAdaptor extends DefaultAdaptor<SerializedObject, ObjectToSetupCode> implements Adaptor<SerializedObject, ObjectToSetupCode> {
+public class DefaultObjectAdaptor extends DefaultSetupGenerator<SerializedObject> implements SetupGenerator<SerializedObject> {
 
 	@Override
-	public Computation tryDeserialize(SerializedObject value, ObjectToSetupCode generator) {
+	public Class<SerializedObject> getAdaptedClass() {
+		return SerializedObject.class;
+	}
+
+	@Override
+	public Computation tryDeserialize(SerializedObject value, SetupGenerators generator) {
 		TypeManager types = generator.getTypes();
 		types.registerTypes(value.getType(), value.getResultType(), GenericObject.class);
 

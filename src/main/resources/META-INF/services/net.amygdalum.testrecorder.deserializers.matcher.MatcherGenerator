@@ -1,0 +1,11 @@
+net.amygdalum.testrecorder.deserializers.matcher.DefaultLiteralAdaptor
+net.amygdalum.testrecorder.deserializers.matcher.DefaultNullAdaptor
+net.amygdalum.testrecorder.deserializers.matcher.DefaultClassAdaptor
+net.amygdalum.testrecorder.deserializers.matcher.DefaultBigIntegerAdaptor
+net.amygdalum.testrecorder.deserializers.matcher.DefaultBigDecimalAdaptor
+net.amygdalum.testrecorder.deserializers.matcher.DefaultEnumAdaptor
+net.amygdalum.testrecorder.deserializers.matcher.DefaultObjectAdaptor
+net.amygdalum.testrecorder.deserializers.matcher.DefaultArrayAdaptor
+net.amygdalum.testrecorder.deserializers.matcher.DefaultListAdaptor
+net.amygdalum.testrecorder.deserializers.matcher.DefaultSetAdaptor
+net.amygdalum.testrecorder.deserializers.matcher.DefaultMapAdaptor

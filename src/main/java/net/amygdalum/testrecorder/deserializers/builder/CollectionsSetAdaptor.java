@@ -16,12 +16,11 @@ import java.util.List;
 import java.util.Set;
 
 import net.amygdalum.testrecorder.DeserializationException;
-import net.amygdalum.testrecorder.deserializers.Adaptor;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedSet;
 
-public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSetupCode> {
+public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
 
 	private DefaultSetAdaptor adaptor;
 
@@ -30,7 +29,12 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 	}
 
 	@Override
-	public Class<? extends Adaptor<SerializedSet, ObjectToSetupCode>> parent() {
+	public Class<SerializedSet> getAdaptedClass() {
+		return SerializedSet.class;
+	}
+
+	@Override
+	public Class<? extends SetupGenerator<SerializedSet>> parent() {
 		return DefaultSetAdaptor.class;
 	}
 
@@ -43,7 +47,7 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedSet value, ObjectToSetupCode generator) {
+	public Computation tryDeserialize(SerializedSet value, SetupGenerators generator) {
 		TypeManager types = generator.getTypes();
 		types.registerImport(Set.class);
 
@@ -63,13 +67,13 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 		}
 	}
 
-	private Computation createOrdinarySet(SerializedSet value, ObjectToSetupCode generator) {
+	private Computation createOrdinarySet(SerializedSet value, SetupGenerators generator) {
 		SerializedSet baseValue = new SerializedSet(parameterized(LinkedHashSet.class, null, value.getComponentType()));
 		baseValue.addAll(value);
 		return adaptor.tryDeserialize(baseValue, generator);
 	}
 
-	private Computation tryDeserializeEmpty(SerializedSet value, ObjectToSetupCode generator) {
+	private Computation tryDeserializeEmpty(SerializedSet value, SetupGenerators generator) {
 		String factoryMethod = "emptySet";
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
@@ -83,7 +87,7 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 		});
 	}
 
-	private Computation tryDeserializeSingleton(SerializedSet value, ObjectToSetupCode generator) {
+	private Computation tryDeserializeSingleton(SerializedSet value, SetupGenerators generator) {
 		String factoryMethod = "singleton";
 		TypeManager types = generator.getTypes();
 		types.registerImport(Set.class);
@@ -103,7 +107,7 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 		});
 	}
 
-	private Computation tryDeserializeUnmodifiable(SerializedSet value, ObjectToSetupCode generator) {
+	private Computation tryDeserializeUnmodifiable(SerializedSet value, SetupGenerators generator) {
 		String factoryMethod = "unmodifiableSet";
 
 		TypeManager types = generator.getTypes();
@@ -123,7 +127,7 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 		});
 	}
 
-	private Computation tryDeserializeSynchronized(SerializedSet value, ObjectToSetupCode generator) {
+	private Computation tryDeserializeSynchronized(SerializedSet value, SetupGenerators generator) {
 		String factoryMethod = "synchronizedSet";
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
@@ -142,7 +146,7 @@ public class CollectionsSetAdaptor implements Adaptor<SerializedSet, ObjectToSet
 		});
 	}
 
-	private Computation tryDeserializeChecked(SerializedSet value, ObjectToSetupCode generator) {
+	private Computation tryDeserializeChecked(SerializedSet value, SetupGenerators generator) {
 		String factoryMethod = "checkedSet";
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);

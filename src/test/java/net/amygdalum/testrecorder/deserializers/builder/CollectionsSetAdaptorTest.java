@@ -54,7 +54,7 @@ public class CollectionsSetAdaptorTest {
 	@Test
 	public void testTryDeserializeUnmodifiable() throws Exception {
 		SerializedSet value = setOf("java.util.Collections$UnmodifiableSet", 0, 8, 15);
-		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		SetupGenerators generator = new SetupGenerators(getClass());
 
 		Computation result = adaptor.tryDeserialize(value, generator);
 
@@ -65,7 +65,7 @@ public class CollectionsSetAdaptorTest {
 	@Test
 	public void testTryDeserializeUnmodifiableNavigable() throws Exception {
 		SerializedSet value = setOf("java.util.Collections$UnmodifiableNavigableSet", 0, 8, 15);
-		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		SetupGenerators generator = new SetupGenerators(getClass());
 		
 		Computation result = adaptor.tryDeserialize(value, generator);
 		
@@ -76,7 +76,7 @@ public class CollectionsSetAdaptorTest {
 	@Test
 	public void testTryDeserializeUnmodifiableSorted() throws Exception {
 		SerializedSet value = setOf("java.util.Collections$UnmodifiableSortedSet", 0, 8, 15);
-		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		SetupGenerators generator = new SetupGenerators(getClass());
 
 		Computation result = adaptor.tryDeserialize(value, generator);
 
@@ -87,7 +87,7 @@ public class CollectionsSetAdaptorTest {
 	@Test
 	public void testTryDeserializeSynchronized() throws Exception {
 		SerializedSet value = setOf("java.util.Collections$SynchronizedSet", 0, 8, 15);
-		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		SetupGenerators generator = new SetupGenerators(getClass());
 
 		Computation result = adaptor.tryDeserialize(value, generator);
 
@@ -98,7 +98,7 @@ public class CollectionsSetAdaptorTest {
 	@Test
 	public void testTryDeserializeSynchronizedNavigable() throws Exception {
 		SerializedSet value = setOf("java.util.Collections$SynchronizedNavigableSet", 0, 8, 15);
-		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		SetupGenerators generator = new SetupGenerators(getClass());
 
 		Computation result = adaptor.tryDeserialize(value, generator);
 
@@ -109,7 +109,7 @@ public class CollectionsSetAdaptorTest {
 	@Test
 	public void testTryDeserializeSynchronizedSorted() throws Exception {
 		SerializedSet value = setOf("java.util.Collections$SynchronizedSortedSet", 0, 8, 15);
-		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		SetupGenerators generator = new SetupGenerators(getClass());
 
 		Computation result = adaptor.tryDeserialize(value, generator);
 
@@ -120,7 +120,7 @@ public class CollectionsSetAdaptorTest {
 	@Test
 	public void testTryDeserializeChecked() throws Exception {
 		SerializedSet value = setOf("java.util.Collections$CheckedSet", 0, 8, 15);
-		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		SetupGenerators generator = new SetupGenerators(getClass());
 
 		Computation result = adaptor.tryDeserialize(value, generator);
 
@@ -131,7 +131,7 @@ public class CollectionsSetAdaptorTest {
 	@Test
 	public void testTryDeserializeCheckedSorted() throws Exception {
 		SerializedSet value = setOf("java.util.Collections$CheckedSortedSet", 0, 8, 15);
-		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		SetupGenerators generator = new SetupGenerators(getClass());
 
 		Computation result = adaptor.tryDeserialize(value, generator);
 
@@ -142,7 +142,7 @@ public class CollectionsSetAdaptorTest {
 	@Test
 	public void testTryDeserializeCheckedNavigable() throws Exception {
 		SerializedSet value = setOf("java.util.Collections$CheckedNavigableSet", 0, 8, 15);
-		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		SetupGenerators generator = new SetupGenerators(getClass());
 
 		Computation result = adaptor.tryDeserialize(value, generator);
 
@@ -153,7 +153,7 @@ public class CollectionsSetAdaptorTest {
 	@Test
 	public void testTryDeserializeEmpty() throws Exception {
 		SerializedSet value = setOf("java.util.Collections$EmptySet");
-		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		SetupGenerators generator = new SetupGenerators(getClass());
 
 		Computation result = adaptor.tryDeserialize(value, generator);
 
@@ -164,7 +164,7 @@ public class CollectionsSetAdaptorTest {
 	@Test
 	public void testTryDeserializeSingleton() throws Exception {
 		SerializedSet value = setOf("java.util.Collections$SingletonSet", 0);
-		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		SetupGenerators generator = new SetupGenerators(getClass());
 
 		Computation result = adaptor.tryDeserialize(value, generator);
 
@@ -175,7 +175,7 @@ public class CollectionsSetAdaptorTest {
 	@Test(expected=DeserializationException.class)
 	public void testTryDeserializeOther() throws Exception {
 		SerializedSet value = setOf("java.lang.Object");
-		ObjectToSetupCode generator = new ObjectToSetupCode(getClass());
+		SetupGenerators generator = new SetupGenerators(getClass());
 
 		adaptor.tryDeserialize(value, generator);
 	}

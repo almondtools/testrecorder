@@ -9,16 +9,19 @@ import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
 import java.util.List;
 import java.util.Set;
 
-import net.amygdalum.testrecorder.deserializers.Adaptor;
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DefaultAdaptor;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedSet;
 
-public class DefaultSetAdaptor extends DefaultAdaptor<SerializedSet, ObjectToSetupCode> implements Adaptor<SerializedSet, ObjectToSetupCode> {
+public class DefaultSetAdaptor extends DefaultSetupGenerator<SerializedSet> implements SetupGenerator<SerializedSet> {
 
 	@Override
-	public Computation tryDeserialize(SerializedSet value, ObjectToSetupCode generator) {
+	public Class<SerializedSet> getAdaptedClass() {
+		return SerializedSet.class;
+	}
+
+	@Override
+	public Computation tryDeserialize(SerializedSet value, SetupGenerators generator) {
 		TypeManager types = generator.getTypes();
 		types.registerTypes(value.getResultType(), value.getType());
 
@@ -37,7 +40,7 @@ public class DefaultSetAdaptor extends DefaultAdaptor<SerializedSet, ObjectToSet
 				.collect(toList());
 
 			String tempVar = equalResultTypes(value) ? local.getName() : generator.temporaryLocal();
-			
+
 			String set = newObject(types.getBestName(value.getType()));
 			String setInit = assignLocalVariableStatement(types.getSimpleName(value.getType()), tempVar, set);
 			statements.add(setInit);
@@ -46,12 +49,12 @@ public class DefaultSetAdaptor extends DefaultAdaptor<SerializedSet, ObjectToSet
 				String addElement = callMethodStatement(tempVar, "add", element);
 				statements.add(addElement);
 			}
-			
+
 			if (!equalResultTypes(value)) {
 				String leftValue = assignableResultTypes(value) ? tempVar : cast(types.getSimpleName(value.getResultType()), tempVar);
 				statements.add(assignLocalVariableStatement(types.getSimpleName(value.getResultType()), local.getName(), leftValue));
 			}
-			
+
 			return new Computation(local.getName(), value.getResultType(), true, statements);
 		});
 	}

@@ -13,13 +13,17 @@ import java.math.BigInteger;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
-import net.amygdalum.testrecorder.deserializers.Adaptor;
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DefaultAdaptor;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 
-public class DefaultBigIntegerAdaptor extends DefaultAdaptor<SerializedImmutable<BigInteger>, ObjectToMatcherCode> implements Adaptor<SerializedImmutable<BigInteger>, ObjectToMatcherCode> {
+public class DefaultBigIntegerAdaptor extends DefaultMatcherGenerator<SerializedImmutable<BigInteger>> implements MatcherGenerator<SerializedImmutable<BigInteger>> {
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Class<SerializedImmutable> getAdaptedClass() {
+		return SerializedImmutable.class;
+	}
 
 	@Override
 	public boolean matches(Type type) {
@@ -27,7 +31,7 @@ public class DefaultBigIntegerAdaptor extends DefaultAdaptor<SerializedImmutable
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedImmutable<BigInteger> value, ObjectToMatcherCode generator) {
+	public Computation tryDeserialize(SerializedImmutable<BigInteger> value, MatcherGenerators generator) {
 		TypeManager types = generator.getTypes();
 		types.registerImport(BigInteger.class);
 		types.staticImport(Matchers.class, "equalTo");
