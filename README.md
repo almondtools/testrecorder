@@ -93,20 +93,17 @@ If you depend on an Object that should be serialized in a special way, you can d
 - a method `getMatchingClasses` return all classes this serializer can handle
 - a method `generateType` being just a factor method to create an empty serialized value
 - a method `populate` being a method that is passed both the empty serialized value and the object to serialize. This should store all necessary information into the serialized value
-- (recommended) an inner class `SerializerFactory` to return an instance of this serializer. 
+- an inner class `Factory implements SerializerFactory` to return an instance of this serializer. 
 
-To enable `CustomSerializer` 
-- you should define a `SerializationProfile` and add your serializer's factory to the list returned in `getSerializerFactories`
-- you should set the profile attribute of your `@Snapshot` annotation to this profile class 
+To enable `CustomSerializer` make it available as ServiceProvider:
+- create a directory `META-INF/services` in your class path
+- create a file `net.amygdalum.testrecorder.SerializerFactory` in this directory
+- put the full qualified class name of `CustomSerializer$Factory` into this file   
 
 
-Custom Serialized Values
-------------------------
-In most cases the existing serialized value types should be sufficient. In most cases `SerializedObject` should do. So if you need your custom serialized value than create it and reference it from your Custom Serializer.
-
-Adaptors (Custom Deserializers) 
--------------------------------
-TODO
+Custom Deserializers (SetupGenerators, MatcherGenerators, ...) 
+--------------------------------------------------------------
+You can also modify your output code by introducing custom deserializers. More on that in later updates.
 
 Limitations
 -----------
@@ -115,5 +112,7 @@ TestRecorder serialization (for values and tests) does not cover all of an objec
 - synthetic fields (added by some bytecode rewriting framework)
 - native state
 
-Testrecorder was not yet tested on a large set of code examples. Some classes are not as easy to serialize as others, so if you encounter problems, try to write an issue. Most fixes to such problems should be solvable with custom serializers or custom deserializers. 
+The objective of Testrecorder is to provide an interface that is powerful, clean and extensible. To achieve this we will provide more and more configuration settings to extend the core framework. The fact that tests are generated automatically might rise wrong expectations: Testrecorder will probably always be an experts tool, meaning strong programming and debug skills are recommended to find the correct configuration and the necessary custom extensions.
+
+Testrecorder was not yet tested on a large set of code examples. Some classes are not as easy to serialize as others, so if you encounter problems, try to write an issue. Hopefully - most fixes to such problems should be solvable with custom serializers or custom deserializers. 
 
