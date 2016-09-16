@@ -187,15 +187,13 @@ ExampleObject serializedObject1 = exampleObject1;</code></pre>
                       <li>a method  being a method that is passed both the empty serialized value and the object to serialize. This should store all necessary information into the serialized value</li>
                       <li>(recommended) an inner class  to return an instance of this serializer.</li>
   </ul></p>
-              <p>                To enable       <code >CustomSerializer</code> 
+              <p>                To enable       <code >CustomSerializer</code> make it available as SeviceProvider
                   <ul>
-                          <li>you should define a       <code >SerializationProfile</code> and add your serializer's factory to the list returned in       <code >getSerializerFactories</code></li>
-                      <li>you should set the profile attribute of your       <code >@Snapshot</code> annotation to this profile class</li>
+                          <li>create a directory       <code >META-INF/services</code> in your class path</li>
+                      <li>create a file       <code >net.amygdalum.testrecorder.SerializerFactory</code> in this directory</li>
+                      <li>put the full qualified class name of       <code >CustomSerializer$Factory</code> into this file</li>
   </ul></p>
-              <h3>Custom Serialized Values</h3>
-              <p>                In most cases the existing serialized value types should be sufficient. In most cases       <code >SerializedObject</code> should do. So if you need your custom serialized value 
-                than create it and reference it from your Custom Serializer.</p>
-              <h3>Adaptors (Custom Deserializers)</h3>
+              <h3>Custom Deserializers (SetupGenerators, MatcherGenerators, ...)</h3>
               <p>                You can also modify your output code by introducing custom deserializers. More on that in later updates.</p>
             
   </div>
@@ -203,6 +201,10 @@ ExampleObject serializedObject1 = exampleObject1;</code></pre>
   </section>
               <section>
               <h2>More about Testrecorder</h2>
+          <p>            The objective of Testrecorder is to provide an interface that is powerful, clean and extensible. To achieve this we
+            will provide more and more configuration settings to extend the core framework. The fact that tests are generated automatically
+            might rise wrong expectations: Testrecorder will probably always be an experts tool, meaning strong programming and debug skills
+            are recommended to find the correct configuration and the necessary custom extensions.</p>
           <p>            The current power of Testrecorder is beyond that mentioned in the examples. Testrecorder can:   <ul>
                       <li>serialize objects by constructor, by property setters or by using a combination of both</li>
                   <li>fallback to object construction by reflection if the upper will not work (it is quite readable compared to the java reflection api)</li>
