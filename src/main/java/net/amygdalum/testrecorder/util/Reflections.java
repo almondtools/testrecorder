@@ -8,7 +8,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
 
-import com.almondtools.xrayinterface.ReflectionFailedException;
+import net.amygdalum.xrayinterface.ReflectionFailedException;
 
 public class Reflections {
 

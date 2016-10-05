@@ -129,12 +129,12 @@ public class TestGenerator implements SnapshotConsumer {
 		this.inputClasses = new LinkedHashSet<>();
 		this.outputClasses = new LinkedHashSet<>();
 	}
-	
+
 	@Override
 	public void close() {
 		executor.shutdown();
 	}
-	
+
 	public String generateBefore(List<String> statements) {
 		ST test = new ST(BEFORE_TEMPLATE);
 		test.add("statements", statements);
@@ -152,13 +152,17 @@ public class TestGenerator implements SnapshotConsumer {
 	@Override
 	public synchronized void accept(ContextSnapshot snapshot) {
 		executor.submit(() -> {
-			TestGeneratorContext context = tests.computeIfAbsent(baseType(snapshot.getThisType()), key -> new TestGeneratorContext(key));
-			MethodGenerator methodGenerator = new MethodGenerator(snapshot, context)
-				.generateArrange()
-				.generateAct()
-				.generateAssert();
+			try {
+				TestGeneratorContext context = tests.computeIfAbsent(baseType(snapshot.getThisType()), key -> new TestGeneratorContext(key));
+				MethodGenerator methodGenerator = new MethodGenerator(snapshot, context)
+					.generateArrange()
+					.generateAct()
+					.generateAssert();
 
-			context.add(methodGenerator.generateTest());
+				context.add(methodGenerator.generateTest());
+			} catch (Throwable e) {
+				System.out.println("failed generating test for " + snapshot.getMethodName() + ": " + e.getMessage());
+			}
 		});
 	}
 
@@ -302,7 +306,6 @@ public class TestGenerator implements SnapshotConsumer {
 		private List<String> args;
 		private String result;
 		private String error;
-
 
 		public MethodGenerator(ContextSnapshot snapshot, TestGeneratorContext context) {
 			this.snapshot = snapshot;

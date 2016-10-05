@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.serializers;
 
-import static com.almondtools.xrayinterface.XRayInterface.xray;
+import static net.amygdalum.xrayinterface.XRayInterface.xray;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.TypeSelector.startingWith;
 import static net.amygdalum.testrecorder.util.Types.inferType;
