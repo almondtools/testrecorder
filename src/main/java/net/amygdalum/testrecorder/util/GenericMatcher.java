@@ -43,23 +43,27 @@ public class GenericMatcher extends GenericObject {
 		WorkSet<GenericComparison> remainder = new WorkSet<>();
 		for (Field field : getGenericFields()) {
 			Field to = findField(field.getName(), o.getClass());
-			if (!GenericComparison.equals(this, field, o, to, remainder)) {
+			if (!GenericComparison.matches(GenericMatcher::matching, this, field, o, to, remainder)) {
 				return false;
 			}
 		}
 		while (remainder.hasMoreElements()) {
 			GenericComparison current = remainder.dequeue();
-			if (current.getLeft() instanceof Matcher<?>) {
-				Matcher<?> matcher = (Matcher<?>) current.getLeft();
-				Object value = current.getRight();
-				if (!matcher.matches(value)) {
-					return false;
-				}
-			} else if (!current.eval(remainder)) {
+			if (!current.eval(GenericMatcher::matching, remainder)) {
 				return false;
 			}
 		}
 		return true;
+	}
+	
+	private static boolean matching(Object left, Object right) {
+		if (left instanceof Matcher<?>) {
+			Matcher<?> matcher = (Matcher<?>) left;
+			if (matcher.matches(right)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public static <T> Matcher<T> recursive(Class<T> clazz) {

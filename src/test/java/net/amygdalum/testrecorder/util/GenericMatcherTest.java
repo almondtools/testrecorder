@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.util;
 
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -18,12 +19,12 @@ public class GenericMatcherTest {
 	}
 
 	@Test
-		public void testMatchingSimple() throws Exception {
-			assertThat(new Simple("myStr"), new GenericMatcher() {
-				public String str = "myStr";
-	
-			}.matching(Simple.class));
-		}
+	public void testMatchingSimple() throws Exception {
+		assertThat(new Simple("myStr"), new GenericMatcher() {
+			public String str = "myStr";
+
+		}.matching(Simple.class));
+	}
 
 	@Test
 	public void testMatchesComplex() throws Exception {
@@ -35,13 +36,27 @@ public class GenericMatcherTest {
 	}
 
 	@Test
-		public void testMatchingComplex() throws Exception {
-			assertThat(new Complex(), new GenericMatcher() {
-				public Matcher<Simple> simple = new GenericMatcher() {
-					public String str = "otherStr";
-				}.matching(Simple.class);
-			}.matching(Complex.class));
-		}
+	public void testMatchingNullMatcher() throws Exception {
+		assertThat(new GenericMatcher() {
+			Matcher<?> str = nullValue();
+		}.matches(new Simple()), is(true));
+	}
+
+	@Test
+	public void testMatchingNullValue() throws Exception {
+		assertThat(new GenericMatcher() {
+			String str = null;
+		}.matches(new Simple()), is(true));
+	}
+
+	@Test
+	public void testMatchingComplex() throws Exception {
+		assertThat(new Complex(), new GenericMatcher() {
+			public Matcher<Simple> simple = new GenericMatcher() {
+				public String str = "otherStr";
+			}.matching(Simple.class);
+		}.matching(Complex.class));
+	}
 
 	private static class Simple {
 		private String str;

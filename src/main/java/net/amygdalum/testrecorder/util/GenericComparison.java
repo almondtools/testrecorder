@@ -4,6 +4,7 @@ import static net.amygdalum.testrecorder.util.Reflections.accessing;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.isLiteral;
 
 import java.lang.reflect.Field;
+import java.util.function.BiPredicate;
 
 public class GenericComparison {
 	private Object left;
@@ -68,11 +69,62 @@ public class GenericComparison {
 		return true;
 	}
 
+	public boolean eval(BiPredicate<Object, Object> matching, WorkSet<GenericComparison> todo) {
+		if (left == right) {
+			return true;
+		} else if (matching.test(left, right)) {
+			return true;
+		} else if (left == null || right == null) {
+			return false;
+		} else if (left.getClass() != right.getClass()) {
+			return false;
+		}
+		Class<?> clazz = left.getClass();
+		if (isLiteral(clazz)) {
+			return left.equals(right);
+		}
+		while (clazz != Object.class) {
+			for (Field field : clazz.getDeclaredFields()) {
+				if (field.isSynthetic()) {
+					continue;
+				}
+				if (!equals(left, field, right, field, todo)) {
+					return false;
+				}
+			}
+			clazz = clazz.getSuperclass();
+		}
+		return true;
+	}
+
 	public static boolean equals(Object left, Field lfield, Object right, Field rfield, WorkSet<GenericComparison> todo) {
 		try {
 			Object f1 = getValue(lfield, left);
 			Object f2 = getValue(rfield, right);
 			if (f1 == f2) {
+				return true;
+			} else if (f1 == null) {
+				return false;
+			} else if (f2 == null) {
+				return false;
+			} else if (f1.equals(f2)) {
+				return true;
+			} else {
+				todo.enqueue(new GenericComparison(f1, f2));
+				return true;
+			}
+		} catch (ReflectiveOperationException e) {
+			return false;
+		}
+	}
+
+	public static boolean matches(BiPredicate<Object, Object> matching, Object left, Field lfield, Object right, Field rfield, WorkSet<GenericComparison> todo) {
+		try {
+			Object f1 = getValue(lfield, left);
+			Object f2 = getValue(rfield, right);
+			if (f1 == f2) {
+				return true;
+			} else if (matching.test(f1, f2)) {
 				return true;
 			} else if (f1 == null) {
 				return false;
