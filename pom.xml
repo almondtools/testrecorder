@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.amygdalum</groupId>
 	<artifactId>testrecorder</artifactId>
-	<version>0.2.10</version>
+	<version>0.2.11-SNAPSHOT</version>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<url>http://testrecorder.amygdalum.net</url>
 
@@ -27,7 +27,7 @@
 		<connection>scm:git:git@github.com:almondtools/testrecorder.git</connection>
 		<developerConnection>scm:git:git@github.com:almondtools/testrecorder.git</developerConnection>
 		<url>git@github.com:almondtools/testrecorder.git</url>
-		<tag>testrecorder-0.2.10</tag>
+		<tag>HEAD</tag>
 	</scm>
 	<distributionManagement>
 		<snapshotRepository>
