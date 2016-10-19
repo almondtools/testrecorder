@@ -11,6 +11,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
@@ -81,14 +82,28 @@ public class SerializedMapTest {
 	@Test
 	public void testSize0() throws Exception {
 		SerializedMap map = new SerializedMap(HashMap.class).withResult(Map.class);
+		
 		assertThat(map.size(), equalTo(0));
+		assertThat(map.referencedValues(), empty());
 	}
 
 	@Test
 	public void testSize1() throws Exception {
 		SerializedMap map = new SerializedMap(HashMap.class).withResult(Map.class);
 		map.put(literal("key"), literal("value"));
+
 		assertThat(map.size(), equalTo(1));
+		assertThat(map.referencedValues(), hasSize(2));
+	}
+
+	@Test
+	public void testSize2() throws Exception {
+		SerializedMap map = new SerializedMap(HashMap.class).withResult(Map.class);
+		map.put(literal("key1"), literal("value1"));
+		map.put(literal("key2"), literal("value2"));
+		
+		assertThat(map.size(), equalTo(2));
+		assertThat(map.referencedValues(), hasSize(4));
 	}
 
 	@Test

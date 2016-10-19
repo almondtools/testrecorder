@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.values;
 
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -23,6 +24,11 @@ public class SerializedImmutableTest {
 	@Test
 	public void testGetResultType() throws Exception {
 		assertThat(value.getResultType(), equalTo(String.class));
+	}
+
+	@Test
+	public void testReferencedValues() throws Exception {
+		assertThat(value.referencedValues(), empty());
 	}
 
 	@Test

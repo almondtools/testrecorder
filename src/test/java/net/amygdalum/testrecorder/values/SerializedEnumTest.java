@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.values;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
@@ -30,6 +31,15 @@ public class SerializedEnumTest {
 		value.setName("VALUE2");
 		
 		assertThat(value.getName(), equalTo("VALUE2"));
+	}
+
+	@Test
+	public void testReferencedValues() throws Exception {
+		SerializedEnum value = new SerializedEnum(MyEnum.class);
+		
+		value.setName("VALUE2");
+
+		assertThat(value.referencedValues(), empty());
 	}
 
 	@Test

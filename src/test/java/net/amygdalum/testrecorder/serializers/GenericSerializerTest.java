@@ -1,14 +1,19 @@
 package net.amygdalum.testrecorder.serializers;
 
+import static java.util.Collections.singleton;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.util.HashSet;
+import java.util.Random;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -20,7 +25,9 @@ import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.Serializer;
 import net.amygdalum.testrecorder.SerializerFacade;
 import net.amygdalum.testrecorder.values.SerializedField;
+import net.amygdalum.testrecorder.values.SerializedNull;
 import net.amygdalum.testrecorder.values.SerializedObject;
+import net.amygdalum.testrecorder.values.SerializedSet;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GenericSerializerTest {
@@ -48,6 +55,14 @@ public class GenericSerializerTest {
 	}
 
 	@Test
+	public void testGenerateOnExcludedType() throws Exception {
+		when(facade.excludes(Random.class)).thenReturn(true);
+		SerializedValue value =  serializer.generate(Random.class, Random.class);
+
+		assertThat(value, instanceOf(SerializedNull.class));
+	}
+
+	@Test
 	public void testPopulate() throws Exception {
 		SerializedValue foo = literal("Foo");
 		SerializedField fooField = new SerializedField(GenericObject.class, "stringField", String.class, foo);
@@ -62,16 +77,34 @@ public class GenericSerializerTest {
 		assertThat(value.getFields(), containsInAnyOrder(fooField, barField));
 	}
 
+	@Test
+	public void testPopulateOtherNullType() throws Exception {
+		SerializedNull nullValue = SerializedNull.nullInstance(String.class);
+
+		serializer.populate(nullValue, "Element" );
+
+		assertThat(nullValue.getType(), equalTo(String.class));
+	}
+
+	@Test
+	public void testPopulateOtherReferenceTypes() throws Exception {
+		SerializedSet set = new SerializedSet(HashSet.class);
+
+		serializer.populate(set, singleton("Element"));
+
+		assertThat(set, empty());
+	}
+
 	@SuppressWarnings("unused")
 	private static class GenericObject {
 		private String stringField;
 		private int intField;
-		
-		public GenericObject(String stringField,int intField) {
+
+		public GenericObject(String stringField, int intField) {
 			this.stringField = stringField;
 			this.intField = intField;
 		}
-		
+
 	}
-	
+
 }

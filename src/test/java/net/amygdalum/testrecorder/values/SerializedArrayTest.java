@@ -7,6 +7,7 @@ import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 import java.util.List;
@@ -85,6 +86,13 @@ public class SerializedArrayTest {
 		SerializedArray array = new SerializedArray(String[].class).with(literal("s1"), literal("s2"));
 
 		assertThat(array.toString(), equalTo("<s1, s2>"));
+	}
+
+	@Test
+	public void testReferencedValues() throws Exception {
+		SerializedArray array = new SerializedArray(String[].class).with(literal("s1"), literal("s2"));
+		
+		assertThat(array.referencedValues(), hasSize(2));
 	}
 
 	@Test

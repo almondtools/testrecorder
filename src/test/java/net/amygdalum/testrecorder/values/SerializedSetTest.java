@@ -13,6 +13,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -77,14 +78,28 @@ public class SerializedSetTest {
 	@Test
 	public void testSize0() throws Exception {
 		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
+
 		assertThat(set.size(), equalTo(0));
+		assertThat(set.referencedValues(), empty());
 	}
 
 	@Test
 	public void testSize1() throws Exception {
 		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
 		set.add(literal("string"));
+		
 		assertThat(set.size(), equalTo(1));
+		assertThat(set.referencedValues(), hasSize(1));
+	}
+
+	@Test
+	public void testSize2() throws Exception {
+		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
+		set.add(literal("string"));
+		set.add(literal("second"));
+		
+		assertThat(set.size(), equalTo(2));
+		assertThat(set.referencedValues(), hasSize(2));
 	}
 
 	@Test
