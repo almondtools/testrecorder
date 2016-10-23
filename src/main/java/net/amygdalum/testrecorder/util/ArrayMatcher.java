@@ -72,7 +72,7 @@ public class ArrayMatcher<T> extends TypeSafeMatcher<T[]> {
 			List<T> items = collect(itemIterator);
 			matches.mismatch("found " + items.size() + " elements surplus " + toDescriptionSet(items));
 		}
-		
+
 		if (matches.containsMismatches()) {
 			mismatchDescription.appendText("mismatching elements ").appendDescriptionOf(matches);
 		}

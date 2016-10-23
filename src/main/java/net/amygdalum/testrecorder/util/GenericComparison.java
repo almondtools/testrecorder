@@ -1,18 +1,28 @@
 package net.amygdalum.testrecorder.util;
 
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
+import static net.amygdalum.testrecorder.util.Types.allFields;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.isLiteral;
 
 import java.lang.reflect.Field;
-import java.util.function.BiPredicate;
 
 public class GenericComparison {
+	private static final GenericComparison NULL = new GenericComparison("<error>", null, null);
+	
+	private String root;
 	private Object left;
 	private Object right;
+	private Boolean mismatch;
 
-	public GenericComparison(Object left, Object right) {
+	public GenericComparison(String root, Object left, Object right) {
+		this.root = root;
 		this.left = left;
 		this.right = right;
+		this.mismatch = null;
+	}
+
+	public String getRoot() {
+		return root;
 	}
 
 	public Object getLeft() {
@@ -23,8 +33,12 @@ public class GenericComparison {
 		return right;
 	}
 
-	public static boolean equals(Object o1, Object o2) {
-		return equals(new GenericComparison(o1, o2));
+	public void setMismatch(Boolean mismatch) {
+		this.mismatch = mismatch;
+	}
+
+	public static boolean equals(String root, Object o1, Object o2) {
+		return equals(new GenericComparison(root, o1, o2));
 	}
 
 	public static boolean equals(GenericComparison p) {
@@ -55,94 +69,73 @@ public class GenericComparison {
 		if (isLiteral(clazz)) {
 			return left.equals(right);
 		}
-		while (clazz != Object.class) {
-			for (Field field : clazz.getDeclaredFields()) {
-				if (field.isSynthetic()) {
-					continue;
-				}
-				if (!equals(left, field, right, field, todo)) {
-					return false;
-				}
+		for (Field field : allFields(clazz)) {
+			if (field.isSynthetic()) {
+				continue;
 			}
-			clazz = clazz.getSuperclass();
+			String fieldName = field.getName();
+			todo.enqueue(GenericComparison.from(root, fieldName, left, right));
 		}
 		return true;
 	}
 
-	public boolean eval(BiPredicate<Object, Object> matching, WorkSet<GenericComparison> todo) {
+	public boolean eval(GenericComparator comparator, WorkSet<GenericComparison> todo) {
 		if (left == right) {
 			return true;
-		} else if (matching.test(left, right)) {
-			return true;
-		} else if (left == null || right == null) {
-			return false;
-		} else if (left.getClass() != right.getClass()) {
+		}
+		GenericComparatorResult compare = comparator.compare(this, todo);
+		if (compare.isApplying()) {
+			return compare.getResult();
+		}
+		if (left == null || right == null) {
 			return false;
 		}
 		Class<?> clazz = left.getClass();
 		if (isLiteral(clazz)) {
 			return left.equals(right);
 		}
-		while (clazz != Object.class) {
-			for (Field field : clazz.getDeclaredFields()) {
-				if (field.isSynthetic()) {
-					continue;
-				}
-				if (!equals(left, field, right, field, todo)) {
-					return false;
-				}
+		for (Field field : allFields(clazz)) {
+			if (field.isSynthetic()) {
+				continue;
 			}
-			clazz = clazz.getSuperclass();
+			String fieldName = field.getName();
+			todo.enqueue(GenericComparison.from(root, fieldName, left, right));
 		}
 		return true;
 	}
 
-	public static boolean equals(Object left, Field lfield, Object right, Field rfield, WorkSet<GenericComparison> todo) {
-		try {
-			Object f1 = getValue(lfield, left);
-			Object f2 = getValue(rfield, right);
-			if (f1 == f2) {
-				return true;
-			} else if (f1 == null) {
-				return false;
-			} else if (f2 == null) {
-				return false;
-			} else if (f1.equals(f2)) {
-				return true;
-			} else {
-				todo.enqueue(new GenericComparison(f1, f2));
-				return true;
-			}
-		} catch (ReflectiveOperationException e) {
-			return false;
-		}
-	}
+	public static Object getValue(String fieldName, Object item) throws ReflectiveOperationException {
+		Field field = Types.getDeclaredField(item.getClass(), fieldName);
 
-	public static boolean matches(BiPredicate<Object, Object> matching, Object left, Field lfield, Object right, Field rfield, WorkSet<GenericComparison> todo) {
-		try {
-			Object f1 = getValue(lfield, left);
-			Object f2 = getValue(rfield, right);
-			if (f1 == f2) {
-				return true;
-			} else if (matching.test(f1, f2)) {
-				return true;
-			} else if (f1 == null) {
-				return false;
-			} else if (f2 == null) {
-				return false;
-			} else if (f1.equals(f2)) {
-				return true;
-			} else {
-				todo.enqueue(new GenericComparison(f1, f2));
-				return true;
-			}
-		} catch (ReflectiveOperationException e) {
-			return false;
-		}
+		return getValue(field, item);
 	}
 
 	public static Object getValue(Field field, Object item) throws ReflectiveOperationException {
 		return accessing(field).call(() -> field.get(item));
+	}
+
+	public static GenericComparison from(String root, String field, Object left, Object right) {
+		try {
+			Object f1 = getValue(field, left);
+			Object f2 = getValue(field, right);
+			String newRoot = root == null ? field : root + '.' + field;
+			return new GenericComparison(newRoot, f1, f2);
+		} catch (ReflectiveOperationException e) {
+			return GenericComparison.NULL;
+		}
+	}
+
+	public static void compare(WorkSet<GenericComparison> remainder, GenericComparator comparator) {
+		while (remainder.hasMoreElements()) {
+			GenericComparison current = remainder.dequeue();
+			if (!current.eval(comparator, remainder)) {
+				current.setMismatch(true);
+			}
+		}
+	}
+
+	public boolean isMismatch() {
+		return mismatch == null ? false : mismatch;
 	}
 
 	@Override

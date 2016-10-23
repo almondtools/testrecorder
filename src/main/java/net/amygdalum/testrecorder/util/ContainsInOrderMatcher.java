@@ -71,7 +71,7 @@ public class ContainsInOrderMatcher<T> extends TypeSafeMatcher<Collection<? exte
 			List<T> items = collect(itemIterator);
 			matches.mismatch("found " + items.size() + " elements surplus " + toDescriptionSet(items));
 		}
-		
+
 		if (matches.containsMismatches()) {
 			mismatchDescription.appendText("mismatching elements ").appendDescriptionOf(matches);
 		}

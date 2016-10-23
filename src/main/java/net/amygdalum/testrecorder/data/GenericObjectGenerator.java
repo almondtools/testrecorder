@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.data;
 
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
+import static net.amygdalum.testrecorder.util.Types.allFields;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -16,10 +17,8 @@ public class GenericObjectGenerator<T> implements TestValueGenerator<T> {
 	@Override
 	public T create(TestDataGenerator generator) {
 		T instance = makeInstance(generator);
-		Class<?> current = clazz;
-		while (current != Object.class) {
-			generateFields(generator, instance, current);
-			current = current.getSuperclass();
+		for (Field field : allFields(clazz)) {
+			generateField(field, generator, instance);
 		}
 		return instance;
 	}
@@ -51,15 +50,13 @@ public class GenericObjectGenerator<T> implements TestValueGenerator<T> {
 		return args;
 	}
 
-	private void generateFields(TestDataGenerator generator, T instance, Class<?> current) {
-		for (Field field : current.getDeclaredFields()) {
-			if (field.isSynthetic()) {
-				continue;
-			}
-			try {
-				accessing(field).exec(() -> field.set(instance, generator.create(field.getType())));
-			} catch (ReflectiveOperationException e) {
-			}
+	public void generateField(Field field, TestDataGenerator generator, T instance) {
+		if (field.isSynthetic()) {
+			return;
+		}
+		try {
+			accessing(field).exec(() -> field.set(instance, generator.create(field.getType())));
+		} catch (ReflectiveOperationException e) {
 		}
 	}
 

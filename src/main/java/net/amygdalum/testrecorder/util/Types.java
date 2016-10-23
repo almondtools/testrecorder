@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -77,30 +78,6 @@ public class Types {
 		} else {
 			return bestClass;
 		}
-	}
-
-	public static Method getDeclaredMethod(Class<?> clazz, String name, Class<?>... parameterTypes) {
-		Class<?> current = clazz;
-		while (current != Object.class) {
-			try {
-				return current.getDeclaredMethod(name, parameterTypes);
-			} catch (NoSuchMethodException e) {
-				current = current.getSuperclass();
-			}
-		}
-		return null;
-	}
-
-	public static Field getDeclaredField(Class<?> clazz, String name) {
-		Class<?> current = clazz;
-		while (current != Object.class) {
-			try {
-				return current.getDeclaredField(name);
-			} catch (NoSuchFieldException e) {
-				current = current.getSuperclass();
-			}
-		}
-		return null;
 	}
 
 	public static Class<?> baseType(Type type) {
@@ -172,7 +149,7 @@ public class Types {
 	public static boolean boxingEquivalentTypes(Type type1, Type type2) {
 		return boxedType(type1).equals(boxedType(type2));
 	}
-	
+
 	public static Optional<Type> typeArgument(Type type, int i) {
 		if (type instanceof ParameterizedType) {
 			Type[] actualTypeArguments = ((ParameterizedType) type).getActualTypeArguments();
@@ -351,6 +328,55 @@ public class Types {
 			}
 			return buffer.toString();
 		}
+	}
+
+	public static List<Field> allFields(Class<?> clazz) {
+		Class<?> current = clazz;
+		List<Field> fields = new ArrayList<>();
+		while (current != Object.class) {
+			for (Field field : current.getDeclaredFields()) {
+				fields.add(field);
+			}
+			current = current.getSuperclass();
+		}
+		return fields;
+
+	}
+
+	public static List<Method> allMethods(Class<?> clazz) {
+		Class<?> current = clazz;
+		List<Method> methods = new ArrayList<>();
+		while (current != Object.class) {
+			for (Method method : current.getDeclaredMethods()) {
+				methods.add(method);
+			}
+			current = current.getSuperclass();
+		}
+		return methods;
+	}
+
+	public static Method getDeclaredMethod(Class<?> clazz, String name, Class<?>... parameterTypes) throws NoSuchMethodException {
+		Class<?> current = clazz;
+		while (current != Object.class) {
+			try {
+				return current.getDeclaredMethod(name, parameterTypes);
+			} catch (NoSuchMethodException e) {
+				current = current.getSuperclass();
+			}
+		}
+		throw new NoSuchMethodException(name);
+	}
+
+	public static Field getDeclaredField(Class<?> clazz, String name) throws NoSuchFieldException {
+		Class<?> current = clazz;
+		while (current != Object.class) {
+			try {
+				return current.getDeclaredField(name);
+			} catch (NoSuchFieldException e) {
+				current = current.getSuperclass();
+			}
+		}
+		throw new NoSuchFieldException(name);
 	}
 
 }

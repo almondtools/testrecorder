@@ -1,10 +1,14 @@
 package net.amygdalum.testrecorder.util;
 
+import static java.util.stream.Collectors.toList;
+import static net.amygdalum.testrecorder.util.GenericComparatorResult.MATCH;
+import static net.amygdalum.testrecorder.util.GenericComparatorResult.MISMATCH;
+import static net.amygdalum.testrecorder.util.GenericComparatorResult.NOT_APPLYING;
 import static net.amygdalum.testrecorder.util.GenericComparison.getValue;
+import static net.amygdalum.testrecorder.util.Types.allFields;
 import static org.hamcrest.Matchers.instanceOf;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.hamcrest.Description;
@@ -39,31 +43,33 @@ public class GenericMatcher extends GenericObject {
 		return (Matcher) new CastingMatcher(to, new InternalsMatcher(clazz.getWrappedClass()));
 	}
 
-	public boolean matches(Object o) {
+	public List<GenericComparison> mismatchesWith(String root, Object o) {
 		WorkSet<GenericComparison> remainder = new WorkSet<>();
 		for (Field field : getGenericFields()) {
-			Field to = findField(field.getName(), o.getClass());
-			if (!GenericComparison.matches(GenericMatcher::matching, this, field, o, to, remainder)) {
-				return false;
-			}
+			remainder.enqueue(GenericComparison.from(root, field.getName(), this, o));
 		}
-		while (remainder.hasMoreElements()) {
-			GenericComparison current = remainder.dequeue();
-			if (!current.eval(GenericMatcher::matching, remainder)) {
-				return false;
-			}
-		}
-		return true;
+		GenericComparison.compare(remainder, GenericMatcher::matching);
+		return remainder.getDone().stream()
+			.filter(done -> done.isMismatch())
+			.collect(toList());
 	}
-	
-	private static boolean matching(Object left, Object right) {
+
+	private static GenericComparatorResult matching(GenericComparison comparison, WorkSet<GenericComparison> todo) {
+		Object left = comparison.getLeft();
+		Object right = comparison.getRight();
+		if (left instanceof RecursiveMatcher) {
+			RecursiveMatcher matcher = (RecursiveMatcher) left;
+			todo.enqueue(matcher.mismatchesWith(comparison.getRoot(), right));
+		}
 		if (left instanceof Matcher<?>) {
 			Matcher<?> matcher = (Matcher<?>) left;
 			if (matcher.matches(right)) {
-				return true;
+				return MATCH;
+			} else {
+				return MISMATCH;
 			}
 		}
-		return false;
+		return NOT_APPLYING;
 	}
 
 	public static <T> Matcher<T> recursive(Class<T> clazz) {
@@ -74,7 +80,7 @@ public class GenericMatcher extends GenericObject {
 		return instanceOf(wrapped.getWrappedClass());
 	}
 
-	private class InternalsMatcher<T> extends TypeSafeMatcher<T> {
+	private class InternalsMatcher<T> extends TypeSafeMatcher<T> implements RecursiveMatcher {
 
 		private Class<T> clazz;
 
@@ -84,54 +90,58 @@ public class GenericMatcher extends GenericObject {
 
 		@Override
 		public void describeTo(Description description) {
-			description.appendText("of class : ").appendValue(clazz.getName()).appendText("\n");
-			description.appendText("with fields:");
-			for (Field field : getGenericFields()) {
+			description.appendText("\n").appendText(clazz.getName()).appendText(" {");
+			for (Field field : allFields(clazz)) {
 				describeField(description, field, GenericMatcher.this);
 			}
+			description.appendText("\n}");
+		}
+
+		@Override
+		public List<GenericComparison> mismatchesWith(String root, Object item) {
+			return GenericMatcher.this.mismatchesWith(root, item);
 		}
 
 		@Override
 		protected boolean matchesSafely(T item) {
 			return clazz == item.getClass()
-				&& GenericMatcher.this.matches(item);
+				&& mismatchesWith(null, item).isEmpty();
 		}
 
 		@Override
 		protected void describeMismatchSafely(T item, Description mismatchDescription) {
-			if (item == null) {
-				mismatchDescription.appendText("is").appendValue(null);
-			} else {
-				mismatchDescription.appendText("of class : ").appendValue(item.getClass().getName()).appendText("\n");
-				mismatchDescription.appendText("with fields:");
-				for (Field field : fields(item.getClass())) {
-					describeField(mismatchDescription, field, item);
+			List<GenericComparison> mismatches = mismatchesWith(null, item);
+			if (!mismatches.isEmpty()) {
+				if (item == null) {
+					mismatchDescription.appendText("is").appendValue(null);
+				} else {
+					mismatchDescription.appendText("\n").appendText(item.getClass().getName()).appendText(" {");
+					for (Field field : allFields(item.getClass())) {
+						describeField(mismatchDescription, field, item);
+					}
+					mismatchDescription.appendText("\n}");
+				}
+				mismatchDescription.appendText("\nfound mismatches at:");
+				for (GenericComparison mismatch : mismatches) {
+					if (!(mismatch.getLeft() instanceof RecursiveMatcher)) {
+						describeMismatch(mismatchDescription, mismatch);
+					}
 				}
 			}
-		}
-
-		private List<Field> fields(Class<?> clazz) {
-			List<Field> fields = new ArrayList<>();
-			while (clazz != null && clazz != Object.class) {
-				for (Field field : clazz.getDeclaredFields()) {
-					fields.add(field);
-				}
-				clazz = clazz.getSuperclass();
-			}
-			return fields;
 		}
 
 		private void describeField(Description description, Field field, Object object) {
 			try {
 				description.appendText("\n\t")
 					.appendText(field.getType().getSimpleName()).appendText(" ")
-					.appendText(field.getName()).appendText(":");
-				Object value = getValue(field, object);
+					.appendText(field.getName()).appendText(": ");
+				Object value = getValue(field.getName(), object);
 				if (value instanceof SelfDescribing) {
 					description.appendDescriptionOf((SelfDescribing) value);
 				} else {
 					description.appendValue(value);
 				}
+				description.appendText(";");
 			} catch (ReflectiveOperationException e) {
 				description.appendText("\n\t")
 					.appendValue(field.getType()).appendText(" ")
@@ -139,9 +149,13 @@ public class GenericMatcher extends GenericObject {
 			}
 		}
 
+		private void describeMismatch(Description description, GenericComparison mismatch) {
+			description.appendText("\n\t").appendText(mismatch.getRoot()).appendText(": ").appendValue(mismatch.getLeft()).appendText(" <=> ").appendValue(mismatch.getRight());
+		}
+
 	}
 
-	private class CastingMatcher<S, T> extends TypeSafeMatcher<S> {
+	private class CastingMatcher<S, T> extends TypeSafeMatcher<S> implements RecursiveMatcher {
 
 		private Class<S> clazz;
 		private Matcher<T> matcher;
@@ -154,6 +168,11 @@ public class GenericMatcher extends GenericObject {
 		@Override
 		public void describeTo(Description description) {
 			description.appendDescriptionOf(matcher);
+		}
+
+		@Override
+		public List<GenericComparison> mismatchesWith(String root, Object item) {
+			return GenericMatcher.this.mismatchesWith(root, item);
 		}
 
 		@Override

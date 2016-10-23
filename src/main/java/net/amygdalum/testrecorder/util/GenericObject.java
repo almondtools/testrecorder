@@ -4,6 +4,7 @@ import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.util.Params.NONE;
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
+import static net.amygdalum.testrecorder.util.Types.getDeclaredField;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -226,11 +227,10 @@ public abstract class GenericObject {
 	}
 
 	public static Field findField(String name, Class<?> clazz) {
-		Field field = Types.getDeclaredField(clazz, name);
-		if (field != null) {
-			return field;
-		} else {
-			throw new GenericObjectException(new NoSuchFieldException(name));
+		try {
+			return getDeclaredField(clazz, name);
+		} catch (NoSuchFieldException e) {
+			throw new GenericObjectException(e);
 		}
 	}
 

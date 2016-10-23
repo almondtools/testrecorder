@@ -17,7 +17,7 @@ import org.hamcrest.StringDescription;
 import org.hamcrest.TypeSafeMatcher;
 import org.hamcrest.core.IsNull;
 
-public class MapMatcher<K,V> extends TypeSafeMatcher<Map<K,V>>{
+public class MapMatcher<K,V> extends TypeSafeMatcher<Map<K,V>> {
 	
 	private Class<K> key;
 	private Class<V> value;

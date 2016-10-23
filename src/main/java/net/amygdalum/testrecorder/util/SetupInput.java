@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.util;
 
 import static net.amygdalum.testrecorder.util.GenericObject.copyArrayValues;
 import static net.amygdalum.testrecorder.util.GenericObject.copyField;
+import static net.amygdalum.testrecorder.util.Types.allFields;
 
 import java.lang.reflect.Field;
 import java.util.LinkedList;
@@ -27,7 +28,7 @@ public class SetupInput implements InputProvider {
 		sync(providedInput.args, args);
 		return providedInput.result;
 	}
-	
+
 	private void sync(Object[] fromArgs, Object[] toArgs) {
 		for (int i = 0; i < toArgs.length; i++) {
 			sync(fromArgs[i], toArgs[i]);
@@ -43,11 +44,8 @@ public class SetupInput implements InputProvider {
 			copyArrayValues(from, to);
 			return;
 		}
-		while (current != null && current != Object.class) {
-			for (Field field : current.getDeclaredFields()) {
-				copyField(field, from, to);
-			}
-			current = current.getSuperclass();
+		for (Field field : allFields(current)) {
+			copyField(field, from, to);
 		}
 	}
 
@@ -67,15 +65,15 @@ public class SetupInput implements InputProvider {
 
 		public void verify(Class<?> clazz, String method, Object[] args) {
 			if (!this.clazz.equals(clazz)) {
-				throw new AssertionError("expected output "+ this.clazz.getName() + ", but found " + clazz.getName());
+				throw new AssertionError("expected output " + this.clazz.getName() + ", but found " + clazz.getName());
 			}
 			if (!this.method.equals(method)) {
-				throw new AssertionError("expected output "+ this.method + ", but found " + method);
+				throw new AssertionError("expected output " + this.method + ", but found " + method);
 			}
 			if (this.args.length != args.length) {
-				throw new AssertionError("expected output "+ this.args.length + " arguments, but found " + args.length + " arguments");
+				throw new AssertionError("expected output " + this.args.length + " arguments, but found " + args.length + " arguments");
 			}
 		}
-		
+
 	}
 }
