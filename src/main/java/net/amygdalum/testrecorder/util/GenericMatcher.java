@@ -136,11 +136,7 @@ public class GenericMatcher extends GenericObject {
 					.appendText(field.getType().getSimpleName()).appendText(" ")
 					.appendText(field.getName()).appendText(": ");
 				Object value = getValue(field.getName(), object);
-				if (value instanceof SelfDescribing) {
-					description.appendDescriptionOf((SelfDescribing) value);
-				} else {
-					description.appendValue(value);
-				}
+				describe(description, value);
 				description.appendText(";");
 			} catch (ReflectiveOperationException e) {
 				description.appendText("\n\t")
@@ -150,7 +146,19 @@ public class GenericMatcher extends GenericObject {
 		}
 
 		private void describeMismatch(Description description, GenericComparison mismatch) {
-			description.appendText("\n\t").appendText(mismatch.getRoot()).appendText(": ").appendValue(mismatch.getLeft()).appendText(" <=> ").appendValue(mismatch.getRight());
+			description.appendText("\n\t")
+				.appendText(mismatch.getRoot()).appendText(": ");
+			describe(description, mismatch.getLeft());
+			description.appendText(" != ");
+			describe(description, mismatch.getRight());
+		}
+
+		public void describe(Description description, Object value) {
+			if (value instanceof SelfDescribing) {
+				description.appendDescriptionOf((SelfDescribing) value);
+			} else {
+				description.appendValue(value);
+			}
 		}
 
 	}

@@ -6,6 +6,13 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
+import net.amygdalum.testrecorder.util.testobjects.Simple;
+import net.amygdalum.testrecorder.util.testobjects.SimpleExceptionConstructor;
+import net.amygdalum.testrecorder.util.testobjects.SimpleExceptionStandardConstructor;
+import net.amygdalum.testrecorder.util.testobjects.SimpleNoDefaultConstructor;
+import net.amygdalum.testrecorder.util.testobjects.SimpleOnlyExceptionConstructor;
+import net.amygdalum.testrecorder.util.testobjects.SimplePrivateConstructor;
+
 public class GenericObjectGeneratorTest {
 
 	@Test
@@ -17,88 +24,32 @@ public class GenericObjectGeneratorTest {
 
 	@Test
 	public void testCreateNoDefaultConstructorClass() throws Exception {
-		NoDefaultConstructor object = new GenericObjectGenerator<>(NoDefaultConstructor.class).create(new TestDataGenerator());
+		SimpleNoDefaultConstructor object = new GenericObjectGenerator<>(SimpleNoDefaultConstructor.class).create(new TestDataGenerator());
 
 		assertThat(object, notNullValue());
 	}
 
 	@Test
 	public void testCreatePrivateConstructorClass() throws Exception {
-		PrivateConstructor object = new GenericObjectGenerator<>(PrivateConstructor.class).create(new TestDataGenerator());
+		SimplePrivateConstructor object = new GenericObjectGenerator<>(SimplePrivateConstructor.class).create(new TestDataGenerator());
 		assertThat(object, notNullValue());
 	}
 
 	@Test
 	public void testCreateExceptionConstructorClass() throws Exception {
-		ExceptionConstructor object = new GenericObjectGenerator<>(ExceptionConstructor.class).create(new TestDataGenerator());
+		SimpleExceptionConstructor object = new GenericObjectGenerator<>(SimpleExceptionConstructor.class).create(new TestDataGenerator());
 		assertThat(object, notNullValue());
 	}
 
 	@Test
 	public void testCreateExceptionStandardConstructorClass() throws Exception {
-		ExceptionStandardConstructor object = new GenericObjectGenerator<>(ExceptionStandardConstructor.class).create(new TestDataGenerator());
+		SimpleExceptionStandardConstructor object = new GenericObjectGenerator<>(SimpleExceptionStandardConstructor.class).create(new TestDataGenerator());
 		assertThat(object, notNullValue());
 	}
 
 	@Test
 	public void testCreateOnlyExceptionConstructorClass() throws Exception {
-		OnlyExceptionConstructor object = new GenericObjectGenerator<>(OnlyExceptionConstructor.class).create(new TestDataGenerator());
+		SimpleOnlyExceptionConstructor object = new GenericObjectGenerator<>(SimpleOnlyExceptionConstructor.class).create(new TestDataGenerator());
 		assertThat(object, nullValue());
-	}
-
-	@SuppressWarnings("unused")
-	public static class Simple {
-		
-		private String s;
-
-		public Simple() {
-		}
-
-	}
-
-	public static class PrivateConstructor {
-
-		private PrivateConstructor() {
-		}
-
-	}
-
-	@SuppressWarnings("unused")
-	public static class NoDefaultConstructor {
-
-		private boolean value;
-
-		public NoDefaultConstructor(boolean value) {
-			this.value = value;
-		}
-
-	}
-
-	public static class ExceptionStandardConstructor {
-
-		public ExceptionStandardConstructor() {
-			throw new RuntimeException();
-		}
-
-		public ExceptionStandardConstructor(int value) {
-		}
-
-	}
-
-	public static class ExceptionConstructor {
-
-		public ExceptionConstructor(boolean value) {
-			throw new RuntimeException();
-		}
-
-		public ExceptionConstructor(int value) {
-		}
-	}
-
-	public static class OnlyExceptionConstructor {
-
-		public OnlyExceptionConstructor() {
-			throw new RuntimeException();
-		}
 	}
 }
