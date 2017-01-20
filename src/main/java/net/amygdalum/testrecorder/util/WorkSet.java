@@ -8,19 +8,19 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Queue;
 import java.util.Set;
 
 public class WorkSet<T> {
 
 	private Set<T> done;
-	private List<T> elements;
+	private Queue<T> elements;
 
 	public WorkSet() {
 		this.done = new LinkedHashSet<T>();
 		this.elements = new LinkedList<T>();
 	}
-	
+
 	@SafeVarargs
 	public WorkSet(T... element) {
 		this.done = new LinkedHashSet<T>();
@@ -58,28 +58,22 @@ public class WorkSet<T> {
 	}
 
 	public T dequeue() {
-		if (elements.isEmpty()) {
-			throw new NoSuchElementException();
-		}
-		T element = elements.remove(0);
+		T element = elements.remove();
 		done.add(element);
 		return element;
 	}
 
 	public List<T> dequeueAll() {
-		List<T> result = new ArrayList<>();
-		while (!elements.isEmpty()) {
-			T element = elements.remove(0);
-			done.add(element);
-			result.add(element);
-		}
+		done.addAll(elements);
+		List<T> result = new ArrayList<>(elements);
+		elements.clear();
 		return result;
 	}
 
 	public List<T> getDone() {
 		return new ArrayList<>(done);
 	}
-	
+
 	@Override
 	public String toString() {
 		if (done.isEmpty()) {
