@@ -21,6 +21,10 @@ public class NestedEnum {
 		return enumValue.name();
 	}
 	
+	public Nested unwrap() {
+		return enumValue;
+	}
+
 	private static enum Nested {
 		FIRST, SECOND;
 	}

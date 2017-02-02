@@ -8,4 +8,14 @@ public class NestedEnums {
 	public void inc(NestedEnum nestedEnum) {
 		nestedEnum.inc();
 	}
+
+	@Snapshot
+	public String name(Enum<?> unknownEnum) {
+		return unknownEnum.name();
+	}
+
+	@Snapshot
+	public String toString(Object o) {
+		return o.toString();
+	}
 }
