@@ -59,8 +59,8 @@ public class SetupGeneratorsTest {
 		
 		Computation result = setupCode.visitField(new SerializedField(ListContainer.class, "list", parameterized(List.class,null, String.class), value));
 		
-		assertThat(result.getStatements().toString(), containsPattern("Wrapped hiddenList2 = new GenericObject*"));
-		assertThat(result.getValue(), equalTo("List<String> list = (List<String>) hiddenList2.value();"));
+		assertThat(result.getStatements().toString(), containsPattern("List hiddenList2 = (List<String>) new GenericObject*.as(clazz(*HiddenList*)*.value()"));
+		assertThat(result.getValue(), equalTo("List<String> list = hiddenList2;"));
 	}
 
 	@Test

@@ -18,7 +18,6 @@ import org.hamcrest.Matchers;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.util.EnumMatcher;
-import net.amygdalum.testrecorder.util.Types;
 import net.amygdalum.testrecorder.util.WideningMatcher;
 import net.amygdalum.testrecorder.values.SerializedEnum;
 
@@ -40,7 +39,7 @@ public class DefaultEnumAdaptor extends DefaultMatcherGenerator<SerializedEnum> 
 		types.registerType(value.getType());
 
 		if (types.isHidden(value.getType())) {
-			if (!Enum.class.isAssignableFrom(Types.baseType(value.getResultType()))) {
+			if (!Enum.class.isAssignableFrom(baseType(value.getResultType()))) {
 				types.staticImport(WideningMatcher.class, "widening");
 			}
 			types.staticImport(EnumMatcher.class, "matchingEnum");
@@ -50,7 +49,7 @@ public class DefaultEnumAdaptor extends DefaultMatcherGenerator<SerializedEnum> 
 
 		if (types.isHidden(value.getType())) {
 			String enumMatcher = enumMatcher(asLiteral(value.getName()));
-			if (!Enum.class.isAssignableFrom(Types.baseType(value.getResultType()))) {
+			if (!Enum.class.isAssignableFrom(baseType(value.getResultType()))) {
 				enumMatcher = widening(enumMatcher); 
 			}
 			return new Computation(enumMatcher, parameterized(Matcher.class, null, wildcardExtends(Enum.class)), emptyList());

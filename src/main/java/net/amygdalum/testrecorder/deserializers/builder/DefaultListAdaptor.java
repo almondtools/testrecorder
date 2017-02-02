@@ -6,6 +6,7 @@ import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVari
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethodStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.cast;
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
+import static net.amygdalum.testrecorder.util.Types.baseType;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -15,7 +16,6 @@ import java.util.Queue;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
-import net.amygdalum.testrecorder.util.Types;
 import net.amygdalum.testrecorder.values.SerializedList;
 
 public class DefaultListAdaptor extends DefaultSetupGenerator<SerializedList> implements SetupGenerator<SerializedList> {
@@ -69,7 +69,7 @@ public class DefaultListAdaptor extends DefaultSetupGenerator<SerializedList> im
 	}
 
 	private Class<?> listClassFor(Type type) {
-		Class<?> clazz = Types.baseType(type);
+		Class<?> clazz = baseType(type);
 		for (Class<?> listClass : LIST_CLASSES) {
 			if (listClass.isAssignableFrom(clazz)) {
 				return listClass;

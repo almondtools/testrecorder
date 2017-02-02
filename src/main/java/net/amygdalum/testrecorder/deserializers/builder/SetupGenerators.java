@@ -4,6 +4,7 @@ import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVari
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
 import static net.amygdalum.testrecorder.deserializers.Templates.cast;
 import static net.amygdalum.testrecorder.util.Types.assignableTypes;
+import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.boxingEquivalentTypes;
 
 import java.lang.reflect.Type;
@@ -18,6 +19,7 @@ import net.amygdalum.testrecorder.SerializedImmutableType;
 import net.amygdalum.testrecorder.SerializedReferenceType;
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.SerializedValueType;
+import net.amygdalum.testrecorder.Wrapped;
 import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
@@ -54,14 +56,14 @@ public class SetupGenerators implements Deserializer<Computation> {
 		this.defined = new IdentityHashMap<>();
 	}
 
-	public String adapt(String value, Type resultType, Type type) {
-		if (types.isHidden(type) && !types.isHidden(resultType)) {
-			return cast(types.getSimpleName(resultType), callMethod(value, "value"));
-		} else if (!assignableTypes(resultType, type) && !boxingEquivalentTypes(resultType, type)) {
-			return cast(types.getSimpleName(resultType), value);
-		} else {
-			return value;
+	public String adapt(String expression, Type resultType, Type type) {
+		if (baseType(resultType) != Wrapped.class && types.isHidden(type)) {
+			expression = callMethod(expression, "value");
 		}
+		if ((!assignableTypes(resultType, type) || types.isHidden(type)) && !boxingEquivalentTypes(resultType, type) && baseType(resultType) != Wrapped.class) {
+			expression = cast(types.getSimpleName(resultType), expression);
+		}
+		return expression;
 	}
 
 	public TypeManager getTypes() {
@@ -106,13 +108,17 @@ public class SetupGenerators implements Deserializer<Computation> {
 		Type fieldResultType = types.wrapHidden(fieldType);
 		types.registerTypes(fieldType, resultType, fieldResultType);
 
-		Computation valueTemplate = field.getValue().accept(this);
+		SerializedValue value = field.getValue();
+		if (value instanceof SerializedReferenceType) {
+			((SerializedReferenceType) value).setResultType(fieldResultType);
+		}
+		Computation valueTemplate = value.accept(this);
 
 		List<String> statements = valueTemplate.getStatements();
 
-		String value = adapt(valueTemplate.getValue(), fieldType, resultType);
+		String expression = valueTemplate.getValue();
 
-		String assignField = assignLocalVariableStatement(types.getSimpleName(fieldResultType), field.getName(), value);
+		String assignField = assignLocalVariableStatement(types.getSimpleName(fieldResultType), field.getName(), expression);
 		return new Computation(assignField, null, statements);
 	}
 

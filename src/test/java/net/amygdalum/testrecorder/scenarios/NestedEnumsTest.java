@@ -56,7 +56,6 @@ public class NestedEnumsTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(NestedEnums.class), hasSize(1));
-		System.out.println(testGenerator.testsFor(NestedEnums.class));
 		assertThat(testGenerator.renderTest(NestedEnums.class), compiles(NestedEnums.class));
 		assertThat(testGenerator.renderTest(NestedEnums.class), testsRun(NestedEnums.class));
 	}
