@@ -8,6 +8,7 @@ import static org.junit.Assert.assertThat;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.Timeout;
@@ -17,12 +18,13 @@ import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
 
+@Ignore
 @RunWith(InstrumentedClassLoaderRunner.class)
 @Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.LargeIntArrays", "net.amygdalum.testrecorder.scenarios.LargeObjectArrays" })
 public class LargeArraysTest {
 
 	@Rule
-	public Timeout globalTimeout= new Timeout(30, TimeUnit.SECONDS);
+	public Timeout timeout= new Timeout(10, TimeUnit.SECONDS);
 	
 	@Before
 	public void before() throws Exception {
