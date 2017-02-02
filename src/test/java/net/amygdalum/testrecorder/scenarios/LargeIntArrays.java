@@ -1,28 +1,26 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import java.util.Random;
-
 import net.amygdalum.testrecorder.Snapshot;
 
-public class LargeArrays {
+public class LargeIntArrays {
 	
 	private int[][] entries;
 
-	public LargeArrays(int entries) {
+	public LargeIntArrays(int entries) {
 		this.entries = initInts(entries);
 	}
 
-	public LargeArrays() {
+	public LargeIntArrays() {
 		this.entries = new int[0][0];
 	}
 
 	@Snapshot
 	public int[][] initInts(int entries) {
-		Random random = new Random();
+		int counter = 0;
 		int[][] is = new int[entries][entries];
 		for (int i = 0; i < is.length; i++) {
 			for (int j = 0; j < is[i].length; j++) {
-				is[i][j] = random.nextInt();
+				is[i][j] = counter++;
 			}
 		}
 		return is;
