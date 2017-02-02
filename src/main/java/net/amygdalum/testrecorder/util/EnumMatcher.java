@@ -22,7 +22,7 @@ public class EnumMatcher extends TypeSafeMatcher<Enum<?>> {
 	}
 
 	public static EnumMatcher matchingEnum(String name) {
-		return  new EnumMatcher(name);
+		return new EnumMatcher(name);
 	}
-	
+
 }

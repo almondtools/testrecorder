@@ -33,6 +33,7 @@ public final class Templates {
 	private static final String GENERIC_TYPE = "$type$<$typeParam; separator=\", \"$>";
 
 	private static final String GENERIC_OBJECT_MATCHER = "new GenericMatcher() {\n<fields; separator=\"\\n\">\n}.matching(<type : {type | <type>}; separator=\", \">)";
+	private static final String WIDENING_MATCHER = "widening(<value>)";
 	private static final String ENUM_MATCHER = "matchingEnum(<value>)";
 	private static final String RECURSIVE_MATCHER = "recursive(<type>)";
 	private static final String CONTAINS_IN_ORDER_MATCHER = "containsInOrder(<type>.class, <values; separator=\", \">)";
@@ -331,6 +332,13 @@ public final class Templates {
 
 	public static String enumMatcher(String value) {
 		ST matcher = new ST(ENUM_MATCHER);
+		matcher.add("value", value);
+
+		return matcher.render();
+	}
+
+	public static String widening(String value) {
+		ST matcher = new ST(WIDENING_MATCHER);
 		matcher.add("value", value);
 
 		return matcher.render();

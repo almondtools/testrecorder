@@ -58,6 +58,18 @@ public class DefaultEnumAdaptorTest {
 		assertThat(result.getValue(), equalTo("matchingEnum(\"VALUE2\")"));
 	}
 
+	@Test
+	public void testTryDeserializeHiddenWithGenericResultType() throws Exception {
+		SerializedEnum value = new SerializedEnum(MyHiddenEnum.class).withResult(Object.class);
+		value.setName("VALUE2");
+		MatcherGenerators generator = new MatcherGenerators(getClass());
+
+		Computation result = adaptor.tryDeserialize(value, generator);
+
+		assertThat(result.getStatements(), empty());
+		assertThat(result.getValue(), equalTo("widening(matchingEnum(\"VALUE2\"))"));
+	}
+
 	public static enum MyEnum {
 		VALUE1, VALUE2;
 	}
