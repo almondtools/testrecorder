@@ -71,8 +71,8 @@ public class SerializedInput {
 	public int hashCode() {
 		return clazz.hashCode() * 31
 			+ name.hashCode() * 19
-			+ resultType.hashCode() * 7
-			+ result.hashCode() * 3
+			+ (resultType == null ?  0 : resultType.hashCode() * 7)
+			+ (result == null ? 0 : result.hashCode() * 3)
 			+ Arrays.hashCode(types) * 17
 			+ Arrays.hashCode(values);
 	}

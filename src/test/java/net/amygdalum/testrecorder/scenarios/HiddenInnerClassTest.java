@@ -33,7 +33,6 @@ public class HiddenInnerClassTest {
 		assertThat(object.toString(), equalTo("hidden name"));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		System.out.println(testGenerator.testsFor(HiddenInnerClass.class));
 		assertThat(testGenerator.renderTest(HiddenInnerClass.class), compiles(HiddenInnerClass.class));
 		assertThat(testGenerator.renderTest(HiddenInnerClass.class), testsRun(HiddenInnerClass.class));
 	}
