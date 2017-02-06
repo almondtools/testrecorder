@@ -29,6 +29,7 @@ import static net.amygdalum.testrecorder.util.Types.isPrimitive;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -78,6 +79,7 @@ public class TestGenerator implements SnapshotConsumer {
 	private static final String TEST_FILE = "package <package>;\n\n"
 		+ "<imports: {pkg | import <pkg>;\n}>"
 		+ "\n\n\n"
+		+ "@SuppressWarnings(\"unused\")\n"
 		+ "<runner>"
 		+ "public class <className> {\n"
 		+ "\n"
@@ -174,7 +176,7 @@ public class TestGenerator implements SnapshotConsumer {
 			try {
 				Path testfile = locateTestFile(dir, clazz);
 				System.out.println("writing tests to " + testfile);
-				try (Writer writer = Files.newBufferedWriter(testfile, CREATE, WRITE, TRUNCATE_EXISTING)) {
+				try (Writer writer = Files.newBufferedWriter(testfile, StandardCharsets.UTF_8, CREATE, WRITE, TRUNCATE_EXISTING)) {
 					writer.write(rendered);
 				}
 			} catch (IOException e) {
