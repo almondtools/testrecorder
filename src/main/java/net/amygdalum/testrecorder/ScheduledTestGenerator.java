@@ -103,7 +103,7 @@ public class ScheduledTestGenerator extends TestGenerator {
 	}
 
 	@Override
-	public String computeClassName(Class<?> clazz) {
+	public String computeClassName(ClassDescriptor clazz) {
 		if (classNameTemplate == null) {
 			return super.computeClassName(clazz);
 		}

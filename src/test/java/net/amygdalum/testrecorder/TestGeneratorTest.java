@@ -219,7 +219,7 @@ public class TestGeneratorTest {
 
 	@Test
 	public void testComputeClassName() throws Exception {
-		assertThat(testGenerator.computeClassName(MyClass.class), equalTo("MyClassRecordedTest"));
+		assertThat(testGenerator.computeClassName(ClassDescriptor.of(MyClass.class)), equalTo("MyClassRecordedTest"));
 	}
 
 	@Test

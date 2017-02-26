@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.ByteCode.pushAsArray;
 import static net.amygdalum.testrecorder.ByteCode.range;
 import static net.amygdalum.testrecorder.ByteCode.unboxPrimitives;
+import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
@@ -185,9 +186,11 @@ public class IORecorderClassLoader extends AbstractInstrumentedClassLoader {
 	}
 
 	private InsnList readInput(ClassNode classNode, MethodNode methodNode) {
+		int localVariableIndex = ((methodNode.access & ACC_STATIC) == 0) ? 1 : 0; 
+
 		Type returnType = Type.getReturnType(methodNode.desc);
 		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
-		List<LocalVariableNode> arguments = range(methodNode.localVariables, 1, argumentTypes.length);
+		List<LocalVariableNode> arguments = range(methodNode.localVariables, localVariableIndex, argumentTypes.length);
 
 		InsnList insnList = new InsnList();
 
@@ -294,8 +297,10 @@ public class IORecorderClassLoader extends AbstractInstrumentedClassLoader {
 	}
 
 	private InsnList notifyOutput(ClassNode classNode, MethodNode methodNode) {
+		int localVariableIndex = ((methodNode.access & ACC_STATIC) == 0) ? 1 : 0; 
+
 		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
-		List<LocalVariableNode> arguments = range(methodNode.localVariables, 1, argumentTypes.length);
+		List<LocalVariableNode> arguments = range(methodNode.localVariables, localVariableIndex, argumentTypes.length);
 
 		InsnList insnList = new InsnList();
 

@@ -19,7 +19,7 @@ import net.amygdalum.testrecorder.values.SerializedOutput;
 public class SnapshotProcess {
 
 	public static final SnapshotProcess PASSIVE = passiveProcess();
-	
+
 	private ExecutorService executor;
 	private long timeoutInMillis;
 	private ContextSnapshot snapshot;
@@ -30,7 +30,7 @@ public class SnapshotProcess {
 
 	private SnapshotProcess() {
 	}
-	
+
 	public SnapshotProcess(ExecutorService executor, long timeoutInMillis, ContextSnapshotFactory factory) {
 		this.executor = executor;
 		this.timeoutInMillis = timeoutInMillis;
@@ -40,11 +40,11 @@ public class SnapshotProcess {
 		this.input = new ArrayList<>();
 		this.output = new ArrayList<>();
 	}
-	
+
 	public ContextSnapshot getSnapshot() {
 		return snapshot;
 	}
-	
+
 	public void inputVariables(Class<?> clazz, String method, Type resultType, Object result, Type[] paramTypes, Object[] args) {
 		input.add(new SerializedInput(clazz, method, resultType, facade.serialize(resultType, result), paramTypes, facade.serialize(paramTypes, args)));
 	}
@@ -59,7 +59,9 @@ public class SnapshotProcess {
 
 	public void setupVariables(String signature, Object self, Object... args) {
 		modify(snapshot -> {
-			snapshot.setSetupThis(facade.serialize(self.getClass(), self));
+			if (self != null) {
+				snapshot.setSetupThis(facade.serialize(self.getClass(), self));
+			}
 			snapshot.setSetupArgs(facade.serialize(snapshot.getArgumentTypes(), args));
 			snapshot.setSetupGlobals(globals.stream()
 				.map(field -> facade.serialize(field, null))
@@ -70,7 +72,9 @@ public class SnapshotProcess {
 
 	public void expectVariables(Object self, Object result, Object... args) {
 		modify(snapshot -> {
-			snapshot.setExpectThis(facade.serialize(self.getClass(), self));
+			if (self != null) {
+				snapshot.setExpectThis(facade.serialize(self.getClass(), self));
+			}
 			snapshot.setExpectResult(facade.serialize(snapshot.getResultType(), result));
 			snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
 			snapshot.setExpectGlobals(globals.stream()
@@ -82,7 +86,9 @@ public class SnapshotProcess {
 
 	public void expectVariables(Object self, Object... args) {
 		modify(snapshot -> {
-			snapshot.setExpectThis(facade.serialize(self.getClass(), self));
+			if (self != null) {
+				snapshot.setExpectThis(facade.serialize(self.getClass(), self));
+			}
 			snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
 			snapshot.setExpectGlobals(globals.stream()
 				.map(field -> facade.serialize(field, null))
@@ -90,10 +96,12 @@ public class SnapshotProcess {
 			snapshot.setExpectOutput(output);
 		});
 	}
-	
+
 	public void throwVariables(Object self, Throwable throwable, Object[] args) {
 		modify(snapshot -> {
-			snapshot.setExpectThis(facade.serialize(self.getClass(), self));
+			if (self != null) {
+				snapshot.setExpectThis(facade.serialize(self.getClass(), self));
+			}
 			snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
 			snapshot.setExpectException(facade.serialize(throwable.getClass(), throwable));
 			snapshot.setExpectGlobals(globals.stream()
@@ -120,31 +128,31 @@ public class SnapshotProcess {
 			@Override
 			public void inputVariables(Class<?> clazz, String method, Type resultType, Object result, Type[] paramTypes, Object[] args) {
 			}
-			
+
 			@Override
 			public void inputVariables(Class<?> clazz, String method, Type[] paramTypes, Object[] args) {
 			}
-			
+
 			@Override
 			public void outputVariables(Class<?> clazz, String method, Type[] paramTypes, Object[] args) {
 			}
-			
+
 			@Override
 			public void setupVariables(String signature, Object self, Object... args) {
 			}
-			
+
 			@Override
 			public void expectVariables(Object self, Object result, Object... args) {
 			}
-			
+
 			@Override
 			public void expectVariables(Object self, Object... args) {
 			}
-			
+
 			@Override
 			public void throwVariables(Object self, Throwable throwable, Object[] args) {
 			}
-			
+
 			@Override
 			public ContextSnapshot getSnapshot() {
 				return ContextSnapshot.INVALID;

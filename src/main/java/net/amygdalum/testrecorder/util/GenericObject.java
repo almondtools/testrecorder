@@ -136,6 +136,8 @@ public abstract class GenericObject {
 		} else if (clazz.isInterface()) {
 			return newProxy(clazz);
 		} else {
+			//TODO write test for enum in constructor
+			//TODO write test for enum with nested self reference in constructor
 			return newInstance(clazz);
 		}
 	}

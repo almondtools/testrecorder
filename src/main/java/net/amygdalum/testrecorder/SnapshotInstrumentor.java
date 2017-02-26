@@ -11,6 +11,7 @@ import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_ANNOTATION;
 import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
+import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.DUP;
@@ -307,14 +308,20 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	}
 
 	private InsnList setupVariables(ClassNode classNode, MethodNode methodNode) {
+		int localVariableIndex = isStatic(methodNode) ? 0 : 1; 
+
 		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
-		List<LocalVariableNode> arguments = range(methodNode.localVariables, 1, argumentTypes.length);
+		List<LocalVariableNode> arguments = range(methodNode.localVariables, localVariableIndex, argumentTypes.length);
 
 		InsnList insnList = new InsnList();
 
 		insnList.add(new FieldInsnNode(GETSTATIC, SnapshotManager_name, SNAPSHOT_MANAGER_FIELD_NAME, SnaphotManager_descriptor));
 
-		insnList.add(new VarInsnNode(ALOAD, 0));
+		if (isStatic(methodNode)) {
+			insnList.add(new InsnNode(ACONST_NULL));
+		} else {
+			insnList.add(new VarInsnNode(ALOAD, 0));
+		}
 
 		insnList.add(new LdcInsnNode(keySignature(classNode, methodNode)));
 
@@ -325,10 +332,16 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		return insnList;
 	}
 
+	private boolean isStatic(MethodNode methodNode) {
+		return (methodNode.access & ACC_STATIC) != 0;
+	}
+
 	private InsnList expectVariables(ClassNode classNode, MethodNode methodNode) {
+		int localVariableIndex = isStatic(methodNode) ? 0 : 1; 
+
 		Type returnType = Type.getReturnType(methodNode.desc);
 		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
-		List<LocalVariableNode> arguments = range(methodNode.localVariables, 1, argumentTypes.length);
+		List<LocalVariableNode> arguments = range(methodNode.localVariables, localVariableIndex, argumentTypes.length);
 
 		InsnList insnList = new InsnList();
 		int newLocal = methodNode.maxLocals;
@@ -339,7 +352,11 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 		insnList.add(new FieldInsnNode(GETSTATIC, SnapshotManager_name, SNAPSHOT_MANAGER_FIELD_NAME, SnaphotManager_descriptor));
 
-		insnList.add(new VarInsnNode(ALOAD, 0));
+		if (isStatic(methodNode)) {
+			insnList.add(new InsnNode(ACONST_NULL));
+		} else {
+			insnList.add(new VarInsnNode(ALOAD, 0));
+		}
 
 		if (returnType.getSize() > 0) {
 			insnList.add(recallLocal(newLocal));
@@ -356,8 +373,10 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	}
 
 	private InsnList throwVariables(ClassNode classNode, MethodNode methodNode) {
+		int localVariableIndex = isStatic(methodNode) ? 0 : 1; 
+
 		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
-		List<LocalVariableNode> arguments = range(methodNode.localVariables, 1, argumentTypes.length);
+		List<LocalVariableNode> arguments = range(methodNode.localVariables, localVariableIndex, argumentTypes.length);
 
 		InsnList insnList = new InsnList();
 
@@ -367,7 +386,11 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 		insnList.add(new InsnNode(SWAP));
 
-		insnList.add(new VarInsnNode(ALOAD, 0));
+		if (isStatic(methodNode)) {
+			insnList.add(new InsnNode(ACONST_NULL));
+		} else {
+			insnList.add(new VarInsnNode(ALOAD, 0));
+		}
 
 		insnList.add(new InsnNode(SWAP));
 
@@ -379,9 +402,11 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	}
 
 	private InsnList notifyInput(ClassNode classNode, MethodNode methodNode) {
+		int localVariableIndex = isStatic(methodNode) ? 0 : 1; 
+
 		Type returnType = Type.getReturnType(methodNode.desc);
 		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
-		List<LocalVariableNode> arguments = range(methodNode.localVariables, 1, argumentTypes.length);
+		List<LocalVariableNode> arguments = range(methodNode.localVariables, localVariableIndex, argumentTypes.length);
 
 		InsnList insnList = new InsnList();
 		int newLocal = methodNode.maxLocals;
@@ -419,8 +444,10 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	}
 
 	private InsnList notifyOutput(ClassNode classNode, MethodNode methodNode) {
+		int localVariableIndex = isStatic(methodNode) ? 0 : 1; 
+
 		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
-		List<LocalVariableNode> arguments = range(methodNode.localVariables, 1, argumentTypes.length);
+		List<LocalVariableNode> arguments = range(methodNode.localVariables, localVariableIndex, argumentTypes.length);
 
 		InsnList insnList = new InsnList();
 

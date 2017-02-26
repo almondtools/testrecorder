@@ -14,8 +14,8 @@ public class TestGeneratorContext {
 	private Set<String> tests;
 
 	
-	public TestGeneratorContext(Class<?> clazz) {
-		this.types = new TypeManager(clazz.getPackage().getName());
+	public TestGeneratorContext(ClassDescriptor key) {
+		this.types = new TypeManager(key.getPackage());
 		this.tests = new LinkedHashSet<>();
 
 		types.registerTypes(Test.class);

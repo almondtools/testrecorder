@@ -68,7 +68,11 @@ public class ContextSnapshot {
 	}
 
 	public Type getThisType() {
-		return setupThis.getType();
+		if (setupThis != null) {
+			return setupThis.getType();
+		} else {
+			return declaringClass;
+		}
 	}
 
 	public SerializedValue getSetupThis() {

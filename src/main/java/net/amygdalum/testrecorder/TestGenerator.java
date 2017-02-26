@@ -112,7 +112,7 @@ public class TestGenerator implements SnapshotConsumer {
 	private ExecutorService executor;
 	private DeserializerFactory setup;
 	private DeserializerFactory matcher;
-	private Map<Class<?>, TestGeneratorContext> tests;
+	private Map<ClassDescriptor, TestGeneratorContext> tests;
 	private Set<String> fields;
 	private Set<String> inputClasses;
 	private Set<String> outputClasses;
@@ -155,7 +155,8 @@ public class TestGenerator implements SnapshotConsumer {
 	public synchronized void accept(ContextSnapshot snapshot) {
 		executor.submit(() -> {
 			try {
-				TestGeneratorContext context = tests.computeIfAbsent(baseType(snapshot.getThisType()), key -> new TestGeneratorContext(key));
+				ClassDescriptor baseType = ClassDescriptor.of(baseType(snapshot.getThisType()));
+				TestGeneratorContext context = tests.computeIfAbsent(baseType, key -> new TestGeneratorContext(key));
 				MethodGenerator methodGenerator = new MethodGenerator(snapshot, context)
 					.generateArrange()
 					.generateAct()
@@ -169,7 +170,7 @@ public class TestGenerator implements SnapshotConsumer {
 	}
 
 	public void writeResults(Path dir) {
-		for (Class<?> clazz : tests.keySet()) {
+		for (ClassDescriptor clazz : tests.keySet()) {
 
 			String rendered = renderTest(clazz);
 
@@ -192,8 +193,8 @@ public class TestGenerator implements SnapshotConsumer {
 		this.outputClasses = new LinkedHashSet<>();
 	}
 
-	private Path locateTestFile(Path dir, Class<?> clazz) throws IOException {
-		String pkg = clazz.getPackage().getName();
+	private Path locateTestFile(Path dir, ClassDescriptor clazz) throws IOException {
+		String pkg = clazz.getPackage();
 		String className = computeClassName(clazz);
 		Path testpackage = dir.resolve(pkg.replace('.', '/'));
 
@@ -203,15 +204,23 @@ public class TestGenerator implements SnapshotConsumer {
 	}
 
 	public Set<String> testsFor(Class<?> clazz) {
+		return testsFor(ClassDescriptor.of(clazz));
+	}
+
+	public Set<String> testsFor(ClassDescriptor clazz) {
 		TestGeneratorContext context = getContext(clazz);
 		return context.getTests();
 	}
 
-	public TestGeneratorContext getContext(Class<?> clazz) {
+	public TestGeneratorContext getContext(ClassDescriptor clazz) {
 		return tests.getOrDefault(clazz, new TestGeneratorContext(clazz));
 	}
 
 	public String renderTest(Class<?> clazz) {
+		return renderTest(ClassDescriptor.of(clazz));
+	}
+
+	public String renderTest(ClassDescriptor clazz) {
 		TestGeneratorContext context = getContext(clazz);
 
 		ST file = new ST(TEST_FILE);
@@ -265,7 +274,7 @@ public class TestGenerator implements SnapshotConsumer {
 		return generateBefore(asList(initStmt));
 	}
 
-	public String computeClassName(Class<?> clazz) {
+	public String computeClassName(ClassDescriptor clazz) {
 		return clazz.getSimpleName() + RECORDED_TEST;
 	}
 
@@ -392,8 +401,9 @@ public class TestGenerator implements SnapshotConsumer {
 			}
 
 			Deserializer<Computation> setupCode = setup.create(locals, types);
-			Computation setupThis = snapshot.getSetupThis().accept(setupCode);
-
+			Computation setupThis = snapshot.getSetupThis() != null
+				? snapshot.getSetupThis().accept(setupCode)
+				: new Computation(types.getBestName(snapshot.getThisType()), null, true);
 			statements.addAll(setupThis.getStatements());
 
 			List<Computation> setupArgs = Stream.of(snapshot.getSetupArgs())
@@ -484,7 +494,7 @@ public class TestGenerator implements SnapshotConsumer {
 				statements.addAll(expectResult);
 			}
 
-			List<String> expectThis = Optional.of(snapshot.getExpectThis())
+			List<String> expectThis = Optional.ofNullable(snapshot.getExpectThis())
 				.filter(o -> !o.equals(snapshot.getSetupThis()))
 				.map(o -> o.accept(matcher.create(locals, types)))
 				.map(o -> createAssertion(o, base))
