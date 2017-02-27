@@ -67,7 +67,7 @@ public class TestGeneratorTest {
 		testGenerator.accept(snapshot);
 
 		testGenerator.await();
-		assertThat(testGenerator.testsFor(MyClass.class), contains(allOf(
+		assertThat(testGenerator.testsFor(TestGeneratorTest.class), contains(allOf(
 			containsString("int field = 12;"),
 			containsString("intMethod(16);"),
 			containsString("equalTo(22)"),
@@ -117,7 +117,7 @@ public class TestGeneratorTest {
 		testGenerator.accept(snapshot);
 
 		testGenerator.await();
-		assertThat(testGenerator.testsFor(MyClass.class), contains(allOf(
+		assertThat(testGenerator.testsFor(TestGeneratorTest.class), contains(allOf(
 			containsString("(net.amygdalum.testrecorder.TestGeneratorTest$MyClass/"),
 			containsString("int field: 12"),
 			containsString("intMethod((16))"),
@@ -152,7 +152,7 @@ public class TestGeneratorTest {
 		testGenerator.accept(snapshot);
 
 		testGenerator.await();
-		assertThat(testGenerator.testsFor(MyClass.class), contains(allOf(
+		assertThat(testGenerator.testsFor(TestGeneratorTest.class), contains(allOf(
 			containsString("int field = 12;"),
 			containsString("intMethod(16);"),
 			containsString("(22)"),
@@ -206,7 +206,7 @@ public class TestGeneratorTest {
 		testGenerator.accept(snapshot2);
 
 		testGenerator.await();
-		assertThat(testGenerator.renderTest(MyClass.class), allOf(
+		assertThat(testGenerator.renderTest(TestGeneratorTest.class), allOf(
 			containsString("int field = 12;"),
 			containsString("intMethod(16);"),
 			containsString("equalTo(22)"),
@@ -286,7 +286,7 @@ public class TestGeneratorTest {
 		testGenerator.await();
 		testGenerator.writeResults(folder.getRoot().toPath());
 
-		assertThat(Files.exists(folder.getRoot().toPath().resolve("net/amygdalum/testrecorder/MyClassRecordedTest.java")), is(true));
+		assertThat(Files.exists(folder.getRoot().toPath().resolve("net/amygdalum/testrecorder/TestGeneratorTestRecordedTest.java")), is(true));
 	}
 
 	private SerializedObject objectOf(Class<MyClass> type, SerializedField... fields) {

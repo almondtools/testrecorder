@@ -155,7 +155,11 @@ public class TestGenerator implements SnapshotConsumer {
 	public synchronized void accept(ContextSnapshot snapshot) {
 		executor.submit(() -> {
 			try {
-				ClassDescriptor baseType = ClassDescriptor.of(baseType(snapshot.getThisType()));
+				Class<?> thisType = baseType(snapshot.getThisType());
+				while (thisType.getEnclosingClass() != null) {
+					thisType = thisType.getEnclosingClass();
+				}
+				ClassDescriptor baseType = ClassDescriptor.of(thisType);
 				TestGeneratorContext context = tests.computeIfAbsent(baseType, key -> new TestGeneratorContext(key));
 				MethodGenerator methodGenerator = new MethodGenerator(snapshot, context)
 					.generateArrange()
