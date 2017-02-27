@@ -22,6 +22,7 @@ import net.amygdalum.testrecorder.SerializedValueType;
 import net.amygdalum.testrecorder.util.GenericObject;
 import net.amygdalum.testrecorder.util.GenericObjectException;
 import net.amygdalum.testrecorder.values.SerializedArray;
+import net.amygdalum.testrecorder.values.SerializedEnum;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 import net.amygdalum.testrecorder.values.SerializedList;
@@ -112,11 +113,15 @@ public class SimpleDeserializer implements Deserializer<Object> {
 		}
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Object visitImmutableType(SerializedImmutableType rt) {
 		if (rt instanceof SerializedImmutable<?>) {
 			SerializedImmutable<?> value = (SerializedImmutable<?>) rt;
 			return fetch(value, () -> value.getValue(), noInit());
+		} else if (rt instanceof SerializedEnum) {
+			SerializedEnum value = (SerializedEnum) rt;
+			return Enum.valueOf((Class<? extends Enum>) baseType(value.getType()), value.getName());
 		} else {
 			return null;
 		}

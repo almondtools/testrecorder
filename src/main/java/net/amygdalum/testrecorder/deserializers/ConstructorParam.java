@@ -18,6 +18,7 @@ public class ConstructorParam {
 	private SerializedField field;
 	private Object value;
 	private Class<?> type;
+	private boolean needsCast;
 
 	public ConstructorParam(Constructor<?> constructor, int paramNumber, SerializedField field, Object value) {
 		this.constructor = constructor;
@@ -47,6 +48,10 @@ public class ConstructorParam {
 		return value;
 	}
 
+	public void insertTypeCasts() {
+		this.needsCast = true;
+	}
+	
 	@Override
 	public String toString() {
 		return constructor.toString() + ":" + paramNumber + "=" + field.getValue() + "=> " + field.getName();
@@ -72,6 +77,9 @@ public class ConstructorParam {
 	}
 
 	private boolean castNeeded() {
+		if (needsCast) {
+			return true;
+		}
 		if (field == null || value == null || type == null) {
 			return false;
 		}

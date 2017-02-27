@@ -14,6 +14,25 @@ public class ConstructorParams {
 		this.params = createInitialParams(constructor);
 	}
 
+	public boolean hasAmbiguitiesWith(Constructor<?> constructor) {
+		if (constructor.equals(this.constructor)) {
+			return false;
+		}
+		Class<?>[] parameterTypes = constructor.getParameterTypes();
+		if (parameterTypes.length != params.size()) {
+			return false;
+		}
+		for (int i = 0; i < parameterTypes.length; i++) {
+			Class<?> parameterType = parameterTypes[i];
+			ConstructorParam param = params.get(i);
+			Object value = param.getValue();
+			if (value != null && !parameterType.isInstance(value)) {
+				return false; 
+			}
+		}
+		return true;
+	}
+
 	private static List<ConstructorParam> createInitialParams(Constructor<?> constructor) {
 		int parameterCount = constructor.getParameterCount();
 		List<ConstructorParam> arrayList = new ArrayList<>(parameterCount);
@@ -28,6 +47,13 @@ public class ConstructorParams {
 		Class<?> type = constructor.getParameterTypes()[index];
 		param.assertType(type);
 		params.set(index, param);
+	}
+
+	public void insertTypeCasts() {
+		for (ConstructorParam param : params) {
+			param.insertTypeCasts();
+		}
+		
 	}
 
 	public Object apply() throws ReflectiveOperationException {

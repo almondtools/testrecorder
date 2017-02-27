@@ -51,6 +51,23 @@ public abstract class GenericObject {
 		});
 	}
 
+	public static <T> T newEnum(Class<T> clazz) {
+		try {
+			Field valueField = clazz.getDeclaredField("ENUM$VALUES");
+			T value = accessing(valueField).call(() -> {
+				Object values = valueField.get(null);
+				if (values.getClass().isArray()) {
+					return clazz.cast(Array.get(values, 0));
+				} else {
+					return null;
+				}
+			});
+			return value;
+		} catch (ReflectiveOperationException e) {
+			throw new GenericObjectException(e);
+		}
+	}
+
 	@SuppressWarnings({ "unchecked", "restriction" })
 	public static <T> T newInstance(Class<T> clazz) {
 		List<String> tries = new ArrayList<>();
@@ -135,9 +152,9 @@ public abstract class GenericObject {
 			return Array.newInstance(clazz.getComponentType(), 0);
 		} else if (clazz.isInterface()) {
 			return newProxy(clazz);
+		} else if (clazz.isEnum()) {
+			return newEnum(clazz);
 		} else {
-			//TODO write test for enum in constructor
-			//TODO write test for enum with nested self reference in constructor
 			return newInstance(clazz);
 		}
 	}
@@ -245,8 +262,8 @@ public abstract class GenericObject {
 
 	private boolean isSerializable(Field field) {
 		return !field.isSynthetic() && field.getName().indexOf('$') < 0
-				&& ((field.getModifiers() & Modifier.STATIC) != Modifier.STATIC)
-				&& ((field.getModifiers() & Modifier.FINAL) != Modifier.FINAL);
+			&& ((field.getModifiers() & Modifier.STATIC) != Modifier.STATIC)
+			&& ((field.getModifiers() & Modifier.FINAL) != Modifier.FINAL);
 	}
 
 	private static class DefaultParams extends Params {

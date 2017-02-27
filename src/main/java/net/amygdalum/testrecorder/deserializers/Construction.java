@@ -45,6 +45,7 @@ public class Construction {
 	public Computation computeBest(TypeManager types, Deserializer<Computation> compiler) throws InstantiationException {
 		fillOrigins(types);
 		return computeConstructionPlans().stream()
+			.map(plan -> plan.disambiguate(constructors.keySet()))
 			.filter(plan -> GenericComparison.equals("", plan.execute(), value))
 			.sorted()
 			.findFirst()

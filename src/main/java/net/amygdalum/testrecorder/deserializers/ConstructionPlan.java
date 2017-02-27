@@ -5,7 +5,9 @@ import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVari
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethodStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import net.amygdalum.testrecorder.Deserializer;
@@ -20,6 +22,15 @@ public class ConstructionPlan {
 		this.var = var;
 		this.constructorParams = constructorParams;
 		this.setterParams = setterParams;
+	}
+
+	public ConstructionPlan disambiguate(Collection<Constructor<?>> constructors) {
+		for (Constructor<?> constructor : constructors) {
+			if (constructorParams.hasAmbiguitiesWith(constructor)) {
+				constructorParams.insertTypeCasts();
+			}
+		}
+		return this;
 	}
 
 	public Object execute() {
@@ -67,4 +78,5 @@ public class ConstructionPlan {
 
 		return new Computation(var.getName(), null, true, statements);
 	}
+
 }
