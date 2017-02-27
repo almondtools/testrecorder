@@ -6,6 +6,7 @@ import static net.amygdalum.testrecorder.deserializers.Templates.cast;
 import static net.amygdalum.testrecorder.util.Types.assignableTypes;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.boxingEquivalentTypes;
+import static net.amygdalum.testrecorder.util.Types.needsCast;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -117,6 +118,10 @@ public class SetupGenerators implements Deserializer<Computation> {
 		List<String> statements = valueTemplate.getStatements();
 
 		String expression = valueTemplate.getValue();
+
+		if (needsCast(fieldType, resultType)) {
+			expression = cast(types.getRawName(fieldResultType), expression);
+		}
 
 		String assignField = assignLocalVariableStatement(types.getSimpleName(fieldResultType), field.getName(), expression);
 		return new Computation(assignField, null, statements);

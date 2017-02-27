@@ -54,6 +54,14 @@ public class SetupGeneratorsTest {
 	}
 
 	@Test
+	public void testVisitFieldWithCastNeeded() throws Exception {
+		Computation result = setupCode.visitField(new SerializedField(Container.class, "field", Sub.class, object(Super.class, new Sub())));
+		
+		assertThat(result.getStatements().toString(), containsPattern("Super super1 = new Super*"));
+		assertThat(result.getValue(), equalTo("Sub field = (Sub) super1;"));
+	}
+
+	@Test
 	public void testVisitFieldWithHiddenTypeAndVisibleResult() throws Exception {
 		SerializedObject value = object(parameterized(innerType(SetupGeneratorsTest.class, "HiddenList"),null, String.class), hidden("Foo","Bar"));
 		
@@ -171,5 +179,19 @@ public class SetupGeneratorsTest {
 			this.lastName = lastName;
 		}
 		
+	}
+
+	@SuppressWarnings("unused")
+	public static class Container {
+		private Sub field;
+		
+		public Container(Sub value) {
+			field = value;
+		}
+	}
+	
+	public static class Super {
+	}
+	public static class Sub extends Super {
 	}
 }

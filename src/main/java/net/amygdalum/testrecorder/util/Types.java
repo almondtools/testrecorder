@@ -379,4 +379,9 @@ public class Types {
 		throw new NoSuchFieldException(name);
 	}
 
+	public static boolean needsCast(Type variableType, Type expressionType) {
+		return !baseType(variableType).isAssignableFrom(baseType(expressionType))
+			&& !boxingEquivalentTypes(variableType, expressionType);
+	}
+
 }
