@@ -171,7 +171,7 @@ public class Types {
 		throw new TypeNotPresentException(clazz.getName() + "$" + name, new ClassNotFoundException(clazz.getName() + "$" + name));
 	}
 
-	public static boolean isHidden(Type type, String pkg) {
+	public static boolean isHiddens(Type type, String pkg) {
 		Class<?> clazz = baseType(type);
 		int modifiers = clazz.getModifiers();
 		if (isPublic(modifiers)) {
@@ -183,6 +183,25 @@ public class Types {
 		} else {
 			return !pkg.equals(clazz.getPackage().getName());
 		}
+	}
+
+	public static boolean isHidden(Type type, String pkg) {
+		Class<?> clazz = baseType(type);
+		while (clazz != null) {
+			int modifiers = clazz.getModifiers();
+			if (isPublic(modifiers)) {
+				return false;
+			} else if (isPrivate(modifiers)) {
+				return true;
+			} else if (!pkg.equals(clazz.getPackage().getName())) {
+				return true;
+			} else if (clazz.getEnclosingClass() != null) {
+				clazz = clazz.getEnclosingClass();
+			} else {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public static boolean isHidden(Constructor<?> constructor, String pkg) {

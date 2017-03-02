@@ -10,6 +10,7 @@ import static net.amygdalum.testrecorder.ByteCode.recallLocal;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_ANNOTATION;
 import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
+import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
@@ -30,6 +31,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Spliterator;
@@ -85,9 +87,12 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	private static final String SnaphotManager_expectVariablesResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, EXPECT_VARIABLES, Object.class, Object.class, Object[].class);
 	private static final String SnaphotManager_expectVariablesNoResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, EXPECT_VARIABLES, Object.class, Object[].class);
 	private static final String SnaphotManager_throwVariables_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, THROW_VARIABLES, Object.class, Throwable.class, Object[].class);
-	private static final String SnaphotManager_outputVariables_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, OUTPUT_VARIABLES, Class.class, String.class, java.lang.reflect.Type[].class, Object[].class);
-	private static final String SnaphotManager_inputVariablesResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, INPUT_VARIABLES, Class.class, String.class, java.lang.reflect.Type.class, Object.class, java.lang.reflect.Type[].class, Object[].class);
-	private static final String SnaphotManager_inputVariablesNoResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, INPUT_VARIABLES, Class.class, String.class, java.lang.reflect.Type[].class, Object[].class);
+	private static final String SnaphotManager_outputVariables_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, OUTPUT_VARIABLES, Class.class, String.class,
+		java.lang.reflect.Type[].class, Object[].class);
+	private static final String SnaphotManager_inputVariablesResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, INPUT_VARIABLES, Class.class, String.class,
+		java.lang.reflect.Type.class, Object.class, java.lang.reflect.Type[].class, Object[].class);
+	private static final String SnaphotManager_inputVariablesNoResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, INPUT_VARIABLES, Class.class, String.class,
+		java.lang.reflect.Type[].class, Object[].class);
 
 	private static final String Types_getDeclaredMethod_descriptor = ByteCode.methodDescriptor(Types.class, GET_DECLARED_METHOD, Class.class, String.class, Class[].class);
 
@@ -120,6 +125,8 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		cr.accept(classNode, 0);
 		if (isClass(classNode)) {
 
+			logSkippedSnapshotMethods(classNode);
+
 			instrumentStaticInitializer(classNode);
 
 			instrumentSnapshotMethods(classNode);
@@ -135,6 +142,12 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 	private boolean isClass(ClassNode classNode) {
 		return (classNode.access & (ACC_INTERFACE | ACC_ANNOTATION)) == 0;
+	}
+
+	private void logSkippedSnapshotMethods(ClassNode classNode) {
+		for (MethodNode methodNode : getSkippedSnapshotMethods(classNode)) {
+			System.out.println("method " + Type.getMethodType(methodNode.desc).getDescriptor() + " in " + Type.getType(classNode.name) + " is not accessible, skipping");
+		}
 	}
 
 	private void instrumentStaticInitializer(ClassNode classNode) {
@@ -243,17 +256,44 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	}
 
 	private List<MethodNode> getSnapshotMethods(ClassNode classNode) {
+		if (!isVisible(classNode)) {
+			return Collections.emptyList();
+		}
 		return classNode.methods.stream()
 			.filter(method -> isSnapshotMethod(method))
+			.filter(method -> isVisible(method))
 			.collect(toList());
 	}
 
-	private boolean isSnapshotMethod(MethodNode method) {
-		if (method.visibleAnnotations == null) {
+	private List<MethodNode> getSkippedSnapshotMethods(ClassNode classNode) {
+		return classNode.methods.stream()
+			.filter(method -> isSnapshotMethod(method))
+			.filter(method -> !isVisible(classNode) || !isVisible(method))
+			.collect(toList());
+	}
+
+	private boolean isVisible(ClassNode classNode) {
+		if ((classNode.access & ACC_PRIVATE) != 0) {
 			return false;
 		}
-		return method.visibleAnnotations.stream()
+		;
+		return classNode.innerClasses.stream()
+			.filter(innerClassNode -> innerClassNode.name.equals(classNode.name))
+			.map(innerClassNode -> (innerClassNode.access & ACC_PRIVATE) == 0)
+			.findFirst()
+			.orElse(true);
+	}
+
+	private boolean isSnapshotMethod(MethodNode methodNode) {
+		if (methodNode.visibleAnnotations == null) {
+			return false;
+		}
+		return methodNode.visibleAnnotations.stream()
 			.anyMatch(annotation -> annotation.desc.equals(Snapshot_descriptor));
+	}
+
+	private boolean isVisible(MethodNode methodNode) {
+		return (methodNode.access & ACC_PRIVATE) == 0;
 	}
 
 	private List<MethodNode> getInputMethods(ClassNode classNode) {
@@ -262,11 +302,11 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 			.collect(toList());
 	}
 
-	private boolean isInputMethod(MethodNode method) {
-		if (method.visibleAnnotations == null) {
+	private boolean isInputMethod(MethodNode methodNode) {
+		if (methodNode.visibleAnnotations == null) {
 			return false;
 		}
-		return method.visibleAnnotations.stream()
+		return methodNode.visibleAnnotations.stream()
 			.anyMatch(annotation -> annotation.desc.equals(SnapshotInput_descriptor));
 	}
 
@@ -276,11 +316,11 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 			.collect(toList());
 	}
 
-	private boolean isOutputMethod(MethodNode method) {
-		if (method.visibleAnnotations == null) {
+	private boolean isOutputMethod(MethodNode methodNode) {
+		if (methodNode.visibleAnnotations == null) {
 			return false;
 		}
-		return method.visibleAnnotations.stream()
+		return methodNode.visibleAnnotations.stream()
 			.anyMatch(annotation -> annotation.desc.equals(SnapshotOutput_descriptor));
 	}
 
@@ -308,7 +348,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	}
 
 	private InsnList setupVariables(ClassNode classNode, MethodNode methodNode) {
-		int localVariableIndex = isStatic(methodNode) ? 0 : 1; 
+		int localVariableIndex = isStatic(methodNode) ? 0 : 1;
 
 		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
 		List<LocalVariableNode> arguments = range(methodNode.localVariables, localVariableIndex, argumentTypes.length);
@@ -337,7 +377,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	}
 
 	private InsnList expectVariables(ClassNode classNode, MethodNode methodNode) {
-		int localVariableIndex = isStatic(methodNode) ? 0 : 1; 
+		int localVariableIndex = isStatic(methodNode) ? 0 : 1;
 
 		Type returnType = Type.getReturnType(methodNode.desc);
 		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
@@ -373,7 +413,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	}
 
 	private InsnList throwVariables(ClassNode classNode, MethodNode methodNode) {
-		int localVariableIndex = isStatic(methodNode) ? 0 : 1; 
+		int localVariableIndex = isStatic(methodNode) ? 0 : 1;
 
 		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
 		List<LocalVariableNode> arguments = range(methodNode.localVariables, localVariableIndex, argumentTypes.length);
@@ -402,7 +442,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	}
 
 	private InsnList notifyInput(ClassNode classNode, MethodNode methodNode) {
-		int localVariableIndex = isStatic(methodNode) ? 0 : 1; 
+		int localVariableIndex = isStatic(methodNode) ? 0 : 1;
 
 		Type returnType = Type.getReturnType(methodNode.desc);
 		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
@@ -444,7 +484,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	}
 
 	private InsnList notifyOutput(ClassNode classNode, MethodNode methodNode) {
-		int localVariableIndex = isStatic(methodNode) ? 0 : 1; 
+		int localVariableIndex = isStatic(methodNode) ? 0 : 1;
 
 		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
 		List<LocalVariableNode> arguments = range(methodNode.localVariables, localVariableIndex, argumentTypes.length);
