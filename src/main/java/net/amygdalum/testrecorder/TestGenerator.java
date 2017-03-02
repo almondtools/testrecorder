@@ -428,7 +428,7 @@ public class TestGenerator implements SnapshotConsumer {
 
 			this.base = setupThis.isStored()
 				? setupThis.getValue()
-				: assign(snapshot.getSetupThis().getResultType(), setupThis.getValue());
+				: assign(snapshot.getSetupThis().getType(), setupThis.getValue());
 			this.args = IntStream.range(0, setupArgs.size())
 				.mapToObj(i -> setupArgs.get(i).isStored()
 					? setupArgs.get(i).getValue()
