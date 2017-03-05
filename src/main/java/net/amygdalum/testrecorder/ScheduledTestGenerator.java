@@ -19,6 +19,7 @@ public class ScheduledTestGenerator extends TestGenerator {
 
 	public ScheduledTestGenerator(Class<? extends Runnable> initializer) {
 		super(initializer);
+		this.counterMaximum = -1;
 		this.counter = 0;
 		this.start = System.currentTimeMillis();
 		this.path = Paths.get(".");
@@ -64,6 +65,9 @@ public class ScheduledTestGenerator extends TestGenerator {
 				@Override
 				public void run() {
 					for (ScheduledTestGenerator gen : dumpOnShutDown) {
+				        if (gen.counterMaximum < 0 || gen.counter > gen.counterMaximum) {
+				            return;
+				        }
 						gen.dumpResults();
 					}
 				}
@@ -82,7 +86,10 @@ public class ScheduledTestGenerator extends TestGenerator {
 
 	private void checkCounterInterval() {
 		counter++;
-		if (counterInterval > 0 && counter <= counterMaximum && counter % counterInterval == 0) {
+        if (counterMaximum < 0 || counter > counterMaximum) {
+            return;
+        }
+		if (counterInterval > 0 && counter % counterInterval == 0) {
 			dumpResults();
 		}
 	}
@@ -90,7 +97,10 @@ public class ScheduledTestGenerator extends TestGenerator {
 	private void checkTimeInterval() {
 		long oldStart = start;
 		start = System.currentTimeMillis();
-		if (timeInterval > 0 && start - oldStart >= timeInterval && counter <= counterMaximum) {
+        if (counterMaximum < 0 || counter > counterMaximum) {
+            return;
+        }
+		if (timeInterval > 0 && start - oldStart >= timeInterval) {
 			dumpResults();
 		}
 	}
