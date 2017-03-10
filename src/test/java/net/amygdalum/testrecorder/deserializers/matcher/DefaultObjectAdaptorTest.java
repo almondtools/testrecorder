@@ -1,6 +1,5 @@
 package net.amygdalum.testrecorder.deserializers.matcher;
 
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -8,6 +7,8 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import com.almondtools.conmatch.strings.WildcardStringMatcher;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.values.SerializedField;
@@ -43,7 +44,7 @@ public class DefaultObjectAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 		
 		assertThat(result.getStatements(), empty());
-		assertThat(result.getValue(), equalTo("new GenericMatcher() {\r\nString attribute = \"Hello World\";\r\n}.matching(TestObject.class)"));
+		assertThat(result.getValue(), WildcardStringMatcher.containsPattern("new GenericMatcher() {*String attribute = \"Hello World\";*}.matching(TestObject.class)"));
 	}
 	
 	@SuppressWarnings("unused") 
