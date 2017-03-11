@@ -1,6 +1,7 @@
 [Testrecorder](http://testrecorder.amygdalum.net/)
 ============
 [![Build Status](https://api.travis-ci.org/almondtools/testrecorder.svg)](https://travis-ci.org/almondtools/testrecorder)
+[![codecov](https://codecov.io/gh/almondtools/testrecorder/branch/master/graph/badge.svg)](https://codecov.io/gh/almondtools/testrecorder)
 
 __Testrecorder__ is a tool for generating test code from runnable Java code. The generated tests can then be executed with a JUnit-Runner.
 
