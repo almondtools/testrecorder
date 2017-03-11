@@ -4,6 +4,7 @@ import static java.lang.Thread.currentThread;
 import static net.amygdalum.testrecorder.SnapshotProcess.PASSIVE;
 import static net.amygdalum.testrecorder.TestrecorderThreadFactory.RECORDING;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayDeque;
@@ -47,6 +48,10 @@ public class SnapshotManager {
 
 	public SnapshotConsumer getMethodConsumer() {
 		return config.getSnapshotConsumer();
+    }
+
+    public void registerGlobal(String name, Field field) {
+        config.getGlobalFields().add(field);
 	}
 
 	public void register(String signature, Method method) {
@@ -65,12 +70,17 @@ public class SnapshotManager {
 		if (snapshot == null) {
 			return config;
 		}
-		Class<? extends SerializationProfile> profile = snapshot.profile();
-		if (profile == null || profile.isInterface()) {
+		Class<? extends SerializationProfile> profileClass = snapshot.profile();
+		if (profileClass == null || profileClass.isInterface()) {
 			return config;
 		}
 		try {
-			return new DefaultingSerializationProfile(profile.newInstance(), config);
+			SerializationProfile profile = profileClass.newInstance();
+			if (profile.inherit()) {
+			    return new ExtendingSerializationProfile(profile, config);
+			} else {
+			    return new DefaultingSerializationProfile(profile, config);
+			}
 		} catch (InstantiationException | IllegalAccessException | NullPointerException e) {
 			return config;
 		}

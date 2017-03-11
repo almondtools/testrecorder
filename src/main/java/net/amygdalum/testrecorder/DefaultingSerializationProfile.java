@@ -1,78 +1,62 @@
 package net.amygdalum.testrecorder;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.function.Predicate;
 
 public class DefaultingSerializationProfile implements SerializationProfile {
 
-	private SerializationProfile profile;
-	private SerializationProfile defaultProfile;
+    private SerializationProfile profile;
+    private SerializationProfile defaultProfile;
 
-	public DefaultingSerializationProfile(SerializationProfile profile, SerializationProfile defaultProfile) {
-		this.profile = profile;
-		this.defaultProfile = defaultProfile;
-	}
+    public DefaultingSerializationProfile(SerializationProfile profile, SerializationProfile defaultProfile) {
+        this.profile = profile;
+        this.defaultProfile = defaultProfile;
+    }
 
-	@Override
-	public List<Predicate<Field>> getFieldExclusions() {
-		List<Predicate<Field>> fieldExclusions = profile.getFieldExclusions();
-		if (fieldExclusions == null) {
-			return defaultProfile.getFieldExclusions();
-		} else {
-			return fieldExclusions;
-		}
-	}
+    @Override
+    public boolean inherit() {
+        return false;
+    }
 
-	@Override
-	public List<Predicate<Class<?>>> getClassExclusions() {
-		List<Predicate<Class<?>>> classExclusions = profile.getClassExclusions();
-		if (classExclusions == null) {
-			return defaultProfile.getClassExclusions();
-		} else {
-			return classExclusions;
-		}
-	}
-
-	@Override
-	public List<Field> getGlobalFields() {
-		List<Field> globalFields = profile.getGlobalFields();
-		if (globalFields == null) {
-			return defaultProfile.getGlobalFields();
-		} else {
-			return globalFields;
-		}
-	}
-	
-	@Override
-	public List<Method> getInputMethods() {
-        List<Method> methods = profile.getInputMethods();
-        if (methods == null) {
-            return defaultProfile.getInputMethods();
+    @Override
+    public List<Predicate<Field>> getFieldExclusions() {
+        List<Predicate<Field>> fieldExclusions = profile.getFieldExclusions();
+        if (fieldExclusions == null) {
+            return defaultProfile.getFieldExclusions();
         } else {
-            return methods;
+            return fieldExclusions;
         }
-	}
-	
-	@Override
-	public List<Method> getOutputMethods() {
-        List<Method> methods = profile.getOutputMethods();
-        if (methods == null) {
-            return defaultProfile.getOutputMethods();
+    }
+
+    @Override
+    public List<Predicate<Class<?>>> getClassExclusions() {
+        List<Predicate<Class<?>>> classExclusions = profile.getClassExclusions();
+        if (classExclusions == null) {
+            return defaultProfile.getClassExclusions();
         } else {
-            return methods;
+            return classExclusions;
         }
-	}
-	
-	@Override
-	public List<DeserializationHint> getHints() {
+    }
+
+    @Override
+    public List<Field> getGlobalFields() {
+        List<Field> globalFields = profile.getGlobalFields();
+        if (globalFields == null) {
+            return defaultProfile.getGlobalFields();
+        } else {
+            return globalFields;
+        }
+    }
+
+    @Override
+    public List<DeserializationHint> getHints() {
         List<DeserializationHint> hints = profile.getHints();
         if (hints == null) {
             return defaultProfile.getHints();
         } else {
             return hints;
         }
-	}
+    }
 
 }

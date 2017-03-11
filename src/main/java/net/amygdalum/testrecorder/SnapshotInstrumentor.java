@@ -29,6 +29,7 @@ import static org.objectweb.asm.Opcodes.SWAP;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 import java.util.Collections;
@@ -45,6 +46,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
@@ -57,8 +59,7 @@ import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-import net.amygdalum.testrecorder.SerializationProfile.Input;
-import net.amygdalum.testrecorder.SerializationProfile.Output;
+import net.amygdalum.testrecorder.SerializationProfile.Global;
 import net.amygdalum.testrecorder.util.Types;
 
 public class SnapshotInstrumentor implements ClassFileTransformer {
@@ -66,9 +67,11 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
     private static final String STATIC_INIT_NAME = "<clinit>";
 
     private static final String GET_DECLARED_METHOD = "getDeclaredMethod";
+    private static final String GET_DECLARED_FIELD = "getDeclaredField";
 
     public static final String SNAPSHOT_MANAGER_FIELD_NAME = "MANAGER";
     private static final String REGISTER = "register";
+    private static final String REGISTER_GLOBAL = "registerGlobal";
     private static final String SETUP_VARIABLES = "setupVariables";
     private static final String INPUT_VARIABLES = "inputVariables";
     private static final String OUTPUT_VARIABLES = "outputVariables";
@@ -80,11 +83,13 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
     private static final String SnapshotManager_name = Type.getInternalName(SnapshotManager.class);
 
     private static final String SnaphotManager_descriptor = Type.getDescriptor(SnapshotManager.class);
-    private static final String Snapshot_descriptor = Type.getDescriptor(Recorded.class);
-    private static final String SnapshotInput_descriptor = Type.getDescriptor(Input.class);
-    private static final String SnapshotOutput_descriptor = Type.getDescriptor(Output.class);
+    private static final String Recorded_descriptor = Type.getDescriptor(Recorded.class);
+    private static final String Input_descriptor = Type.getDescriptor(Input.class);
+    private static final String Output_descriptor = Type.getDescriptor(Output.class);
+    private static final String Global_descriptor = Type.getDescriptor(Global.class);
 
     private static final String SnaphotManager_registerMethod_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, REGISTER, String.class, Method.class);
+    private static final String SnaphotManager_registerGlobal_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, REGISTER_GLOBAL, String.class, Field.class);
     private static final String SnaphotManager_setupVariables_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, SETUP_VARIABLES, Object.class, String.class, Object[].class);
     private static final String SnaphotManager_expectVariablesResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, EXPECT_VARIABLES, Object.class, Object.class, Object[].class);
     private static final String SnaphotManager_expectVariablesNoResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, EXPECT_VARIABLES, Object.class, Object[].class);
@@ -97,6 +102,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
         java.lang.reflect.Type[].class, Object[].class);
 
     private static final String Types_getDeclaredMethod_descriptor = ByteCode.methodDescriptor(Types.class, GET_DECLARED_METHOD, Class.class, String.class, Class[].class);
+    private static final String Types_getDeclaredField_descriptor = ByteCode.methodDescriptor(Types.class, GET_DECLARED_FIELD, Class.class, String.class);
 
     private TestRecorderAgentConfig config;
 
@@ -165,6 +171,14 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
             insnList.add(pushMethod(classNode, methodNode));
 
             insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapshotManager_name, REGISTER, SnaphotManager_registerMethod_descriptor, false));
+        }
+        for (FieldNode fieldNode : getGlobalFields(classNode)) {
+            insnList.add(new InsnNode(DUP));
+            insnList.add(new LdcInsnNode(fieldNode.name));
+
+            insnList.add(pushField(classNode, fieldNode));
+
+            insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapshotManager_name, REGISTER_GLOBAL, SnaphotManager_registerGlobal_descriptor, false));
         }
         insnList.add(new InsnNode(POP));
 
@@ -257,6 +271,17 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
         return insnList;
     }
 
+    private InsnList pushField(ClassNode classNode, FieldNode field) {
+        InsnList insnList = new InsnList();
+
+        insnList.add(new LdcInsnNode(Type.getObjectType(classNode.name)));
+
+        insnList.add(new LdcInsnNode(field.name));
+
+        insnList.add(new MethodInsnNode(INVOKESTATIC, Types_name, GET_DECLARED_FIELD, Types_getDeclaredField_descriptor, false));
+        return insnList;
+    }
+
     private List<MethodNode> getSnapshotMethods(ClassNode classNode) {
         if (!isVisible(classNode)) {
             return Collections.emptyList();
@@ -264,6 +289,16 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
         return classNode.methods.stream()
             .filter(method -> isSnapshotMethod(method))
             .filter(method -> isVisible(method))
+            .collect(toList());
+    }
+
+    private List<FieldNode> getGlobalFields(ClassNode classNode) {
+        if (!isVisible(classNode)) {
+            return Collections.emptyList();
+        }
+        return classNode.fields.stream()
+            .filter(field -> isGlobalField(field))
+            .filter(field -> isVisible(field))
             .collect(toList());
     }
 
@@ -291,11 +326,23 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
             return false;
         }
         return methodNode.visibleAnnotations.stream()
-            .anyMatch(annotation -> annotation.desc.equals(Snapshot_descriptor));
+            .anyMatch(annotation -> annotation.desc.equals(Recorded_descriptor));
     }
 
+    private boolean isGlobalField(FieldNode fieldNode) {
+        if (fieldNode.visibleAnnotations == null) {
+            return false;
+        }
+        return fieldNode.visibleAnnotations.stream()
+            .anyMatch(annotation -> annotation.desc.equals(Global_descriptor));
+    }
+    
     private boolean isVisible(MethodNode methodNode) {
         return (methodNode.access & ACC_PRIVATE) == 0;
+    }
+
+    private boolean isVisible(FieldNode fieldNode) {
+        return (fieldNode.access & ACC_PRIVATE) == 0;
     }
 
     private List<MethodNode> getInputMethods(ClassNode classNode) {
@@ -304,12 +351,12 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
             .collect(toList());
     }
 
-    private boolean isInputMethod(MethodNode methodNode) {
+    protected boolean isInputMethod(MethodNode methodNode) {
         if (methodNode.visibleAnnotations == null) {
             return false;
         }
         return methodNode.visibleAnnotations.stream()
-            .anyMatch(annotation -> annotation.desc.equals(SnapshotInput_descriptor));
+            .anyMatch(annotation -> annotation.desc.equals(Input_descriptor));
     }
 
     private List<MethodNode> getOutputMethods(ClassNode classNode) {
@@ -318,12 +365,12 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
             .collect(toList());
     }
 
-    private boolean isOutputMethod(MethodNode methodNode) {
+    protected boolean isOutputMethod(MethodNode methodNode) {
         if (methodNode.visibleAnnotations == null) {
             return false;
         }
         return methodNode.visibleAnnotations.stream()
-            .anyMatch(annotation -> annotation.desc.equals(SnapshotOutput_descriptor));
+            .anyMatch(annotation -> annotation.desc.equals(Output_descriptor));
     }
 
     private TryCatchBlockNode createTryCatchBlock(LabelNode tryLabel, LabelNode catchLabel) {

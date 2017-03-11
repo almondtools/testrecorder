@@ -1,8 +1,11 @@
 package net.amygdalum.testrecorder.scenarios;
 
+import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Before;
@@ -55,7 +58,12 @@ public class OutputsTest {
 		out.recorded();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Outputs.class), testsRun(Outputs.class));
+		assertThat(testGenerator.testsFor(Outputs.class), hasSize(1));
+        assertThat(testGenerator.renderTest(Outputs.class), allOf(
+            containsPattern(".expect(Outputs.class, \"print\", equalTo(\"Hello \")"),
+            containsPattern(".expect(Outputs.class, \"print\", equalTo(\"World\")")
+            ));
+	    assertThat(testGenerator.renderTest(Outputs.class), testsRun(Outputs.class));
 	}
 	
 	@Test

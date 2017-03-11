@@ -45,8 +45,8 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 
 import net.amygdalum.testrecorder.ByteCode;
-import net.amygdalum.testrecorder.SerializationProfile.Input;
-import net.amygdalum.testrecorder.SerializationProfile.Output;
+import net.amygdalum.testrecorder.Input;
+import net.amygdalum.testrecorder.Output;
 
 public class IORecorderClassLoader extends AbstractInstrumentedClassLoader {
 

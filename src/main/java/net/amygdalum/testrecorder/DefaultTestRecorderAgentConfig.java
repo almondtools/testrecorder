@@ -28,6 +28,11 @@ public class DefaultTestRecorderAgentConfig implements TestRecorderAgentConfig {
     public static final List<DeserializationHint> HINTS = emptyList();
 
     @Override
+    public boolean inherit() {
+        return false;
+    }
+
+    @Override
     public List<Predicate<Field>> getFieldExclusions() {
         return DEFAULT_FIELD_EXCLUDES;
     }
@@ -40,16 +45,6 @@ public class DefaultTestRecorderAgentConfig implements TestRecorderAgentConfig {
     @Override
     public List<Field> getGlobalFields() {
         return DEFAULT_GLOBAL_FIELDS;
-    }
-
-    @Override
-    public List<Method> getInputMethods() {
-        return INPUT;
-    }
-
-    @Override
-    public List<Method> getOutputMethods() {
-        return OUTPUT;
     }
 
     @Override
