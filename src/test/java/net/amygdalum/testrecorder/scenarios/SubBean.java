@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import net.amygdalum.testrecorder.Snapshot;
+import net.amygdalum.testrecorder.Recorded;
 
 public class SubBean extends SuperBean {
 
@@ -13,7 +13,7 @@ public class SubBean extends SuperBean {
 		this.o = o;
 	}
 	
-	@Snapshot
+	@Recorded
 	@Override
 	public int hashCode() {
 		int j = o == null ? 1 : o.hashCode();

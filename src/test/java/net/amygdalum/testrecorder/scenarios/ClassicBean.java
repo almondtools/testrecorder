@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import net.amygdalum.testrecorder.Snapshot;
+import net.amygdalum.testrecorder.Recorded;
 
 public class ClassicBean {
 
@@ -18,7 +18,7 @@ public class ClassicBean {
 		this.o = o;
 	}
 	
-	@Snapshot
+	@Recorded
 	@Override
 	public int hashCode() {
 		int j = o == null ? 1 : o.hashCode();

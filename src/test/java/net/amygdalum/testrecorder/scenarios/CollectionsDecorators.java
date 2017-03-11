@@ -6,92 +6,92 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.amygdalum.testrecorder.Snapshot;
+import net.amygdalum.testrecorder.Recorded;
 
 public class CollectionsDecorators {
 
 	public CollectionsDecorators() {
 	}
 
-	@Snapshot
+	@Recorded
 	public void consume(Collection<?> list) {
 	}
 
-	@Snapshot
+	@Recorded
 	public void consume(Map<?,?> map) {
 	}
 
-	@Snapshot
+	@Recorded
 	public List<Object> unmodifiableList(List<Object> objects) {
 		return Collections.unmodifiableList(objects);
 	}
 
-	@Snapshot
+	@Recorded
 	public List<Object> synchronizedList(List<Object> objects) {
 		return Collections.synchronizedList(objects);
 	}
 
-	@Snapshot
+	@Recorded
 	public List<Object> checkedList(List<Object> objects) {
 		return Collections.checkedList(objects, Object.class);
 	}
 
-	@Snapshot
+	@Recorded
 	public List<Object> emptyList() {
 		return Collections.emptyList();
 	}
 
-	@Snapshot
+	@Recorded
 	public List<Object> singletonList(Object object) {
 		return Collections.singletonList(object);
 	}
 
-	@Snapshot
+	@Recorded
 	public Set<Object> unmodifiableSet(Set<Object> objects) {
 		return Collections.unmodifiableSet(objects);
 	}
 
-	@Snapshot
+	@Recorded
 	public Set<Object> synchronizedSet(Set<Object> objects) {
 		return Collections.synchronizedSet(objects);
 	}
 
-	@Snapshot
+	@Recorded
 	public Set<Object> checkedSet(Set<Object> objects) {
 		return Collections.checkedSet(objects, Object.class);
 	}
 
-	@Snapshot
+	@Recorded
 	public Set<Object> emptySet() {
 		return Collections.emptySet();
 	}
 
-	@Snapshot
+	@Recorded
 	public Set<Object> singletonSet(Object object) {
 		return Collections.singleton(object);
 	}
 
-	@Snapshot
+	@Recorded
 	public Map<Object,Object> unmodifiableMap(Map<Object,Object> objects) {
 		return Collections.unmodifiableMap(objects);
 	}
 
-	@Snapshot
+	@Recorded
 	public Map<Object,Object> synchronizedMap(Map<Object,Object> objects) {
 		return Collections.synchronizedMap(objects);
 	}
 
-	@Snapshot
+	@Recorded
 	public Map<Object,Object> checkedMap(Map<Object,Object> objects) {
 		return Collections.checkedMap(objects, Object.class, Object.class);
 	}
 
-	@Snapshot
+	@Recorded
 	public Map<Object,Object> emptyMap() {
 		return Collections.emptyMap();
 	}
 
-	@Snapshot
+	@Recorded
 	public Map<Object, Object> singletonMap(Object key, Object value) {
 		return Collections.singletonMap(key, value);
 	}

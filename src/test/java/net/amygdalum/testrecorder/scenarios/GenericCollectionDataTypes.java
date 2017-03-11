@@ -5,14 +5,14 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.List;
 
-import net.amygdalum.testrecorder.Snapshot;
+import net.amygdalum.testrecorder.Recorded;
 
 public class GenericCollectionDataTypes {
 
 	public GenericCollectionDataTypes() {
 	}
 
-	@Snapshot
+	@Recorded
 	public List<BigInteger> bigIntegerLists(List<BigInteger> ints) {
 		ints.add(ints.stream()
 			.reduce((bi1, bi2) -> bi1.add(bi2))
@@ -20,7 +20,7 @@ public class GenericCollectionDataTypes {
 		return ints;
 	}
 
-	@Snapshot
+	@Recorded
 	public List<BigDecimal> bigDecimalLists(List<BigDecimal> decs) {
 		decs.add(decs.stream()
 			.reduce((bi1, bi2) -> bi1.add(bi2))

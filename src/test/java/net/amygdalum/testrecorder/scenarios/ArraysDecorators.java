@@ -3,20 +3,20 @@ package net.amygdalum.testrecorder.scenarios;
 import java.util.Arrays;
 import java.util.List;
 
-import net.amygdalum.testrecorder.Snapshot;
+import net.amygdalum.testrecorder.Recorded;
 
 public class ArraysDecorators {
 
 	public ArraysDecorators() {
 	}
 
-	@Snapshot
+	@Recorded
 	public List<Object> asList(Object... objects) {
 		return Arrays.asList(objects);
 		
 	}
 
-	@Snapshot
+	@Recorded
 	public void consume(List<Object> list) {
 	}
 }

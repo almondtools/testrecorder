@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD, ElementType.FIELD})
-public @interface SnapshotExcluded {
-
+@Target({ElementType.METHOD})
+public @interface Recorded {
+	Class<? extends SerializationProfile> profile() default SerializationProfile.class;
 }

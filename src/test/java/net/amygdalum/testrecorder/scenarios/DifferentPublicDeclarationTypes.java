@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.scenarios;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import net.amygdalum.testrecorder.Snapshot;
+import net.amygdalum.testrecorder.Recorded;
 
 @SuppressWarnings("unused")
 public class DifferentPublicDeclarationTypes {
@@ -12,7 +12,7 @@ public class DifferentPublicDeclarationTypes {
 	private MyClass myClass;
 	private MyInterface myInterface;
 
-	@Snapshot
+	@Recorded
 	public void test() {
 		myEnum = MyEnum.VALUE2;
 		myClass = new MyClass();

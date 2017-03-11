@@ -4,26 +4,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.amygdalum.testrecorder.Snapshot;
+import net.amygdalum.testrecorder.Recorded;
 
 public class CollectionDataTypes {
 
 	public CollectionDataTypes() {
 	}
 
-	@Snapshot
+	@Recorded
 	public List<Integer> lists(List<Integer> ints, int i) {
 		ints.add(i % 3);
 		return ints;
 	}
 
-	@Snapshot
+	@Recorded
 	public Set<Integer> sets(Set<Integer> ints, int i) {
 		ints.add(i % 3);
 		return ints;
 	}
 
-	@Snapshot
+	@Recorded
 	public Map<Integer, Integer> maps(Map<Integer, Integer> ints, int i) {
 		ints.put(i, i % 3);
 		return ints;

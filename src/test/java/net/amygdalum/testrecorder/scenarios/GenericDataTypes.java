@@ -1,13 +1,13 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import net.amygdalum.testrecorder.Snapshot;
+import net.amygdalum.testrecorder.Recorded;
 
 public class GenericDataTypes {
 
 	public GenericDataTypes() {
 	}
 
-	@Snapshot
+	@Recorded
 	public StringBuilder objects(StringBuilder buffer, int i) {
 		buffer.append(i);
 		return buffer;

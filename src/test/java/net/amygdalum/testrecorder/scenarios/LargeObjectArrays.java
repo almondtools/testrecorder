@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import net.amygdalum.testrecorder.Snapshot;
+import net.amygdalum.testrecorder.Recorded;
 
 public class LargeObjectArrays {
 
@@ -14,7 +14,7 @@ public class LargeObjectArrays {
 		this.entries = new AnObject[0][0];
 	}
 
-	@Snapshot
+	@Recorded
 	public AnObject[][] initObjects(int entries) {
 		int counter = 0;
 		AnObject[][] is = new AnObject[entries][entries];
@@ -27,7 +27,7 @@ public class LargeObjectArrays {
 		return is;
 	}
 
-	@Snapshot
+	@Recorded
 	public long sum() {
 		long sum = 0;
 		for (int i = 0; i < entries.length; i++) {

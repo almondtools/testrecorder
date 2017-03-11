@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import net.amygdalum.testrecorder.Snapshot;
+import net.amygdalum.testrecorder.Recorded;
 
 public class CustomProfileWithPublicStaticVariable {
 
@@ -8,7 +8,7 @@ public class CustomProfileWithPublicStaticVariable {
 	
 	private int i;
 
-	@Snapshot(profile=OtherProfile.class)
+	@Recorded(profile=OtherProfile.class)
 	public int inc() {
 		i++;
 		istr = String.valueOf(i);

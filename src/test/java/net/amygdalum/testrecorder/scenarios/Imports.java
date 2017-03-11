@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.scenarios;
 
 import static java.util.Arrays.asList;
 
-import net.amygdalum.testrecorder.Snapshot;
+import net.amygdalum.testrecorder.Recorded;
 
 public class Imports {
 
@@ -14,7 +14,7 @@ public class Imports {
 		otherList = new List(name);
 	}
 	
-	@Snapshot
+	@Recorded
 	@Override
 	public String toString() {
 		return list.toString() + ":" + otherList.getName();

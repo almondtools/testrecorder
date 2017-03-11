@@ -1,48 +1,48 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import net.amygdalum.testrecorder.Snapshot;
+import net.amygdalum.testrecorder.Recorded;
 
 public class PrimitiveDataTypes {
 
 	public PrimitiveDataTypes() {
 	}
 
-	@Snapshot
+	@Recorded
 	public boolean booleans(boolean b) {
 		return !b;
 	}
 
-	@Snapshot
+	@Recorded
 	public char chars(char c) {
 		return (char) (c + 64);
 	}
 
-	@Snapshot
+	@Recorded
 	public byte bytes(byte b) {
 		return (byte) (b ^ 0b01010101);
 	}
 
-	@Snapshot
+	@Recorded
 	public short shorts(short s) {
 		return (short) (Short.MAX_VALUE - s);
 	}
 
-	@Snapshot
+	@Recorded
 	public int integers(int i) {
 		return i + 1;
 	}
 
-	@Snapshot
+	@Recorded
 	public float floats(float f) {
 		return Math.nextDown(f);
 	}
 
-	@Snapshot
+	@Recorded
 	public long longs(long l) {
 		return -l;
 	}
 
-	@Snapshot
+	@Recorded
 	public double doubles(double d) {
 		return Math.log(d);
 	}

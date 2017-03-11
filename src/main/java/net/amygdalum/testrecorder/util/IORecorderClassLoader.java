@@ -45,8 +45,8 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 
 import net.amygdalum.testrecorder.ByteCode;
-import net.amygdalum.testrecorder.SnapshotInput;
-import net.amygdalum.testrecorder.SnapshotOutput;
+import net.amygdalum.testrecorder.SerializationProfile.Input;
+import net.amygdalum.testrecorder.SerializationProfile.Output;
 
 public class IORecorderClassLoader extends AbstractInstrumentedClassLoader {
 
@@ -55,8 +55,8 @@ public class IORecorderClassLoader extends AbstractInstrumentedClassLoader {
 	private static final String InputProvider_name = Type.getInternalName(InputProvider.class);
 	private static final String OutputListener_name = Type.getInternalName(OutputListener.class);
 
-	private static final String SnapshotInput_descriptor = Type.getDescriptor(SnapshotInput.class);
-	private static final String SnapshotOutput_descriptor = Type.getDescriptor(SnapshotOutput.class);
+	private static final String SnapshotInput_descriptor = Type.getDescriptor(Input.class);
+	private static final String SnapshotOutput_descriptor = Type.getDescriptor(Output.class);
 
 	private static final String Class_getClassLoader_descriptor = ByteCode.methodDescriptor(Class.class, "getClassLoader");
 

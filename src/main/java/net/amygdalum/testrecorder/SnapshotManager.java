@@ -51,7 +51,7 @@ public class SnapshotManager {
 
 	public void register(String signature, Method method) {
 		Class<?> declaringClass = method.getDeclaringClass();
-		SerializationProfile profile = createProfileFor(method.getAnnotation(Snapshot.class));
+		SerializationProfile profile = createProfileFor(method.getAnnotation(Recorded.class));
 		Type returnType = method.getGenericReturnType();
 		String name = method.getName();
 		Type[] parameterTypes = method.getGenericParameterTypes();
@@ -61,7 +61,7 @@ public class SnapshotManager {
 		methodSnapshots.put(signature, factory);
 	}
 
-	private SerializationProfile createProfileFor(Snapshot snapshot) {
+	private SerializationProfile createProfileFor(Recorded snapshot) {
 		if (snapshot == null) {
 			return config;
 		}

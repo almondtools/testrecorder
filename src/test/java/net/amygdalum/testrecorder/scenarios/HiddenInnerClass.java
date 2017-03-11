@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import net.amygdalum.testrecorder.Snapshot;
+import net.amygdalum.testrecorder.Recorded;
 
 public class HiddenInnerClass {
 
@@ -10,7 +10,7 @@ public class HiddenInnerClass {
 		this.o = new Hidden(name);
 	}
 	
-	@Snapshot
+	@Recorded
 	@Override
 	public String toString() {
 		return o.getName();

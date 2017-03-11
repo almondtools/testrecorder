@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import net.amygdalum.testrecorder.Snapshot;
+import net.amygdalum.testrecorder.Recorded;
 
 public class LeafType implements InnerType {
 
@@ -10,7 +10,7 @@ public class LeafType implements InnerType {
 		this.leafMethods = leafMethods;
 	}
 	
-	@Snapshot
+	@Recorded
 	public String quote(String string) {
 		return "'" + string + "'";
 	}

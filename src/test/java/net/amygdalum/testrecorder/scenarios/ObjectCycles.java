@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import net.amygdalum.testrecorder.Snapshot;
+import net.amygdalum.testrecorder.Recorded;
 
 public class ObjectCycles {
 
@@ -15,12 +15,12 @@ public class ObjectCycles {
 		next.prev = this;
 	}
 	
-	@Snapshot
+	@Recorded
 	public ObjectCycles getNext() {
 		return next;
 	}
 	
-	@Snapshot
+	@Recorded
 	public ObjectCycles getPrev() {
 		return prev;
 	}

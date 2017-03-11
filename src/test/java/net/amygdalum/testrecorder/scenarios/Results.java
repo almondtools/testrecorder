@@ -1,13 +1,13 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import net.amygdalum.testrecorder.Snapshot;
+import net.amygdalum.testrecorder.Recorded;
 
 public class Results {
 
 	public Results() {
 	}
 
-	@Snapshot
+	@Recorded
 	public double pow(int i) {
 		return Math.pow(i, i);
 	}

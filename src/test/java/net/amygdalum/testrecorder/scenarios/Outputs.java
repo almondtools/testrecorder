@@ -1,14 +1,14 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import net.amygdalum.testrecorder.Snapshot;
-import net.amygdalum.testrecorder.SnapshotOutput;
+import net.amygdalum.testrecorder.Recorded;
+import net.amygdalum.testrecorder.SerializationProfile.Output;
 
 public class Outputs {
 
 	public Outputs() {
 	}
 	
-	@Snapshot
+	@Recorded
 	public void recorded() {
 		print("Hello ");
 		print("World");
@@ -19,7 +19,7 @@ public class Outputs {
 		print("World");
 	}
 	
-	@Snapshot
+	@Recorded
 	public void primitivesRecorded() {
 		printByte((byte) 1);
 		printShort((short) 2);
@@ -31,39 +31,39 @@ public class Outputs {
 		printChar('b');
 	}
 
-	@SnapshotOutput
+	@Output
 	public void print(String s) {
 	}
 
-	@SnapshotOutput
+	@Output
 	public void printByte(byte value) {
 	}
 
-	@SnapshotOutput
+	@Output
 	public void printShort(short value) {
 	}
 
-	@SnapshotOutput
+	@Output
 	public void printInt(int value) {
 	}
 	
-	@SnapshotOutput
+	@Output
 	public void printLong(long value) {
 	}
 	
-	@SnapshotOutput
+	@Output
 	public void printFloat(float value) {
 	}
 	
-	@SnapshotOutput
+	@Output
 	public void printDouble(double value) {
 	}
 	
-	@SnapshotOutput
+	@Output
 	public void printBoolean(boolean value) {
 	}
 	
-	@SnapshotOutput
+	@Output
 	public void printChar(char value) {
 	}
 	

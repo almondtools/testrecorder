@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -9,6 +10,9 @@ public class FixedTestRecorderAgentConfig implements TestRecorderAgentConfig {
 	private List<Predicate<Field>> fieldExclusions;
 	private List<Predicate<Class<?>>> classExclusions;
 	private List<Field> globalFields;
+    private List<Method> input;
+    private List<Method> output;
+    private List<DeserializationHint> hints;
 
 	private SnapshotConsumer snapshotConsumer;
 	private long timeoutInMillis;
@@ -19,6 +23,9 @@ public class FixedTestRecorderAgentConfig implements TestRecorderAgentConfig {
 		this.fieldExclusions = config.getFieldExclusions();
 		this.classExclusions = config.getClassExclusions();
 		this.globalFields = config.getGlobalFields();
+		this.input = config.getInputMethods();
+		this.output = config.getOutputMethods();
+		this.hints = config.getHints();
 		this.snapshotConsumer = config.getSnapshotConsumer();
 		this.timeoutInMillis = config.getTimeoutInMillis();
 		this.packages = config.getPackages();
@@ -39,6 +46,21 @@ public class FixedTestRecorderAgentConfig implements TestRecorderAgentConfig {
 	public List<Field> getGlobalFields() {
 		return globalFields;
 	}
+	
+	@Override
+	public List<Method> getInputMethods() {
+	    return input;
+	}
+	
+	@Override
+	public List<Method> getOutputMethods() {
+	    return output;
+	}
+	
+	@Override
+	public List<DeserializationHint> getHints() {
+        return hints;
+    }
 
 	@Override
 	public SnapshotConsumer getSnapshotConsumer() {

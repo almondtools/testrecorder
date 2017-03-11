@@ -1,13 +1,13 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import net.amygdalum.testrecorder.Snapshot;
+import net.amygdalum.testrecorder.Recorded;
 
 public class Exceptions {
 
 	public Exceptions() {
 	}
 	
-	@Snapshot
+	@Recorded
 	public void throwingException() {
 		throw new IllegalArgumentException();
 	}

@@ -1,20 +1,20 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import net.amygdalum.testrecorder.Snapshot;
+import net.amygdalum.testrecorder.Recorded;
 
 public class NestedEnums {
 
-	@Snapshot
+	@Recorded
 	public void inc(NestedEnum nestedEnum) {
 		nestedEnum.inc();
 	}
 
-	@Snapshot
+	@Recorded
 	public String name(Enum<?> unknownEnum) {
 		return unknownEnum.name();
 	}
 
-	@Snapshot
+	@Recorded
 	public String toString(Object o) {
 		return o.toString();
 	}

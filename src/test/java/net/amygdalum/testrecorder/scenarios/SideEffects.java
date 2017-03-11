@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import net.amygdalum.testrecorder.Snapshot;
+import net.amygdalum.testrecorder.Recorded;
 
 public class SideEffects {
 
@@ -13,12 +13,12 @@ public class SideEffects {
 		return i;
 	}
 	
-	@Snapshot
+	@Recorded
 	public void methodWithSideEffectOnThis(int i) {
 		this.i = i + 1;
 	}
 	
-	@Snapshot
+	@Recorded
 	public void methodWithSideEffectOnArgument(int[] i) {
 		i[0]++;
 	}

@@ -10,7 +10,6 @@ import java.util.List;
 import net.amygdalum.testrecorder.SerializedReferenceType;
 import net.amygdalum.testrecorder.Serializer;
 import net.amygdalum.testrecorder.SerializerFacade;
-import net.amygdalum.testrecorder.SnapshotExcluded;
 import net.amygdalum.testrecorder.values.SerializedNull;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
@@ -45,18 +44,12 @@ public class GenericSerializer implements Serializer<SerializedReferenceType> {
 		Class<?> objectClass = object.getClass();
 		while (objectClass != Object.class && !facade.excludes(objectClass)) {
 			for (Field f : objectClass.getDeclaredFields()) {
-				if (isSerializable(f)) {
+				if (!facade.excludes(f)) {
 					serializedObject.addField(facade.serialize(f, object));
 				}
 			}
 			objectClass = objectClass.getSuperclass();
 		}
-	}
-
-	private boolean isSerializable(Field field) {
-		return !field.isAnnotationPresent(SnapshotExcluded.class)
-			&& !field.isSynthetic()
-			&& !facade.excludes(field);
 	}
 
 }

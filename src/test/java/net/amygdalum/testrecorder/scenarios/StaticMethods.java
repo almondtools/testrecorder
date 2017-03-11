@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import net.amygdalum.testrecorder.Snapshot;
+import net.amygdalum.testrecorder.Recorded;
 
 public class StaticMethods {
 
@@ -14,7 +14,7 @@ public class StaticMethods {
 		return value;
 	}
 	
-	@Snapshot
+	@Recorded
 	public static StaticMethods from(String str) {
 		return new StaticMethods(str); 
 	}

@@ -1,23 +1,23 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import net.amygdalum.testrecorder.Snapshot;
+import net.amygdalum.testrecorder.Recorded;
 
 public class RejectedCases {
 
 	public RejectedCases() {
 	}
 	
-	@Snapshot
+	@Recorded
 	private String privateMethod(String data) {
 		return data.toUpperCase();
 	}
 	
-	@Snapshot
+	@Recorded
 	protected String protectedMethod(String data) {
 		return data.toUpperCase();
 	}
 	
-	@Snapshot
+	@Recorded
 	protected String packagePrivateMethod(String data) {
 		return data.toUpperCase();
 	}
@@ -36,7 +36,7 @@ public class RejectedCases {
 
 	private static class PrivateObject {
 		
-		@Snapshot
+		@Recorded
 		public String method(String data) {
 			return data.toUpperCase();
 		}
@@ -45,7 +45,7 @@ public class RejectedCases {
 
 	static class PackagePrivateObject {
 		
-		@Snapshot
+		@Recorded
 		public String method(String data) {
 			return data.toUpperCase();
 		}
@@ -54,7 +54,7 @@ public class RejectedCases {
 
 	protected static class ProtectedObject {
 		
-		@Snapshot
+		@Recorded
 		public String method(String data) {
 			return data.toUpperCase();
 		}

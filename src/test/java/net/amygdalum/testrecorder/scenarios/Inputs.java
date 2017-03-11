@@ -5,20 +5,20 @@ import static java.util.Arrays.asList;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import net.amygdalum.testrecorder.Snapshot;
-import net.amygdalum.testrecorder.SnapshotExcluded;
-import net.amygdalum.testrecorder.SnapshotInput;
+import net.amygdalum.testrecorder.Recorded;
+import net.amygdalum.testrecorder.SerializationProfile.Excluded;
+import net.amygdalum.testrecorder.SerializationProfile.Input;
 
 public class Inputs {
 
-	@SnapshotExcluded
+	@Excluded
 	private Iterator<String> inputs;
 
 	public Inputs() {
 		this.inputs = new ArrayList<>(asList("Hello", " ", "World")).iterator();
 	}
 
-	@Snapshot
+	@Recorded
 	public String recorded() {
 		String first = read();
 		String second = read();
@@ -34,7 +34,7 @@ public class Inputs {
 		return first + second + third + i;
 	}
 
-	@Snapshot
+	@Recorded
 	public String primitivesRecorded() {
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("boolean:").append(readBoolean());
@@ -49,59 +49,59 @@ public class Inputs {
 		return buffer.toString();
 	}
 
-	@Snapshot
+	@Recorded
 	public String sideEffectsRecorded() {
 		char[] cs = new char[11];
 		read(cs);
 		return new String(cs);
 	}
 
-	@SnapshotInput
+	@Input
 	public void read(char[] cs) {
 		System.arraycopy("Hello World".toCharArray(), 0, cs, 0, cs.length);
 	}
 
-	@SnapshotInput
+	@Input
 	public String read() {
 		return inputs.next();
 	}
 
-	@SnapshotInput
+	@Input
 	public byte readByte() {
 		return 42;
 	}
 
-	@SnapshotInput
+	@Input
 	public short readShort() {
 		return 42;
 	}
 
-	@SnapshotInput
+	@Input
 	public int readInt() {
 		return 42;
 	}
 
-	@SnapshotInput
+	@Input
 	public long readLong() {
 		return 42;
 	}
 
-	@SnapshotInput
+	@Input
 	public float readFloat() {
 		return 42;
 	}
 
-	@SnapshotInput
+	@Input
 	public double readDouble() {
 		return 42;
 	}
 
-	@SnapshotInput
+	@Input
 	public boolean readBoolean() {
 		return true;
 	}
 
-	@SnapshotInput
+	@Input
 	public char readChar() {
 		return 'a';
 	}

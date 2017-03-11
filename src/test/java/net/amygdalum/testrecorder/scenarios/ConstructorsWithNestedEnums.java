@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import net.amygdalum.testrecorder.Snapshot;
+import net.amygdalum.testrecorder.Recorded;
 
 public class ConstructorsWithNestedEnums {
 
@@ -55,7 +55,7 @@ public class ConstructorsWithNestedEnums {
 	}
 	
 
-	@Snapshot
+	@Recorded
 	public static String toString(ConstructorsWithNestedEnums value) {
 		return value.toString();
 	}

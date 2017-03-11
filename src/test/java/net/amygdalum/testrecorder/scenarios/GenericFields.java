@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.scenarios;
 
 import java.util.Set;
 
-import net.amygdalum.testrecorder.Snapshot;
+import net.amygdalum.testrecorder.Recorded;
 
 public class GenericFields {
 
@@ -15,7 +15,7 @@ public class GenericFields {
 		this.set = set;
 	}
 	
-	@Snapshot
+	@Recorded
 	@Override
 	public int hashCode() {
 		return set == null ? 1 : set.hashCode();

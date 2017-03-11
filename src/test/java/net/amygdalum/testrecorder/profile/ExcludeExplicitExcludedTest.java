@@ -5,7 +5,7 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.SnapshotExcluded;
+import net.amygdalum.testrecorder.SerializationProfile.Excluded;
 
 public class ExcludeExplicitExcludedTest {
 
@@ -22,7 +22,7 @@ public class ExcludeExplicitExcludedTest {
 
 	@SuppressWarnings("unused")
 	public static class AnObject {
-		@SnapshotExcluded
+		@Excluded
 		private String excluded;
 		private String included;
 

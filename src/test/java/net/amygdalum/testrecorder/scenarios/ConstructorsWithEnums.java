@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import net.amygdalum.testrecorder.Snapshot;
+import net.amygdalum.testrecorder.Recorded;
 
 public class ConstructorsWithEnums {
 
@@ -29,7 +29,7 @@ public class ConstructorsWithEnums {
 		return chained;
 	}
 
-	@Snapshot
+	@Recorded
 	public static String toString(ConstructorsWithEnums value) {
 		return value.toString();
 	}
