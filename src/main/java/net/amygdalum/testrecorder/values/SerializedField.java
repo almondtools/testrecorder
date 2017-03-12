@@ -1,7 +1,9 @@
 package net.amygdalum.testrecorder.values;
 
 import java.lang.reflect.Type;
+import java.util.List;
 
+import net.amygdalum.testrecorder.DeserializationHint;
 import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.deserializers.ValuePrinter;
@@ -13,7 +15,7 @@ public class SerializedField implements Comparable<SerializedField>{
 	private SerializedValue value;
 	private Class<?> clazz;
 
-	public SerializedField(Class<?> clazz, String name, Type type, SerializedValue value) {
+    public SerializedField(Class<?> clazz, String name, Type type, SerializedValue value) {
 		this.clazz = clazz;
 		this.name = name;
 		this.type = type;
@@ -35,6 +37,14 @@ public class SerializedField implements Comparable<SerializedField>{
 	public SerializedValue getValue() {
 		return value;
 	}
+
+    public void addHints(List<DeserializationHint> hints) {
+        value.addHints(hints);
+    }
+
+	public List<DeserializationHint> getHints() {
+        return value.getHints();
+    }
 
 	public <T> T accept(Deserializer<T> visitor) {
 		return visitor.visitField(this);

@@ -26,4 +26,8 @@ public interface SerializedValue {
 
 	List<SerializedValue> referencedValues();
 
+    void addHints(List<DeserializationHint> hints);
+
+    List<DeserializationHint> getHints();
+
 }

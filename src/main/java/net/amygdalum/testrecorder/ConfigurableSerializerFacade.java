@@ -1,10 +1,13 @@
 package net.amygdalum.testrecorder;
 
+import static java.util.Collections.emptyList;
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.isLiteral;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +18,7 @@ import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
 import net.amygdalum.testrecorder.SerializationProfile.Excluded;
+import net.amygdalum.testrecorder.SerializationProfile.Hint;
 import net.amygdalum.testrecorder.serializers.ArraySerializer;
 import net.amygdalum.testrecorder.serializers.EnumSerializer;
 import net.amygdalum.testrecorder.serializers.GenericSerializer;
@@ -61,7 +65,6 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
         serialized.clear();
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public SerializedValue serialize(Type type, Object object) {
         if (object == null) {
@@ -69,6 +72,11 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
         } else if (isLiteral(object.getClass())) {
             return SerializedLiteral.literal(object);
         }
+        return createObject(type, object);
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private SerializedValue createObject(Type type, Object object) {
         SerializedValue serializedObject = serialized.get(object);
         if (serializedObject == null) {
             Serializer serializer = fetchSerializer(object.getClass());
@@ -104,10 +112,60 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
     @Override
     public SerializedField serialize(Field field, Object obj) {
         try {
-            return accessing(field).call(() -> new SerializedField(field.getDeclaringClass(), field.getName(), field.getType(), serialize(field.getType(), field.get(obj))));
+            return accessing(field).call(() -> createField(field, obj));
         } catch (ReflectiveOperationException e) {
-            System.out.println(field.getName());
             throw new SerializationException(e);
+        }
+    }
+
+    private SerializedField createField(Field field, Object obj) throws IllegalAccessException {
+        Class<?> declaringClass = field.getDeclaringClass();
+        String name = field.getName();
+        Class<?> type = field.getType();
+        SerializedValue serializedObject = serialize(type, field.get(obj));
+        SerializedField serializedField = new SerializedField(declaringClass, name, type, serializedObject);
+        Hint[] hints = field.getAnnotationsByType(Hint.class);
+        if (hints.length > 0) {
+            serializedField.addHints(createHints(field, obj, hints));
+        }
+        return serializedField;
+    }
+
+    private List<DeserializationHint> createHints(Field field, Object obj, Hint[] hints) {
+        if (hints.length == 0) {
+            return emptyList();
+        }
+        List<DeserializationHint> deserializationHints = new ArrayList<>(hints.length);
+        for (Hint hint : hints) {
+            Class<? extends DeserializationHint> type = hint.type();
+            DeserializationHint deserializationHint = constructWithContext(type, field, obj);
+            if (deserializationHint == null) {
+                deserializationHint = constructWithoutContext(type);
+            }
+            if (deserializationHint != null) {
+                deserializationHints.add(deserializationHint);
+            } else {
+                System.out.println("failed serializing deserialization hint " + type.getSimpleName());
+            }
+        }
+        return deserializationHints;
+    }
+
+    private DeserializationHint constructWithContext(Class<? extends DeserializationHint> type, Field field, Object obj) {
+        try {
+            Constructor<? extends DeserializationHint> constructor = type.getDeclaredConstructor(Field.class, Object.class);
+            DeserializationHint deserializationHint = constructor.newInstance(field, obj);
+            return deserializationHint;
+        } catch (ReflectiveOperationException | SecurityException e) {
+            return null;
+        }
+    }
+
+    private DeserializationHint constructWithoutContext(Class<? extends DeserializationHint> type) {
+        try {
+            return type.newInstance();
+        } catch (ReflectiveOperationException | SecurityException e) {
+            return null;
         }
     }
 

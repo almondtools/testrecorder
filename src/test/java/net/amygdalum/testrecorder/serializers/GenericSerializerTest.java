@@ -12,6 +12,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Random;
 
@@ -68,6 +69,7 @@ public class GenericSerializerTest {
 		SerializedField fooField = new SerializedField(GenericObject.class, "stringField", String.class, foo);
 		SerializedValue bar = literal(int.class, 1);
 		SerializedField barField = new SerializedField(GenericObject.class, "intField", int.class, bar);
+        when(facade.excludes(any(Field.class))).thenAnswer(field -> ((Field) field.getArguments()[0]).isSynthetic());
 		when(facade.serialize(eq(GenericObject.class.getDeclaredField("stringField")), any())).thenReturn(fooField);
 		when(facade.serialize(eq(GenericObject.class.getDeclaredField("intField")), any())).thenReturn(barField);
 		SerializedObject value = (SerializedObject) serializer.generate(GenericObject.class, GenericObject.class);
