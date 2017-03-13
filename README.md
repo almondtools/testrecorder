@@ -3,117 +3,129 @@
 [![Build Status](https://api.travis-ci.org/almondtools/testrecorder.svg)](https://travis-ci.org/almondtools/testrecorder)
 [![codecov](https://codecov.io/gh/almondtools/testrecorder/branch/master/graph/badge.svg)](https://codecov.io/gh/almondtools/testrecorder)
 
-__Testrecorder__ is a tool for generating test code from runnable Java code. The generated tests can then be executed with a JUnit-Runner.
+__Testrecorder__ is a tool for recording runtime behavior of java programs. The results of such a recording are executable JUnit-tests replaying the recorded behavior.
 
-* You can use these tests as part of your integration tests
-* Or you can try to refactor them to make up proper unit tests
+* You can use these tests as part of your characterization tests
+* Or you can refactor them (they are pure java) to make up proper unit tests
 * Even without reusing the generated code it could give valuable insights for code understanding
 
-It is not recommended to replace a test-driven strategy with generated-test strategy but in many cases the productive code is there and the tests are missing. In this case the first step should be to fix the current behavior by creating integration tests. This task is often hard and thankless. __Testrecorder__ can support you in this case.
+__Testrecorder__ uses an api to serialize objects to executable java code or hamcrest matchers.
 
-We shall start with some basics on Runtime Object Serialization. This action has a simple interface, yet it is not as powerful as test recording. Then we shall dive into the configuration of Test Recording.
+Basic Usage
+===========
 
-Runtime Object Serialization - the Basics
-=========================================
+## 1. Annotate the method to record
+Annotate the method to record with `@Recorded`. For example you want to record this simple example
 
-In this section we give you an impression how code can be serialized and directly deserialized to code. The following examples will use the following `ExampleObject`:
-
-    public class ExampleObject {
-        private String name;
-    
-        public void setName(String name) {
-            this.name = name;
-        }
-    
-        public String getName() {
-            return name;
+    public class FizzBuzz {
+        @Recorded
+        public String fizzBuzz(int i) {
+            if (i % 15 == 0) {
+                return "FizzBuzz";
+            } else if (i % 3 == 0) {
+                return "Fizz";
+            } else if (i % 5 == 0) {
+                return "Buzz";
+            } else {
+                return String.valueOf(i);
+            }
         }
     }
 
-    ExampleObject exampleObject = new ExampleObject();
-    exampleObject.setName("Testrecorder");
+## 2. Configure the test serialization
+Write a java configuration file that implements `TestRecorderAgentConfig`. For example:
 
-Serializing any Object as Java Code
------------------------------------
-Serializing an object to code is done like this:
+    public class AgentConfig extends DefaultTestRecorderAgentConfig {
+        
+        @Override
+        public SnapshotConsumer getSnapshotConsumer() {
+            return new ScheduledTestGenerator()
+                .withDumpOnShutDown(true)                       
+                .withDumpTo(Paths.get("target/generated"));     
+        }
+        
+        @Override
+        public long getTimeoutInMillis() {
+            return 100_000;
+        }
+        
+        @Override
+        public List<String> getPackages() {
+            return asList("com.almondtools.testrecorder.examples");
+        }
+    
+    }
 
-	CodeSerializer codeSerializer = new CodeSerializer();
-	String code = codeSerializer.serialize(exampleObject);
+Now some explanations:
 
-The string `code` will then contain:
+`getSnapshotConsumer` should return the client that generates your test. You can use any class implementing `SnapshotConsumer` yet there are two default implementations:
 
-	ExampleObject exampleObject1 = new ExampleObject();
-	exampleObject1.setName("Testrecorder");
-	ExampleObject serializedObject1 = exampleObject1;
+* `TestGenerator` is a low level implementation. It can collect tests but will write them only driven by API calls. Actually you should use this class only as super class for your own implementations. Such sub classes are not limited when and where to write tests.
+* `ScheduledTestGenerator` is a simple `TestGenerator` implementation allowing you to specify when to write tests to the file system. As you can see in the example you can specify to write tests at program shutdown (with `withDumpOnShutDown(true)`) and you should specify the directory where serialized tests should be stored (with `withDumpTo([directory])`)
 
+`getTimeoutInMillis` will be the limit for the recording time. This threshold is built in to skip unexpectedly long (possibly infinite) serializations. The value of `100_000` will actually only stop such long serializations. 
 
-Serializing any Object as Hamcrest Matcher Code
------------------------------------------------
-Serializing an object to matcher code  is done like this:
+`getPackages` should return a list of java packages that should be analyzed. Only methods in these packages are recorded (`@Recorded`-Annotations that are in packages not specified here will not have any effect)
 
-	SerializationProfile profile = new DefaultSerializationProfile();
-	SerializerFacade facade = new ConfigurableSerializerFacade(profile);
-	DeserializerFactory factory = new ObjectToMatcherCode.Factory();
-					
-	CodeSerializer codeSerializer = new CodeSerializer(facade, factory);
-	String code = codeSerializer.serialize(exampleObject);
+## 3. Run your program with TestRecorderAgent
+To run your program with test recording activated you have to call ist with an agent
 
-The string `code` will then contain:
+`-javaagent:testrecorder-[version]-jar-with-dependencies.jar=AgentConfig`
 
-	Matcher<ExampleObject> serializedObject1 = new GenericMatcher() {
-        String name = "Testrecorder";
-    }.matching(ExampleObject.class);
+`testrecorder-[version]-jar-with-dependencies.jar` is an artifact provided by the maven build (available in maven repository).
 
-Test Recording - Advanced Topics
-================================
+`AgentConfig` is your configuration class from the former step.
 
-Test Recording is strictly putting together the upper code for Runtime Object Serialization. 
+## 4. Interact with the program and check results
+You may now interact with your program and every call to a `@Recorded` method will be captured. After shutdown of your program all captured recordings will be transformed to executable JUnit tests, e.g.
 
-How to start
-------------
-The first step to Test Recording should be to instrument your code.
+    @Test
+    public void testFizzBuzz0() throws Exception {
+    
+        //Arrange
+        FizzBuzz fizzBuzz1 = new FizzBuzz();
+        
+        //Act
+        String string1 = fizzBuzz1.fizzBuzz(1);
+        
+        //Assert
+        assertThat(string1, equalTo("1"));
+        assertThat(fizzBuzz1, new GenericMatcher() {
+        }.matching(FizzBuzz.class));
+    }
 
-- Put the test recorder jar on your class path
-- You will also need the jar with dependencies
-- Select one method of interest and annotate it with `@Snapshot`. Now the Testrecorder knows which method has to be recorded.
-- Configure your Testrecording by writing a class `YourConfig implements SnapshotConfig`
-  - `getSnapshotConsumer` should return an instance of `ScheduledTestGenerator`
-  - `getTimeoutMillis` may be set to `100.000`
-  - `getPackages` should return the packages containing the classes/methods you want to record
-  - `getInitializer` may be set to null 
-- start your application with `-javaagent:testrecorder-jar-with-dependencies.jar=YourConfig`
+    ...
+    
+Advanced Topics
+===============
+Now that you know how testrecorder works, we will give you an introduction to more advanced topics:
 
-Examples
---------
-Examples can be found at [testrecorder-examples](https://github.com/almondtools/testrecorder-examples)
+### [An Introduction to the Testrecorder Architecture](doc/Architecture.md)
 
-Custom Serializers
-------------------
-Sometimes you will encounter problems with automatic serialization because the testrecorder engine does not know the best abstraction how to serialize an object. In most times it will choose the `GenericSerializer` class, which is very generic but may contain too much of unnecessary data.
+### [Tuning the Output of Testrecorder](doc/TuningOutput.md)
 
-If you depend on an Object that should be serialized in a special way, you can define a new `CustomSerializer implements Serializer<SerializedObject>`. Each serializer has:
-- a method `getMatchingClasses` return all classes this serializer can handle
-- a method `generateType` being just a factor method to create an empty serialized value
-- a method `populate` being a method that is passed both the empty serialized value and the object to serialize. This should store all necessary information into the serialized value
-- an inner class `Factory implements SerializerFactory` to return an instance of this serializer. 
+### [Recordering Input/Output with Testrecorder](doc/RecordingIO.md)
 
-To enable `CustomSerializer` make it available as ServiceProvider:
-- create a directory `META-INF/services` in your class path
-- create a file `net.amygdalum.testrecorder.SerializerFactory` in this directory
-- put the full qualified class name of `CustomSerializer$Factory` into this file   
+### [Using the Testrecorder-API to serialize data and generate code](doc/API.md)
 
-
-Custom Deserializers (SetupGenerators, MatcherGenerators, ...) 
---------------------------------------------------------------
-You can also modify your output code by introducing custom deserializers. More on that in later updates.
+### [Extending Testrecorder with Custom Components](doc/Extending.md)
 
 Limitations
------------
+===========
 TestRecorder serialization (for values and tests) does not cover all of an objects properties. Problems might occur with:
-- static fields
-- synthetic fields (added by some bytecode rewriting framework)
-- native state
 
+* static fields
+* synthetic fields (e.g. added by some bytecode rewriting framework)
+* native state
+* state that influences object access (e.g. modification counter in collections)
+
+Examples
+========
+Examples can be found at [testrecorder-examples](https://github.com/almondtools/testrecorder-examples)
+
+Some additional notes ...
+=========================
 The objective of Testrecorder is to provide an interface that is powerful, clean and extensible. To achieve this we will provide more and more configuration settings to extend the core framework. The fact that tests are generated automatically might rise wrong expectations: Testrecorder will probably always be an experts tool, meaning strong programming and debug skills are recommended to find the correct configuration and the necessary custom extensions.
 
 Testrecorder was not yet tested on a large set of code examples. Some classes are not as easy to serialize as others, so if you encounter problems, try to write an issue. Hopefully - most fixes to such problems should be solvable with custom serializers or custom deserializers. 
+ 
