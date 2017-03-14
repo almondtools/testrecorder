@@ -17,8 +17,7 @@ public class ScheduledTestGenerator extends TestGenerator {
 	private long timeInterval;
 	private String classNameTemplate;
 
-	public ScheduledTestGenerator(Class<? extends Runnable> initializer) {
-		super(initializer);
+	public ScheduledTestGenerator() {
 		this.counterMaximum = -1;
 		this.counter = 0;
 		this.start = System.currentTimeMillis();
@@ -65,7 +64,7 @@ public class ScheduledTestGenerator extends TestGenerator {
 				@Override
 				public void run() {
 					for (ScheduledTestGenerator gen : dumpOnShutDown) {
-				        if (gen.counterMaximum < 0 || gen.counter > gen.counterMaximum) {
+				        if (gen.counterMaximum >= 0 && gen.counter > gen.counterMaximum) {
 				            return;
 				        }
 						gen.dumpResults();

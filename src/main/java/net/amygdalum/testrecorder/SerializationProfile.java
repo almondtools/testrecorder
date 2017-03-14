@@ -16,7 +16,6 @@ public interface SerializationProfile {
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD})
     public @interface Excluded {
-
     }
 
 	List<Predicate<Field>> getFieldExclusions();
@@ -34,7 +33,7 @@ public interface SerializationProfile {
     @Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
     @Repeatable(Hints.class)
     public @interface Hint {
-        Class<? extends DeserializationHint> type();
+        Class<? extends DeserializationHint> value();
     }
 
     @Retention(RetentionPolicy.RUNTIME)

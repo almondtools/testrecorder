@@ -54,7 +54,7 @@ public class DefaultTestRecorderAgentConfig implements TestRecorderAgentConfig {
 
     @Override
     public SnapshotConsumer getSnapshotConsumer() {
-        return new TestGenerator(getInitializer());
+        return new TestGenerator();
     }
 
     @Override
@@ -67,8 +67,4 @@ public class DefaultTestRecorderAgentConfig implements TestRecorderAgentConfig {
         return Collections.emptyList();
     }
 
-    @Override
-    public Class<? extends Runnable> getInitializer() {
-        return null;
-    }
 }

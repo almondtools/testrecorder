@@ -22,6 +22,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import net.amygdalum.testrecorder.SerializationProfile.Hint;
+import net.amygdalum.testrecorder.deserializers.Adaptors;
+import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedNull;
@@ -117,8 +119,8 @@ public class ConfigurableSerializerFacadeTest {
     public class TestClass {
 
         private int testField;
-        @Hint(type=TestHint.class)
-        @Hint(type=TestContextHint.class)
+        @Hint(TestHint.class)
+        @Hint(TestContextHint.class)
         private String hintedField;
 
         public TestClass() {
@@ -129,6 +131,11 @@ public class ConfigurableSerializerFacadeTest {
     
     public static class TestHint implements DeserializationHint {
         
+        @Override
+        public <T extends SerializedValue, G extends Deserializer<Computation>> Computation tryDeserialize(T value, G generator, Adaptors<G> adaptors) {
+            throw new DeserializationException(value.toString());
+        }
+
     }
 
     public static class TestContextHint implements DeserializationHint {
@@ -141,6 +148,11 @@ public class ConfigurableSerializerFacadeTest {
             this.object = object;
         }
         
+        @Override
+        public <T extends SerializedValue, G extends Deserializer<Computation>> Computation tryDeserialize(T value, G generator, Adaptors<G> adaptors) {
+            throw new DeserializationException(value.toString());
+        }
+
         @Override
         public boolean equals(Object obj) {
             TestContextHint that = (TestContextHint) obj;

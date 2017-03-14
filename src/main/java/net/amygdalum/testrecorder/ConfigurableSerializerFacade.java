@@ -137,7 +137,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
         }
         List<DeserializationHint> deserializationHints = new ArrayList<>(hints.length);
         for (Hint hint : hints) {
-            Class<? extends DeserializationHint> type = hint.type();
+            Class<? extends DeserializationHint> type = hint.value();
             DeserializationHint deserializationHint = constructWithContext(type, field, obj);
             if (deserializationHint == null) {
                 deserializationHint = constructWithoutContext(type);

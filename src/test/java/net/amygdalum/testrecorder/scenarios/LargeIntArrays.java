@@ -1,9 +1,12 @@
 package net.amygdalum.testrecorder.scenarios;
 
 import net.amygdalum.testrecorder.Recorded;
+import net.amygdalum.testrecorder.SerializationProfile.Hint;
+import net.amygdalum.testrecorder.hints.LoadFromFile;
 
 public class LargeIntArrays {
 	
+    @Hint(LoadFromFile.class)
 	private int[][] entries;
 
 	public LargeIntArrays(int entries) {

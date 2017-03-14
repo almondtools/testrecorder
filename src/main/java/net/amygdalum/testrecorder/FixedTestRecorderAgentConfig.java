@@ -15,7 +15,6 @@ public class FixedTestRecorderAgentConfig implements TestRecorderAgentConfig {
 	private SnapshotConsumer snapshotConsumer;
 	private long timeoutInMillis;
 	private List<String> packages;
-	private Class<? extends Runnable> initializer;
 
 	public FixedTestRecorderAgentConfig(TestRecorderAgentConfig config) {
 		this.fieldExclusions = new ArrayList<>(config.getFieldExclusions());
@@ -25,7 +24,6 @@ public class FixedTestRecorderAgentConfig implements TestRecorderAgentConfig {
 		this.snapshotConsumer = config.getSnapshotConsumer();
 		this.timeoutInMillis = config.getTimeoutInMillis();
 		this.packages = config.getPackages();
-		this.initializer = config.getInitializer();
 	}
 
     @Override
@@ -66,11 +64,6 @@ public class FixedTestRecorderAgentConfig implements TestRecorderAgentConfig {
 	@Override
 	public List<String> getPackages() {
 		return packages;
-	}
-
-	@Override
-	public Class<? extends Runnable> getInitializer() {
-		return initializer;
 	}
 
 }

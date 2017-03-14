@@ -11,9 +11,11 @@ import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 
 import net.amygdalum.testrecorder.DeserializationException;
+import net.amygdalum.testrecorder.DeserializationHint;
+import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedValue;
 
-public class Adaptors<G> {
+public class Adaptors<G extends Deserializer<Computation>> {
 
 	private Map<Class<? extends SerializedValue>, List<Adaptor<?, G>>> adaptors;
 
@@ -63,6 +65,13 @@ public class Adaptors<G> {
 
 	@SuppressWarnings("unchecked")
 	public <T extends SerializedValue> Computation tryDeserialize(T value, TypeManager types, G generator) {
+	    for (DeserializationHint hint : value.getHints()) {
+            try {
+                return hint.tryDeserialize(value, generator, this);
+            } catch (DeserializationException e) {
+                continue;
+            }
+	    }
 		Class<? extends SerializedValue> clazz = value.getClass();
 		List<Adaptor<?, G>> matching = adaptors.getOrDefault(clazz, emptyList());
 		for (Adaptor<?, G> match : matching) {

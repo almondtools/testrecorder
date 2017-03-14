@@ -1,24 +1,26 @@
 package net.amygdalum.testrecorder;
 
 import java.lang.instrument.Instrumentation;
+import java.util.ServiceLoader;
 
 public class TestRecorderAgent {
 
 	public static void premain(String agentArgs, Instrumentation inst) {
 		TestRecorderAgentConfig config = loadConfig(agentArgs);
 		inst.addTransformer(new SnapshotInstrumentor(config));
-		initialize(config.getInitializer());
+		initialize(config);
 	}
 
-	public static void initialize(Class<? extends Runnable> initializerClass) {
-		if (initializerClass != null) {
-			try {
-				Runnable initializer = initializerClass.newInstance();
-				initializer.run();
-			} catch (RuntimeException | ReflectiveOperationException e) {
-				System.out.println("initializer failed with " + e.getMessage() + ", skipping");
-			}
-		}
+	public static void initialize(TestRecorderAgentConfig config) {
+        ServiceLoader<TestRecorderAgentInitializer> loader = ServiceLoader.load(TestRecorderAgentInitializer.class);
+        
+        for (TestRecorderAgentInitializer initializer : loader) {
+            try {
+                initializer.run();
+            } catch (RuntimeException e) {
+                System.out.println("initializer " + initializer.getClass().getSimpleName() + " failed with " + e.getMessage() + ", skipping");
+            }
+        }
 	}
 
 	@SuppressWarnings("unchecked")

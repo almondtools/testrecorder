@@ -50,7 +50,7 @@ public class TestGeneratorTest {
 
 	@Before
 	public void before() throws Exception {
-		testGenerator = new TestGenerator(null);
+		testGenerator = new TestGenerator();
 	}
 
 	@Test
@@ -237,7 +237,7 @@ public class TestGeneratorTest {
 
 	@Test
 	public void testFromRecordedIfConsumerIsNonNull() throws Exception {
-		TestGenerator tg = new TestGenerator(null);
+		TestGenerator tg = new TestGenerator();
 		SnapshotManager.MANAGER = new SnapshotManager(new DefaultTestRecorderAgentConfig() {
 
 			@Override

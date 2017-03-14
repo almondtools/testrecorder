@@ -40,6 +40,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -116,15 +117,12 @@ public class TestGenerator implements SnapshotConsumer {
 	private Set<String> fields;
 	private Set<String> inputClasses;
 	private Set<String> outputClasses;
-	private Class<? extends Runnable> initializer;
 
-	public TestGenerator(Class<? extends Runnable> initializer) {
+	public TestGenerator() {
 		this.executor = Executors.newSingleThreadExecutor(new TestrecorderThreadFactory("$consume"));
 
 		this.setup = new SetupGenerators.Factory();
 		this.matcher = new MatcherGenerators.Factory();
-
-		this.initializer = initializer;
 
 		this.tests = synchronizedMap(new LinkedHashMap<>());
 		this.fields = new LinkedHashSet<>();
@@ -243,12 +241,14 @@ public class TestGenerator implements SnapshotConsumer {
 		if (outputClasses.isEmpty() && inputClasses.isEmpty()) {
 			return null;
 		}
-		if (initializer != null) {
+        ServiceLoader<TestRecorderAgentInitializer> loader = ServiceLoader.load(TestRecorderAgentInitializer.class);
+        
+        for (TestRecorderAgentInitializer initializer : loader) {
 			if (!outputClasses.isEmpty()) {
-				outputClasses.add(initializer.getTypeName());
+				outputClasses.add(initializer.getClass().getCanonicalName());
 			}
 			if (!inputClasses.isEmpty()) {
-				inputClasses.add(initializer.getTypeName());
+				inputClasses.add(initializer.getClass().getCanonicalName());
 			}
 		}
 
@@ -269,13 +269,17 @@ public class TestGenerator implements SnapshotConsumer {
 	private String computeBefore(TestGeneratorContext context) {
 		TypeManager types = context.getTypes();
 		types.registerType(Before.class);
-		if (initializer == null) {
-			return "";
-		}
-		types.registerType(initializer);
-		String initObject = newObject(types.getSimpleName(initializer));
-		String initStmt = callMethodStatement(initObject, "run");
-		return generateBefore(asList(initStmt));
+
+		ServiceLoader<TestRecorderAgentInitializer> loader = ServiceLoader.load(TestRecorderAgentInitializer.class);
+        
+        List<String> statements = new ArrayList<>();
+        for (TestRecorderAgentInitializer initializer : loader) {
+            types.registerType(initializer.getClass());
+            String initObject = newObject(types.getSimpleName(initializer.getClass()));
+            String initStmt = callMethodStatement(initObject, "run");
+            statements.add(initStmt);
+        }
+        return generateBefore(statements);
 	}
 
 	public String computeClassName(ClassDescriptor clazz) {

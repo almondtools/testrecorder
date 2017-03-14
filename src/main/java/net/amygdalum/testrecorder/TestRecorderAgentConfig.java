@@ -16,7 +16,5 @@ public interface TestRecorderAgentConfig extends SerializationProfile {
 	long getTimeoutInMillis();
 
 	List<String> getPackages();
-	
-	Class<? extends Runnable> getInitializer();
 
 }
