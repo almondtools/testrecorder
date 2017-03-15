@@ -98,7 +98,7 @@ You may now interact with your program and every call to a `@Recorded` method wi
     
 Advanced Topics
 ===============
-Now that you know how testrecorder works, we will give you an introduction to more advanced topics:
+Following subjects could be of further interest:
 
 ### [An Introduction to the Testrecorder Architecture](doc/Architecture.md)
 
