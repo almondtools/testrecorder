@@ -9,7 +9,7 @@
               <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.0.0/styles/default.min.css"/>
                   <title>Testrecorder - Generate Test Fixtures from Runnable Java Code</title>
       <meta name="description" content="Record Test Fixtures from Runnable Java Code"/>
-      <meta name="keywords" content="testing,recorder,code generator,test generator,Java,integration test"/>
+      <meta name="keywords" content="testing,recorder,code generator,test generator,Java,characterization test"/>
   </head>
             <body>
                             <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
@@ -52,176 +52,150 @@
   </div>
   </div>
               <div class="container">
-                  <section>
-                  <div class="row">
-              <div class="col-md-push-8 col-md-4">
-            
-  </div>
-          <div class="col-md-pull-4 col-md-8">
-                  <p>                  <strong>Testrecorder</strong> is a tool for generating test code from runnable Java code. The generated tests can then be executed with a
-                JUnit-Runner. 
-                  <ul>
-                          <li>You can use these tests as part of your integration tests</li>
-                      <li>Or you can try to refactor them to make up proper unit tests</li>
-                      <li>Even without reusing the generated code it could give valuable insights for code understanding</li>
-  </ul> </p>
-              <p>                It is not recommended to replace a test-driven strategy with generated-test strategy but in many cases the productive code is there 
-                and the tests are missing. In this case the first step should be to fix the current behavior by creating integration tests. This task 
-                is often hard and thankless.   <strong>Testrecorder</strong> can support you in this case.</p>
-              <p>                We shall start with some basics on Runtime Object Serialization. This action has a simple interface, yet it is not as powerful as test 
-                recording. Then we shall dive into the configuration of Test Recording.</p>
-  </div>
-  </div>
-  </section>
-              <section>
                   <div class="row">
               <div class="col-md-push-8 col-md-4">
                       <div class="panel panel-default">
               <div class="panel-heading">
-      <h3 class="panel-title">Example Object</h3>
+      <h4>Advanced Topics</h4>
   </div>
           <div class="panel-body">
-                          <div>
-      <pre><code class="java">public class ExampleObject {
-    private String name;
-    
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-}</code></pre>
+                                        <p>Following subjects could be of further interest:</p>
+<ul>
+  <li><a href="https://github.com/almondtools/testrecorder/blob/master/doc/Architecture.md">An Introduction to the Testrecorder Architecture</a></li>
+  <li><a href="https://github.com/almondtools/testrecorder/blob/master/doc/TuningOutput.md">Tuning the Output of Testrecorder</a></li>
+  <li><a href="https://github.com/almondtools/testrecorder/blob/master/doc/RecordingIO.md">Recordering Input/Output with Testrecorder</a></li>
+  <li><a href="https://github.com/almondtools/testrecorder/blob/master/doc/API.md">Using the Testrecorder-API to serialize data and generate code</a></li>
+  <li><a href="https://github.com/almondtools/testrecorder/blob/master/doc/Extending.md">Extending Testrecorder with Custom Components</a></li>
+</ul>
   </div>
+  </div>
+                  <div class="panel panel-default">
+              <div class="panel-heading">
+      <h4>Limitations</h4>
+  </div>
+          <div class="panel-body">
+                    <p>TestRecorder serialization (for values and tests) does not cover all of an objects properties. Problems might occur with:</p>
+<ul>
+  <li>static fields</li>
+  <li>synthetic fields (e.g. added by some bytecode rewriting framework)</li>
+  <li>native state</li>
+  <li>state that influences object access (e.g. modification counter in collections)</li>
+</ul>
+  </div>
+  </div>
+                  <div class="panel panel-default">
+              <div class="panel-heading">
+      <h4>Examples</h4>
+  </div>
+          <div class="panel-body">
+                    <p>Examples can be found at <a href="https://github.com/almondtools/testrecorder-examples">testrecorder-examples</a> </p>
+  </div>
+  </div>
+                  <div class="panel panel-default">
+              <div class="panel-heading">
+      <h4>Roadmap</h4>
+  </div>
+          <div class="panel-body">
+                    <p>The objective of Testrecorder is to provide an interface that is powerful, clean and extensible. To achieve this we will provide more and more configuration settings to extend the core framework. The fact that tests are generated automatically might rise wrong expectations: Testrecorder will probably always be an experts tool, meaning strong programming and debug skills are recommended to find the correct configuration and the necessary custom extensions.</p>
+<p>Testrecorder was not yet tested on a large set of code examples. Some classes are not as easy to serialize as others, so if you encounter problems, try to write an issue. Hopefully - most fixes to such problems should be solvable with custom serializers or custom deserializers. </p>
   </div>
   </div>
   </div>
           <div class="col-md-pull-4 col-md-8">
-                  <h2>Runtime Object Serialization - the Basics</h2>
-              <p>                The following examples will expect following code setup:
-                      <div>
-      <pre><code class="java">ExampleObject exampleObject = new ExampleObject();
-exampleObject.setName(&quot;Testrecorder&quot;);</code></pre>
-  </div></p>
-              <h3>Serializing any Object as constructing Java Code</h3>
-              <p>                Serializing an Object to constructing code is done this way:
-                      <div>
-      <pre><code class="java">CodeSerializer codeSerializer = new CodeSerializer();
-String code = codeSerializer.serialize(exampleObject);</code></pre>
-  </div></p>
-              <p>                The string       <code >code</code> will then contain:
-                      <div>
-      <pre><code class="java">ExampleObject exampleObject1 = new ExampleObject();
-exampleObject1.setName(&quot;Testrecorder&quot;);
-ExampleObject serializedObject1 = exampleObject1;</code></pre>
-  </div></p>
-              <div class="alert alert-info" role="alert">
-                    Note that   <strong>Testrecorder</strong> recognizes the java bean property and uses it for constructing the object. Yet
-                  <strong>Testrecorder</strong> is not limited to java beans.
+                <p><strong>Testrecorder</strong> is a tool for recording runtime behavior of java programs. The results of such a recording are executable JUnit-tests replaying the recorded behavior.</p>
+<ul>
+  <li>You can use these tests as part of your characterization tests</li>
+  <li>Or you can refactor them (they are pure java) to make up proper unit tests</li>
+  <li>Even without reusing the generated code it could give valuable insights for code understanding</li>
+</ul>
+<p><strong>Testrecorder</strong> uses an api to serialize objects to executable java code or hamcrest matchers.</p>
+<h1>Basic Usage</h1>
+<h2>1. Annotate the method to record</h2>
+<p>Annotate the method to record with <code>@Recorded</code>. For example you want to record this simple example</p>
+<pre><code>public class FizzBuzz {
+    @Recorded
+    public String fizzBuzz(int i) {
+        if (i % 15 == 0) {
+            return &quot;FizzBuzz&quot;;
+        } else if (i % 3 == 0) {
+            return &quot;Fizz&quot;;
+        } else if (i % 5 == 0) {
+            return &quot;Buzz&quot;;
+        } else {
+            return String.valueOf(i);
+        }
+    }
+}
+</code></pre>
+<h2>2. Configure the test serialization</h2>
+<p>Write a java configuration file that implements <code>TestRecorderAgentConfig</code>. For example:</p>
+<pre><code>public class AgentConfig extends DefaultTestRecorderAgentConfig {
+
+    @Override
+    public SnapshotConsumer getSnapshotConsumer() {
+        return new ScheduledTestGenerator()
+            .withDumpOnShutDown(true)                       
+            .withDumpTo(Paths.get(&quot;target/generated&quot;));     
+    }
+
+    @Override
+    public long getTimeoutInMillis() {
+        return 100_000;
+    }
+
+    @Override
+    public List&lt;String&gt; getPackages() {
+        return asList(&quot;com.almondtools.testrecorder.examples&quot;);
+    }
+
+}
+</code></pre>
+<p>Now some explanations:</p>
+<p><code>getSnapshotConsumer</code> should return the client that generates your test. You can use any class implementing <code>SnapshotConsumer</code> yet there are two default implementations:</p>
+<ul>
+  <li><code>TestGenerator</code> is a low level implementation. It can collect tests but will write them only driven by API calls. Actually you should use this class only as super class for your own implementations. Such sub classes are not limited when and where to write tests.</li>
+  <li><code>ScheduledTestGenerator</code> is a simple <code>TestGenerator</code> implementation allowing you to specify when to write tests to the file system. As you can see in the example you can specify to write tests at program shutdown (with <code>withDumpOnShutDown(true)</code>) and you should specify the directory where serialized tests should be stored (with <code>withDumpTo([directory])</code>)</li>
+</ul>
+<p><code>getTimeoutInMillis</code> will be the limit for the recording time. This threshold is built in to skip unexpectedly long (possibly infinite) serializations. The value of <code>100_000</code> will actually only stop such long serializations. </p>
+<p><code>getPackages</code> should return a list of java packages that should be analyzed. Only methods in these packages are recorded (<code>@Recorded</code>-Annotations that are in packages not specified here will not have any effect)</p>
+<h2>3. Run your program with TestRecorderAgent</h2>
+<p>To run your program with test recording activated you have to call ist with an agent</p>
+<p><code>-javaagent:testrecorder-[version]-jar-with-dependencies.jar=AgentConfig</code></p>
+<p><code>testrecorder-[version]-jar-with-dependencies.jar</code> is an artifact provided by the maven build (available in maven repository).</p>
+<p><code>AgentConfig</code> is your configuration class from the former step.</p>
+<h2>4. Interact with the program and check results</h2>
+<p>You may now interact with your program and every call to a <code>@Recorded</code> method will be captured. After shutdown of your program all captured recordings will be transformed to executable JUnit tests, e.g.</p>
+<pre><code>@Test
+public void testFizzBuzz0() throws Exception {
+
+    //Arrange
+    FizzBuzz fizzBuzz1 = new FizzBuzz();
+
+    //Act
+    String string1 = fizzBuzz1.fizzBuzz(1);
+
+    //Assert
+    assertThat(string1, equalTo(&quot;1&quot;));
+    assertThat(fizzBuzz1, new GenericMatcher() {
+    }.matching(FizzBuzz.class));
+}
+
+...
+</code></pre>
   </div>
-            
-              <h3>Serializing any Object as Hamcrest Matcher Code</h3>
-              <p>                Serializing an Object to Hamcrest matcher code affords some more work:
-                      <div>
-      <pre><code class="java"> SerializationProfile profile = new DefaultSerializationProfile();
- SerializerFacade facade = new ConfigurableSerializerFacade(profile);
- DeserializerFactory factory = new ObjectToMatcherCode.Factory();
- 
- CodeSerializer codeSerializer = new CodeSerializer(facade, factory);
- String code = codeSerializer.serialize(objectToSerialize);</code></pre>
-  </div></p>
-              <p>                The string       <code >code</code> will then contain:
-                      <div>
-      <pre><code class="java">Matcher&lt;ExampleObject&gt; serializedObject1 = new GenericMatcher() {
-    String name = &quot;Testrecorder&quot;;
-}.matching(ExampleObject.class);</code></pre>
-  </div></p>
-              <div class="alert alert-info" role="alert">
-                    Note that   <strong>Testrecorder</strong> generates a compact custom matcher for this object. One could argue that a java bean could
-                be tested by doing assertions on the properties. But this does not scale well if many properties are involved or if the properties
-                themselves are objects.
   </div>
-            
-              <h3>Serializing is configurable</h3>
-              <p>                As could be seen in the section for Hamcrest Matcher Code, there are several classes than can be adjusted to
-                change the way the code is serialized. So if somebody decides that the current matcher code is not in readable form, he might
-                write a new       <code >DeserializerFactory</code> that serializes small beans as a sequence of property assertions.</p>
-            
-  </div>
-  </div>
+              <section>
               <div class="row">
-              <div class="col-md-push-8 col-md-4">
-            
+                  <div class="col-md-push-8 col-md-4">
+                
   </div>
-          <div class="col-md-pull-4 col-md-8">
-                  <h2>Test Recording - Advanced Topics</h2>
-              <p>                Test Recording is strictly putting together the upper code for Runtime Object Serialization.</p>
-              <h3>How to start</h3>
-              <p>                  <ul>
-                          <li>Put the test recorder jar on your class path</li>
-                      <li>You will also need the jar with dependencies</li>
-                      <li>Select one method of interest and annotate it with       <code >@Snapshot</code>. Now the Testrecorder knows which method has to be recorded.</li>
-                      <li>                        Configure your Testrecording by writing a class       <code >YourConfig implements SnapshotConfig</code>
-                          <ul>
-                                  <li>      <code >getSnapshotConsumer</code> should return an instance of       <code >ScheduledTestGenerator</code></li>
-                              <li>      <code >getTimeoutMillis</code> may be set to       <code >100.000</code></li>
-                              <li>      <code >getPackages</code> should return the packages containing the classes/methods you want to record</li>
-                              <li>      <code >getInitializer</code> may be set to       <code >null</code></li>
-  </ul></li>
-                      <li>start your application with       <code >-javaagent:testrecorder-jar-with-dependencies.jar=YourConfig</code></li>
-  </ul></p>
-              <h3>Examples</h3>
-              <p>examples can be found at   <a href="https://github.com/almondtools/testrecorder-examples">
-    Testrecorder Examples
-  </a></p>
-              <h3>Custom Serializers</h3>
-              <p>                Sometimes you will encounter problems with automatic serialization because the testrecorder engine does not know the best abstraction how to serialize 
-                an object. In most times it will choose the       <code >GenericSerializer</code> class, which is very generic but may contain too much of unnecessary data.
-
-                If you depend on an Object that should be serialized in a special way, you can define a new       <code >CustomSerializer implements Serializer&lt;SerializedObject&gt;</code>.
-                Each serializer has:
-                  <ul>
-                          <li>a method  return all classes this serializer can handle</li>
-                      <li>a method  being just a factor method to create an empty serialized value</li>
-                      <li>a method  being a method that is passed both the empty serialized value and the object to serialize. This should store all necessary information into the serialized value</li>
-                      <li>(recommended) an inner class  to return an instance of this serializer.</li>
-  </ul></p>
-              <p>                To enable       <code >CustomSerializer</code> make it available as SeviceProvider
-                  <ul>
-                          <li>create a directory       <code >META-INF/services</code> in your class path</li>
-                      <li>create a file       <code >net.amygdalum.testrecorder.SerializerFactory</code> in this directory</li>
-                      <li>put the full qualified class name of       <code >CustomSerializer$Factory</code> into this file</li>
-  </ul></p>
-              <h3>Custom Deserializers (SetupGenerators, MatcherGenerators, ...)</h3>
-              <p>                You can also modify your output code by introducing custom deserializers. More on that in later updates.</p>
-            
-  </div>
-  </div>
-  </section>
-              <section>
-              <h2>More about Testrecorder</h2>
-          <p>            The objective of Testrecorder is to provide an interface that is powerful, clean and extensible. To achieve this we
-            will provide more and more configuration settings to extend the core framework. The fact that tests are generated automatically
-            might rise wrong expectations: Testrecorder will probably always be an experts tool, meaning strong programming and debug skills
-            are recommended to find the correct configuration and the necessary custom extensions.</p>
-          <p>            The current power of Testrecorder is beyond that mentioned in the examples. Testrecorder can:   <ul>
-                      <li>serialize objects by constructor, by property setters or by using a combination of both</li>
-                  <li>fallback to object construction by reflection if the upper will not work (it is quite readable compared to the java reflection api)</li>
-                  <li>deal with (most) java generics problems (reduced errors/warnings in generated code)</li>
-  </ul>
-            To get an impression on the full power you may visit   <a href="https://github.com/almondtools/testrecorder">
-      <strong>Testrecorder on GitHub</strong>
-  </a> or 
-              <a href="https://github.com/almondtools/testrecorder-examples">
-      <strong>Testrecorder Examples on Github</strong>
-  </a>.</p>
-  </section>
-              <section>
-              <h2>Authors</h2>
-          <p>  <a href="http://www.amygdalum.net">
+              <div class="col-md-pull-4 col-md-8">
+                      <h2>Authors</h2>
+                  <p>  <a href="http://www.amygdalum.net">
     Stefan Mandel
   </a></p>
+  </div>
+  </div>
   </section>
   </div>
               <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
