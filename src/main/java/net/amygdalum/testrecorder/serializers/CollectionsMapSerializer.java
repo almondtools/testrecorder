@@ -1,10 +1,11 @@
 package net.amygdalum.testrecorder.serializers;
 
-import static net.amygdalum.xrayinterface.XRayInterface.xray;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.TypeSelector.startingWith;
 import static net.amygdalum.testrecorder.util.Types.inferType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
+import static net.amygdalum.testrecorder.util.Types.typeArgument;
+import static net.amygdalum.xrayinterface.XRayInterface.xray;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -39,6 +40,9 @@ public class CollectionsMapSerializer extends HiddenInnerClassSerializer<Seriali
 	public void populate(SerializedMap serializedObject, Object object) {
 		List<Type> keyTypes = new ArrayList<>();
 		List<Type> valueTypes = new ArrayList<>();
+		Type resultType = serializedObject.getResultType();
+		keyTypes.add(typeArgument(resultType, 0).orElse(Object.class));
+        valueTypes.add(typeArgument(resultType, 1).orElse(Object.class));
 		for (Map.Entry<?, ?> element : ((Map<?, ?>) object).entrySet()) {
 			Object key = element.getKey();
 			Object value = element.getValue();

@@ -43,13 +43,13 @@ public class GenericComparison {
 
 	public static boolean equals(GenericComparison p) {
 		WorkSet<GenericComparison> todo = new WorkSet<>();
-		todo.enqueue(p);
+		todo.add(p);
 		return equals(todo);
 	}
 
 	public static boolean equals(WorkSet<GenericComparison> todo) {
 		while (todo.hasMoreElements()) {
-			GenericComparison current = todo.dequeue();
+			GenericComparison current = todo.remove();
 			if (!current.eval(todo)) {
 				return false;
 			}
@@ -74,7 +74,7 @@ public class GenericComparison {
 				continue;
 			}
 			String fieldName = field.getName();
-			todo.enqueue(GenericComparison.from(root, fieldName, left, right));
+			todo.add(GenericComparison.from(root, fieldName, left, right));
 		}
 		return true;
 	}
@@ -99,7 +99,7 @@ public class GenericComparison {
 				continue;
 			}
 			String fieldName = field.getName();
-			todo.enqueue(GenericComparison.from(root, fieldName, left, right));
+			todo.add(GenericComparison.from(root, fieldName, left, right));
 		}
 		return true;
 	}
@@ -127,7 +127,7 @@ public class GenericComparison {
 
 	public static void compare(WorkSet<GenericComparison> remainder, GenericComparator comparator) {
 		while (remainder.hasMoreElements()) {
-			GenericComparison current = remainder.dequeue();
+			GenericComparison current = remainder.remove();
 			if (!current.eval(comparator, remainder)) {
 				current.setMismatch(true);
 			}

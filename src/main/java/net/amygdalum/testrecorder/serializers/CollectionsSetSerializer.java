@@ -1,10 +1,11 @@
 package net.amygdalum.testrecorder.serializers;
 
-import static net.amygdalum.xrayinterface.XRayInterface.xray;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.TypeSelector.startingWith;
 import static net.amygdalum.testrecorder.util.Types.inferType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
+import static net.amygdalum.testrecorder.util.Types.typeArgument;
+import static net.amygdalum.xrayinterface.XRayInterface.xray;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -38,6 +39,10 @@ public class CollectionsSetSerializer extends HiddenInnerClassSerializer<Seriali
 	@Override
 	public void populate(SerializedSet serializedObject, Object object) {
 		List<Type> elementTypes = new ArrayList<>();
+
+        Type resultType = serializedObject.getResultType();
+        elementTypes.add(typeArgument(resultType, 0).orElse(Object.class));
+
 		for (Object element : (Set<?>) object) {
 			serializedObject.add(facade.serialize(element.getClass(), element));
 			if (element != null) {

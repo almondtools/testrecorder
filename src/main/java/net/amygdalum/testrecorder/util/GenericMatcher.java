@@ -46,7 +46,7 @@ public class GenericMatcher extends GenericObject {
 	public List<GenericComparison> mismatchesWith(String root, Object o) {
 		WorkSet<GenericComparison> remainder = new WorkSet<>();
 		for (Field field : getGenericFields()) {
-			remainder.enqueue(GenericComparison.from(root, field.getName(), this, o));
+			remainder.add(GenericComparison.from(root, field.getName(), this, o));
 		}
 		GenericComparison.compare(remainder, GenericMatcher::matching);
 		return remainder.getDone().stream()
@@ -59,7 +59,7 @@ public class GenericMatcher extends GenericObject {
 		Object right = comparison.getRight();
 		if (left instanceof RecursiveMatcher) {
 			RecursiveMatcher matcher = (RecursiveMatcher) left;
-			todo.enqueue(matcher.mismatchesWith(comparison.getRoot(), right));
+			todo.addAll(matcher.mismatchesWith(comparison.getRoot(), right));
 		}
 		if (left instanceof Matcher<?>) {
 			Matcher<?> matcher = (Matcher<?>) left;
