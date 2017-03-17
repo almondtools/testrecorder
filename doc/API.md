@@ -1,7 +1,7 @@
 Using the Testrecorder API
 ==========================
 
-##Runtime Object Serialization - the Basics
+## Runtime Object Serialization - the Basics
 
 In this section we give you an impression how code can be serialized and directly deserialized to code. The following examples will use the following `ExampleObject`:
 
@@ -20,7 +20,7 @@ In this section we give you an impression how code can be serialized and directl
     ExampleObject exampleObject = new ExampleObject();
     exampleObject.setName("Testrecorder");
 
-###Serializing any Object as Java Code
+### Serializing any Object as Java Code
 
 Serializing an object to code is done like this:
 
@@ -34,7 +34,7 @@ The string `code` will then contain:
     ExampleObject serializedObject1 = exampleObject1;
 
 
-###Serializing any Object as Hamcrest Matcher Code
+### Serializing any Object as Hamcrest Matcher Code
 
 Serializing an object to matcher code  is done like this:
 
