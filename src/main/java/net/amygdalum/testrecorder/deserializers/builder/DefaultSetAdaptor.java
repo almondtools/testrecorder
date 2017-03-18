@@ -42,7 +42,7 @@ public class DefaultSetAdaptor extends DefaultSetupGenerator<SerializedSet> impl
 			String tempVar = equalResultTypes(value) ? local.getName() : generator.temporaryLocal();
 
 			String set = newObject(types.getBestName(value.getType()));
-			String setInit = assignLocalVariableStatement(types.getSimpleName(value.getType()), tempVar, set);
+			String setInit = assignLocalVariableStatement(types.getShortName(value.getType()), tempVar, set);
 			statements.add(setInit);
 
 			for (String element : elements) {
@@ -51,8 +51,8 @@ public class DefaultSetAdaptor extends DefaultSetupGenerator<SerializedSet> impl
 			}
 
 			if (!equalResultTypes(value)) {
-				String leftValue = assignableResultTypes(value) ? tempVar : cast(types.getSimpleName(value.getResultType()), tempVar);
-				statements.add(assignLocalVariableStatement(types.getSimpleName(value.getResultType()), local.getName(), leftValue));
+				String leftValue = assignableResultTypes(value) ? tempVar : cast(types.getShortName(value.getResultType()), tempVar);
+				statements.add(assignLocalVariableStatement(types.getShortName(value.getResultType()), local.getName(), leftValue));
 			}
 
 			return new Computation(local.getName(), value.getResultType(), true, statements);

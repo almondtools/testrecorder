@@ -64,7 +64,7 @@ public class ConstructionPlan {
 			.toArray(String[]::new);
 		
 		String bean = newObject(types.getBestName(clazz), params);
-		String constructorStatement = assignLocalVariableStatement(types.getSimpleName(clazz), var.getName(), bean);
+		String constructorStatement = assignLocalVariableStatement(types.getShortName(clazz), var.getName(), bean);
 		statements.add(constructorStatement);
 		var.define(clazz);
 

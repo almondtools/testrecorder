@@ -89,11 +89,11 @@ public class TypeManager {
         }
     }
 
-    public String getFullName(Class<?> clazz) {
+    private String getFullName(Class<?> clazz) {
         return getFullSignature(clazz).replace('$', '.');
     }
 
-    public String getFullSignature(Class<?> clazz) {
+    private String getFullSignature(Class<?> clazz) {
         return clazz.getName();
     }
 
@@ -143,11 +143,15 @@ public class TypeManager {
         }
     }
 
-    public String getSimpleName(Type type) {
+    public String getShortName(Type type) {
+        return getSimpleName(type);
+    }
+
+    private String getSimpleName(Type type) {
         return getSimpleSignature(type).replace('$', '.');
     }
 
-    public String getSimpleSignature(Type type) {
+    private String getSimpleSignature(Type type) {
         if (type instanceof Class<?>) {
             Class<?> clazz = (Class<?>) type;
             if (cannotBeNotImported(clazz)) {

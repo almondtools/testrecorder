@@ -37,9 +37,9 @@ public class DefaultArrayAdaptor extends DefaultSetupGenerator<SerializedArray> 
 				.flatMap(template -> template.getStatements().stream())
 				.collect(toList());
 
-			String arrayLiteral = arrayLiteral(types.getSimpleName(value.getResultType()), elements);
+			String arrayLiteral = arrayLiteral(types.getShortName(value.getResultType()), elements);
 
-			statements.add(assignLocalVariableStatement(types.getSimpleName(value.getResultType()), local.getName(), arrayLiteral));
+			statements.add(assignLocalVariableStatement(types.getShortName(value.getResultType()), local.getName(), arrayLiteral));
 
 			return new Computation(local.getName(), value.getResultType(), statements);
 		});

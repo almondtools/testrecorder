@@ -91,7 +91,7 @@ public class MatcherGenerators implements Deserializer<Computation> {
 			types.registerImport(Matcher.class);
 			Computation value = fieldValue.accept(this);
 
-			String genericType = types.getSimpleName(value.getType());
+			String genericType = types.getShortName(value.getType());
 
 			String assignField = assignLocalVariableStatement(genericType, field.getName(), value.getValue());
 			return new Computation(assignField, null, value.getStatements());
@@ -105,7 +105,7 @@ public class MatcherGenerators implements Deserializer<Computation> {
 			types.registerImport(Matcher.class);
 			Computation value = fieldValue.accept(this);
 
-			String genericType = types.getSimpleName(value.getType());
+			String genericType = types.getShortName(value.getType());
 
 			String assignField = assignLocalVariableStatement(genericType, field.getName(), value.getValue());
 			return new Computation(assignField, null, value.getStatements());

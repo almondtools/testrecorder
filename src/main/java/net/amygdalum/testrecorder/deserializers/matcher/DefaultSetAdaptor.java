@@ -27,7 +27,7 @@ public class DefaultSetAdaptor extends DefaultMatcherGenerator<SerializedSet> im
 	@Override
 	public Computation tryDeserialize(SerializedSet value, MatcherGenerators generator) {
 		TypeManager types = generator.getTypes();
-		String componentType = types.getSimpleName(value.getComponentType());
+		String componentType = types.getShortName(value.getComponentType());
 
 		if (value.isEmpty()) {
 			types.staticImport(Matchers.class, "empty");
