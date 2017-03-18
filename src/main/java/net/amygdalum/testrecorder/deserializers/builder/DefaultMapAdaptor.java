@@ -47,7 +47,7 @@ public class DefaultMapAdaptor extends DefaultSetupGenerator<SerializedMap> impl
 			String tempVar = equalResultTypes(value) ? local.getName() : generator.temporaryLocal();
 
 			String map = newObject(types.getBestName(value.getType()));
-			String mapInit = assignLocalVariableStatement(types.getShortName(value.getType()), tempVar, map);
+			String mapInit = assignLocalVariableStatement(types.getClassName(value.getType()), tempVar, map);
 			statements.add(mapInit);
 
 			for (Pair<String, String> element : elements) {
@@ -56,8 +56,8 @@ public class DefaultMapAdaptor extends DefaultSetupGenerator<SerializedMap> impl
 			}
 
 			if (!equalResultTypes(value)) {
-				String leftValue = assignableResultTypes(value) ? tempVar : cast(types.getShortName(value.getResultType()), tempVar);
-				statements.add(assignLocalVariableStatement(types.getShortName(value.getResultType()), local.getName(), leftValue));
+				String leftValue = assignableResultTypes(value) ? tempVar : cast(types.getClassName(value.getResultType()), tempVar);
+				statements.add(assignLocalVariableStatement(types.getClassName(value.getResultType()), local.getName(), leftValue));
 			}
 
 			return new Computation(local.getName(), value.getResultType(), true, statements);

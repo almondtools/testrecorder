@@ -50,7 +50,7 @@ public class CollectionsListAdaptor implements SetupGenerator<SerializedList> {
 		TypeManager types = generator.getTypes();
 		types.registerImport(List.class);
 
-		String name = types.getShortName(value.getType());
+		String name = types.getRawName(value.getType());
 		if (name.contains("Empty")) {
 			return tryDeserializeEmpty(value, generator);
 		} else if (name.contains("Singleton")) {

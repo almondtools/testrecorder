@@ -37,6 +37,10 @@ public class CodeSerializer {
 		this.serializers = serializers;
 	}
 	
+	public TypeManager getTypes() {
+        return types;
+    }
+	
 	public String serialize(Object value) {
 		return serialize(serializers.resultType(value.getClass()), value);
 	}
@@ -58,7 +62,7 @@ public class CodeSerializer {
 
 		public Generator(SerializedValue value) {
 			this.value = value;
-			this.type = types.getShortName(value.getResultType());
+			this.type = types.getClassName(value.getResultType());
 			this.locals = new LocalVariableNameGenerator();
 			this.statements = new ArrayList<>();
 		}

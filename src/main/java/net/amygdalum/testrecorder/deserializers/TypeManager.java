@@ -143,7 +143,7 @@ public class TypeManager {
         }
     }
 
-    public String getShortName(Type type) {
+    public String getClassName(Type type) {
         return getSimpleName(type);
     }
 
@@ -154,15 +154,20 @@ public class TypeManager {
     private String getSimpleSignature(Type type) {
         if (type instanceof Class<?>) {
             Class<?> clazz = (Class<?>) type;
-            if (cannotBeNotImported(clazz)) {
-                return clazz.getName();
+            if (cannotBeNotImported(clazz) || isNotImported(clazz)) {
+                String array = "";
+                while (clazz.isArray()){
+                    array += "[]";
+                    clazz = clazz.getComponentType();
+                }
+                return clazz.getName() + array;
             } else {
                 return clazz.getSimpleName();
             }
         } else if (type instanceof GenericArrayType) {
-            return getSimpleName(((GenericArrayType) type).getGenericComponentType()) + "[]";
+            return getSimpleSignature(((GenericArrayType) type).getGenericComponentType()) + "[]";
         } else if (type instanceof ParameterizedType) {
-            return getSimpleName(((ParameterizedType) type).getRawType())
+            return getSimpleSignature(((ParameterizedType) type).getRawType())
                 + Stream.of(((ParameterizedType) type).getActualTypeArguments())
                     .map(argtype -> getSimpleName(argtype))
                     .collect(joining(", ", "<", ">"));
@@ -211,7 +216,7 @@ public class TypeManager {
     }
 
     public boolean isNotImported(Class<?> clazz) {
-        if (clazz.getPackage().getName().equals(DEFAULT_PKG)) {
+        if (clazz.getPackage() != null && clazz.getPackage().getName().equals(DEFAULT_PKG)) {
             return noImports.contains(clazz);
         }
         return !imports.containsKey(clazz.getSimpleName())

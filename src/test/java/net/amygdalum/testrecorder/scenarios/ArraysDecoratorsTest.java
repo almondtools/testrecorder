@@ -44,6 +44,7 @@ public class ArraysDecoratorsTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(ArraysDecorators.class), hasSize(1));
+		System.out.println(testGenerator.renderTest(ArraysDecorators.class));
 		assertThat(testGenerator.renderTest(ArraysDecorators.class), compiles(ArraysDecorators.class));
 		assertThat(testGenerator.renderTest(ArraysDecorators.class), testsRun(ArraysDecorators.class));
 	}

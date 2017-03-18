@@ -275,7 +275,7 @@ public class TestGenerator implements SnapshotConsumer {
         List<String> statements = new ArrayList<>();
         for (TestRecorderAgentInitializer initializer : loader) {
             types.registerType(initializer.getClass());
-            String initObject = newObject(types.getShortName(initializer.getClass()));
+            String initObject = newObject(types.getClassName(initializer.getClass()));
             String initStmt = callMethodStatement(initObject, "run");
             statements.add(initStmt);
         }
@@ -444,7 +444,7 @@ public class TestGenerator implements SnapshotConsumer {
 		private Computation assignGlobal(Class<?> clazz, String name, Computation global) {
 			TypeManager types = context.getTypes();
 			List<String> statements = new ArrayList<>(global.getStatements());
-			String base = types.getShortName(clazz);
+			String base = types.getClassName(clazz);
 			statements.add(assignFieldStatement(base, name, global.getValue()));
 			String value = fieldAccess(base, name);
 			return new Computation(value, global.getType(), true, statements);
@@ -524,7 +524,7 @@ public class TestGenerator implements SnapshotConsumer {
 			List<String> expectGlobals = IntStream.range(0, serializedGlobals.length)
 				.filter(i -> !serializedGlobals[i].equals(snapshot.getSetupGlobals()[i]))
 				.mapToObj(i -> createAssertion(serializedGlobals[i].getValue().accept(matcher.create(locals, types)),
-					fieldAccess(types.getShortName(serializedGlobals[i].getDeclaringClass()), serializedGlobals[i].getName())))
+					fieldAccess(types.getClassName(serializedGlobals[i].getDeclaringClass()), serializedGlobals[i].getName())))
 				.flatMap(statements -> statements.stream())
 				.collect(toList());
 
@@ -561,7 +561,7 @@ public class TestGenerator implements SnapshotConsumer {
 				types.registerImport(baseType(type));
 				String name = locals.fetchName(type);
 
-				statements.add(assignLocalVariableStatement(types.getShortName(type), name, value));
+				statements.add(assignLocalVariableStatement(types.getClassName(type), name, value));
 
 				return name;
 			}
@@ -579,7 +579,7 @@ public class TestGenerator implements SnapshotConsumer {
 			String exceptionType = types.getRawTypeName(type);
 			String capture = captureException(capturedStatements, exceptionType);
 
-			statements.add(assignLocalVariableStatement(types.getShortName(type), name, capture));
+			statements.add(assignLocalVariableStatement(types.getClassName(type), name, capture));
 
 			return name;
 		}

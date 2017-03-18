@@ -51,7 +51,7 @@ public class DefaultListAdaptor extends DefaultSetupGenerator<SerializedList> im
 			String tempVar = equalResultTypes(value) ? local.getName() : generator.temporaryLocal();
 
 			String list = newObject(types.getBestName(value.getType()));
-			String listInit = assignLocalVariableStatement(types.getShortName(value.getType()), tempVar, list);
+			String listInit = assignLocalVariableStatement(types.getClassName(value.getType()), tempVar, list);
 			statements.add(listInit);
 
 			for (String element : elements) {
@@ -60,8 +60,8 @@ public class DefaultListAdaptor extends DefaultSetupGenerator<SerializedList> im
 			}
 
 			if (!equalResultTypes(value)) {
-				String leftValue = assignableResultTypes(value) ? tempVar : cast(types.getShortName(value.getResultType()), tempVar);
-				statements.add(assignLocalVariableStatement(types.getShortName(value.getResultType()), local.getName(), leftValue));
+				String leftValue = assignableResultTypes(value) ? tempVar : cast(types.getClassName(value.getResultType()), tempVar);
+				statements.add(assignLocalVariableStatement(types.getClassName(value.getResultType()), local.getName(), leftValue));
 			}
 
 			return new Computation(local.getName(), value.getResultType(), true, statements);

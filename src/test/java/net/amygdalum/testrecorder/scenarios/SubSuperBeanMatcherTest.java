@@ -88,7 +88,9 @@ public class SubSuperBeanMatcherTest {
 	}
 
 	private static CodeSerializer matcherSerializer() {
-		return new CodeSerializer("net.amygdalum.testrecorder.scenarios", new ConfigurableSerializerFacade(new DefaultTestRecorderAgentConfig()), new MatcherGenerators.Factory());
+		CodeSerializer codeSerializer = new CodeSerializer("net.amygdalum.testrecorder.scenarios", new ConfigurableSerializerFacade(new DefaultTestRecorderAgentConfig()), new MatcherGenerators.Factory());
+		codeSerializer.getTypes().registerTypes(SubBean.class);
+        return codeSerializer;
 	}
 
 }

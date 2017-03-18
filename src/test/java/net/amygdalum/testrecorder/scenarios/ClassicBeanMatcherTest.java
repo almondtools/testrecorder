@@ -88,7 +88,9 @@ public class ClassicBeanMatcherTest {
 	}
 
 	private static CodeSerializer matcherSerializer() {
-		return new CodeSerializer("net.amygdalum.testrecorder.scenarios", new ConfigurableSerializerFacade(new DefaultTestRecorderAgentConfig()), new MatcherGenerators.Factory());
+		CodeSerializer codeSerializer = new CodeSerializer("net.amygdalum.testrecorder.scenarios", new ConfigurableSerializerFacade(new DefaultTestRecorderAgentConfig()), new MatcherGenerators.Factory());
+		codeSerializer.getTypes().registerTypes(ClassicBean.class);
+        return codeSerializer;
 	}
 
 }
