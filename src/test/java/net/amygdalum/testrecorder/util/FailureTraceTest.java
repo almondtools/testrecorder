@@ -45,7 +45,7 @@ public class FailureTraceTest {
 			public Matcher<?> set = contains(String.class, "first", "second");
 		}.matching(ContainingSet.class);
 
-		assertThat(describeMismatch(matcher, new ContainingSet(asList("first", "notsecond"))), containsString("set: <[\"first\", \"second\"]> != <[first, notsecond]>"));
+		assertThat(describeMismatch(matcher, new ContainingSet(asList("first", "notsecond"))), containsString("set: containing [<\"first\">, <\"second\">] != <[first, notsecond]>"));
 	}
 
 	@Test
@@ -54,7 +54,7 @@ public class FailureTraceTest {
 			public Matcher<?> list = contains(String.class, "first", "second");
 		}.matching(ContainingList.class);
 
-		assertThat(describeMismatch(matcher, new ContainingList(asList("first", "notsecond"))), containsString("list: <[\"first\", \"second\"]> != <[first, notsecond]>"));
+		assertThat(describeMismatch(matcher, new ContainingList(asList("first", "notsecond"))), containsString("list: containing [<\"first\">, <\"second\">] != <[first, notsecond]>"));
 	}
 
 	private <T> String describeMismatch(Matcher<T> matcher, T object) {

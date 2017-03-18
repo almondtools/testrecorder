@@ -46,7 +46,7 @@ public class ArrayMatcher<T> extends TypeSafeMatcher<T[]> {
 
 	@Override
 	public void describeTo(Description description) {
-		description.appendValue(elements);
+		description.appendText("containing ").appendValueList("[", ", ", "]", elements);
 	}
 
 	@Override
@@ -122,10 +122,6 @@ public class ArrayMatcher<T> extends TypeSafeMatcher<T[]> {
 
 	@Override
 	protected boolean matchesSafely(T[] item) {
-		if (item.length != elements.size()) {
-			return false;
-		}
-
 		Iterator<Matcher<T>> elementIterator = elements.iterator();
 		Iterator<? extends T> itemIterator = Arrays.asList(item).iterator();
 		while (elementIterator.hasNext() && itemIterator.hasNext()) {
@@ -135,7 +131,8 @@ public class ArrayMatcher<T> extends TypeSafeMatcher<T[]> {
 				return false;
 			}
 		}
-		return true;
+		return !elementIterator.hasNext()
+		    && !itemIterator.hasNext();
 	}
 
 	@SuppressWarnings("unchecked")

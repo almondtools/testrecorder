@@ -69,7 +69,7 @@ public class ConstructionPlan {
 		var.define(clazz);
 
 		for (SetterParam param : setterParams) {
-			Computation fieldComputation = param.computeValue().accept(compiler);
+			Computation fieldComputation = param.computeSerializedValue().accept(compiler);
 			statements.addAll(fieldComputation.getStatements());
 
 			String setStatement = callMethodStatement(var.getName(), param.getName(), fieldComputation.getValue());

@@ -28,8 +28,12 @@ public class SetterParam {
 	public SerializedField getField() {
 		return field;
 	}
+	
+	public Object getValue() {
+        return value;
+    }
 
-	public SerializedValue computeValue() {
+	public SerializedValue computeSerializedValue() {
 		return field.getValue();
 	}
 
