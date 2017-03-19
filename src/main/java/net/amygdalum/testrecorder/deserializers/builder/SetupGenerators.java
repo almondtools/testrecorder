@@ -62,7 +62,7 @@ public class SetupGenerators implements Deserializer<Computation> {
 			expression = callMethod(expression, "value");
 		}
 		if ((!assignableTypes(resultType, type) || types.isHidden(type)) && !boxingEquivalentTypes(resultType, type) && baseType(resultType) != Wrapped.class) {
-			expression = cast(types.getClassName(resultType), expression);
+			expression = cast(types.getRelaxedName(resultType), expression);
 		}
 		return expression;
 	}
@@ -123,7 +123,7 @@ public class SetupGenerators implements Deserializer<Computation> {
 			expression = cast(types.getRawName(fieldResultType), expression);
 		}
 
-		String assignField = assignLocalVariableStatement(types.getClassName(fieldResultType), field.getName(), expression);
+		String assignField = assignLocalVariableStatement(types.getRelaxedName(fieldResultType), field.getName(), expression);
 		return new Computation(assignField, null, statements);
 	}
 

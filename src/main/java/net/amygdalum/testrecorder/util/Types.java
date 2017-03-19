@@ -185,6 +185,16 @@ public final class Types {
         }
     }
 
+    public static Type[] typeArguments(Type type) {
+        if (type instanceof ParameterizedType) {
+            return ((ParameterizedType) type).getActualTypeArguments();
+        } else if (type instanceof Class<?>){
+            return ((Class<?>) type).getTypeParameters();
+        } else {
+            return new Type[0];
+        }
+    }
+
     public static Class<?> innerType(Class<?> clazz, String name) {
         for (Class<?> inner : clazz.getDeclaredClasses()) {
             if (inner.getSimpleName().equals(name)) {
@@ -342,6 +352,12 @@ public final class Types {
             buffer.append("[]");
             return buffer.toString();
         }
+
+        @Override
+        public String toString() {
+            return getTypeName();
+        }
+
     }
 
     private static final class ParameterizedTypeImplementation implements ParameterizedType {
@@ -384,6 +400,12 @@ public final class Types {
             buffer.append('>');
             return buffer.toString();
         }
+
+        @Override
+        public String toString() {
+            return getTypeName();
+        }
+
     }
 
     private static final class WildcardTypeImplementation implements WildcardType {
@@ -432,6 +454,12 @@ public final class Types {
             }
             return buffer.toString();
         }
+
+        @Override
+        public String toString() {
+            return getTypeName();
+        }
+
     }
 
 }

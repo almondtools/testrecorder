@@ -27,7 +27,7 @@ public class DefaultListAdaptor extends DefaultMatcherGenerator<SerializedList> 
 	@Override
 	public Computation tryDeserialize(SerializedList value, MatcherGenerators generator) {
 		TypeManager types = generator.getTypes();
-		String componentType = types.getClassName(value.getComponentType());
+		String componentType = types.getRelaxedName(value.getComponentType());
 
 		if (value.isEmpty()) {
 			types.staticImport(Matchers.class, "empty");

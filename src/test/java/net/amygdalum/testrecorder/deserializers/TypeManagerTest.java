@@ -163,7 +163,7 @@ public class TypeManagerTest {
     
     @Test
     public void testGetBestNameOther() throws Exception {
-        assertThat(types.getBestName(mock(Type.class)), equalTo("java.lang.Object"));
+        assertThat(types.getBestName(mock(Type.class)), equalTo("Object"));
     }
     
     @Test
@@ -211,7 +211,7 @@ public class TypeManagerTest {
     
     @Test
     public void testGetBestSignatureOther() throws Exception {
-        assertThat(types.getBestSignature(mock(Type.class)), equalTo("java.lang.Object"));
+        assertThat(types.getBestSignature(mock(Type.class)), equalTo("Object"));
     }
     
     private static class Hidden {

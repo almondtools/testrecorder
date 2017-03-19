@@ -62,7 +62,7 @@ public class CodeSerializer {
 
 		public Generator(SerializedValue value) {
 			this.value = value;
-			this.type = types.getClassName(value.getResultType());
+			this.type = types.getRelaxedName(value.getResultType());
 			this.locals = new LocalVariableNameGenerator();
 			this.statements = new ArrayList<>();
 		}

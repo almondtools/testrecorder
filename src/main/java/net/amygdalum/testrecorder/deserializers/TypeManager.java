@@ -23,7 +23,6 @@ public class TypeManager {
 
     private static final String DEFAULT_PKG = "java.lang";
     private static final String WILDCARD = "?";
-    private static final String DEFAULT_TYPE = "java.lang.Object";
 
     private String pkg;
     private Map<String, String> imports;
@@ -116,7 +115,7 @@ public class TypeManager {
                     .map(argtype -> getBestName(argtype))
                     .collect(joining(", ", "<", ">"));
         } else {
-            return DEFAULT_TYPE;
+            return getBestName(Object.class);
         }
     }
 
@@ -139,11 +138,11 @@ public class TypeManager {
                     .map(argtype -> getBestName(argtype))
                     .collect(joining(", ", "<", ">"));
         } else {
-            return DEFAULT_TYPE;
+            return getBestSignature(Object.class);
         }
     }
 
-    public String getClassName(Type type) {
+    public String getRelaxedName(Type type) {
         return getSimpleName(type);
     }
 
@@ -154,15 +153,15 @@ public class TypeManager {
     private String getSimpleSignature(Type type) {
         if (type instanceof Class<?>) {
             Class<?> clazz = (Class<?>) type;
+            String array = "";
+            while (clazz.isArray()) {
+                array += "[]";
+                clazz = clazz.getComponentType();
+            }
             if (cannotBeNotImported(clazz) || isNotImported(clazz)) {
-                String array = "";
-                while (clazz.isArray()){
-                    array += "[]";
-                    clazz = clazz.getComponentType();
-                }
                 return clazz.getName() + array;
             } else {
-                return clazz.getSimpleName();
+                return clazz.getSimpleName() + array;
             }
         } else if (type instanceof GenericArrayType) {
             return getSimpleSignature(((GenericArrayType) type).getGenericComponentType()) + "[]";
@@ -174,7 +173,7 @@ public class TypeManager {
         } else if (type instanceof WildcardType) {
             return WILDCARD;
         } else {
-            return DEFAULT_TYPE;
+            return getSimpleSignature(Object.class);
         }
     }
 
@@ -186,7 +185,7 @@ public class TypeManager {
         } else if (type instanceof ParameterizedType) {
             return getRawName(((ParameterizedType) type).getRawType());
         } else {
-            return DEFAULT_TYPE;
+            return getRawName(Object.class);
         }
     }
 
