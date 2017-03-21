@@ -1,6 +1,9 @@
 package net.amygdalum.testrecorder.deserializers;
 
+import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
+import static net.amygdalum.testrecorder.deserializers.Templates.cast;
 import static net.amygdalum.testrecorder.util.GenericObject.getDefaultValue;
+import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.isLiteral;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
@@ -9,6 +12,7 @@ import java.lang.reflect.Constructor;
 
 import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedValue;
+import net.amygdalum.testrecorder.Wrapped;
 import net.amygdalum.testrecorder.values.SerializedField;
 
 public class ConstructorParam {
@@ -89,8 +93,11 @@ public class ConstructorParam {
     public Computation compile(TypeManager types, Deserializer<Computation> compiler) {
         SerializedValue serializedValue = computeSerializedValue();
         Computation computation = serializedValue.accept(compiler);
-        if (castNeeded()) {
-            String value = Templates.cast(types.getBestName(type), computation.getValue());
+        if (baseType(computation.getType()) == Wrapped.class) {
+            String value = cast(types.getBestName(type), callMethod(computation.getValue(), "value"));
+            computation = new Computation(value, type, computation.getStatements());
+        } else if (castNeeded()) {
+            String value = cast(types.getBestName(type), computation.getValue());
             computation = new Computation(value, type);
         }
 

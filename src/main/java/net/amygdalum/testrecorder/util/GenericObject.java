@@ -255,14 +255,16 @@ public abstract class GenericObject {
 
 	public List<Field> getGenericFields() {
 		Field[] declaredFields = getClass().getDeclaredFields();
-		return Stream.of(declaredFields).filter(field -> isSerializable(field)).map(field -> {
-			return field;
-		}).collect(toList());
+		return Stream.of(declaredFields)
+		    .filter(field -> isSerializable(field))
+		    .collect(toList());
 	}
 
 	private boolean isSerializable(Field field) {
-		return !field.isSynthetic() && field.getName().indexOf('$') < 0
-			&& ((field.getModifiers() & Modifier.STATIC) != Modifier.STATIC)
+	    if ((field.isSynthetic() || field.getName().contains("$")) && !field.getName().startsWith("this$")){
+	        return false;
+	    }
+		return ((field.getModifiers() & Modifier.STATIC) != Modifier.STATIC)
 			&& ((field.getModifiers() & Modifier.FINAL) != Modifier.FINAL);
 	}
 

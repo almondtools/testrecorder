@@ -104,8 +104,11 @@ public class GenericMatcher extends GenericObject {
 
 		@Override
 		protected boolean matchesSafely(T item) {
-			return clazz == item.getClass()
-				&& mismatchesWith(null, item).isEmpty();
+		    if (clazz != item.getClass()) {
+		        return false;
+		    }
+			List<GenericComparison> mismatches = mismatchesWith(null, item);
+            return mismatches.isEmpty();
 		}
 
 		@Override

@@ -7,7 +7,12 @@ public class ExcludeGenerated implements Predicate<Field> {
 
 	@Override
 	public boolean test(Field field) {
-		return field.getName().indexOf('$') >= 0;
+	    if (field.getName().startsWith("this$")) {
+	        // anonymous/nested classes use this$ to reference their outer class
+	        return false;
+	    }
+		return field.isSynthetic()
+		    || field.getName().indexOf('$') >= 0;
 	}
 
 }

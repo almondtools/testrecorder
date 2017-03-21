@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers;
 
+import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.util.GenericObject.getDefaultValue;
 import static net.amygdalum.testrecorder.util.GenericObject.getNonDefaultValue;
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
@@ -26,249 +27,258 @@ import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class Construction {
 
-	private SimpleDeserializer deserializer;
-	private SerializedObject serialized;
-	private LocalVariable var;
-	private Object value;
-	private Map<Constructor<?>, List<ConstructorParam>> constructors;
-	private List<SetterParam> setters;
+    private SimpleDeserializer deserializer;
+    private SerializedObject serialized;
+    private LocalVariable var;
+    private Object value;
+    private Map<Constructor<?>, List<ConstructorParam>> constructors;
+    private List<SetterParam> setters;
 
-	public Construction(LocalVariable var, SerializedObject value) {
-		this.deserializer = new SimpleDeserializer();
-		this.var = var;
-		this.serialized = value;
-		this.value = serialized.accept(deserializer);
-		this.constructors = new HashMap<>();
-		this.setters = new ArrayList<>();
-	}
+    public Construction(LocalVariable var, SerializedObject value) {
+        this.deserializer = new SimpleDeserializer();
+        this.var = var;
+        this.serialized = value;
+        this.value = serialized.accept(deserializer);
+        this.constructors = new HashMap<>();
+        this.setters = new ArrayList<>();
+    }
 
-	public Computation computeBest(TypeManager types, Deserializer<Computation> compiler) throws InstantiationException {
-		fillOrigins(types);
-		return computeConstructionPlans().stream()
-			.map(plan -> plan.disambiguate(constructors.keySet()))
-			.filter(plan -> GenericComparison.equals("", plan.execute(), value))
-			.sorted()
-			.findFirst()
-			.map(plan -> plan.compute(types, compiler))
-			.orElseThrow(() -> new InstantiationException());
-	}
+    public Computation computeBest(TypeManager types, Deserializer<Computation> compiler) throws InstantiationException {
+        fillOrigins(types);
+        
+        List<String> fields = getFields();
 
-	private List<ConstructionPlan> computeConstructionPlans() {
-		List<ConstructionPlan> constructionsPlans = new ArrayList<>();
-		for (Constructor<?> constructor : constructors.keySet()) {
-			constructionsPlans.add(computeConstructionPlan(constructor));
-		}
-		return constructionsPlans;
-	}
+        return computeConstructionPlans().stream()
+            .map(plan -> plan.disambiguate(constructors.keySet()))
+            .filter(plan -> GenericComparison.equals("", plan.execute(), value, fields))
+            .sorted()
+            .findFirst()
+            .map(plan -> plan.compute(types, compiler))
+            .orElseThrow(() -> new InstantiationException());
+    }
 
-	private ConstructionPlan computeConstructionPlan(Constructor<?> constructor) {
-		Set<SerializedField> todo = new HashSet<>(serialized.getFields());
-		ConstructorParams constructorParams = computeConstructorParams(constructor, todo);
-		List<SetterParam> setBySetter = new ArrayList<>();
-		for (SetterParam param : setters) {
-			SerializedField field = param.getField();
-			if (todo.contains(field)) {
-				todo.remove(field);
-				setBySetter.add(param);
-			}
-		}
-		return new ConstructionPlan(var, constructorParams, setBySetter);
-	}
+    private List<String> getFields() {
+        return serialized.getFields().stream()
+            .map(field -> field.getName())
+            .collect(toList());
+    }
 
-	public ConstructorParams computeConstructorParams(Constructor<?> constructor, Set<SerializedField> todo) {
-		List<ConstructorParam> setByConstructor = constructors.get(constructor);
-		for (ConstructorParam param : setByConstructor) {
-			todo.remove(param.getField());
-		}
-		return constructorOf(constructor, setByConstructor);
-	}
+    private List<ConstructionPlan> computeConstructionPlans() {
+        List<ConstructionPlan> constructionsPlans = new ArrayList<>();
+        for (Constructor<?> constructor : constructors.keySet()) {
+            constructionsPlans.add(computeConstructionPlan(constructor));
+        }
+        return constructionsPlans;
+    }
 
-	private ConstructorParams constructorOf(Constructor<?> constructor, List<ConstructorParam> params) {
-		ConstructorParams constructorParams = new ConstructorParams(constructor);
-		for (ConstructorParam param : params) {
-			constructorParams.add(param);
-		}
-		return constructorParams;
-	}
+    private ConstructionPlan computeConstructionPlan(Constructor<?> constructor) {
+        Set<SerializedField> todo = new HashSet<>(serialized.getFields());
+        ConstructorParams constructorParams = computeConstructorParams(constructor, todo);
+        List<SetterParam> setBySetter = new ArrayList<>();
+        for (SetterParam param : setters) {
+            SerializedField field = param.getField();
+            if (todo.contains(field)) {
+                todo.remove(field);
+                setBySetter.add(param);
+            }
+        }
+        return new ConstructionPlan(var, constructorParams, setBySetter);
+    }
 
-	private void fillOrigins(TypeManager types) {
-		List<Object> bases = new ArrayList<>();
-		bases.add(buildFromStandardConstructor(types));
-		bases.addAll(buildFromConstructors(types));
-		bases.removeIf(Objects::isNull);
-		applySetters(bases);
-		removeSelfRecursiveConstructions();
-	}
+    public ConstructorParams computeConstructorParams(Constructor<?> constructor, Set<SerializedField> todo) {
+        List<ConstructorParam> setByConstructor = constructors.get(constructor);
+        for (ConstructorParam param : setByConstructor) {
+            todo.remove(param.getField());
+        }
+        return constructorOf(constructor, setByConstructor);
+    }
 
-	private Object buildFromStandardConstructor(TypeManager types) {
-		try {
-			Constructor<?> constructor = baseType(serialized.getType()).getDeclaredConstructor();
-			if (types.isHidden(constructor)) {
-				return null;
-			}
-			constructor.setAccessible(true);
-			constructors.put(constructor, new ArrayList<>());
-			return constructor.newInstance();
-		} catch (ReflectiveOperationException e) {
-			return null;
-		}
-	}
+    private ConstructorParams constructorOf(Constructor<?> constructor, List<ConstructorParam> params) {
+        ConstructorParams constructorParams = new ConstructorParams(constructor);
+        for (ConstructorParam param : params) {
+            constructorParams.add(param);
+        }
+        return constructorParams;
+    }
 
-	private List<Object> buildFromConstructors(TypeManager types) {
-		List<Object> objects = new ArrayList<>();
+    private void fillOrigins(TypeManager types) {
+        List<Object> bases = new ArrayList<>();
+        bases.add(buildFromStandardConstructor(types));
+        bases.addAll(buildFromConstructors(types));
+        bases.removeIf(Objects::isNull);
+        applySetters(bases);
+        removeSelfRecursiveConstructions();
+    }
 
-		for (SerializedField field : serialized.getFields()) {
-			String fieldName = field.getName();
-			Object fieldValue = field.getValue().accept(deserializer);
+    private Object buildFromStandardConstructor(TypeManager types) {
+        try {
+            Constructor<?> constructor = baseType(serialized.getType()).getDeclaredConstructor();
+            if (types.isHidden(constructor)) {
+                return null;
+            }
+            constructor.setAccessible(true);
+            constructors.put(constructor, new ArrayList<>());
+            return constructor.newInstance();
+        } catch (ReflectiveOperationException e) {
+            return null;
+        }
+    }
 
-			for (Constructor<?> constructor : baseType(serialized.getType()).getConstructors()) {
-				if (types.isHidden(constructor)) {
-					continue;
-				}
-				
-				List<ConstructorParam> params = constructors.computeIfAbsent(constructor, key -> new ArrayList<>());
-				Class<?>[] parameterTypes = constructor.getParameterTypes();
-				for (int i = 0; i < parameterTypes.length; i++) {
-					Class<?> parameterType = parameterTypes[i];
-					if (matches(parameterType, fieldValue)) {
-						Object uniqueFieldValue = isDefault(parameterType, fieldValue) ? getNonDefaultValue(parameterType) : fieldValue;
-						Object[] arguments = createArguments(uniqueFieldValue, parameterTypes, i);
-						try {
-							Object result = constructor.newInstance(arguments);
-							if (isSet(result, fieldName, uniqueFieldValue)) {
-								params.add(new ConstructorParam(constructor, i, field, fieldValue));
-							}
-						} catch (ReflectiveOperationException e) {
-							continue;
-						}
-					}
-				}
-				Object[] arguments = createArguments(params, parameterTypes);
-				try {
-					Object result = constructor.newInstance(arguments);
-					objects.add(result);
-				} catch (ReflectiveOperationException e) {
-					continue;
-				}
-			}
-		}
-		return objects;
-	}
+    private List<Object> buildFromConstructors(TypeManager types) {
+        List<Object> objects = new ArrayList<>();
 
-	private void applySetters(List<Object> bases) {
-		for (SerializedField field : serialized.getFields()) {
-			String fieldName = field.getName();
-			Object fieldValue = field.getValue().accept(deserializer);
+        for (SerializedField field : serialized.getFields()) {
+            String fieldName = field.getName();
+            Object fieldValue = field.getValue().accept(deserializer);
 
-			nextmethod: for (Method method : baseType(serialized.getType()).getMethods()) {
-				if (method.getName().startsWith("set")) {
-					Class<?>[] parameterTypes = method.getParameterTypes();
-					if (parameterTypes.length == 1 && matches(parameterTypes[0], fieldValue)) {
-						for (Object base : bases) {
-							try {
-								if (isSet(base, fieldName, fieldValue)) {
-									//default value is already matching, no need to apply a setter
-									continue nextmethod;
-								}
-								method.invoke(base, fieldValue);
-								if (!isSet(base, fieldName, fieldValue)) {
-									//did not set the correct value
-									continue nextmethod;
-								}
-							} catch (ReflectiveOperationException e) {
-								//unexpected exception on setting value
-								continue nextmethod;
-							}
-						}
-						setters.add(new SetterParam(method, field, fieldValue));
-					}
-				}
-			}
-		}
-	}
+            for (Constructor<?> constructor : baseType(serialized.getType()).getConstructors()) {
+                if (types.isHidden(constructor)) {
+                    continue;
+                }
 
-	private void removeSelfRecursiveConstructions() {
-		constructors.values().removeIf(params -> {
-			return params.stream()
-				.map(param -> param.getField().getValue())
-				.anyMatch(value -> closure(value).contains(serialized));
-		});
-	}
+                List<ConstructorParam> params = constructors.computeIfAbsent(constructor, key -> new ArrayList<>());
+                Class<?>[] parameterTypes = constructor.getParameterTypes();
+                for (int i = 0; i < parameterTypes.length; i++) {
+                    Class<?> parameterType = parameterTypes[i];
+                    if (matches(parameterType, fieldValue)) {
+                        Object uniqueFieldValue = isDefault(parameterType, fieldValue) ? getNonDefaultValue(parameterType) : fieldValue;
+                        Object[] arguments = createArguments(uniqueFieldValue, parameterTypes, i);
+                        try {
+                            Object result = constructor.newInstance(arguments);
+                            if (isSet(result, fieldName, uniqueFieldValue)) {
+                                params.add(new ConstructorParam(constructor, i, field, fieldValue));
+                            }
+                        } catch (ReflectiveOperationException e) {
+                            continue;
+                        }
+                    }
+                }
+                Object[] arguments = createArguments(params, parameterTypes);
+                try {
+                    Object result = constructor.newInstance(arguments);
+                    objects.add(result);
+                } catch (ReflectiveOperationException e) {
+                    continue;
+                }
+            }
+        }
+        return objects;
+    }
 
-	private Set<SerializedValue> closure(SerializedValue root) {
-		Set<SerializedValue> closure = new HashSet<>();
-		
-		Queue<SerializedValue> todo = new LinkedList<>();
-		todo.add(root);
-		while (!todo.isEmpty()) {
-			SerializedValue current = todo.poll();
-			if (closure.contains(current)) {
-				continue;
-			} else {
-				closure.add(current);
-				todo.addAll(current.referencedValues());
-			}
-		}
-		
-		return closure;
-	}
+    private void applySetters(List<Object> bases) {
+        for (SerializedField field : serialized.getFields()) {
+            String fieldName = field.getName();
+            Object fieldValue = field.getValue().accept(deserializer);
 
-	private boolean matches(Class<?> type, Object value) {
-		return isDefault(type, value)
-			|| type.isInstance(value);
-	}
+            nextmethod: for (Method method : baseType(serialized.getType()).getMethods()) {
+                if (method.getName().startsWith("set")) {
+                    Class<?>[] parameterTypes = method.getParameterTypes();
+                    if (parameterTypes.length == 1 && matches(parameterTypes[0], fieldValue)) {
+                        for (Object base : bases) {
+                            try {
+                                if (isSet(base, fieldName, fieldValue)) {
+                                    //default value is already matching, no need to apply a setter
+                                    continue nextmethod;
+                                }
+                                method.invoke(base, fieldValue);
+                                if (!isSet(base, fieldName, fieldValue)) {
+                                    //did not set the correct value
+                                    continue nextmethod;
+                                }
+                            } catch (ReflectiveOperationException e) {
+                                //unexpected exception on setting value
+                                continue nextmethod;
+                            }
+                        }
+                        setters.add(new SetterParam(method, field, fieldValue));
+                    }
+                }
+            }
+        }
+    }
 
-	private boolean isDefault(Class<?> type, Object value) {
-		return (!type.isPrimitive() && value == null)
-			|| (type.isPrimitive() && value != null && getDefaultValue(type).getClass() == value.getClass());
-	}
+    private void removeSelfRecursiveConstructions() {
+        constructors.values().removeIf(params -> {
+            return params.stream()
+                .map(param -> param.getField().getValue())
+                .anyMatch(value -> closure(value).contains(serialized));
+        });
+    }
 
-	private boolean isSet(Object base, String fieldName, Object expectedValue) throws IllegalAccessException {
-		Class<?> clazz = base.getClass();
-		while (clazz != Object.class) {
-			try {
-				Field f = clazz.getDeclaredField(fieldName);
-				return accessing(f).call(() -> {
-					Object foundValue = f.get(base);
-					if (foundValue == expectedValue) {
-						return true;
-					} else if (foundValue == null || expectedValue == null) {
-						return false;
-					} else {
-						return foundValue.equals(expectedValue);
-					}
-				});
-			} catch (ReflectiveOperationException e) {
-				clazz = clazz.getSuperclass();
-			}
-		}
-		return false;
-	}
+    private Set<SerializedValue> closure(SerializedValue root) {
+        Set<SerializedValue> closure = new HashSet<>();
 
-	private Object[] createArguments(Object fieldValue, Class<?>[] parameterTypes, int index) {
-		Object[] arguments = new Object[parameterTypes.length];
-		for (int i = 0; i < parameterTypes.length; i++) {
-			if (i == index) {
-				arguments[i] = fieldValue;
-			} else {
-				arguments[i] = getDefaultValue(parameterTypes[i]);
-			}
-		}
-		return arguments;
-	}
+        Queue<SerializedValue> todo = new LinkedList<>();
+        todo.add(root);
+        while (!todo.isEmpty()) {
+            SerializedValue current = todo.poll();
+            if (closure.contains(current)) {
+                continue;
+            } else {
+                closure.add(current);
+                todo.addAll(current.referencedValues());
+            }
+        }
 
-	private Object[] createArguments(List<ConstructorParam> params, Class<?>[] parameterTypes) {
-		Object[] arguments = new Object[parameterTypes.length];
-		for (int i = 0; i < parameterTypes.length; i++) {
-			final int paramNumber = i;
-			arguments[i] = params.stream()
-				.filter(param -> param.getParamNumber() == paramNumber)
-				.map(param -> param.getValue())
-				.filter(Objects::nonNull)
-				.findFirst()
-				.orElseGet(() -> getDefaultValue(parameterTypes[paramNumber]));
-		}
-		return arguments;
-	}
+        return closure;
+    }
+
+    private boolean matches(Class<?> type, Object value) {
+        return isDefault(type, value)
+            || type.isInstance(value);
+    }
+
+    private boolean isDefault(Class<?> type, Object value) {
+        return (!type.isPrimitive() && value == null)
+            || (type.isPrimitive() && value != null && getDefaultValue(type).getClass() == value.getClass());
+    }
+
+    private boolean isSet(Object base, String fieldName, Object expectedValue) throws IllegalAccessException {
+        Class<?> clazz = base.getClass();
+        while (clazz != Object.class) {
+            try {
+                Field f = clazz.getDeclaredField(fieldName);
+                return accessing(f).call(() -> {
+                    Object foundValue = f.get(base);
+                    if (foundValue == expectedValue) {
+                        return true;
+                    } else if (foundValue == null || expectedValue == null) {
+                        return false;
+                    } else {
+                        return foundValue.equals(expectedValue);
+                    }
+                });
+            } catch (ReflectiveOperationException e) {
+                clazz = clazz.getSuperclass();
+            }
+        }
+        return false;
+    }
+
+    private Object[] createArguments(Object fieldValue, Class<?>[] parameterTypes, int index) {
+        Object[] arguments = new Object[parameterTypes.length];
+        for (int i = 0; i < parameterTypes.length; i++) {
+            if (i == index) {
+                arguments[i] = fieldValue;
+            } else {
+                arguments[i] = getDefaultValue(parameterTypes[i]);
+            }
+        }
+        return arguments;
+    }
+
+    private Object[] createArguments(List<ConstructorParam> params, Class<?>[] parameterTypes) {
+        Object[] arguments = new Object[parameterTypes.length];
+        for (int i = 0; i < parameterTypes.length; i++) {
+            final int paramNumber = i;
+            arguments[i] = params.stream()
+                .filter(param -> param.getParamNumber() == paramNumber)
+                .map(param -> param.getValue())
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElseGet(() -> getDefaultValue(parameterTypes[paramNumber]));
+        }
+        return arguments;
+    }
 
 }

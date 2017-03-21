@@ -20,7 +20,13 @@ public class Wrapped {
 			if (loader == null || !(loader instanceof ClassInstrumenting)) {
 				loader = Wrapped.class.getClassLoader();
 			}
-			return loader.loadClass(name);
+			int innerClassPos = name.indexOf('$');
+			if (innerClassPos >= 0) {
+			    String outerClassName = name.substring(0, innerClassPos);
+			    Class<?> clazz = loader.loadClass(outerClassName);
+			    loader = clazz.getClassLoader();
+			}
+            return loader.loadClass(name);
 		} catch (ClassNotFoundException e) {
 			throw new GenericObjectException(e);
 		}

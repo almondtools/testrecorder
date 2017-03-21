@@ -73,5 +73,9 @@ public class ConstructorParams {
 	public List<ConstructorParam> getParams() {
 		return params;
 	}
+	
+	public int size() {
+	    return params.size();
+	}
 
 }

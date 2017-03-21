@@ -27,7 +27,7 @@ public class DefaultObjectAdaptor extends DefaultSetupGenerator<SerializedObject
 		types.registerTypes(value.getType(), value.getResultType(), GenericObject.class);
 
 		Type type = value.getType();
-		Type resultType = value.getResultType();
+		Type resultType = types.wrapHidden(value.getResultType());
 		return generator.forVariable(value, type, definition -> {
 
 			List<Computation> elementTemplates = value.getFields().stream()
@@ -49,7 +49,7 @@ public class DefaultObjectAdaptor extends DefaultSetupGenerator<SerializedObject
 			} else {
 				String genericObject = genericObjectConverter(types.getRawTypeName(type), elements);
 				genericObject = generator.adapt(genericObject, resultType, type);
-				statements.add(assignLocalVariableStatement(types.getRawName(types.wrapHidden(resultType)), definition.getName(), genericObject));
+				statements.add(assignLocalVariableStatement(types.getRawName(resultType), definition.getName(), genericObject));
 			}
 
 			return new Computation(definition.getName(), resultType, statements);

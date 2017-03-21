@@ -208,7 +208,9 @@ public final class Types {
         Class<?> clazz = baseType(type);
         while (true) {
             int modifiers = clazz.getModifiers();
-            if (isPublic(modifiers)) {
+            if (clazz.isAnonymousClass()) {
+                return true;
+            } else if (isPublic(modifiers)) {
                 return false;
             } else if (isPrivate(modifiers)) {
                 return true;

@@ -4,7 +4,9 @@ import static net.amygdalum.testrecorder.util.Reflections.accessing;
 import static net.amygdalum.testrecorder.util.Types.allFields;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.isLiteral;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.util.List;
 
 public class GenericComparison {
 	private static final GenericComparison NULL = new GenericComparison("<error>", null, null);
@@ -13,13 +15,23 @@ public class GenericComparison {
 	private Object left;
 	private Object right;
 	private Boolean mismatch;
+    private List<String> fields;
 
 	public GenericComparison(String root, Object left, Object right) {
 		this.root = root;
 		this.left = left;
 		this.right = right;
 		this.mismatch = null;
+		this.fields = null;
 	}
+
+    public GenericComparison(String root, Object left, Object right, List<String> fields) {
+        this.root = root;
+        this.left = left;
+        this.right = right;
+        this.mismatch = null;
+        this.fields = fields;
+    }
 
 	public String getRoot() {
 		return root;
@@ -40,6 +52,10 @@ public class GenericComparison {
 	public static boolean equals(String root, Object o1, Object o2) {
 		return equals(new GenericComparison(root, o1, o2));
 	}
+
+    public static boolean equals(String root, Object o1, Object o2, List<String> fields) {
+        return equals(new GenericComparison(root, o1, o2, fields));
+    }
 
 	public static boolean equals(GenericComparison p) {
 		WorkSet<GenericComparison> todo = new WorkSet<>();
@@ -69,11 +85,23 @@ public class GenericComparison {
 		if (isLiteral(clazz)) {
 			return left.equals(right);
 		}
+		if (clazz.isArray()) {
+		    int length = Array.getLength(left);
+            if (length != Array.getLength(right)) {
+		        return false;
+		    }
+            for (int i = 0; i < length; i++) {
+                todo.add(new GenericComparison(root, Array.get(left, i), Array.get(right, i)));
+            }
+		}
 		for (Field field : allFields(clazz)) {
 			if (field.isSynthetic()) {
 				continue;
 			}
 			String fieldName = field.getName();
+            if (fields != null && !fields.contains(fieldName)) {
+                continue;
+            }
 			todo.add(GenericComparison.from(root, fieldName, left, right));
 		}
 		return true;
@@ -94,11 +122,23 @@ public class GenericComparison {
 		if (isLiteral(clazz)) {
 			return left.equals(right);
 		}
+        if (clazz.isArray()) {
+            int length = Array.getLength(left);
+            if (length != Array.getLength(right)) {
+                return false;
+            }
+            for (int i = 0; i < length; i++) {
+                todo.add(new GenericComparison(root, Array.get(left, i), Array.get(right, i)));
+            }
+        }
 		for (Field field : allFields(clazz)) {
 			if (field.isSynthetic()) {
 				continue;
 			}
 			String fieldName = field.getName();
+            if (fields != null && !fields.contains(fieldName)) {
+                continue;
+            }
 			todo.add(GenericComparison.from(root, fieldName, left, right));
 		}
 		return true;

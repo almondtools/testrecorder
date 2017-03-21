@@ -12,7 +12,7 @@ import java.util.List;
 
 import net.amygdalum.testrecorder.Deserializer;
 
-public class ConstructionPlan {
+public class ConstructionPlan implements Comparable<ConstructionPlan> {
 
 	private LocalVariable var;
 	private ConstructorParams constructorParams;
@@ -40,7 +40,7 @@ public class ConstructionPlan {
 				param.apply(base);
 			}
 			return base;
-		} catch (ReflectiveOperationException e) {
+		} catch (Exception e) {
 			return null;
 		}
 	}
@@ -78,5 +78,25 @@ public class ConstructionPlan {
 
 		return new Computation(var.getName(), null, true, statements);
 	}
+
+    @Override
+    public int compareTo(ConstructionPlan o) {
+        int constructorSize = constructorParams.size();
+        int oconstructorSize = o.constructorParams.size();
+        int setterSize = setterParams.size();
+        int osetterSize = o.setterParams.size();
+        
+        int size = constructorSize + setterSize;
+        int osize = oconstructorSize + osetterSize;
+        
+        int compare = size - osize;
+        if (compare == 0) {
+            compare = oconstructorSize - constructorSize;
+        }
+        if (compare == 0) {
+            compare = System.identityHashCode(this) - System.identityHashCode(o);
+        }
+        return compare;
+    }
 
 }

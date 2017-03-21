@@ -173,9 +173,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
     public boolean excludes(Field field) {
         if (field.isAnnotationPresent(Excluded.class)) {
             return true;
-        } else if (field.isSynthetic()) {
-            return true;
-        }
+        } 
         boolean excluded = fieldExclusions.stream()
             .anyMatch(exclusion -> exclusion.test(field));
         if (!excluded) {
