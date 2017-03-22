@@ -3,9 +3,10 @@ package net.amygdalum.testrecorder.deserializers.builder;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethodStatement;
-import static net.amygdalum.testrecorder.deserializers.Templates.cast;
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
+import static net.amygdalum.testrecorder.util.Types.equalTypes;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -17,51 +18,58 @@ import net.amygdalum.testrecorder.values.SerializedMap;
 
 public class DefaultMapAdaptor extends DefaultSetupGenerator<SerializedMap> implements SetupGenerator<SerializedMap> {
 
-	@Override
-	public Class<SerializedMap> getAdaptedClass() {
-		return SerializedMap.class;
-	}
+    @Override
+    public Class<SerializedMap> getAdaptedClass() {
+        return SerializedMap.class;
+    }
 
-	@Override
-	public Computation tryDeserialize(SerializedMap value, SetupGenerators generator) {
-		TypeManager types = generator.getTypes();
-		types.registerTypes(value.getResultType(), value.getType());
+    @Override
+    public Computation tryDeserialize(SerializedMap value, SetupGenerators generator) {
+        TypeManager types = generator.getTypes();
+        Type type = value.getType();
+        Type resultType = value.getResultType();
+        types.registerTypes(resultType, type);
 
-		return generator.forVariable(value, Map.class, local -> {
+        return generator.forVariable(value, Map.class, local -> {
 
-			List<Pair<Computation, Computation>> elementTemplates = value.entrySet().stream()
-				.map(entry -> new Pair<>(entry.getKey().accept(generator), entry.getValue().accept(generator)))
-				.collect(toList());
+            List<Pair<Computation, Computation>> elementTemplates = value.entrySet().stream()
+                .map(entry -> new Pair<>(entry.getKey().accept(generator), entry.getValue().accept(generator)))
+                .collect(toList());
 
-			List<Pair<String, String>> elements = elementTemplates.stream()
-				.map(pair -> new Pair<>(
-					generator.adapt(pair.getElement1().getValue(), value.getMapKeyType(), pair.getElement1().getType()),
-					generator.adapt(pair.getElement2().getValue(), value.getMapValueType(), pair.getElement2().getType())))
-				.collect(toList());
+            List<Pair<String, String>> elements = elementTemplates.stream()
+                .map(pair -> new Pair<>(
+                    generator.adapt(pair.getElement1().getValue(), value.getMapKeyType(), pair.getElement1().getType()),
+                    generator.adapt(pair.getElement2().getValue(), value.getMapValueType(), pair.getElement2().getType())))
+                .collect(toList());
 
-			List<String> statements = elementTemplates.stream()
-				.flatMap(pair -> Stream.concat(pair.getElement1().getStatements().stream(), pair.getElement2().getStatements().stream()))
-				.distinct()
-				.collect(toList());
+            List<String> statements = elementTemplates.stream()
+                .flatMap(pair -> Stream.concat(pair.getElement1().getStatements().stream(), pair.getElement2().getStatements().stream()))
+                .distinct()
+                .collect(toList());
 
-			String tempVar = equalResultTypes(value) ? local.getName() : generator.temporaryLocal();
+            String tempVar = local.getName();
+            if (generator.needsAdaptation(resultType, type) || !equalTypes(resultType, type)) {
+                tempVar = generator.temporaryLocal();
+            }
 
-			String map = newObject(types.getBestName(value.getType()));
-			String mapInit = assignLocalVariableStatement(types.getRelaxedName(value.getType()), tempVar, map);
-			statements.add(mapInit);
+            String map = newObject(types.getBestName(type));
+            String mapInit = assignLocalVariableStatement(types.getRelaxedName(type), tempVar, map);
+            statements.add(mapInit);
 
-			for (Pair<String, String> element : elements) {
-				String putEntry = callMethodStatement(tempVar, "put", element.getElement1(), element.getElement2());
-				statements.add(putEntry);
-			}
+            for (Pair<String, String> element : elements) {
+                String putEntry = callMethodStatement(tempVar, "put", element.getElement1(), element.getElement2());
+                statements.add(putEntry);
+            }
 
-			if (!equalResultTypes(value)) {
-				String leftValue = assignableResultTypes(value) ? tempVar : cast(types.getRelaxedName(value.getResultType()), tempVar);
-				statements.add(assignLocalVariableStatement(types.getRelaxedName(value.getResultType()), local.getName(), leftValue));
-			}
+            if (generator.needsAdaptation(resultType, type)) {
+                tempVar = generator.adapt(tempVar, resultType, type);
+                statements.add(assignLocalVariableStatement(types.getRelaxedName(resultType), local.getName(), tempVar));
+            } else if (!equalTypes(resultType, type)) {
+                statements.add(assignLocalVariableStatement(types.getRelaxedName(resultType), local.getName(), tempVar));
+            }
 
-			return new Computation(local.getName(), value.getResultType(), true, statements);
-		});
-	}
+            return new Computation(local.getName(), resultType, true, statements);
+        });
+    }
 
 }

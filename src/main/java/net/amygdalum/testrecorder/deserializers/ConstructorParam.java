@@ -1,18 +1,15 @@
 package net.amygdalum.testrecorder.deserializers;
 
-import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
 import static net.amygdalum.testrecorder.deserializers.Templates.cast;
 import static net.amygdalum.testrecorder.util.GenericObject.getDefaultValue;
-import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.isLiteral;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 
 import java.lang.reflect.Constructor;
 
-import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.Wrapped;
+import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
 import net.amygdalum.testrecorder.values.SerializedField;
 
 public class ConstructorParam {
@@ -90,16 +87,17 @@ public class ConstructorParam {
         return field.getType() != type;
     }
 
-    public Computation compile(TypeManager types, Deserializer<Computation> compiler) {
+    public Computation compile(TypeManager types, SetupGenerators generator) {
         SerializedValue serializedValue = computeSerializedValue();
-        Computation computation = serializedValue.accept(compiler);
-        if (baseType(computation.getType()) == Wrapped.class) {
-            String value = cast(types.getBestName(type), callMethod(computation.getValue(), "value"));
-            computation = new Computation(value, type, computation.getStatements());
+        Computation computation = serializedValue.accept(generator);
+        String value = computation.getValue();
+        
+        if (generator.needsAdaptation(type, computation.getType()))  {
+            value = generator.adapt(value, type, computation.getType());
         } else if (castNeeded()) {
-            String value = cast(types.getBestName(type), computation.getValue());
-            computation = new Computation(value, type);
+            value = cast(types.getBestName(type), value);
         }
+        computation = new Computation(value, type, computation.getStatements());
 
         return computation;
     }

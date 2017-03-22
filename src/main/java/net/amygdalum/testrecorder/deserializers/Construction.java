@@ -19,8 +19,8 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 
-import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedValue;
+import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
 import net.amygdalum.testrecorder.util.GenericComparison;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedObject;
@@ -43,7 +43,7 @@ public class Construction {
         this.setters = new ArrayList<>();
     }
 
-    public Computation computeBest(TypeManager types, Deserializer<Computation> compiler) throws InstantiationException {
+    public Computation computeBest(TypeManager types, SetupGenerators generator) throws InstantiationException {
         fillOrigins(types);
         
         List<String> fields = getFields();
@@ -53,7 +53,7 @@ public class Construction {
             .filter(plan -> GenericComparison.equals("", plan.execute(), value, fields))
             .sorted()
             .findFirst()
-            .map(plan -> plan.compute(types, compiler))
+            .map(plan -> plan.compute(types, generator))
             .orElseThrow(() -> new InstantiationException());
     }
 

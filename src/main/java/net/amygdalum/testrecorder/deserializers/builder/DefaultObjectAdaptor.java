@@ -27,7 +27,7 @@ public class DefaultObjectAdaptor extends DefaultSetupGenerator<SerializedObject
 		types.registerTypes(value.getType(), value.getResultType(), GenericObject.class);
 
 		Type type = value.getType();
-		Type resultType = types.wrapHidden(value.getResultType());
+		Type resultType = value.getResultType();
 		return generator.forVariable(value, type, definition -> {
 
 			List<Computation> elementTemplates = value.getFields().stream()
@@ -43,16 +43,19 @@ public class DefaultObjectAdaptor extends DefaultSetupGenerator<SerializedObject
 				.flatMap(template -> template.getStatements().stream())
 				.collect(toList());
 
+			Type effectiveResultType = resultType;
 			if (definition.isDefined() && !definition.isReady()) {
+			    effectiveResultType = definition.getType();
 				String genericObject = genericObject(types.getRawTypeName(type), elements);
 				statements.add(callMethodStatement(types.getBestName(GenericObject.class), "define", definition.getName(), genericObject));
 			} else {
+			    effectiveResultType = types.wrapHidden(resultType);
 				String genericObject = genericObjectConverter(types.getRawTypeName(type), elements);
-				genericObject = generator.adapt(genericObject, resultType, type);
-				statements.add(assignLocalVariableStatement(types.getRawName(resultType), definition.getName(), genericObject));
+				genericObject = generator.adapt(genericObject, effectiveResultType, type);
+				statements.add(assignLocalVariableStatement(types.getRawName(effectiveResultType), definition.getName(), genericObject));
 			}
 
-			return new Computation(definition.getName(), resultType, statements);
+			return new Computation(definition.getName(), effectiveResultType, statements);
 		});
 	}
 

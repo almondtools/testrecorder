@@ -6,7 +6,6 @@ import static net.amygdalum.testrecorder.deserializers.Templates.cast;
 import static net.amygdalum.testrecorder.util.Types.assignableTypes;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.boxingEquivalentTypes;
-import static net.amygdalum.testrecorder.util.Types.needsCast;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -33,139 +32,158 @@ import net.amygdalum.testrecorder.values.SerializedField;
 
 public class SetupGenerators implements Deserializer<Computation> {
 
-	public static final Adaptors<SetupGenerators> DEFAULT = new Adaptors<SetupGenerators>()
-		.load(SetupGenerator.class);
+    public static final Adaptors<SetupGenerators> DEFAULT = new Adaptors<SetupGenerators>()
+        .load(SetupGenerator.class);
 
-	private TypeManager types;
-	private Adaptors<SetupGenerators> adaptors;
-	private LocalVariableNameGenerator locals;
+    private TypeManager types;
+    private Adaptors<SetupGenerators> adaptors;
+    private LocalVariableNameGenerator locals;
 
-	private Map<SerializedValue, LocalVariable> defined;
+    private Map<SerializedValue, LocalVariable> defined;
 
-	public SetupGenerators(Class<?> clazz) {
-		this(new LocalVariableNameGenerator(), new TypeManager(clazz.getPackage().getName()), DEFAULT);
-	}
+    public SetupGenerators(Class<?> clazz) {
+        this(new LocalVariableNameGenerator(), new TypeManager(clazz.getPackage().getName()), DEFAULT);
+    }
 
-	public SetupGenerators(LocalVariableNameGenerator locals, TypeManager types) {
-		this(locals, types, DEFAULT);
-	}
+    public SetupGenerators(LocalVariableNameGenerator locals, TypeManager types) {
+        this(locals, types, DEFAULT);
+    }
 
-	public SetupGenerators(LocalVariableNameGenerator locals, TypeManager types, Adaptors<SetupGenerators> adaptors) {
-		this.adaptors = adaptors;
-		this.types = types;
-		this.locals = locals;
-		this.defined = new IdentityHashMap<>();
-	}
+    public SetupGenerators(LocalVariableNameGenerator locals, TypeManager types, Adaptors<SetupGenerators> adaptors) {
+        this.adaptors = adaptors;
+        this.types = types;
+        this.locals = locals;
+        this.defined = new IdentityHashMap<>();
+    }
 
-	public String adapt(String expression, Type resultType, Type type) {
-		if (baseType(resultType) != Wrapped.class && types.isHidden(type)) {
-			expression = callMethod(expression, "value");
-		}
-		if ((!assignableTypes(resultType, type) || types.isHidden(type)) && !boxingEquivalentTypes(resultType, type) && baseType(resultType) != Wrapped.class) {
-			expression = cast(types.getRelaxedName(resultType), expression);
-		}
-		return expression;
-	}
+    public String adapt(String expression, Type resultType, Type type) {
+        if (baseType(resultType) != Wrapped.class && type == Wrapped.class) {
+            expression = callMethod(expression, "value");
+            type = Object.class;
+        } else if (baseType(resultType) != Wrapped.class && types.isHidden(type)) {
+            expression = callMethod(expression, "value");
+            type = Object.class;
+        }
+        if ((!assignableTypes(resultType, type) || types.isHidden(type))
+            && !boxingEquivalentTypes(resultType, type)
+            && baseType(resultType) != Wrapped.class) {
+            expression = cast(types.getRelaxedName(resultType), expression);
+        }
+        return expression;
+    }
 
-	public TypeManager getTypes() {
-		return types;
-	}
+    public boolean needsAdaptation(Type resultType, Type type) {
+        if (baseType(resultType) != Wrapped.class &&  type == Wrapped.class) {
+            return true;
+        } else if (baseType(resultType) != Wrapped.class && types.isHidden(type)) {
+            return true;
+        }
+        if ((!assignableTypes(resultType, type) || types.isHidden(type))
+            && !boxingEquivalentTypes(resultType, type)
+            && baseType(resultType) != Wrapped.class) {
+            return true;
+        }
+        return false;
+    }
 
-	public Computation forVariable(SerializedValue value, Type type, LocalVariableDefinition computation) {
-		LocalVariable local = localVariable(value, type);
-		try {
-			Computation definition = computation.define(local);
-			finishVariable(value);
-			return definition;
-		} catch (DeserializationException e) {
-			resetVariable(value);
-			throw e;
-		}
-	}
+    public TypeManager getTypes() {
+        return types;
+    }
 
-	public String temporaryLocal() {
-		return locals.fetchName("temp");
-	}
+    public Computation forVariable(SerializedValue value, Type type, LocalVariableDefinition computation) {
+        LocalVariable local = localVariable(value, type);
+        try {
+            Computation definition = computation.define(local);
+            finishVariable(value);
+            return definition;
+        } catch (DeserializationException e) {
+            resetVariable(value);
+            throw e;
+        }
+    }
 
-	private LocalVariable localVariable(SerializedValue value, Type type) {
-		String name = locals.fetchName(type);
-		LocalVariable definition = new LocalVariable(name);
-		defined.put(value, definition);
-		return definition;
-	}
+    public String temporaryLocal() {
+        return locals.fetchName("temp");
+    }
 
-	private void finishVariable(SerializedValue value) {
-		defined.computeIfPresent(value, (val, def) -> def.finish());
-	}
+    private LocalVariable localVariable(SerializedValue value, Type type) {
+        String name = locals.fetchName(type);
+        LocalVariable definition = new LocalVariable(name);
+        defined.put(value, definition);
+        return definition;
+    }
 
-	private void resetVariable(SerializedValue value) {
-		defined.remove(value);
-	}
+    private void finishVariable(SerializedValue value) {
+        defined.computeIfPresent(value, (val, def) -> def.finish());
+    }
 
-	@Override
-	public Computation visitField(SerializedField field) {
-		Type fieldType = field.getType();
-		Type resultType = field.getValue().getResultType();
-		Type fieldResultType = types.wrapHidden(fieldType);
-		types.registerTypes(fieldType, resultType, fieldResultType);
+    private void resetVariable(SerializedValue value) {
+        defined.remove(value);
+    }
 
-		SerializedValue value = field.getValue();
-		if (value instanceof SerializedReferenceType) {
-			((SerializedReferenceType) value).setResultType(fieldResultType);
-		}
-		Computation valueTemplate = value.accept(this);
+    @Override
+    public Computation visitField(SerializedField field) {
+        Type fieldType = field.getType();
+        Type resultType = field.getValue().getResultType();
+        Type fieldResultType = types.bestVisible(fieldType);
+        types.registerTypes(fieldType, resultType, fieldResultType);
 
-		List<String> statements = valueTemplate.getStatements();
+        SerializedValue value = field.getValue();
+        if (value instanceof SerializedReferenceType) {
+            ((SerializedReferenceType) value).setResultType(fieldResultType);
+        }
+        Computation valueTemplate = value.accept(this);
 
-		String expression = valueTemplate.getValue();
+        List<String> statements = valueTemplate.getStatements();
 
-		if (needsCast(fieldType, resultType)) {
-			expression = cast(types.getRawName(fieldResultType), expression);
-		}
+        String expression = valueTemplate.getValue();
 
-		String assignField = assignLocalVariableStatement(types.getRelaxedName(fieldResultType), field.getName(), expression);
-		return new Computation(assignField, null, statements);
-	}
+        expression = adapt(expression, fieldResultType, valueTemplate.getType());
 
-	@Override
-	public Computation visitReferenceType(SerializedReferenceType value) {
-		if (defined.containsKey(value)) {
-			LocalVariable definition = defined.get(value);
-			String name = definition.getName();
-			if (definition.isDefined()) {
-				return new Computation(name, definition.getType(), true);
-			} else {
-				List<String> statements = new ArrayList<>();
-				String forwardExpression = callMethod(types.getBestName(GenericObject.class), "forward", types.getRawTypeName(value.getType()));
-				statements.add(assignLocalVariableStatement(types.getBestName(types.wrapHidden(value.getType())), name, forwardExpression));
-				definition.define(value.getResultType());
-				return new Computation(name, definition.getType(), true, statements);
-			}
-		}
-		return adaptors.tryDeserialize(value, types, this);
-	}
+        String assignField = assignLocalVariableStatement(types.getRelaxedName(fieldResultType), field.getName(), expression);
+        return new Computation(assignField, null, statements);
+    }
 
-	@Override
-	public Computation visitValueType(SerializedValueType value) {
-		return adaptors.tryDeserialize(value, types, this);
-	}
+    @Override
+    public Computation visitReferenceType(SerializedReferenceType value) {
+        if (defined.containsKey(value)) {
+            LocalVariable definition = defined.get(value);
+            String name = definition.getName();
+            if (definition.isDefined()) {
+                return new Computation(name, definition.getType(), true);
+            } else {
+                List<String> statements = new ArrayList<>();
+                String forwardExpression = callMethod(types.getBestName(GenericObject.class), "forward", types.getRawTypeName(value.getType()));
+                Type resultType = types.wrapHidden(value.getType());
+                statements.add(assignLocalVariableStatement(types.getBestName(resultType), name, forwardExpression));
+                definition.define(resultType);
+                return new Computation(name, resultType, true, statements);
+            }
+        }
+        return adaptors.tryDeserialize(value, types, this);
+    }
 
-	@Override
-	public Computation visitImmutableType(SerializedImmutableType value) {
-		return adaptors.tryDeserialize(value, types, this);
-	}
+    @Override
+    public Computation visitValueType(SerializedValueType value) {
+        return adaptors.tryDeserialize(value, types, this);
+    }
 
-	public static class Factory implements DeserializerFactory {
+    @Override
+    public Computation visitImmutableType(SerializedImmutableType value) {
+        return adaptors.tryDeserialize(value, types, this);
+    }
 
-		@Override
-		public SetupGenerators create(LocalVariableNameGenerator locals, TypeManager types) {
-			return new SetupGenerators(locals, types);
-		}
+    public static class Factory implements DeserializerFactory {
 
-		@Override
-		public Type resultType(Type type) {
-			return type;
-		}
-	}
+        @Override
+        public SetupGenerators create(LocalVariableNameGenerator locals, TypeManager types) {
+            return new SetupGenerators(locals, types);
+        }
+
+        @Override
+        public Type resultType(Type type) {
+            return type;
+        }
+    }
 
 }

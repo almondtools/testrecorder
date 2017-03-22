@@ -10,7 +10,6 @@ import java.lang.reflect.Constructor;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
 import net.amygdalum.testrecorder.values.SerializedField;
 
@@ -49,7 +48,7 @@ public class ConstructorParamTest {
 
     @Test
     public void testCompile() throws Exception {
-        Deserializer<Computation> compiler = new SetupGenerators(TestObject.class);
+        SetupGenerators compiler = new SetupGenerators(TestObject.class);
         TypeManager types = new TypeManager();
         
         assertThat(new ConstructorParam(constructor, 0, new SerializedField(TestObject.class, "field", String.class, literal("value")), "value")

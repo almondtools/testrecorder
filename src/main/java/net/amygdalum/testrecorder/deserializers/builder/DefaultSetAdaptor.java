@@ -3,9 +3,10 @@ package net.amygdalum.testrecorder.deserializers.builder;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethodStatement;
-import static net.amygdalum.testrecorder.deserializers.Templates.cast;
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
+import static net.amygdalum.testrecorder.util.Types.equalTypes;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Set;
 
@@ -23,7 +24,9 @@ public class DefaultSetAdaptor extends DefaultSetupGenerator<SerializedSet> impl
 	@Override
 	public Computation tryDeserialize(SerializedSet value, SetupGenerators generator) {
 		TypeManager types = generator.getTypes();
-		types.registerTypes(value.getResultType(), value.getType());
+        Type type = value.getType();
+        Type resultType = value.getResultType();
+        types.registerTypes(resultType, type);
 
 		return generator.forVariable(value, Set.class, local -> {
 
@@ -39,7 +42,10 @@ public class DefaultSetAdaptor extends DefaultSetupGenerator<SerializedSet> impl
 				.flatMap(template -> template.getStatements().stream())
 				.collect(toList());
 
-			String tempVar = equalResultTypes(value) ? local.getName() : generator.temporaryLocal();
+            String tempVar = local.getName();
+            if (generator.needsAdaptation(resultType, type) || !equalTypes(resultType, type)) {
+                tempVar = generator.temporaryLocal();
+            }
 
 			String set = newObject(types.getBestName(value.getType()));
 			String setInit = assignLocalVariableStatement(types.getRelaxedName(value.getType()), tempVar, set);
@@ -50,10 +56,12 @@ public class DefaultSetAdaptor extends DefaultSetupGenerator<SerializedSet> impl
 				statements.add(addElement);
 			}
 
-			if (!equalResultTypes(value)) {
-				String leftValue = assignableResultTypes(value) ? tempVar : cast(types.getRelaxedName(value.getResultType()), tempVar);
-				statements.add(assignLocalVariableStatement(types.getRelaxedName(value.getResultType()), local.getName(), leftValue));
-			}
+            if (generator.needsAdaptation(resultType, type)) {
+                tempVar = generator.adapt(tempVar, resultType, type);
+                statements.add(assignLocalVariableStatement(types.getRelaxedName(resultType), local.getName(), tempVar));
+            } else if (!equalTypes(resultType, type)) {
+                statements.add(assignLocalVariableStatement(types.getRelaxedName(resultType), local.getName(), tempVar));
+            }
 
 			return new Computation(local.getName(), value.getResultType(), true, statements);
 		});

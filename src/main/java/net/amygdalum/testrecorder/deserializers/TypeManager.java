@@ -230,6 +230,17 @@ public class TypeManager {
         }
     }
 
+    public Type bestVisible(Type type) {
+        if (!isHidden(type)) {
+            return type;
+        }
+        Class<?> clazz = baseType(type);
+        while (clazz != Object.class && isHidden(clazz)) {
+            clazz = clazz.getSuperclass();
+        }
+        return Object.class;
+    }
+
     public String getWrappedName(Type type) {
         return "clazz(\"" + baseType(type).getName() + "\")";
     }

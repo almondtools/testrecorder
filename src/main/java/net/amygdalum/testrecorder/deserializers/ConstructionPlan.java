@@ -10,74 +10,74 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import net.amygdalum.testrecorder.Deserializer;
+import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
 
 public class ConstructionPlan implements Comparable<ConstructionPlan> {
 
-	private LocalVariable var;
-	private ConstructorParams constructorParams;
-	private List<SetterParam> setterParams;
+    private LocalVariable var;
+    private ConstructorParams constructorParams;
+    private List<SetterParam> setterParams;
 
-	public ConstructionPlan(LocalVariable var, ConstructorParams constructorParams, List<SetterParam> setterParams) {
-		this.var = var;
-		this.constructorParams = constructorParams;
-		this.setterParams = setterParams;
-	}
+    public ConstructionPlan(LocalVariable var, ConstructorParams constructorParams, List<SetterParam> setterParams) {
+        this.var = var;
+        this.constructorParams = constructorParams;
+        this.setterParams = setterParams;
+    }
 
-	public ConstructionPlan disambiguate(Collection<Constructor<?>> constructors) {
-		for (Constructor<?> constructor : constructors) {
-			if (constructorParams.hasAmbiguitiesWith(constructor)) {
-				constructorParams.insertTypeCasts();
-			}
-		}
-		return this;
-	}
+    public ConstructionPlan disambiguate(Collection<Constructor<?>> constructors) {
+        for (Constructor<?> constructor : constructors) {
+            if (constructorParams.hasAmbiguitiesWith(constructor)) {
+                constructorParams.insertTypeCasts();
+            }
+        }
+        return this;
+    }
 
-	public Object execute() {
-		try {
-			Object base = constructorParams.apply();
-			for (SetterParam param : setterParams) {
-				param.apply(base);
-			}
-			return base;
-		} catch (Exception e) {
-			return null;
-		}
-	}
+    public Object execute() {
+        try {
+            Object base = constructorParams.apply();
+            for (SetterParam param : setterParams) {
+                param.apply(base);
+            }
+            return base;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
-	public Computation compute(TypeManager types, Deserializer<Computation> compiler) {
-		Class<?> clazz = constructorParams.getType();
-		types.registerTypes(clazz);
-		
-		List<String> statements = new ArrayList<>();
+    public Computation compute(TypeManager types, SetupGenerators generator) {
+        Class<?> clazz = constructorParams.getType();
+        types.registerTypes(clazz);
 
-		List<Computation> computedParams = constructorParams.getParams().stream()
-			.map(value -> value.compile(types, compiler))
-			.collect(toList());
+        List<String> statements = new ArrayList<>();
 
-		statements.addAll(computedParams.stream()
-			.flatMap(computation -> computation.getStatements().stream())
-			.collect(toList()));
+        List<Computation> computedParams = constructorParams.getParams().stream()
+            .map(value -> value.compile(types, generator))
+            .collect(toList());
 
-		String[] params = computedParams.stream()
-			.map(computation -> computation.getValue())
-			.toArray(String[]::new);
-		
-		String bean = newObject(types.getBestName(clazz), params);
-		String constructorStatement = assignLocalVariableStatement(types.getBestName(clazz), var.getName(), bean);
-		statements.add(constructorStatement);
-		var.define(clazz);
+        statements.addAll(computedParams.stream()
+            .flatMap(computation -> computation.getStatements().stream())
+            .collect(toList()));
 
-		for (SetterParam param : setterParams) {
-			Computation fieldComputation = param.computeSerializedValue().accept(compiler);
-			statements.addAll(fieldComputation.getStatements());
+        String[] params = computedParams.stream()
+            .map(computation -> computation.getValue())
+            .toArray(String[]::new);
 
-			String setStatement = callMethodStatement(var.getName(), param.getName(), fieldComputation.getValue());
-			statements.add(setStatement);
-		}
+        String bean = newObject(types.getBestName(clazz), params);
+        String constructorStatement = assignLocalVariableStatement(types.getBestName(clazz), var.getName(), bean);
+        statements.add(constructorStatement);
+        var.define(clazz);
 
-		return new Computation(var.getName(), null, true, statements);
-	}
+        for (SetterParam param : setterParams) {
+            Computation fieldComputation = param.computeSerializedValue().accept(generator);
+            statements.addAll(fieldComputation.getStatements());
+
+            String setStatement = callMethodStatement(var.getName(), param.getName(), fieldComputation.getValue());
+            statements.add(setStatement);
+        }
+
+        return new Computation(var.getName(), null, true, statements);
+    }
 
     @Override
     public int compareTo(ConstructionPlan o) {
@@ -85,10 +85,10 @@ public class ConstructionPlan implements Comparable<ConstructionPlan> {
         int oconstructorSize = o.constructorParams.size();
         int setterSize = setterParams.size();
         int osetterSize = o.setterParams.size();
-        
+
         int size = constructorSize + setterSize;
         int osize = oconstructorSize + osetterSize;
-        
+
         int compare = size - osize;
         if (compare == 0) {
             compare = oconstructorSize - constructorSize;

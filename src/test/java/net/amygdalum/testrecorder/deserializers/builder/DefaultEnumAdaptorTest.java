@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -55,7 +56,7 @@ public class DefaultEnumAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 		
 		assertThat(result.getStatements(), empty());
-		assertThat(result.getValue(), equalTo("Wrapped.enumType(\"net.amygdalum.testrecorder.deserializers.builder.DefaultEnumAdaptorTest$MyHiddenEnum\", \"VALUE2\").value()"));
+		assertThat(result.getValue(), containsString("Wrapped.enumType(\"net.amygdalum.testrecorder.deserializers.builder.DefaultEnumAdaptorTest$MyHiddenEnum\", \"VALUE2\").value()"));
 	}
 	
 	public static enum MyEnum {

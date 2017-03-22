@@ -4,9 +4,9 @@ import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethodStatement;
-import static net.amygdalum.testrecorder.deserializers.Templates.cast;
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
 import static net.amygdalum.testrecorder.util.Types.baseType;
+import static net.amygdalum.testrecorder.util.Types.equalTypes;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -30,9 +30,11 @@ public class DefaultListAdaptor extends DefaultSetupGenerator<SerializedList> im
 	@Override
 	public Computation tryDeserialize(SerializedList value, SetupGenerators generator) {
 		TypeManager types = generator.getTypes();
-		types.registerTypes(value.getResultType(), value.getType());
+		Type type = value.getType();
+        Type resultType = value.getResultType();
+        types.registerTypes(resultType, type);
 
-		Class<?> listType = listClassFor(value.getType());
+		Class<?> listType = listClassFor(type);
 
 		return generator.forVariable(value, listType, local -> {
 
@@ -48,10 +50,13 @@ public class DefaultListAdaptor extends DefaultSetupGenerator<SerializedList> im
 				.flatMap(template -> template.getStatements().stream())
 				.collect(toList());
 
-			String tempVar = equalResultTypes(value) ? local.getName() : generator.temporaryLocal();
+            String tempVar = local.getName();
+            if (generator.needsAdaptation(resultType, type) || !equalTypes(resultType, type)) {
+                tempVar = generator.temporaryLocal();
+            }
 
-			String list = newObject(types.getBestName(value.getType()));
-			String listInit = assignLocalVariableStatement(types.getRelaxedName(value.getType()), tempVar, list);
+			String list = newObject(types.getBestName(type));
+			String listInit = assignLocalVariableStatement(types.getRelaxedName(type), tempVar, list);
 			statements.add(listInit);
 
 			for (String element : elements) {
@@ -59,12 +64,14 @@ public class DefaultListAdaptor extends DefaultSetupGenerator<SerializedList> im
 				statements.add(addElement);
 			}
 
-			if (!equalResultTypes(value)) {
-				String leftValue = assignableResultTypes(value) ? tempVar : cast(types.getRelaxedName(value.getResultType()), tempVar);
-				statements.add(assignLocalVariableStatement(types.getRelaxedName(value.getResultType()), local.getName(), leftValue));
-			}
+            if (generator.needsAdaptation(resultType, type)) {
+                tempVar = generator.adapt(tempVar, resultType, type);
+                statements.add(assignLocalVariableStatement(types.getRelaxedName(resultType), local.getName(), tempVar));
+            } else if (!equalTypes(resultType, type)) {
+                statements.add(assignLocalVariableStatement(types.getRelaxedName(resultType), local.getName(), tempVar));
+            }
 
-			return new Computation(local.getName(), value.getResultType(), true, statements);
+			return new Computation(local.getName(), resultType, true, statements);
 		});
 	}
 
