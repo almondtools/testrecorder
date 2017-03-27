@@ -134,16 +134,248 @@ Yet writing the class `ThreadSerializer` is not sufficient. The written Serializ
 * create a file `net.amygdalum.testrecorder.SerializerFactory` in this directory
 * put the full qualified class name of `ThreadSerializer$Factory` into this file
 
+## Custom Deserializers
 
-## Custom Setup Generators 
+While Custom Serializers allow you to collect more detailed information, Custom Deserializers (Generators) allow you to present gathered information in a more readable, more maintainable way. Testrecorder uses two types of code generators - generators for setup code (Setup Phase, Arrange Phase) and generators for matcher code (Verification Phase, Assert Phase).
 
-While Custom Serializers allow you to collect more detailed information, Custom Generators allow you to present gathered information in a more readable, more maintainable way. Testrecorder uses two types of code generators - generators for setup code (Setup Phase, Arrange Phase) and generators for matcher code (Verification Phase, Assert Phase).
+You can extend both phases with custom generators. Let us have a look at an example (source code of this example could be found [here](https://github.com/almondtools/testrecorder-examples/tree/master/src/main/java/com/almondtools/testrecorder/examples/deserializers/)). It consists of:
+- a simple serializer (the default serializer for date maintains a really complicated model, so we decided to serialize it in a custom way)
+- a setup generator (discussed in a following section)
+- a matcher generator (discussed in a following section)
+- a date matcher (the architecture of testrecorder enforces that results must be matched in a single step, so we need a matcher for date, not for the date components). 
 
-TODO
+### Custom Setup Generators 
 
-## Custom Matcher Generators
+The example setup generator for our example looks like this:
 
-TODO
+    public class DateSetupGenerator extends DefaultSetupGenerator<SerializedImmutable<Date>> implements Adaptor<SerializedImmutable<Date>, SetupGenerators> {
+    
+      @Override
+      public Class<SerializedImmutable> getAdaptedClass() {
+        return SerializedImmutable.class;
+      }
+      
+      @Override
+      public boolean matches(Type type) {
+        return type.equals(Date.class);
+      }
+      
+      @Override
+      public Computation tryDeserialize(SerializedImmutable<Date> value, SetupGenerators generator, DeserializerContext context) throws DeserializationException {
+        TypeManager types = generator.getTypes();
+        types.registerTypes(Date.class, Calendar.class);
+        
+        Date date = value.getValue();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        int day = cal.get(Calendar.DAY_OF_MONTH);
+        int month = cal.get(Calendar.MONTH);
+        int year = cal.get(Calendar.YEAR);
+        
+        List<String> statements = new ArrayList<>();
+        String calexpression = "cal";
+        statements.add(assignLocalVariableStatement(types.getBestName(Calendar.class), calexpression, callMethod(types.getBestName(Calendar.class), "getInstance")));
+        statements.add(callMethodStatement(calexpression, "set", "Calendar.DAY_OF_MONTH", String.valueOf(day)));
+        statements.add(callMethodStatement(calexpression, "set", "Calendar.MONTH", String.valueOf(month)));
+        statements.add(callMethodStatement(calexpression, "set", "Calendar.YEAR", String.valueOf(year)));
+        
+        String expression = callMethod(calexpression, "getTime");
+        return new Computation(expression, value.getResultType(), statements);
+      }
+    
+    }
+
+We explain this setup generator step by step. We begin with the specification of the adapted class `getAdaptedClass()`
+
+      @Override
+      public Class<SerializedImmutable> getAdaptedClass() {
+        return SerializedImmutable.class;
+      }
+      
+This method specifies the type of the serialized value which is handled by this generator. It must return a subclass of `SerializedValue`. For the example we chose to adapt the class `SerializedImmutable`, with respect to our serializer, which produces a `SerializedImmutable<Date>`.
+
+The next method `matches(Type type)` defines another property of the serialized value that can be handled:
+
+      @Override
+      public boolean matches(Type type) {
+        return type.equals(Date.class);
+      }
+
+Where `getAdaptedClass()` defines the type of the serialized value, `matches(Type type)` constrains the type of the real value. This method allows to handle multiple types (not only one as in the serializer). For each supported type this method should return `true`. Since we want our example generator to handle `Date` we return `true` for `Date.class`.
+
+Note that matching `getAdaptedClass()` and `matches(Type type)` is not sufficient to guarantee that this Class will generate code. A model object class can be adapted by more than one `SetupGenerator`, the first matching is chosen for generation, and its result is committed if the generation process did not fail. If the first `SetupGenerator` fails the next is considered (and so on).
+
+Now let us examine the method `tryDeserialize(SerializedImmutable<Date> value, SetupGenerators generator, DeserializerContext context)`:
+
+      @Override
+      public Computation tryDeserialize(SerializedImmutable<Date> value, SetupGenerators generator, DeserializerContext context) throws DeserializationException {
+        TypeManager types = generator.getTypes();
+        types.registerTypes(Date.class, Calendar.class);
+        
+        Date date = value.getValue();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        int day = cal.get(Calendar.DAY_OF_MONTH);
+        int month = cal.get(Calendar.MONTH);
+        int year = cal.get(Calendar.YEAR);
+        
+        List<String> statements = new ArrayList<>();
+        String calexpression = generator.newLocal("cal");
+        statements.add(assignLocalVariableStatement(types.getBestName(Calendar.class), calexpression, callMethod(types.getBestName(Calendar.class), "getInstance")));
+        statements.add(callMethodStatement(calexpression, "set", "Calendar.DAY_OF_MONTH", String.valueOf(day)));
+        statements.add(callMethodStatement(calexpression, "set", "Calendar.MONTH", String.valueOf(month)));
+        statements.add(callMethodStatement(calexpression, "set", "Calendar.YEAR", String.valueOf(year)));
+        
+        String expression = callMethod(calexpression, "getTime");
+        return new Computation(expression, value.getResultType(), statements);
+      }
+
+It is passed the value to generate and an object of type SetupGenerators, which is a Facade to other generators. The first thing we should do in such a setup generator is registering the types that should be imported (we will need `Calendar` and `Date`):
+
+        TypeManager types = generator.getTypes();
+        types.registerTypes(Date.class, Calendar.class);
+
+Then we extract the data to match from the value, meaning the day, the month and the year:
+
+        Date date = value.getValue();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        int day = cal.get(Calendar.DAY_OF_MONTH);
+        int month = cal.get(Calendar.MONTH);
+        int year = cal.get(Calendar.YEAR);
+
+Then we will build the statements for the setup section:
+
+        List<String> statements = new ArrayList<>();
+        String calexpression = generator.newLocal("cal");
+        statements.add(assignLocalVariableStatement(types.getBestName(Calendar.class), calexpression, callMethod(types.getBestName(Calendar.class), "getInstance")));
+        statements.add(callMethodStatement(calexpression, "set", "Calendar.DAY_OF_MONTH", String.valueOf(day)));
+        statements.add(callMethodStatement(calexpression, "set", "Calendar.MONTH", String.valueOf(month)));
+        statements.add(callMethodStatement(calexpression, "set", "Calendar.YEAR", String.valueOf(year)));
+        
+The upper block generates the following lines (given a date 2012-12-24):
+        
+    Calendar cal1 = Calendar.getInstance();
+    cal1.set(Calendar.DAY_OF_MONTH, 24);
+    cal1.set(Calendar.MONTH, 11);
+    cal1.set(Calendar.YEAR, 2012);
+
+The last step is the returning of the computation. A `Computation` should contain a value, a type and supplementary statements. The statements were computed in the former steps. The type is `Date` and the expression is the `Calendar` converted to a date with `getTime()`.
+
+        String expression = callMethod(calexpression, "getTime");
+        return new Computation(expression, value.getResultType(), statements);
+
+The `expression` which gets the value of the `Computation` will be the setup value for the test. The value that is constructed in the setup phase of the test would then be `cal1.getTime()`.
+
+        
+### Custom Matcher Generators
+
+The example matcher generator looks like this:
+
+    public class DateMatcherGenerator extends DefaultMatcherGenerator<SerializedImmutable<Date>> implements Adaptor<SerializedImmutable<Date>, MatcherGenerators> {
+    
+      @Override
+      public Class<SerializedImmutable> getAdaptedClass() {
+        return SerializedImmutable.class;
+      }
+      
+      @Override
+      public boolean matches(Type type) {
+        return type.equals(Date.class);
+      }
+      
+      @Override
+      public Computation tryDeserialize(SerializedImmutable<Date> value, MatcherGenerators generator, DeserializerContext context) throws DeserializationException {
+        Date date = value.getValue();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        
+        TypeManager types = generator.getTypes();
+        types.registerType(DateMatcher.class);
+        
+        String expression = callMethod(types.getBestName(DateMatcher.class), "matchesDate");
+        expression = callMethod(expression, "withDay", valueOf(cal.get(Calendar.DAY_OF_MONTH)));
+        expression = callMethod(expression, "withMonth", valueOf(cal.get(Calendar.MONTH)));
+        expression = callMethod(expression, "withYear", valueOf(cal.get(Calendar.YEAR)));
+        
+        return new Computation(expression, Matcher.class);
+      }
+    }
+
+The matcher generator is similar to the setup generator. First you have to define a method `getAdaptedClass()`:
+
+      @Override
+      public Class<SerializedImmutable> getAdaptedClass() {
+        return SerializedImmutable.class;
+      }
+
+This method specifies the type of the serialized value which is handled by this generator. It must return a subclass of `SerializedValue`. As in the setup generator we chose to adapt the class `SerializedImmutable`.
+      
+The next method `matches(Type type)` defines another property of the serialized value that can be handled:
+
+
+      @Override
+      public boolean matches(Type type) {
+        return type.equals(Date.class);
+      }
+
+Where `getAdaptedClass()` defines the type of the serialized value, `matches(Type type)` constrains the type of the real value. This method allows to handle multiple types (not only one as in the serializer). For each supported type this method should return `true`. Since we want our example generator to handle `Date` we return `true` for `Date.class`.
+
+As in the `SetupGenerator` both methods `getAdaptedClass()` and `matches(Type type)` only specify which types could be handled. Since multiple `MatcherGenerator` can adapt the same serialized value type and even the same real type, there is a conflict resolution which will prefer the first generator that can successfully generate a matcher (using a sequence defined by the generator hierarchy).
+
+Now let us examine the method `tryDeserialize(SerializedImmutable<Date> value, MatcherGenerators generator, DeserializerContext context)`:
+
+      @Override
+      public Computation tryDeserialize(SerializedImmutable<Date> value, MatcherGenerators generator, DeserializerContext context) throws DeserializationException {
+        Date date = value.getValue();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        
+        TypeManager types = generator.getTypes();
+        types.registerType(DateMatcher.class);
+        
+        String expression = callMethod(types.getBestName(DateMatcher.class), "matchesDate");
+        expression = callMethod(expression, "withDay", valueOf(cal.get(Calendar.DAY_OF_MONTH)));
+        expression = callMethod(expression, "withMonth", valueOf(cal.get(Calendar.MONTH)));
+        expression = callMethod(expression, "withYear", valueOf(cal.get(Calendar.YEAR)));
+        
+        return new Computation(expression, Matcher.class);
+      }
+
+At first we start unwrapping the value which should be matched. Since `Date` is a little bit tricky we first extract a `Calendar` from the date:      
+
+        Date date = value.getValue();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+
+Next we do the necessary imports. We want to match a `Date` and we therefore use a `DateMatcher` which could be found aside the example source code. We aim to produce code that is similar to the following lines (given a date 2012-12-31):
+        
+    DateMatcher.matchesDate()
+        .withDay(31)
+        .withMonth(11)
+        .withYear(2017);
+
+We prepare this statement step by step:
+
+        String expression = callMethod(types.getBestName(DateMatcher.class), "matchesDate");
+
+prepares the first line.
+        
+        expression = callMethod(expression, "withDay", valueOf(cal.get(Calendar.DAY_OF_MONTH)));
+
+prepares the line matching the day of month.
+
+        expression = callMethod(expression, "withMonth", valueOf(cal.get(Calendar.MONTH)));
+
+prepares the line matching the month. Note that months in Java are zero-based, the december will be mapped to 11. 
+
+        expression = callMethod(expression, "withYear", valueOf(cal.get(Calendar.YEAR)));
+
+prepares the line for year.
+
+        return new Computation(expression, Matcher.class);
+        
+returns the whole expression with a type `Matcher`. Testrecorder is yet not really mature in its type inference. It is not guaranteed that using another type than the raw `Matcher` would generate compiling test code. You can try out, but we do not know whether this will be eventually supported.  
 
 ## Custom Initializers
 
