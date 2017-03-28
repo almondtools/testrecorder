@@ -106,6 +106,10 @@ public class SetupGenerators implements Deserializer<Computation> {
         return locals.fetchName("temp");
     }
 
+    public String newLocal(String name) {
+        return locals.fetchName(name);
+    }
+
     private LocalVariable localVariable(SerializedValue value, Type type) {
         String name = locals.fetchName(type);
         LocalVariable definition = new LocalVariable(name);

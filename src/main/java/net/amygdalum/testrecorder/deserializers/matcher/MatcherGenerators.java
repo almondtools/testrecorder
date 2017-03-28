@@ -41,14 +41,14 @@ public class MatcherGenerators implements Deserializer<Computation> {
 	private Set<SerializedValue> computed;
 
 	public MatcherGenerators(Class<?> clazz) {
-		this(new LocalVariableNameGenerator(), new TypeManager(clazz.getPackage().getName()), DEFAULT);
+		this(new TypeManager(clazz.getPackage().getName()), DEFAULT);
 	}
 
-	public MatcherGenerators(LocalVariableNameGenerator locals, TypeManager types) {
-		this(locals, types, DEFAULT);
+	public MatcherGenerators(TypeManager types) {
+		this(types, DEFAULT);
 	}
 
-	public MatcherGenerators(LocalVariableNameGenerator locals, TypeManager types, Adaptors<MatcherGenerators> adaptors) {
+	public MatcherGenerators(TypeManager types, Adaptors<MatcherGenerators> adaptors) {
 		this.types = types;
 		this.adaptors = adaptors;
 		this.computed = new HashSet<>();
@@ -142,7 +142,7 @@ public class MatcherGenerators implements Deserializer<Computation> {
 
 		@Override
 		public Deserializer<Computation> create(LocalVariableNameGenerator locals, TypeManager types) {
-			return new MatcherGenerators(locals, types);
+			return new MatcherGenerators(types);
 		}
 
 		@Override
