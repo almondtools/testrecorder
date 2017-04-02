@@ -82,6 +82,9 @@ public final class Templates {
 	}
 
 	public static String asLiteral(String rawString) {
+	    if (rawString == null) {
+	        return "null";
+	    }
 		StringBuilder buffer = new StringBuilder();
 		buffer.append('\"');
 		for (int i = 0; i < rawString.length(); ++i) {

@@ -14,5 +14,4 @@ net.amygdalum.testrecorder.deserializers.builder.CollectionsSetAdaptor
 net.amygdalum.testrecorder.deserializers.builder.DefaultSetAdaptor
 net.amygdalum.testrecorder.deserializers.builder.CollectionsMapAdaptor
 net.amygdalum.testrecorder.deserializers.builder.DefaultMapAdaptor
-
-
+net.amygdalum.testrecorder.deserializers.builder.LargePrimitiveArrayAdaptor

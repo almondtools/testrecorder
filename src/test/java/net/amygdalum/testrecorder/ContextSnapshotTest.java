@@ -8,6 +8,8 @@ import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.collection.IsArrayContaining.hasItemInArray;
 import static org.junit.Assert.assertThat;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +22,7 @@ public class ContextSnapshotTest {
 
 	@Test
 	public void testMethodSnapshot() throws Exception {
-		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
 		assertThat(snapshot.isValid(), is(true));
 		assertThat(snapshot.getDeclaringClass(), equalTo(ArrayList.class));
@@ -29,9 +31,9 @@ public class ContextSnapshotTest {
 		assertThat(snapshot.getArgumentTypes(), hasItemInArray(Object.class));
 	}
 
-	@Test
+    @Test
 	public void testInvalidate() throws Exception {
-		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
 		snapshot.invalidate();
 
@@ -40,7 +42,7 @@ public class ContextSnapshotTest {
 
 	@Test
 	public void testGetThisType() throws Exception {
-		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		SerializedList setupThis = new SerializedList(ArrayList.class).withResult(List.class);
 		setupThis.add(literal("setup"));
 
@@ -51,7 +53,7 @@ public class ContextSnapshotTest {
 
 	@Test
 	public void testSetGetSetupThis() throws Exception {
-		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		SerializedList setupThis = new SerializedList(ArrayList.class).withResult(List.class);
 		setupThis.add(literal("setup"));
 
@@ -62,7 +64,7 @@ public class ContextSnapshotTest {
 
 	@Test
 	public void testSetGetExpectThis() throws Exception {
-		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		SerializedList expectedThis = new SerializedList(ArrayList.class).withResult(List.class);
 		expectedThis.add(literal("expected"));
 
@@ -73,7 +75,7 @@ public class ContextSnapshotTest {
 
 	@Test
 	public void testSetGetSetupArgs() throws Exception {
-		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
 		snapshot.setSetupArgs(literal("a"), literal("b"));
 
@@ -82,7 +84,7 @@ public class ContextSnapshotTest {
 
 	@Test
 	public void testSetGetExpectArgs() throws Exception {
-		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
 		snapshot.setExpectArgs(literal("c"), literal("d"));
 
@@ -91,7 +93,7 @@ public class ContextSnapshotTest {
 
 	@Test
 	public void testSetGetExpectResult() throws Exception {
-		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
 		snapshot.setExpectResult(literal(boolean.class, true));
 
@@ -100,12 +102,16 @@ public class ContextSnapshotTest {
 
 	@Test
 	public void testSetGetExpectException() throws Exception {
-		ContextSnapshot snapshot = new ContextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		SerializedObject expectException = new SerializedObject(NullPointerException.class);
 
 		snapshot.setExpectException(expectException);
 
 		assertThat(snapshot.getExpectException(), sameInstance(expectException));
 	}
+
+    private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
+        return new ContextSnapshot(declaringClass, new Annotation[0], resultType, methodName, new Annotation[0][0], argumentTypes);
+    }
 
 }

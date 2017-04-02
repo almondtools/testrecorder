@@ -4,26 +4,21 @@ import static net.amygdalum.testrecorder.util.Types.getDeclaredField;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.arrayContaining;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.lang.reflect.Field;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import net.amygdalum.testrecorder.SerializationProfile.Hint;
-import net.amygdalum.testrecorder.deserializers.Adaptors;
-import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedNull;
@@ -69,6 +64,16 @@ public class ConfigurableSerializerFacadeTest {
         verify(serializer).populate(expectedResult, value);
     }
 
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testSerializeAnnotationsTypeObjectOnLiteral() throws Exception {
+        SerializedValue serialize = facade.serialize(resultHint(boolean.class), String.class, "strliteral");
+        
+        assertThat(serialize, equalTo(SerializedLiteral.literal("strliteral")));
+        assertThat(serialize.getHints(), arrayContaining(instanceOf(ResultHint.class)));
+        assertThat(serialize.getHint(ResultHint.class).get().value(),equalTo(boolean.class));
+    }
+
     @Test
     public void testSerializeTypeArrayObjectArrayOnEmpty() throws Exception {
         SerializedValue[] serialize = facade.serialize(new Type[0], new Object[0]);
@@ -83,6 +88,16 @@ public class ConfigurableSerializerFacadeTest {
         assertThat(serialize, arrayContaining(SerializedLiteral.literal(String.class, "str")));
     }
 
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testSerializeAnnotationsTypeArrayObjectArray() throws Exception {
+        SerializedValue[] serialize = facade.serialize(argHints(long.class) , new Type[] { String.class }, new Object[] { "str" });
+
+        assertThat(serialize, arrayContaining(SerializedLiteral.literal(String.class, "str")));
+        assertThat(serialize[0].getHints(), arrayContaining(instanceOf(ArgHint.class)));
+        assertThat(serialize[0].getHint(ArgHint.class).get().value(), equalTo(long.class));
+    }
+
     @Test
     public void testSerializeFieldObject() throws Exception {
         SerializedField serialized = facade.serialize(getDeclaredField(TestClass.class, "testField"), new TestClass());
@@ -91,7 +106,6 @@ public class ConfigurableSerializerFacadeTest {
         assertThat(serialized.getDeclaringClass(), equalTo(TestClass.class));
         assertThat(serialized.getType(), equalTo(int.class));
         assertThat(serialized.getValue(), equalTo(SerializedLiteral.literal(int.class, 42)));
-        assertThat(serialized.getHints(), empty());
     }
 
     @SuppressWarnings("unchecked")
@@ -104,66 +118,69 @@ public class ConfigurableSerializerFacadeTest {
         assertThat(serialized.getDeclaringClass(), equalTo(TestClass.class));
         assertThat(serialized.getType(), equalTo(String.class));
         assertThat(serialized.getValue(), equalTo(SerializedLiteral.literal(String.class, "withHint")));
-        List<DeserializationHint> hints = serialized.getHints();
-        assertThat(hints, contains(
-            instanceOf(TestHint.class),
-            equalTo(new TestContextHint(TestClass.class.getDeclaredField("hintedField"), obj))
-            ));
+        Annotation[] hints = serialized.getValue().getHints();
+        assertThat(hints, arrayContaining(instanceOf(TypeHint.class), instanceOf(ComplexHint.class)));
+    }
+
+    private Annotation[][] argHints(Class<?>... clazzes) {
+        return Stream.of(clazzes)
+            .map(clazz -> argHint(clazz))
+            .toArray(len -> new Annotation[len][1]);
+    }
+
+    private Annotation[] argHint(Class<?> clazz) {
+        return new Annotation[]{
+            new ArgHint() {
+                
+                @Override
+                public Class<? extends Annotation> annotationType() {
+                    return ArgHint.class;
+                }
+                
+                @Override
+                public Class<?> value() {
+                    return clazz;
+                }
+            }
+        };
+    }
+
+    private Annotation[] resultHint(Class<?> clazz) {
+        return new Annotation[]{
+            new ResultHint() {
+                
+                @Override
+                public Class<? extends Annotation> annotationType() {
+                    return ResultHint.class;
+                }
+                
+                @Override
+                public Class<?> value() {
+                    return clazz;
+                }
+            }
+        };
     }
 
     interface OpenFacade {
         Map<Class<?>, Serializer<?>> getSerializers();
     }
 
-    @SuppressWarnings("unused")
     public class TestClass {
 
         private int testField;
-        @Hint(TestHint.class)
-        @Hint(TestContextHint.class)
+        @TypeHint
+        @ComplexHint(text = "str", value = 1)
         private String hintedField;
 
         public TestClass() {
             testField = 42;
             hintedField = "withHint";
         }
-    }
-    
-    public static class TestHint implements DeserializationHint {
-        
-        @Override
-        public <T extends SerializedValue, G extends Deserializer<Computation>> Computation tryDeserialize(T value, G generator, Adaptors<G> adaptors) {
-            throw new DeserializationException(value.toString());
-        }
 
+        public @ResultHint(value = int.class) int TestMethod(@ArgHint(value = int.class) int factor) {
+            return testField * factor;
+        }
     }
 
-    public static class TestContextHint implements DeserializationHint {
-
-        public Field field;
-        public Object object;
-
-        public TestContextHint(Field field, Object object) {
-            this.field = field;
-            this.object = object;
-        }
-        
-        @Override
-        public <T extends SerializedValue, G extends Deserializer<Computation>> Computation tryDeserialize(T value, G generator, Adaptors<G> adaptors) {
-            throw new DeserializationException(value.toString());
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            TestContextHint that = (TestContextHint) obj;
-            return this.field.equals(that.field)
-                && this.object.equals(that.object);
-        }
-
-        @Override
-        public String toString() {
-            return field.getName() + ":" + object;
-        }
-        
-    }
 }

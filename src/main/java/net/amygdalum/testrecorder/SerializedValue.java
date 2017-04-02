@@ -1,7 +1,10 @@
 package net.amygdalum.testrecorder;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * A serialized value.
@@ -26,8 +29,19 @@ public interface SerializedValue {
 
 	List<SerializedValue> referencedValues();
 
-    void addHints(List<DeserializationHint> hints);
+    void addHints(Annotation[] hints);
 
-    List<DeserializationHint> getHints();
+    Annotation[] getHints();
+
+    public default <T extends Annotation> Optional<T> getHint(Class<T> clazz) {
+        Annotation[] hints = getHints();
+        if (hints == null) {
+            return Optional.empty();
+        }
+        return Stream.of(hints)
+            .filter(hint -> clazz.isInstance(hint))
+            .map(hint -> clazz.cast(hint))
+            .findFirst();
+    }
 
 }

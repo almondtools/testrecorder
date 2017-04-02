@@ -10,7 +10,6 @@ public class FixedTestRecorderAgentConfig implements TestRecorderAgentConfig {
 	private List<Predicate<Field>> fieldExclusions;
 	private List<Predicate<Class<?>>> classExclusions;
 	private List<Field> globalFields;
-    private List<DeserializationHint> hints;
 
 	private SnapshotConsumer snapshotConsumer;
 	private long timeoutInMillis;
@@ -20,7 +19,6 @@ public class FixedTestRecorderAgentConfig implements TestRecorderAgentConfig {
 		this.fieldExclusions = new ArrayList<>(config.getFieldExclusions());
 		this.classExclusions = new ArrayList<>(config.getClassExclusions());
 		this.globalFields = new ArrayList<>(config.getGlobalFields());
-		this.hints = new ArrayList<>(config.getHints());
 		this.snapshotConsumer = config.getSnapshotConsumer();
 		this.timeoutInMillis = config.getTimeoutInMillis();
 		this.packages = config.getPackages();
@@ -45,11 +43,6 @@ public class FixedTestRecorderAgentConfig implements TestRecorderAgentConfig {
 	public List<Field> getGlobalFields() {
 		return globalFields;
 	}
-	
-	@Override
-	public List<DeserializationHint> getHints() {
-        return hints;
-    }
 
 	@Override
 	public SnapshotConsumer getSnapshotConsumer() {

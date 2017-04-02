@@ -49,14 +49,4 @@ public class DefaultingSerializationProfile implements SerializationProfile {
         }
     }
 
-    @Override
-    public List<DeserializationHint> getHints() {
-        List<DeserializationHint> hints = profile.getHints();
-        if (hints == null) {
-            return defaultProfile.getHints();
-        } else {
-            return hints;
-        }
-    }
-
 }

@@ -62,14 +62,4 @@ public class ExtendingSerializationProfile implements SerializationProfile {
         return globalFields;
     }
 
-    @Override
-    public List<DeserializationHint> getHints() {
-        List<DeserializationHint> hints = profile.getHints();
-        if (hints == null) {
-            return defaultProfile.getHints();
-        } else {
-            return hints;
-        }
-    }
-
 }

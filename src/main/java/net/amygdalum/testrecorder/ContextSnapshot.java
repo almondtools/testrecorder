@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder;
 
 import static java.util.stream.Collectors.joining;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.stream.Stream;
@@ -15,8 +16,10 @@ public class ContextSnapshot {
     protected static final ContextSnapshot INVALID = new ContextSnapshot();
 
     private Class<?> declaringClass;
+    private Annotation[] resultAnnotation;
     private Type resultType;
     private String methodName;
+    private Annotation[][] argumentAnnotations;
     private Type[] argumentTypes;
 
     private boolean valid;
@@ -38,10 +41,12 @@ public class ContextSnapshot {
         this.valid = false;
     }
 
-    public ContextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
+    public ContextSnapshot(Class<?> declaringClass, Annotation[] resultAnnotation,Type resultType, String methodName, Annotation[][] argumentAnnotations, Type[] argumentTypes) {
         this.declaringClass = declaringClass;
+        this.resultAnnotation = resultAnnotation;
         this.resultType = resultType;
         this.methodName = methodName;
+        this.argumentAnnotations = argumentAnnotations;
         this.argumentTypes = argumentTypes;
         this.valid = true;
     }
@@ -61,6 +66,10 @@ public class ContextSnapshot {
     public Type getResultType() {
         return resultType;
     }
+    
+    public Annotation[] getResultAnnotation() {
+        return resultAnnotation;
+    }
 
     public String getMethodName() {
         return methodName;
@@ -68,6 +77,10 @@ public class ContextSnapshot {
 
     public Type[] getArgumentTypes() {
         return argumentTypes;
+    }
+    
+    public Annotation[][] getArgumentAnnotations() {
+        return argumentAnnotations;
     }
 
     public Type getThisType() {

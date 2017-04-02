@@ -1,11 +1,9 @@
 package net.amygdalum.testrecorder.hints;
 
-import net.amygdalum.testrecorder.DeserializationException;
-import net.amygdalum.testrecorder.DeserializationHint;
-import net.amygdalum.testrecorder.Deserializer;
-import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.deserializers.Adaptors;
-import net.amygdalum.testrecorder.deserializers.Computation;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Annotating a type field, method result or param with this hint will instruct the deserializer
@@ -13,11 +11,7 @@ import net.amygdalum.testrecorder.deserializers.Computation;
  * 
  * This is a future feature.
  */
-public class PreferFactoryMethods implements DeserializationHint {
-
-    @Override
-    public <T extends SerializedValue, G extends Deserializer<Computation>> Computation tryDeserialize(T value, G generator, Adaptors<G> adaptors) {
-        throw new DeserializationException(value.toString());
-    }
-
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
+public @interface PreferFactoryMethods {
 }

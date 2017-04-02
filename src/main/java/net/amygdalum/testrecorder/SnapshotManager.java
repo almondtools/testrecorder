@@ -55,13 +55,9 @@ public class SnapshotManager {
 	}
 
 	public void register(String signature, Method method) {
-		Class<?> declaringClass = method.getDeclaringClass();
 		SerializationProfile profile = createProfileFor(method.getAnnotation(Recorded.class));
-		Type returnType = method.getGenericReturnType();
-		String name = method.getName();
-		Type[] parameterTypes = method.getGenericParameterTypes();
 
-		ContextSnapshotFactory factory = new ContextSnapshotFactory(declaringClass, profile, returnType, name, parameterTypes);
+		ContextSnapshotFactory factory = new ContextSnapshotFactory(profile, method);
 
 		methodSnapshots.put(signature, factory);
 	}

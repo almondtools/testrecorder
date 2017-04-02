@@ -9,3 +9,4 @@ net.amygdalum.testrecorder.deserializers.matcher.DefaultArrayAdaptor
 net.amygdalum.testrecorder.deserializers.matcher.DefaultListAdaptor
 net.amygdalum.testrecorder.deserializers.matcher.DefaultSetAdaptor
 net.amygdalum.testrecorder.deserializers.matcher.DefaultMapAdaptor
+net.amygdalum.testrecorder.deserializers.matcher.LargePrimitiveArrayAdaptor

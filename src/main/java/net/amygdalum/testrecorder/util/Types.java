@@ -264,6 +264,12 @@ public final class Types {
             && ((Class<?>) type).isPrimitive();
     }
 
+    public static boolean isLiteral(Type type) {
+        return isPrimitive(type)
+            || isBoxedPrimitive(type)
+            || type == String.class;
+    }
+
     public static Type parameterized(Type raw, Type owner, Type... typeArgs) {
         return new ParameterizedTypeImplementation(raw, owner, typeArgs);
     }

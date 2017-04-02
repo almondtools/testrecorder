@@ -25,7 +25,6 @@ public class DefaultTestRecorderAgentConfig implements TestRecorderAgentConfig {
     public static final List<Field> DEFAULT_GLOBAL_FIELDS = emptyList();
     public static final List<Method> INPUT = emptyList();
     public static final List<Method> OUTPUT = emptyList();
-    public static final List<DeserializationHint> HINTS = emptyList();
 
     @Override
     public boolean inherit() {
@@ -45,11 +44,6 @@ public class DefaultTestRecorderAgentConfig implements TestRecorderAgentConfig {
     @Override
     public List<Field> getGlobalFields() {
         return DEFAULT_GLOBAL_FIELDS;
-    }
-
-    @Override
-    public List<DeserializationHint> getHints() {
-        return HINTS;
     }
 
     @Override
