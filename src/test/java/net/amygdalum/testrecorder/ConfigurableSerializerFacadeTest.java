@@ -2,7 +2,6 @@ package net.amygdalum.testrecorder;
 
 import static net.amygdalum.testrecorder.util.Types.getDeclaredField;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.sameInstance;
@@ -10,10 +9,8 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -64,16 +61,6 @@ public class ConfigurableSerializerFacadeTest {
         verify(serializer).populate(expectedResult, value);
     }
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testSerializeAnnotationsTypeObjectOnLiteral() throws Exception {
-        SerializedValue serialize = facade.serialize(resultHint(boolean.class), String.class, "strliteral");
-        
-        assertThat(serialize, equalTo(SerializedLiteral.literal("strliteral")));
-        assertThat(serialize.getHints(), arrayContaining(instanceOf(ResultHint.class)));
-        assertThat(serialize.getHint(ResultHint.class).get().value(),equalTo(boolean.class));
-    }
-
     @Test
     public void testSerializeTypeArrayObjectArrayOnEmpty() throws Exception {
         SerializedValue[] serialize = facade.serialize(new Type[0], new Object[0]);
@@ -88,16 +75,6 @@ public class ConfigurableSerializerFacadeTest {
         assertThat(serialize, arrayContaining(SerializedLiteral.literal(String.class, "str")));
     }
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testSerializeAnnotationsTypeArrayObjectArray() throws Exception {
-        SerializedValue[] serialize = facade.serialize(argHints(long.class) , new Type[] { String.class }, new Object[] { "str" });
-
-        assertThat(serialize, arrayContaining(SerializedLiteral.literal(String.class, "str")));
-        assertThat(serialize[0].getHints(), arrayContaining(instanceOf(ArgHint.class)));
-        assertThat(serialize[0].getHint(ArgHint.class).get().value(), equalTo(long.class));
-    }
-
     @Test
     public void testSerializeFieldObject() throws Exception {
         SerializedField serialized = facade.serialize(getDeclaredField(TestClass.class, "testField"), new TestClass());
@@ -106,60 +83,6 @@ public class ConfigurableSerializerFacadeTest {
         assertThat(serialized.getDeclaringClass(), equalTo(TestClass.class));
         assertThat(serialized.getType(), equalTo(int.class));
         assertThat(serialized.getValue(), equalTo(SerializedLiteral.literal(int.class, 42)));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testSerializeFieldObjectWithHints() throws Exception {
-        TestClass obj = new TestClass();
-        SerializedField serialized = facade.serialize(getDeclaredField(TestClass.class, "hintedField"), obj);
-
-        assertThat(serialized.getName(), equalTo("hintedField"));
-        assertThat(serialized.getDeclaringClass(), equalTo(TestClass.class));
-        assertThat(serialized.getType(), equalTo(String.class));
-        assertThat(serialized.getValue(), equalTo(SerializedLiteral.literal(String.class, "withHint")));
-        Annotation[] hints = serialized.getValue().getHints();
-        assertThat(hints, arrayContaining(instanceOf(TypeHint.class), instanceOf(ComplexHint.class)));
-    }
-
-    private Annotation[][] argHints(Class<?>... clazzes) {
-        return Stream.of(clazzes)
-            .map(clazz -> argHint(clazz))
-            .toArray(len -> new Annotation[len][1]);
-    }
-
-    private Annotation[] argHint(Class<?> clazz) {
-        return new Annotation[]{
-            new ArgHint() {
-                
-                @Override
-                public Class<? extends Annotation> annotationType() {
-                    return ArgHint.class;
-                }
-                
-                @Override
-                public Class<?> value() {
-                    return clazz;
-                }
-            }
-        };
-    }
-
-    private Annotation[] resultHint(Class<?> clazz) {
-        return new Annotation[]{
-            new ResultHint() {
-                
-                @Override
-                public Class<? extends Annotation> annotationType() {
-                    return ResultHint.class;
-                }
-                
-                @Override
-                public Class<?> value() {
-                    return clazz;
-                }
-            }
-        };
     }
 
     interface OpenFacade {

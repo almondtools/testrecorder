@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder;
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.isLiteral;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.IdentityHashMap;
@@ -13,7 +12,6 @@ import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import net.amygdalum.testrecorder.SerializationProfile.Excluded;
@@ -64,30 +62,18 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
     }
 
     @Override
-    public SerializedValue serialize(Annotation[] annotations, Type type, Object object) {
-        if (annotations == null) {
-            annotations = noAnnotation();
-        }
-        SerializedValue value = createValue(annotations, type, object);
-        Annotation[] augmentedAnnotations = object != null ? join(annotations, object.getClass().getAnnotations()) : annotations;
-        if (annotations.length > 0) {
-            value.addHints(augmentedAnnotations);
-        }
-        return value;
-    }
-
-    private SerializedValue createValue(Annotation[] annotations, Type type, Object object) {
+    public SerializedValue serialize(Type type, Object object) {
         if (object == null) {
             return SerializedNull.nullInstance(type);
         } else if (isLiteral(object.getClass())) {
             return SerializedLiteral.literal(object);
         } else {
-            return createObject(annotations, type, object);
+            return createObject(type, object);
         }
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private SerializedValue createObject(Annotation[] annotations, Type type, Object object) {
+    private SerializedValue createObject(Type type, Object object) {
         SerializedValue serializedObject = serialized.get(object);
         if (serializedObject == null) {
             Serializer serializer = fetchSerializer(object.getClass());
@@ -96,13 +82,6 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
             serializer.populate(serializedObject, object);
         }
         return serializedObject;
-    }
-
-    private Annotation[] join(Annotation[]... annotations) {
-        return Stream.of(annotations)
-            .flatMap(element -> Stream.of(element))
-            .distinct()
-            .toArray(len -> new Annotation[len]);
     }
 
     private Serializer<?> fetchSerializer(Class<?> clazz) {
@@ -121,19 +100,10 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
     }
 
     @Override
-    public SerializedValue[] serialize(Annotation[][] annotations, Type[] clazzes, Object[] objects) {
-        Annotation[][] defaultedAnnotations = annotations == null ? noAnnotations(clazzes.length) : annotations;
+    public SerializedValue[] serialize(Type[] clazzes, Object[] objects) {
         return IntStream.range(0, clazzes.length)
-            .mapToObj(i -> serialize(defaultedAnnotations[i], clazzes[i], objects[i]))
+            .mapToObj(i -> serialize(clazzes[i], objects[i]))
             .toArray(SerializedValue[]::new);
-    }
-
-    private Annotation[] noAnnotation() {
-        return new Annotation[0];
-    }
-
-    private Annotation[][] noAnnotations(int length) {
-        return new Annotation[length][0];
     }
 
     @Override
@@ -149,7 +119,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
         Class<?> declaringClass = field.getDeclaringClass();
         String name = field.getName();
         Class<?> type = field.getType();
-        SerializedValue serializedObject = serialize(field.getAnnotations(), type, field.get(obj));
+        SerializedValue serializedObject = serialize(type, field.get(obj));
         SerializedField serializedField = new SerializedField(declaringClass, name, type, serializedObject);
 
         return serializedField;

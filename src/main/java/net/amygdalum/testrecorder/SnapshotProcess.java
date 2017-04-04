@@ -62,7 +62,7 @@ public class SnapshotProcess {
             if (self != null) {
                 snapshot.setSetupThis(facade.serialize(self.getClass(), self));
             }
-            snapshot.setSetupArgs(facade.serialize(snapshot.getArgumentAnnotations(), snapshot.getArgumentTypes(), args));
+            snapshot.setSetupArgs(facade.serialize(snapshot.getArgumentTypes(), args));
             snapshot.setSetupGlobals(globals.stream()
                 .map(field -> facade.serialize(field, null))
                 .toArray(SerializedField[]::new));
@@ -75,8 +75,8 @@ public class SnapshotProcess {
             if (self != null) {
                 snapshot.setExpectThis(facade.serialize(self.getClass(), self));
             }
-            snapshot.setExpectResult(facade.serialize(snapshot.getResultAnnotation(), snapshot.getResultType(), result));
-            snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentAnnotations(), snapshot.getArgumentTypes(), args));
+            snapshot.setExpectResult(facade.serialize(snapshot.getResultType(), result));
+            snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
             snapshot.setExpectGlobals(globals.stream()
                 .map(field -> facade.serialize(field, null))
                 .toArray(SerializedField[]::new));
@@ -89,7 +89,7 @@ public class SnapshotProcess {
             if (self != null) {
                 snapshot.setExpectThis(facade.serialize(self.getClass(), self));
             }
-            snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentAnnotations(), snapshot.getArgumentTypes(), args));
+            snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
             snapshot.setExpectGlobals(globals.stream()
                 .map(field -> facade.serialize(field, null))
                 .toArray(SerializedField[]::new));
@@ -102,7 +102,7 @@ public class SnapshotProcess {
             if (self != null) {
                 snapshot.setExpectThis(facade.serialize(self.getClass(), self));
             }
-            snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentAnnotations(), snapshot.getArgumentTypes(), args));
+            snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
             snapshot.setExpectException(facade.serialize(throwable.getClass(), throwable));
             snapshot.setExpectGlobals(globals.stream()
                 .map(field -> facade.serialize(field, null))

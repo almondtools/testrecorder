@@ -48,7 +48,7 @@ public class LargePrimitiveArrayAdaptor implements MatcherGenerator<SerializedAr
             componentType = componentType.getComponentType();
         }
         if (isLiteral(componentType)) {
-            Optional<LoadFromFile> hint = value.getHint(LoadFromFile.class);
+            Optional<LoadFromFile> hint = Optional.empty();//TODO find annotation here
             if (hint.isPresent()) {
                 LoadFromFile loadFromFile = hint.get();
                 types.staticImport(FileSerializer.class, "load");
