@@ -10,6 +10,7 @@ import java.util.List;
 import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedReferenceType;
 import net.amygdalum.testrecorder.SerializedValue;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.ValuePrinter;
 
 /**
@@ -44,8 +45,8 @@ public class SerializedObject extends AbstractSerializedReferenceType implements
 		fields.add(field);
 	}
 
-	public <T> T accept(Deserializer<T> visitor) {
-		return visitor.visitReferenceType(this);
+	public <T> T accept(Deserializer<T> visitor, DeserializerContext context) {
+		return visitor.visitReferenceType(this, context);
 	}
 
 	@Override

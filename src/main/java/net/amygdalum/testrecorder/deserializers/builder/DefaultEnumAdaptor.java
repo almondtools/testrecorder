@@ -9,6 +9,7 @@ import java.lang.reflect.Type;
 
 import net.amygdalum.testrecorder.Wrapped;
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedEnum;
 
@@ -25,7 +26,7 @@ public class DefaultEnumAdaptor extends DefaultSetupGenerator<SerializedEnum> im
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedEnum value, SetupGenerators generator) {
+	public Computation tryDeserialize(SerializedEnum value, SetupGenerators generator, DeserializerContext context) {
 		TypeManager types = generator.getTypes();
 		types.registerType(value.getType());
 

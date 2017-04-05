@@ -9,6 +9,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedNull;
 
@@ -20,7 +21,7 @@ public class DefaultNullAdaptor extends DefaultMatcherGenerator<SerializedNull> 
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedNull value, MatcherGenerators generator) {
+	public Computation tryDeserialize(SerializedNull value, MatcherGenerators generator, DeserializerContext context) {
 		TypeManager types = generator.getTypes();
 		types.registerType(value.getType());
 		types.staticImport(Matchers.class, "nullValue");

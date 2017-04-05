@@ -29,12 +29,12 @@ public class ValuePrinter implements Deserializer<String> {
 	}
 
 	@Override
-	public String visitField(SerializedField field) {
+	public String visitField(SerializedField field, DeserializerContext context) {
 		return field.getType().getTypeName() + " " + field.getName() + ": " + field.getValue().accept(this);
 	}
 
 	@Override
-	public String visitReferenceType(SerializedReferenceType rt) {
+	public String visitReferenceType(SerializedReferenceType rt, DeserializerContext context) {
 		if (rt instanceof SerializedObject) {
 			SerializedObject value = (SerializedObject) rt;
 			boolean inserted = known.add(value);
@@ -75,7 +75,7 @@ public class ValuePrinter implements Deserializer<String> {
 	}
 
 	@Override
-	public String visitImmutableType(SerializedImmutableType rt) {
+	public String visitImmutableType(SerializedImmutableType rt, DeserializerContext context) {
 		if (rt instanceof SerializedImmutable<?>) {
 			SerializedImmutable<?> value = (SerializedImmutable<?>) rt;
 			return value.getValue().toString();
@@ -88,7 +88,7 @@ public class ValuePrinter implements Deserializer<String> {
 	}
 
 	@Override
-	public String visitValueType(SerializedValueType value) {
+	public String visitValueType(SerializedValueType value, DeserializerContext context) {
 		return value.getValue().toString();
 	}
 

@@ -13,6 +13,7 @@ import java.util.Optional;
 import net.amygdalum.testrecorder.DeserializationException;
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.hints.LoadFromFile;
 import net.amygdalum.testrecorder.util.FileSerializer;
@@ -37,14 +38,14 @@ public class LargePrimitiveArrayAdaptor implements SetupGenerator<SerializedArra
     }
 
     @Override
-    public Computation tryDeserialize(SerializedArray value, SetupGenerators generator) throws DeserializationException {
+    public Computation tryDeserialize(SerializedArray value, SetupGenerators generator, DeserializerContext context) throws DeserializationException {
         TypeManager types = generator.getTypes();
         Class<?> componentType = baseType(value.getComponentType());
         while (componentType.isArray()) {
             componentType = componentType.getComponentType();
         }
         if (isLiteral(componentType)) {
-            Optional<LoadFromFile> hint = Optional.empty();//TODO find annotation here
+            Optional<LoadFromFile> hint = context.getHint(LoadFromFile.class);
             if (hint.isPresent()) {
                 LoadFromFile loadFromFile = hint.get();
                 types.staticImport(FileSerializer.class, "load");
@@ -52,7 +53,8 @@ public class LargePrimitiveArrayAdaptor implements SetupGenerator<SerializedArra
                 String fileName = FileSerializer.store(loadFromFile.writeTo(), object);
                 String result = callLocalMethod("load", asLiteral(loadFromFile.readFrom()), asLiteral(fileName), types.getRawTypeName(value.getType()));
                 return new Computation(result, value.getResultType(), new ArrayList<>());
-            };
+            }
+            ;
         }
         throw new DeserializationException(value.toString());
     }

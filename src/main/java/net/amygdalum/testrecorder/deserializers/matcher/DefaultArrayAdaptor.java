@@ -16,6 +16,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.collection.IsArrayWithSize;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.util.ArrayMatcher;
 import net.amygdalum.testrecorder.util.PrimitiveArrayMatcher;
@@ -29,7 +30,7 @@ public class DefaultArrayAdaptor extends DefaultMatcherGenerator<SerializedArray
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedArray value, MatcherGenerators generator) {
+	public Computation tryDeserialize(SerializedArray value, MatcherGenerators generator, DeserializerContext context) {
 		TypeManager types = generator.getTypes();
 		Type componentType = value.getComponentType();
 
@@ -38,7 +39,7 @@ public class DefaultArrayAdaptor extends DefaultMatcherGenerator<SerializedArray
 			types.staticImport(PrimitiveArrayMatcher.class, name + "ArrayContaining");
 
 			List<Computation> elements = Stream.of(value.getArray())
-				.map(element -> generator.simpleValue(element))
+				.map(element -> generator.simpleValue(element, context))
 				.collect(toList());
 
 			List<String> elementComputations = elements.stream()

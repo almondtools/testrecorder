@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 
 import net.amygdalum.testrecorder.deserializers.Adaptor;
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 
@@ -26,7 +27,7 @@ public class DefaultBigDecimalAdaptor extends DefaultSetupGenerator<SerializedIm
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedImmutable<BigDecimal> value, SetupGenerators generator) {
+	public Computation tryDeserialize(SerializedImmutable<BigDecimal> value, SetupGenerators generator, DeserializerContext context) {
 		TypeManager types = generator.getTypes();
 		types.registerImport(BigDecimal.class);
 

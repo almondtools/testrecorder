@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
+import static net.amygdalum.testrecorder.deserializers.DeserializerContext.newContext;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
 import static net.amygdalum.testrecorder.deserializers.Templates.cast;
@@ -22,6 +23,7 @@ import net.amygdalum.testrecorder.SerializedValueType;
 import net.amygdalum.testrecorder.Wrapped;
 import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.deserializers.LocalVariable;
 import net.amygdalum.testrecorder.deserializers.LocalVariableDefinition;
@@ -126,7 +128,7 @@ public class SetupGenerators implements Deserializer<Computation> {
     }
 
     @Override
-    public Computation visitField(SerializedField field) {
+    public Computation visitField(SerializedField field, DeserializerContext context) {
         Type fieldType = field.getType();
         Type resultType = field.getValue().getResultType();
         Type fieldResultType = types.bestVisible(fieldType);
@@ -136,7 +138,7 @@ public class SetupGenerators implements Deserializer<Computation> {
         if (value instanceof SerializedReferenceType) {
             ((SerializedReferenceType) value).setResultType(fieldResultType);
         }
-        Computation valueTemplate = value.accept(this);
+        Computation valueTemplate = value.accept(this, newContext(field.getAnnotations()));
 
         List<String> statements = valueTemplate.getStatements();
 
@@ -149,7 +151,7 @@ public class SetupGenerators implements Deserializer<Computation> {
     }
 
     @Override
-    public Computation visitReferenceType(SerializedReferenceType value) {
+    public Computation visitReferenceType(SerializedReferenceType value, DeserializerContext context) {
         if (defined.containsKey(value)) {
             LocalVariable definition = defined.get(value);
             String name = definition.getName();
@@ -164,17 +166,17 @@ public class SetupGenerators implements Deserializer<Computation> {
                 return new Computation(name, resultType, true, statements);
             }
         }
-        return adaptors.tryDeserialize(value, types, this);
+        return adaptors.tryDeserialize(value, types, this, context);
     }
 
     @Override
-    public Computation visitValueType(SerializedValueType value) {
-        return adaptors.tryDeserialize(value, types, this);
+    public Computation visitValueType(SerializedValueType value, DeserializerContext context) {
+        return adaptors.tryDeserialize(value, types, this, context);
     }
 
     @Override
-    public Computation visitImmutableType(SerializedImmutableType value) {
-        return adaptors.tryDeserialize(value, types, this);
+    public Computation visitImmutableType(SerializedImmutableType value, DeserializerContext context) {
+        return adaptors.tryDeserialize(value, types, this, context);
     }
 
     public static class Factory implements DeserializerFactory {

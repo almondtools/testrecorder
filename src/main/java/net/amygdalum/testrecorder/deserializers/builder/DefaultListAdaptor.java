@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Queue;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedList;
 
@@ -28,7 +29,7 @@ public class DefaultListAdaptor extends DefaultSetupGenerator<SerializedList> im
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedList value, SetupGenerators generator) {
+	public Computation tryDeserialize(SerializedList value, SetupGenerators generator, DeserializerContext context) {
 		TypeManager types = generator.getTypes();
 		Type type = value.getType();
         Type resultType = value.getResultType();

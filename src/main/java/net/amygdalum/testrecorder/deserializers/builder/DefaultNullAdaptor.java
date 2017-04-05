@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedNull;
 
 public class DefaultNullAdaptor extends DefaultSetupGenerator<SerializedNull> implements SetupGenerator<SerializedNull> {
@@ -11,7 +12,7 @@ public class DefaultNullAdaptor extends DefaultSetupGenerator<SerializedNull> im
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedNull value, SetupGenerators generator) {
+	public Computation tryDeserialize(SerializedNull value, SetupGenerators generator, DeserializerContext context) {
 		return new Computation("null", value.getResultType());
 	}
 

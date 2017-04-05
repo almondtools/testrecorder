@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.joining;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -107,6 +108,19 @@ public class ContextSnapshot {
         this.setupArgs = setupArgs;
     }
 
+    public AnnotatedValue[] getAnnotatedSetupArgs() {
+        AnnotatedValue[] annotatedValues = new AnnotatedValue[setupArgs.length];
+        Annotation[][] annotations =  argumentAnnotations;
+        if (annotations.length != setupArgs.length) {
+            annotations = new Annotation[setupArgs.length][];
+            Arrays.fill(annotations, new Annotation[0]);
+        }
+        for (int i = 0; i < annotatedValues.length; i++) {
+            annotatedValues[i] = new AnnotatedValue(annotations[i], setupArgs[i]);
+        }
+        return annotatedValues;
+    }
+    
     public SerializedField[] getSetupGlobals() {
         return setupGlobals;
     }
@@ -143,6 +157,19 @@ public class ContextSnapshot {
         return expectArgs;
     }
 
+    public AnnotatedValue[] getAnnotatedExpectArgs() {
+        AnnotatedValue[] annotatedValues = new AnnotatedValue[expectArgs.length];
+        Annotation[][] annotations =  argumentAnnotations;
+        if (annotations.length != setupArgs.length) {
+            annotations = new Annotation[setupArgs.length][];
+            Arrays.fill(annotations, new Annotation[0]);
+        }
+        for (int i = 0; i < annotatedValues.length; i++) {
+            annotatedValues[i] = new AnnotatedValue(annotations[i], expectArgs[i]);
+        }
+        return annotatedValues;
+    }
+    
     public void setExpectArgs(SerializedValue... expectArgs) {
         this.expectArgs = expectArgs;
     }
@@ -174,6 +201,17 @@ public class ContextSnapshot {
     @Override
     public String toString() {
         return resultType.getTypeName() + " " + methodName + Stream.of(argumentTypes).map(type -> type.getTypeName()).collect(joining(",", "(", ")")) + " of " + declaringClass.getName();
+    }
+
+    public static class AnnotatedValue {
+        public Annotation[] annotations;
+        public SerializedValue value;
+        
+        public AnnotatedValue(Annotation[] annotations, SerializedValue value) {
+            this.annotations = annotations;
+            this.value = value;
+        }
+        
     }
 
 }

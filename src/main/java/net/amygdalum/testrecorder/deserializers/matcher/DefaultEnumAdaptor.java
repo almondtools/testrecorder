@@ -16,6 +16,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.util.EnumMatcher;
 import net.amygdalum.testrecorder.util.WideningMatcher;
@@ -34,7 +35,7 @@ public class DefaultEnumAdaptor extends DefaultMatcherGenerator<SerializedEnum> 
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedEnum value, MatcherGenerators generator) {
+	public Computation tryDeserialize(SerializedEnum value, MatcherGenerators generator, DeserializerContext context) {
 		TypeManager types = generator.getTypes();
 		types.registerType(value.getType());
 

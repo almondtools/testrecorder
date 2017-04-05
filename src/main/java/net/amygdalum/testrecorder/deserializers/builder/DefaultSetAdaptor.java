@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedSet;
 
@@ -22,7 +23,7 @@ public class DefaultSetAdaptor extends DefaultSetupGenerator<SerializedSet> impl
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedSet value, SetupGenerators generator) {
+	public Computation tryDeserialize(SerializedSet value, SetupGenerators generator, DeserializerContext context) {
 		TypeManager types = generator.getTypes();
         Type type = value.getType();
         Type resultType = value.getResultType();

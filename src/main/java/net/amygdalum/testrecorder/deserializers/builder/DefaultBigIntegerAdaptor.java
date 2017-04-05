@@ -9,6 +9,7 @@ import java.math.BigInteger;
 
 import net.amygdalum.testrecorder.deserializers.Adaptor;
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 
@@ -26,7 +27,7 @@ public class DefaultBigIntegerAdaptor extends DefaultSetupGenerator<SerializedIm
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedImmutable<BigInteger> value, SetupGenerators generator) {
+	public Computation tryDeserialize(SerializedImmutable<BigInteger> value, SetupGenerators generator, DeserializerContext context) {
 		TypeManager types = generator.getTypes();
 		types.registerImport(BigInteger.class);
 

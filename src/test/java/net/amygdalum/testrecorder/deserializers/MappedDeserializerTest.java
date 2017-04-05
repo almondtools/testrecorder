@@ -38,7 +38,7 @@ public class MappedDeserializerTest {
     @Test
     public void testVisitField() throws Exception {
         SerializedField field = new SerializedField(TestObject.class, "field", String.class, literal("v"));
-        when(deserializer.visitField(field)).thenReturn(2);
+        when(deserializer.visitField(field, DeserializerContext.NULL)).thenReturn(2);
 
         assertThat(mappedDeserializer.visitField(field), equalTo(2l));
 
@@ -47,7 +47,7 @@ public class MappedDeserializerTest {
     @Test
     public void testVisitReferenceType() throws Exception {
         SerializedReferenceType object = new SerializedObject(TestObject.class);
-        when(deserializer.visitReferenceType(object)).thenReturn(3);
+        when(deserializer.visitReferenceType(object, DeserializerContext.NULL)).thenReturn(3);
 
         assertThat(mappedDeserializer.visitReferenceType(object), equalTo(3l));
     }
@@ -55,7 +55,7 @@ public class MappedDeserializerTest {
     @Test
     public void testVisitImmutableType() throws Exception {
         SerializedImmutableType object = new SerializedImmutable<>(BigInteger.class);
-        when(deserializer.visitImmutableType(object)).thenReturn(4);
+        when(deserializer.visitImmutableType(object, DeserializerContext.NULL)).thenReturn(4);
 
         assertThat(mappedDeserializer.visitImmutableType(object), equalTo(4l));
     }
@@ -63,7 +63,7 @@ public class MappedDeserializerTest {
     @Test
     public void testVisitValueType() throws Exception {
         SerializedValueType object = SerializedLiteral.literal("lit");
-        when(deserializer.visitValueType(object)).thenReturn(5);
+        when(deserializer.visitValueType(object, DeserializerContext.NULL)).thenReturn(5);
 
         assertThat(mappedDeserializer.visitValueType(object), equalTo(5l));
     }

@@ -13,6 +13,7 @@ import java.util.Set;
 import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.SerializedValueType;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.ValuePrinter;
 
 /**
@@ -65,8 +66,8 @@ public class SerializedLiteral extends AbstractSerializedValue implements Serial
 	}
 
 	@Override
-	public <T> T accept(Deserializer<T> visitor) {
-		return visitor.visitValueType(this);
+	public <T> T accept(Deserializer<T> visitor, DeserializerContext context) {
+		return visitor.visitValueType(this, context);
 	}
 
 	@Override

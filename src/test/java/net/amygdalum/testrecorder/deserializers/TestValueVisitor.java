@@ -9,22 +9,22 @@ import net.amygdalum.testrecorder.values.SerializedField;
 public class TestValueVisitor implements Deserializer<String> {
 
 	@Override
-	public String visitField(SerializedField field) {
+	public String visitField(SerializedField fielddefault, DeserializerContext context) {
 		return "field";
 	}
 	
 	@Override
-	public String visitReferenceType(SerializedReferenceType value) {
+	public String visitReferenceType(SerializedReferenceType value, DeserializerContext context) {
 		return value.getClass().getSimpleName();
 	}
 	
 	@Override
-	public String visitImmutableType(SerializedImmutableType value) {
+	public String visitImmutableType(SerializedImmutableType value, DeserializerContext context) {
 		return value.getClass().getSimpleName();
 	}
 	
 	@Override
-	public String visitValueType(SerializedValueType value) {
+	public String visitValueType(SerializedValueType value, DeserializerContext context) {
 		return value.getClass().getSimpleName();
 	}
 }

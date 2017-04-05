@@ -3,6 +3,8 @@ package net.amygdalum.testrecorder;
 import java.lang.reflect.Type;
 import java.util.List;
 
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
+
 /**
  * A serialized value.
  * 
@@ -16,7 +18,11 @@ import java.util.List;
  */
 public interface SerializedValue {
 
-	<T> T accept(Deserializer<T> visitor);
+    default <T> T accept(Deserializer<T> visitor) {
+        return accept(visitor, DeserializerContext.NULL);
+    }
+    
+	<T> T accept(Deserializer<T> visitor, DeserializerContext context);
 
 	Type getResultType();
 	

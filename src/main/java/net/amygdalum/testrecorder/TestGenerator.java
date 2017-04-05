@@ -8,6 +8,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.synchronizedMap;
 import static java.util.stream.Collectors.toList;
+import static net.amygdalum.testrecorder.deserializers.DeserializerContext.newContext;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignFieldStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethod;
@@ -54,6 +55,7 @@ import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.stringtemplate.v4.ST;
 
+import net.amygdalum.testrecorder.ContextSnapshot.AnnotatedValue;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
@@ -414,8 +416,9 @@ public class TestGenerator implements SnapshotConsumer {
 				: new Computation(types.getBestName(snapshot.getThisType()), null, true);
 			statements.addAll(setupThis.getStatements());
 
-			List<Computation> setupArgs = Stream.of(snapshot.getSetupArgs())
-				.map(arg -> arg.accept(setupCode))
+			AnnotatedValue[] snapshotSetupArgs = snapshot.getAnnotatedSetupArgs();
+            List<Computation> setupArgs = Stream.of(snapshotSetupArgs)
+				.map(arg -> arg.value.accept(setupCode, newContext(arg.annotations)))
 				.collect(toList());
 
 			statements.addAll(setupArgs.stream()
@@ -436,7 +439,7 @@ public class TestGenerator implements SnapshotConsumer {
 			this.args = IntStream.range(0, setupArgs.size())
 				.mapToObj(i -> setupArgs.get(i).isStored()
 					? setupArgs.get(i).getValue()
-					: assign(snapshot.getSetupArgs()[i].getResultType(), setupArgs.get(i).getValue()))
+					: assign(snapshotSetupArgs[i].value.getResultType(), setupArgs.get(i).getValue()))
 				.collect(toList());
 			return this;
 		}
@@ -488,7 +491,7 @@ public class TestGenerator implements SnapshotConsumer {
 
 			if (error == null) {
 				List<String> expectResult = Optional.ofNullable(snapshot.getExpectResult())
-					.map(o -> o.accept(matcher.create(locals, types)))
+					.map(o -> o.accept(matcher.create(locals, types), newContext(snapshot.getResultAnnotation())))
 					.map(o -> createAssertion(o, result))
 					.orElse(emptyList());
 
@@ -510,11 +513,11 @@ public class TestGenerator implements SnapshotConsumer {
 
 			statements.addAll(expectThis);
 
-			Type[] argumentTypes = snapshot.getArgumentTypes();
-			SerializedValue[] serializedArgs = snapshot.getExpectArgs();
-			List<String> expectArgs = IntStream.range(0, argumentTypes.length)
-				.filter(i -> !serializedArgs[i].equals(snapshot.getSetupArgs()[i]))
-				.mapToObj(i -> createAssertion(serializedArgs[i].accept(matcher.create(locals, types)), args.get(i)))
+            SerializedValue[] snapshotSetupArgs = snapshot.getSetupArgs();
+            AnnotatedValue[] snapshotExpectArgs = snapshot.getAnnotatedExpectArgs();
+			List<String> expectArgs = IntStream.range(0, snapshotExpectArgs.length)
+				.filter(i -> !snapshotExpectArgs[i].value.equals(snapshotSetupArgs[i]))
+				.mapToObj(i -> createAssertion(snapshotExpectArgs[i].value.accept(matcher.create(locals, types), newContext(snapshotExpectArgs[i].annotations)), args.get(i)))
 				.flatMap(statements -> statements.stream())
 				.collect(toList());
 

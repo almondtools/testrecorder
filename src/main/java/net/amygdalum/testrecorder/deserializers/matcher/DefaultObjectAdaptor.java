@@ -13,6 +13,7 @@ import java.util.List;
 import org.hamcrest.Matcher;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.util.GenericMatcher;
 import net.amygdalum.testrecorder.values.SerializedObject;
@@ -25,7 +26,7 @@ public class DefaultObjectAdaptor extends DefaultMatcherGenerator<SerializedObje
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedObject value, MatcherGenerators generator) {
+	public Computation tryDeserialize(SerializedObject value, MatcherGenerators generator, DeserializerContext context) {
 		TypeManager types = generator.getTypes();
 		types.registerTypes(value.getResultType(), value.getType(), GenericMatcher.class);
 

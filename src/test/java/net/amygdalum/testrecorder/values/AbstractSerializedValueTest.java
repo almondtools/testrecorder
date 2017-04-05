@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedValue;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 
 public class AbstractSerializedValueTest {
 
@@ -42,7 +43,7 @@ public class AbstractSerializedValueTest {
 		}
 
 		@Override
-		public <T> T accept(Deserializer<T> visitor) {
+		public <T> T accept(Deserializer<T> visitor, DeserializerContext context) {
 			return null;
 		}
 	}

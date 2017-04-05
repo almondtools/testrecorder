@@ -52,12 +52,12 @@ public class SimpleDeserializer implements Deserializer<Object> {
 	}
 
 	@Override
-	public Object visitField(SerializedField field) {
+	public Object visitField(SerializedField field, DeserializerContext context) {
 		throw new DeserializationException(field.toString());
 	}
 
 	@Override
-	public Object visitReferenceType(SerializedReferenceType rt) {
+	public Object visitReferenceType(SerializedReferenceType rt, DeserializerContext context) {
 		if (rt instanceof SerializedObject) {
 			SerializedObject value = (SerializedObject) rt;
 			try {
@@ -115,7 +115,7 @@ public class SimpleDeserializer implements Deserializer<Object> {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public Object visitImmutableType(SerializedImmutableType rt) {
+	public Object visitImmutableType(SerializedImmutableType rt, DeserializerContext context) {
 		if (rt instanceof SerializedImmutable<?>) {
 			SerializedImmutable<?> value = (SerializedImmutable<?>) rt;
 			return fetch(value, () -> value.getValue(), noInit());
@@ -128,7 +128,7 @@ public class SimpleDeserializer implements Deserializer<Object> {
 	}
 
 	@Override
-	public Object visitValueType(SerializedValueType value) {
+	public Object visitValueType(SerializedValueType value, DeserializerContext context) {
 		return fetch(value, () -> ((SerializedLiteral) value).getValue(), noInit());
 	}
 

@@ -13,7 +13,10 @@ public interface Adaptor<T extends SerializedValue, G> {
 	
 	boolean matches(Type type);
 	
-	Computation tryDeserialize(T value, G generator) throws DeserializationException;
-
+    default Computation tryDeserialize(T value, G generator) throws DeserializationException {
+        return tryDeserialize(value, generator, DeserializerContext.NULL);
+    }
+    
+	Computation tryDeserialize(T value, G generator, DeserializerContext context) throws DeserializationException;
 
 }

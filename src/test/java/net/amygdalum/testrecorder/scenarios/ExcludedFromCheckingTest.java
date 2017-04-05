@@ -36,7 +36,6 @@ public class ExcludedFromCheckingTest {
         assertThat(testGenerator.testsFor(ExcludedFromChecking.class), hasSize(1));
         assertThat(testGenerator.renderTest(ExcludedFromChecking.class), compiles(LargeIntArrays.class));
         assertThat(testGenerator.renderTest(ExcludedFromChecking.class), testsRun(LargeIntArrays.class));
-        System.out.println(testGenerator.renderTest(ExcludedFromChecking.class));
         assertThat(testGenerator.renderTest(ExcludedFromChecking.class), allOf(
             containsPattern("assertThat(long*, equalTo(84l))"),
             containsString("int notExcluded = 42;"),

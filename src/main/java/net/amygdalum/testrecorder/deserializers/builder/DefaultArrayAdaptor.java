@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedArray;
 
@@ -19,7 +20,7 @@ public class DefaultArrayAdaptor extends DefaultSetupGenerator<SerializedArray> 
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedArray value, SetupGenerators generator) {
+	public Computation tryDeserialize(SerializedArray value, SetupGenerators generator, DeserializerContext context) {
 		TypeManager types = generator.getTypes();
 		types.registerType(value.getResultType());
 

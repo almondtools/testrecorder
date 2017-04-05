@@ -19,6 +19,7 @@ import java.util.Map.Entry;
 import net.amygdalum.testrecorder.DeserializationException;
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedMap;
 
@@ -49,7 +50,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedMap value, SetupGenerators generator) {
+	public Computation tryDeserialize(SerializedMap value, SetupGenerators generator, DeserializerContext context) {
 		TypeManager types = generator.getTypes();
 		types.registerImport(Map.class);
 
@@ -59,20 +60,20 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 		} else if (name.contains("Singleton")) {
 			return tryDeserializeSingleton(value, generator);
 		} else if (name.contains("Unmodifiable")) {
-			return tryDeserializeUnmodifiable(value, generator);
+			return tryDeserializeUnmodifiable(value, generator, context);
 		} else if (name.contains("Synchronized")) {
-			return tryDeserializeSynchronized(value, generator);
+			return tryDeserializeSynchronized(value, generator, context);
 		} else if (name.contains("Checked")) {
-			return tryDeserializeChecked(value, generator);
+			return tryDeserializeChecked(value, generator, context);
 		} else {
 			throw new DeserializationException(value.toString());
 		}
 	}
 
-	private Computation createOrdinaryMap(SerializedMap value, SetupGenerators generator) {
+	private Computation createOrdinaryMap(SerializedMap value, SetupGenerators generator, DeserializerContext context) {
 		SerializedMap baseValue = new SerializedMap(parameterized(LinkedHashMap.class, null, value.getMapKeyType(), value.getMapValueType()));
 		baseValue.putAll(value);
-		return adaptor.tryDeserialize(baseValue, generator);
+		return adaptor.tryDeserialize(baseValue, generator, context);
 	}
 
 	private Computation tryDeserializeEmpty(SerializedMap value, SetupGenerators generator) {
@@ -117,7 +118,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 
 	}
 
-	private Computation tryDeserializeUnmodifiable(SerializedMap value, SetupGenerators generator) {
+	private Computation tryDeserializeUnmodifiable(SerializedMap value, SetupGenerators generator, DeserializerContext context) {
 		String factoryMethod = "unmodifiableMap";
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
@@ -125,7 +126,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 		Type resultType = parameterized(Map.class, null, value.getMapKeyType(), value.getMapValueType());
 		return generator.forVariable(value, resultType, local -> {
 
-			Computation computation = createOrdinaryMap(value, generator);
+			Computation computation = createOrdinaryMap(value, generator, context);
 			List<String> statements = new LinkedList<>(computation.getStatements());
 			String resultBase = computation.getValue();
 
@@ -137,7 +138,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 
 	}
 
-	private Computation tryDeserializeSynchronized(SerializedMap value, SetupGenerators generator) {
+	private Computation tryDeserializeSynchronized(SerializedMap value, SetupGenerators generator, DeserializerContext context) {
 		String factoryMethod = "synchronizedMap";
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
@@ -145,7 +146,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 		Type resultType = parameterized(Map.class, null, value.getMapKeyType(), value.getMapValueType());
 		return generator.forVariable(value, resultType, local -> {
 
-			Computation computation = createOrdinaryMap(value, generator);
+			Computation computation = createOrdinaryMap(value, generator, context);
 			List<String> statements = new LinkedList<>(computation.getStatements());
 			String resultBase = computation.getValue();
 
@@ -157,7 +158,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 
 	}
 
-	private Computation tryDeserializeChecked(SerializedMap value, SetupGenerators generator) {
+	private Computation tryDeserializeChecked(SerializedMap value, SetupGenerators generator, DeserializerContext context) {
 		String factoryMethod = "checkedMap";
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
@@ -165,7 +166,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 		Type resultType = parameterized(Map.class, null, value.getMapKeyType(), value.getMapValueType());
 		return generator.forVariable(value, resultType, local -> {
 
-			Computation computation = createOrdinaryMap(value, generator);
+			Computation computation = createOrdinaryMap(value, generator, context);
 			List<String> statements = new LinkedList<>(computation.getStatements());
 			String resultBase = computation.getValue();
 			String checkedKeyType = types.getRawTypeName(value.getMapKeyType());

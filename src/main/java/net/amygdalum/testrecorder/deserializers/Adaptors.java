@@ -63,13 +63,13 @@ public class Adaptors<G extends Deserializer<Computation>> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends SerializedValue> Computation tryDeserialize(T value, TypeManager types, G generator) {
+	public <T extends SerializedValue> Computation tryDeserialize(T value, TypeManager types, G generator, DeserializerContext context) {
 		Class<? extends SerializedValue> clazz = value.getClass();
 		List<Adaptor<?, G>> matching = adaptors.getOrDefault(clazz, emptyList());
 		for (Adaptor<?, G> match : matching) {
 			if (match.matches(value.getType())) {
 				try {
-					return ((Adaptor<T, G>) match).tryDeserialize(value, generator);
+					return ((Adaptor<T, G>) match).tryDeserialize(value, generator, context);
 				} catch (DeserializationException e) {
 					continue;
 				}

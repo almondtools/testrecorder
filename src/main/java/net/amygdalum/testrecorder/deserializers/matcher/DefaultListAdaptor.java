@@ -13,6 +13,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.util.ContainsInOrderMatcher;
 import net.amygdalum.testrecorder.values.SerializedList;
@@ -25,7 +26,7 @@ public class DefaultListAdaptor extends DefaultMatcherGenerator<SerializedList> 
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedList value, MatcherGenerators generator) {
+	public Computation tryDeserialize(SerializedList value, MatcherGenerators generator, DeserializerContext context) {
 		TypeManager types = generator.getTypes();
 		String componentType = types.getRelaxedName(value.getComponentType());
 

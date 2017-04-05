@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 import org.hamcrest.Matcher;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.util.MapMatcher;
 import net.amygdalum.testrecorder.util.Pair;
@@ -26,7 +27,7 @@ public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> im
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedMap value, MatcherGenerators generator) {
+	public Computation tryDeserialize(SerializedMap value, MatcherGenerators generator, DeserializerContext context) {
 		TypeManager types = generator.getTypes();
 		String keyType = types.getRelaxedName(value.getMapKeyType());
 		String valueType = types.getRelaxedName(value.getMapValueType());

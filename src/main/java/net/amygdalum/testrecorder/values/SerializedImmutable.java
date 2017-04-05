@@ -8,6 +8,7 @@ import java.util.List;
 import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedImmutableType;
 import net.amygdalum.testrecorder.SerializedValue;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.ValuePrinter;
 
 /**
@@ -43,8 +44,8 @@ public class SerializedImmutable<V> extends AbstractSerializedReferenceType impl
 	}
 
 	@Override
-	public <T> T accept(Deserializer<T> visitor) {
-		return visitor.visitImmutableType(this);
+	public <T> T accept(Deserializer<T> visitor, DeserializerContext context) {
+		return visitor.visitImmutableType(this, context);
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.matcher;
 
+import static net.amygdalum.testrecorder.deserializers.DeserializerContext.newContext;
 import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.nullMatcher;
@@ -22,6 +23,7 @@ import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.SerializedValueType;
 import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
@@ -68,35 +70,44 @@ public class MatcherGenerators implements Deserializer<Computation> {
 	public boolean isSimpleValue(SerializedValue element) {
 		return element instanceof SerializedNull
 			|| element instanceof SerializedLiteral;
+    }
+
+    public Computation simpleMatcher(SerializedValue element) {
+        return simpleMatcher(element, DeserializerContext.NULL);
 	}
 
-	public Computation simpleMatcher(SerializedValue element) {
+	public Computation simpleMatcher(SerializedValue element, DeserializerContext context) {
 		if (element instanceof SerializedNull) {
 			types.staticImport(Matchers.class, "nullValue");
 			return new Computation(nullMatcher(""), element.getResultType());
 		} else if (element instanceof SerializedLiteral) {
 			return new Computation(asLiteral(((SerializedLiteral) element).getValue()), element.getResultType());
 		} else {
-			return element.accept(this);
+			return element.accept(this, context);
 		}
+    }
+
+    public Computation simpleValue(SerializedValue element) {
+        return simpleValue(element, DeserializerContext.NULL);
 	}
 
-	public Computation simpleValue(SerializedValue element) {
+	public Computation simpleValue(SerializedValue element, DeserializerContext context) {
 		if (element instanceof SerializedNull) {
 			return new Computation("null", element.getResultType());
 		} else if (element instanceof SerializedLiteral) {
 			return new Computation(asLiteral(((SerializedLiteral) element).getValue()), element.getResultType());
 		} else {
-			return element.accept(this);
+			return element.accept(this, context);
 		}
 	}
 
 	@Override
-	public Computation visitField(SerializedField field) {
+	public Computation visitField(SerializedField field, DeserializerContext context) {
 		SerializedValue fieldValue = field.getValue();
-		if (types.isHidden(field.getType())) {
+		DeserializerContext fieldContext = newContext(field.getAnnotations());
+        if (types.isHidden(field.getType())) {
 			types.registerImport(Matcher.class);
-			Computation value = fieldValue.accept(this);
+			Computation value = fieldValue.accept(this, fieldContext);
 
 			String genericType = types.getRelaxedName(value.getType());
 
@@ -104,13 +115,13 @@ public class MatcherGenerators implements Deserializer<Computation> {
 			return new Computation(assignField, null, value.getStatements());
 		} else if (isSimpleValue(fieldValue)) {
 			types.registerImport(baseType(field.getType()));
-			Computation value = simpleValue(fieldValue);
+			Computation value = simpleValue(fieldValue, fieldContext);
 
 			String assignField = assignLocalVariableStatement(types.getRawName(field.getType()), field.getName(), value.getValue());
 			return new Computation(assignField, null, value.getStatements());
 		} else {
 			types.registerImport(Matcher.class);
-			Computation value = fieldValue.accept(this);
+			Computation value = fieldValue.accept(this, fieldContext);
 
 			String genericType = types.getRelaxedName(value.getType());
 
@@ -120,7 +131,7 @@ public class MatcherGenerators implements Deserializer<Computation> {
 	}
 
 	@Override
-	public Computation visitReferenceType(SerializedReferenceType value) {
+	public Computation visitReferenceType(SerializedReferenceType value, DeserializerContext context) {
 		if (!computed.add(value)) {
 			types.staticImport(GenericMatcher.class, "recursive");
 			Type resultType = value.getResultType().equals(value.getType()) ? parameterized(Matcher.class, null, value.getResultType()) : parameterized(Matcher.class, null, wildcard());
@@ -132,17 +143,17 @@ public class MatcherGenerators implements Deserializer<Computation> {
 				return new Computation(recursiveMatcher(types.getRawTypeName(Object.class)), parameterized(Matcher.class, null, wildcard()));
 			}
 		}
-		return adaptors.tryDeserialize(value, types, this);
+		return adaptors.tryDeserialize(value, types, this, context);
 	}
 
 	@Override
-	public Computation visitImmutableType(SerializedImmutableType value) {
-		return adaptors.tryDeserialize(value, types, this);
+	public Computation visitImmutableType(SerializedImmutableType value, DeserializerContext context) {
+		return adaptors.tryDeserialize(value, types, this, context);
 	}
 
 	@Override
-	public Computation visitValueType(SerializedValueType value) {
-		return adaptors.tryDeserialize(value, types, this);
+	public Computation visitValueType(SerializedValueType value, DeserializerContext context) {
+		return adaptors.tryDeserialize(value, types, this, context);
 	}
 
 	public static class Factory implements DeserializerFactory {

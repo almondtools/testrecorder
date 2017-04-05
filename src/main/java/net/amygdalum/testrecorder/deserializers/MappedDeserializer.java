@@ -19,23 +19,23 @@ public class MappedDeserializer<T, S> implements Deserializer<T>{
 	}
 	
 	@Override
-	public T visitField(SerializedField field) {
-		return mapping.apply(field.accept(visitor));
+	public T visitField(SerializedField field, DeserializerContext context) {
+		return mapping.apply(field.accept(visitor, context));
 	}
 	
 	@Override
-	public T visitReferenceType(SerializedReferenceType value) {
-		return mapping.apply(value.accept(visitor));
+	public T visitReferenceType(SerializedReferenceType value, DeserializerContext context) {
+		return mapping.apply(value.accept(visitor, context));
 	}
 
 	@Override
-	public T visitImmutableType(SerializedImmutableType value) {
-		return mapping.apply(value.accept(visitor));
+	public T visitImmutableType(SerializedImmutableType value, DeserializerContext context) {
+		return mapping.apply(value.accept(visitor, context));
 	}
 
 	@Override
-	public T visitValueType(SerializedValueType value) {
-		return mapping.apply(value.accept(visitor));
+	public T visitValueType(SerializedValueType value, DeserializerContext context) {
+		return mapping.apply(value.accept(visitor, context));
 	}
 
 }
