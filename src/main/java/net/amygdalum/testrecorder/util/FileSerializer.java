@@ -1,5 +1,10 @@
 package net.amygdalum.testrecorder.util;
 
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.READ;
+import static java.nio.file.StandardOpenOption.SYNC;
+import static java.nio.file.StandardOpenOption.WRITE;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -8,7 +13,6 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -22,7 +26,7 @@ public class FileSerializer {
             String string = digest(data);
             Path path = Paths.get(dir, string + ".serialized");
             Files.createDirectories(path.getParent());
-            try (OutputStream o = Files.newOutputStream(path, StandardOpenOption.SYNC)) {
+            try (OutputStream o = Files.newOutputStream(path, SYNC, CREATE, WRITE)) {
                 o.write(data);
                 o.flush();
 
@@ -56,7 +60,7 @@ public class FileSerializer {
     }
 
     public static <T> T load(String dir, String fileName, Class<T> type) {
-        try (ObjectInputStream in = new ObjectInputStream(Files.newInputStream(Paths.get(dir, fileName)))) {
+        try (ObjectInputStream in = new ObjectInputStream(Files.newInputStream(Paths.get(dir, fileName), READ))) {
             Object rawObject = in.readObject();
             T object = type.cast(rawObject);
             return object;

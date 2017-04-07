@@ -38,15 +38,15 @@ public class ExcludedFromCheckingTest {
         assertThat(testGenerator.renderTest(ExcludedFromChecking.class), testsRun(LargeIntArrays.class));
         assertThat(testGenerator.renderTest(ExcludedFromChecking.class), allOf(
             containsPattern("assertThat(long*, equalTo(84l))"),
-            containsString("int notExcluded = 42;"),
-            not(containsString("long excluded = 84l;"))));
+            containsString("int intVar = 42;"),
+            not(containsString("long longVar = 84l;"))));
     }
 
     @Test
     public void testResultsExcludedInTestCompilable() throws Exception {
         ExcludedFromChecking arrays = new ExcludedFromChecking(42);
 
-        arrays.getNotExcluded();
+        arrays.getIntVar();
 
         TestGenerator testGenerator = TestGenerator.fromRecorded();
         assertThat(testGenerator.testsFor(ExcludedFromChecking.class), hasSize(1));

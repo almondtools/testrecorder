@@ -9,6 +9,7 @@ import static net.amygdalum.testrecorder.util.Types.wildcard;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Objects;
 
 import org.hamcrest.Matcher;
 
@@ -33,6 +34,7 @@ public class DefaultObjectAdaptor extends DefaultMatcherGenerator<SerializedObje
 		List<Computation> fields = value.getFields().stream()
 			.sorted()
 			.map(field -> field.accept(generator))
+			.filter(Objects::nonNull)
 			.collect(toList());
 
 		List<String> fieldComputations = fields.stream()

@@ -12,6 +12,18 @@ public class Pair<T1, T2> {
 		this.element2 = element2;
 	}
 
+    @SuppressWarnings("unchecked")
+    public static <T1,T2> Pair<T1, T2>[] zip(T1[] e1, T2[] e2) {
+        if (e1.length != e2.length) {
+            throw new IllegalArgumentException();
+        }
+        Pair<T1, T2>[] pairs = new Pair[e1.length];
+        for (int i = 0; i < pairs.length; i++) {
+            pairs[i] = new Pair<>(e1[i], e2[i]);
+        }
+        return pairs;
+    }
+
 	public T1 getElement1() {
 		return element1;
 	}

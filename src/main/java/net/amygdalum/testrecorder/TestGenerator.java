@@ -64,10 +64,12 @@ import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
 import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerators;
 import net.amygdalum.testrecorder.util.ExpectedOutput;
 import net.amygdalum.testrecorder.util.IORecorder;
+import net.amygdalum.testrecorder.util.Pair;
 import net.amygdalum.testrecorder.util.RecordInput;
 import net.amygdalum.testrecorder.util.RecordOutput;
 import net.amygdalum.testrecorder.util.SetupInput;
 import net.amygdalum.testrecorder.util.Throwables;
+import net.amygdalum.testrecorder.util.Triple;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedInput;
 import net.amygdalum.testrecorder.values.SerializedOutput;
@@ -436,11 +438,12 @@ public class TestGenerator implements SnapshotConsumer {
 			this.base = setupThis.isStored()
 				? setupThis.getValue()
 				: assign(snapshot.getSetupThis().getType(), setupThis.getValue());
-			this.args = IntStream.range(0, setupArgs.size())
-				.mapToObj(i -> setupArgs.get(i).isStored()
-					? setupArgs.get(i).getValue()
-					: assign(snapshotSetupArgs[i].value.getResultType(), setupArgs.get(i).getValue()))
-				.collect(toList());
+			Pair<Computation, AnnotatedValue>[] arguments = Pair.zip(setupArgs.toArray(new Computation[0]), snapshotSetupArgs);
+            this.args = Stream.of(arguments)
+                .map(arg -> arg.getElement1().isStored() 
+                    ? arg.getElement1().getValue()
+                    : assign(arg.getElement2().value.getResultType(), arg.getElement1().getValue()))
+                .collect(toList());
 			return this;
 		}
 
@@ -515,12 +518,15 @@ public class TestGenerator implements SnapshotConsumer {
 
             SerializedValue[] snapshotSetupArgs = snapshot.getSetupArgs();
             AnnotatedValue[] snapshotExpectArgs = snapshot.getAnnotatedExpectArgs();
-			List<String> expectArgs = IntStream.range(0, snapshotExpectArgs.length)
-				.filter(i -> !snapshotExpectArgs[i].value.equals(snapshotSetupArgs[i]))
-				.mapToObj(i -> createAssertion(snapshotExpectArgs[i].value.accept(matcher.create(locals, types), newContext(snapshotExpectArgs[i].annotations)), args.get(i)))
+            Triple<AnnotatedValue, SerializedValue, String>[] arguments = Triple.zip(snapshotExpectArgs, snapshotSetupArgs, args.toArray(new String[0]));
+			List<String> expectArgs = Stream.of(arguments)
+			    .filter(arg -> !arg.getElement1().value.equals(arg.getElement2()))
+			    .map(arg -> new Pair<Computation, String>(arg.getElement1().value.accept(matcher.create(locals, types), newContext(arg.getElement1().annotations)), arg.getElement3()))
+			    .filter(arg -> arg.getElement1() != null)
+			    .map(arg -> createAssertion(arg.getElement1(), arg.getElement2()))
 				.flatMap(statements -> statements.stream())
 				.collect(toList());
-
+			
 			statements.addAll(expectArgs);
 
 			SerializedField[] serializedGlobals = snapshot.getExpectGlobals();
@@ -542,7 +548,6 @@ public class TestGenerator implements SnapshotConsumer {
 		}
 
 		private List<String> createAssertion(Computation matcher, String exp) {
-
 			List<String> statements = new ArrayList<>();
 
 			statements.addAll(matcher.getStatements());

@@ -6,37 +6,37 @@ import net.amygdalum.testrecorder.hints.SkipChecks;
 public class ExcludedFromChecking {
 
     @SkipChecks
-    private long excluded;
+    private long longVar;
     
-    private int notExcluded;
+    private int intVar;
     
 
     public ExcludedFromChecking(int init) {
-        this.excluded = init;
-        this.notExcluded = init * init;
+        this.longVar = init;
+        this.intVar = init * init;
     }
 
     @Recorded
     @SkipChecks
-    public int getNotExcluded() {
-        return notExcluded;
+    public int getIntVar() {
+        return intVar;
     }
 
     
     @Recorded
     public void reinit(@SkipChecks int... factors) {
         for (int i = 0; i < factors.length; i++) {
-            excluded *= factors[i];
+            longVar *= factors[i];
         }
-        notExcluded = (int) excluded;
+        intVar = (int) longVar;
     }
 
     @Recorded
     public long next() {
-        int temp = (int) excluded;
-        excluded *= 2;
-        notExcluded = temp;
-        return excluded;
+        int temp = (int) longVar;
+        longVar *= 2;
+        intVar = temp;
+        return longVar;
     }
     
 }
