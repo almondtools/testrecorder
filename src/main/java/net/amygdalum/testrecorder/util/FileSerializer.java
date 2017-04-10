@@ -18,7 +18,10 @@ import java.security.NoSuchAlgorithmException;
 
 import net.amygdalum.testrecorder.DeserializationException;
 
-public class FileSerializer {
+public final class FileSerializer {
+
+    private FileSerializer() {
+    }
 
     public static String store(String dir, Object object) {
         try {

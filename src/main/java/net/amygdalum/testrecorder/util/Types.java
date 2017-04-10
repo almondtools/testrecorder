@@ -185,16 +185,6 @@ public final class Types {
         }
     }
 
-    public static Type[] typeArguments(Type type) {
-        if (type instanceof ParameterizedType) {
-            return ((ParameterizedType) type).getActualTypeArguments();
-        } else if (type instanceof Class<?>){
-            return ((Class<?>) type).getTypeParameters();
-        } else {
-            return new Type[0];
-        }
-    }
-
     public static Class<?> innerType(Class<?> clazz, String name) {
         for (Class<?> inner : clazz.getDeclaredClasses()) {
             if (inner.getSimpleName().equals(name)) {

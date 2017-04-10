@@ -37,7 +37,7 @@ public class SetupInput implements InputProvider {
 
 	private void sync(Object from, Object to) {
 		if (from.getClass() != to.getClass()) {
-			return;
+            throw new AssertionError("expected argument type " + from.getClass().getName() + ", but found " + to.getClass().getName());
 		}
 		Class<?> current = from.getClass();
 		if (current.isArray()) {
@@ -65,13 +65,13 @@ public class SetupInput implements InputProvider {
 
 		public void verify(Class<?> clazz, String method, Object[] args) {
 			if (!this.clazz.equals(clazz)) {
-				throw new AssertionError("expected output " + this.clazz.getName() + ", but found " + clazz.getName());
+				throw new AssertionError("expected input " + this.clazz.getName() + ", but found " + clazz.getName());
 			}
 			if (!this.method.equals(method)) {
-				throw new AssertionError("expected output " + this.method + ", but found " + method);
+				throw new AssertionError("expected input " + this.method + ", but found " + method);
 			}
 			if (this.args.length != args.length) {
-				throw new AssertionError("expected output " + this.args.length + " arguments, but found " + args.length + " arguments");
+				throw new AssertionError("expected input " + this.args.length + " arguments, but found " + args.length + " arguments");
 			}
 		}
 
