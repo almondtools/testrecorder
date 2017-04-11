@@ -15,13 +15,13 @@ import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 import net.amygdalum.testrecorder.values.SerializedList;
 
-public class DefaultListAdaptorTest {
+public class DefaultSequenceAdaptorTest {
 
-	private DefaultListAdaptor adaptor;
+	private DefaultSequenceAdaptor adaptor;
 
 	@Before
 	public void before() throws Exception {
-		adaptor = new DefaultListAdaptor();
+		adaptor = new DefaultSequenceAdaptor();
 	}
 	
 	@Test

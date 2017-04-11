@@ -6,7 +6,7 @@ net.amygdalum.testrecorder.deserializers.matcher.DefaultBigDecimalAdaptor
 net.amygdalum.testrecorder.deserializers.matcher.DefaultEnumAdaptor
 net.amygdalum.testrecorder.deserializers.matcher.DefaultObjectAdaptor
 net.amygdalum.testrecorder.deserializers.matcher.DefaultArrayAdaptor
-net.amygdalum.testrecorder.deserializers.matcher.DefaultListAdaptor
+net.amygdalum.testrecorder.deserializers.matcher.DefaultSequenceAdaptor
 net.amygdalum.testrecorder.deserializers.matcher.DefaultSetAdaptor
 net.amygdalum.testrecorder.deserializers.matcher.DefaultMapAdaptor
 net.amygdalum.testrecorder.deserializers.matcher.LargePrimitiveArrayAdaptor

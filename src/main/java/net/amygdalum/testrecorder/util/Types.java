@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.util;
 
 import static java.lang.reflect.Modifier.isPrivate;
 import static java.lang.reflect.Modifier.isPublic;
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
 
 import java.lang.reflect.Array;
@@ -281,7 +282,9 @@ public final class Types {
         List<Field> fields = new ArrayList<>();
         while (current != Object.class) {
             for (Field field : current.getDeclaredFields()) {
-                fields.add(field);
+                if (!field.isSynthetic()) {
+                    fields.add(field);
+                }
             }
             current = current.getSuperclass();
         }
@@ -289,12 +292,18 @@ public final class Types {
 
     }
 
+    public static List<Class<?>> innerClasses(Class<?> of) {
+        return asList(of.getDeclaredClasses());
+    }
+
     public static List<Method> allMethods(Class<?> clazz) {
         Class<?> current = clazz;
         List<Method> methods = new ArrayList<>();
         while (current != Object.class) {
             for (Method method : current.getDeclaredMethods()) {
-                methods.add(method);
+                if (!method.isSynthetic()) {
+                    methods.add(method);
+                }
             }
             current = current.getSuperclass();
         }

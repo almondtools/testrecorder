@@ -9,33 +9,33 @@ import static net.amygdalum.testrecorder.util.Types.equalTypes;
 
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Set;
+import java.util.Queue;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
-import net.amygdalum.testrecorder.values.SerializedSet;
+import net.amygdalum.testrecorder.values.SerializedList;
 
-public class DefaultSetAdaptor extends DefaultSetupGenerator<SerializedSet> implements SetupGenerator<SerializedSet> {
+public class DefaultQueueAdaptor extends DefaultSetupGenerator<SerializedList> implements SetupGenerator<SerializedList> {
 
     @Override
-    public Class<SerializedSet> getAdaptedClass() {
-        return SerializedSet.class;
+    public Class<SerializedList> getAdaptedClass() {
+        return SerializedList.class;
     }
 
     @Override
     public boolean matches(Type type) {
-        return Set.class.isAssignableFrom(baseType(type));
+        return Queue.class.isAssignableFrom(baseType(type));
     }
 
     @Override
-    public Computation tryDeserialize(SerializedSet value, SetupGenerators generator, DeserializerContext context) {
+    public Computation tryDeserialize(SerializedList value, SetupGenerators generator, DeserializerContext context) {
         TypeManager types = generator.getTypes();
         Type type = value.getType();
         Type resultType = value.getResultType();
         types.registerTypes(resultType, type);
 
-        return generator.forVariable(value, Set.class, local -> {
+        return generator.forVariable(value, Queue.class, local -> {
 
             List<Computation> elementTemplates = value.stream()
                 .map(element -> element.accept(generator))
@@ -50,21 +50,21 @@ public class DefaultSetAdaptor extends DefaultSetupGenerator<SerializedSet> impl
                 .flatMap(template -> template.getStatements().stream())
                 .collect(toList());
 
-            Type effectiveResultType = types.isHidden(resultType) ? Set.class : resultType;
-            Type temporaryType = (!types.isHidden(type) && Set.class.isAssignableFrom(baseType(type)))
+            Type effectiveResultType = types.isHidden(resultType) ? Queue.class : resultType;
+            Type temporaryType = (!types.isHidden(type) && Queue.class.isAssignableFrom(baseType(type)))
                 ? type
-                : Set.class.isAssignableFrom(baseType(effectiveResultType))
+                : Queue.class.isAssignableFrom(baseType(effectiveResultType))
                     ? effectiveResultType
-                    : Set.class;
+                    : Queue.class;
 
             String tempVar = local.getName();
             if (!equalTypes(effectiveResultType, temporaryType)) {
                 tempVar = generator.temporaryLocal();
             }
 
-            String set = types.isHidden(type) ? generator.adapt(types.getWrappedName(type), temporaryType, types.wrapHidden(type)) : newObject(types.getBestName(type));
-            String setInit = assignLocalVariableStatement(types.getRelaxedName(temporaryType), tempVar, set);
-            statements.add(setInit);
+            String list = types.isHidden(type) ? generator.adapt(types.getWrappedName(type), temporaryType, types.wrapHidden(type)) : newObject(types.getBestName(type));
+            String listInit = assignLocalVariableStatement(types.getRelaxedName(temporaryType), tempVar, list);
+            statements.add(listInit);
 
             for (String element : elements) {
                 String addElement = callMethodStatement(tempVar, "add", element);

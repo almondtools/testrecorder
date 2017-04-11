@@ -1,11 +1,11 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static java.util.Arrays.asList;
-import static net.amygdalum.testrecorder.TypeSelector.innerClasses;
-import static net.amygdalum.testrecorder.TypeSelector.startingWith;
+import static net.amygdalum.testrecorder.TypeFilters.startingWith;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethod;
 import static net.amygdalum.testrecorder.util.Types.equalTypes;
+import static net.amygdalum.testrecorder.util.Types.innerClasses;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 
 import java.lang.reflect.Type;
@@ -43,7 +43,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 
 	@Override
 	public boolean matches(Type type) {
-		return innerClasses(Collections.class)
+		return innerClasses(Collections.class).stream()
 			.filter(startingWith("Unmodifiable", "Synchronized", "Checked", "Empty", "Singleton"))
 			.filter(element -> Map.class.isAssignableFrom(element))
 			.anyMatch(element -> equalTypes(element, type));

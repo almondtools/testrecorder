@@ -53,8 +53,6 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
 
-import com.almondtools.conmatch.exceptions.ExceptionMatcher;
-
 import net.amygdalum.testrecorder.util.TypesTest.NestedPackagePrivate;
 import net.amygdalum.testrecorder.util.TypesTest.NestedProtected;
 import net.amygdalum.testrecorder.util.TypesTest.NestedPublic;
@@ -329,9 +327,9 @@ public class TypesTest {
 
     @Test
     public void testAllFields() throws Exception {
-        List<Field> sub1Fields = allFields(Sub1.class).stream().filter(f -> !f.isSynthetic()).collect(toList());
+        List<Field> sub1Fields = allFields(Sub1.class);
         assertThat(sub1Fields, contains(Sub1.class.getDeclaredField("subAttr"), Super.class.getDeclaredField("superAttr")));
-        List<Field> sub2Fields = allFields(Sub2.class).stream().filter(f -> !f.isSynthetic()).collect(toList());
+        List<Field> sub2Fields = allFields(Sub2.class);
         assertThat(sub2Fields, contains(Sub2.class.getDeclaredField("subAttr"), Super.class.getDeclaredField("superAttr")));
         assertThat(capture(() -> getDeclaredField(Sub1.class, "nonExistent")), matchesException(NoSuchFieldException.class));
         assertThat(capture(() -> getDeclaredField(Sub2.class, "nonExistent")), matchesException(NoSuchFieldException.class));

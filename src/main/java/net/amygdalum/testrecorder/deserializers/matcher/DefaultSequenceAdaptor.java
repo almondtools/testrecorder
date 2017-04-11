@@ -18,7 +18,7 @@ import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.util.ContainsInOrderMatcher;
 import net.amygdalum.testrecorder.values.SerializedList;
 
-public class DefaultListAdaptor extends DefaultMatcherGenerator<SerializedList> implements MatcherGenerator<SerializedList> {
+public class DefaultSequenceAdaptor extends DefaultMatcherGenerator<SerializedList> implements MatcherGenerator<SerializedList> {
 
 	@Override
 	public Class<SerializedList> getAdaptedClass() {

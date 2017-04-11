@@ -1,6 +1,5 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
-import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethodStatement;
@@ -9,10 +8,7 @@ import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.equalTypes;
 
 import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.Deque;
 import java.util.List;
-import java.util.Queue;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DeserializerContext;
@@ -21,69 +17,68 @@ import net.amygdalum.testrecorder.values.SerializedList;
 
 public class DefaultListAdaptor extends DefaultSetupGenerator<SerializedList> implements SetupGenerator<SerializedList> {
 
-	private static final List<Class<?>> LIST_CLASSES = asList(List.class, Queue.class, Deque.class);
+    @Override
+    public Class<SerializedList> getAdaptedClass() {
+        return SerializedList.class;
+    }
 
-	@Override
-	public Class<SerializedList> getAdaptedClass() {
-		return SerializedList.class;
-	}
+    @Override
+    public boolean matches(Type type) {
+        return List.class.isAssignableFrom(baseType(type));
+    }
 
-	@Override
-	public Computation tryDeserialize(SerializedList value, SetupGenerators generator, DeserializerContext context) {
-		TypeManager types = generator.getTypes();
-		Type type = value.getType();
+    @Override
+    public Computation tryDeserialize(SerializedList value, SetupGenerators generator, DeserializerContext context) {
+        TypeManager types = generator.getTypes();
+        Type type = value.getType();
         Type resultType = value.getResultType();
         types.registerTypes(resultType, type);
 
-		Class<?> listType = listClassFor(type);
+        return generator.forVariable(value, List.class, local -> {
 
-		return generator.forVariable(value, listType, local -> {
+            List<Computation> elementTemplates = value.stream()
+                .map(element -> element.accept(generator))
+                .filter(element -> element != null)
+                .collect(toList());
 
-			List<Computation> elementTemplates = value.stream()
-				.map(element -> element.accept(generator))
-				.collect(toList());
+            List<String> elements = elementTemplates.stream()
+                .map(template -> generator.adapt(template.getValue(), value.getComponentType(), template.getType()))
+                .collect(toList());
 
-			List<String> elements = elementTemplates.stream()
-				.map(template -> generator.adapt(template.getValue(), value.getComponentType(), template.getType()))
-				.collect(toList());
+            List<String> statements = elementTemplates.stream()
+                .flatMap(template -> template.getStatements().stream())
+                .collect(toList());
 
-			List<String> statements = elementTemplates.stream()
-				.flatMap(template -> template.getStatements().stream())
-				.collect(toList());
+            Type effectiveResultType = types.isHidden(resultType) ? List.class : resultType;
+            Type temporaryType = (!types.isHidden(type) && List.class.isAssignableFrom(baseType(type)))
+                ? type
+                : List.class.isAssignableFrom(baseType(effectiveResultType))
+                    ? effectiveResultType
+                    : List.class;
 
             String tempVar = local.getName();
-            if (generator.needsAdaptation(resultType, type) || !equalTypes(resultType, type)) {
+            if (!equalTypes(effectiveResultType, temporaryType)) {
                 tempVar = generator.temporaryLocal();
             }
 
-			String list = newObject(types.getBestName(type));
-			String listInit = assignLocalVariableStatement(types.getRelaxedName(type), tempVar, list);
-			statements.add(listInit);
+            String list = types.isHidden(type) ? generator.adapt(types.getWrappedName(type), temporaryType, types.wrapHidden(type)) : newObject(types.getBestName(type));
+            String listInit = assignLocalVariableStatement(types.getRelaxedName(temporaryType), tempVar, list);
+            statements.add(listInit);
 
-			for (String element : elements) {
-				String addElement = callMethodStatement(tempVar, "add", element);
-				statements.add(addElement);
-			}
-
-            if (generator.needsAdaptation(resultType, type)) {
-                tempVar = generator.adapt(tempVar, resultType, type);
-                statements.add(assignLocalVariableStatement(types.getRelaxedName(resultType), local.getName(), tempVar));
-            } else if (!equalTypes(resultType, type)) {
-                statements.add(assignLocalVariableStatement(types.getRelaxedName(resultType), local.getName(), tempVar));
+            for (String element : elements) {
+                String addElement = callMethodStatement(tempVar, "add", element);
+                statements.add(addElement);
             }
 
-			return new Computation(local.getName(), resultType, true, statements);
-		});
-	}
+            if (generator.needsAdaptation(effectiveResultType, temporaryType)) {
+                tempVar = generator.adapt(tempVar, effectiveResultType, temporaryType);
+                statements.add(assignLocalVariableStatement(types.getRelaxedName(effectiveResultType), local.getName(), tempVar));
+            } else if (!equalTypes(effectiveResultType, temporaryType)) {
+                statements.add(assignLocalVariableStatement(types.getRelaxedName(effectiveResultType), local.getName(), tempVar));
+            }
 
-	private Class<?> listClassFor(Type type) {
-		Class<?> clazz = baseType(type);
-		for (Class<?> listClass : LIST_CLASSES) {
-			if (listClass.isAssignableFrom(clazz)) {
-				return listClass;
-			}
-		}
-		return Collection.class;
-	}
+            return new Computation(local.getName(), effectiveResultType, true, statements);
+        });
+    }
 
 }

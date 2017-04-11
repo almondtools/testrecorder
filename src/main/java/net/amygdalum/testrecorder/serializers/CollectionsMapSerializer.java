@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.serializers;
 
 import static java.util.stream.Collectors.toList;
-import static net.amygdalum.testrecorder.TypeSelector.startingWith;
+import static net.amygdalum.testrecorder.TypeFilters.startingWith;
 import static net.amygdalum.testrecorder.util.Types.inferType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.typeArgument;
@@ -25,7 +25,7 @@ public class CollectionsMapSerializer extends HiddenInnerClassSerializer<Seriali
 
 	@Override
 	public List<Class<?>> getMatchingClasses() {
-		return innerClasses()
+		return innerClasses().stream()
 			.filter(startingWith("Unmodifiable", "Synchronized", "Checked", "Empty", "Singleton"))
 			.filter(clazz -> Map.class.isAssignableFrom(clazz))
 			.collect(toList());

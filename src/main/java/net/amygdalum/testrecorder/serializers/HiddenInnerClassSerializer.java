@@ -1,11 +1,11 @@
 package net.amygdalum.testrecorder.serializers;
 
-import java.util.stream.Stream;
+import java.util.List;
 
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.Serializer;
 import net.amygdalum.testrecorder.SerializerFacade;
-import net.amygdalum.testrecorder.TypeSelector;
+import net.amygdalum.testrecorder.util.Types;
 
 public abstract class HiddenInnerClassSerializer<T extends SerializedValue> implements Serializer<T> {
 
@@ -17,8 +17,8 @@ public abstract class HiddenInnerClassSerializer<T extends SerializedValue> impl
 		this.facade = facade;
 	}
 
-	public Stream<Class<?>> innerClasses() {
-		return TypeSelector.innerClasses(clazz);
+	public List<Class<?>> innerClasses() {
+		return Types.innerClasses(clazz);
 	}
 
 }

@@ -10,9 +10,12 @@ import java.lang.reflect.Modifier;
 
 import net.amygdalum.xrayinterface.ReflectionFailedException;
 
-public class Reflections {
+public final class Reflections {
 
 	private static final String MODIFIERS = "modifiers";
+	
+	private Reflections() {
+    }
 
 	public static <T extends AccessibleObject & Member> Accessing<T> accessing(T o) {
 		return new Accessing<>(o);

@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethodStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
+import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.equalTypes;
 
 import java.lang.reflect.Type;
@@ -25,6 +26,11 @@ public class DefaultMapAdaptor extends DefaultSetupGenerator<SerializedMap> impl
     }
 
     @Override
+    public boolean matches(Type type) {
+        return Map.class.isAssignableFrom(baseType(type));
+    }
+
+    @Override
     public Computation tryDeserialize(SerializedMap value, SetupGenerators generator, DeserializerContext context) {
         TypeManager types = generator.getTypes();
         Type type = value.getType();
@@ -37,6 +43,7 @@ public class DefaultMapAdaptor extends DefaultSetupGenerator<SerializedMap> impl
                 .map(entry -> new Pair<>(
                     entry.getKey().accept(generator), 
                     entry.getValue().accept(generator)))
+                .filter(pair -> pair.getElement1() != null && pair.getElement2() != null)
                 .collect(toList());
 
             List<Pair<String, String>> elements = elementTemplates.stream()
@@ -50,13 +57,20 @@ public class DefaultMapAdaptor extends DefaultSetupGenerator<SerializedMap> impl
                 .distinct()
                 .collect(toList());
 
+            Type effectiveResultType = types.isHidden(resultType) ? Map.class : resultType;
+            Type temporaryType = (!types.isHidden(type) && Map.class.isAssignableFrom(baseType(type)))
+                ? type
+                : Map.class.isAssignableFrom(baseType(effectiveResultType))
+                    ? effectiveResultType
+                    : Map.class;
+
             String tempVar = local.getName();
-            if (generator.needsAdaptation(resultType, type) || !equalTypes(resultType, type)) {
+            if (!equalTypes(effectiveResultType, temporaryType)) {
                 tempVar = generator.temporaryLocal();
             }
 
-            String map = newObject(types.getBestName(type));
-            String mapInit = assignLocalVariableStatement(types.getRelaxedName(type), tempVar, map);
+            String map = types.isHidden(type) ? generator.adapt(types.getWrappedName(type), temporaryType, types.wrapHidden(type)) : newObject(types.getBestName(type));
+            String mapInit = assignLocalVariableStatement(types.getRelaxedName(temporaryType), tempVar, map);
             statements.add(mapInit);
 
             for (Pair<String, String> element : elements) {
@@ -64,14 +78,14 @@ public class DefaultMapAdaptor extends DefaultSetupGenerator<SerializedMap> impl
                 statements.add(putEntry);
             }
 
-            if (generator.needsAdaptation(resultType, type)) {
-                tempVar = generator.adapt(tempVar, resultType, type);
-                statements.add(assignLocalVariableStatement(types.getRelaxedName(resultType), local.getName(), tempVar));
-            } else if (!equalTypes(resultType, type)) {
-                statements.add(assignLocalVariableStatement(types.getRelaxedName(resultType), local.getName(), tempVar));
+            if (generator.needsAdaptation(effectiveResultType, temporaryType)) {
+                tempVar = generator.adapt(tempVar, effectiveResultType, temporaryType);
+                statements.add(assignLocalVariableStatement(types.getRelaxedName(effectiveResultType), local.getName(), tempVar));
+            } else if (!equalTypes(effectiveResultType, temporaryType)) {
+                statements.add(assignLocalVariableStatement(types.getRelaxedName(effectiveResultType), local.getName(), tempVar));
             }
 
-            return new Computation(local.getName(), resultType, true, statements);
+            return new Computation(local.getName(), effectiveResultType, true, statements);
         });
     }
 

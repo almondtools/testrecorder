@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.serializers;
 
 import static java.util.stream.Collectors.toList;
-import static net.amygdalum.testrecorder.TypeSelector.in;
+import static net.amygdalum.testrecorder.TypeFilters.in;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -19,7 +19,7 @@ public class ArraysListSerializer extends HiddenInnerClassSerializer<SerializedL
 
 	@Override
 	public List<Class<?>> getMatchingClasses() {
-		return innerClasses()
+		return innerClasses().stream()
 			.filter(in("ArrayList"))
 			.filter(clazz -> List.class.isAssignableFrom(clazz))
 			.collect(toList());

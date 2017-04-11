@@ -10,6 +10,7 @@ net.amygdalum.testrecorder.deserializers.builder.DefaultArrayAdaptor
 net.amygdalum.testrecorder.deserializers.builder.ArraysListAdaptor
 net.amygdalum.testrecorder.deserializers.builder.CollectionsListAdaptor
 net.amygdalum.testrecorder.deserializers.builder.DefaultListAdaptor
+net.amygdalum.testrecorder.deserializers.builder.DefaultQueueAdaptor
 net.amygdalum.testrecorder.deserializers.builder.CollectionsSetAdaptor
 net.amygdalum.testrecorder.deserializers.builder.DefaultSetAdaptor
 net.amygdalum.testrecorder.deserializers.builder.CollectionsMapAdaptor

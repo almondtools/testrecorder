@@ -7,6 +7,9 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -44,5 +47,33 @@ public class DefaultNullAdaptorTest {
 		assertThat(result.getValue(), equalTo("nullValue(String.class)"));
 	}
 
+    @Test
+    public void testTryDeserializeOnHidden() throws Exception {
+        SerializedNull value = nullInstance(PrivateList.class);
+        value.setResultType(List.class);
+        
+        MatcherGenerators generator = new MatcherGenerators(getClass());
+        
+        Computation result = adaptor.tryDeserialize(value, generator);
+        
+        assertThat(result.getStatements(), empty());
+        assertThat(result.getValue(), equalTo("nullValue(java.util.List.class)"));
+    }
 
+    @Test
+    public void testTryDeserializeOnReallyHidden() throws Exception {
+        SerializedNull value = nullInstance(PrivateList.class);
+        value.setResultType(PrivateList.class);
+        
+        MatcherGenerators generator = new MatcherGenerators(getClass());
+        
+        Computation result = adaptor.tryDeserialize(value, generator);
+        
+        assertThat(result.getStatements(), empty());
+        assertThat(result.getValue(), equalTo("nullValue()"));
+    }
+
+    private static class PrivateList<T> extends ArrayList<T> {
+        
+    }
 }

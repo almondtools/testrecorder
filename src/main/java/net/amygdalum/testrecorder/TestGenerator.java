@@ -170,6 +170,7 @@ public class TestGenerator implements SnapshotConsumer {
 
 				context.add(methodGenerator.generateTest());
 			} catch (Throwable e) {
+			    e.printStackTrace();
 				System.out.println("failed generating test for " + snapshot.getMethodName() + ": " + e.getMessage());
 			}
 		});

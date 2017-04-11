@@ -10,9 +10,10 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-import java.util.ArrayList;
+import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -20,13 +21,13 @@ import org.junit.Test;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.values.SerializedList;
 
-public class DefaultListAdaptorTest {
+public class DefaultQueueAdaptorTest {
 
-	private DefaultListAdaptor adaptor;
+	private DefaultQueueAdaptor adaptor;
 
 	@Before
 	public void before() throws Exception {
-		adaptor = new DefaultListAdaptor();
+		adaptor = new DefaultQueueAdaptor();
 	}
 	
 	@Test
@@ -37,15 +38,15 @@ public class DefaultListAdaptorTest {
 	@Test
 	public void testMatchesLists() throws Exception {
 		assertThat(adaptor.matches(Object.class),is(false));
-		assertThat(adaptor.matches(ArrayList.class),is(true));
         assertThat(adaptor.matches(LinkedList.class),is(true));
-        assertThat(adaptor.matches(List.class),is(true));
-        assertThat(adaptor.matches(new ArrayList<Object>(){}.getClass()),is(true));
+        assertThat(adaptor.matches(Queue.class),is(true));
+        assertThat(adaptor.matches(Deque.class),is(true));
+        assertThat(adaptor.matches(new LinkedList<Object>(){}.getClass()),is(true));
 	}
 
 	@Test
 	public void testTryDeserialize() throws Exception {
-		SerializedList value = new SerializedList(parameterized(ArrayList.class, null, Integer.class)).withResult(parameterized(List.class, null, Integer.class));
+		SerializedList value = new SerializedList(parameterized(LinkedList.class, null, Integer.class)).withResult(parameterized(List.class, null, Integer.class));
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
@@ -54,17 +55,17 @@ public class DefaultListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 		
 		assertThat(result.getStatements().toString(), allOf(
-			containsString("ArrayList<Integer> temp1 = new ArrayList<Integer>()"),
+			containsString("LinkedList<Integer> temp1 = new LinkedList<Integer>()"),
 			containsString("temp1.add(0)"),
 			containsString("temp1.add(8)"),
 			containsString("temp1.add(15)"),
-			containsString("List<Integer> list1 = temp1;")));
-		assertThat(result.getValue(), equalTo("list1"));
+			containsString("List<Integer> queue1 = temp1;")));
+		assertThat(result.getValue(), equalTo("queue1"));
 	}
 	
 	@Test
 	public void testTryDeserializeSameResultTypes() throws Exception {
-		SerializedList value = new SerializedList(parameterized(ArrayList.class, null, Integer.class)).withResult(parameterized(ArrayList.class, null, Integer.class));
+		SerializedList value = new SerializedList(parameterized(LinkedList.class, null, Integer.class)).withResult(parameterized(LinkedList.class, null, Integer.class));
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
@@ -73,11 +74,11 @@ public class DefaultListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator);
 		
 		assertThat(result.getStatements().toString(), allOf(
-			containsString("ArrayList<Integer> list1 = new ArrayList<Integer>()"),
-			containsString("list1.add(0)"),
-			containsString("list1.add(8)"),
-			containsString("list1.add(15)")));
-		assertThat(result.getValue(), equalTo("list1"));
+			containsString("LinkedList<Integer> queue1 = new LinkedList<Integer>()"),
+			containsString("queue1.add(0)"),
+			containsString("queue1.add(8)"),
+			containsString("queue1.add(15)")));
+		assertThat(result.getValue(), equalTo("queue1"));
 	}
 	
     @Test
@@ -96,8 +97,8 @@ public class DefaultListAdaptorTest {
             containsString("temp1.add(0)"),
             containsString("temp1.add(8)"),
             containsString("temp1.add(15)"),
-            containsString("AnInterface list1 = temp1;")));
-        assertThat(result.getValue(), equalTo("list1"));
+            containsString("AnInterface queue1 = temp1;")));
+        assertThat(result.getValue(), equalTo("queue1"));
     }
 
     @Test
@@ -112,17 +113,17 @@ public class DefaultListAdaptorTest {
         Computation result = adaptor.tryDeserialize(value, generator);
 
         assertThat(result.getStatements().toString(), allOf(
-            containsString("java.util.List temp1 = (java.util.List) clazz(\"net.amygdalum.testrecorder.deserializers.builder.DefaultListAdaptorTest$PrivateList\").value();"),
+            containsString("java.util.Queue temp1 = (java.util.Queue) clazz(\"net.amygdalum.testrecorder.deserializers.builder.DefaultQueueAdaptorTest$PrivateList\").value();"),
             containsString("temp1.add(0)"),
             containsString("temp1.add(8)"),
             containsString("temp1.add(15)"),
-            containsString("AnInterface list1 = (AnInterface) temp1;")));
-        assertThat(result.getValue(), equalTo("list1"));
+            containsString("AnInterface queue1 = (AnInterface) temp1;")));
+        assertThat(result.getValue(), equalTo("queue1"));
     }
 
     @Test
     public void testTryDeserializeHiddenType() throws Exception {
-        SerializedList value = new SerializedList(parameterized(PrivateList.class, null, Integer.class)).withResult(parameterized(ArrayList.class, null, Integer.class));
+        SerializedList value = new SerializedList(parameterized(PrivateList.class, null, Integer.class)).withResult(parameterized(LinkedList.class, null, Integer.class));
         value.add(literal(0));
         value.add(literal(8));
         value.add(literal(15));
@@ -130,24 +131,24 @@ public class DefaultListAdaptorTest {
 
         Computation result = adaptor.tryDeserialize(value, generator);
 
-        assertThat(result.getStatements().toString(), not(containsString("new net.amygdalum.testrecorder.deserializers.builder.DefaultListAdaptorTest.PrivateList"))); 
+        assertThat(result.getStatements().toString(), not(containsString("new net.amygdalum.testrecorder.deserializers.builder.DefaultQueueAdaptorTest.PrivateList"))); 
         assertThat(result.getStatements().toString(), allOf(
-            containsString("ArrayList<Integer> list1 = (ArrayList<Integer>) clazz(\"net.amygdalum.testrecorder.deserializers.builder.DefaultListAdaptorTest$PrivateList\").value();"),
-            containsString("list1.add(0)"),
-            containsString("list1.add(8)"),
-            containsString("list1.add(15)")));
-        assertThat(result.getValue(), equalTo("list1"));
+            containsString("LinkedList<Integer> queue1 = (LinkedList<Integer>) clazz(\"net.amygdalum.testrecorder.deserializers.builder.DefaultQueueAdaptorTest$PrivateList\").value();"),
+            containsString("queue1.add(0)"),
+            containsString("queue1.add(8)"),
+            containsString("queue1.add(15)")));
+        assertThat(result.getValue(), equalTo("queue1"));
     }
     
     public interface AnInterface {
         
     }
     
-    private static class PrivateList<T> extends ArrayList<T> implements AnInterface {
+    private static class PrivateList<T> extends LinkedList<T> implements AnInterface {
 
     }
     
-    public static class PublicList<T> extends ArrayList<T> implements AnInterface {
+    public static class PublicList<T> extends LinkedList<T> implements AnInterface {
 
     }
     

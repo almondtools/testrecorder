@@ -67,7 +67,7 @@ public final class FileSerializer {
             Object rawObject = in.readObject();
             T object = type.cast(rawObject);
             return object;
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException | ClassCastException e) {
             throw new RuntimeException(e);
         }
     }
