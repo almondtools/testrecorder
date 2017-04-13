@@ -5,13 +5,16 @@ import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.util.Params.NONE;
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
 import static net.amygdalum.testrecorder.util.Types.getDeclaredField;
+import static net.amygdalum.testrecorder.util.Types.isFinal;
+import static net.amygdalum.testrecorder.util.Types.isLiteral;
+import static net.amygdalum.testrecorder.util.Types.isStatic;
+import static net.amygdalum.testrecorder.util.Types.isUnhandledSynthetic;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +64,7 @@ public abstract class GenericObject {
 			Field valueField = clazz.getDeclaredField("ENUM$VALUES");
 			T value = accessing(valueField).call(() -> {
 				Object values = valueField.get(null);
-				if (values.getClass().isArray()) {
+                if (values.getClass().isArray() && Array.getLength(values) > 0) {
 					return clazz.cast(Array.get(values, 0));
 				} else {
 					return null;
@@ -84,7 +87,7 @@ public abstract class GenericObject {
 						try {
 							return constructor.newInstance(params.values());
 						} catch (ReflectiveOperationException | RuntimeException e) {
-							innertries.add(params.getDescription());
+							innertries.add("new " + clazz.getSimpleName() + params.getDescription());
 						}
 					}
 					throw new FailedInstantiationException(clazz, innertries);
@@ -99,7 +102,7 @@ public abstract class GenericObject {
 			sun.reflect.ReflectionFactory rf = sun.reflect.ReflectionFactory.getReflectionFactory();
 			Constructor<T> serializationConstructor = (Constructor<T>) rf.newConstructorForSerialization(clazz, Object.class.getDeclaredConstructor());
 			return clazz.cast(serializationConstructor.newInstance());
-		} catch (ReflectiveOperationException | Error e) {
+		} catch (ReflectiveOperationException | RuntimeException | Error e) {
 			throw new FailedInstantiationException(clazz, tries);
 		}
 	}
@@ -181,10 +184,11 @@ public abstract class GenericObject {
 			return (long) 1;
 		} else if (clazz == double.class) {
 			return (double) 1;
+        } else if (clazz == String.class) {
+            return clazz.getSimpleName();
 		} else {
 			return getNonNullValue(clazz);
 		}
-
 	}
 
 	public <T> T as(Supplier<T> constructor) {
@@ -232,8 +236,10 @@ public abstract class GenericObject {
 	public static void copyArrayValues(Object from, Object to) {
 		int fromLength = Array.getLength(from);
 		int toLength = Array.getLength(to);
-		int minLength = fromLength < toLength ? fromLength : toLength;
-		for (int i = 0; i < minLength; i++) {
+		if (fromLength != toLength) {
+		    throw new GenericObjectException(new ArrayIndexOutOfBoundsException());
+		}
+		for (int i = 0; i < fromLength; i++) {
 			Object value = Array.get(from, i);
 			Array.set(to, i, value);
 		}
@@ -266,11 +272,11 @@ public abstract class GenericObject {
 	}
 
 	private boolean isSerializable(Field field) {
-	    if ((field.isSynthetic() || field.getName().contains("$")) && !field.getName().startsWith("this$")){
+        if (isUnhandledSynthetic(field)) {
 	        return false;
 	    }
-		return ((field.getModifiers() & Modifier.STATIC) != Modifier.STATIC)
-			&& ((field.getModifiers() & Modifier.FINAL) != Modifier.FINAL);
+        return !isStatic(field)
+            && !isFinal(field);
 	}
 
 	private static class DefaultParams extends Params {
@@ -293,14 +299,14 @@ public abstract class GenericObject {
 
 		@Override
 		public String getDescription(Class<?> clazz) {
-			if (clazz.isPrimitive()) {
-				return super.getDescription(clazz);
-			} else if (clazz.isArray()) {
+		    if (clazz.isArray()) {
 				return "new " + clazz.getComponentType().getSimpleName() + "[0]";
 			} else if (clazz.isInterface()) {
 				return "proxy " + clazz.getSimpleName() + "()";
-			} else {
+			} else if (!isLiteral(clazz) && !clazz.isEnum()) {
 				return "new " + clazz.getSimpleName() + "()";
+			} else {
+			    return super.getDescription(clazz);
 			}
 		}
 
@@ -317,18 +323,18 @@ public abstract class GenericObject {
 			super(classes);
 		}
 
-		@Override
-		public String getDescription(Class<?> clazz) {
-			if (clazz.isPrimitive()) {
-				return super.getDescription(clazz);
-			} else if (clazz.isArray()) {
-				return "new " + clazz.getComponentType().getSimpleName() + "[0]";
-			} else if (clazz.isInterface()) {
-				return "proxy " + clazz.getSimpleName() + "()";
-			} else {
-				return "new " + clazz.getSimpleName() + "()";
-			}
-		}
+        @Override
+        public String getDescription(Class<?> clazz) {
+            if (clazz.isArray()) {
+                return "new " + clazz.getComponentType().getSimpleName() + "[0]";
+            } else if (clazz.isInterface()) {
+                return "proxy " + clazz.getSimpleName() + "()";
+            } else if (!isLiteral(clazz) && !clazz.isEnum()) {
+                return "new " + clazz.getSimpleName() + "()";
+            } else {
+                return super.getDescription(clazz);
+            }
+        }
 
 		@Override
 		public Object getValue(Class<?> clazz) {

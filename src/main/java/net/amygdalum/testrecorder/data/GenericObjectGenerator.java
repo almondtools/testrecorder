@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.data;
 
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
 import static net.amygdalum.testrecorder.util.Types.allFields;
+import static net.amygdalum.testrecorder.util.Types.isUnhandledSynthetic;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -51,7 +52,7 @@ public class GenericObjectGenerator<T> implements TestValueGenerator<T> {
 	}
 
 	public void generateField(Field field, TestDataGenerator generator, T instance) {
-		if (field.isSynthetic()) {
+		if (isUnhandledSynthetic(field)) {
 			return;
 		}
 		try {

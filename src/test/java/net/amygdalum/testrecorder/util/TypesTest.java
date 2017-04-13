@@ -4,7 +4,6 @@ import static com.almondtools.conmatch.conventions.UtilityClassMatcher.isUtility
 import static com.almondtools.conmatch.exceptions.ExceptionMatcher.matchesException;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.util.Throwables.capture;
 import static net.amygdalum.testrecorder.util.Types.allFields;
 import static net.amygdalum.testrecorder.util.Types.allMethods;
@@ -338,9 +337,9 @@ public class TypesTest {
 
     @Test
     public void testAllMethods() throws Exception {
-        List<Method> sub1Methods = allMethods(Sub1.class).stream().filter(m -> !m.isSynthetic()).collect(toList());
+        List<Method> sub1Methods = allMethods(Sub1.class);
         assertThat(sub1Methods, contains(Sub1.class.getDeclaredMethod("getSubAttr"), Super.class.getDeclaredMethod("method")));
-        List<Method> sub2Methods = allMethods(Sub2.class).stream().filter(m -> !m.isSynthetic()).collect(toList());
+        List<Method> sub2Methods = allMethods(Sub2.class);
         assertThat(sub2Methods, contains(Sub2.class.getDeclaredMethod("setSubAttr", boolean.class), Super.class.getDeclaredMethod("method")));
     }
 

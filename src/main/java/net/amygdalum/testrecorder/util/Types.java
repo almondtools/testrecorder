@@ -10,6 +10,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
@@ -23,6 +24,9 @@ import java.util.TreeSet;
 import java.util.stream.Stream;
 
 public final class Types {
+
+    private static final String SYNTHETIC_INDICATOR = "$";
+    private static final String[] HANDLED_SYNTHETIC_PREFIXES = {"this$"};
 
     private Types() {
     }
@@ -337,6 +341,27 @@ public final class Types {
     public static boolean needsCast(Type variableType, Type expressionType) {
         return !baseType(variableType).isAssignableFrom(baseType(expressionType))
             && !boxingEquivalentTypes(variableType, expressionType);
+    }
+
+    public static boolean isFinal(Field field) {
+        return (field.getModifiers() & Modifier.FINAL) == Modifier.FINAL;
+    }
+
+    public static boolean isStatic(Field field) {
+        return (field.getModifiers() & Modifier.STATIC) == Modifier.STATIC;
+    }
+
+    public static boolean isUnhandledSynthetic(Field field) {
+        String name = field.getName();
+        if (!field.isSynthetic() && !name.contains(SYNTHETIC_INDICATOR)) {
+            return false;
+        } 
+        for (String prefix : HANDLED_SYNTHETIC_PREFIXES) {
+            if (name.startsWith(prefix)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static final class GenericArrayTypeImplementation implements GenericArrayType {

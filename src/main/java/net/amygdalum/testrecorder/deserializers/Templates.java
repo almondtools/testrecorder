@@ -158,6 +158,8 @@ public final class Templates {
 			return value.toString() + "l";
 		} else if (value instanceof Double) {
 			return asLiteral((Double) value);
+        } else if (value == null){
+            return "null";
 		} else {
 			return value.toString();
 		}

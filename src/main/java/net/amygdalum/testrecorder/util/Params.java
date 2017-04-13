@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import net.amygdalum.testrecorder.deserializers.Templates;
+
 public abstract class Params {
 
 	public static final Params NONE = new Params(new Class<?>[0]) {
@@ -32,9 +34,14 @@ public abstract class Params {
 
 	public String getDescription(Class<?> clazz) {
 		try {
-			return Objects.toString(getValue(clazz));
+		    Object value = getValue(clazz);
+		    if (Types.isLiteral(clazz)) {
+                return Templates.asLiteral(value);
+		    } else {
+		        return Objects.toString(value);
+		    }
 		} catch (Exception e) {
-			return "<undescribable>";
+		 	return "<undescribable>";
 		}
 	}
 
