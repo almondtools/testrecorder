@@ -1,6 +1,5 @@
 package net.amygdalum.testrecorder.util;
 
-import static org.mockito.Mockito.*;
 import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefaultEquality;
 import static java.util.Arrays.asList;
 import static net.amygdalum.testrecorder.util.GenericComparatorResult.MATCH;
@@ -11,6 +10,8 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 import org.junit.Test;

@@ -1,8 +1,6 @@
 package net.amygdalum.testrecorder.deserializers;
 
 import static java.util.stream.Collectors.toList;
-import static net.amygdalum.testrecorder.util.GenericObject.getDefaultValue;
-import static net.amygdalum.testrecorder.util.GenericObject.getNonDefaultValue;
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 
@@ -21,7 +19,9 @@ import java.util.Set;
 
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
+import net.amygdalum.testrecorder.util.DefaultValue;
 import net.amygdalum.testrecorder.util.GenericComparison;
+import net.amygdalum.testrecorder.util.NonDefaultValue;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
@@ -45,7 +45,7 @@ public class Construction {
 
     public Computation computeBest(TypeManager types, SetupGenerators generator) throws InstantiationException {
         fillOrigins(types);
-        
+
         List<String> fields = getFields();
 
         return computeConstructionPlans().stream()
@@ -141,7 +141,9 @@ public class Construction {
                 for (int i = 0; i < parameterTypes.length; i++) {
                     Class<?> parameterType = parameterTypes[i];
                     if (matches(parameterType, fieldValue)) {
-                        Object uniqueFieldValue = isDefault(parameterType, fieldValue) ? getNonDefaultValue(parameterType) : fieldValue;
+                        Object uniqueFieldValue = isDefault(parameterType, fieldValue)
+                            ? NonDefaultValue.of(parameterType)
+                            : fieldValue;
                         Object[] arguments = createArguments(uniqueFieldValue, parameterTypes, i);
                         try {
                             Object result = constructor.newInstance(arguments);
@@ -230,7 +232,7 @@ public class Construction {
 
     private boolean isDefault(Class<?> type, Object value) {
         return (!type.isPrimitive() && value == null)
-            || (type.isPrimitive() && value != null && getDefaultValue(type).getClass() == value.getClass());
+            || (type.isPrimitive() && value != null && DefaultValue.of(type).getClass() == value.getClass());
     }
 
     private boolean isSet(Object base, String fieldName, Object expectedValue) throws IllegalAccessException {
@@ -261,7 +263,7 @@ public class Construction {
             if (i == index) {
                 arguments[i] = fieldValue;
             } else {
-                arguments[i] = getDefaultValue(parameterTypes[i]);
+                arguments[i] = DefaultValue.of(parameterTypes[i]);
             }
         }
         return arguments;
@@ -276,7 +278,7 @@ public class Construction {
                 .map(param -> param.getValue())
                 .filter(Objects::nonNull)
                 .findFirst()
-                .orElseGet(() -> getDefaultValue(parameterTypes[paramNumber]));
+                .orElseGet(() -> DefaultValue.of(parameterTypes[paramNumber]));
         }
         return arguments;
     }

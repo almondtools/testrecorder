@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.data;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
-import net.amygdalum.testrecorder.util.GenericObject;
+import net.amygdalum.testrecorder.util.DefaultValue;
 
 public class TestDataGenerator {
 
@@ -35,7 +35,7 @@ public class TestDataGenerator {
 		@SuppressWarnings("unchecked")
 		@Override
 		public T create(TestDataGenerator generator) {
-			return (T) GenericObject.getDefaultValue(clazz);
+			return (T) DefaultValue.of(clazz);
 		}
 	}
 

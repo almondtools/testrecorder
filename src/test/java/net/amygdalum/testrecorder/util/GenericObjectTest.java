@@ -1,25 +1,16 @@
 package net.amygdalum.testrecorder.util;
 
 import static com.almondtools.conmatch.conventions.ReflectiveEqualsMatcher.reflectiveEqualTo;
-import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.arrayContaining;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
 import java.io.Serializable;
-import java.security.Permission;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import com.binarytweed.test.Quarantine;
-import com.binarytweed.test.QuarantiningRunner;
 
 import net.amygdalum.testrecorder.Wrapped;
 
@@ -77,56 +68,6 @@ public class GenericObjectTest {
         assertThat(((SimplePrivateConstructor) new GenericObject() {
             public String str = "myStr";
         }.as(obj).value()).getStr(), equalTo("myStr"));
-    }
-
-    @Test
-    public void testGetDefaultValue() throws Exception {
-        assertThat(GenericObject.getDefaultValue(byte.class), equalTo(Byte.valueOf((byte) 0)));
-        assertThat(GenericObject.getDefaultValue(short.class), equalTo(Short.valueOf((short) 0)));
-        assertThat(GenericObject.getDefaultValue(int.class), equalTo(Integer.valueOf(0)));
-        assertThat(GenericObject.getDefaultValue(long.class), equalTo(Long.valueOf(0)));
-        assertThat(GenericObject.getDefaultValue(float.class), equalTo(Float.valueOf(0)));
-        assertThat(GenericObject.getDefaultValue(double.class), equalTo(Double.valueOf(0)));
-        assertThat(GenericObject.getDefaultValue(boolean.class), equalTo(Boolean.valueOf("false")));
-        assertThat(GenericObject.getDefaultValue(char.class), equalTo(Character.valueOf((char) 0)));
-        assertThat(GenericObject.getDefaultValue(String.class), nullValue());
-        assertThat(GenericObject.getDefaultValue(AnEnum.class), nullValue());
-        assertThat(GenericObject.getDefaultValue(AnInterface.class), nullValue());
-        assertThat(GenericObject.getDefaultValue(Object.class), nullValue());
-        assertThat(GenericObject.getDefaultValue(Simple.class), nullValue());
-    }
-
-    @Test
-    public void testGetNonNullValue() throws Exception {
-        assertThat(GenericObject.getNonNullValue(byte.class), equalTo(Byte.valueOf((byte) 0)));
-        assertThat(GenericObject.getNonNullValue(short.class), equalTo(Short.valueOf((short) 0)));
-        assertThat(GenericObject.getNonNullValue(int.class), equalTo(Integer.valueOf(0)));
-        assertThat(GenericObject.getNonNullValue(long.class), equalTo(Long.valueOf(0)));
-        assertThat(GenericObject.getNonNullValue(float.class), equalTo(Float.valueOf(0)));
-        assertThat(GenericObject.getNonNullValue(double.class), equalTo(Double.valueOf(0)));
-        assertThat(GenericObject.getNonNullValue(boolean.class), equalTo(Boolean.valueOf("false")));
-        assertThat(GenericObject.getNonNullValue(char.class), equalTo(Character.valueOf((char) 0)));
-        assertThat(GenericObject.getNonNullValue(String.class), equalTo(""));
-        assertThat(GenericObject.getNonNullValue(int[].class), equalTo(new int[0]));
-        assertThat(GenericObject.getNonNullValue(AnInterface.class), instanceOf(AnInterface.class));
-        assertThat(GenericObject.getNonNullValue(AnEnum.class), instanceOf(AnEnum.class));
-        assertThat(GenericObject.getNonNullValue(EmptyEnum.class), nullValue());
-        assertThat(GenericObject.getNonNullValue(Object.class), notNullValue());
-        assertThat(GenericObject.getNonNullValue(Simple.class), instanceOf(Simple.class));
-    }
-
-    @Test
-    public void testGetNonDefaultValue() throws Exception {
-        assertThat(GenericObject.getNonDefaultValue(boolean.class), equalTo(true));
-        assertThat(GenericObject.getNonDefaultValue(char.class), equalTo((char) 1));
-        assertThat(GenericObject.getNonDefaultValue(byte.class), equalTo((byte) 1));
-        assertThat(GenericObject.getNonDefaultValue(short.class), equalTo((short) 1));
-        assertThat(GenericObject.getNonDefaultValue(int.class), equalTo((int) 1));
-        assertThat(GenericObject.getNonDefaultValue(float.class), equalTo((float) 1));
-        assertThat(GenericObject.getNonDefaultValue(long.class), equalTo((long) 1));
-        assertThat(GenericObject.getNonDefaultValue(double.class), equalTo((double) 1));
-        assertThat(GenericObject.getNonDefaultValue(String.class), equalTo("String"));
-        assertThat(GenericObject.getNonDefaultValue(Object.class), notNullValue());
     }
 
     @Test
@@ -190,7 +131,7 @@ public class GenericObjectTest {
     public void testForwardWrapped() throws Exception {
         Wrapped obj = GenericObject.forward(Wrapped.clazz(SimplePrivateConstructor.class.getName()));
 
-        assertThat(obj.value(), reflectiveEqualTo(new SimplePrivateConstructor()));
+        assertThat((SimplePrivateConstructor) obj.value(), reflectiveEqualTo(new SimplePrivateConstructor()));
     }
 
     @Test

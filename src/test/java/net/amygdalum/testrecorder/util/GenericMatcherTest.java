@@ -1,15 +1,12 @@
 package net.amygdalum.testrecorder.util;
 
 import static net.amygdalum.xrayinterface.IsEquivalent.equivalentTo;
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 import org.hamcrest.Matcher;
-import org.hamcrest.StringDescription;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.util.testobjects.Complex;

@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder.deserializers;
 
 import static net.amygdalum.testrecorder.deserializers.Templates.cast;
-import static net.amygdalum.testrecorder.util.GenericObject.getDefaultValue;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.isLiteral;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
@@ -10,6 +9,7 @@ import java.lang.reflect.Constructor;
 
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
+import net.amygdalum.testrecorder.util.DefaultValue;
 import net.amygdalum.testrecorder.values.SerializedField;
 
 public class ConstructorParam {
@@ -56,7 +56,7 @@ public class ConstructorParam {
     }
 
     public SerializedValue computeSerializedValue() {
-        Object value = this.value != null ? this.value : getDefaultValue(type);
+        Object value = this.value != null ? this.value : DefaultValue.of(type);
         if (field == null) {
             if (type == String.class) {
                 return nullInstance(String.class);

@@ -1,15 +1,7 @@
 package net.amygdalum.testrecorder.util;
 
-import static com.almondtools.conmatch.conventions.ReflectiveEqualsMatcher.reflectiveEqualTo;
 import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.isEmptyString;
-import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
 import java.io.Serializable;
@@ -17,11 +9,6 @@ import java.security.Permission;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import com.binarytweed.test.Quarantine;
-import com.binarytweed.test.QuarantiningRunner;
-
-import net.amygdalum.testrecorder.Wrapped;
 
 @SuppressWarnings("unused")
 @RunWith(InstrumentedClassLoaderRunner.class)
