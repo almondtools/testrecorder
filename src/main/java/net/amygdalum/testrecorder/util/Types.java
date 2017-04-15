@@ -15,8 +15,10 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
@@ -26,7 +28,7 @@ import java.util.stream.Stream;
 public final class Types {
 
     private static final String SYNTHETIC_INDICATOR = "$";
-    private static final String[] HANDLED_SYNTHETIC_PREFIXES = {"this$"};
+    private static final String[] HANDLED_SYNTHETIC_PREFIXES = { "this$" };
 
     private Types() {
     }
@@ -146,10 +148,6 @@ public final class Types {
         }
     }
 
-    public static Type array(Type componentType) {
-        return new GenericArrayTypeImplementation(componentType);
-    }
-
     public static Type component(Type arrayType) {
         if (arrayType instanceof Class<?> && ((Class<?>) arrayType).isArray()) {
             return ((Class<?>) arrayType).getComponentType();
@@ -265,19 +263,27 @@ public final class Types {
             || type == String.class;
     }
 
-    public static Type parameterized(Type raw, Type owner, Type... typeArgs) {
+    public static Type array(Type componentType) {
+        if (componentType instanceof Class<?>) {
+            return Array.newInstance((Class<?>) componentType, 0).getClass();
+        } else {
+            return new GenericArrayTypeImplementation(componentType);
+        }
+    }
+
+    public static ParameterizedType parameterized(Type raw, Type owner, Type... typeArgs) {
         return new ParameterizedTypeImplementation(raw, owner, typeArgs);
     }
 
-    public static Type wildcard() {
+    public static WildcardType wildcard() {
         return new WildcardTypeImplementation();
     }
 
-    public static Type wildcardExtends(Type... bounds) {
+    public static WildcardType wildcardExtends(Type... bounds) {
         return new WildcardTypeImplementation().extending(bounds);
     }
 
-    public static Type wildcardSuper(Type... bounds) {
+    public static WildcardType wildcardSuper(Type... bounds) {
         return new WildcardTypeImplementation().limiting(bounds);
     }
 
@@ -355,7 +361,7 @@ public final class Types {
         String name = field.getName();
         if (!field.isSynthetic() && !name.contains(SYNTHETIC_INDICATOR)) {
             return false;
-        } 
+        }
         for (String prefix : HANDLED_SYNTHETIC_PREFIXES) {
             if (name.startsWith(prefix)) {
                 return false;
@@ -383,6 +389,26 @@ public final class Types {
             buffer.append(componentType.getTypeName());
             buffer.append("[]");
             return buffer.toString();
+        }
+
+        @Override
+        public int hashCode() {
+            return componentType.hashCode() + 19;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            GenericArrayTypeImplementation that = (GenericArrayTypeImplementation) obj;
+            return this.componentType.equals(that.componentType);
         }
 
         @Override
@@ -434,6 +460,28 @@ public final class Types {
         }
 
         @Override
+        public int hashCode() {
+            return raw.hashCode() * 3 + (owner == null ? 0 : owner.hashCode() * 5) + Arrays.hashCode(typeArgs) * 7 + 13;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            ParameterizedTypeImplementation that = (ParameterizedTypeImplementation) obj;
+            return this.raw.equals(that.raw)
+                && Objects.equals(this.owner, that.owner)
+                && Arrays.equals(this.typeArgs, that.typeArgs);
+        }
+
+        @Override
         public String toString() {
             return getTypeName();
         }
@@ -474,17 +522,38 @@ public final class Types {
         public String getTypeName() {
             StringBuilder buffer = new StringBuilder();
             buffer.append("?");
-            if (lowerBounds != null && lowerBounds.length > 0) {
+            if (lowerBounds.length > 0) {
                 buffer.append(" super ").append(Stream.of(lowerBounds)
                     .map(type -> type.getTypeName())
                     .collect(joining(", ")));
             }
-            if (upperBounds != null && upperBounds.length > 0) {
+            if (upperBounds.length > 0) {
                 buffer.append(" extends ").append(Stream.of(upperBounds)
                     .map(type -> type.getTypeName())
                     .collect(joining(", ")));
             }
             return buffer.toString();
+        }
+
+        @Override
+        public int hashCode() {
+            return Arrays.hashCode(upperBounds) * 5 + Arrays.hashCode(lowerBounds) * 7 + 23;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            WildcardTypeImplementation that = (WildcardTypeImplementation) obj;
+            return Arrays.equals(this.upperBounds, that.upperBounds)
+                && Arrays.equals(this.lowerBounds, that.lowerBounds);
         }
 
         @Override

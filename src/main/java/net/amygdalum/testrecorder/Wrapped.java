@@ -22,7 +22,7 @@ public class Wrapped {
 			}
             return loader.loadClass(name);
 		} catch (ClassNotFoundException e) {
-			throw new GenericObjectException(e);
+			throw new GenericObjectException("wrapped class <" + name + "> not found", e);
 		}
 	}
 

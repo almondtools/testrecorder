@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.util;
 
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.util.Params.NONE;
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
@@ -38,7 +39,7 @@ public abstract class GenericObject {
             try {
                 accessing(field).exec(() -> setField(value, field.getName(), field.get(genericObject)));
             } catch (ReflectiveOperationException e) {
-                throw new GenericObjectException(e);
+                throw new GenericObjectException("definition of object failed.",e);
             }
         }
     }
@@ -71,30 +72,29 @@ public abstract class GenericObject {
             });
             return value;
         } catch (ReflectiveOperationException e) {
-            throw new GenericObjectException(e);
+            throw new GenericObjectException("creation of enum failed", e);
         }
     }
 
     @SuppressWarnings({ "unchecked", "restriction" })
     public static <T> T newInstance(Class<T> clazz) {
         List<String> tries = new ArrayList<>();
+        List<Throwable> suppressed = new ArrayList<>();
         for (Constructor<T> constructor : (Constructor<T>[]) clazz.getDeclaredConstructors()) {
             try {
                 return accessing(constructor).call(() -> {
-                    List<String> innertries = new ArrayList<>();
                     for (Params params : bestParams(constructor.getParameterTypes())) {
                         try {
                             return constructor.newInstance(params.values());
                         } catch (ReflectiveOperationException | RuntimeException e) {
-                            innertries.add("new " + clazz.getSimpleName() + params.getDescription());
+                            suppressed.add(e);
+                            tries.add("new " + clazz.getSimpleName() + params.getDescription());
                         }
                     }
-                    throw new FailedInstantiationException(clazz, innertries);
+                    throw new InstantiationException();
                 });
             } catch (ReflectiveOperationException e) {
-                throw new GenericObjectException(e);
-            } catch (FailedInstantiationException e) {
-                tries.addAll(e.getTries());
+                continue;
             }
         }
         try {
@@ -102,7 +102,12 @@ public abstract class GenericObject {
             Constructor<T> serializationConstructor = (Constructor<T>) rf.newConstructorForSerialization(clazz, Object.class.getDeclaredConstructor());
             return clazz.cast(serializationConstructor.newInstance());
         } catch (ReflectiveOperationException | RuntimeException | Error e) {
-            throw new FailedInstantiationException(clazz, tries);
+            suppressed.add(e);
+            tries.add("newConstructorForSerialization(" + clazz.getSimpleName() + ")");
+            String msg = "failed to instantiate " + clazz.getName() + ", tried:\n" + tries.stream()
+                .map(trie -> "\t- " + trie)
+                .collect(joining("\n")) + ":";
+            throw new GenericObjectException(msg, suppressed.toArray(new Throwable[0]));
         }
     }
 
@@ -126,7 +131,7 @@ public abstract class GenericObject {
             try {
                 accessing(field).exec(() -> wrapped.setField(field.getName(), field.get(this)));
             } catch (ReflectiveOperationException e) {
-                throw new GenericObjectException(e);
+                throw new GenericObjectException("setting fields failed:", e);
             }
         }
         return wrapped;
@@ -137,7 +142,7 @@ public abstract class GenericObject {
             try {
                 accessing(field).exec(() -> setField(o, field.getName(), field.get(this)));
             } catch (ReflectiveOperationException e) {
-                throw new GenericObjectException(e);
+                throw new GenericObjectException("settings fields failed:", e);
             }
         }
         return o;
@@ -155,7 +160,7 @@ public abstract class GenericObject {
         try {
             accessing(to).exec(() -> to.set(o, value));
         } catch (ReflectiveOperationException e) {
-            throw new GenericObjectException(e);
+            throw new GenericObjectException("settings field " + to.getName() + " failed:", e);
         }
     }
 
@@ -163,7 +168,7 @@ public abstract class GenericObject {
         int fromLength = Array.getLength(from);
         int toLength = Array.getLength(to);
         if (fromLength != toLength) {
-            throw new GenericObjectException(new ArrayIndexOutOfBoundsException());
+            throw new GenericObjectException("copying array failed:", new ArrayIndexOutOfBoundsException());
         }
         for (int i = 0; i < fromLength; i++) {
             Object value = Array.get(from, i);
@@ -178,7 +183,7 @@ public abstract class GenericObject {
                 field.set(to, value);
             });
         } catch (ReflectiveOperationException e) {
-            throw new GenericObjectException(e);
+            throw new GenericObjectException("copying field " + field.getName() + " failed:", e);
         }
     }
 
@@ -186,7 +191,7 @@ public abstract class GenericObject {
         try {
             return getDeclaredField(clazz, name);
         } catch (NoSuchFieldException e) {
-            throw new GenericObjectException(e);
+            throw new GenericObjectException("field " + name + " not found:", e);
         }
     }
 

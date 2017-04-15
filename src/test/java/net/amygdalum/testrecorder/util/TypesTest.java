@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.util;
 
+import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefaultEquality;
 import static com.almondtools.conmatch.conventions.UtilityClassMatcher.isUtilityClass;
 import static com.almondtools.conmatch.exceptions.ExceptionMatcher.matchesException;
 import static java.util.Arrays.asList;
@@ -19,9 +20,12 @@ import static net.amygdalum.testrecorder.util.Types.getDeclaredMethod;
 import static net.amygdalum.testrecorder.util.Types.inferType;
 import static net.amygdalum.testrecorder.util.Types.innerType;
 import static net.amygdalum.testrecorder.util.Types.isBoxedPrimitive;
+import static net.amygdalum.testrecorder.util.Types.isFinal;
 import static net.amygdalum.testrecorder.util.Types.isHidden;
 import static net.amygdalum.testrecorder.util.Types.isLiteral;
 import static net.amygdalum.testrecorder.util.Types.isPrimitive;
+import static net.amygdalum.testrecorder.util.Types.isStatic;
+import static net.amygdalum.testrecorder.util.Types.isUnhandledSynthetic;
 import static net.amygdalum.testrecorder.util.Types.needsCast;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.typeArgument;
@@ -30,10 +34,16 @@ import static net.amygdalum.testrecorder.util.Types.wildcardExtends;
 import static net.amygdalum.testrecorder.util.Types.wildcardSuper;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.arrayContaining;
+import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -350,7 +360,7 @@ public class TypesTest {
         assertThat(needsCast(int.class, int.class), is(false));
         assertThat(needsCast(Integer.class, int.class), is(false));
         assertThat(needsCast(int.class, Integer.class), is(false));
-        
+
         assertThat(needsCast(int.class, long.class), is(true));
         assertThat(needsCast(long.class, int.class), is(true));
         assertThat(needsCast(String.class, Object.class), is(true));
@@ -391,6 +401,93 @@ public class TypesTest {
                 return false;
             }
         };
+    }
+
+    @Test
+    public void testIsFinal() throws Exception {
+        assertThat(isFinal(Super.class.getDeclaredField("superAttr")), is(false));
+        assertThat(isFinal(FinalField.class.getDeclaredField("attr")), is(true));
+    }
+
+    @Test
+    public void testIsStatic() throws Exception {
+        assertThat(isStatic(Super.class.getDeclaredField("superAttr")), is(false));
+        assertThat(isStatic(StaticField.class.getDeclaredField("attr")), is(true));
+    }
+
+    @Test
+    public void testIsUnhandledSynthetic() throws Exception {
+        assertThat(isUnhandledSynthetic(Super.class.getDeclaredField("superAttr")), is(false));
+        assertThat(isUnhandledSynthetic(NestedTypeField.class.getDeclaredField("this$0")), is(false));
+        assertThat(isUnhandledSynthetic(PseudoSyntheticField.class.getDeclaredField("$attr")), is(true));
+    }
+
+    @Test
+    public void testArray() throws Exception {
+        assertThat(array(String.class), sameInstance(String[].class));
+        assertThat(array(parameterized(List.class, null, String.class)).getTypeName(), equalTo("java.util.List<java.lang.String>[]"));
+        assertThat(array(parameterized(List.class, null, String.class)).toString(), equalTo("java.util.List<java.lang.String>[]"));
+        assertThat(((GenericArrayType) array(parameterized(List.class, null, String.class))).getGenericComponentType(), equalTo(parameterized(List.class, null, String.class)));
+        assertThat(array(parameterized(List.class, null, String.class)), satisfiesDefaultEquality()
+            .andEqualTo(array(parameterized(List.class, null, String.class)))
+            .andNotEqualTo(array(String.class)));
+    }
+
+    @Test
+    public void testParameterized() throws Exception {
+        assertThat(parameterized(List.class, null, String.class).getRawType(), equalTo(List.class));
+        assertThat(parameterized(List.class, null, String.class).getOwnerType(), nullValue());
+        assertThat(parameterized(List.class, null, String.class).getActualTypeArguments(), arrayContaining(String.class));
+        assertThat(parameterized(List.class, null, String.class).getTypeName(), equalTo("java.util.List<java.lang.String>"));
+        assertThat(parameterized(List.class, null).getTypeName(), equalTo("java.util.List<>"));
+        assertThat(parameterized(List.class, null, (Type[]) null).getTypeName(), equalTo("java.util.List<>"));
+        assertThat(parameterized(List.class, null, String.class).toString(), equalTo("java.util.List<java.lang.String>"));
+        
+        assertThat(parameterized(List.class, null, String.class), satisfiesDefaultEquality()
+            .andNotEqualTo(parameterized(List.class, List.class, String.class))
+            .andNotEqualTo(parameterized(Set.class, null, String.class))
+            .andNotEqualTo(parameterized(List.class, null, Object.class)));
+    }
+
+    @Test
+    public void testWildcard() throws Exception {
+        assertThat(wildcard().getTypeName(), equalTo("?"));
+        assertThat(wildcard().getLowerBounds(), arrayWithSize(0));
+        assertThat(wildcard().getUpperBounds(), arrayWithSize(0));
+        assertThat(wildcardExtends(String.class).getTypeName(), equalTo("? extends java.lang.String"));
+        assertThat(wildcardExtends(String.class).toString(), equalTo("? extends java.lang.String"));
+        assertThat(wildcardExtends(String.class).getUpperBounds(), arrayContaining(String.class));
+        assertThat(wildcardSuper(String.class).getTypeName(), equalTo("? super java.lang.String"));
+        assertThat(wildcardSuper(String.class).toString(), equalTo("? super java.lang.String"));
+        assertThat(wildcardSuper(String.class).getLowerBounds(), arrayContaining(String.class));
+        assertThat(wildcard(), satisfiesDefaultEquality()
+            .andEqualTo(wildcard())
+            .andNotEqualTo(wildcardExtends(String.class))
+            .andNotEqualTo(wildcardSuper(String.class))
+            );
+    }    
+
+    @Test
+    public void testInnerClasses() throws Exception {
+        assertThat(Types.innerClasses(getClass()), hasItems(Super.class, Sub1.class, Sub2.class));
+    }
+
+    @SuppressWarnings("unused")
+    public static class FinalField {
+        private final String attr = "str";
+    }
+
+    @SuppressWarnings("unused")
+    public static class StaticField {
+        private static String attr = "str";
+    }
+
+    @SuppressWarnings("unused")
+    public static class PseudoSyntheticField {
+        private static String $attr = "str";
+    }
+
+    public class NestedTypeField {
     }
 
     public static class NestedPublic {
