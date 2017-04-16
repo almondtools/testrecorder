@@ -61,9 +61,9 @@ public abstract class GenericObject {
 
     public static <T> T newEnum(Class<T> clazz) {
         try {
-            Field valueField = clazz.getDeclaredField("$VALUES");
-            T value = accessing(valueField).call(() -> {
-                Object values = valueField.get(null);
+            Method valuesMethod = clazz.getDeclaredMethod("values");
+            T value = accessing(valuesMethod).call(() -> {
+                Object values = valuesMethod.invoke(null);
                 if (values.getClass().isArray() && Array.getLength(values) > 0) {
                     return clazz.cast(Array.get(values, 0));
                 } else {
