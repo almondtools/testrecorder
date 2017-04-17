@@ -17,26 +17,26 @@ public class GenericObjectIsolatedTest {
     @Test
     public void testNewInstanceFailingBruteForceReflection() throws Exception {
         WithSecurityManager.with(new SecurityManager() {
-                @Override
-                public void checkPackageAccess(String pkg) {
-                    if (pkg.equals("sun.reflect")) {
-                        throw new SecurityException("security manager preventing reflection");
-                    }
+            @Override
+            public void checkPackageAccess(String pkg) {
+                if (pkg.equals("sun.reflect")) {
+                    throw new SecurityException("security manager preventing reflection");
                 }
+            }
 
-                @Override
-                public void checkPermission(Permission perm) {
-                }
-            }).execute(() -> {
-                Throwable captured = Throwables.capture(() -> GenericObject.newInstance(NonSerializableConstructor.class));
+            @Override
+            public void checkPermission(Permission perm) {
+            }
+        }).execute(() -> {
+            Throwable captured = Throwables.capture(() -> GenericObject.newInstance(NonSerializableConstructor.class));
 
-                assertThat(captured.getMessage(), allOf(
-                    containsString("NonSerializableConstructor(null)"),
-                    containsString("NonSerializableConstructor(\"\")"),
-                    containsString("NonSerializableConstructor(\"String\")")));
-            });
+            assertThat(captured.getMessage(), allOf(
+                containsString("NonSerializableConstructor(null)"),
+                containsString("NonSerializableConstructor(\"\")"),
+                containsString("NonSerializableConstructor(\"String\")")));
+        });
     }
-    
+
     private interface AnInterface {
     }
 

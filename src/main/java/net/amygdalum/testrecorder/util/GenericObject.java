@@ -64,7 +64,7 @@ public abstract class GenericObject {
             Method valuesMethod = clazz.getDeclaredMethod("values");
             T value = accessing(valuesMethod).call(() -> {
                 Object values = valuesMethod.invoke(null);
-                if (values.getClass().isArray() && Array.getLength(values) > 0) {
+                if (values != null && Array.getLength(values) > 0) {
                     return clazz.cast(Array.get(values, 0));
                 } else {
                     return null;

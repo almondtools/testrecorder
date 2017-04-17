@@ -13,4 +13,9 @@ public class Simple {
 	public String getStr() {
 		return str;
 	}
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
+    }
 }

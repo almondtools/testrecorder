@@ -15,4 +15,9 @@ public class Complex {
 	public Simple getSimple() {
 		return simple;
 	}
+	
+	@Override
+	public String toString() {
+	    return getClass().getSimpleName();
+	}
 }
