@@ -110,8 +110,14 @@ public class ContextSnapshotTest {
 		assertThat(snapshot.getExpectException(), sameInstance(expectException));
 	}
 
+    @Test
+    public void testGetTime() throws Exception {
+        assertThat(new ContextSnapshot(0l, Object.class, new Annotation[0], Object.class, "method", new Annotation[0][0], new Type[0]).getTime(), equalTo(0l));
+        assertThat(new ContextSnapshot(1l, Object.class, new Annotation[0], Object.class, "method", new Annotation[0][0], new Type[0]).getTime(), equalTo(1l));
+    }
+
     private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
-        return new ContextSnapshot(declaringClass, new Annotation[0], resultType, methodName, new Annotation[0][0], argumentTypes);
+        return new ContextSnapshot(0, declaringClass, new Annotation[0], resultType, methodName, new Annotation[0][0], argumentTypes);
     }
 
 }

@@ -35,7 +35,7 @@ public class ContextSnapshotFactory {
 	}
 
 	public ContextSnapshot createSnapshot() {
-		return new ContextSnapshot(declaringClass, resultAnnotation, resultType, methodName, argumentAnnotations, argumentTypes);
+		return new ContextSnapshot(System.currentTimeMillis(), declaringClass, resultAnnotation, resultType, methodName, argumentAnnotations, argumentTypes);
 	}
 
 }

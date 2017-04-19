@@ -291,7 +291,7 @@ public class TestGeneratorTest {
 	}
 
     private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
-        return new ContextSnapshot(declaringClass, new Annotation[0], resultType, methodName, new Annotation[0][0], argumentTypes);
+        return new ContextSnapshot(0, declaringClass, new Annotation[0], resultType, methodName, new Annotation[0][0], argumentTypes);
     }
 
 	private SerializedObject objectOf(Class<MyClass> type, SerializedField... fields) {

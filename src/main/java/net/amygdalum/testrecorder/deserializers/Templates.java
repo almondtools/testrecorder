@@ -30,6 +30,7 @@ public final class Templates {
 
 	private static final String CAPTURE_EXCEPTION = "capture(() -> {<statements>}, <type>)";
 
+    private static final String ANNOTATION = "@<annotation>(<values : {value | <value.element1> = <value.element2>}; separator=\", \">)";
 	private static final String GENERIC_TYPE = "$type$<$typeParam; separator=\", \"$>";
 
 	private static final String GENERIC_OBJECT_MATCHER = "new GenericMatcher() {\n<fields; separator=\"\\n\">\n}.matching(<type : {type | <type>}; separator=\", \">)";
@@ -460,5 +461,13 @@ public final class Templates {
 
 		return matcher.render();
 	}
+
+    public static String annotation(String annotation, List<Pair<String, String>> values) {
+        ST matcher = new ST(ANNOTATION);
+        matcher.add("annotation", annotation);
+        matcher.add("values", values);
+
+        return matcher.render();
+    }
 
 }

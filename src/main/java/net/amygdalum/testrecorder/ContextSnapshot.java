@@ -16,6 +16,7 @@ public class ContextSnapshot {
 
     protected static final ContextSnapshot INVALID = new ContextSnapshot();
 
+    private long time;
     private Class<?> declaringClass;
     private Annotation[] resultAnnotation;
     private Type resultType;
@@ -38,11 +39,13 @@ public class ContextSnapshot {
     private List<SerializedInput> setupInput;
     private List<SerializedOutput> expectOutput;
 
+
     private ContextSnapshot() {
         this.valid = false;
     }
 
-    public ContextSnapshot(Class<?> declaringClass, Annotation[] resultAnnotation,Type resultType, String methodName, Annotation[][] argumentAnnotations, Type[] argumentTypes) {
+    public ContextSnapshot(long time, Class<?> declaringClass, Annotation[] resultAnnotation,Type resultType, String methodName, Annotation[][] argumentAnnotations, Type[] argumentTypes) {
+        this.time = time;
         this.declaringClass = declaringClass;
         this.resultAnnotation = resultAnnotation;
         this.resultType = resultType;
@@ -50,6 +53,10 @@ public class ContextSnapshot {
         this.argumentAnnotations = argumentAnnotations;
         this.argumentTypes = argumentTypes;
         this.valid = true;
+    }
+    
+    public long getTime() {
+        return time;
     }
 
     public void invalidate() {
