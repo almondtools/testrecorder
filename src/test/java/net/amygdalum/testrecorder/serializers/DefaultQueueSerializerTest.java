@@ -21,7 +21,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.Serializer;
