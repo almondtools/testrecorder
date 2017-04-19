@@ -43,7 +43,7 @@ public class SerializedValueEvaluator {
         
         for (Expression expression : parsed) {
             result = result
-                .map(v -> expression.evaluate(value))
+                .map(v -> expression.evaluate(v))
                 .filter(v -> v.isPresent())
                 .map(v -> v.get());
         }

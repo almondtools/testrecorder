@@ -20,13 +20,13 @@ public class IndexExpression implements Expression {
             if (base instanceof SerializedArray) {
                 int i = Integer.parseInt(index);
                 SerializedValue[] array = ((SerializedArray) base).getArray();
-                if (i < array.length) {
+                if (i >= 0 && i < array.length) {
                     return Optional.of(array[i]);
                 }
             } else if (base instanceof SerializedList) {
                 SerializedList list = (SerializedList) base;
                 int i = Integer.parseInt(index);
-                if (i < list.size()) {
+                if (i >= 0 && i < list.size()) {
                     return Optional.of(list.get(i));
                 }
             }

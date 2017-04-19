@@ -12,21 +12,17 @@ public class FieldExpression implements Expression {
     public FieldExpression(String field) {
         this.field = field;
     }
-    
+
     @Override
     public Optional<SerializedValue> evaluate(SerializedValue base) {
-        try {
-            if (base instanceof SerializedObject) {
-                SerializedObject object = (SerializedObject) base;
-                return object.getFields().stream()
-                    .filter(f -> f.getName().equals(field))
-                    .map(f -> f.getValue())
-                    .findFirst();
-            }
-            return Optional.empty();
-        } catch (NumberFormatException | NullPointerException e) {
-            return Optional.empty();
+        if (base instanceof SerializedObject) {
+            SerializedObject object = (SerializedObject) base;
+            return object.getFields().stream()
+                .filter(f -> f.getName().equals(field))
+                .map(f -> f.getValue())
+                .findFirst();
         }
+        return Optional.empty();
     }
 
 }
