@@ -65,6 +65,12 @@ import org.junit.Test;
 import net.amygdalum.testrecorder.util.TypesTest.NestedPackagePrivate;
 import net.amygdalum.testrecorder.util.TypesTest.NestedProtected;
 import net.amygdalum.testrecorder.util.TypesTest.NestedPublic;
+import net.amygdalum.testrecorder.util.testobjects.Final;
+import net.amygdalum.testrecorder.util.testobjects.PseudoSynthetic;
+import net.amygdalum.testrecorder.util.testobjects.Static;
+import net.amygdalum.testrecorder.util.testobjects.Sub1;
+import net.amygdalum.testrecorder.util.testobjects.Sub2;
+import net.amygdalum.testrecorder.util.testobjects.Super;
 
 public class TypesTest {
 
@@ -318,17 +324,17 @@ public class TypesTest {
     @Test
     public void testGetDeclaredField() throws Exception {
         assertThat(getDeclaredField(Sub1.class, "subAttr"), equalTo(Sub1.class.getDeclaredField("subAttr")));
-        assertThat(getDeclaredField(Sub1.class, "superAttr"), equalTo(Super.class.getDeclaredField("superAttr")));
+        assertThat(getDeclaredField(Sub1.class, "str"), equalTo(Super.class.getDeclaredField("str")));
         assertThat(getDeclaredField(Sub2.class, "subAttr"), equalTo(Sub2.class.getDeclaredField("subAttr")));
-        assertThat(getDeclaredField(Sub2.class, "superAttr"), equalTo(Super.class.getDeclaredField("superAttr")));
+        assertThat(getDeclaredField(Sub2.class, "str"), equalTo(Super.class.getDeclaredField("str")));
     }
 
     @Test
     public void testGetDeclaredMethod() throws Exception {
         assertThat(getDeclaredMethod(Sub1.class, "getSubAttr"), equalTo(Sub1.class.getDeclaredMethod("getSubAttr")));
-        assertThat(getDeclaredMethod(Sub1.class, "method"), equalTo(Super.class.getDeclaredMethod("method")));
+        assertThat(getDeclaredMethod(Sub1.class, "getStr"), equalTo(Super.class.getDeclaredMethod("getStr")));
         assertThat(getDeclaredMethod(Sub2.class, "setSubAttr", boolean.class), equalTo(Sub2.class.getDeclaredMethod("setSubAttr", boolean.class)));
-        assertThat(getDeclaredMethod(Sub2.class, "method"), equalTo(Super.class.getDeclaredMethod("method")));
+        assertThat(getDeclaredMethod(Sub2.class, "getStr"), equalTo(Super.class.getDeclaredMethod("getStr")));
         assertThat(capture(() -> getDeclaredMethod(Sub1.class, "nonExistent")), matchesException(NoSuchMethodException.class));
         assertThat(capture(() -> getDeclaredMethod(Sub2.class, "nonExistent")), matchesException(NoSuchMethodException.class));
         assertThat(capture(() -> getDeclaredMethod(Super.class, "nonExistent")), matchesException(NoSuchMethodException.class));
@@ -337,9 +343,9 @@ public class TypesTest {
     @Test
     public void testAllFields() throws Exception {
         List<Field> sub1Fields = allFields(Sub1.class);
-        assertThat(sub1Fields, contains(Sub1.class.getDeclaredField("subAttr"), Super.class.getDeclaredField("superAttr")));
+        assertThat(sub1Fields, contains(Sub1.class.getDeclaredField("subAttr"), Super.class.getDeclaredField("str")));
         List<Field> sub2Fields = allFields(Sub2.class);
-        assertThat(sub2Fields, contains(Sub2.class.getDeclaredField("subAttr"), Super.class.getDeclaredField("superAttr")));
+        assertThat(sub2Fields, contains(Sub2.class.getDeclaredField("subAttr"), Super.class.getDeclaredField("str")));
         assertThat(capture(() -> getDeclaredField(Sub1.class, "nonExistent")), matchesException(NoSuchFieldException.class));
         assertThat(capture(() -> getDeclaredField(Sub2.class, "nonExistent")), matchesException(NoSuchFieldException.class));
         assertThat(capture(() -> getDeclaredField(Super.class, "nonExistent")), matchesException(NoSuchFieldException.class));
@@ -348,9 +354,9 @@ public class TypesTest {
     @Test
     public void testAllMethods() throws Exception {
         List<Method> sub1Methods = allMethods(Sub1.class);
-        assertThat(sub1Methods, contains(Sub1.class.getDeclaredMethod("getSubAttr"), Super.class.getDeclaredMethod("method")));
+        assertThat(sub1Methods, contains(Sub1.class.getDeclaredMethod("getSubAttr"), Super.class.getDeclaredMethod("getStr")));
         List<Method> sub2Methods = allMethods(Sub2.class);
-        assertThat(sub2Methods, contains(Sub2.class.getDeclaredMethod("setSubAttr", boolean.class), Super.class.getDeclaredMethod("method")));
+        assertThat(sub2Methods, contains(Sub2.class.getDeclaredMethod("setSubAttr", boolean.class), Super.class.getDeclaredMethod("getStr")));
     }
 
     @Test
@@ -405,21 +411,23 @@ public class TypesTest {
 
     @Test
     public void testIsFinal() throws Exception {
-        assertThat(isFinal(Super.class.getDeclaredField("superAttr")), is(false));
-        assertThat(isFinal(FinalField.class.getDeclaredField("attr")), is(true));
+        assertThat(isFinal(Super.class.getDeclaredField("str")), is(false));
+        assertThat(isFinal(Final.class.getDeclaredField("attr")), is(true));
+        assertThat(isFinal(Static.class.getDeclaredField("CONSTANT")), is(true));
     }
 
     @Test
     public void testIsStatic() throws Exception {
-        assertThat(isStatic(Super.class.getDeclaredField("superAttr")), is(false));
-        assertThat(isStatic(StaticField.class.getDeclaredField("attr")), is(true));
+        assertThat(isStatic(Super.class.getDeclaredField("str")), is(false));
+        assertThat(isStatic(Static.class.getDeclaredField("global")), is(true));
+        assertThat(isStatic(Static.class.getDeclaredField("CONSTANT")), is(true));
     }
 
     @Test
     public void testIsUnhandledSynthetic() throws Exception {
-        assertThat(isUnhandledSynthetic(Super.class.getDeclaredField("superAttr")), is(false));
+        assertThat(isUnhandledSynthetic(Super.class.getDeclaredField("str")), is(false));
         assertThat(isUnhandledSynthetic(NestedTypeField.class.getDeclaredField("this$0")), is(false));
-        assertThat(isUnhandledSynthetic(PseudoSyntheticField.class.getDeclaredField("$attr")), is(true));
+        assertThat(isUnhandledSynthetic(PseudoSynthetic.class.getDeclaredField("$attr")), is(true));
     }
 
     @Test
@@ -469,22 +477,7 @@ public class TypesTest {
 
     @Test
     public void testInnerClasses() throws Exception {
-        assertThat(Types.innerClasses(getClass()), hasItems(Super.class, Sub1.class, Sub2.class));
-    }
-
-    @SuppressWarnings("unused")
-    public static class FinalField {
-        private final String attr = "str";
-    }
-
-    @SuppressWarnings("unused")
-    public static class StaticField {
-        private static String attr = "str";
-    }
-
-    @SuppressWarnings("unused")
-    public static class PseudoSyntheticField {
-        private static String $attr = "str";
+        assertThat(Types.innerClasses(getClass()), hasItems(NestedPublic.class, NestedPrivate.class, NestedPackagePrivate.class));
     }
 
     public class NestedTypeField {
@@ -500,32 +493,6 @@ public class TypesTest {
     }
 
     protected static class NestedProtected {
-    }
-
-    @SuppressWarnings("unused")
-    private static class Super {
-        private String superAttr;
-
-        void method() {
-        }
-    }
-
-    @SuppressWarnings("unused")
-    private static class Sub1 extends Super {
-        private int subAttr;
-
-        public int getSubAttr() {
-            return subAttr;
-        }
-    }
-
-    @SuppressWarnings("unused")
-    private static class Sub2 extends Super {
-        public boolean subAttr;
-
-        public void setSubAttr(boolean subAttr) {
-            this.subAttr = subAttr;
-        }
     }
 
 }

@@ -23,6 +23,8 @@ import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.serializers.BigIntegerSerializer;
 import net.amygdalum.testrecorder.serializers.DefaultListSerializer;
 import net.amygdalum.testrecorder.serializers.GenericSerializer;
+import net.amygdalum.testrecorder.util.testobjects.Sub;
+import net.amygdalum.testrecorder.util.testobjects.Super;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 import net.amygdalum.testrecorder.values.SerializedList;
@@ -122,6 +124,18 @@ public class SetupGeneratorsTest {
 		assertThat(result.getValue(), equalTo("42"));
 	}
 
+    @Test
+    public void testTemporaryLocal() throws Exception {
+        assertThat(setupCode.temporaryLocal(), equalTo("temp1"));
+        assertThat(setupCode.temporaryLocal(), equalTo("temp2"));
+    }
+
+    @Test
+    public void testNewLocal() throws Exception {
+        assertThat(setupCode.newLocal("var"), equalTo("var1"));
+        assertThat(setupCode.newLocal("var"), equalTo("var2"));
+    }
+
 	private SerializedObject object(Type type, Object object) {
 		GenericSerializer serializer = new GenericSerializer(facade);
 		SerializedObject value = (SerializedObject) serializer.generate(type, type);
@@ -190,8 +204,4 @@ public class SetupGeneratorsTest {
 		}
 	}
 	
-	public static class Super {
-	}
-	public static class Sub extends Super {
-	}
 }

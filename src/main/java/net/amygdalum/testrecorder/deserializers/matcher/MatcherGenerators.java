@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder.deserializers.matcher;
 import static net.amygdalum.testrecorder.deserializers.DeserializerContext.newContext;
 import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
-import static net.amygdalum.testrecorder.deserializers.Templates.nullMatcher;
 import static net.amygdalum.testrecorder.deserializers.Templates.recursiveMatcher;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
@@ -14,7 +13,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
 
 import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedImmutableType;
@@ -59,12 +57,16 @@ public class MatcherGenerators implements Deserializer<Computation> {
         this.computed = new HashSet<>();
     }
 
-    public LocalVariableNameGenerator getLocals() {
-        return locals;
-    }
-
     public TypeManager getTypes() {
         return types;
+    }
+
+    public String temporaryLocal() {
+        return locals.fetchName("temp");
+    }
+
+    public String newLocal(String name) {
+        return locals.fetchName(name);
     }
 
     public boolean isSimpleValue(SerializedValue element) {
@@ -78,8 +80,7 @@ public class MatcherGenerators implements Deserializer<Computation> {
 
     public Computation simpleMatcher(SerializedValue element, DeserializerContext context) {
         if (element instanceof SerializedNull) {
-            types.staticImport(Matchers.class, "nullValue");
-            return new Computation(nullMatcher(""), element.getResultType());
+            return new Computation("null", element.getResultType());
         } else if (element instanceof SerializedLiteral) {
             return new Computation(asLiteral(((SerializedLiteral) element).getValue()), element.getResultType());
         } else {
