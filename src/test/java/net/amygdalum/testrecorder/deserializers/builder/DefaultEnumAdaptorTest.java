@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
+import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenEnum;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
@@ -11,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.util.testobjects.PublicEnum;
 import net.amygdalum.testrecorder.values.SerializedEnum;
 
 public class DefaultEnumAdaptorTest {
@@ -29,42 +31,34 @@ public class DefaultEnumAdaptorTest {
 
 	@Test
 	public void testMatchesOnlyEnum() throws Exception {
-		assertThat(adaptor.matches(MyEnum.class), is(true));
-		assertThat(adaptor.matches(MyHiddenEnum.class), is(true));
+		assertThat(adaptor.matches(PublicEnum.class), is(true));
+		assertThat(adaptor.matches(classOfHiddenEnum()), is(true));
 		assertThat(adaptor.matches(Enum.class), is(false));
 		assertThat(adaptor.matches(Object.class), is(false));
 	}
 
 	@Test
 	public void testTryDeserialize() throws Exception {
-		SerializedEnum value = new SerializedEnum(MyEnum.class);
+		SerializedEnum value = new SerializedEnum(PublicEnum.class);
 		value.setName("VALUE1");
 		SetupGenerators generator = new SetupGenerators(getClass());
 
 		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements(), empty());
-		assertThat(result.getValue(), equalTo("MyEnum.VALUE1"));
+		assertThat(result.getValue(), equalTo("PublicEnum.VALUE1"));
 	}
 
 	@Test
 	public void testTryDeserializeHidden() throws Exception {
-		SerializedEnum value = new SerializedEnum(MyHiddenEnum.class);
+		SerializedEnum value = new SerializedEnum(classOfHiddenEnum());
 		value.setName("VALUE2");
 		SetupGenerators generator = new SetupGenerators(getClass());
 		
 		Computation result = adaptor.tryDeserialize(value, generator);
 		
 		assertThat(result.getStatements(), empty());
-		assertThat(result.getValue(), containsString("Wrapped.enumType(\"net.amygdalum.testrecorder.deserializers.builder.DefaultEnumAdaptorTest$MyHiddenEnum\", \"VALUE2\").value()"));
+		assertThat(result.getValue(), containsString("Wrapped.enumType(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenEnum\", \"VALUE2\").value()"));
 	}
 	
-	public static enum MyEnum {
-		VALUE1, VALUE2;
-	}
-
-	private static enum MyHiddenEnum {
-		VALUE1, VALUE2;
-	}
-
 }

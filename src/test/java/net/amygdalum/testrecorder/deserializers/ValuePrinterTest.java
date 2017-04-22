@@ -17,6 +17,7 @@ import org.mockito.Mockito;
 
 import net.amygdalum.testrecorder.SerializedImmutableType;
 import net.amygdalum.testrecorder.SerializedReferenceType;
+import net.amygdalum.testrecorder.util.testobjects.Simple;
 import net.amygdalum.testrecorder.values.SerializedArray;
 import net.amygdalum.testrecorder.values.SerializedEnum;
 import net.amygdalum.testrecorder.values.SerializedField;
@@ -39,34 +40,34 @@ public class ValuePrinterTest {
 
     @Test
     public void testVisitField() throws Exception {
-        SerializedField field = new SerializedField(TestObject.class, "field", String.class, literal("v"));
+        SerializedField field = new SerializedField(Simple.class, "field", String.class, literal("v"));
 
         assertThat(printer.visitField(field), equalTo("java.lang.String field: v"));
     }
 
     @Test
     public void testVisitObject() throws Exception {
-        SerializedObject object = new SerializedObject(TestObject.class);
-        object.addField(new SerializedField(TestObject.class, "field", String.class, literal("v")));
+        SerializedObject object = new SerializedObject(Simple.class);
+        object.addField(new SerializedField(Simple.class, "str", String.class, literal("v")));
 
         String visitReferenceType = printer.visitReferenceType(object);
 
         assertThat(visitReferenceType, containsPattern(""
-            + "net.amygdalum.testrecorder.deserializers.ValuePrinterTest$TestObject/*{*"
-            + "java.lang.String field: v*"
+            + "net.amygdalum.testrecorder.util.testobjects.Simple/*{*"
+            + "java.lang.String str: v*"
             + "}"));
     }
 
     @Test
     public void testVisitObjectCached() throws Exception {
-        SerializedObject object = new SerializedObject(TestObject.class);
-        object.addField(new SerializedField(TestObject.class, "field", String.class, literal("v")));
+        SerializedObject object = new SerializedObject(Simple.class);
+        object.addField(new SerializedField(Simple.class, "str", String.class, literal("v")));
 
         String visitReferenceType = printer.visitReferenceType(object);
         visitReferenceType = printer.visitReferenceType(object);
 
-        assertThat(visitReferenceType, containsPattern("net.amygdalum.testrecorder.deserializers.ValuePrinterTest$TestObject/*"));
-        assertThat(visitReferenceType, not(containsPattern("java.lang.String field: v")));
+        assertThat(visitReferenceType, containsPattern("net.amygdalum.testrecorder.util.testobjects.Simple/*"));
+        assertThat(visitReferenceType, not(containsPattern("java.lang.String str: v")));
     }
 
     @Test
@@ -171,19 +172,6 @@ public class ValuePrinterTest {
 
     public static enum TestEnum {
         ENUM;
-    }
-
-    public static class TestObject {
-
-        private String field;
-
-        public void setField(String field) {
-            this.field = field;
-        }
-
-        public String getField() {
-            return field;
-        }
     }
 
 }

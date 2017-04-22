@@ -11,6 +11,10 @@ public class ContainingList {
 	public ContainingList() {
 	}
 
+    public ContainingList(List<String> list) {
+        this.list = list;
+    }
+
 	public ContainingList(Collection<String> list) {
 		this.list = new ArrayList<>(list);
 	}

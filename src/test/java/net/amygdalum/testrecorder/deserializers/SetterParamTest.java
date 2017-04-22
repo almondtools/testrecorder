@@ -9,6 +9,8 @@ import java.lang.reflect.Method;
 import org.junit.Before;
 import org.junit.Test;
 
+import net.amygdalum.testrecorder.util.testobjects.Bean;
+import net.amygdalum.testrecorder.util.testobjects.Simple;
 import net.amygdalum.testrecorder.values.SerializedField;
 
 public class SetterParamTest {
@@ -18,42 +20,29 @@ public class SetterParamTest {
 
     @Before
     public void before() throws Exception {
-        method = TestObject.class.getDeclaredMethod("setField", String.class);
-        setterParam = new SetterParam(method, new SerializedField(TestObject.class, "field", String.class, literal("value")), "value");
-
+        method = Bean.class.getDeclaredMethod("setAttribute", String.class);
+        setterParam = new SetterParam(method, new SerializedField(Simple.class, "attribute", String.class, literal("value")), "value");
     }
 
     @Test
     public void testSetterParam() throws Exception {
-        assertThat(setterParam.getField().getName(), equalTo("field"));
-        assertThat(setterParam.getName(), equalTo("setField"));
+        assertThat(setterParam.getField().getName(), equalTo("attribute"));
+        assertThat(setterParam.getName(), equalTo("setAttribute"));
         assertThat(setterParam.getValue(), equalTo("value"));
         assertThat(setterParam.computeSerializedValue(), equalTo(literal("value")));
     }
 
     @Test
     public void testApply() throws Exception {
-        TestObject object = new TestObject();
+        Bean object = new Bean();
         setterParam.apply(object);
         
-        assertThat(object.getField(), equalTo("value"));
+        assertThat(object.getAttribute(), equalTo("value"));
     }
 
     @Test
     public void testToString() throws Exception {
-        assertThat(setterParam.toString(), equalTo("public void net.amygdalum.testrecorder.deserializers.SetterParamTest$TestObject.setField(java.lang.String)=value=> field"));
-    }
-
-    public static class TestObject {
-        private String field;
-
-        public void setField(String field) {
-            this.field = field;
-        }
-
-        public String getField() {
-            return field;
-        }
+        assertThat(setterParam.toString(), equalTo("public void net.amygdalum.testrecorder.util.testobjects.Bean.setAttribute(java.lang.String)=value=> attribute"));
     }
 
 }

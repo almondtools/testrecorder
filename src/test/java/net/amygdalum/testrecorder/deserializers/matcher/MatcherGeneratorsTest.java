@@ -3,6 +3,7 @@ package net.amygdalum.testrecorder.deserializers.matcher;
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.deserializers.DeserializerContext.newContext;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
+import static net.amygdalum.testrecorder.util.testobjects.Collections.arrayList;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.createCompletelyHidden;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.createPartiallyHidden;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
@@ -17,20 +18,17 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.ConfigurableSerializerFacade;
-import net.amygdalum.testrecorder.DefaultTestRecorderAgentConfig;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.hints.SkipChecks;
-import net.amygdalum.testrecorder.serializers.BigIntegerSerializer;
-import net.amygdalum.testrecorder.serializers.DefaultListSerializer;
-import net.amygdalum.testrecorder.serializers.GenericSerializer;
+import net.amygdalum.testrecorder.util.testobjects.ContainingList;
+import net.amygdalum.testrecorder.util.testobjects.Dubble;
 import net.amygdalum.testrecorder.util.testobjects.Hidden;
 import net.amygdalum.testrecorder.util.testobjects.Hidden.VisibleInterface;
+import net.amygdalum.testrecorder.util.testobjects.SerializedValues;
 import net.amygdalum.testrecorder.util.testobjects.Simple;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
@@ -41,13 +39,13 @@ import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class MatcherGeneratorsTest {
 
-	private ConfigurableSerializerFacade facade;
+    private SerializedValues values;
 	private MatcherGenerators matcherCode;
 
 	@Before
 	public void before() throws Exception {
-		facade = new ConfigurableSerializerFacade(new DefaultTestRecorderAgentConfig());
-		matcherCode = new MatcherGenerators(getClass());
+	    values = new SerializedValues();
+   		matcherCode = new MatcherGenerators(getClass());
 	}
 
 	@Test
@@ -66,22 +64,21 @@ public class MatcherGeneratorsTest {
 
 	@Test
 	public void testOtherIsNotSimpleValue() throws Exception {
-		assertThat(matcherCode.isSimpleValue(object(Name.class, new Name("Foo", "Bar"))), is(false));
-		assertThat(matcherCode.simpleValue(object(Name.class, new Name("Foo", "Bar"))).getStatements(), empty());
-		assertThat(matcherCode.simpleValue(object(Name.class, new Name("Foo", "Bar"))).getValue(), containsPattern("new GenericMatcher() {*"
-			+ "firstName = \"Foo\"*"
-			+ "lastName = \"Bar\"*"
-			+ "}.matching(Name.class)"));
+		assertThat(matcherCode.isSimpleValue(values.object(Dubble.class, new Dubble("Foo", "Bar"))), is(false));
+		assertThat(matcherCode.simpleValue(values.object(Dubble.class, new Dubble("Foo", "Bar"))).getStatements(), empty());
+		assertThat(matcherCode.simpleValue(values.object(Dubble.class, new Dubble("Foo", "Bar"))).getValue(), containsPattern("new GenericMatcher() {*"
+			+ "a = \"Foo\"*"
+			+ "b = \"Bar\"*"
+			+ "}.matching(Dubble.class)"));
 	}
 
 	@Test
 	public void testVisitField() throws Exception {
-		DefaultListSerializer serializer = new DefaultListSerializer(facade);
-		Type type = parameterized(ArrayList.class, null, String.class);
-		SerializedList value = serializer.generate(type, type);
-		serializer.populate(value, visible("Foo", "Bar"));
 
-		Computation result = matcherCode.visitField(new SerializedField(ListContainer.class, "list", type, value));
+		Type type = parameterized(ArrayList.class, null, String.class);
+		SerializedList value = values.list(type, arrayList("Foo", "Bar"));
+
+		Computation result = matcherCode.visitField(new SerializedField(ContainingList.class, "list", type, value));
 
 		assertThat(result.getStatements(), empty());
 		assertThat(result.getValue(), equalTo("Matcher<?> list = containsInOrder(String.class, \"Foo\", \"Bar\");"));
@@ -89,21 +86,21 @@ public class MatcherGeneratorsTest {
 
 	@Test
 	public void testVisitReferenceType() throws Exception {
-		SerializedObject value = object(Name.class, new Name("Foo", "Bar"));
+		SerializedObject value = values.object(Dubble.class, new Dubble("Foo", "Bar"));
 
 		Computation result = matcherCode.visitReferenceType(value);
 
 		assertThat(result.getStatements(), empty());
 		assertThat(result.getValue(), containsPattern("new GenericMatcher() {*"
-			+ "firstName = \"Foo\"*"
-			+ "lastName = \"Bar\"*"
-			+ "}.matching(Name.class)"));
+			+ "a = \"Foo\"*"
+			+ "b = \"Bar\"*"
+			+ "}.matching(Dubble.class)"));
 	}
 
     @Test
     public void testVisitReferenceTypePartiallyHidden() throws Exception {
         VisibleInterface o = createPartiallyHidden();
-        SerializedObject value = object(o.getClass(), Hidden.VisibleInterface.class, o);
+        SerializedObject value = values.object(Hidden.VisibleInterface.class, o);
 
         Computation result = matcherCode.visitReferenceType(value);
 
@@ -115,7 +112,7 @@ public class MatcherGeneratorsTest {
     @Test
     public void testVisitReferenceTypeCompletelyHidden() throws Exception {
         Object o = createCompletelyHidden();
-        SerializedObject value = object(o.getClass(), o.getClass(), o);
+        SerializedObject value = values.object(o.getClass(), o);
         
         Computation result = matcherCode.visitReferenceType(value);
         
@@ -127,7 +124,7 @@ public class MatcherGeneratorsTest {
     @Test
     public void testVisitReferenceTypeComputedPartiallyHidden() throws Exception {
         VisibleInterface o = createPartiallyHidden();
-        SerializedObject value = object(o.getClass(), Hidden.VisibleInterface.class, o);
+        SerializedObject value = values.object(Hidden.VisibleInterface.class, o);
         Computation result = matcherCode.visitReferenceType(value);
 
         result = matcherCode.visitReferenceType(value);
@@ -139,7 +136,7 @@ public class MatcherGeneratorsTest {
     @Test
     public void testVisitReferenceTypeComputedCompletelyHidden() throws Exception {
         Object o = createCompletelyHidden();
-        SerializedObject value = object(o.getClass(), o.getClass(), o);
+        SerializedObject value = values.object(o.getClass(), o);
         Computation result = matcherCode.visitReferenceType(value);
 
         result = matcherCode.visitReferenceType(value);
@@ -150,7 +147,7 @@ public class MatcherGeneratorsTest {
     
     @Test
     public void testVisitReferenceTypeCheckSkipped() throws Exception {
-        SerializedObject value = object(Name.class, new Name("Foo", "Bar"));
+        SerializedObject value = values.object(Dubble.class, new Dubble("Foo", "Bar"));
 
         Computation result = matcherCode.visitReferenceType(value, newContext(skipChecks()));
 
@@ -159,18 +156,18 @@ public class MatcherGeneratorsTest {
 
 	@Test
 	public void testVisitReferenceTypeRevisited() throws Exception {
-		SerializedObject value = object(Name.class, new Name("Foo", "Bar"));
+		SerializedObject value = values.object(Dubble.class, new Dubble("Foo", "Bar"));
 		matcherCode.visitReferenceType(value);
 
 		Computation result = matcherCode.visitReferenceType(value);
 
 		assertThat(result.getStatements(), empty());
-		assertThat(result.getValue(), equalTo("recursive(Name.class)"));
+		assertThat(result.getValue(), equalTo("recursive(Dubble.class)"));
 	}
 
 	@Test
 	public void testVisitImmutableType() throws Exception {
-		SerializedImmutable<BigInteger> value = bigInteger(BigInteger.valueOf(42));
+		SerializedImmutable<BigInteger> value = values.bigInteger(BigInteger.valueOf(42));
 
 		Computation result = matcherCode.visitImmutableType(value);
 
@@ -180,7 +177,7 @@ public class MatcherGeneratorsTest {
 
     @Test
     public void testVisitImmutableTypeCheckSkipped() throws Exception {
-        SerializedImmutable<BigInteger> value = bigInteger(BigInteger.valueOf(42));
+        SerializedImmutable<BigInteger> value = values.bigInteger(BigInteger.valueOf(42));
 
         Computation result = matcherCode.visitImmutableType(value, newContext(skipChecks()));
 
@@ -224,7 +221,7 @@ public class MatcherGeneratorsTest {
     
     @Test
     public void testSimpleMatcherSerializedValueObject() throws Exception {
-        Computation result = matcherCode.simpleMatcher(object(Simple.class, new Simple()));
+        Computation result = matcherCode.simpleMatcher(values.object(Simple.class, new Simple()));
         
         assertThat(result.getStatements(), empty());
         assertThat(result.getValue(), containsPattern("new GenericMatcher() {*String str = null;*}.matching(Simple.class)"));
@@ -242,26 +239,6 @@ public class MatcherGeneratorsTest {
         assertThat(matcherCode.newLocal("var"), equalTo("var2"));
     }
 
-    private SerializedObject object(Type type, Type resultType, Object object) {
-        SerializedObject o = object(type, object);
-        o.setResultType(resultType);
-        return o;
-	}
-	
-	private SerializedObject object(Type type, Object object) {
-		GenericSerializer serializer = new GenericSerializer(facade);
-		SerializedObject value = (SerializedObject) serializer.generate(type, type);
-		serializer.populate(value, object);
-		return value;
-	}
-
-	private SerializedImmutable<BigInteger> bigInteger(BigInteger object) {
-		BigIntegerSerializer serializer = new BigIntegerSerializer(facade);
-		SerializedImmutable<BigInteger> value = serializer.generate(BigInteger.class, BigInteger.class);
-		serializer.populate(value, object);
-		return value;
-	}
-
     private SkipChecks skipChecks() {
         return new SkipChecks() {
             
@@ -271,41 +248,5 @@ public class MatcherGeneratorsTest {
             }
         };
     }
-
-	@SafeVarargs
-	private static <S> ArrayList<S> visible(S... elements) {
-		ArrayList<S> hiddenList = new ArrayList<>();
-		for (S element : elements) {
-			hiddenList.add(element);
-		}
-		return hiddenList;
-	}
-
-	@SuppressWarnings("unused")
-	private static class ListContainer {
-		private HiddenList<String> list;
-
-		public ListContainer(HiddenList<String> list) {
-			this.list = list;
-		}
-
-		public List<String> getList() {
-			return list;
-		}
-	}
-
-	private static class HiddenList<T> extends ArrayList<T> {
-	}
-
-	public static class Name {
-		public String firstName;
-		public String lastName;
-
-		public Name(String firstName, String lastName) {
-			this.firstName = firstName;
-			this.lastName = lastName;
-		}
-
-	}
 
 }

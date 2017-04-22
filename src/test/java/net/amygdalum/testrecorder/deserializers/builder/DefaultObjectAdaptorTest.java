@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.util.testobjects.Simple;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedObject;
@@ -37,22 +38,17 @@ public class DefaultObjectAdaptorTest {
 
 	@Test
 	public void testTryDeserializeWithNonBean() throws Exception {
-		SerializedObject value = new SerializedObject(TestObject.class);
-		value.addField(new SerializedField(String.class, "attribute", String.class, SerializedLiteral.literal("Hello World")));
+		SerializedObject value = new SerializedObject(Simple.class);
+		value.addField(new SerializedField(String.class, "str", String.class, SerializedLiteral.literal("Hello World")));
 		SetupGenerators generator = new SetupGenerators(getClass());
 		
 		Computation result = adaptor.tryDeserialize(value, generator);
 		
 		assertThat(result.getStatements().toString(), allOf(
-			containsString("TestObject testObject1 = new GenericObject"),
-			containsString("String attribute = \"Hello World\""),
-			containsString("as(TestObject.class)")));
-		assertThat(result.getValue(), equalTo("testObject1"));
+			containsString("Simple simple1 = new GenericObject"),
+			containsString("String str = \"Hello World\""),
+			containsString("as(Simple.class)")));
+		assertThat(result.getValue(), equalTo("simple1"));
 	}
 	
-	@SuppressWarnings("unused") 
-	public static class TestObject {
-		private String attribute;
-	}
-
 }

@@ -23,6 +23,7 @@ import net.amygdalum.testrecorder.DeserializationException;
 import net.amygdalum.testrecorder.SerializedImmutableType;
 import net.amygdalum.testrecorder.SerializedReferenceType;
 import net.amygdalum.testrecorder.util.GenericObjectException;
+import net.amygdalum.testrecorder.util.testobjects.Simple;
 import net.amygdalum.testrecorder.values.SerializedArray;
 import net.amygdalum.testrecorder.values.SerializedEnum;
 import net.amygdalum.testrecorder.values.SerializedField;
@@ -45,19 +46,19 @@ public class SimpleDeserializerTest {
 
     @Test(expected = DeserializationException.class)
     public void testVisitField() throws Exception {
-        SerializedField field = new SerializedField(TestObject.class, "field", String.class, literal("v"));
+        SerializedField field = new SerializedField(Simple.class, "field", String.class, literal("v"));
         deserializer.visitField(field);
     }
 
     @Test
     public void testVisitObject() throws Exception {
-        SerializedObject object = new SerializedObject(TestObject.class);
-        object.addField(new SerializedField(TestObject.class, "field", String.class, literal("v")));
+        SerializedObject object = new SerializedObject(Simple.class);
+        object.addField(new SerializedField(Simple.class, "str", String.class, literal("v")));
 
         Object visitReferenceType = deserializer.visitReferenceType(object);
 
-        assertThat(visitReferenceType, instanceOf(TestObject.class));
-        assertThat(((TestObject) visitReferenceType).getField(), equalTo("v"));
+        assertThat(visitReferenceType, instanceOf(Simple.class));
+        assertThat(((Simple) visitReferenceType).getStr(), equalTo("v"));
     }
 
     @Test(expected = DeserializationException.class)
@@ -176,19 +177,6 @@ public class SimpleDeserializerTest {
 
     public static enum TestEnum {
         ENUM;
-    }
-
-    public static class TestObject {
-
-        private String field;
-
-        public void setField(String field) {
-            this.field = field;
-        }
-
-        public String getField() {
-            return field;
-        }
     }
 
 }

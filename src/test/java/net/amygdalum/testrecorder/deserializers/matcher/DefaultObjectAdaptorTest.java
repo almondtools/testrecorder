@@ -11,6 +11,7 @@ import org.junit.Test;
 import com.almondtools.conmatch.strings.WildcardStringMatcher;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.util.testobjects.Simple;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedObject;
@@ -37,19 +38,14 @@ public class DefaultObjectAdaptorTest {
 
 	@Test
 	public void testTryDeserialize() throws Exception {
-		SerializedObject value = new SerializedObject(TestObject.class);
-		value.addField(new SerializedField(String.class, "attribute", String.class, SerializedLiteral.literal("Hello World")));
+		SerializedObject value = new SerializedObject(Simple.class);
+		value.addField(new SerializedField(String.class, "str", String.class, SerializedLiteral.literal("Hello World")));
 		MatcherGenerators generator = new MatcherGenerators(getClass());
 		
 		Computation result = adaptor.tryDeserialize(value, generator);
 		
 		assertThat(result.getStatements(), empty());
-		assertThat(result.getValue(), WildcardStringMatcher.containsPattern("new GenericMatcher() {*String attribute = \"Hello World\";*}.matching(TestObject.class)"));
+		assertThat(result.getValue(), WildcardStringMatcher.containsPattern("new GenericMatcher() {*String str = \"Hello World\";*}.matching(Simple.class)"));
 	}
 	
-	@SuppressWarnings("unused") 
-	public static class TestObject {
-		private String attribute;
-	}
-
 }

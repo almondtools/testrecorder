@@ -1,8 +1,10 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
-import static net.amygdalum.testrecorder.util.Types.innerType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
+import static net.amygdalum.testrecorder.util.testobjects.Collections.arrayList;
+import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenList;
+import static net.amygdalum.testrecorder.util.testobjects.Hidden.hiddenList;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
@@ -17,14 +19,12 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.ConfigurableSerializerFacade;
-import net.amygdalum.testrecorder.DefaultTestRecorderAgentConfig;
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.serializers.BigIntegerSerializer;
-import net.amygdalum.testrecorder.serializers.DefaultListSerializer;
-import net.amygdalum.testrecorder.serializers.GenericSerializer;
-import net.amygdalum.testrecorder.util.testobjects.Sub;
-import net.amygdalum.testrecorder.util.testobjects.Super;
+import net.amygdalum.testrecorder.util.testobjects.Complex;
+import net.amygdalum.testrecorder.util.testobjects.ContainingList;
+import net.amygdalum.testrecorder.util.testobjects.Dubble;
+import net.amygdalum.testrecorder.util.testobjects.SerializedValues;
+import net.amygdalum.testrecorder.util.testobjects.Simple;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 import net.amygdalum.testrecorder.values.SerializedList;
@@ -33,96 +33,94 @@ import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class SetupGeneratorsTest {
 
-	private ConfigurableSerializerFacade facade;
-	private SetupGenerators setupCode;
-	
-	@Before
-	public void before() throws Exception {
-		facade = new ConfigurableSerializerFacade(new DefaultTestRecorderAgentConfig());
-		setupCode = new SetupGenerators(getClass());
-	}
-	
-	@Test
-	public void testVisitField() throws Exception {
-		DefaultListSerializer serializer = new DefaultListSerializer(facade);
-		Type type = parameterized(ArrayList.class,null, String.class);
-		SerializedList value = serializer.generate(type, type);
-		serializer.populate(value, visible("Foo","Bar"));
-		
-		Computation result = setupCode.visitField(new SerializedField(ListContainer.class, "list", type, value));
-		
-		assertThat(result.getStatements().toString(), containsPattern("ArrayList<String> list1 = new ArrayList*"));
-		assertThat(result.getValue(), equalTo("ArrayList<String> list = list1;"));
-	}
+    private SerializedValues values;
+    private SetupGenerators setupCode;
 
-	@Test
-	public void testVisitFieldWithCastNeeded() throws Exception {
-		Computation result = setupCode.visitField(new SerializedField(Container.class, "field", Sub.class, object(Super.class, new Sub())));
-		
-		assertThat(result.getStatements().toString(), containsPattern("Super super1 = new Super*"));
-		assertThat(result.getValue(), equalTo("Sub field = (Sub) super1;"));
-	}
+    @Before
+    public void before() throws Exception {
+        values = new SerializedValues();
+        setupCode = new SetupGenerators(getClass());
+    }
 
-	@Test
-	public void testVisitFieldWithHiddenTypeAndVisibleResult() throws Exception {
-		SerializedObject value = object(parameterized(innerType(SetupGeneratorsTest.class, "HiddenList"),null, String.class), hidden("Foo","Bar"));
-		
-		Computation result = setupCode.visitField(new SerializedField(ListContainer.class, "list", parameterized(List.class,null, String.class), value));
-		
-		assertThat(result.getStatements().toString(), containsPattern("List hiddenList2 = (List<String>) new GenericObject*.as(clazz(*HiddenList*)*.value()"));
-		assertThat(result.getValue(), equalTo("List<String> list = hiddenList2;"));
-	}
+    @Test
+    public void testVisitField() throws Exception {
+        Type type = parameterized(ArrayList.class, null, String.class);
+        SerializedList value = values.list(type, arrayList("Foo", "Bar"));
 
-	@Test
-	public void testVisitFieldWithHiddenTypeAndHiddenResult() throws Exception {
-		SerializedObject value = object(parameterized(innerType(SetupGeneratorsTest.class, "HiddenList"),null, String.class), hidden("Foo","Bar"));
-		
-		Computation result = setupCode.visitField(new SerializedField(ListContainer.class, "list", parameterized(innerType(SetupGeneratorsTest.class, "HiddenList"),null, String.class), value));
-		
-		assertThat(result.getStatements().toString(), containsPattern("Object hiddenList2 = *new GenericObject*value()"));
-		assertThat(result.getValue(), equalTo("Object list = hiddenList2;"));
-	}
+        Computation result = setupCode.visitField(new SerializedField(ContainingList.class, "list", type, value));
 
-	@Test
-	public void testVisitReferenceType() throws Exception {
-		SerializedObject value = object(Name.class, new Name("Foo","Bar"));
-		
-		Computation result = setupCode.visitReferenceType(value);
-		
-		assertThat(result.getStatements().toString(), containsString("Name name1 = new Name(\"Foo\", \"Bar\");"));
-		assertThat(result.getValue(), equalTo("name1"));
-	}
+        assertThat(result.getStatements().toString(), containsPattern("ArrayList<String> list1 = new ArrayList*"));
+        assertThat(result.getValue(), equalTo("ArrayList<String> list = list1;"));
+    }
 
-	@Test
-	public void testVisitReferenceTypeRevisited() throws Exception {
-		SerializedObject value = object(Name.class, new Name("Foo","Bar"));
-		setupCode.visitReferenceType(value);
-		
-		Computation result = setupCode.visitReferenceType(value);
-		
-		assertThat(result.getStatements(), empty());
-		assertThat(result.getValue(), equalTo("name1"));
-	}
+    @Test
+    public void testVisitFieldWithCastNeeded() throws Exception {
+        Computation result = setupCode.visitField(new SerializedField(Complex.class, "simple", Simple.class, values.object(Object.class, new Complex())));
 
-	@Test
-	public void testVisitImmutableType() throws Exception {
-		SerializedImmutable<BigInteger> value = bigInteger(BigInteger.valueOf(42));
-		
-		Computation result = setupCode.visitImmutableType(value);
-		
-		assertThat(result.getStatements(), empty());
-		assertThat(result.getValue(), equalTo("new BigInteger(\"42\")"));
-	}
+        assertThat(result.getStatements().toString(), containsPattern("Complex complex1 = new Complex*"));
+        assertThat(result.getValue(), equalTo("Simple simple = (Simple) complex1;"));
+    }
 
-	@Test
-	public void testVisitValueType() throws Exception {
-		SerializedLiteral value = literal(int.class, 42);
-		
-		Computation result = setupCode.visitValueType(value);
-		
-		assertThat(result.getStatements(), empty());
-		assertThat(result.getValue(), equalTo("42"));
-	}
+    @Test
+    public void testVisitFieldWithHiddenTypeAndVisibleResult() throws Exception {
+        SerializedObject value = values.object(parameterized(classOfHiddenList(), null, String.class), hiddenList("Foo", "Bar"));
+
+        Computation result = setupCode.visitField(new SerializedField(ContainingList.class, "list", parameterized(List.class, null, String.class), value));
+
+        assertThat(result.getStatements().toString(), containsPattern("List hiddenList2 = (List<String>) new GenericObject*.as(clazz(*HiddenList*)*.value()"));
+        assertThat(result.getValue(), equalTo("List<String> list = hiddenList2;"));
+    }
+
+    @Test
+    public void testVisitFieldWithHiddenTypeAndHiddenResult() throws Exception {
+        SerializedObject value = values.object(parameterized(classOfHiddenList(), null, String.class), hiddenList("Foo", "Bar"));
+
+        Computation result = setupCode.visitField(new SerializedField(ContainingList.class, "list", parameterized(classOfHiddenList(), null, String.class), value));
+
+        assertThat(result.getStatements().toString(), containsPattern("Object hiddenList2 = *new GenericObject*value()"));
+        assertThat(result.getValue(), equalTo("Object list = hiddenList2;"));
+    }
+
+    @Test
+    public void testVisitReferenceType() throws Exception {
+        SerializedObject value = values.object(Dubble.class, new Dubble("Foo", "Bar"));
+
+        Computation result = setupCode.visitReferenceType(value);
+
+        assertThat(result.getStatements().toString(), containsString("Dubble dubble1 = new Dubble(\"Foo\", \"Bar\");"));
+        assertThat(result.getValue(), equalTo("dubble1"));
+    }
+
+    @Test
+    public void testVisitReferenceTypeRevisited() throws Exception {
+        SerializedObject value = values.object(Dubble.class, new Dubble("Foo", "Bar"));
+        setupCode.visitReferenceType(value);
+
+        Computation result = setupCode.visitReferenceType(value);
+
+        assertThat(result.getStatements(), empty());
+        assertThat(result.getValue(), equalTo("dubble1"));
+    }
+
+    @Test
+    public void testVisitImmutableType() throws Exception {
+        SerializedImmutable<BigInteger> value = values.bigInteger(BigInteger.valueOf(42));
+
+        Computation result = setupCode.visitImmutableType(value);
+
+        assertThat(result.getStatements(), empty());
+        assertThat(result.getValue(), equalTo("new BigInteger(\"42\")"));
+    }
+
+    @Test
+    public void testVisitValueType() throws Exception {
+        SerializedLiteral value = literal(int.class, 42);
+
+        Computation result = setupCode.visitValueType(value);
+
+        assertThat(result.getStatements(), empty());
+        assertThat(result.getValue(), equalTo("42"));
+    }
 
     @Test
     public void testTemporaryLocal() throws Exception {
@@ -136,72 +134,4 @@ public class SetupGeneratorsTest {
         assertThat(setupCode.newLocal("var"), equalTo("var2"));
     }
 
-	private SerializedObject object(Type type, Object object) {
-		GenericSerializer serializer = new GenericSerializer(facade);
-		SerializedObject value = (SerializedObject) serializer.generate(type, type);
-		serializer.populate(value, object);
-		return value;
-	}
-
-	private SerializedImmutable<BigInteger> bigInteger(BigInteger object) {
-		BigIntegerSerializer serializer = new BigIntegerSerializer(facade);
-		SerializedImmutable<BigInteger> value = serializer.generate(BigInteger.class, BigInteger.class);
-		serializer.populate(value, object);
-		return value;
-	}
-	
-	@SafeVarargs
-	private static <S> ArrayList<S> visible(S... elements) {
-		ArrayList<S> hiddenList = new ArrayList<>();
-		for (S element : elements) {
-			hiddenList.add(element);
-		}
-		return hiddenList;
-	}
-	
-	@SafeVarargs
-	private static <S> HiddenList<S> hidden(S... elements) {
-		HiddenList<S> hiddenList = new HiddenList<>();
-		for (S element : elements) {
-			hiddenList.add(element);
-		}
-		return hiddenList;
-	}
-
-	@SuppressWarnings("unused")
-	private static class ListContainer {
-		private HiddenList<String> list;
-		
-		public ListContainer(HiddenList<String> list) {
-			this.list = list;
-		}
-		
-		public List<String> getList() {
-			return list;
-		}
-	}
-	
-	private static class HiddenList<T> extends ArrayList<T> {
-	}
-
-	public static class Name {
-		public String firstName;
-		public String lastName;
-
-		public Name(String firstName, String lastName) {
-			this.firstName = firstName;
-			this.lastName = lastName;
-		}
-		
-	}
-
-	@SuppressWarnings("unused")
-	public static class Container {
-		private Sub field;
-		
-		public Container(Sub value) {
-			field = value;
-		}
-	}
-	
 }

@@ -151,8 +151,6 @@ public class GenericMatcherTest {
             String str = "str";
         }.matching(Super.class);
 
-        StringDescription desc = new StringDescription();
-
         assertThat(matcher.matches(new Sub("str")), is(false));
     }
 

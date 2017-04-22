@@ -11,17 +11,18 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
+import net.amygdalum.testrecorder.util.testobjects.Simple;
 import net.amygdalum.testrecorder.values.SerializedField;
 
 public class ConstructorParamTest {
 
-    private Constructor<TestObject> constructor;
+    private Constructor<Simple> constructor;
     private ConstructorParam constructorParam;
 
     @Before
     public void before() throws Exception {
-        constructor = TestObject.class.getDeclaredConstructor(String.class);
-        constructorParam = new ConstructorParam(constructor, 0, new SerializedField(TestObject.class, "field", String.class, literal("value")), "value");
+        constructor = Simple.class.getDeclaredConstructor(String.class);
+        constructorParam = new ConstructorParam(constructor, 0, new SerializedField(Simple.class, "field", String.class, literal("value")), "value");
     }
 
     @Test
@@ -43,15 +44,15 @@ public class ConstructorParamTest {
 
     @Test
     public void testToString() throws Exception {
-        assertThat(constructorParam.toString(), equalTo("public net.amygdalum.testrecorder.deserializers.ConstructorParamTest$TestObject(java.lang.String):0=value=> field"));
+        assertThat(constructorParam.toString(), equalTo("public net.amygdalum.testrecorder.util.testobjects.Simple(java.lang.String):0=value=> field"));
     }
 
     @Test
     public void testCompile() throws Exception {
-        SetupGenerators compiler = new SetupGenerators(TestObject.class);
+        SetupGenerators compiler = new SetupGenerators(Simple.class);
         TypeManager types = new TypeManager();
         
-        assertThat(new ConstructorParam(constructor, 0, new SerializedField(TestObject.class, "field", String.class, literal("value")), "value")
+        assertThat(new ConstructorParam(constructor, 0, new SerializedField(Simple.class, "field", String.class, literal("value")), "value")
             .compile(types , compiler).getValue(), equalTo("\"value\""));
         assertThat(new ConstructorParam(constructor, 0)
             .assertType(String.class)
@@ -60,27 +61,15 @@ public class ConstructorParamTest {
             .insertTypeCasts()
             .assertType(String.class)
             .compile(types , compiler).getValue(), equalTo("(String) null"));
-        assertThat(new ConstructorParam(constructor, 0, new SerializedField(TestObject.class, "field", String.class, literal("value")), "value")
+        assertThat(new ConstructorParam(constructor, 0, new SerializedField(Simple.class, "field", String.class, literal("value")), "value")
             .assertType(Integer.class)
             .compile(types , compiler).getValue(), equalTo("(Integer) \"value\""));
-        assertThat(new ConstructorParam(constructor, 0, new SerializedField(TestObject.class, "field", String.class, literal("value")), "value")
+        assertThat(new ConstructorParam(constructor, 0, new SerializedField(Simple.class, "field", String.class, literal("value")), "value")
             .assertType(String.class)
             .compile(types , compiler).getValue(), equalTo("\"value\""));
-        assertThat(new ConstructorParam(constructor, 0, new SerializedField(TestObject.class, "field", String.class, nullInstance(String.class)), null)
+        assertThat(new ConstructorParam(constructor, 0, new SerializedField(Simple.class, "field", String.class, nullInstance(String.class)), null)
             .assertType(String.class)
             .compile(types , compiler).getValue(), equalTo("null"));
-    }
-
-    public static class TestObject {
-        private String field;
-
-        public TestObject(String field) {
-            this.field = field;
-        }
-
-        public String getField() {
-            return field;
-        }
     }
 
 }

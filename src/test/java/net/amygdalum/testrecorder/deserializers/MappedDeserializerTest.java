@@ -16,6 +16,7 @@ import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedImmutableType;
 import net.amygdalum.testrecorder.SerializedReferenceType;
 import net.amygdalum.testrecorder.SerializedValueType;
+import net.amygdalum.testrecorder.util.testobjects.Simple;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
@@ -37,7 +38,7 @@ public class MappedDeserializerTest {
 
     @Test
     public void testVisitField() throws Exception {
-        SerializedField field = new SerializedField(TestObject.class, "field", String.class, literal("v"));
+        SerializedField field = new SerializedField(Simple.class, "str", String.class, literal("v"));
         when(deserializer.visitField(field, DeserializerContext.NULL)).thenReturn(2);
 
         assertThat(mappedDeserializer.visitField(field), equalTo(2l));
@@ -46,7 +47,7 @@ public class MappedDeserializerTest {
 
     @Test
     public void testVisitReferenceType() throws Exception {
-        SerializedReferenceType object = new SerializedObject(TestObject.class);
+        SerializedReferenceType object = new SerializedObject(Simple.class);
         when(deserializer.visitReferenceType(object, DeserializerContext.NULL)).thenReturn(3);
 
         assertThat(mappedDeserializer.visitReferenceType(object), equalTo(3l));
@@ -66,12 +67,6 @@ public class MappedDeserializerTest {
         when(deserializer.visitValueType(object, DeserializerContext.NULL)).thenReturn(5);
 
         assertThat(mappedDeserializer.visitValueType(object), equalTo(5l));
-    }
-
-    @SuppressWarnings("unused")
-    public static class TestObject {
-
-        private String field;
     }
 
 }
