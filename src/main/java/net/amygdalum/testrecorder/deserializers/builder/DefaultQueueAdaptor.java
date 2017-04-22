@@ -33,7 +33,7 @@ public class DefaultQueueAdaptor extends DefaultSetupGenerator<SerializedList> i
         TypeManager types = generator.getTypes();
         Type type = value.getType();
         Type resultType = value.getResultType();
-        types.registerTypes(resultType, type);
+        types.registerTypes(resultType, type, value.getComponentType());
 
         return generator.forVariable(value, Queue.class, local -> {
 

@@ -50,6 +50,7 @@ public class ArraysListAdaptor implements SetupGenerator<SerializedList> {
 	public Computation tryDeserialize(SerializedList value, SetupGenerators generator, DeserializerContext context) {
 		TypeManager types = generator.getTypes();
 		types.staticImport(Arrays.class, "asList");
+        types.registerType(value.getComponentType());
 
 		Type type = array(value.getComponentType());
 		SerializedArray baseValue = new SerializedArray(type);

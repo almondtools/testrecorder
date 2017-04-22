@@ -32,7 +32,7 @@ public class DefaultListAdaptor extends DefaultSetupGenerator<SerializedList> im
         TypeManager types = generator.getTypes();
         Type type = value.getType();
         Type resultType = value.getResultType();
-        types.registerTypes(resultType, type);
+        types.registerTypes(resultType, type, value.getComponentType());
 
         return generator.forVariable(value, List.class, local -> {
 

@@ -51,6 +51,7 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
 	public Computation tryDeserialize(SerializedSet value, SetupGenerators generator, DeserializerContext context) {
 		TypeManager types = generator.getTypes();
 		types.registerImport(Set.class);
+		types.registerType(value.getComponentType());
 
 		String name = types.getRawName(value.getType());
 		if (name.contains("Empty")) {

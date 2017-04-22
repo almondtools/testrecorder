@@ -8,6 +8,11 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
+import net.amygdalum.testrecorder.util.testobjects.EmptyEnum;
+import net.amygdalum.testrecorder.util.testobjects.OrthogonalInterface;
+import net.amygdalum.testrecorder.util.testobjects.PublicEnum;
+import net.amygdalum.testrecorder.util.testobjects.Simple;
+
 public class NonDefaultValueTest {
 
     @Test
@@ -23,8 +28,8 @@ public class NonDefaultValueTest {
         assertThat(NonDefaultValue.of(int[].class), equalTo(new int[1]));
         assertThat(NonDefaultValue.of(String.class), equalTo("String"));
         assertThat(NonDefaultValue.of(Object.class), notNullValue());
-        assertThat(NonDefaultValue.of(AnInterface.class), instanceOf(AnInterface.class));
-        assertThat(NonDefaultValue.of(AnEnum.class), instanceOf(AnEnum.class));
+        assertThat(NonDefaultValue.of(OrthogonalInterface.class), instanceOf(OrthogonalInterface.class));
+        assertThat(NonDefaultValue.of(PublicEnum.class), instanceOf(PublicEnum.class));
         assertThat(NonDefaultValue.of(EmptyEnum.class), nullValue());
         assertThat(NonDefaultValue.of(Simple.class), instanceOf(Simple.class));
     }
@@ -42,36 +47,10 @@ public class NonDefaultValueTest {
         assertThat(NonDefaultValue.INSTANCE.getDescription(int[].class), equalTo("new int[1]"));
         assertThat(NonDefaultValue.INSTANCE.getDescription(String.class), equalTo("\"String\""));
         assertThat(NonNullValue.INSTANCE.getDescription(Object.class), equalTo("new Object()"));
-        assertThat(NonDefaultValue.INSTANCE.getDescription(AnInterface.class), equalTo("proxy AnInterface()"));
-        assertThat(NonDefaultValue.INSTANCE.getDescription(AnEnum.class), equalTo("ENUM"));
+        assertThat(NonDefaultValue.INSTANCE.getDescription(OrthogonalInterface.class), equalTo("proxy OrthogonalInterface()"));
+        assertThat(NonDefaultValue.INSTANCE.getDescription(PublicEnum.class), equalTo("VALUE1"));
         assertThat(NonDefaultValue.INSTANCE.getDescription(EmptyEnum.class), equalTo("null"));
         assertThat(NonDefaultValue.INSTANCE.getDescription(Simple.class), equalTo("new Simple()"));
-    }
-
-    private interface AnInterface {
-    }
-
-    private enum AnEnum {
-        ENUM;
-    }
-
-    private enum EmptyEnum {
-    }
-
-    @SuppressWarnings("unused")
-    private static class Simple {
-        private String str;
-
-        public Simple() {
-        }
-
-        public Simple(String str) {
-            this.str = str;
-        }
-
-        public String getStr() {
-            return str;
-        }
     }
 
 }

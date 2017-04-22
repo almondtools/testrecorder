@@ -35,7 +35,7 @@ public class DefaultMapAdaptor extends DefaultSetupGenerator<SerializedMap> impl
         TypeManager types = generator.getTypes();
         Type type = value.getType();
         Type resultType = value.getResultType();
-        types.registerTypes(resultType, type);
+        types.registerTypes(resultType, type, value.getMapKeyType(), value.getMapValueType());
 
         return generator.forVariable(value, Map.class, local -> {
 

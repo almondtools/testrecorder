@@ -18,7 +18,7 @@ public class SerializedImmutableTest {
 
 	@Before
 	public void before() throws Exception {
-		value = new TestImmutable(String.class);
+		value = new AnImmutable(String.class);
 	}
 
 	@Test
@@ -50,8 +50,8 @@ public class SerializedImmutableTest {
 		assertThat(value.toString(), nullValue());
 	}
 
-	private static class TestImmutable extends SerializedImmutable<String> {
-		private TestImmutable(Type type) {
+	private static class AnImmutable extends SerializedImmutable<String> {
+		private AnImmutable(Type type) {
 			super(type);
 		}
 

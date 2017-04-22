@@ -50,6 +50,7 @@ public class CollectionsListAdaptor implements SetupGenerator<SerializedList> {
 	public Computation tryDeserialize(SerializedList value, SetupGenerators generator, DeserializerContext context) {
 		TypeManager types = generator.getTypes();
 		types.registerImport(List.class);
+        types.registerType(value.getComponentType());
 
 		String name = types.getRawName(value.getType());
 		if (name.contains("Empty")) {

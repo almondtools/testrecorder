@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static net.amygdalum.testrecorder.util.Types.parameterized;
+import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenSet;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.allOf;
@@ -20,6 +21,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.util.testobjects.OrthogonalInterface;
+import net.amygdalum.testrecorder.util.testobjects.PublicSet;
 import net.amygdalum.testrecorder.values.SerializedSet;
 
 public class DefaultSetAdaptorTest {
@@ -86,7 +89,7 @@ public class DefaultSetAdaptorTest {
     @Test
     public void testTryDeserializeNonListResult() throws Exception {
         SerializedSet value = new SerializedSet(parameterized(PublicSet.class, null, Integer.class))
-            .withResult(AnInterface.class);
+            .withResult(OrthogonalInterface.class);
         value.add(literal(0));
         value.add(literal(8));
         value.add(literal(15));
@@ -99,14 +102,14 @@ public class DefaultSetAdaptorTest {
             containsString("temp1.add(0)"),
             containsString("temp1.add(8)"),
             containsString("temp1.add(15)"),
-            containsString("AnInterface set1 = temp1;")));
+            containsString("OrthogonalInterface set1 = temp1;")));
         assertThat(result.getValue(), equalTo("set1"));
     }
 
     @Test
     public void testTryDeserializeNeedingAdaptation() throws Exception {
-        SerializedSet value = new SerializedSet(parameterized(PrivateSet.class, null, Integer.class))
-            .withResult(AnInterface.class);
+        SerializedSet value = new SerializedSet(parameterized(classOfHiddenSet(), null, Integer.class))
+            .withResult(OrthogonalInterface.class);
         value.add(literal(0));
         value.add(literal(8));
         value.add(literal(15));
@@ -115,17 +118,17 @@ public class DefaultSetAdaptorTest {
         Computation result = adaptor.tryDeserialize(value, generator);
 
         assertThat(result.getStatements().toString(), allOf(
-            containsString("java.util.Set temp1 = (java.util.Set) clazz(\"net.amygdalum.testrecorder.deserializers.builder.DefaultSetAdaptorTest$PrivateSet\").value();"),
+            containsString("java.util.Set temp1 = (java.util.Set) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenSet\").value();"),
             containsString("temp1.add(0)"),
             containsString("temp1.add(8)"),
             containsString("temp1.add(15)"),
-            containsString("AnInterface set1 = (AnInterface) temp1;")));
+            containsString("OrthogonalInterface set1 = (OrthogonalInterface) temp1;")));
         assertThat(result.getValue(), equalTo("set1"));
     }
 
     @Test
     public void testTryDeserializeNeedingHiddenAdaptation() throws Exception {
-        SerializedSet value = new SerializedSet(parameterized(PrivateSet.class, null, Integer.class)).withResult(parameterized(LinkedHashSet.class, null, Integer.class));
+        SerializedSet value = new SerializedSet(parameterized(classOfHiddenSet(), null, Integer.class)).withResult(parameterized(LinkedHashSet.class, null, Integer.class));
         value.add(literal(0));
         value.add(literal(8));
         value.add(literal(15));
@@ -133,25 +136,13 @@ public class DefaultSetAdaptorTest {
 
         Computation result = adaptor.tryDeserialize(value, generator);
 
-        assertThat(result.getStatements().toString(), not(containsString("new net.amygdalum.testrecorder.deserializers.builder.DefaultSetAdaptorTest$PrivateSet"))); 
+        assertThat(result.getStatements().toString(), not(containsString("new net.amygdalum.testrecorder.util.testobjects.Hidden.HiddenSet"))); 
         assertThat(result.getStatements().toString(), allOf(
-            containsString("LinkedHashSet<Integer> set1 = (LinkedHashSet<Integer>) clazz(\"net.amygdalum.testrecorder.deserializers.builder.DefaultSetAdaptorTest$PrivateSet\").value();"), 
+            containsString("LinkedHashSet<Integer> set1 = (LinkedHashSet<Integer>) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenSet\").value();"), 
             containsString("set1.add(0)"),
             containsString("set1.add(8)"),
             containsString("set1.add(15)")));
         assertThat(result.getValue(), equalTo("set1"));
     }
 
-    public interface AnInterface {
-        
-    }
-    
-    private static class PrivateSet<T> extends LinkedHashSet<T> implements AnInterface {
-
-    }
-    
-    public static class PublicSet<T> extends LinkedHashSet<T> implements AnInterface {
-
-    }
-    
 }

@@ -6,6 +6,10 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
+import net.amygdalum.testrecorder.util.testobjects.OrthogonalInterface;
+import net.amygdalum.testrecorder.util.testobjects.PublicEnum;
+import net.amygdalum.testrecorder.util.testobjects.Simple;
+
 public class DefaultValueTest {
 
     @Test
@@ -19,8 +23,8 @@ public class DefaultValueTest {
         assertThat(DefaultValue.of(boolean.class), equalTo(Boolean.valueOf("false")));
         assertThat(DefaultValue.of(char.class), equalTo(Character.valueOf((char) 0)));
         assertThat(DefaultValue.of(String.class), nullValue());
-        assertThat(DefaultValue.of(AnEnum.class), nullValue());
-        assertThat(DefaultValue.of(AnInterface.class), nullValue());
+        assertThat(DefaultValue.of(PublicEnum.class), nullValue());
+        assertThat(DefaultValue.of(OrthogonalInterface.class), nullValue());
         assertThat(DefaultValue.of(Object.class), nullValue());
         assertThat(DefaultValue.of(Simple.class), nullValue());
     }
@@ -38,33 +42,9 @@ public class DefaultValueTest {
         assertThat(DefaultValue.INSTANCE.getDescription(int[].class), equalTo("null"));
         assertThat(DefaultValue.INSTANCE.getDescription(String.class), equalTo("null"));
         assertThat(DefaultValue.INSTANCE.getDescription(Object.class), equalTo("null"));
-        assertThat(DefaultValue.INSTANCE.getDescription(AnInterface.class), equalTo("null"));
-        assertThat(DefaultValue.INSTANCE.getDescription(AnEnum.class), equalTo("null"));
+        assertThat(DefaultValue.INSTANCE.getDescription(OrthogonalInterface.class), equalTo("null"));
+        assertThat(DefaultValue.INSTANCE.getDescription(PublicEnum.class), equalTo("null"));
         assertThat(DefaultValue.INSTANCE.getDescription(Simple.class), equalTo("null"));
     }
 
-    private interface AnInterface {
-        
-    }
-
-    private enum AnEnum {
-        ENUM;
-    }
-
-    @SuppressWarnings("unused")
-    private static class Simple {
-        private String str;
-
-        public Simple() {
-        }
-
-        public Simple(String str) {
-            this.str = str;
-        }
-
-        public String getStr() {
-            return str;
-        }
-    }
-    
 }

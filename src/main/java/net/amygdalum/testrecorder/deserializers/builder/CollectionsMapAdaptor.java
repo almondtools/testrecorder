@@ -53,6 +53,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 	public Computation tryDeserialize(SerializedMap value, SetupGenerators generator, DeserializerContext context) {
 		TypeManager types = generator.getTypes();
 		types.registerImport(Map.class);
+        types.registerTypes(value.getMapKeyType(), value.getMapValueType());
 
 		String name = types.getRawName(value.getType());
 		if (name.contains("Empty")) {

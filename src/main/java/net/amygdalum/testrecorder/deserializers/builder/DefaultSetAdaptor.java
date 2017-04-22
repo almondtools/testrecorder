@@ -33,7 +33,7 @@ public class DefaultSetAdaptor extends DefaultSetupGenerator<SerializedSet> impl
         TypeManager types = generator.getTypes();
         Type type = value.getType();
         Type resultType = value.getResultType();
-        types.registerTypes(resultType, type);
+        types.registerTypes(resultType, type, value.getComponentType());
 
         return generator.forVariable(value, Set.class, local -> {
 

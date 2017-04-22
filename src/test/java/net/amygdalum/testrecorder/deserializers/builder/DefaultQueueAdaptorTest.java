@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static net.amygdalum.testrecorder.util.Types.parameterized;
+import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenQueue;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.allOf;
@@ -19,6 +20,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.util.testobjects.OrthogonalInterface;
+import net.amygdalum.testrecorder.util.testobjects.PublicQueue;
 import net.amygdalum.testrecorder.values.SerializedList;
 
 public class DefaultQueueAdaptorTest {
@@ -83,8 +86,8 @@ public class DefaultQueueAdaptorTest {
 	
     @Test
     public void testTryDeserializeNonListResult() throws Exception {
-        SerializedList value = new SerializedList(parameterized(PublicList.class, null, Integer.class))
-            .withResult(AnInterface.class);
+        SerializedList value = new SerializedList(parameterized(PublicQueue.class, null, Integer.class))
+            .withResult(OrthogonalInterface.class);
         value.add(literal(0));
         value.add(literal(8));
         value.add(literal(15));
@@ -93,18 +96,18 @@ public class DefaultQueueAdaptorTest {
         Computation result = adaptor.tryDeserialize(value, generator);
 
         assertThat(result.getStatements().toString(), allOf(
-            containsString("PublicList<Integer> temp1 = new PublicList<Integer>()"), 
+            containsString("PublicQueue<Integer> temp1 = new PublicQueue<Integer>()"), 
             containsString("temp1.add(0)"),
             containsString("temp1.add(8)"),
             containsString("temp1.add(15)"),
-            containsString("AnInterface queue1 = temp1;")));
+            containsString("OrthogonalInterface queue1 = temp1;")));
         assertThat(result.getValue(), equalTo("queue1"));
     }
 
     @Test
     public void testTryDeserializeNeedingAdaptation() throws Exception {
-        SerializedList value = new SerializedList(parameterized(PrivateList.class, null, Integer.class))
-            .withResult(AnInterface.class);
+        SerializedList value = new SerializedList(parameterized(classOfHiddenQueue(), null, Integer.class))
+            .withResult(OrthogonalInterface.class);
         value.add(literal(0));
         value.add(literal(8));
         value.add(literal(15));
@@ -113,17 +116,17 @@ public class DefaultQueueAdaptorTest {
         Computation result = adaptor.tryDeserialize(value, generator);
 
         assertThat(result.getStatements().toString(), allOf(
-            containsString("java.util.Queue temp1 = (java.util.Queue) clazz(\"net.amygdalum.testrecorder.deserializers.builder.DefaultQueueAdaptorTest$PrivateList\").value();"),
+            containsString("java.util.Queue temp1 = (java.util.Queue) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenQueue\").value();"),
             containsString("temp1.add(0)"),
             containsString("temp1.add(8)"),
             containsString("temp1.add(15)"),
-            containsString("AnInterface queue1 = (AnInterface) temp1;")));
+            containsString("OrthogonalInterface queue1 = (OrthogonalInterface) temp1;")));
         assertThat(result.getValue(), equalTo("queue1"));
     }
 
     @Test
     public void testTryDeserializeHiddenType() throws Exception {
-        SerializedList value = new SerializedList(parameterized(PrivateList.class, null, Integer.class)).withResult(parameterized(LinkedList.class, null, Integer.class));
+        SerializedList value = new SerializedList(parameterized(classOfHiddenQueue(), null, Integer.class)).withResult(parameterized(LinkedList.class, null, Integer.class));
         value.add(literal(0));
         value.add(literal(8));
         value.add(literal(15));
@@ -131,25 +134,13 @@ public class DefaultQueueAdaptorTest {
 
         Computation result = adaptor.tryDeserialize(value, generator);
 
-        assertThat(result.getStatements().toString(), not(containsString("new net.amygdalum.testrecorder.deserializers.builder.DefaultQueueAdaptorTest.PrivateList"))); 
+        assertThat(result.getStatements().toString(), not(containsString("new net.amygdalum.testrecorder.util.testobjects.Hidden.HiddenQueue"))); 
         assertThat(result.getStatements().toString(), allOf(
-            containsString("LinkedList<Integer> queue1 = (LinkedList<Integer>) clazz(\"net.amygdalum.testrecorder.deserializers.builder.DefaultQueueAdaptorTest$PrivateList\").value();"),
+            containsString("LinkedList<Integer> queue1 = (LinkedList<Integer>) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenQueue\").value();"),
             containsString("queue1.add(0)"),
             containsString("queue1.add(8)"),
             containsString("queue1.add(15)")));
         assertThat(result.getValue(), equalTo("queue1"));
-    }
-    
-    public interface AnInterface {
-        
-    }
-    
-    private static class PrivateList<T> extends LinkedList<T> implements AnInterface {
-
-    }
-    
-    public static class PublicList<T> extends LinkedList<T> implements AnInterface {
-
     }
     
 }

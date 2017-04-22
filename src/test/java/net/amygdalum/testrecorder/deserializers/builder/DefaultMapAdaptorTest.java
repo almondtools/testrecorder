@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static net.amygdalum.testrecorder.util.Types.parameterized;
+import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenMap;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.allOf;
@@ -18,6 +19,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.util.testobjects.OrthogonalInterface;
+import net.amygdalum.testrecorder.util.testobjects.PublicMap;
 import net.amygdalum.testrecorder.values.SerializedMap;
 
 public class DefaultMapAdaptorTest {
@@ -80,7 +83,7 @@ public class DefaultMapAdaptorTest {
     @Test
     public void testTryDeserializeNonListResult() throws Exception {
         SerializedMap value = new SerializedMap(parameterized(PublicMap.class, null, Integer.class, Integer.class))
-            .withResult(AnInterface.class);
+            .withResult(OrthogonalInterface.class);
         value.put(literal(8),literal(15));
         value.put(literal(47), literal(11));
         SetupGenerators generator = new SetupGenerators(Object.class);
@@ -91,14 +94,14 @@ public class DefaultMapAdaptorTest {
             containsString("PublicMap<Integer, Integer> temp1 = new PublicMap<Integer, Integer>()"), 
             containsString("temp1.put(8, 15)"),
             containsString("temp1.put(47, 11)"),
-            containsString("AnInterface map1 = temp1;")));
+            containsString("OrthogonalInterface map1 = temp1;")));
         assertThat(result.getValue(), equalTo("map1"));
     }
 
     @Test
     public void testTryDeserializeNeedingAdaptation() throws Exception {
-        SerializedMap value = new SerializedMap(parameterized(PrivateMap.class, null, Integer.class, Integer.class))
-            .withResult(AnInterface.class);
+        SerializedMap value = new SerializedMap(parameterized(classOfHiddenMap(), null, Integer.class, Integer.class))
+            .withResult(OrthogonalInterface.class);
         value.put(literal(8),literal(15));
         value.put(literal(47), literal(11));
         SetupGenerators generator = new SetupGenerators(Object.class);
@@ -106,40 +109,28 @@ public class DefaultMapAdaptorTest {
         Computation result = adaptor.tryDeserialize(value, generator);
 
         assertThat(result.getStatements().toString(), allOf(
-            containsString("java.util.Map temp1 = (java.util.Map) clazz(\"net.amygdalum.testrecorder.deserializers.builder.DefaultMapAdaptorTest$PrivateMap\").value();"),
+            containsString("java.util.Map temp1 = (java.util.Map) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenMap\").value();"),
             containsString("temp1.put(8, 15)"),
             containsString("temp1.put(47, 11)"),
-            containsString("AnInterface map1 = (AnInterface) temp1;")));
+            containsString("OrthogonalInterface map1 = (OrthogonalInterface) temp1;")));
         assertThat(result.getValue(), equalTo("map1"));
     }
     
     @Test
     public void testTryDeserializeHiddenType() throws Exception {
-        SerializedMap value = new SerializedMap(parameterized(PrivateMap.class, null, Integer.class, Integer.class)).withResult(parameterized(LinkedHashMap.class, null, Integer.class,Integer.class));
+        SerializedMap value = new SerializedMap(parameterized(classOfHiddenMap(), null, Integer.class, Integer.class)).withResult(parameterized(LinkedHashMap.class, null, Integer.class,Integer.class));
         value.put(literal(8),literal(15));
         value.put(literal(47), literal(11));
         SetupGenerators generator = new SetupGenerators(Object.class);
 
         Computation result = adaptor.tryDeserialize(value, generator);
 
-        assertThat(result.getStatements().toString(), not(containsString("new net.amygdalum.testrecorder.deserializers.builder.DefaultMapAdaptorTest.PrivateMap"))); 
+        assertThat(result.getStatements().toString(), not(containsString("new net.amygdalum.testrecorder.util.testobjects.Hidden.HiddenMap"))); 
         assertThat(result.getStatements().toString(), allOf(
-            containsString("LinkedHashMap<Integer, Integer> map1 = (LinkedHashMap<Integer, Integer>) clazz(\"net.amygdalum.testrecorder.deserializers.builder.DefaultMapAdaptorTest$PrivateMap\").value();"),
+            containsString("LinkedHashMap<Integer, Integer> map1 = (LinkedHashMap<Integer, Integer>) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenMap\").value();"),
             containsString("map1.put(8, 15)"),
             containsString("map1.put(47, 11)")));
         assertThat(result.getValue(), equalTo("map1"));
-    }
-    
-    public interface AnInterface {
-        
-    }
-    
-    private static class PrivateMap<K, V> extends LinkedHashMap<K, V> implements AnInterface {
-
-    }
-    
-    public static class PublicMap<K, V> extends LinkedHashMap<K, V> implements AnInterface {
-
     }
     
 }
