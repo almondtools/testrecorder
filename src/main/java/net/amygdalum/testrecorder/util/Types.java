@@ -207,7 +207,7 @@ public final class Types {
                 return false;
             } else if (isPrivate(modifiers)) {
                 return true;
-            } else if (!pkg.equals(clazz.getPackage().getName())) {
+            } else if (pkg == null || !pkg.equals(clazz.getPackage().getName())) {
                 return true;
             } else if (clazz.getEnclosingClass() != null) {
                 clazz = clazz.getEnclosingClass();

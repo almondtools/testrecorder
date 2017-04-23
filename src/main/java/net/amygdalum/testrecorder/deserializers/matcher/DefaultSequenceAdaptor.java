@@ -28,8 +28,6 @@ public class DefaultSequenceAdaptor extends DefaultMatcherGenerator<SerializedLi
 	@Override
 	public Computation tryDeserialize(SerializedList value, MatcherGenerators generator, DeserializerContext context) {
 		TypeManager types = generator.getTypes();
-		String componentType = types.getRelaxedName(value.getComponentType());
-
 		if (value.isEmpty()) {
 			types.staticImport(Matchers.class, "empty");
 
@@ -49,6 +47,7 @@ public class DefaultSequenceAdaptor extends DefaultMatcherGenerator<SerializedLi
 				.map(element -> element.getValue())
 				.toArray(String[]::new);
 
+	        String componentType = types.getRawName(value.getComponentType());
 			String containsMatcher = containsInOrderMatcher(componentType, elementValues);
 
 			return new Computation(containsMatcher, parameterized(Matcher.class, null, wildcard()), elementComputations);

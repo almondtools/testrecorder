@@ -95,7 +95,7 @@ public class ConstructorParam {
         if (generator.needsAdaptation(type, computation.getType()))  {
             value = generator.adapt(value, type, computation.getType());
         } else if (castNeeded()) {
-            value = cast(types.getBestName(type), value);
+            value = cast(types.getRelaxedName(type), value);
         }
         computation = new Computation(value, type, computation.getStatements());
 

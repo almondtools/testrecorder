@@ -29,8 +29,8 @@ public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> im
 	@Override
 	public Computation tryDeserialize(SerializedMap value, MatcherGenerators generator, DeserializerContext context) {
 		TypeManager types = generator.getTypes();
-		String keyType = types.getRelaxedName(value.getMapKeyType());
-		String valueType = types.getRelaxedName(value.getMapValueType());
+		String keyType = types.getRawName(value.getMapKeyType());
+		String valueType = types.getRawName(value.getMapValueType());
 		if (value.isEmpty()) {
 			types.staticImport(MapMatcher.class, "noEntries");
 

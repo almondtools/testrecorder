@@ -28,8 +28,6 @@ public class DefaultSetAdaptor extends DefaultMatcherGenerator<SerializedSet> im
 	@Override
 	public Computation tryDeserialize(SerializedSet value, MatcherGenerators generator, DeserializerContext context) {
 		TypeManager types = generator.getTypes();
-		String componentType = types.getRelaxedName(value.getComponentType());
-
 		if (value.isEmpty()) {
 			types.staticImport(Matchers.class, "empty");
 
@@ -50,6 +48,7 @@ public class DefaultSetAdaptor extends DefaultMatcherGenerator<SerializedSet> im
 				.map(element -> element.getValue())
 				.toArray(String[]::new);
 
+	        String componentType = types.getRawName(value.getComponentType());
 			String containsInAnyOrderMatcher = containsInAnyOrderMatcher(componentType, elementValues);
 			return new Computation(containsInAnyOrderMatcher, parameterized(Matcher.class, null, wildcard()), elementComputations);
 		}
