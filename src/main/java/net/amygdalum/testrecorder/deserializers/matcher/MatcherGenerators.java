@@ -108,14 +108,6 @@ public class MatcherGenerators implements Deserializer<Computation> {
         DeserializerContext fieldContext = newContext(field.getAnnotations());
         if (fieldContext.getHint(SkipChecks.class).isPresent()) {
             return null;
-        } else if (types.isHidden(field.getType())) {
-            types.registerImport(Matcher.class);
-            Computation value = fieldValue.accept(this, fieldContext);
-
-            String genericType = types.getRelaxedName(value.getType());
-
-            String assignField = assignLocalVariableStatement(genericType, field.getName(), value.getValue());
-            return new Computation(assignField, null, value.getStatements());
         } else if (isSimpleValue(fieldValue)) {
             types.registerImport(baseType(field.getType()));
             Computation value = simpleValue(fieldValue, fieldContext);
@@ -126,7 +118,7 @@ public class MatcherGenerators implements Deserializer<Computation> {
             types.registerImport(Matcher.class);
             Computation value = fieldValue.accept(this, fieldContext);
 
-            String genericType = types.getRelaxedName(value.getType());
+            String genericType = types.getRelaxedName(parameterized(Matcher.class, null, wildcard()));
 
             String assignField = assignLocalVariableStatement(genericType, field.getName(), value.getValue());
             return new Computation(assignField, null, value.getStatements());

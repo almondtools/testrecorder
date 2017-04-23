@@ -34,16 +34,17 @@ public class MapMatcher<K, V> extends TypeSafeMatcher<Map<K, V>> {
         return entry(matchKey(key), matchValue(value));
     }
 
-    public MapMatcher<K, V> entry(Matcher<K> key, V value) {
+    public MapMatcher<K, V> entry(Matcher<?> key, V value) {
         return entry(key, matchValue(value));
     }
 
-    public MapMatcher<K, V> entry(K key, Matcher<V> value) {
+    public MapMatcher<K, V> entry(K key, Matcher<?> value) {
         return entry(matchKey(key), value);
     }
 
-    public MapMatcher<K, V> entry(Matcher<K> key, Matcher<V> value) {
-        entries.put(key, value);
+    @SuppressWarnings("unchecked")
+    public MapMatcher<K, V> entry(Matcher<?> key, Matcher<?> value) {
+        entries.put((Matcher<K>) key, (Matcher<V>) value);
         return this;
     }
 

@@ -7,6 +7,7 @@ import static net.amygdalum.testrecorder.util.Types.array;
 import static net.amygdalum.testrecorder.util.Types.equalTypes;
 import static net.amygdalum.testrecorder.util.Types.innerClasses;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
+import static net.amygdalum.testrecorder.util.Types.wildcard;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -22,54 +23,58 @@ import net.amygdalum.testrecorder.values.SerializedList;
 
 public class ArraysListAdaptor implements SetupGenerator<SerializedList> {
 
-	private DefaultArrayAdaptor adaptor;
+    private DefaultArrayAdaptor adaptor;
 
-	public ArraysListAdaptor() {
-		this.adaptor = new DefaultArrayAdaptor();
-	}
+    public ArraysListAdaptor() {
+        this.adaptor = new DefaultArrayAdaptor();
+    }
 
-	@Override
-	public Class<SerializedList> getAdaptedClass() {
-		return SerializedList.class;
-	}
+    @Override
+    public Class<SerializedList> getAdaptedClass() {
+        return SerializedList.class;
+    }
 
-	@Override
-	public Class<? extends SetupGenerator<SerializedList>> parent() {
-		return DefaultListAdaptor.class;
-	}
+    @Override
+    public Class<? extends SetupGenerator<SerializedList>> parent() {
+        return DefaultListAdaptor.class;
+    }
 
-	@Override
-	public boolean matches(Type type) {
-		return innerClasses(Arrays.class).stream()
-			.filter(in("ArrayList"))
-			.filter(element -> List.class.isAssignableFrom(element))
-			.anyMatch(element -> equalTypes(element, type));
-	}
+    @Override
+    public boolean matches(Type type) {
+        return innerClasses(Arrays.class).stream()
+            .filter(in("ArrayList"))
+            .filter(element -> List.class.isAssignableFrom(element))
+            .anyMatch(element -> equalTypes(element, type));
+    }
 
-	@Override
-	public Computation tryDeserialize(SerializedList value, SetupGenerators generator, DeserializerContext context) {
-		TypeManager types = generator.getTypes();
-		types.staticImport(Arrays.class, "asList");
-        types.registerType(value.getComponentType());
+    @Override
+    public Computation tryDeserialize(SerializedList value, SetupGenerators generator, DeserializerContext context) {
+        Type componentType = value.getComponentType();
 
-		Type type = array(value.getComponentType());
-		SerializedArray baseValue = new SerializedArray(type);
-		for (SerializedValue element : value) {
-			baseValue.add(element);
-		}
+        TypeManager types = generator.getTypes();
+        types.staticImport(Arrays.class, "asList");
+        types.registerType(componentType);
 
-		Type resultType = parameterized(List.class, null, value.getComponentType());
-		return generator.forVariable(value, resultType, local -> {
+        Type type = array(componentType);
+        SerializedArray baseValue = new SerializedArray(type);
+        for (SerializedValue element : value) {
+            baseValue.add(element);
+        }
 
-			Computation computation = adaptor.tryDeserialize(baseValue, generator, context);
-			List<String> statements = new LinkedList<>(computation.getStatements());
-			String resultArray = computation.getValue();
+        Type resultType = types.isHidden(componentType)
+            ? parameterized(List.class, null, wildcard())
+            : parameterized(List.class, null, componentType);
+        return generator.forVariable(value, resultType, local -> {
 
-			String asListStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod("asList", resultArray));
-			statements.add(asListStatement);
+            Computation computation = adaptor.tryDeserialize(baseValue, generator, context);
+            List<String> statements = new LinkedList<>(computation.getStatements());
+            String resultArray = computation.getValue();
 
-			return new Computation(local.getName(), value.getResultType(), statements);
-		});
-	}
+            String asListStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod("asList", resultArray));
+            statements.add(asListStatement);
+
+            return new Computation(local.getName(), value.getResultType(), statements);
+        });
+    }
 
 }

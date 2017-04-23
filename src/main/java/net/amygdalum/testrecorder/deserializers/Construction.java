@@ -44,6 +44,9 @@ public class Construction {
     }
 
     public Computation computeBest(TypeManager types, SetupGenerators generator) throws InstantiationException {
+        if (types.isHidden(serialized.getType())) {
+            throw new InstantiationException();
+        }
         fillOrigins(types);
 
         List<String> fields = getFields();

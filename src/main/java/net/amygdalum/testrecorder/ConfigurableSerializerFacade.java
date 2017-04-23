@@ -118,7 +118,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
     private SerializedField createField(Field field, Object obj) throws IllegalAccessException {
         Class<?> declaringClass = field.getDeclaringClass();
         String name = field.getName();
-        Class<?> type = field.getType();
+        Type type = field.getGenericType();
         SerializedValue serializedObject = serialize(type, field.get(obj));
         SerializedField serializedField = new SerializedField(declaringClass, name, type, serializedObject);
 

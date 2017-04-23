@@ -37,9 +37,10 @@ public class DefaultEnumAdaptor extends DefaultMatcherGenerator<SerializedEnum> 
 	@Override
 	public Computation tryDeserialize(SerializedEnum value, MatcherGenerators generator, DeserializerContext context) {
 		TypeManager types = generator.getTypes();
-		types.registerType(value.getType());
+		Type type = value.getType();
+        types.registerType(type);
 
-		if (types.isHidden(value.getType())) {
+		if (types.isHidden(type)) {
 			if (!Enum.class.isAssignableFrom(baseType(value.getResultType()))) {
 				types.staticImport(WideningMatcher.class, "widening");
 			}
@@ -48,19 +49,19 @@ public class DefaultEnumAdaptor extends DefaultMatcherGenerator<SerializedEnum> 
 			types.staticImport(Matchers.class, "sameInstance");
 		}
 
-		if (types.isHidden(value.getType())) {
+		if (types.isHidden(type)) {
 			String enumMatcher = enumMatcher(asLiteral(value.getName()));
 			if (!Enum.class.isAssignableFrom(baseType(value.getResultType()))) {
 				enumMatcher = widening(enumMatcher); 
 			}
 			return new Computation(enumMatcher, parameterized(Matcher.class, null, wildcardExtends(Enum.class)), emptyList());
 		} else {
-			String typeName = types.getBestName(value.getType());
+			String typeName = types.getBestName(type);
 			String name = value.getName();
 
 			String matchingValue = fieldAccess(typeName, name);
 			String enumMatcher = sameInstanceMatcher(matchingValue);
-			return new Computation(enumMatcher, parameterized(Matcher.class, null, value.getType()), emptyList());
+			return new Computation(enumMatcher, parameterized(Matcher.class, null, type), emptyList());
 		}
 	}
 

@@ -6,6 +6,7 @@ import static net.amygdalum.testrecorder.deserializers.Templates.callMethodState
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.equalTypes;
+import static net.amygdalum.testrecorder.util.Types.typeArgument;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -32,24 +33,33 @@ public class DefaultMapAdaptor extends DefaultSetupGenerator<SerializedMap> impl
 
     @Override
     public Computation tryDeserialize(SerializedMap value, SetupGenerators generator, DeserializerContext context) {
-        TypeManager types = generator.getTypes();
         Type type = value.getType();
         Type resultType = value.getResultType();
-        types.registerTypes(resultType, type, value.getMapKeyType(), value.getMapValueType());
+        Type mapKeyType = value.getMapKeyType();
+        Type mapValueType = value.getMapValueType();
+
+        TypeManager types = generator.getTypes();
+
+        Type effectiveResultType = types.bestType(resultType, Map.class);
+        Type temporaryType = types.bestType(type, effectiveResultType, Map.class);
+        Type keyResultType = types.isHidden(mapKeyType) ? typeArgument(temporaryType, 0).orElse(Object.class) : mapKeyType;
+        Type valueResultType = types.isHidden(mapValueType) ? typeArgument(temporaryType, 1).orElse(Object.class) : mapValueType;
+
+        types.registerTypes(effectiveResultType, temporaryType, type, keyResultType, valueResultType);
 
         return generator.forVariable(value, Map.class, local -> {
 
             List<Pair<Computation, Computation>> elementTemplates = value.entrySet().stream()
                 .map(entry -> new Pair<>(
-                    entry.getKey().accept(generator), 
-                    entry.getValue().accept(generator)))
+                    withResultType(entry.getKey(), keyResultType).accept(generator),
+                    withResultType(entry.getValue(), valueResultType).accept(generator)))
                 .filter(pair -> pair.getElement1() != null && pair.getElement2() != null)
                 .collect(toList());
 
             List<Pair<String, String>> elements = elementTemplates.stream()
                 .map(pair -> new Pair<>(
-                    generator.adapt(pair.getElement1().getValue(), value.getMapKeyType(), pair.getElement1().getType()),
-                    generator.adapt(pair.getElement2().getValue(), value.getMapValueType(), pair.getElement2().getType())))
+                    generator.adapt(pair.getElement1().getValue(), keyResultType, pair.getElement1().getType()),
+                    generator.adapt(pair.getElement2().getValue(), valueResultType, pair.getElement2().getType())))
                 .collect(toList());
 
             List<String> statements = elementTemplates.stream()
@@ -57,19 +67,14 @@ public class DefaultMapAdaptor extends DefaultSetupGenerator<SerializedMap> impl
                 .distinct()
                 .collect(toList());
 
-            Type effectiveResultType = types.isHidden(resultType) ? Map.class : resultType;
-            Type temporaryType = (!types.isHidden(type) && Map.class.isAssignableFrom(baseType(type)))
-                ? type
-                : Map.class.isAssignableFrom(baseType(effectiveResultType))
-                    ? effectiveResultType
-                    : Map.class;
-
             String tempVar = local.getName();
             if (!equalTypes(effectiveResultType, temporaryType)) {
                 tempVar = generator.temporaryLocal();
             }
 
-            String map = types.isHidden(type) ? generator.adapt(types.getWrappedName(type), temporaryType, types.wrapHidden(type)) : newObject(types.getBestName(type));
+            String map = types.isHidden(type)
+                ? generator.adapt(types.getWrappedName(type), temporaryType, types.wrapHidden(type))
+                : newObject(types.getBestName(type));
             String mapInit = assignLocalVariableStatement(types.getRelaxedName(temporaryType), tempVar, map);
             statements.add(mapInit);
 

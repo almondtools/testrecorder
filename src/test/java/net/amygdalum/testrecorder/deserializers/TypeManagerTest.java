@@ -124,47 +124,47 @@ public class TypeManagerTest {
     }
  
     @Test
-    public void testGetBestNameWithoutImport() throws Exception {
-        assertThat(types.getBestName(List.class), equalTo("java.util.List<>"));
-    }
+            public void testGetBestNameWithoutImport() throws Exception {
+                assertThat(types.getBestName(List.class), equalTo("java.util.List<>"));
+            }
     
     @Test
-    public void testGetBestNameWithImport() throws Exception {
-        types.registerType(String.class);
-        
-        assertThat(types.getBestName(String.class), equalTo("String"));
-    }
+            public void testGetBestNameWithImport() throws Exception {
+                types.registerType(String.class);
+                
+                assertThat(types.getBestName(String.class), equalTo("String"));
+            }
 
     @Test
-    public void testGetBestNameOfArray() throws Exception {
-        types.registerType(String.class);
-        
-        assertThat(types.getBestName(String[].class), equalTo("String[]"));
-    }
+            public void testGetBestNameOfArray() throws Exception {
+                types.registerType(String.class);
+                
+                assertThat(types.getBestName(String[].class), equalTo("String[]"));
+            }
 
     @Test
-    public void testGetBestNameOfGenericArray() throws Exception {
-        types.registerType(List.class);
-        types.registerType(String.class);
-        
-        assertThat(types.getBestName(array(parameterized(List.class, null, String.class))), equalTo("List<String>[]"));
-        assertThat(types.getBestName(array(parameterized(List.class, null, Date.class))), equalTo("List<java.util.Date>[]"));
-        assertThat(types.getBestName(array(List.class)), equalTo("List<>[]"));
-    }
+            public void testGetBestNameOfGenericArray() throws Exception {
+                types.registerType(List.class);
+                types.registerType(String.class);
+                
+                assertThat(types.getBestName(array(parameterized(List.class, null, String.class))), equalTo("List<String>[]"));
+                assertThat(types.getBestName(array(parameterized(List.class, null, Date.class))), equalTo("List<java.util.Date>[]"));
+                assertThat(types.getBestName(array(List.class)), equalTo("List<>[]"));
+            }
     
     @Test
-    public void testGetBestNameGenericWithImport() throws Exception {
-        types.registerType(List.class);
-        
-        assertThat(types.getBestName(List.class), equalTo("List<>"));
-        assertThat(types.getBestName(parameterized(List.class, null, String.class)), equalTo("List<String>"));
-        assertThat(types.getBestName(parameterized(List.class, null, Date.class)), equalTo("List<java.util.Date>"));
-    }
+            public void testGetBestNameGenericWithImport() throws Exception {
+                types.registerType(List.class);
+                
+                assertThat(types.getBestName(List.class), equalTo("List<>"));
+                assertThat(types.getBestName(parameterized(List.class, null, String.class)), equalTo("List<String>"));
+                assertThat(types.getBestName(parameterized(List.class, null, Date.class)), equalTo("List<java.util.Date>"));
+            }
     
     @Test
-    public void testGetBestNameOther() throws Exception {
-        assertThat(types.getBestName(mock(Type.class)), equalTo("Object"));
-    }
+            public void testGetBestNameOther() throws Exception {
+                assertThat(types.getBestName(mock(Type.class)), equalTo("Object"));
+            }
     
     @Test
     public void testGetBestSignatureWithoutImport() throws Exception {

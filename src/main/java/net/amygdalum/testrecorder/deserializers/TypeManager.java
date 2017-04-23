@@ -3,11 +3,13 @@ package net.amygdalum.testrecorder.deserializers;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.util.Types.baseType;
+import static net.amygdalum.testrecorder.util.Types.wildcard;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -112,8 +114,11 @@ public class TypeManager {
         } else if (type instanceof ParameterizedType) {
             return getSimpleName(((ParameterizedType) type).getRawType())
                 + Stream.of(((ParameterizedType) type).getActualTypeArguments())
+                    .map(argtype -> argtype instanceof TypeVariable<?> ? wildcard() : argtype)
                     .map(argtype -> getBestName(argtype))
                     .collect(joining(", ", "<", ">"));
+        } else if (type instanceof WildcardType) {
+            return WILDCARD;
         } else {
             return getBestName(Object.class);
         }
@@ -135,8 +140,11 @@ public class TypeManager {
         } else if (type instanceof ParameterizedType) {
             return getSimpleName(((ParameterizedType) type).getRawType())
                 + Stream.of(((ParameterizedType) type).getActualTypeArguments())
+                    .map(argtype -> argtype instanceof TypeVariable<?> ? wildcard() : argtype)
                     .map(argtype -> getBestName(argtype))
                     .collect(joining(", ", "<", ">"));
+        } else if (type instanceof WildcardType) {
+            return WILDCARD;
         } else {
             return getBestSignature(Object.class);
         }
@@ -168,6 +176,7 @@ public class TypeManager {
         } else if (type instanceof ParameterizedType) {
             return getSimpleSignature(((ParameterizedType) type).getRawType())
                 + Stream.of(((ParameterizedType) type).getActualTypeArguments())
+                    .map(argtype -> argtype instanceof TypeVariable<?> ? wildcard() : argtype)
                     .map(argtype -> getSimpleName(argtype))
                     .collect(joining(", ", "<", ">"));
         } else if (type instanceof WildcardType) {
@@ -203,6 +212,10 @@ public class TypeManager {
 
     public boolean isHidden(Type type) {
         return Types.isHidden(type, pkg);
+    }
+
+    public boolean isErasureHidden(Type type) {
+        return Types.isErasureHidden(type, pkg);
     }
 
     public boolean isColliding(Class<?> clazz) {
@@ -243,6 +256,26 @@ public class TypeManager {
 
     public String getWrappedName(Type type) {
         return "clazz(\"" + baseType(type).getName() + "\")";
+    }
+
+    public Type bestType(Type preferred, Class<?> bound) {
+        if (isHidden(preferred)) {
+            return bound;
+        }
+        if (isErasureHidden(preferred)) {
+            return baseType(preferred);
+        }
+        return preferred;
+    }
+
+    public Type bestType(Type preferred, Type secondary, Class<?> bound) {
+        if (!isHidden(preferred) && !isErasureHidden(preferred) && bound.isAssignableFrom(baseType(preferred))) {
+            return preferred;
+        }
+        if (bound.isAssignableFrom(baseType(secondary))) {
+            return secondary;
+        }
+        return bound;
     }
 
 }

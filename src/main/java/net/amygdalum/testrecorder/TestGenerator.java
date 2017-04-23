@@ -427,7 +427,7 @@ public class TestGenerator implements SnapshotConsumer {
             Deserializer<Computation> setupCode = setup.create(locals, types);
             Computation setupThis = snapshot.getSetupThis() != null
                 ? snapshot.getSetupThis().accept(setupCode)
-                : new Computation(types.getBestName(snapshot.getThisType()), null, true);
+                : new Computation(types.getBestName(types.wrapHidden(snapshot.getThisType())), null, true);
             statements.addAll(setupThis.getStatements());
 
             AnnotatedValue[] snapshotSetupArgs = snapshot.getAnnotatedSetupArgs();

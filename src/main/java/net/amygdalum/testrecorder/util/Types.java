@@ -217,6 +217,21 @@ public final class Types {
         }
     }
 
+    public static boolean isErasureHidden(Type type, String pkg) {
+        if (type instanceof ParameterizedType) {
+            Type[] actualTypeArguments = ((ParameterizedType) type).getActualTypeArguments();
+            if (actualTypeArguments == null) {
+                return false;
+            }
+            for (Type typeArgument : actualTypeArguments) {
+                if (isHidden(typeArgument, pkg)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public static boolean isHidden(Constructor<?> constructor, String pkg) {
         int modifiers = constructor.getModifiers();
         if (isPrivate(modifiers)) {

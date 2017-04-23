@@ -7,6 +7,7 @@ import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethod
 import static net.amygdalum.testrecorder.util.Types.equalTypes;
 import static net.amygdalum.testrecorder.util.Types.innerClasses;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
+import static net.amygdalum.testrecorder.util.Types.wildcard;
 
 import java.lang.reflect.Type;
 import java.util.Collections;
@@ -76,26 +77,34 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
 	}
 
 	private Computation tryDeserializeEmpty(SerializedSet value, SetupGenerators generator) {
+        Type componentType = value.getComponentType();
 		String factoryMethod = "emptySet";
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
 
-		Type resultType = parameterized(Set.class, null, value.getComponentType());
+		if (types.isHidden(componentType)) {
+		    componentType = wildcard();
+		}
+        Type resultType = parameterized(Set.class, null, componentType);
 		return generator.forVariable(value, resultType, local -> {
 
 			String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod(factoryMethod));
 
-			return new Computation(local.getName(), value.getResultType(), asList(decoratingStatement));
+			return new Computation(local.getName(), resultType, asList(decoratingStatement));
 		});
 	}
 
 	private Computation tryDeserializeSingleton(SerializedSet value, SetupGenerators generator) {
+        Type componentType = value.getComponentType();
 		String factoryMethod = "singleton";
 		TypeManager types = generator.getTypes();
 		types.registerImport(Set.class);
 		types.staticImport(Collections.class, factoryMethod);
 
-		Type resultType = parameterized(Set.class, null, value.getComponentType());
+        if (types.isHidden(componentType)) {
+            componentType = wildcard();
+        }
+        Type resultType = parameterized(Set.class, null, componentType);
 		return generator.forVariable(value, resultType, local -> {
 
 			Computation computation = value.iterator().next().accept(generator);
@@ -105,17 +114,21 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
 			String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase));
 			statements.add(decoratingStatement);
 
-			return new Computation(local.getName(), value.getResultType(), statements);
+			return new Computation(local.getName(), resultType, statements);
 		});
 	}
 
 	private Computation tryDeserializeUnmodifiable(SerializedSet value, SetupGenerators generator, DeserializerContext context) {
+        Type componentType = value.getComponentType();
 		String factoryMethod = "unmodifiableSet";
 
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
 
-		Type resultType = parameterized(Set.class, null, value.getComponentType());
+        if (types.isHidden(componentType)) {
+            componentType = wildcard();
+        }
+        Type resultType = parameterized(Set.class, null, componentType);
 		return generator.forVariable(value, resultType, local -> {
 
 			Computation computation = createOrdinarySet(value, generator, context);
@@ -125,16 +138,20 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
 			String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase));
 			statements.add(decoratingStatement);
 
-			return new Computation(local.getName(), value.getResultType(), statements);
+			return new Computation(local.getName(), resultType, statements);
 		});
 	}
 
 	private Computation tryDeserializeSynchronized(SerializedSet value, SetupGenerators generator, DeserializerContext context) {
+        Type componentType = value.getComponentType();
 		String factoryMethod = "synchronizedSet";
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
 
-		Type resultType = parameterized(Set.class, null, value.getComponentType());
+        if (types.isHidden(componentType)) {
+            componentType = wildcard();
+        }
+        Type resultType = parameterized(Set.class, null, componentType);
 		return generator.forVariable(value, resultType, local -> {
 
 			Computation computation = createOrdinarySet(value, generator, context);
@@ -144,16 +161,20 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
 			String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase));
 			statements.add(decoratingStatement);
 
-			return new Computation(local.getName(), value.getResultType(), statements);
+			return new Computation(local.getName(), resultType, statements);
 		});
 	}
 
 	private Computation tryDeserializeChecked(SerializedSet value, SetupGenerators generator, DeserializerContext context) {
+        Type componentType = value.getComponentType();
 		String factoryMethod = "checkedSet";
 		TypeManager types = generator.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
 
-		Type resultType = parameterized(Set.class, null, value.getComponentType());
+        if (types.isHidden(componentType)) {
+            throw new DeserializationException("cannot deserialize checked set with hidden element type: " + types.getBestName(componentType));
+        }
+        Type resultType = parameterized(Set.class, null, componentType);
 		return generator.forVariable(value, resultType, local -> {
 
 			Computation computation = createOrdinarySet(value, generator, context);
@@ -164,7 +185,7 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
 			String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase, checkedType));
 			statements.add(decoratingStatement);
 
-			return new Computation(local.getName(), value.getResultType(), statements);
+			return new Computation(local.getName(), resultType, statements);
 		});
 	}
 

@@ -7,6 +7,7 @@ import static net.amygdalum.testrecorder.deserializers.Templates.noEntriesMatche
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -28,9 +29,19 @@ public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> im
 
 	@Override
 	public Computation tryDeserialize(SerializedMap value, MatcherGenerators generator, DeserializerContext context) {
+	    Type mapKeyType = value.getMapKeyType();
+	    Type mapValueType = value.getMapValueType();
+	    
 		TypeManager types = generator.getTypes();
-		String keyType = types.getRawName(value.getMapKeyType());
-		String valueType = types.getRawName(value.getMapValueType());
+		if (types.isHidden(mapKeyType)) {
+		    mapKeyType = Object.class;
+		}
+        if (types.isHidden(mapValueType)) {
+            mapValueType = Object.class;
+        }
+		
+        String keyType = types.getRawName(mapKeyType);
+        String valueType = types.getRawName(mapValueType);
 		if (value.isEmpty()) {
 			types.staticImport(MapMatcher.class, "noEntries");
 

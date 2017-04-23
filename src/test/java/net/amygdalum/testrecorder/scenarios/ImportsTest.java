@@ -49,12 +49,12 @@ public class ImportsTest {
 		assertThat(testGenerator.testsFor(Imports.class), hasSize(1));
 		assertThat(testGenerator.testsFor(Imports.class), contains(allOf(
 			containsPattern("Imports imports? = new GenericObject() {*"
-				+ "List list = *"
+				+ "List<String> list = *"
 				+ "net.amygdalum.testrecorder.scenarios.Imports.List otherList *"
 				+ "}.as(Imports.class);"),
 			containsPattern("new GenericMatcher() {*"
-				+ "Matcher<?> list = containsInOrder(Object.class, \"name\");*"
-				+ "Matcher<net.amygdalum.testrecorder.scenarios.Imports.List> otherList = new GenericMatcher() {*"
+				+ "Matcher<?> list = containsInOrder(String.class, \"name\");*"
+				+ "Matcher<?> otherList = new GenericMatcher() {*"
 				+ "String name = \"name\";*"
 				+ "}.matching(net.amygdalum.testrecorder.scenarios.Imports.List.class);*"
 				+ "}.matching(Imports.class)"))));

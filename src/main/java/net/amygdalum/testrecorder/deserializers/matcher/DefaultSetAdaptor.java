@@ -7,6 +7,7 @@ import static net.amygdalum.testrecorder.deserializers.Templates.emptyMatcher;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
 
+import java.lang.reflect.Type;
 import java.util.List;
 
 import org.hamcrest.Matcher;
@@ -27,7 +28,13 @@ public class DefaultSetAdaptor extends DefaultMatcherGenerator<SerializedSet> im
 
 	@Override
 	public Computation tryDeserialize(SerializedSet value, MatcherGenerators generator, DeserializerContext context) {
-		TypeManager types = generator.getTypes();
+        Type componentType = value.getComponentType();
+
+        TypeManager types = generator.getTypes();
+        if (types.isHidden(componentType)) {
+            componentType = Object.class;
+        }
+		
 		if (value.isEmpty()) {
 			types.staticImport(Matchers.class, "empty");
 
@@ -48,8 +55,8 @@ public class DefaultSetAdaptor extends DefaultMatcherGenerator<SerializedSet> im
 				.map(element -> element.getValue())
 				.toArray(String[]::new);
 
-	        String componentType = types.getRawName(value.getComponentType());
-			String containsInAnyOrderMatcher = containsInAnyOrderMatcher(componentType, elementValues);
+            String elementType = types.getRawName(componentType);
+			String containsInAnyOrderMatcher = containsInAnyOrderMatcher(elementType, elementValues);
 			return new Computation(containsInAnyOrderMatcher, parameterized(Matcher.class, null, wildcard()), elementComputations);
 		}
 	}
