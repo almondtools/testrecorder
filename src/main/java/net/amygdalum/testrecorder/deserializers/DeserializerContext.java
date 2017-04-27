@@ -18,8 +18,8 @@ public class DeserializerContext {
         this.hints = new ArrayList<>();
     }
     
-    public DeserializerContext(Collection<Object> annotations) {
-        this.hints = new ArrayList<>(annotations);
+    public DeserializerContext(Collection<Object> hints) {
+        this.hints = new ArrayList<>(hints);
     }
 
     public <T> Optional<T> getHint(Class<T> clazz) {

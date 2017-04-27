@@ -4,6 +4,7 @@ import static java.util.Arrays.asList;
 import static net.amygdalum.testrecorder.util.Types.innerType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
@@ -78,4 +79,18 @@ public class CollectionsListSerializerTest {
 		assertThat(value, contains(foo, bar));
 	}
 
+	@Test
+	public void testPopulateNull() throws Exception {
+	    SerializedValue foo = literal("Foo");
+	    when(facade.serialize(String.class, "Foo")).thenReturn(foo);
+	    when(facade.serialize(String.class, null)).thenReturn(nullInstance(String.class));
+	    Type unmodifiableListOfString = parameterized(innerType(Collections.class, "UnmodifiableList"), null, String.class);
+	    Type listOfString = parameterized(List.class, null, String.class);
+	    SerializedList value = serializer.generate(listOfString, unmodifiableListOfString);
+	    
+	    serializer.populate(value, asList("Foo", null));
+	    
+	    assertThat(value, contains(foo, nullInstance(String.class)));
+	}
+	
 }
