@@ -41,7 +41,7 @@ public class ExtendingSerializationProfile implements SerializationProfile {
         if (profile.getClassExclusions() != null) {
             classExclusions.addAll(profile.getClassExclusions());
         }
-        if (defaultProfile.getFieldExclusions() != null) {
+        if (defaultProfile.getClassExclusions() != null) {
             classExclusions.addAll(defaultProfile.getClassExclusions());
         }
 

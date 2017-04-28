@@ -4,13 +4,6 @@ import java.util.List;
 
 public interface TestRecorderAgentConfig extends SerializationProfile {
 
-	public static final Runnable NONE = new Runnable() {
-		
-		@Override
-		public void run() {
-		}
-	}; 
-	
 	SnapshotConsumer getSnapshotConsumer();
 
 	long getTimeoutInMillis();

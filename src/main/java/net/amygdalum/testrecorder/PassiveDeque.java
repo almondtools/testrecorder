@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Deque;
@@ -26,7 +27,10 @@ public class PassiveDeque<T> implements Deque<T> {
 	@SuppressWarnings({ "unchecked" })
 	@Override
 	public <S> S[] toArray(S[] a) {
-		return (S[]) new Object[]{passive};
+		Class<?> clazz = a == null ? passive.getClass() : a.getClass().getComponentType();
+        S[] array = (S[]) Array.newInstance(clazz, 1);
+		array[0] = (S) passive;
+        return array;
 	}
 
 	@Override

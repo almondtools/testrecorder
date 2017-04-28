@@ -1,8 +1,11 @@
 package net.amygdalum.testrecorder;
 
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.arrayContaining;
+import static org.hamcrest.Matchers.arrayWithSize;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.collection.IsArrayContaining.hasItemInArray;
@@ -116,8 +119,83 @@ public class ContextSnapshotTest {
         assertThat(new ContextSnapshot(1l, Object.class, new Annotation[0], Object.class, "method", new Annotation[0][0], new Type[0]).getTime(), equalTo(1l));
     }
 
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testGetAnnotation() throws Exception {
+        ContextSnapshot snapshot = new ContextSnapshot(0l, Object.class, 
+            new Annotation[]{anno("result")}, Object.class, "method", 
+            new Annotation[][]{
+            new Annotation[]{anno("arg")}
+        }, new Type[]{Integer.class});
+
+        assertThat(snapshot.getResultAnnotation(), arrayContaining(instanceOf(Anno.class)));
+        assertThat(((Anno) snapshot.getResultAnnotation()[0]).value(), equalTo("result"));
+        assertThat(snapshot.getArgumentAnnotations(), arrayWithSize(1));
+        assertThat(snapshot.getArgumentAnnotations()[0], arrayContaining(instanceOf(Anno.class)));
+        assertThat(((Anno) snapshot.getArgumentAnnotations()[0][0]).value(), equalTo("arg"));
+    }
+
+    @Test
+    public void testGetAnnotatedSetupArgs() throws Exception {
+        ContextSnapshot snapshot = new ContextSnapshot(0l, Object.class, 
+            new Annotation[]{anno("result")}, String.class, "method", 
+            new Annotation[][]{
+            new Annotation[]{anno("arg")}
+        }, new Type[]{Integer.class});
+
+        snapshot.setSetupArgs(literal(int.class, 42));
+
+        assertThat(snapshot.getAnnotatedSetupArgs(), arrayWithSize(1));
+        assertThat(snapshot.getAnnotatedSetupArgs()[0].annotations, arrayWithSize(1));
+        assertThat(snapshot.getAnnotatedSetupArgs()[0].value, equalTo(literal(int.class, 42)));
+    }    
+
+    @Test
+    public void testGetAnnotatedExpectArgs() throws Exception {
+        ContextSnapshot snapshot = new ContextSnapshot(0l, Object.class, 
+            new Annotation[]{anno("result")}, String.class, "method", 
+            new Annotation[][]{
+            new Annotation[]{anno("arg")}
+        }, new Type[]{Integer.class});
+        
+        snapshot.setExpectArgs(literal(int.class, 42));
+
+        assertThat(snapshot.getAnnotatedExpectArgs(), arrayWithSize(1));
+        assertThat(snapshot.getAnnotatedExpectArgs()[0].annotations, arrayWithSize(1));
+        assertThat(snapshot.getAnnotatedExpectArgs()[0].value, equalTo(literal(int.class, 42)));
+    }
+
+    @Test
+    public void testToString() throws Exception {
+        ContextSnapshot snapshot = contextSnapshot(Object.class, String.class, "method", Integer.class);
+        
+        assertThat(snapshot.toString(), containsString("Object"));
+        assertThat(snapshot.toString(), containsString("String"));
+        assertThat(snapshot.toString(), containsString("method"));
+        assertThat(snapshot.toString(), containsString("Integer"));
+}
+    
     private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
         return new ContextSnapshot(0, declaringClass, new Annotation[0], resultType, methodName, new Annotation[0][0], argumentTypes);
+    }
+
+    private Anno anno(String value) {
+        return new Anno() {
+
+            @Override
+            public String value() {
+                return value;
+            }
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return Anno.class;
+            }
+            
+        };
+    }
+    
+    @interface Anno {
+        String value();
     }
 
 }

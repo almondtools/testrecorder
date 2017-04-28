@@ -104,30 +104,27 @@ public class ScheduledTestGenerator extends TestGenerator {
 				@Override
 				public void run() {
 					for (ScheduledTestGenerator gen : dumpOnShutDown) {
-				        if (gen.counterMaximum >= 0 && gen.counter > gen.counterMaximum) {
-				            return;
-				        }
 						gen.dumpResults();
 					}
 				}
 
-			}));
+			}, "$generate-shutdown"));
 		}
 		dumpOnShutDown.add(this);
 	}
 
 	@Override
 	public void accept(ContextSnapshot snapshot) {
+        if (counterMaximum < 0 || counter >= counterMaximum) {
+            return;
+        }
+        counter++;
 		super.accept(snapshot);
 		checkCounterInterval();
 		checkTimeInterval();
 	}
 
 	private void checkCounterInterval() {
-		counter++;
-        if (counterMaximum < 0 || counter > counterMaximum) {
-            return;
-        }
 		if (counterInterval > 0 && counter % counterInterval == 0) {
 			dumpResults();
 		}
@@ -136,9 +133,6 @@ public class ScheduledTestGenerator extends TestGenerator {
 	private void checkTimeInterval() {
 		long oldStart = start;
 		start = System.currentTimeMillis();
-        if (counterMaximum < 0 || counter > counterMaximum) {
-            return;
-        }
 		if (timeInterval > 0 && start - oldStart >= timeInterval) {
 			dumpResults();
 		}

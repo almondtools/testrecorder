@@ -167,8 +167,8 @@ public class ContextSnapshot {
     public AnnotatedValue[] getAnnotatedExpectArgs() {
         AnnotatedValue[] annotatedValues = new AnnotatedValue[expectArgs.length];
         Annotation[][] annotations =  argumentAnnotations;
-        if (annotations.length != setupArgs.length) {
-            annotations = new Annotation[setupArgs.length][];
+        if (annotations.length != expectArgs.length) {
+            annotations = new Annotation[expectArgs.length][];
             Arrays.fill(annotations, new Annotation[0]);
         }
         for (int i = 0; i < annotatedValues.length; i++) {
