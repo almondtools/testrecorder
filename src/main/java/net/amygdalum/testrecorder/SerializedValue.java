@@ -1,7 +1,9 @@
 package net.amygdalum.testrecorder;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
 
 import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 
@@ -31,5 +33,9 @@ public interface SerializedValue {
 	Type getType();
 
 	List<SerializedValue> referencedValues();
+
+    Annotation[] getAnnotations();
+
+    <T extends Annotation> Optional<T> getAnnotation(Class<T> clazz);
 
 }

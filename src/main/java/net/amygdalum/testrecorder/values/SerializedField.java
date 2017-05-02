@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.values;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Optional;
 
 import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedValue;
@@ -45,6 +46,16 @@ public class SerializedField implements Comparable<SerializedField> {
         } catch (NoSuchFieldException e) {
             return new Annotation[0];
         }
+    }
+
+    public <T extends Annotation> Optional<T> getAnnotation(Class<T> clazz) {
+        Annotation[] annotations = getAnnotations();
+        for (int i = 0; i < annotations.length; i++) {
+            if (clazz.isInstance(annotations[i])) {
+                return Optional.of(clazz.cast(annotations[i]));
+            }
+        }
+        return Optional.empty();
     }
 
     public <T> T accept(Deserializer<T> visitor) {

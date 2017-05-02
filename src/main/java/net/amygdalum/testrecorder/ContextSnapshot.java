@@ -6,6 +6,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.values.SerializedField;
@@ -152,6 +153,15 @@ public class ContextSnapshot {
         this.expectResult = expectResult;
     }
 
+    public <T extends Annotation> Optional<T> getMethodAnnotation(Class<T> clazz) {
+        for (int i = 0; i < resultAnnotation.length; i++) {
+            if (clazz.isInstance(resultAnnotation[i])) {
+                return Optional.of(clazz.cast(resultAnnotation[i]));
+            }
+        }
+        return Optional.empty();
+    }
+    
     public SerializedValue getExpectException() {
         return expectException;
     }
@@ -217,6 +227,15 @@ public class ContextSnapshot {
         public AnnotatedValue(Annotation[] annotations, SerializedValue value) {
             this.annotations = annotations;
             this.value = value;
+        }
+        
+        public <T extends Annotation> Optional<T> getAnnotation(Class<T> clazz) {
+            for (int i = 0; i < annotations.length; i++) {
+                if (clazz.isInstance(annotations[i])) {
+                    return Optional.of(clazz.cast(annotations[i]));
+                }
+            }
+            return Optional.empty();
         }
         
     }

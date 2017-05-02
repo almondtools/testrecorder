@@ -103,9 +103,11 @@ public class ScheduledTestGenerator extends TestGenerator {
 
 				@Override
 				public void run() {
-					for (ScheduledTestGenerator gen : dumpOnShutDown) {
-						gen.dumpResults();
-					}
+				    if (dumpOnShutDown != null) {
+				        for (ScheduledTestGenerator gen : dumpOnShutDown) {
+				            gen.dumpResults();
+				        }
+				    }
 				}
 
 			}, "$generate-shutdown"));

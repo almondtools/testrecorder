@@ -31,7 +31,7 @@ public class SerializedObject extends AbstractSerializedReferenceType implements
 		setResultType(resultType);
 		return this;
 	}
-
+	
 	public SerializedObject withFields(SerializedField... fields) {
 		this.fields.addAll(asList(fields));
 		return this;
