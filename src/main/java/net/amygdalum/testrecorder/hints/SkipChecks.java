@@ -9,7 +9,6 @@ import java.lang.annotation.Target;
  * Annotating a type field, method result or param with this hint will instruct the deserializer
  * - to skip the generation of a matcher for this entity (e.g. if this entity is known not to be relevant for the result)
  * 
- * This is a future feature.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})

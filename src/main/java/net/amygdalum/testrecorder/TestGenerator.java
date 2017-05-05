@@ -71,7 +71,6 @@ import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerators;
 import net.amygdalum.testrecorder.evaluator.SerializedValueEvaluator;
 import net.amygdalum.testrecorder.hints.AnnotateGroupExpression;
 import net.amygdalum.testrecorder.hints.AnnotateTimestamp;
-import net.amygdalum.testrecorder.hints.SkipTrivialChecks;
 import net.amygdalum.testrecorder.util.AnnotatedBy;
 import net.amygdalum.testrecorder.util.ExpectedOutput;
 import net.amygdalum.testrecorder.util.IORecorder;
@@ -80,7 +79,6 @@ import net.amygdalum.testrecorder.util.RecordInput;
 import net.amygdalum.testrecorder.util.RecordOutput;
 import net.amygdalum.testrecorder.util.SetupInput;
 import net.amygdalum.testrecorder.util.Throwables;
-import net.amygdalum.testrecorder.util.Triple;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedInput;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
@@ -505,7 +503,6 @@ public class TestGenerator implements SnapshotConsumer {
             types.staticImport(Assert.class, "assertThat");
             statements.add(BEGIN_ASSERT);
 
-            boolean renderTrivialAsserts = !snapshot.getMethodAnnotation(SkipTrivialChecks.class).isPresent();
             if (error == null) {
                 List<String> expectResult = Optional.ofNullable(snapshot.getExpectResult())
                     .map(o -> o.accept(matcher.create(locals, types), newContext(snapshot.getResultAnnotation())))
@@ -522,22 +519,18 @@ public class TestGenerator implements SnapshotConsumer {
                 statements.addAll(expectResult);
             }
 
-            SerializedValue snapshotSetupThis = snapshot.getSetupThis();
             SerializedValue snapshotExpectThis = snapshot.getExpectThis();
             List<String> expectThis = Optional.ofNullable(snapshotExpectThis)
-                .filter(o -> renderAssert(renderTrivialAsserts, snapshotSetupThis, o))
                 .map(o -> o.accept(matcher.create(locals, types)))
                 .map(o -> createAssertion(o, base))
                 .orElse(emptyList());
 
             statements.addAll(expectThis);
 
-            SerializedValue[] snapshotSetupArgs = snapshot.getSetupArgs();
             AnnotatedValue[] snapshotExpectArgs = snapshot.getAnnotatedExpectArgs();
-            Triple<AnnotatedValue, SerializedValue, String>[] arguments = Triple.zip(snapshotExpectArgs, snapshotSetupArgs, args.toArray(new String[0]));
+            Pair<AnnotatedValue, String>[] arguments = Pair.zip(snapshotExpectArgs, args.toArray(new String[0]));
             List<String> expectArgs = Stream.of(arguments)
-                .filter(arg -> renderAssert(renderTrivialAsserts, arg.getElement2(), arg.getElement1().value))
-                .map(arg -> new Pair<Computation, String>(arg.getElement1().value.accept(matcher.create(locals, types), newContext(arg.getElement1().annotations)), arg.getElement3()))
+                .map(arg -> new Pair<Computation, String>(arg.getElement1().value.accept(matcher.create(locals, types), newContext(arg.getElement1().annotations)), arg.getElement2()))
                 .filter(arg -> arg.getElement1() != null)
                 .map(arg -> createAssertion(arg.getElement1(), arg.getElement2()))
                 .flatMap(statements -> statements.stream())
@@ -545,10 +538,8 @@ public class TestGenerator implements SnapshotConsumer {
 
             statements.addAll(expectArgs);
 
-            SerializedField[] snapshotSetupGlobals = snapshot.getSetupGlobals();
             SerializedField[] snashotExpectGlobals = snapshot.getExpectGlobals();
             List<String> expectGlobals = IntStream.range(0, snashotExpectGlobals.length)
-                .filter(i -> renderAssert(renderTrivialAsserts, snapshotSetupGlobals[i], snashotExpectGlobals[i]))
                 .mapToObj(i -> createAssertion(snashotExpectGlobals[i].getValue().accept(matcher.create(locals, types)),
                     fieldAccess(types.getRelaxedName(snashotExpectGlobals[i].getDeclaringClass()), snashotExpectGlobals[i].getName())))
                 .flatMap(statements -> statements.stream())
@@ -562,14 +553,6 @@ public class TestGenerator implements SnapshotConsumer {
             }
 
             return this;
-        }
-
-        private boolean renderAssert(boolean renderTrivialAsserts, SerializedValue setup, SerializedValue expected) {
-            return renderTrivialAsserts || !expected.equals(setup);
-        }
-
-        private boolean renderAssert(boolean renderTrivialAsserts, SerializedField setup, SerializedField expected) {
-            return renderTrivialAsserts || !expected.equals(setup);
         }
 
         private List<String> createAssertion(Computation matcher, String exp) {
