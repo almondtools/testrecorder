@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
  * Annotating a type field, method result or param with this hint will instruct the deserializer
  * - to load the construction of the entity from file (using some kind of serialization reader)
  * 
- * This is a future feature.
+ * Currently works only for primitive features, is planned as future feature. 
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
