@@ -6,6 +6,7 @@ import static net.amygdalum.testrecorder.util.testobjects.Collections.arrayList;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenList;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.hiddenList;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
@@ -20,9 +21,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.util.Types;
 import net.amygdalum.testrecorder.util.testobjects.Complex;
 import net.amygdalum.testrecorder.util.testobjects.ContainingList;
+import net.amygdalum.testrecorder.util.testobjects.Cycle;
 import net.amygdalum.testrecorder.util.testobjects.Dubble;
+import net.amygdalum.testrecorder.util.testobjects.GenericCycle;
 import net.amygdalum.testrecorder.util.testobjects.SerializedValues;
 import net.amygdalum.testrecorder.util.testobjects.Simple;
 import net.amygdalum.testrecorder.values.SerializedField;
@@ -100,6 +104,28 @@ public class SetupGeneratorsTest {
 
         assertThat(result.getStatements(), empty());
         assertThat(result.getValue(), equalTo("dubble1"));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testVisitReferenceTypeForwarding() throws Exception {
+        SerializedObject value = values.object(Cycle.class, Cycle.recursive("Foo"));
+        
+        Computation result = setupCode.visitReferenceType(value);
+
+        assertThat(result.getStatements(), contains(containsPattern("Cycle cycle2 = GenericObject.forward(Cycle.class)*"), containsPattern("GenericObject.define*")));
+        assertThat(result.getValue(), equalTo("cycle2"));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testVisitReferenceTypeGenericsForwarding() throws Exception {
+        SerializedObject value = values.object(Types.parameterized(GenericCycle.class, null, String.class), GenericCycle.recursive("Foo"));
+        
+        Computation result = setupCode.visitReferenceType(value);
+
+        assertThat(result.getStatements(), contains(containsPattern("GenericCycle<?> cycle2 = GenericObject.forward(GenericCycle.class)*"), containsPattern("GenericObject.define*")));
+        assertThat(result.getValue(), equalTo("cycle2"));
     }
 
     @Test

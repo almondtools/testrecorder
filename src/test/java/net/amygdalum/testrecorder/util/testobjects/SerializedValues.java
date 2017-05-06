@@ -1,11 +1,15 @@
 package net.amygdalum.testrecorder.util.testobjects;
 
+import static net.amygdalum.xrayinterface.XRayInterface.xray;
+
 import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Map;
 
 import net.amygdalum.testrecorder.ConfigurableSerializerFacade;
 import net.amygdalum.testrecorder.DefaultTestRecorderAgentConfig;
+import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.serializers.BigIntegerSerializer;
 import net.amygdalum.testrecorder.serializers.DefaultListSerializer;
 import net.amygdalum.testrecorder.serializers.GenericSerializer;
@@ -31,6 +35,7 @@ public class SerializedValues {
     public SerializedObject object(Type type, Object object) {
         GenericSerializer serializer = new GenericSerializer(facade);
         SerializedObject value = (SerializedObject) serializer.generate(type, object.getClass());
+        xray(facade).to(OpenFacade.class).getSerialized().put(object, value);
         serializer.populate(value, object);
         return value;
     }
@@ -40,6 +45,10 @@ public class SerializedValues {
         SerializedImmutable<BigInteger> value = serializer.generate(BigInteger.class, BigInteger.class);
         serializer.populate(value, object);
         return value;
+    }
+    
+    interface OpenFacade {
+        Map<Object, SerializedValue> getSerialized();
     }
 
 }
