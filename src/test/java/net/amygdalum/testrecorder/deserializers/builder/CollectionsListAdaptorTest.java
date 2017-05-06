@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static net.amygdalum.testrecorder.util.Types.parameterized;
+import static net.amygdalum.testrecorder.util.Types.wildcard;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.containsString;
@@ -80,6 +81,28 @@ public class CollectionsListAdaptorTest {
 		assertThat(result.getValue(), equalTo("list1"));
 	}
 
+    @Test
+    public void testTryDeserializeSynchronizedRawType() throws Exception {
+        SerializedList value = listOfRaw("java.util.Collections$SynchronizedList", 0, 8, 15);
+        SetupGenerators generator = new SetupGenerators(getClass());
+
+        Computation result = adaptor.tryDeserialize(value, generator);
+
+        assertThat(result.getStatements().toString(), rawListDecoratedBy("synchronizedList", 0, 8, 15));
+        assertThat(result.getValue(), equalTo("list1"));
+    }
+
+    @Test
+    public void testTryDeserializeSynchronizedWildcardType() throws Exception {
+        SerializedList value = listOfWildcard("java.util.Collections$SynchronizedList", 0, 8, 15);
+        SetupGenerators generator = new SetupGenerators(getClass());
+
+        Computation result = adaptor.tryDeserialize(value, generator);
+
+        assertThat(result.getStatements().toString(), wildcardListDecoratedBy("synchronizedList", 0, 8, 15));
+        assertThat(result.getValue(), equalTo("list1"));
+    }
+
 	@Test
 	public void testTryDeserializeSynchronizedRandomAccess() throws Exception {
 		SerializedList value = listOf("java.util.Collections$SynchronizedRandomAccessList", 0, 8, 15);
@@ -151,6 +174,22 @@ public class CollectionsListAdaptorTest {
 		return value;
 	}
 
+    private SerializedList listOfRaw(String className, int... elements) throws ClassNotFoundException {
+        SerializedList value = new SerializedList(Class.forName(className)).withResult(List.class);
+        for (int element : elements) {
+            value.add(literal(element));
+        }
+        return value;
+    }
+
+    private SerializedList listOfWildcard(String className, int... elements) throws ClassNotFoundException {
+        SerializedList value = new SerializedList(Class.forName(className)).withResult(parameterized(List.class, null, wildcard()));
+        for (int element : elements) {
+            value.add(literal(element));
+        }
+        return value;
+    }
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Matcher<String> listDecoratedBy(String factory, int... elements) {
 		List<Matcher<String>> matchers = new ArrayList<>();
@@ -162,6 +201,30 @@ public class CollectionsListAdaptorTest {
 
 		return Matchers.<String> allOf((Iterable<Matcher<? super String>>) (Iterable) matchers);
 	}
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private Matcher<String> rawListDecoratedBy(String factory, int... elements) {
+        List<Matcher<String>> matchers = new ArrayList<>();
+        matchers.add(containsString("ArrayList<Object> list2 = new ArrayList<Object>()"));
+        for (int element : elements) {
+            matchers.add(containsString("list2.add(" + element + ")"));
+        }
+        matchers.add(containsString("List<Object> list1 = " + factory + "(list2)"));
+
+        return Matchers.<String> allOf((Iterable<Matcher<? super String>>) (Iterable) matchers);
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private Matcher<String> wildcardListDecoratedBy(String factory, int... elements) {
+        List<Matcher<String>> matchers = new ArrayList<>();
+        matchers.add(containsString("ArrayList<?> list2 = new ArrayList<>()"));
+        for (int element : elements) {
+            matchers.add(containsString("list2.add(" + element + ")"));
+        }
+        matchers.add(containsString("List<?> list1 = " + factory + "(list2)"));
+
+        return Matchers.<String> allOf((Iterable<Matcher<? super String>>) (Iterable) matchers);
+    }
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Matcher<String> listDecoratedBy(String factory, Class<?> clazz, int... elements) {

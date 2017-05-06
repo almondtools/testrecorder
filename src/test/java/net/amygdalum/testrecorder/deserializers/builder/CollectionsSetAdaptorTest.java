@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static net.amygdalum.testrecorder.util.Types.parameterized;
+import static net.amygdalum.testrecorder.util.Types.wildcard;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.containsString;
@@ -95,6 +96,28 @@ public class CollectionsSetAdaptorTest {
 		assertThat(result.getValue(), equalTo("set1"));
 	}
 
+    @Test
+    public void testTryDeserializeSynchronizedRawType() throws Exception {
+        SerializedSet value = setOfRaw("java.util.Collections$SynchronizedSet", 0, 8, 15);
+        SetupGenerators generator = new SetupGenerators(getClass());
+
+        Computation result = adaptor.tryDeserialize(value, generator);
+
+        assertThat(result.getStatements().toString(), rawSetDecoratedBy("synchronizedSet", 0, 8, 15));
+        assertThat(result.getValue(), equalTo("set1"));
+    }
+
+    @Test
+    public void testTryDeserializeSynchronizedWildcardType() throws Exception {
+        SerializedSet value = setOfWildcard("java.util.Collections$SynchronizedSet", 0, 8, 15);
+        SetupGenerators generator = new SetupGenerators(getClass());
+
+        Computation result = adaptor.tryDeserialize(value, generator);
+
+        assertThat(result.getStatements().toString(), wildcardSetDecoratedBy("synchronizedSet", 0, 8, 15));
+        assertThat(result.getValue(), equalTo("set1"));
+    }
+
 	@Test
 	public void testTryDeserializeSynchronizedNavigable() throws Exception {
 		SerializedSet value = setOf("java.util.Collections$SynchronizedNavigableSet", 0, 8, 15);
@@ -188,6 +211,22 @@ public class CollectionsSetAdaptorTest {
 		return value;
 	}
 
+    private SerializedSet setOfRaw(String className, int... elements) throws ClassNotFoundException {
+        SerializedSet value = new SerializedSet(Class.forName(className)).withResult(Set.class);
+        for (int element : elements) {
+            value.add(literal(element));
+        }
+        return value;
+    }
+
+    private SerializedSet setOfWildcard(String className, int... elements) throws ClassNotFoundException {
+        SerializedSet value = new SerializedSet(Class.forName(className)).withResult(parameterized(Set.class, null, wildcard()));
+        for (int element : elements) {
+            value.add(literal(element));
+        }
+        return value;
+    }
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Matcher<String> setDecoratedBy(String factory, int... elements) {
 		List<Matcher<String>> matchers = new ArrayList<>();
@@ -200,6 +239,30 @@ public class CollectionsSetAdaptorTest {
 		return Matchers.<String> allOf((Iterable<Matcher<? super String>>) (Iterable) matchers);
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private Matcher<String> rawSetDecoratedBy(String factory, int... elements) {
+	    List<Matcher<String>> matchers = new ArrayList<>();
+	    matchers.add(containsString("LinkedHashSet<Object> set2 = new LinkedHashSet<Object>()"));
+	    for (int element : elements) {
+	        matchers.add(containsString("set2.add(" + element + ")"));
+	    }
+	    matchers.add(containsString("Set<Object> set1 = " + factory + "(set2)"));
+	    
+	    return Matchers.<String> allOf((Iterable<Matcher<? super String>>) (Iterable) matchers);
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private Matcher<String> wildcardSetDecoratedBy(String factory, int... elements) {
+	    List<Matcher<String>> matchers = new ArrayList<>();
+	    matchers.add(containsString("LinkedHashSet<?> set2 = new LinkedHashSet<>()"));
+	    for (int element : elements) {
+	        matchers.add(containsString("set2.add(" + element + ")"));
+	    }
+	    matchers.add(containsString("Set<?> set1 = " + factory + "(set2)"));
+	    
+	    return Matchers.<String> allOf((Iterable<Matcher<? super String>>) (Iterable) matchers);
+	}
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Matcher<String> setDecoratedBy(String factory, Class<?> clazz, int... elements) {
 		List<Matcher<String>> matchers = new ArrayList<>();

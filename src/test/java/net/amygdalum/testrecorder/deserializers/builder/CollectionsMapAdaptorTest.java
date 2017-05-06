@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static net.amygdalum.testrecorder.util.Types.parameterized;
+import static net.amygdalum.testrecorder.util.Types.wildcard;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.containsString;
@@ -96,6 +97,28 @@ public class CollectionsMapAdaptorTest {
 	}
 
 	@Test
+	public void testTryDeserializeSynchronizedRawType() throws Exception {
+	    SerializedMap value = mapOfRaw("java.util.Collections$SynchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 });
+	    SetupGenerators generator = new SetupGenerators(getClass());
+	    
+	    Computation result = adaptor.tryDeserialize(value, generator);
+	    
+	    assertThat(result.getStatements().toString(), rawMapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
+	    assertThat(result.getValue(), equalTo("map1"));
+	}
+	
+	@Test
+	public void testTryDeserializeSynchronizedWildcardType() throws Exception {
+	    SerializedMap value = mapOfWildcard("java.util.Collections$SynchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 });
+	    SetupGenerators generator = new SetupGenerators(getClass());
+	    
+	    Computation result = adaptor.tryDeserialize(value, generator);
+	    
+	    assertThat(result.getStatements().toString(), wildcardMapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
+	    assertThat(result.getValue(), equalTo("map1"));
+	}
+	
+	@Test
 	public void testTryDeserializeSynchronizedNavigable() throws Exception {
 		SerializedMap value = mapOf("java.util.Collections$SynchronizedNavigableMap", new int[] { 8, 15 }, new int[] { 47, 11 });
 		SetupGenerators generator = new SetupGenerators(getClass());
@@ -188,6 +211,22 @@ public class CollectionsMapAdaptorTest {
 		return value;
 	}
 
+	private SerializedMap mapOfRaw(String className, int[]... elements) throws ClassNotFoundException {
+	    SerializedMap value = new SerializedMap(Class.forName(className)).withResult(Map.class);
+	    for (int[] element : elements) {
+	        value.put(literal(element[0]), literal(Integer.class, element[1]));
+	    }
+	    return value;
+	}
+	
+	private SerializedMap mapOfWildcard(String className, int[]... elements) throws ClassNotFoundException {
+	    SerializedMap value = new SerializedMap(Class.forName(className)).withResult(parameterized(Map.class, null, wildcard(), wildcard()));
+	    for (int[] element : elements) {
+	        value.put(literal(element[0]), literal(Integer.class, element[1]));
+	    }
+	    return value;
+	}
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Matcher<String> mapDecoratedBy(String factory, int[]... elements) {
 		List<Matcher<String>> matchers = new ArrayList<>();
@@ -200,6 +239,30 @@ public class CollectionsMapAdaptorTest {
 		return Matchers.<String> allOf((Iterable<Matcher<? super String>>) (Iterable) matchers);
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private Matcher<String> rawMapDecoratedBy(String factory, int[]... elements) {
+	    List<Matcher<String>> matchers = new ArrayList<>();
+	    matchers.add(containsString("LinkedHashMap<Object, Object> map2 = new LinkedHashMap<Object, Object>()"));
+	    for (int[] element : elements) {
+	        matchers.add(containsString("map2.put(" + element[0] + ", " + element[1] + ")"));
+	    }
+	    matchers.add(containsString("Map<Object, Object> map1 = " + factory + "(map2)"));
+	    
+	    return Matchers.<String> allOf((Iterable<Matcher<? super String>>) (Iterable) matchers);
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private Matcher<String> wildcardMapDecoratedBy(String factory, int[]... elements) {
+	    List<Matcher<String>> matchers = new ArrayList<>();
+	    matchers.add(containsString("LinkedHashMap<?, ?> map2 = new LinkedHashMap<>()"));
+	    for (int[] element : elements) {
+	        matchers.add(containsString("map2.put(" + element[0] + ", " + element[1] + ")"));
+	    }
+	    matchers.add(containsString("Map<?, ?> map1 = " + factory + "(map2)"));
+	    
+	    return Matchers.<String> allOf((Iterable<Matcher<? super String>>) (Iterable) matchers);
+	}
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Matcher<String> mapDecoratedBy(String factory, Class<?> keyClazz, Class<?> valueClazz, int[]... elements) {
 		List<Matcher<String>> matchers = new ArrayList<>();
