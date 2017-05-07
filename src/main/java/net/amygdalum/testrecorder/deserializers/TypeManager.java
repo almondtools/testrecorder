@@ -147,7 +147,7 @@ public class TypeManager {
             return getSimpleName(((ParameterizedType) type).getRawType())
                 + Stream.of(((ParameterizedType) type).getActualTypeArguments())
                     .filter(Types::isActual)
-                    .map(argtype -> getConstructorTypeName(argtype))
+                    .map(argtype -> getVariableTypeName(argtype))
                     .collect(joining(", ", "<", ">"));
         } else {
             return getConstructorTypeName(Object.class);

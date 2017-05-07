@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.deserializers;
 
 import static net.amygdalum.testrecorder.util.Types.array;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
+import static net.amygdalum.testrecorder.util.Types.wildcard;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -157,6 +158,7 @@ public class TypeManagerTest {
         types.registerType(List.class);
 
         assertThat(types.getVariableTypeName(List.class), equalTo("List<?>"));
+        assertThat(types.getConstructorTypeName(parameterized(List.class, null, parameterized(List.class, null, wildcard()))), equalTo("List<List<?>>"));
         assertThat(types.getVariableTypeName(parameterized(List.class, null, String.class)), equalTo("List<String>"));
         assertThat(types.getVariableTypeName(parameterized(List.class, null, Date.class)), equalTo("List<java.util.Date>"));
     }
@@ -200,6 +202,7 @@ public class TypeManagerTest {
         types.registerType(List.class);
         
         assertThat(types.getConstructorTypeName(List.class), equalTo("List<>"));
+        assertThat(types.getConstructorTypeName(parameterized(List.class, null, parameterized(List.class, null, wildcard()))), equalTo("List<List<?>>"));
         assertThat(types.getConstructorTypeName(parameterized(List.class, null, String.class)), equalTo("List<String>"));
         assertThat(types.getConstructorTypeName(parameterized(List.class, null, Date.class)), equalTo("List<java.util.Date>"));
     }
