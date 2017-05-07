@@ -31,7 +31,7 @@ public class DefaultEnumAdaptor extends DefaultSetupGenerator<SerializedEnum> im
 		types.registerType(value.getType());
 
 		if (types.isHidden(value.getType())) {
-			String typeName = types.getBestSignature(value.getType());
+			String typeName = baseType(value.getType()).getName();
 			String typeArgument = asLiteral(typeName);
 			String expression = callMethod(types.getRawTypeName(Wrapped.class), "enumType", typeArgument, asLiteral(value.getName()));
 			

@@ -109,7 +109,7 @@ public class DefaultMapAdaptorTest {
         Computation result = adaptor.tryDeserialize(value, generator);
 
         assertThat(result.getStatements().toString(), allOf(
-            containsString("Map temp1 = (Map) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenMap\").value();"),
+            containsString("Map temp1 = (Map<?, ?>) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenMap\").value();"),
             containsString("temp1.put(8, 15)"),
             containsString("temp1.put(47, 11)"),
             containsString("OrthogonalInterface map1 = (OrthogonalInterface) temp1;")));

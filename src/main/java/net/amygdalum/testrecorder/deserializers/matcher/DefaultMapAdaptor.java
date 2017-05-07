@@ -50,6 +50,7 @@ public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> im
 			return new Computation(noEntriesMatcher, parameterized(Matcher.class, null, wildcard()), emptyList());
 		} else {
 			types.staticImport(MapMatcher.class, "containsEntries");
+			types.registerTypes(mapKeyType, mapValueType);
 
 			List<Pair<Computation, Computation>> elements = value.entrySet().stream()
 				.map(entry -> new Pair<>(

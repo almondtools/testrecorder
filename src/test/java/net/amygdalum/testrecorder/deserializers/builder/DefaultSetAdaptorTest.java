@@ -118,7 +118,7 @@ public class DefaultSetAdaptorTest {
         Computation result = adaptor.tryDeserialize(value, generator);
 
         assertThat(result.getStatements().toString(), allOf(
-            containsString("java.util.Set temp1 = (java.util.Set) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenSet\").value();"),
+            containsString("java.util.Set temp1 = (java.util.Set<?>) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenSet\").value();"),
             containsString("temp1.add(0)"),
             containsString("temp1.add(8)"),
             containsString("temp1.add(15)"),

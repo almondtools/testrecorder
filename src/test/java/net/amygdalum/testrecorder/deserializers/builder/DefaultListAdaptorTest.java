@@ -116,7 +116,7 @@ public class DefaultListAdaptorTest {
         Computation result = adaptor.tryDeserialize(value, generator);
 
         assertThat(result.getStatements().toString(), allOf(
-            containsString("java.util.List temp1 = (java.util.List) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenList\").value();"),
+            containsString("java.util.List temp1 = (java.util.List<?>) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenList\").value();"),
             containsString("temp1.add(0)"),
             containsString("temp1.add(8)"),
             containsString("temp1.add(15)"),

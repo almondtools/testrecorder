@@ -7,6 +7,7 @@ import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.equalTypes;
 import static net.amygdalum.testrecorder.util.Types.typeArgument;
+import static net.amygdalum.testrecorder.util.Types.typeArguments;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -18,6 +19,7 @@ import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
+import net.amygdalum.testrecorder.util.Types;
 
 public abstract class DefaultGenericCollectionAdaptor<T extends SerializedReferenceType> extends DefaultSetupGenerator<T> implements SetupGenerator<T> {
 
@@ -37,7 +39,7 @@ public abstract class DefaultGenericCollectionAdaptor<T extends SerializedRefere
             .filter(clazz -> clazz.isAssignableFrom(baseType(type)))
             .findFirst();
     }
-    
+
     @Override
     public Computation tryDeserialize(T value, SetupGenerators generator, DeserializerContext context) {
 
@@ -78,7 +80,12 @@ public abstract class DefaultGenericCollectionAdaptor<T extends SerializedRefere
             String set = types.isHidden(type)
                 ? generator.adapt(types.getWrappedName(type), temporaryType, types.wrapHidden(type))
                 : newObject(types.getConstructorTypeName(type));
-            String setInit = assignLocalVariableStatement(types.getRelaxedName(temporaryType), tempVar, set);
+            String temporaryTypeName = Optional.of(temporaryType)
+                .filter(t -> typeArguments(t).count() > 0)
+                .filter(t -> typeArguments(t).allMatch(Types::isActual))
+                .map(t -> types.getVariableTypeName(t))
+                .orElse(types.getRawTypeName(temporaryType));
+            String setInit = assignLocalVariableStatement(temporaryTypeName, tempVar, set);
             statements.add(setInit);
 
             for (String element : elements) {
@@ -88,9 +95,9 @@ public abstract class DefaultGenericCollectionAdaptor<T extends SerializedRefere
 
             if (generator.needsAdaptation(effectiveResultType, temporaryType)) {
                 tempVar = generator.adapt(tempVar, effectiveResultType, temporaryType);
-                statements.add(assignLocalVariableStatement(types.getRelaxedName(effectiveResultType), local.getName(), tempVar));
+                statements.add(assignLocalVariableStatement(types.getVariableTypeName(effectiveResultType), local.getName(), tempVar));
             } else if (!equalTypes(effectiveResultType, temporaryType)) {
-                statements.add(assignLocalVariableStatement(types.getRelaxedName(effectiveResultType), local.getName(), tempVar));
+                statements.add(assignLocalVariableStatement(types.getVariableTypeName(effectiveResultType), local.getName(), tempVar));
             }
 
             return new Computation(local.getName(), effectiveResultType, true, statements);

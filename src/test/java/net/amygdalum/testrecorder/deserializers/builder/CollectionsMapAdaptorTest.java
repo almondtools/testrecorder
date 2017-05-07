@@ -254,7 +254,7 @@ public class CollectionsMapAdaptorTest {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Matcher<String> wildcardMapDecoratedBy(String factory, int[]... elements) {
 	    List<Matcher<String>> matchers = new ArrayList<>();
-	    matchers.add(containsString("LinkedHashMap<?, ?> map2 = new LinkedHashMap<>()"));
+	    matchers.add(containsString("LinkedHashMap map2 = new LinkedHashMap<>()"));
 	    for (int[] element : elements) {
 	        matchers.add(containsString("map2.put(" + element[0] + ", " + element[1] + ")"));
 	    }

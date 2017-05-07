@@ -30,7 +30,7 @@ public final class Types {
 
     private static final String SYNTHETIC_INDICATOR = "$";
     private static final String[] HANDLED_SYNTHETIC_PREFIXES = { "this$" };
-    
+
     private Types() {
     }
 
@@ -190,6 +190,14 @@ public final class Types {
         }
     }
 
+    public static Stream<Type> typeArguments(Type type) {
+        if (type instanceof ParameterizedType) {
+            return Arrays.stream(((ParameterizedType) type).getActualTypeArguments());
+        } else {
+            return Stream.empty();
+        }
+    }
+
     public static Class<?> innerType(Class<?> clazz, String name) {
         for (Class<?> inner : clazz.getDeclaredClasses()) {
             if (inner.getSimpleName().equals(name)) {
@@ -279,9 +287,10 @@ public final class Types {
             || isBoxedPrimitive(type)
             || type == String.class;
     }
-    
+
     public static boolean isActual(Type type) {
-        return !(type instanceof TypeVariable<?> || type instanceof WildcardType);
+        return !(type instanceof TypeVariable<?>)
+            && !(type instanceof WildcardType);
     }
 
     public static Type array(Type componentType) {

@@ -15,6 +15,7 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -156,8 +157,10 @@ public class TypeManagerTest {
     @Test
     public void testGetVariableTypeNameGenericWithImport() throws Exception {
         types.registerType(List.class);
+        types.registerType(Map.class);
 
         assertThat(types.getVariableTypeName(List.class), equalTo("List<?>"));
+        assertThat(types.getVariableTypeName(Map.class), equalTo("Map<?, ?>"));
         assertThat(types.getConstructorTypeName(parameterized(List.class, null, parameterized(List.class, null, wildcard()))), equalTo("List<List<?>>"));
         assertThat(types.getVariableTypeName(parameterized(List.class, null, String.class)), equalTo("List<String>"));
         assertThat(types.getVariableTypeName(parameterized(List.class, null, Date.class)), equalTo("List<java.util.Date>"));
@@ -200,8 +203,10 @@ public class TypeManagerTest {
     @Test
     public void testGetConstructorTypeNameGenericWithImport() throws Exception {
         types.registerType(List.class);
-        
+        types.registerType(Map.class);
+
         assertThat(types.getConstructorTypeName(List.class), equalTo("List<>"));
+        assertThat(types.getConstructorTypeName(Map.class), equalTo("Map<>"));
         assertThat(types.getConstructorTypeName(parameterized(List.class, null, parameterized(List.class, null, wildcard()))), equalTo("List<List<?>>"));
         assertThat(types.getConstructorTypeName(parameterized(List.class, null, String.class)), equalTo("List<String>"));
         assertThat(types.getConstructorTypeName(parameterized(List.class, null, Date.class)), equalTo("List<java.util.Date>"));
@@ -211,55 +216,7 @@ public class TypeManagerTest {
     public void testGetConstructorTypeNameOther() throws Exception {
         assertThat(types.getConstructorTypeName(mock(Type.class)), equalTo("Object"));
     }
-    
-    @Test
-    public void testGetBestSignatureWithoutImport() throws Exception {
-        assertThat(types.getBestSignature(List.class), equalTo("java.util.List<>"));
-    }
-
-    @Test
-    public void testGetBestSignatureWithInnerType() throws Exception {
-        assertThat(types.getBestSignature(Hidden.class), equalTo("net.amygdalum.testrecorder.deserializers.TypeManagerTest$Hidden"));
-    }
-
-    @Test
-    public void testGetBestSignatureWithImport() throws Exception {
-        types.registerType(String.class);
-
-        assertThat(types.getBestSignature(String.class), equalTo("String"));
-    }
-
-    @Test
-    public void testGetBestSignatureOfArray() throws Exception {
-        types.registerType(String.class);
-
-        assertThat(types.getBestSignature(String[].class), equalTo("String[]"));
-    }
-
-    @Test
-    public void testGetBestSignatureOfGenericArray() throws Exception {
-        types.registerType(List.class);
-        types.registerType(String.class);
-
-        assertThat(types.getBestSignature(array(parameterized(List.class, null, String.class))), equalTo("List<String>[]"));
-        assertThat(types.getBestSignature(array(parameterized(List.class, null, Date.class))), equalTo("List<java.util.Date>[]"));
-        assertThat(types.getBestSignature(array(List.class)), equalTo("List<>[]"));
-    }
-
-    @Test
-    public void testGetBestSignatureGenericWithImport() throws Exception {
-        types.registerType(List.class);
-
-        assertThat(types.getBestSignature(List.class), equalTo("List<>"));
-        assertThat(types.getBestSignature(parameterized(List.class, null, String.class)), equalTo("List<String>"));
-        assertThat(types.getBestSignature(parameterized(List.class, null, Date.class)), equalTo("List<java.util.Date>"));
-    }
-
-    @Test
-    public void testGetBestSignatureOther() throws Exception {
-        assertThat(types.getBestSignature(mock(Type.class)), equalTo("Object"));
-    }
-
+   
     private static class Hidden {
 
     }

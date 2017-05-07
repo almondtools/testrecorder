@@ -116,7 +116,7 @@ public class DefaultQueueAdaptorTest {
         Computation result = adaptor.tryDeserialize(value, generator);
 
         assertThat(result.getStatements().toString(), allOf(
-            containsString("java.util.Queue temp1 = (java.util.Queue) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenQueue\").value();"),
+            containsString("java.util.Queue temp1 = (java.util.Queue<?>) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenQueue\").value();"),
             containsString("temp1.add(0)"),
             containsString("temp1.add(8)"),
             containsString("temp1.add(15)"),

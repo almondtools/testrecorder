@@ -87,16 +87,8 @@ public class TypeManager {
         } else if (clazz.isArray()) {
             registerImport(clazz.getComponentType());
         } else {
-            imports.put(clazz.getSimpleName(), getFullName(clazz));
+            imports.put(clazz.getSimpleName(), clazz.getCanonicalName());
         }
-    }
-
-    private String getFullName(Class<?> clazz) {
-        return getFullSignature(clazz).replace('$', '.');
-    }
-
-    private String getFullSignature(Class<?> clazz) {
-        return clazz.getName();
     }
 
     public String getVariableTypeName(Type type) {
@@ -107,9 +99,9 @@ public class TypeManager {
                 array += "[]";
                 clazz = clazz.getComponentType();
             }
-            String base = isNotImported(clazz) ? getFullName(clazz) : getSimpleName(clazz);
+            String base = isNotImported(clazz) ? clazz.getCanonicalName() : clazz.getSimpleName();
             String generics = clazz.getTypeParameters().length > 0 
-                ? IntStream.of(clazz.getTypeParameters().length)
+                ? IntStream.range(0,clazz.getTypeParameters().length)
                     .mapToObj(i -> (Type) wildcard())
                     .map(argtype -> getVariableTypeName(argtype))
                     .collect(joining(", ", "<", ">"))
@@ -118,7 +110,7 @@ public class TypeManager {
         } else if (type instanceof GenericArrayType) {
             return getVariableTypeName(((GenericArrayType) type).getGenericComponentType()) + "[]";
         } else if (type instanceof ParameterizedType) {
-            return getSimpleName(((ParameterizedType) type).getRawType())
+            return getRawTypeName(((ParameterizedType) type).getRawType())
                 + Stream.of(((ParameterizedType) type).getActualTypeArguments())
                     .map(argtype -> argtype instanceof TypeVariable<?> ? wildcard() : argtype)
                     .map(argtype -> getVariableTypeName(argtype))
@@ -138,13 +130,13 @@ public class TypeManager {
                 array += "[]";
                 clazz = clazz.getComponentType();
             }
-            String base = isNotImported(clazz) ? getFullName(clazz) : getSimpleName(clazz);
+            String base = isNotImported(clazz) ? clazz.getCanonicalName() : clazz.getSimpleName();
             String generics = clazz.getTypeParameters().length > 0 ? "<>" : "";
             return base + generics + array;
         } else if (type instanceof GenericArrayType) {
             return getConstructorTypeName(((GenericArrayType) type).getGenericComponentType()) + "[]";
         } else if (type instanceof ParameterizedType) {
-            return getSimpleName(((ParameterizedType) type).getRawType())
+            return getRawTypeName(((ParameterizedType) type).getRawType())
                 + Stream.of(((ParameterizedType) type).getActualTypeArguments())
                     .filter(Types::isActual)
                     .map(argtype -> getVariableTypeName(argtype))
@@ -154,71 +146,16 @@ public class TypeManager {
         }
     }
 
-    public String getBestSignature(Type type) {
-        if (type instanceof Class<?>) {
-            Class<?> clazz = (Class<?>) type;
-            String array = "";
-            while (clazz.isArray()) {
-                array += "[]";
-                clazz = clazz.getComponentType();
-            }
-            String base = isNotImported(clazz) ? getFullSignature(clazz) : getSimpleSignature(clazz);
-            String generics = clazz.getTypeParameters().length > 0 ? "<>" : "";
-            return base + generics + array;
-        } else if (type instanceof GenericArrayType) {
-            return getVariableTypeName(((GenericArrayType) type).getGenericComponentType()) + "[]";
-        } else if (type instanceof ParameterizedType) {
-            return getSimpleName(((ParameterizedType) type).getRawType())
-                + Stream.of(((ParameterizedType) type).getActualTypeArguments())
-                    .map(argtype -> argtype instanceof TypeVariable<?> ? wildcard() : argtype)
-                    .map(argtype -> getVariableTypeName(argtype))
-                    .collect(joining(", ", "<", ">"));
-        } else if (type instanceof WildcardType) {
-            return WILDCARD;
-        } else {
-            return getBestSignature(Object.class);
-        }
-    }
-
-    public String getRelaxedName(Type type) {
-        return getSimpleName(type);
-    }
-
-    private String getSimpleName(Type type) {
-        return getSimpleSignature(type).replace('$', '.');
-    }
-
-    private String getSimpleSignature(Type type) {
-        if (type instanceof Class<?>) {
-            Class<?> clazz = (Class<?>) type;
-            String array = "";
-            while (clazz.isArray()) {
-                array += "[]";
-                clazz = clazz.getComponentType();
-            }
-            if (cannotBeNotImported(clazz) || isNotImported(clazz)) {
-                return clazz.getName() + array;
-            } else {
-                return clazz.getSimpleName() + array;
-            }
-        } else if (type instanceof GenericArrayType) {
-            return getSimpleSignature(((GenericArrayType) type).getGenericComponentType()) + "[]";
-        } else if (type instanceof ParameterizedType) {
-            return getSimpleSignature(((ParameterizedType) type).getRawType())
-                + Stream.of(((ParameterizedType) type).getActualTypeArguments())
-                    .map(argtype -> argtype instanceof TypeVariable<?> ? wildcard() : argtype)
-                    .map(argtype -> getSimpleName(argtype))
-                    .collect(joining(", ", "<", ">"));
-        } else if (type instanceof WildcardType) {
-            return WILDCARD;
-        } else {
-            return getSimpleSignature(Object.class);
-        }
-    }
-
     public String getRawTypeName(Type type) {
         if (type instanceof Class<?>) {
-            return getSimpleName(type);
+            Class<?> clazz = (Class<?>) type;
+            String array = "";
+            while (clazz.isArray()) {
+                array += "[]";
+                clazz = clazz.getComponentType();
+            }
+            String name = isNotImported(clazz) ? clazz.getCanonicalName() : clazz.getSimpleName();
+            return name + array;
         } else if (type instanceof GenericArrayType) {
             return getRawTypeName(((GenericArrayType) type).getGenericComponentType()) + "[]";
         } else if (type instanceof ParameterizedType) {
@@ -250,7 +187,7 @@ public class TypeManager {
 
     public boolean isColliding(Class<?> clazz) {
         return imports.containsKey(clazz.getSimpleName())
-            && !imports.get(clazz.getSimpleName()).equals(getFullName(clazz));
+            && !imports.get(clazz.getSimpleName()).equals(clazz.getCanonicalName());
     }
 
     private boolean cannotBeNotImported(Class<?> clazz) {
@@ -262,7 +199,7 @@ public class TypeManager {
             return noImports.contains(clazz);
         }
         return !imports.containsKey(clazz.getSimpleName())
-            || !imports.get(clazz.getSimpleName()).equals(getFullName(clazz));
+            || !imports.get(clazz.getSimpleName()).equals(clazz.getCanonicalName());
     }
 
     public Type wrapHidden(Type type) {

@@ -118,7 +118,7 @@ public class MatcherGenerators implements Deserializer<Computation> {
             types.registerImport(Matcher.class);
             Computation value = fieldValue.accept(this, fieldContext);
 
-            String genericType = types.getRelaxedName(parameterized(Matcher.class, null, wildcard()));
+            String genericType = types.getVariableTypeName(parameterized(Matcher.class, null, wildcard()));
 
             String assignField = assignLocalVariableStatement(genericType, field.getName(), value.getValue());
             return new Computation(assignField, null, value.getStatements());

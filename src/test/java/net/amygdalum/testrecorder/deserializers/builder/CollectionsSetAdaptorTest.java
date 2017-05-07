@@ -254,7 +254,7 @@ public class CollectionsSetAdaptorTest {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Matcher<String> wildcardSetDecoratedBy(String factory, int... elements) {
 	    List<Matcher<String>> matchers = new ArrayList<>();
-	    matchers.add(containsString("LinkedHashSet<?> set2 = new LinkedHashSet<>()"));
+	    matchers.add(containsString("LinkedHashSet set2 = new LinkedHashSet<>()"));
 	    for (int element : elements) {
 	        matchers.add(containsString("set2.add(" + element + ")"));
 	    }

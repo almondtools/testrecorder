@@ -217,7 +217,7 @@ public class CollectionsListAdaptorTest {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private Matcher<String> wildcardListDecoratedBy(String factory, int... elements) {
         List<Matcher<String>> matchers = new ArrayList<>();
-        matchers.add(containsString("ArrayList<?> list2 = new ArrayList<>()"));
+        matchers.add(containsString("ArrayList list2 = new ArrayList<>()"));
         for (int element : elements) {
             matchers.add(containsString("list2.add(" + element + ")"));
         }

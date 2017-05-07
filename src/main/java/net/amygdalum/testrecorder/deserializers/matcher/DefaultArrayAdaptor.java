@@ -64,7 +64,7 @@ public class DefaultArrayAdaptor extends DefaultMatcherGenerator<SerializedArray
 				return new Computation(arrayEmptyMatcher, parameterized(Matcher.class, null, wildcard()));
 			} else {
 				types.staticImport(ArrayMatcher.class, "arrayContaining");
-				String name = types.getRelaxedName(componentType);
+				String name = types.getRawTypeName(componentType);
 
 				List<Computation> elements = Stream.of(value.getArray())
 					.map(element -> generator.simpleValue(element))
