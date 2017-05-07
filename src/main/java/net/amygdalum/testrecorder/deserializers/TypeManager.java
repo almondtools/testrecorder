@@ -146,8 +146,7 @@ public class TypeManager {
         } else if (type instanceof ParameterizedType) {
             return getSimpleName(((ParameterizedType) type).getRawType())
                 + Stream.of(((ParameterizedType) type).getActualTypeArguments())
-                    .filter(argtype -> !(argtype instanceof TypeVariable<?>))
-                    .filter(argtype -> !(argtype instanceof WildcardType))
+                    .filter(Types::isActual)
                     .map(argtype -> getConstructorTypeName(argtype))
                     .collect(joining(", ", "<", ">"));
         } else {

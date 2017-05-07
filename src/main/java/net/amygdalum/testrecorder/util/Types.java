@@ -13,6 +13,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +30,7 @@ public final class Types {
 
     private static final String SYNTHETIC_INDICATOR = "$";
     private static final String[] HANDLED_SYNTHETIC_PREFIXES = { "this$" };
-
+    
     private Types() {
     }
 
@@ -152,7 +153,8 @@ public final class Types {
         if (arrayType instanceof Class<?> && ((Class<?>) arrayType).isArray()) {
             return ((Class<?>) arrayType).getComponentType();
         } else if (arrayType instanceof GenericArrayType) {
-            return ((GenericArrayType) arrayType).getGenericComponentType();
+            Type componentType = ((GenericArrayType) arrayType).getGenericComponentType();
+            return isActual(componentType) ? componentType : Object.class;
         } else {
             return Object.class;
         }
@@ -276,6 +278,10 @@ public final class Types {
         return isPrimitive(type)
             || isBoxedPrimitive(type)
             || type == String.class;
+    }
+    
+    public static boolean isActual(Type type) {
+        return !(type instanceof TypeVariable<?> || type instanceof WildcardType);
     }
 
     public static Type array(Type componentType) {
