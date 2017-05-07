@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder;
 
 import static net.amygdalum.testrecorder.util.Types.getDeclaredField;
+import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.emptyArray;
@@ -82,7 +83,7 @@ public class ConfigurableSerializerFacadeTest {
         assertThat(serialized.getName(), equalTo("testField"));
         assertThat(serialized.getDeclaringClass(), equalTo(TestClass.class));
         assertThat(serialized.getType(), equalTo(int.class));
-        assertThat(serialized.getValue(), equalTo(SerializedLiteral.literal(int.class, 42)));
+        assertThat(serialized.getValue(), equalTo(literal(int.class, 42)));
     }
 
     interface OpenFacade {

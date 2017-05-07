@@ -39,7 +39,7 @@ public class ConstructorParamTest {
         assertThat(new ConstructorParam(constructor, 0).computeSerializedValue(), equalTo(nullInstance(null)));
         assertThat(new ConstructorParam(constructor, 0).assertType(String.class).computeSerializedValue(), equalTo(nullInstance(String.class)));
         assertThat(new ConstructorParam(constructor, 0).assertType(Object.class).computeSerializedValue(), equalTo(nullInstance(Object.class)));
-        assertThat(new ConstructorParam(constructor, 0).assertType(int.class).computeSerializedValue(), equalTo(literal(0)));
+        assertThat(new ConstructorParam(constructor, 0).assertType(int.class).computeSerializedValue(), equalTo(literal(int.class, 0)));
     }
 
     @Test

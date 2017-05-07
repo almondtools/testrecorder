@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder;
 
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
+import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.isLiteral;
 
 import java.lang.reflect.Field;
@@ -65,6 +66,8 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
     public SerializedValue serialize(Type type, Object object) {
         if (object == null) {
             return SerializedNull.nullInstance(type);
+        } else if (isLiteral(object.getClass()) && baseType(type).isPrimitive()) {
+            return SerializedLiteral.literal(type, object);
         } else if (isLiteral(object.getClass())) {
             return SerializedLiteral.literal(object);
         } else {
