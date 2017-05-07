@@ -63,8 +63,8 @@ public class ConstructionPlan implements Comparable<ConstructionPlan> {
             .map(computation -> computation.getValue())
             .toArray(String[]::new);
 
-        String bean = newObject(types.getBestName(clazz), params);
-        String constructorStatement = assignLocalVariableStatement(types.getBestName(clazz), var.getName(), bean);
+        String bean = newObject(types.getConstructorTypeName(clazz), params);
+        String constructorStatement = assignLocalVariableStatement(types.getVariableTypeName(clazz), var.getName(), bean);
         statements.add(constructorStatement);
         var.define(clazz);
 

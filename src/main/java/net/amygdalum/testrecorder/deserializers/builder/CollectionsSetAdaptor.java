@@ -54,7 +54,7 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
 		types.registerImport(Set.class);
 		types.registerType(value.getComponentType());
 
-		String name = types.getRawName(value.getType());
+		String name = types.getRawTypeName(value.getType());
 		if (name.contains("Empty")) {
 			return tryDeserializeEmpty(value, generator);
 		} else if (name.contains("Singleton")) {
@@ -88,7 +88,7 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
         Type resultType = parameterized(Set.class, null, componentType);
 		return generator.forVariable(value, resultType, local -> {
 
-			String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod(factoryMethod));
+			String decoratingStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod(factoryMethod));
 
 			return new Computation(local.getName(), resultType, asList(decoratingStatement));
 		});
@@ -111,7 +111,7 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
 			List<String> statements = new LinkedList<>(computation.getStatements());
 			String resultBase = computation.getValue();
 
-			String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase));
+			String decoratingStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase));
 			statements.add(decoratingStatement);
 
 			return new Computation(local.getName(), resultType, statements);
@@ -135,7 +135,7 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
 			List<String> statements = new LinkedList<>(computation.getStatements());
 			String resultBase = computation.getValue();
 
-			String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase));
+			String decoratingStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase));
 			statements.add(decoratingStatement);
 
 			return new Computation(local.getName(), resultType, statements);
@@ -158,7 +158,7 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
 			List<String> statements = new LinkedList<>(computation.getStatements());
 			String resultBase = computation.getValue();
 
-			String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase));
+			String decoratingStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase));
 			statements.add(decoratingStatement);
 
 			return new Computation(local.getName(), resultType, statements);
@@ -172,7 +172,7 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
 		types.staticImport(Collections.class, factoryMethod);
 
         if (types.isHidden(componentType)) {
-            throw new DeserializationException("cannot deserialize checked set with hidden element type: " + types.getBestName(componentType));
+            throw new DeserializationException("cannot deserialize checked set with hidden element type: " + types.getVariableTypeName(componentType));
         }
         Type resultType = parameterized(Set.class, null, componentType);
 		return generator.forVariable(value, resultType, local -> {
@@ -180,9 +180,9 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
 			Computation computation = createOrdinarySet(value, generator, context);
 			List<String> statements = new LinkedList<>(computation.getStatements());
 			String resultBase = computation.getValue();
-			String checkedType = types.getRawTypeName(value.getComponentType());
+			String checkedType = types.getRawClass(value.getComponentType());
 
-			String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase, checkedType));
+			String decoratingStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase, checkedType));
 			statements.add(decoratingStatement);
 
 			return new Computation(local.getName(), resultType, statements);

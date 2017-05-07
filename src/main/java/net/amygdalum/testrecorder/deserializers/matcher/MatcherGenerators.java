@@ -112,7 +112,7 @@ public class MatcherGenerators implements Deserializer<Computation> {
             types.registerImport(baseType(field.getType()));
             Computation value = simpleValue(fieldValue, fieldContext);
 
-            String assignField = assignLocalVariableStatement(types.getRawName(field.getType()), field.getName(), value.getValue());
+            String assignField = assignLocalVariableStatement(types.getRawTypeName(field.getType()), field.getName(), value.getValue());
             return new Computation(assignField, null, value.getStatements());
         } else {
             types.registerImport(Matcher.class);
@@ -133,11 +133,11 @@ public class MatcherGenerators implements Deserializer<Computation> {
             types.staticImport(GenericMatcher.class, "recursive");
             Type resultType = value.getResultType().equals(value.getType()) ? parameterized(Matcher.class, null, value.getResultType()) : parameterized(Matcher.class, null, wildcard());
             if (!types.isHidden(value.getType())) {
-                return new Computation(recursiveMatcher(types.getRawTypeName(value.getType())), resultType);
+                return new Computation(recursiveMatcher(types.getRawClass(value.getType())), resultType);
             } else if (!types.isHidden(value.getResultType())) {
-                return new Computation(recursiveMatcher(types.getRawTypeName(value.getResultType())), resultType);
+                return new Computation(recursiveMatcher(types.getRawClass(value.getResultType())), resultType);
             } else {
-                return new Computation(recursiveMatcher(types.getRawTypeName(Object.class)), parameterized(Matcher.class, null, wildcard()));
+                return new Computation(recursiveMatcher(types.getRawClass(Object.class)), parameterized(Matcher.class, null, wildcard()));
             }
         }
         return adaptors.tryDeserialize(value, types, this, context);

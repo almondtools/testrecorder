@@ -16,6 +16,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.Wrapped;
@@ -98,7 +99,38 @@ public class TypeManager {
         return clazz.getName();
     }
 
-    public String getBestName(Type type) {
+    public String getVariableTypeName(Type type) {
+        if (type instanceof Class<?>) {
+            Class<?> clazz = (Class<?>) type;
+            String array = "";
+            while (clazz.isArray()) {
+                array += "[]";
+                clazz = clazz.getComponentType();
+            }
+            String base = isNotImported(clazz) ? getFullName(clazz) : getSimpleName(clazz);
+            String generics = clazz.getTypeParameters().length > 0 
+                ? IntStream.of(clazz.getTypeParameters().length)
+                    .mapToObj(i -> (Type) wildcard())
+                    .map(argtype -> getVariableTypeName(argtype))
+                    .collect(joining(", ", "<", ">"))
+                    : "";
+            return base + generics + array;
+        } else if (type instanceof GenericArrayType) {
+            return getVariableTypeName(((GenericArrayType) type).getGenericComponentType()) + "[]";
+        } else if (type instanceof ParameterizedType) {
+            return getSimpleName(((ParameterizedType) type).getRawType())
+                + Stream.of(((ParameterizedType) type).getActualTypeArguments())
+                    .map(argtype -> argtype instanceof TypeVariable<?> ? wildcard() : argtype)
+                    .map(argtype -> getVariableTypeName(argtype))
+                    .collect(joining(", ", "<", ">"));
+        } else if (type instanceof WildcardType) {
+            return WILDCARD;
+        } else {
+            return getVariableTypeName(Object.class);
+        }
+    }
+
+    public String getConstructorTypeName(Type type) {
         if (type instanceof Class<?>) {
             Class<?> clazz = (Class<?>) type;
             String array = "";
@@ -110,17 +142,16 @@ public class TypeManager {
             String generics = clazz.getTypeParameters().length > 0 ? "<>" : "";
             return base + generics + array;
         } else if (type instanceof GenericArrayType) {
-            return getBestName(((GenericArrayType) type).getGenericComponentType()) + "[]";
+            return getConstructorTypeName(((GenericArrayType) type).getGenericComponentType()) + "[]";
         } else if (type instanceof ParameterizedType) {
             return getSimpleName(((ParameterizedType) type).getRawType())
                 + Stream.of(((ParameterizedType) type).getActualTypeArguments())
-                    .map(argtype -> argtype instanceof TypeVariable<?> ? wildcard() : argtype)
-                    .map(argtype -> getBestName(argtype))
+                    .filter(argtype -> !(argtype instanceof TypeVariable<?>))
+                    .filter(argtype -> !(argtype instanceof WildcardType))
+                    .map(argtype -> getConstructorTypeName(argtype))
                     .collect(joining(", ", "<", ">"));
-        } else if (type instanceof WildcardType) {
-            return WILDCARD;
         } else {
-            return getBestName(Object.class);
+            return getConstructorTypeName(Object.class);
         }
     }
 
@@ -136,12 +167,12 @@ public class TypeManager {
             String generics = clazz.getTypeParameters().length > 0 ? "<>" : "";
             return base + generics + array;
         } else if (type instanceof GenericArrayType) {
-            return getBestName(((GenericArrayType) type).getGenericComponentType()) + "[]";
+            return getVariableTypeName(((GenericArrayType) type).getGenericComponentType()) + "[]";
         } else if (type instanceof ParameterizedType) {
             return getSimpleName(((ParameterizedType) type).getRawType())
                 + Stream.of(((ParameterizedType) type).getActualTypeArguments())
                     .map(argtype -> argtype instanceof TypeVariable<?> ? wildcard() : argtype)
-                    .map(argtype -> getBestName(argtype))
+                    .map(argtype -> getVariableTypeName(argtype))
                     .collect(joining(", ", "<", ">"));
         } else if (type instanceof WildcardType) {
             return WILDCARD;
@@ -186,23 +217,23 @@ public class TypeManager {
         }
     }
 
-    public String getRawName(Type type) {
+    public String getRawTypeName(Type type) {
         if (type instanceof Class<?>) {
             return getSimpleName(type);
         } else if (type instanceof GenericArrayType) {
-            return getRawName(((GenericArrayType) type).getGenericComponentType()) + "[]";
+            return getRawTypeName(((GenericArrayType) type).getGenericComponentType()) + "[]";
         } else if (type instanceof ParameterizedType) {
-            return getRawName(((ParameterizedType) type).getRawType());
+            return getRawTypeName(((ParameterizedType) type).getRawType());
         } else {
-            return getRawName(Object.class);
+            return getRawTypeName(Object.class);
         }
     }
 
-    public String getRawTypeName(Type type) {
+    public String getRawClass(Type type) {
         if (isHidden(type)) {
             return getWrappedName(type);
         } else {
-            return getRawName(type) + ".class";
+            return getRawTypeName(type) + ".class";
         }
     }
 

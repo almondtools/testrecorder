@@ -40,8 +40,8 @@ public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> im
             mapValueType = Object.class;
         }
 		
-        String keyType = types.getRawName(mapKeyType);
-        String valueType = types.getRawName(mapValueType);
+        String keyType = types.getRawTypeName(mapKeyType);
+        String valueType = types.getRawTypeName(mapValueType);
 		if (value.isEmpty()) {
 			types.staticImport(MapMatcher.class, "noEntries");
 

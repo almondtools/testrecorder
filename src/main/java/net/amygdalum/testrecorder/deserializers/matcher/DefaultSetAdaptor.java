@@ -55,7 +55,7 @@ public class DefaultSetAdaptor extends DefaultMatcherGenerator<SerializedSet> im
 				.map(element -> element.getValue())
 				.toArray(String[]::new);
 
-            String elementType = types.getRawName(componentType);
+            String elementType = types.getRawTypeName(componentType);
 			String containsInAnyOrderMatcher = containsInAnyOrderMatcher(elementType, elementValues);
 			return new Computation(containsInAnyOrderMatcher, parameterized(Matcher.class, null, wildcard()), elementComputations);
 		}

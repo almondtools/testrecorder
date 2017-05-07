@@ -77,7 +77,7 @@ public abstract class DefaultGenericCollectionAdaptor<T extends SerializedRefere
 
             String set = types.isHidden(type)
                 ? generator.adapt(types.getWrappedName(type), temporaryType, types.wrapHidden(type))
-                : newObject(types.getBestName(type));
+                : newObject(types.getConstructorTypeName(type));
             String setInit = assignLocalVariableStatement(types.getRelaxedName(temporaryType), tempVar, set);
             statements.add(setInit);
 

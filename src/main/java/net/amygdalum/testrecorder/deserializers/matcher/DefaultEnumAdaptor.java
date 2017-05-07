@@ -56,7 +56,7 @@ public class DefaultEnumAdaptor extends DefaultMatcherGenerator<SerializedEnum> 
 			}
 			return new Computation(enumMatcher, parameterized(Matcher.class, null, wildcardExtends(Enum.class)), emptyList());
 		} else {
-			String typeName = types.getBestName(type);
+			String typeName = types.getVariableTypeName(type);
 			String name = value.getName();
 
 			String matchingValue = fieldAccess(typeName, name);

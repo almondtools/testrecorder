@@ -124,8 +124,8 @@ public class SetupGeneratorsTest {
         
         Computation result = setupCode.visitReferenceType(value);
 
-        assertThat(result.getStatements(), contains(containsPattern("GenericCycle<?> cycle2 = GenericObject.forward(GenericCycle.class)*"), containsPattern("GenericObject.define*")));
-        assertThat(result.getValue(), equalTo("cycle2"));
+        assertThat(result.getStatements(), contains(containsPattern("GenericCycle<?> genericCycle2 = GenericObject.forward(GenericCycle.class)*"), containsPattern("GenericObject.define*")));
+        assertThat(result.getValue(), equalTo("genericCycle2"));
     }
 
     @Test

@@ -70,7 +70,7 @@ public class ArraysListAdaptor implements SetupGenerator<SerializedList> {
             List<String> statements = new LinkedList<>(computation.getStatements());
             String resultArray = computation.getValue();
 
-            String asListStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod("asList", resultArray));
+            String asListStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod("asList", resultArray));
             statements.add(asListStatement);
 
             return new Computation(local.getName(), value.getResultType(), statements);

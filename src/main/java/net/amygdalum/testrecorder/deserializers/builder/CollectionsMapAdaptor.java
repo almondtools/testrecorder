@@ -56,7 +56,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 		types.registerImport(Map.class);
         types.registerTypes(value.getMapKeyType(), value.getMapValueType());
 
-		String name = types.getRawName(value.getType());
+		String name = types.getRawTypeName(value.getType());
 		if (name.contains("Empty")) {
 			return tryDeserializeEmpty(value, generator);
 		} else if (name.contains("Singleton")) {
@@ -95,7 +95,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
         Type resultType = parameterized(Map.class, null, mapKeyType, mapValueType);
 		return generator.forVariable(value, resultType, local -> {
 
-			String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod(factoryMethod));
+			String decoratingStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod(factoryMethod));
 
 			return new Computation(local.getName(), resultType, asList(decoratingStatement));
 		});
@@ -129,7 +129,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 			statements.addAll(valueComputation.getStatements());
 			String resultValue = valueComputation.getValue();
 
-			String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod(factoryMethod, resultKey, resultValue));
+			String decoratingStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod(factoryMethod, resultKey, resultValue));
 			statements.add(decoratingStatement);
 
 			return new Computation(local.getName(), resultType, statements);
@@ -157,7 +157,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 			List<String> statements = new LinkedList<>(computation.getStatements());
 			String resultBase = computation.getValue();
 
-			String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase));
+			String decoratingStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase));
 			statements.add(decoratingStatement);
 
 			return new Computation(local.getName(), resultType, statements);
@@ -185,7 +185,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 			List<String> statements = new LinkedList<>(computation.getStatements());
 			String resultBase = computation.getValue();
 
-			String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase));
+			String decoratingStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase));
 			statements.add(decoratingStatement);
 
 			return new Computation(local.getName(), resultType, statements);
@@ -201,10 +201,10 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 		types.staticImport(Collections.class, factoryMethod);
 
         if (types.isHidden(mapKeyType)) {
-            throw new DeserializationException("cannot deserialize checked map with hidden key type: " + types.getBestName(mapKeyType));
+            throw new DeserializationException("cannot deserialize checked map with hidden key type: " + types.getVariableTypeName(mapKeyType));
         }
         if (types.isHidden(mapValueType)) {
-            throw new DeserializationException("cannot deserialize checked map with hidden value type: " + types.getBestName(mapValueType));
+            throw new DeserializationException("cannot deserialize checked map with hidden value type: " + types.getVariableTypeName(mapValueType));
         }
 		Type resultType = parameterized(Map.class, null, mapKeyType, mapValueType);
 		return generator.forVariable(value, resultType, local -> {
@@ -212,10 +212,10 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 			Computation computation = createOrdinaryMap(value, generator, context);
 			List<String> statements = new LinkedList<>(computation.getStatements());
 			String resultBase = computation.getValue();
-			String checkedKeyType = types.getRawTypeName(mapKeyType);
-			String checkedValueType = types.getRawTypeName(mapValueType);
+			String checkedKeyType = types.getRawClass(mapKeyType);
+			String checkedValueType = types.getRawClass(mapValueType);
 
-			String decoratingStatement = assignLocalVariableStatement(types.getBestName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase, checkedKeyType, checkedValueType));
+			String decoratingStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase, checkedKeyType, checkedValueType));
 			statements.add(decoratingStatement);
 
 			return new Computation(local.getName(), resultType, statements);

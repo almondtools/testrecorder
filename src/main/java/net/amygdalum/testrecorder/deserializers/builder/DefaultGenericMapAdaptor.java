@@ -86,7 +86,7 @@ public abstract class DefaultGenericMapAdaptor<T extends SerializedReferenceType
 
             String map = types.isHidden(type)
                 ? generator.adapt(types.getWrappedName(type), temporaryType, types.wrapHidden(type))
-                : newObject(types.getBestName(type));
+                : newObject(types.getConstructorTypeName(type));
             String mapInit = assignLocalVariableStatement(types.getRelaxedName(temporaryType), tempVar, map);
             statements.add(mapInit);
 

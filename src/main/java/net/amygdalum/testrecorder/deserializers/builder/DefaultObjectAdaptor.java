@@ -47,13 +47,13 @@ public class DefaultObjectAdaptor extends DefaultSetupGenerator<SerializedObject
 			Type effectiveResultType = resultType;
 			if (definition.isDefined() && !definition.isReady()) {
 			    effectiveResultType = definition.getType();
-				String genericObject = genericObject(types.getRawTypeName(type), elements);
-				statements.add(callMethodStatement(types.getBestName(GenericObject.class), "define", definition.getName(), genericObject));
+				String genericObject = genericObject(types.getRawClass(type), elements);
+				statements.add(callMethodStatement(types.getVariableTypeName(GenericObject.class), "define", definition.getName(), genericObject));
 			} else {
 			    effectiveResultType = types.wrapHidden(resultType);
-				String genericObject = genericObjectConverter(types.getRawTypeName(type), elements);
+				String genericObject = genericObjectConverter(types.getRawClass(type), elements);
 				genericObject = generator.adapt(genericObject, effectiveResultType, type);
-				statements.add(assignLocalVariableStatement(types.getRawName(effectiveResultType), definition.getName(), genericObject));
+				statements.add(assignLocalVariableStatement(types.getRawTypeName(effectiveResultType), definition.getName(), genericObject));
 			}
 
 			return new Computation(definition.getName(), effectiveResultType, statements);

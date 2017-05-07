@@ -36,7 +36,7 @@ public class DefaultClassAdaptor extends DefaultMatcherGenerator<SerializedImmut
 
 		Class<?> clazz = value.getValue();
 
-		String equalToMatcher = equalToMatcher(types.getRawTypeName(clazz));
+		String equalToMatcher = equalToMatcher(types.getRawClass(clazz));
 		return new Computation(equalToMatcher, parameterized(Matcher.class, null, value.getType()), emptyList());
 	}
 

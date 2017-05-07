@@ -56,7 +56,7 @@ public class LargePrimitiveArrayAdaptor implements MatcherGenerator<SerializedAr
                 types.staticImport(Matchers.class, "equalTo");
                 Object object = unwrap(value);
                 String fileName = FileSerializer.store(loadFromFile.writeTo(), object);
-                String result = callLocalMethod("load", asLiteral(loadFromFile.readFrom()), asLiteral(fileName), types.getRawTypeName(value.getType()));
+                String result = callLocalMethod("load", asLiteral(loadFromFile.readFrom()), asLiteral(fileName), types.getRawClass(value.getType()));
                 String matcher = equalToMatcher(result); 
                 return new Computation(matcher, Matcher.class, new ArrayList<>());
             };

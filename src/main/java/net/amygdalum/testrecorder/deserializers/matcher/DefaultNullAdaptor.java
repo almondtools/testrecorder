@@ -27,10 +27,10 @@ public class DefaultNullAdaptor extends DefaultMatcherGenerator<SerializedNull> 
 		types.staticImport(Matchers.class, "nullValue");
 
 		if (!types.isHidden(value.getType())) {
-			String nullMatcher = nullMatcher(types.getRawTypeName(value.getType()));
+			String nullMatcher = nullMatcher(types.getRawClass(value.getType()));
 			return new Computation(nullMatcher, parameterized(Matcher.class, null, value.getType()), emptyList());
 		} else if (!types.isHidden(value.getResultType())) {
-			String nullMatcher = nullMatcher(types.getRawTypeName(value.getResultType()));
+			String nullMatcher = nullMatcher(types.getRawClass(value.getResultType()));
 			return new Computation(nullMatcher, parameterized(Matcher.class, null, value.getResultType()), emptyList());
 		} else {
 			String nullMatcher = nullMatcher("");

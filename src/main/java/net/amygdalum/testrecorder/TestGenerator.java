@@ -426,7 +426,7 @@ public class TestGenerator implements SnapshotConsumer {
             Deserializer<Computation> setupCode = setup.create(locals, types);
             Computation setupThis = snapshot.getSetupThis() != null
                 ? snapshot.getSetupThis().accept(setupCode)
-                : new Computation(types.getBestName(types.wrapHidden(snapshot.getThisType())), null, true);
+                : new Computation(types.getVariableTypeName(types.wrapHidden(snapshot.getThisType())), null, true);
             statements.addAll(setupThis.getStatements());
 
             AnnotatedValue[] snapshotSetupArgs = snapshot.getAnnotatedSetupArgs();
@@ -592,7 +592,7 @@ public class TestGenerator implements SnapshotConsumer {
             types.staticImport(Throwables.class, "capture");
             String name = locals.fetchName(type);
 
-            String exceptionType = types.getRawTypeName(type);
+            String exceptionType = types.getRawClass(type);
             String capture = captureException(capturedStatements, exceptionType);
 
             statements.add(assignLocalVariableStatement(types.getRelaxedName(type), name, capture));
@@ -633,7 +633,7 @@ public class TestGenerator implements SnapshotConsumer {
             String date = new SimpleDateFormat(format).format(new Date(snapshot.getTime()));
             TypeManager types = context.getTypes();
             types.registerImport(AnnotatedBy.class);
-            return annotation(types.getBestName(AnnotatedBy.class), asList(
+            return annotation(types.getRawTypeName(AnnotatedBy.class), asList(
                 new Pair<>("name", asLiteral("timestamp")),
                 new Pair<>("value", asLiteral(date))));
         }
@@ -645,7 +645,7 @@ public class TestGenerator implements SnapshotConsumer {
             return serialized
                 .filter(value -> value instanceof SerializedLiteral)
                 .map(value -> ((SerializedLiteral) value).getValue())
-                .map(value -> annotation(types.getBestName(AnnotatedBy.class), asList(
+                .map(value -> annotation(types.getRawTypeName(AnnotatedBy.class), asList(
                     new Pair<>("name", asLiteral("group")),
                     new Pair<>("value", asLiteral(value.toString())))))
                 .orElse(null);

@@ -51,7 +51,7 @@ public class LargePrimitiveArrayAdaptor implements SetupGenerator<SerializedArra
                 types.staticImport(FileSerializer.class, "load");
                 Object object = unwrap(value);
                 String fileName = FileSerializer.store(loadFromFile.writeTo(), object);
-                String result = callLocalMethod("load", asLiteral(loadFromFile.readFrom()), asLiteral(fileName), types.getRawTypeName(value.getType()));
+                String result = callLocalMethod("load", asLiteral(loadFromFile.readFrom()), asLiteral(fileName), types.getRawClass(value.getType()));
                 return new Computation(result, value.getResultType(), new ArrayList<>());
             }
             ;

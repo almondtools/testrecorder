@@ -54,7 +54,7 @@ public class DefaultSequenceAdaptor extends DefaultMatcherGenerator<SerializedLi
 				.map(element -> element.getValue())
 				.toArray(String[]::new);
 
-	        String elementType = types.getRawName(componentType);
+	        String elementType = types.getRawTypeName(componentType);
 			String containsMatcher = containsInOrderMatcher(elementType, elementValues);
 
 			return new Computation(containsMatcher, parameterized(Matcher.class, null, wildcard()), elementComputations);
