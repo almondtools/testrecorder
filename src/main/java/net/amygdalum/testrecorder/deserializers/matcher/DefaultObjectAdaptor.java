@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.deserializers.Templates.genericObjectMatcher;
+import static net.amygdalum.testrecorder.deserializers.builder.FieldDisambiguator.disambiguate;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.typeArgument;
@@ -31,7 +32,7 @@ public class DefaultObjectAdaptor extends DefaultMatcherGenerator<SerializedObje
 		TypeManager types = generator.getTypes();
 		types.registerTypes(value.getResultType(), value.getType(), GenericMatcher.class);
 
-		List<Computation> fields = value.getFields().stream()
+		List<Computation> fields = disambiguate(value.getFields()).stream()
 			.sorted()
 			.map(field -> field.accept(generator))
 			.filter(Objects::nonNull)
