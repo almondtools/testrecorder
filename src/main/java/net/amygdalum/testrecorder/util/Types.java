@@ -4,6 +4,7 @@ import static java.lang.reflect.Modifier.isPrivate;
 import static java.lang.reflect.Modifier.isPublic;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -165,9 +166,14 @@ public final class Types {
         Class<?> fromClass = baseType(fromType);
         if (!toClass.isAssignableFrom(fromClass)) {
             return false;
-        } else {
+        } else if (toType instanceof Class<?> || fromType instanceof Class<?>){
             return true;
+        } else {
+            List<Type> toArguments = Types.typeArguments(toType).collect(toList());
+            List<Type> fromArguments = Types.typeArguments(fromType).collect(toList());
+            return toArguments.equals(fromArguments);
         }
+        
     }
 
     public static boolean equalTypes(Type type1, Type type2) {

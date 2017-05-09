@@ -91,6 +91,15 @@ public class GenericObjectTest {
     }
 
     @Test
+    public void testSetFieldNonAssignableArray() throws Exception {
+        Object[] value = new Object[]{"foo","bar"};
+        ContainingArray object = new ContainingArray();
+
+        GenericObject.setField(object, "array", value);
+        assertThat(object.array, arrayContaining(value));
+    }
+
+    @Test
     public void testSetFieldField() throws Exception {
         Simple value = new Simple();
         Complex object = new Complex();
@@ -243,6 +252,19 @@ public class GenericObjectTest {
 
         public Simple getSimple() {
             return simple;
+        }
+    }
+
+    private static class ContainingArray {
+
+        private String[] array;
+
+        public ContainingArray() {
+            this.array = new String[0];
+        }
+
+        public String[] getArray() {
+            return array;
         }
     }
 

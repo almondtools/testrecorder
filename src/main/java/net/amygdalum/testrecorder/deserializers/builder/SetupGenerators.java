@@ -161,7 +161,7 @@ public class SetupGenerators implements Deserializer<Computation> {
                 List<String> statements = new ArrayList<>();
                 String forwardExpression = callMethod(types.getVariableTypeName(GenericObject.class), "forward", types.getRawClass(value.getType()));
                 Type resultType = types.wrapHidden(value.getType());
-                statements.add(assignLocalVariableStatement(types.getVariableTypeName(resultType), name, forwardExpression));
+                statements.add(assignLocalVariableStatement(types.getRawTypeName(resultType), name, forwardExpression));
                 definition.define(resultType);
                 return new Computation(name, resultType, true, statements);
             }

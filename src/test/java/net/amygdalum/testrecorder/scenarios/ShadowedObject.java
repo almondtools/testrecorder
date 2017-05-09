@@ -3,15 +3,13 @@ package net.amygdalum.testrecorder.scenarios;
 public class ShadowedObject {
 
     private int field;
-    private long longField;
 
-    public ShadowedObject(int field, int longField) {
+    public ShadowedObject(int field) {
         this.field = field;
-        this.longField = longField;
+    }
+    
+    public int getField() {
+        return field;
     }
 
-    @Override
-    public String toString() {
-        return "" + field + longField;
-    }
 }

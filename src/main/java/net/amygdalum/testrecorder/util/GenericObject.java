@@ -154,7 +154,26 @@ public abstract class GenericObject {
             value = ((Wrapped) value).value();
         }
         Field to = findField(name, o.getClass());
+        if (isNonAssignableArray(value, to)) {
+            value = copyToAssignableArray(value, to);
+        }
         setField(o, to, value);
+    }
+
+    private static boolean isNonAssignableArray(Object value, Field to) {
+        return to.getType().isArray() 
+            && value != null 
+            && value.getClass().isArray() 
+            && !to.getType().isAssignableFrom(value.getClass());
+    }
+
+    private static Object copyToAssignableArray(Object array, Field to) {
+        int length = Array.getLength(array);
+        Object value = Array.newInstance(to.getType().getComponentType(), length);
+        for (int i = 0; i < length;i++) {
+            Array.set(value, i, Array.get(array, i));
+        }
+        return value;
     }
 
     public static void setField(Object o, Field to, Object value) {

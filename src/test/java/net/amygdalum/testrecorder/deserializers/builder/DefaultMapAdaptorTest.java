@@ -11,6 +11,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -18,7 +19,10 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
+import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.LocalVariable;
+import net.amygdalum.testrecorder.deserializers.LocalVariableDefinition;
 import net.amygdalum.testrecorder.util.testobjects.OrthogonalInterface;
 import net.amygdalum.testrecorder.util.testobjects.PublicMap;
 import net.amygdalum.testrecorder.values.SerializedMap;
@@ -133,4 +137,28 @@ public class DefaultMapAdaptorTest {
         assertThat(result.getValue(), equalTo("map1"));
     }
     
+    @Test
+    public void testTryDeserializeForwarded() throws Exception {
+        SerializedMap value = new SerializedMap(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class)).withResult(parameterized(Map.class, null, Integer.class, Integer.class));
+        value.put(literal(8), literal(15));
+        value.put(literal(47), literal(11));
+        SetupGenerators generator = new SetupGenerators(getClass()) {
+            @Override
+            public Computation forVariable(SerializedValue value, Type type, LocalVariableDefinition computation) {
+                LocalVariable local = new LocalVariable("forwarded");
+                local.define(type);
+                return computation.define(local);
+            }
+        };
+
+        Computation result = adaptor.tryDeserialize(value, generator);
+
+        assertThat(result.getStatements().toString(), allOf(
+            containsString("LinkedHashMap<Integer, Integer> temp1 = new LinkedHashMap<Integer, Integer>()"),
+            containsString("temp1.put(8, 15)"),
+            containsString("temp1.put(47, 11)"),
+            containsString("forwarded.putAll(temp1);")));
+        assertThat(result.getValue(), equalTo("forwarded"));
+    }
+
 }

@@ -5,18 +5,20 @@ import net.amygdalum.testrecorder.Recorded;
 public class ShadowingObject extends ShadowedObject {
 
     private String field;
-    private long longField;
 
-    
-    public ShadowingObject(String field, int longField) {
-        super(longField, longField);
+    public ShadowingObject(String field) {
+        super(42);
         this.field = field;
-        this.longField = longField;
     }
-
+    
     @Recorded
+    public String getShadowingField() {
+        return field;
+    }
+    
     @Override
     public String toString() {
-        return field + longField;
+        return getShadowingField() + " > " + getField();
     }
+
 }

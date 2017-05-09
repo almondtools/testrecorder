@@ -57,7 +57,7 @@ public abstract class DefaultGenericCollectionAdaptor<T extends SerializedRefere
 
         types.registerTypes(effectiveResultType, type, componentResultType);
 
-        return generator.forVariable(value, matchingType, local -> {
+        return generator.forVariable(value, matchingType, definition -> {
 
             List<Computation> elementTemplates = elements(value)
                 .map(element -> withResultType(element, componentResultType).accept(generator))
@@ -72,7 +72,7 @@ public abstract class DefaultGenericCollectionAdaptor<T extends SerializedRefere
                 .flatMap(template -> template.getStatements().stream())
                 .collect(toList());
 
-            String tempVar = local.getName();
+            String tempVar = definition.getName();
             if (!equalTypes(effectiveResultType, temporaryType)) {
                 tempVar = generator.temporaryLocal();
             }
@@ -93,14 +93,17 @@ public abstract class DefaultGenericCollectionAdaptor<T extends SerializedRefere
                 statements.add(addElement);
             }
 
-            if (generator.needsAdaptation(effectiveResultType, temporaryType)) {
+            if (definition.isDefined() && !definition.isReady()) {
+                statements.add(callMethodStatement(definition.getName(), "addAll", tempVar));
+                return new Computation(definition.getName(), definition.getType(), true, statements);
+            } else if (generator.needsAdaptation(effectiveResultType, temporaryType)) {
                 tempVar = generator.adapt(tempVar, effectiveResultType, temporaryType);
-                statements.add(assignLocalVariableStatement(types.getVariableTypeName(effectiveResultType), local.getName(), tempVar));
+                statements.add(assignLocalVariableStatement(types.getVariableTypeName(effectiveResultType), definition.getName(), tempVar));
             } else if (!equalTypes(effectiveResultType, temporaryType)) {
-                statements.add(assignLocalVariableStatement(types.getVariableTypeName(effectiveResultType), local.getName(), tempVar));
+                statements.add(assignLocalVariableStatement(types.getVariableTypeName(effectiveResultType), definition.getName(), tempVar));
             }
 
-            return new Computation(local.getName(), effectiveResultType, true, statements);
+            return new Computation(definition.getName(), effectiveResultType, true, statements);
         });
     }
 

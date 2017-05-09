@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.deserializers.builder;
+package net.amygdalum.testrecorder.deserializers;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.groupingBy;
@@ -9,25 +9,27 @@ import java.util.function.Function;
 
 import net.amygdalum.testrecorder.values.SerializedField;
 
-public final class FieldDisambiguator {
+public final class FieldNamingStrategy {
 
-    private FieldDisambiguator() {
+    private static final List<Function<SerializedField, String>> NAMING_STRATEGIES = asList(qualifySimple(), qualifyCanonical());
+
+    private FieldNamingStrategy() {
     }
 
-    public static List<SerializedField> disambiguate(List<SerializedField> fields) {
+    public static List<SerializedField> ensureUniqueNames(List<SerializedField> fields) {
         if (containsUniqueNames(fields)) {
             return fields;
         }
         List<SerializedField> collect = fields.stream()
             .collect(groupingBy(SerializedField::getName, toList())).values().stream()
-            .map(equalfields -> disambiguateEqualNamed(equalfields))
+            .map(equalfields -> applyStrategys(equalfields))
             .flatMap(List::stream)
             .collect(toList());
         return collect;
     }
 
-    private static  List<SerializedField> disambiguateEqualNamed(List<SerializedField> equalfields) {
-        for (Function<SerializedField, String> naming : asList(qualifySimple(), qualifyCanonical())) {
+    private static  List<SerializedField> applyStrategys(List<SerializedField> equalfields) {
+        for (Function<SerializedField, String> naming : NAMING_STRATEGIES) {
             List<SerializedField> qualified = equalfields.stream()
                 .map(field -> new SerializedField(field.getDeclaringClass(), naming.apply(field), field.getType(), field.getValue()))
                 .collect(toList());
@@ -50,7 +52,7 @@ public final class FieldDisambiguator {
     }
 
     private static Function<SerializedField, String> qualifyCanonical() {
-        return field -> field.getDeclaringClass().getSimpleName().replace('.', '$') + "$" + field.getName();
+        return field -> field.getDeclaringClass().getCanonicalName().replace('.', '$') + "$" + field.getName();
     }
 
 }

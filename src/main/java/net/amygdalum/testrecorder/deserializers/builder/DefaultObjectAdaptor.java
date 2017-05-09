@@ -1,11 +1,11 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static java.util.stream.Collectors.toList;
+import static net.amygdalum.testrecorder.deserializers.FieldNamingStrategy.ensureUniqueNames;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethodStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.genericObject;
 import static net.amygdalum.testrecorder.deserializers.Templates.genericObjectConverter;
-import static net.amygdalum.testrecorder.deserializers.builder.FieldDisambiguator.disambiguate;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -32,7 +32,7 @@ public class DefaultObjectAdaptor extends DefaultSetupGenerator<SerializedObject
         Type resultType = value.getResultType();
         return generator.forVariable(value, type, definition -> {
 
-            List<Computation> elementTemplates = disambiguate(value.getFields()).stream()
+            List<Computation> elementTemplates = ensureUniqueNames(value.getFields()).stream()
                 .sorted()
                 .map(field -> field.accept(generator))
                 .collect(toList());

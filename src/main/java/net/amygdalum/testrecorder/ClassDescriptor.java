@@ -44,5 +44,9 @@ public class ClassDescriptor {
 		return this.canonicalName.equals(that.canonicalName);
 	}
 	
+	@Override
+	public String toString() {
+	    return canonicalName;
+	}
 
 }
