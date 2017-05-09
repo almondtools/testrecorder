@@ -13,6 +13,8 @@ import java.io.Serializable;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.Wrapped;
+import net.amygdalum.testrecorder.util.testobjects.DoubleShadowingObject;
+import net.amygdalum.testrecorder.util.testobjects.ShadowingObject;
 
 @SuppressWarnings("unused")
 public class GenericObjectTest {
@@ -182,6 +184,28 @@ public class GenericObjectTest {
         ExceptionConstructor instance = GenericObject.newInstance(ExceptionConstructor.class);
 
         assertThat(instance.getStr(), nullValue());
+    }
+
+    @Test
+    public void testShadowingObject() throws Exception {
+        ShadowingObject shadowingObject = new GenericObject() {
+            int ShadowedObject$field = 42;
+            String ShadowingObject$field = "field";
+        }.as(ShadowingObject.class);
+        assertThat(shadowingObject.getField(), equalTo(42));
+        assertThat(shadowingObject.getShadowingField(), equalTo("field"));
+    }
+
+    @Test
+    public void testDoubleShadowingObject() throws Exception {
+        DoubleShadowingObject shadowingObject = new GenericObject() {
+            int ShadowedObject$field = 42;
+            String ShadowingObject$field = "field";
+            String DoubleShadowingObject$field = "fieldshadowing";
+        }.as(DoubleShadowingObject.class);
+        assertThat(shadowingObject.getField(), equalTo(42));
+        assertThat(shadowingObject.getShadowingField(), equalTo("field"));
+        assertThat(shadowingObject.getDoubleShadowingField(), equalTo("fieldshadowing"));
     }
 
     private interface AnInterface {

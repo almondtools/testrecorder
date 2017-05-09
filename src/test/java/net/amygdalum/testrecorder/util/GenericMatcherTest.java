@@ -16,6 +16,8 @@ import org.junit.Test;
 
 import net.amygdalum.testrecorder.Wrapped;
 import net.amygdalum.testrecorder.util.testobjects.Complex;
+import net.amygdalum.testrecorder.util.testobjects.DoubleShadowingObject;
+import net.amygdalum.testrecorder.util.testobjects.ShadowingObject;
 import net.amygdalum.testrecorder.util.testobjects.Simple;
 import net.amygdalum.testrecorder.util.testobjects.Sub;
 import net.amygdalum.testrecorder.util.testobjects.Super;
@@ -266,6 +268,25 @@ public class GenericMatcherTest {
         }.matching(Sub.class, Super.class);
 
         assertThat(matcher.mismatchesWith(null, new Sub("myStr")), empty());
+    }
+
+    @Test
+    public void testShadowingObject() throws Exception {
+        Matcher<ShadowingObject> matcher = new GenericMatcher() {
+            int ShadowedObject$field = 42;
+            String ShadowingObject$field = "field";
+        }.matching(ShadowingObject.class);
+        assertThat(matcher.matches(new ShadowingObject("field", 42)), is(true));
+    }
+
+    @Test
+    public void testDoubleShadowingObject() throws Exception {
+        Matcher<DoubleShadowingObject> matcher = new GenericMatcher() {
+            int ShadowedObject$field = 42;
+            String ShadowingObject$field = "field";
+            String DoubleShadowingObject$field = "fieldshadowing";
+        }.matching(DoubleShadowingObject.class);
+        assertThat(matcher.matches(new DoubleShadowingObject("fieldshadowing", "field", 42)), is(true));
     }
 
     interface GenericComparisonMatcher extends Matcher<GenericComparison> {
