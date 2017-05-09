@@ -373,6 +373,22 @@ public final class Types {
         }
         throw new NoSuchFieldException(name);
     }
+    
+    public static List<Field> getDeclaredFields(Class<?> clazz, String name) {
+        List<Field> list = new ArrayList<>(); 
+        Class<?> current = clazz;
+        while (current != Object.class) {
+            try {
+                list.add(current.getDeclaredField(name));
+                current = current.getSuperclass();
+            } catch (NoSuchFieldException e) {
+                current = current.getSuperclass();
+            }
+        }
+        return list;
+    }
+
+
 
     public static boolean needsCast(Type variableType, Type expressionType) {
         return !baseType(variableType).isAssignableFrom(baseType(expressionType))

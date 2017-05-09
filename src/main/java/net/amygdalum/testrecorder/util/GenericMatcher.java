@@ -40,8 +40,12 @@ public class GenericMatcher extends GenericObject {
 
     public List<GenericComparison> mismatchesWith(String root, Object o) {
         WorkSet<GenericComparison> remainder = new WorkSet<>();
-        for (Field field : getGenericFields()) {
-            remainder.add(GenericComparison.from(root, field.getName(), this, o));
+        for (Field field : getGenericFields(o.getClass())) {
+            GenericComparison comparison = getQualifiedField(o.getClass(), field.getName())
+                .map(qfield -> GenericComparison.from(root, field, this, qfield, o))
+                .orElseGet(() -> GenericComparison.from(root, field.getName(), this, o));
+
+            remainder.add(comparison);
         }
         GenericComparison.compare(remainder, GenericMatcher::matching);
         return remainder.getDone().stream()

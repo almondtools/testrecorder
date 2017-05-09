@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.util;
 
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
 import static net.amygdalum.testrecorder.util.Types.allFields;
+import static net.amygdalum.testrecorder.util.Types.getDeclaredField;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.isLiteral;
 
 import java.lang.reflect.Array;
@@ -138,8 +139,14 @@ public class GenericComparison {
         return true;
     }
 
+    public static Object getValue(Class<?> clazz, String fieldName, Object item) throws ReflectiveOperationException {
+        Field field = clazz.getDeclaredField(fieldName);
+
+        return getValue(field, item);
+    }
+
     public static Object getValue(String fieldName, Object item) throws ReflectiveOperationException {
-        Field field = Types.getDeclaredField(item.getClass(), fieldName);
+        Field field = getDeclaredField(item.getClass(), fieldName);
 
         return getValue(field, item);
     }
@@ -153,6 +160,17 @@ public class GenericComparison {
             Object f1 = getValue(field, left);
             Object f2 = getValue(field, right);
             String newRoot = root == null ? field : root + '.' + field;
+            return new GenericComparison(newRoot, f1, f2);
+        } catch (ReflectiveOperationException e) {
+            return GenericComparison.NULL;
+        }
+    }
+    
+    public static GenericComparison from(String root, Field lfield, Object left, Field rfield, Object right) {
+        try {
+            Object f1 = getValue(lfield, left);
+            Object f2 = getValue(rfield, right);
+            String newRoot = root == null ? lfield.getName() : root + '.' + lfield.getName();
             return new GenericComparison(newRoot, f1, f2);
         } catch (ReflectiveOperationException e) {
             return GenericComparison.NULL;

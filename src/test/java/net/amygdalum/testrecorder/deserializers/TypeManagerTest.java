@@ -167,6 +167,11 @@ public class TypeManagerTest {
     }
 
     @Test
+    public void testGetVariableTypeNameNestedType() throws Exception {
+        assertThat(types.getVariableTypeName(net.amygdalum.testrecorder.util.testobjects.Hidden.VisibleInterface.class), equalTo("net.amygdalum.testrecorder.util.testobjects.Hidden.VisibleInterface"));
+    }
+
+    @Test
     public void testGetVariableTypeNameOther() throws Exception {
         assertThat(types.getVariableTypeName(mock(Type.class)), equalTo("Object"));
     }
@@ -217,6 +222,16 @@ public class TypeManagerTest {
         assertThat(types.getConstructorTypeName(mock(Type.class)), equalTo("Object"));
     }
    
+    @Test
+    public void testGetConstructorTypeNameNestedType() throws Exception {
+        assertThat(types.getConstructorTypeName(net.amygdalum.testrecorder.util.testobjects.Hidden.VisibleInterface.class), equalTo("net.amygdalum.testrecorder.util.testobjects.Hidden.VisibleInterface"));
+    }
+
+    @Test
+    public void testGetRawTypeNameNestedType() throws Exception {
+        assertThat(types.getRawTypeName(net.amygdalum.testrecorder.util.testobjects.Hidden.VisibleInterface.class), equalTo("net.amygdalum.testrecorder.util.testobjects.Hidden.VisibleInterface"));
+    }
+
     private static class Hidden {
 
     }

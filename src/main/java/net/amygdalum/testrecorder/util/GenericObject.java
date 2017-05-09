@@ -18,6 +18,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -35,11 +36,11 @@ public abstract class GenericObject {
 
     public static void define(Object o, GenericObject genericObject) {
         Object value = o instanceof Wrapped ? ((Wrapped) o).value() : o;
-        for (Field field : genericObject.getGenericFields()) {
+        for (Field field : genericObject.getGenericFields(o.getClass())) {
             try {
                 accessing(field).exec(() -> setField(value, field.getName(), field.get(genericObject)));
             } catch (ReflectiveOperationException e) {
-                throw new GenericObjectException("definition of object failed.",e);
+                throw new GenericObjectException("definition of object failed.", e);
             }
         }
     }
@@ -127,7 +128,7 @@ public abstract class GenericObject {
     }
 
     public Wrapped as(Wrapped wrapped) {
-        for (Field field : getGenericFields()) {
+        for (Field field : getGenericFields(wrapped.getWrappedClass())) {
             try {
                 accessing(field).exec(() -> wrapped.setField(field.getName(), field.get(this)));
             } catch (ReflectiveOperationException e) {
@@ -138,7 +139,7 @@ public abstract class GenericObject {
     }
 
     public <T> T as(T o) {
-        for (Field field : getGenericFields()) {
+        for (Field field : getGenericFields(o.getClass())) {
             try {
                 accessing(field).exec(() -> setField(o, field.getName(), field.get(this)));
             } catch (ReflectiveOperationException e) {
@@ -189,25 +190,50 @@ public abstract class GenericObject {
 
     public static Field findField(String name, Class<?> clazz) {
         try {
+            Optional<Field> field = getQualifiedField(clazz, name);
+            if (field.isPresent()) {
+                return field.get();
+            }
             return getDeclaredField(clazz, name);
         } catch (NoSuchFieldException e) {
             throw new GenericObjectException("field " + name + " not found:", e);
         }
     }
 
-    public List<Field> getGenericFields() {
+    public List<Field> getGenericFields(Class<?> clazz) {
         Field[] declaredFields = getClass().getDeclaredFields();
         return Stream.of(declaredFields)
-            .filter(field -> isSerializable(field))
+            .filter(field -> isSerializable(clazz, field))
             .collect(toList());
     }
 
-    private boolean isSerializable(Field field) {
-        if (isUnhandledSynthetic(field)) {
+    private boolean isSerializable(Class<?> clazz, Field field) {
+        if (isUnhandledSynthetic(field) && !getQualifiedField(clazz, field.getName()).isPresent()) {
             return false;
         }
         return !isStatic(field)
             && !isFinal(field);
+    }
+
+    public static Optional<Field> getQualifiedField(Class<?> clazz, String name) {
+        int nameSeparatorPos = name.lastIndexOf('$');
+        if (nameSeparatorPos < 0) {
+            return Optional.empty();
+        }
+        String className = name.substring(0, nameSeparatorPos).replace('$', '.');
+        String fieldName = name.substring(nameSeparatorPos + 1);
+        Class<?> current = clazz;
+        while (current != Object.class) {
+            if (current.getCanonicalName() != null && current.getCanonicalName().equals(className) || current.getSimpleName().equals(className)) {
+                try {
+                    return Optional.of(current.getDeclaredField(fieldName));
+                } catch (NoSuchFieldException e) {
+                    continue;
+                }
+            }
+            current = current.getSuperclass();
+        }
+        return Optional.empty();
     }
 
 }
