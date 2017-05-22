@@ -4,4 +4,6 @@ public interface OutputListener {
 
 	void notifyOutput(Class<?> clazz, String method, Object... args);
 
+    boolean matches(String signature);
+
 }

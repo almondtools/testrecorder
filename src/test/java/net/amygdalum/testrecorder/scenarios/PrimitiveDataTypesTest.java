@@ -4,6 +4,7 @@ import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compil
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
 import static org.junit.Assert.assertThat;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -15,6 +16,11 @@ import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
 @Instrumented(classes={"net.amygdalum.testrecorder.scenarios.PrimitiveDataTypes"})
 public class PrimitiveDataTypesTest {
 
+    @Before
+    public void before() throws Exception {
+        TestGenerator.fromRecorded().clearResults();
+    }
+    
 	@Test
 	public void testCompilable() throws Exception {
 		PrimitiveDataTypes dataTypes = new PrimitiveDataTypes();

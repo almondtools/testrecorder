@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.values;
 
 import static java.util.stream.Collectors.joining;
+import static net.amygdalum.testrecorder.util.Types.baseType;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -34,6 +35,12 @@ public class SerializedInput {
 		this.types = types;
 		this.values = values;
 	}
+
+    public String getSignature() {
+        return clazz.getName() + "." + name + Arrays.stream(types)
+        .map(type -> baseType(type).getName())
+        .collect(joining(",", "(", ")"));
+    }
 
 	public Class<?> getDeclaringClass() {
 		return clazz;

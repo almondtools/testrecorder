@@ -107,8 +107,8 @@ public class TestGenerator implements SnapshotConsumer {
 
     private static final String RUNNER = "@RunWith(<runner>.class)\n";
 
-    private static final String RECORDED_INPUT = "@RecordInput({<classes : {class | \"<class>\"};separator=\", \">})\n";
-    private static final String RECORDED_OUTPUT = "@RecordOutput({<classes : {class | \"<class>\"};separator=\", \">})\n";
+    private static final String RECORDED_INPUT = "@RecordInput(value={<classes : {class | \"<class>\"};separator=\", \">}, signatures={<signatures : {sig | \"<sig>\"};separator=\", \">})\n";
+    private static final String RECORDED_OUTPUT = "@RecordOutput(value={<classes : {class | \"<class>\"};separator=\", \">}, signatures={<signatures : {sig | \"<sig>\"};separator=\", \">})\n";
 
     private static final String BEFORE_TEMPLATE = "@Before\n"
         + "public void before() throws Exception {\n"
@@ -132,6 +132,8 @@ public class TestGenerator implements SnapshotConsumer {
     private Set<String> fields;
     private Set<String> inputClasses;
     private Set<String> outputClasses;
+    private Set<String> inputSignatures;
+    private Set<String> outputSignatures;
 
     public TestGenerator() {
         this.executor = Executors.newSingleThreadExecutor(new TestrecorderThreadFactory("$consume"));
@@ -143,6 +145,8 @@ public class TestGenerator implements SnapshotConsumer {
         this.fields = new LinkedHashSet<>();
         this.inputClasses = new LinkedHashSet<>();
         this.outputClasses = new LinkedHashSet<>();
+        this.inputSignatures = new LinkedHashSet<>();
+        this.outputSignatures = new LinkedHashSet<>();
     }
 
     @Override
@@ -208,6 +212,8 @@ public class TestGenerator implements SnapshotConsumer {
         this.fields = new LinkedHashSet<>();
         this.inputClasses = new LinkedHashSet<>();
         this.outputClasses = new LinkedHashSet<>();
+        this.inputSignatures = new LinkedHashSet<>();
+        this.outputSignatures = new LinkedHashSet<>();
     }
 
     private Path locateTestFile(Path dir, ClassDescriptor clazz) throws IOException {
@@ -272,9 +278,11 @@ public class TestGenerator implements SnapshotConsumer {
 
         ST recordedInput = new ST(RECORDED_INPUT);
         recordedInput.add("classes", inputClasses);
+        recordedInput.add("signatures", inputSignatures);
 
         ST recordedOutput = new ST(RECORDED_OUTPUT);
         recordedOutput.add("classes", outputClasses);
+        recordedOutput.add("signatures", outputSignatures);
 
         return runner.render()
             + (inputClasses.isEmpty() ? "" : recordedInput.render())
@@ -361,6 +369,7 @@ public class TestGenerator implements SnapshotConsumer {
                 for (SerializedOutput out : serializedOutput) {
                     types.registerImport(out.getDeclaringClass());
                     outputClasses.add(out.getDeclaringClass().getTypeName());
+                    outputSignatures.add(out.getSignature());
 
                     List<Computation> args = Stream.of(out.getValues())
                         .map(arg -> arg.accept(matcher.create(locals, types)))
@@ -390,6 +399,7 @@ public class TestGenerator implements SnapshotConsumer {
                 for (SerializedInput in : serializedInput) {
                     types.registerImport(in.getDeclaringClass());
                     inputClasses.add(in.getDeclaringClass().getTypeName());
+                    inputSignatures.add(in.getSignature());
 
                     Computation result = null;
                     if (in.getResult() != null) {

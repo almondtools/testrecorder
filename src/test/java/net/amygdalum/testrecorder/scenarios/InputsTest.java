@@ -26,8 +26,8 @@ public class InputsTest {
 	
 	@Test
 	public void testCompilableNotRecorded() throws Exception {
-		Inputs out = new Inputs();
-		out.notrecorded();
+		Inputs in = new Inputs();
+		in.notrecorded();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(Inputs.class), empty());
@@ -35,8 +35,8 @@ public class InputsTest {
 	
 	@Test
 	public void testCompilable() throws Exception {
-		Inputs out = new Inputs();
-		out.recorded();
+		Inputs in = new Inputs();
+		in.recorded();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Inputs.class), compiles(Inputs.class));
@@ -44,8 +44,8 @@ public class InputsTest {
 	
 	@Test
 	public void testPrimitivesCompilable() throws Exception {
-		Inputs out = new Inputs();
-		out.primitivesRecorded();
+		Inputs in = new Inputs();
+		in.primitivesRecorded();
 		
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Inputs.class), compiles(Inputs.class));
@@ -53,8 +53,8 @@ public class InputsTest {
 	
 	@Test
 	public void testSideEffectsCompilable() throws Exception {
-		Inputs out = new Inputs();
-		out.sideEffectsRecorded();
+		Inputs in = new Inputs();
+		in.sideEffectsRecorded();
 		
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Inputs.class), compiles(Inputs.class));
@@ -62,8 +62,8 @@ public class InputsTest {
 	
 	@Test
 	public void testRunnable() throws Exception {
-		Inputs out = new Inputs();
-		out.recorded();
+		Inputs in = new Inputs();
+		in.recorded();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
         assertThat(testGenerator.renderTest(Inputs.class), allOf(
@@ -76,8 +76,8 @@ public class InputsTest {
 	
 	@Test
 	public void testPrimitivesRunnable() throws Exception {
-		Inputs out = new Inputs();
-		out.primitivesRecorded();
+		Inputs in = new Inputs();
+		in.primitivesRecorded();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Inputs.class), testsRun(Inputs.class));
@@ -85,8 +85,8 @@ public class InputsTest {
 	
 	@Test
 	public void testSideEffectsRunnable() throws Exception {
-		Inputs out = new Inputs();
-		out.sideEffectsRecorded();
+		Inputs in = new Inputs();
+		in.sideEffectsRecorded();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Inputs.class), testsRun(Inputs.class));

@@ -5,7 +5,6 @@ import static java.util.Arrays.asList;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.amygdalum.testrecorder.DefaultTestRecorderAgentConfig;
 import net.amygdalum.testrecorder.SnapshotInstrumentor;
 
 public class InstrumentedClassLoader extends AbstractInstrumentedClassLoader {
@@ -16,15 +15,11 @@ public class InstrumentedClassLoader extends AbstractInstrumentedClassLoader {
 
 	public InstrumentedClassLoader(SnapshotInstrumentor instrumentor, Class<?> clazz, String... classes) {
 		super(clazz.getClassLoader());
-		this.instrumentor = createInstrumentor();
+		this.instrumentor = instrumentor;
 		this.root = clazz.getPackage().getName();
 		this.classes = new HashSet<>(asList(classes));
 	}
 	
-	private SnapshotInstrumentor createInstrumentor() {
-		return new SnapshotInstrumentor(new DefaultTestRecorderAgentConfig());
-	}
-
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
 		if (!classes.contains(name)) {
 			String enclosing = enclosingClassName(name);

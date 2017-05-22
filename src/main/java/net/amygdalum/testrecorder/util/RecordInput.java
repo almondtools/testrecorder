@@ -11,4 +11,6 @@ public @interface RecordInput {
 
 	String[] value();
 
+    String[] signatures();
+
 }

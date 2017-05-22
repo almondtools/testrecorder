@@ -10,10 +10,22 @@ import org.hamcrest.StringDescription;
 
 public class ExpectedOutput implements OutputListener {
 
+    private String[] signatures;
     private Queue<OutputExpectation> expected;
 
-    public ExpectedOutput() {
+    public ExpectedOutput(String... signatures) {
+        this.signatures = signatures;
         this.expected = new LinkedList<>();
+    }
+
+    @Override
+    public boolean matches(String signature) {
+        for (String sig : signatures) {
+            if (sig.equals(signature)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public ExpectedOutput expect(Class<?> clazz, String method, Matcher<?>... args) {
@@ -26,7 +38,7 @@ public class ExpectedOutput implements OutputListener {
         OutputExpectation expectedOutput = expected.remove();
         expectedOutput.verify(clazz, method, args);
     }
-
+    
     public void verify() {
         if (!expected.isEmpty()) {
             StringBuilder message = new StringBuilder("expected (but not found) output :\n");

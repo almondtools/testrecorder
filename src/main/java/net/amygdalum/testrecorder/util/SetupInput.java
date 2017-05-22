@@ -10,11 +10,23 @@ import java.util.Queue;
 
 public class SetupInput implements InputProvider {
 
+    private String[] signatures;
 	private Queue<InputProvision> provided;
 
-	public SetupInput() {
-		this.provided = new LinkedList<>();
+	public SetupInput(String... signatures) {
+		this.signatures = signatures;
+        this.provided = new LinkedList<>();
 	}
+
+    @Override
+    public boolean matches(String signature) {
+        for (String sig : signatures) {
+            if (sig.equals(signature)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 	public SetupInput provide(Class<?> clazz, String method, Object result, Object... args) {
 		provided.add(new InputProvision(clazz, method, result, args));
@@ -28,7 +40,7 @@ public class SetupInput implements InputProvider {
 		sync(providedInput.args, args);
 		return providedInput.result;
 	}
-
+	
 	private void sync(Object[] fromArgs, Object[] toArgs) {
 		for (int i = 0; i < toArgs.length; i++) {
 			sync(fromArgs[i], toArgs[i]);
@@ -63,7 +75,7 @@ public class SetupInput implements InputProvider {
 			this.args = args;
 		}
 
-		public void verify(Class<?> clazz, String method, Object[] args) {
+        public void verify(Class<?> clazz, String method, Object[] args) {
 			if (!this.clazz.equals(clazz)) {
 				throw new AssertionError("expected input " + this.clazz.getName() + ", but found " + clazz.getName());
 			}

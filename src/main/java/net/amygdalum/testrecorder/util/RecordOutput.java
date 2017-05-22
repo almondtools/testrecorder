@@ -11,4 +11,6 @@ public @interface RecordOutput {
 
 	String[] value();
 
+    String[] signatures();
+
 }

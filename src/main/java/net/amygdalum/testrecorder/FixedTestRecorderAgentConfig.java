@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -10,6 +11,8 @@ public class FixedTestRecorderAgentConfig implements TestRecorderAgentConfig {
 	private List<Predicate<Field>> fieldExclusions;
 	private List<Predicate<Class<?>>> classExclusions;
 	private List<Field> globalFields;
+	private List<Method> inputs;
+    private List<Method> outputs;
 
 	private SnapshotConsumer snapshotConsumer;
 	private long timeoutInMillis;
@@ -43,6 +46,16 @@ public class FixedTestRecorderAgentConfig implements TestRecorderAgentConfig {
 	public List<Field> getGlobalFields() {
 		return globalFields;
 	}
+	
+	@Override
+	public List<Method> getInputs() {
+        return inputs;
+    }
+	
+    @Override
+	public List<Method> getOutputs() {
+        return outputs;
+    }
 
 	@Override
 	public SnapshotConsumer getSnapshotConsumer() {

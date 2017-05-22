@@ -45,6 +45,16 @@ public class DefaultTestRecorderAgentConfig implements TestRecorderAgentConfig {
     public List<Field> getGlobalFields() {
         return DEFAULT_GLOBAL_FIELDS;
     }
+    
+    @Override
+    public List<Method> getInputs() {
+        return INPUT;
+    }
+    
+    @Override
+    public List<Method> getOutputs() {
+        return OUTPUT;
+    }
 
     @Override
     public SnapshotConsumer getSnapshotConsumer() {

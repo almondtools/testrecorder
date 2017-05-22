@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import net.amygdalum.testrecorder.Output;
 import net.amygdalum.testrecorder.Recorded;
+import net.amygdalum.testrecorder.SerializationProfile.Output;
 
 public class Outputs {
 

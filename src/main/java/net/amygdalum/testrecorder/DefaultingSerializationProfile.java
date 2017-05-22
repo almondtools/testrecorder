@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -48,5 +49,25 @@ public class DefaultingSerializationProfile implements SerializationProfile {
             return globalFields;
         }
     }
+    
+    @Override
+    public List<Method> getInputs() {
+        List<Method> inputs = profile.getInputs();
+        if (inputs == null) {
+            return defaultProfile.getInputs();
+        } else {
+            return inputs;
+        }
+    }
 
+    @Override
+    public List<Method> getOutputs() {
+        List<Method> outputs = profile.getOutputs();
+        if (outputs == null) {
+            return defaultProfile.getOutputs();
+        } else {
+            return outputs;
+        }
+    }
+    
 }

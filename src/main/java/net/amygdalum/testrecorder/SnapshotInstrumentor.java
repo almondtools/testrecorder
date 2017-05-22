@@ -60,6 +60,8 @@ import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import net.amygdalum.testrecorder.SerializationProfile.Global;
+import net.amygdalum.testrecorder.SerializationProfile.Input;
+import net.amygdalum.testrecorder.SerializationProfile.Output;
 import net.amygdalum.testrecorder.util.Types;
 
 public class SnapshotInstrumentor implements ClassFileTransformer {
@@ -336,7 +338,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
         return fieldNode.visibleAnnotations.stream()
             .anyMatch(annotation -> annotation.desc.equals(Global_descriptor));
     }
-    
+
     private boolean isVisible(MethodNode methodNode) {
         return (methodNode.access & ACC_PRIVATE) == 0;
     }
@@ -347,30 +349,34 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
     private List<MethodNode> getInputMethods(ClassNode classNode) {
         return classNode.methods.stream()
-            .filter(method -> isInputMethod(method))
+            .filter(methodNode -> isInputMethod(classNode.name, methodNode))
             .collect(toList());
     }
 
-    protected boolean isInputMethod(MethodNode methodNode) {
-        if (methodNode.visibleAnnotations == null) {
-            return false;
-        }
-        return methodNode.visibleAnnotations.stream()
-            .anyMatch(annotation -> annotation.desc.equals(Input_descriptor));
+    protected boolean isInputMethod(String className, MethodNode methodNode) {
+        return methodNode.visibleAnnotations != null && methodNode.visibleAnnotations.stream()
+            .anyMatch(annotation -> annotation.desc.equals(Input_descriptor))
+            || config.getInputs().stream()
+                .anyMatch(method -> matches(method, className, methodNode.desc));
     }
 
     private List<MethodNode> getOutputMethods(ClassNode classNode) {
         return classNode.methods.stream()
-            .filter(method -> isOutputMethod(method))
+            .filter(methodNode -> isOutputMethod(classNode.name, methodNode))
             .collect(toList());
     }
 
-    protected boolean isOutputMethod(MethodNode methodNode) {
-        if (methodNode.visibleAnnotations == null) {
-            return false;
-        }
-        return methodNode.visibleAnnotations.stream()
-            .anyMatch(annotation -> annotation.desc.equals(Output_descriptor));
+    protected boolean isOutputMethod(String className, MethodNode methodNode) {
+        return methodNode.visibleAnnotations != null && methodNode.visibleAnnotations.stream()
+            .anyMatch(annotation -> annotation.desc.equals(Output_descriptor))
+            || config.getOutputs().stream()
+            .anyMatch(method -> matches(method, className, methodNode.desc));
+    }
+
+    private boolean matches(Method method, String className, String methodDescriptor) {
+        return Type.getInternalName(method.getDeclaringClass()).equals(className)
+            && Type.getMethodDescriptor(method).equals(methodDescriptor);
+        
     }
 
     private TryCatchBlockNode createTryCatchBlock(LabelNode tryLabel, LabelNode catchLabel) {
