@@ -77,7 +77,7 @@ public abstract class GenericObject {
         }
     }
 
-    @SuppressWarnings({ "unchecked", "restriction" })
+    @SuppressWarnings("unchecked")
     public static <T> T newInstance(Class<T> clazz) {
         List<String> tries = new ArrayList<>();
         List<Throwable> suppressed = new ArrayList<>();
@@ -99,10 +99,8 @@ public abstract class GenericObject {
             }
         }
         try {
-            sun.reflect.ReflectionFactory rf = sun.reflect.ReflectionFactory.getReflectionFactory();
-            Constructor<T> serializationConstructor = (Constructor<T>) rf.newConstructorForSerialization(clazz, Object.class.getDeclaredConstructor());
-            return clazz.cast(serializationConstructor.newInstance());
-        } catch (ReflectiveOperationException | RuntimeException | Error e) {
+            return Instantiations.newInstance(clazz);
+        } catch (RuntimeException | Error e) {
             suppressed.add(e);
             tries.add("newConstructorForSerialization(" + clazz.getSimpleName() + ")");
             String msg = "failed to instantiate " + clazz.getName() + ", tried:\n" + tries.stream()

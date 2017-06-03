@@ -6,6 +6,8 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 
+import net.amygdalum.testrecorder.util.Instantiations;
+
 public class TestsRunnableMatcher extends TypeSafeDiagnosingMatcher<String> {
 
     private DynamicClassCompiler compiler;
@@ -24,6 +26,7 @@ public class TestsRunnableMatcher extends TypeSafeDiagnosingMatcher<String> {
         try {
             Class<?> clazz = compiler.compile(item);
             JUnitCore junit = new JUnitCore();
+            Instantiations.resetInstatiations();
             Result result = junit.run(clazz);
             if (result.wasSuccessful()) {
                 return true;
