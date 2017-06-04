@@ -26,11 +26,13 @@ public class IORecorder extends BlockJUnit4ClassRunner {
         for (Field field : test.getClass().getDeclaredFields()) {
             if (field.getType() == ExpectedOutput.class) {
                 field.setAccessible(true);
-                field.set(test, expectedOutput);
+                RecordOutput outputs = test.getClass().getAnnotation(RecordOutput.class);
+                field.set(test, fetchExpectedOutput(outputs.signatures()));
             }
             if (field.getType() == SetupInput.class) {
                 field.setAccessible(true);
-                field.set(test, setupInput);
+                RecordInput inputs = test.getClass().getAnnotation(RecordInput.class);
+                field.set(test, fetchSetupInput(inputs.signatures()));
             }
         }
         return test;

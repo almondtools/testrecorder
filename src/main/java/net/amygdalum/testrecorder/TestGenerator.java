@@ -185,7 +185,7 @@ public class TestGenerator implements SnapshotConsumer {
 
                 context.add(methodGenerator.generateTest());
             } catch (Throwable e) {
-                System.out.println("failed generating test for " + snapshot.getMethodName() + ": " + e.getMessage());
+                System.out.println("failed generating test for " + snapshot.getMethodName() + ": " + e.getClass().getSimpleName() + " " + e.getMessage());
             }
         });
     }
