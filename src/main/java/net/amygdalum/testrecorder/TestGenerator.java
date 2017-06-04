@@ -540,6 +540,7 @@ public class TestGenerator implements SnapshotConsumer {
             AnnotatedValue[] snapshotExpectArgs = snapshot.getAnnotatedExpectArgs();
             Pair<AnnotatedValue, String>[] arguments = Pair.zip(snapshotExpectArgs, args.toArray(new String[0]));
             List<String> expectArgs = Stream.of(arguments)
+                .filter(arg -> !(arg.getElement1().value instanceof SerializedLiteral))
                 .map(arg -> new Pair<Computation, String>(arg.getElement1().value.accept(matcher.create(locals, types), newContext(arg.getElement1().annotations)), arg.getElement2()))
                 .filter(arg -> arg.getElement1() != null)
                 .map(arg -> createAssertion(arg.getElement1(), arg.getElement2()))
