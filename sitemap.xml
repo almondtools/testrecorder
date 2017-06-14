@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-	<sitemap>
+<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:image="http://www.google.com/schemas/url-image/1.1" xsi:schemaLocation="http://www.urls.org/schemas/url/0.9 http://www.urls.org/schemas/url/0.9/url.xsd" xmlns="http://www.urls.org/schemas/url/0.9">
+	<url>
 		<loc>http://testrecorder.amygdalum.net/index.html</loc>
-		<lastmod>2016-10-05T05:11:43+00:00</lastmod>
-	</sitemap>
-	<sitemap>
+	</url>
+	<url>
 		<loc>http://testrecorder.amygdalum.net/download.html</loc>
-		<lastmod>2016-10-05T18:13:24-01:00</lastmod>
-	</sitemap>
-	<sitemap>
+	</url>
+	<url>
 		<loc>http://testrecorder.amygdalum.net/license.html</loc>
-		<lastmod>2016-10-05T05:11:43+00:00</lastmod>
-	</sitemap>
-</sitemapindex>
+	</url>
+</urlset>
