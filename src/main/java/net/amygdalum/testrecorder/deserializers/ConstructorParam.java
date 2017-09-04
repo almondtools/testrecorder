@@ -6,6 +6,7 @@ import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Type;
 
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
@@ -18,7 +19,7 @@ public class ConstructorParam {
     private int paramNumber;
     private SerializedField field;
     private Object value;
-    private Class<?> type;
+    private Type type;
     private boolean needsCast;
 
     public ConstructorParam(Constructor<?> constructor, int paramNumber, SerializedField field, Object value) {
@@ -70,7 +71,7 @@ public class ConstructorParam {
         }
     }
 
-    public ConstructorParam assertType(Class<?> type) {
+    public ConstructorParam assertType(Type type) {
         this.type = type;
         return this;
     }
@@ -84,7 +85,7 @@ public class ConstructorParam {
             || type == null) {
             return false;
         }
-        return field.getType() != type;
+        return !type.equals(field.getType());
     }
 
     public Computation compile(TypeManager types, SetupGenerators generator) {

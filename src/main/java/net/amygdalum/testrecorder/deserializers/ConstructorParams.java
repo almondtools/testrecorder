@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.deserializers;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +45,7 @@ public class ConstructorParams {
 
 	public void add(ConstructorParam param) {
 		int index = param.getParamNumber();
-		Class<?> type = constructor.getParameterTypes()[index];
+		Type type = constructor.getGenericParameterTypes()[index];
 		param.assertType(type);
 		params.set(index, param);
 	}

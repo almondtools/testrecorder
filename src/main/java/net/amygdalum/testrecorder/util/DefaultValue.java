@@ -1,10 +1,13 @@
 package net.amygdalum.testrecorder.util;
 
+import java.lang.reflect.Type;
+
 public class DefaultValue extends ValueFactory {
 
 	public static final DefaultValue INSTANCE = new DefaultValue();
 
-    public static Object of(Class<?> clazz) {
+    public static Object of(Type type) {
+    	Class<?> clazz = Types.baseType(type);
         return INSTANCE.newValue(clazz);
     }
 
