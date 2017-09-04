@@ -9,6 +9,10 @@ import java.io.Writer;
 
 import org.junit.Test;
 
+import net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher;
+import net.amygdalum.testrecorder.runtime.Throwables;
+import net.amygdalum.testrecorder.util.SetupInput;
+
 public class SetupInputTest {
 
     @Test

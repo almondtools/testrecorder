@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.util;
 
 import static java.util.Arrays.asList;
-import static net.amygdalum.testrecorder.util.ContainsMatcher.contains;
+import static net.amygdalum.testrecorder.runtime.ContainsMatcher.contains;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
@@ -10,6 +10,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
 import org.junit.Test;
 
+import net.amygdalum.testrecorder.runtime.GenericMatcher;
 import net.amygdalum.testrecorder.util.testobjects.Complex;
 import net.amygdalum.testrecorder.util.testobjects.ContainingList;
 import net.amygdalum.testrecorder.util.testobjects.ContainingSet;

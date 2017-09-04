@@ -1,11 +1,11 @@
-package net.amygdalum.testrecorder.util;
+package net.amygdalum.testrecorder.runtime;
 
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
-import static net.amygdalum.testrecorder.util.ContainsMatcher.contains;
-import static net.amygdalum.testrecorder.util.ContainsMatcher.empty;
+import static net.amygdalum.testrecorder.runtime.ContainsMatcher.contains;
+import static net.amygdalum.testrecorder.runtime.ContainsMatcher.empty;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.nullValue;

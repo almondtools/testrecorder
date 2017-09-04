@@ -1,6 +1,6 @@
-package net.amygdalum.testrecorder.util;
+package net.amygdalum.testrecorder.runtime;
 
-import static net.amygdalum.testrecorder.util.GenericMatcher.recursive;
+import static net.amygdalum.testrecorder.runtime.GenericMatcher.recursive;
 import static net.amygdalum.xrayinterface.IsEquivalent.equivalentTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -14,7 +14,6 @@ import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.Wrapped;
 import net.amygdalum.testrecorder.util.testobjects.Complex;
 import net.amygdalum.testrecorder.util.testobjects.DoubleShadowingObject;
 import net.amygdalum.testrecorder.util.testobjects.ShadowingObject;

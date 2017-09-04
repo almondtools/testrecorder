@@ -1,6 +1,6 @@
-package net.amygdalum.testrecorder.util;
+package net.amygdalum.testrecorder.runtime;
 
-import static net.amygdalum.testrecorder.util.MapMatcher.containsEntries;
+import static net.amygdalum.testrecorder.runtime.MapMatcher.containsEntries;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;

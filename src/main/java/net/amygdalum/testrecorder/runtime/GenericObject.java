@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.util;
+package net.amygdalum.testrecorder.runtime;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
@@ -22,7 +22,11 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import net.amygdalum.testrecorder.Wrapped;
+import net.amygdalum.testrecorder.util.DefaultValue;
+import net.amygdalum.testrecorder.util.Instantiations;
+import net.amygdalum.testrecorder.util.NonDefaultValue;
+import net.amygdalum.testrecorder.util.NonNullValue;
+import net.amygdalum.testrecorder.util.Params;
 
 public abstract class GenericObject {
 

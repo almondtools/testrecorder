@@ -1,8 +1,6 @@
-package net.amygdalum.testrecorder;
+package net.amygdalum.testrecorder.runtime;
 
 import net.amygdalum.testrecorder.util.ClassInstrumenting;
-import net.amygdalum.testrecorder.util.GenericObject;
-import net.amygdalum.testrecorder.util.GenericObjectException;
 
 public class Wrapped {
 

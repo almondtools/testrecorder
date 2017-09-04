@@ -1,4 +1,6 @@
-package net.amygdalum.testrecorder.util;
+package net.amygdalum.testrecorder.runtime;
+
+import net.amygdalum.testrecorder.util.WorkSet;
 
 public interface GenericComparator {
 

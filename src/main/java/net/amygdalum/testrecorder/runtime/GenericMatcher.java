@@ -1,10 +1,10 @@
-package net.amygdalum.testrecorder.util;
+package net.amygdalum.testrecorder.runtime;
 
 import static java.util.stream.Collectors.toList;
-import static net.amygdalum.testrecorder.util.GenericComparatorResult.MATCH;
-import static net.amygdalum.testrecorder.util.GenericComparatorResult.MISMATCH;
-import static net.amygdalum.testrecorder.util.GenericComparatorResult.NOT_APPLYING;
-import static net.amygdalum.testrecorder.util.GenericComparison.getValue;
+import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.MATCH;
+import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.MISMATCH;
+import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.NOT_APPLYING;
+import static net.amygdalum.testrecorder.runtime.GenericComparison.getValue;
 import static net.amygdalum.testrecorder.util.Types.allFields;
 import static org.hamcrest.Matchers.instanceOf;
 
@@ -16,7 +16,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.SelfDescribing;
 import org.hamcrest.TypeSafeMatcher;
 
-import net.amygdalum.testrecorder.Wrapped;
+import net.amygdalum.testrecorder.util.WorkSet;
 
 public class GenericMatcher extends GenericObject {
 

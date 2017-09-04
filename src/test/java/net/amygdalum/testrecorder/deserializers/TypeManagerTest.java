@@ -104,7 +104,7 @@ public class TypeManagerTest {
     public void testRegisterImportHidden() throws Exception {
         types.registerImport(Hidden.class);
 
-        assertThat(types.getImports(), containsInAnyOrder("net.amygdalum.testrecorder.Wrapped", "static net.amygdalum.testrecorder.Wrapped.clazz"));
+        assertThat(types.getImports(), containsInAnyOrder("net.amygdalum.testrecorder.runtime.Wrapped", "static net.amygdalum.testrecorder.runtime.Wrapped.clazz"));
     }
 
     @Test
@@ -112,7 +112,7 @@ public class TypeManagerTest {
         types.registerImport(Hidden.class);
         types.registerImport(Hidden.class);
 
-        assertThat(types.getImports(), containsInAnyOrder("net.amygdalum.testrecorder.Wrapped", "static net.amygdalum.testrecorder.Wrapped.clazz"));
+        assertThat(types.getImports(), containsInAnyOrder("net.amygdalum.testrecorder.runtime.Wrapped", "static net.amygdalum.testrecorder.runtime.Wrapped.clazz"));
     }
 
     @Test

@@ -20,7 +20,6 @@ import net.amygdalum.testrecorder.SerializedImmutableType;
 import net.amygdalum.testrecorder.SerializedReferenceType;
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.SerializedValueType;
-import net.amygdalum.testrecorder.Wrapped;
 import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DeserializerContext;
@@ -29,7 +28,8 @@ import net.amygdalum.testrecorder.deserializers.LocalVariable;
 import net.amygdalum.testrecorder.deserializers.LocalVariableDefinition;
 import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
-import net.amygdalum.testrecorder.util.GenericObject;
+import net.amygdalum.testrecorder.runtime.GenericObject;
+import net.amygdalum.testrecorder.runtime.Wrapped;
 import net.amygdalum.testrecorder.values.SerializedField;
 
 public class SetupGenerators implements Deserializer<Computation> {

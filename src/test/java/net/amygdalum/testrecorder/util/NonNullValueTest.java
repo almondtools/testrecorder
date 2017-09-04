@@ -8,6 +8,7 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
+import net.amygdalum.testrecorder.util.NonNullValue;
 import net.amygdalum.testrecorder.util.testobjects.EmptyEnum;
 import net.amygdalum.testrecorder.util.testobjects.OrthogonalInterface;
 import net.amygdalum.testrecorder.util.testobjects.PublicEnum;

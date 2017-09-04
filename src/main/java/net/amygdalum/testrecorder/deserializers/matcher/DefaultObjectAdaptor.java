@@ -17,7 +17,7 @@ import org.hamcrest.Matcher;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
-import net.amygdalum.testrecorder.util.GenericMatcher;
+import net.amygdalum.testrecorder.runtime.GenericMatcher;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class DefaultObjectAdaptor extends DefaultMatcherGenerator<SerializedObject> implements MatcherGenerator<SerializedObject> {

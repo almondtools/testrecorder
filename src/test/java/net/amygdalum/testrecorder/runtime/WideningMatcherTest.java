@@ -1,6 +1,6 @@
-package net.amygdalum.testrecorder.util;
+package net.amygdalum.testrecorder.runtime;
 
-import static net.amygdalum.testrecorder.util.WideningMatcher.widening;
+import static net.amygdalum.testrecorder.runtime.WideningMatcher.widening;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;

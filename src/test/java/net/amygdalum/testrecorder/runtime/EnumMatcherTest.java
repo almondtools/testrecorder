@@ -1,6 +1,6 @@
-package net.amygdalum.testrecorder.util;
+package net.amygdalum.testrecorder.runtime;
 
-import static net.amygdalum.testrecorder.util.EnumMatcher.matchingEnum;
+import static net.amygdalum.testrecorder.runtime.EnumMatcher.matchingEnum;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;

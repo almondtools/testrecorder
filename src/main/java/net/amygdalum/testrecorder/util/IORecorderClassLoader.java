@@ -111,8 +111,8 @@ public class IORecorderClassLoader extends AbstractInstrumentedClassLoader {
         if (isInstrumented(name)) {
             return findLoadedClass(name);
         }
-        if (!classes.contains(name)) {
-            return super.loadClass(name);
+        if (!classes.contains(name) && !name.startsWith("net.amygdalum.testrecorder.runtime")) {
+        	return super.loadClass(name);
         }
 
         try {

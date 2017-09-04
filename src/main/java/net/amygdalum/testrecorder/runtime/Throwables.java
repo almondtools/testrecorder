@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.util;
+package net.amygdalum.testrecorder.runtime;
 
 public final class Throwables {
 	

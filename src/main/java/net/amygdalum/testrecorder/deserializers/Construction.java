@@ -19,8 +19,8 @@ import java.util.Set;
 
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
+import net.amygdalum.testrecorder.runtime.GenericComparison;
 import net.amygdalum.testrecorder.util.DefaultValue;
-import net.amygdalum.testrecorder.util.GenericComparison;
 import net.amygdalum.testrecorder.util.NonDefaultValue;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedObject;

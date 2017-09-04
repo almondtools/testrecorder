@@ -10,6 +10,10 @@ import java.io.PrintWriter;
 
 import org.junit.Test;
 
+import net.amygdalum.testrecorder.runtime.Throwables;
+
+import net.amygdalum.testrecorder.util.ExpectedOutput;
+
 public class ExpectedOutputTest {
 
     @Test

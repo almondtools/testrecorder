@@ -1,10 +1,10 @@
-package net.amygdalum.testrecorder.util;
+package net.amygdalum.testrecorder.runtime;
 
 import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefaultEquality;
 import static java.util.Arrays.asList;
-import static net.amygdalum.testrecorder.util.GenericComparatorResult.MATCH;
-import static net.amygdalum.testrecorder.util.GenericComparatorResult.MISMATCH;
-import static net.amygdalum.testrecorder.util.GenericComparatorResult.NOT_APPLYING;
+import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.MATCH;
+import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.MISMATCH;
+import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.NOT_APPLYING;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.contains;
@@ -18,6 +18,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.almondtools.conmatch.strings.WildcardStringMatcher;
+
+import net.amygdalum.testrecorder.util.WorkSet;
 
 public class GenericComparisonTest {
 

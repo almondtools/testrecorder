@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.util;
+package net.amygdalum.testrecorder.runtime;
 
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
 import static net.amygdalum.testrecorder.util.Types.allFields;
@@ -8,6 +8,8 @@ import static net.amygdalum.testrecorder.values.SerializedLiteral.isLiteral;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.List;
+
+import net.amygdalum.testrecorder.util.WorkSet;
 
 public class GenericComparison {
     private static final GenericComparison NULL = new GenericComparison("<error>", null, null, null, true);

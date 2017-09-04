@@ -7,10 +7,10 @@ import static net.amygdalum.testrecorder.util.Types.baseType;
 
 import java.lang.reflect.Type;
 
-import net.amygdalum.testrecorder.Wrapped;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
+import net.amygdalum.testrecorder.runtime.Wrapped;
 import net.amygdalum.testrecorder.values.SerializedEnum;
 
 public class DefaultEnumAdaptor extends DefaultSetupGenerator<SerializedEnum> implements SetupGenerator<SerializedEnum> {

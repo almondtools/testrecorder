@@ -5,7 +5,7 @@ import static com.almondtools.conmatch.conventions.UtilityClassMatcher.isUtility
 import static com.almondtools.conmatch.exceptions.ExceptionMatcher.matchesException;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
-import static net.amygdalum.testrecorder.util.Throwables.capture;
+import static net.amygdalum.testrecorder.runtime.Throwables.capture;
 import static net.amygdalum.testrecorder.util.Types.allFields;
 import static net.amygdalum.testrecorder.util.Types.allMethods;
 import static net.amygdalum.testrecorder.util.Types.array;

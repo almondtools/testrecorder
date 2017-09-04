@@ -16,7 +16,7 @@ import org.hamcrest.Matcher;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
-import net.amygdalum.testrecorder.util.MapMatcher;
+import net.amygdalum.testrecorder.runtime.MapMatcher;
 import net.amygdalum.testrecorder.util.Pair;
 import net.amygdalum.testrecorder.values.SerializedMap;
 

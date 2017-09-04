@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.util;
+package net.amygdalum.testrecorder.runtime;
 
 import static com.almondtools.conmatch.conventions.ReflectiveEqualsMatcher.reflectiveEqualTo;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -12,7 +12,6 @@ import java.io.Serializable;
 
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.Wrapped;
 import net.amygdalum.testrecorder.util.testobjects.DoubleShadowingObject;
 import net.amygdalum.testrecorder.util.testobjects.ShadowingObject;
 

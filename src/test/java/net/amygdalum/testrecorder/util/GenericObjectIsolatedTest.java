@@ -10,6 +10,9 @@ import java.security.Permission;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import net.amygdalum.testrecorder.runtime.GenericObject;
+import net.amygdalum.testrecorder.runtime.Throwables;
+
 @SuppressWarnings("unused")
 @RunWith(InstrumentedClassLoaderRunner.class)
 public class GenericObjectIsolatedTest {

@@ -22,7 +22,7 @@ import org.mockito.Mockito;
 import net.amygdalum.testrecorder.DeserializationException;
 import net.amygdalum.testrecorder.SerializedImmutableType;
 import net.amygdalum.testrecorder.SerializedReferenceType;
-import net.amygdalum.testrecorder.util.GenericObjectException;
+import net.amygdalum.testrecorder.runtime.GenericObjectException;
 import net.amygdalum.testrecorder.util.testobjects.Simple;
 import net.amygdalum.testrecorder.values.SerializedArray;
 import net.amygdalum.testrecorder.values.SerializedEnum;

@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.util;
+package net.amygdalum.testrecorder.runtime;
 
 import static com.almondtools.conmatch.conventions.UtilityClassMatcher.isUtilityClass;
 import static com.almondtools.conmatch.exceptions.ExceptionMatcher.matchesException;

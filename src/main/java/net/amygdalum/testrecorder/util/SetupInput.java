@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.util;
 
-import static net.amygdalum.testrecorder.util.GenericObject.copyArrayValues;
-import static net.amygdalum.testrecorder.util.GenericObject.copyField;
+import static net.amygdalum.testrecorder.runtime.GenericObject.copyArrayValues;
+import static net.amygdalum.testrecorder.runtime.GenericObject.copyField;
 import static net.amygdalum.testrecorder.util.Types.allFields;
 
 import java.lang.reflect.Field;

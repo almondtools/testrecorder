@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import net.amygdalum.testrecorder.Wrapped;
+import net.amygdalum.testrecorder.runtime.Wrapped;
 import net.amygdalum.testrecorder.util.Types;
 
 public class TypeManager {

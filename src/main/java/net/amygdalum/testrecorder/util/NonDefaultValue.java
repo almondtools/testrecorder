@@ -4,6 +4,8 @@ import static net.amygdalum.testrecorder.util.Types.isLiteral;
 
 import java.lang.reflect.Array;
 
+import net.amygdalum.testrecorder.runtime.GenericObject;
+
 public class NonDefaultValue extends ValueFactory {
 
     public static final NonDefaultValue INSTANCE = new NonDefaultValue();

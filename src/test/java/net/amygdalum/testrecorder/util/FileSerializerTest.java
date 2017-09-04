@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.util;
 
 import static com.almondtools.conmatch.conventions.UtilityClassMatcher.isUtilityClass;
-import static net.amygdalum.testrecorder.util.PrimitiveArrayMatcher.byteArrayContaining;
+import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.byteArrayContaining;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
