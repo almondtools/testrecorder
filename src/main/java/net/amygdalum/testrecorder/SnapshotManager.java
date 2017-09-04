@@ -55,31 +55,9 @@ public class SnapshotManager {
 	}
 
 	public void register(String signature, Method method) {
-		SerializationProfile profile = createProfileFor(method.getAnnotation(Recorded.class));
-
-		ContextSnapshotFactory factory = new ContextSnapshotFactory(profile, method);
+		ContextSnapshotFactory factory = new ContextSnapshotFactory(config, method);
 
 		methodSnapshots.put(signature, factory);
-	}
-
-	private SerializationProfile createProfileFor(Recorded snapshot) {
-		if (snapshot == null) {
-			return config;
-		}
-		Class<? extends SerializationProfile> profileClass = snapshot.profile();
-		if (profileClass == null || profileClass.isInterface()) {
-			return config;
-		}
-		try {
-			SerializationProfile profile = profileClass.newInstance();
-			if (profile.inherit()) {
-			    return new ExtendingSerializationProfile(profile, config);
-			} else {
-			    return new DefaultingSerializationProfile(profile, config);
-			}
-		} catch (InstantiationException | IllegalAccessException | NullPointerException e) {
-			return config;
-		}
 	}
 
 	public SnapshotProcess push(String signature) {

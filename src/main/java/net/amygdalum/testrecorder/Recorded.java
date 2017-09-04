@@ -8,5 +8,4 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 public @interface Recorded {
-	Class<? extends SerializationProfile> profile() default SerializationProfile.class;
 }
