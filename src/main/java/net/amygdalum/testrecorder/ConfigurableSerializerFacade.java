@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
-import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
@@ -27,8 +26,8 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 
     private Map<Class<?>, Serializer<?>> serializers;
     private Map<Object, SerializedValue> serialized;
-    private List<Predicate<Class<?>>> classExclusions;
-    private List<Predicate<Field>> fieldExclusions;
+    private List<Classes> classExclusions;
+    private List<Fields> fieldExclusions;
 
     public ConfigurableSerializerFacade(SerializationProfile profile) {
         serializers = setupSerializers(this);
@@ -134,11 +133,11 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
             return true;
         }
         boolean excluded = fieldExclusions.stream()
-            .anyMatch(exclusion -> exclusion.test(field));
+            .anyMatch(exclusion -> exclusion.matches(field));
         if (!excluded) {
             Class<?> type = field.getType();
             excluded = classExclusions.stream()
-                .anyMatch(exclusion -> exclusion.test(type));
+                .anyMatch(exclusion -> exclusion.matches(type));
         }
         return excluded;
     }
@@ -149,7 +148,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
             return true;
         }
         return classExclusions.stream()
-            .anyMatch(exclusion -> exclusion.test(clazz));
+            .anyMatch(exclusion -> exclusion.matches(clazz));
     }
 
 }

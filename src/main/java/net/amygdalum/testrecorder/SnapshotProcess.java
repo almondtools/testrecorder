@@ -31,12 +31,12 @@ public class SnapshotProcess {
     private SnapshotProcess() {
     }
 
-    public SnapshotProcess(ExecutorService executor, long timeoutInMillis, ContextSnapshotFactory factory) {
+    public SnapshotProcess(ExecutorService executor, long timeoutInMillis, ContextSnapshotFactory factory, List<Field> globals) {
         this.executor = executor;
         this.timeoutInMillis = timeoutInMillis;
         this.snapshot = factory.createSnapshot();
         this.facade = new ConfigurableSerializerFacade(factory.profile());
-        this.globals = factory.getGlobalFields();
+        this.globals = globals;
         this.input = new ArrayList<>();
         this.output = new ArrayList<>();
     }

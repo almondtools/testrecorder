@@ -36,7 +36,6 @@ public class SystemInputTest {
         time.getTimestamp();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		System.out.println(testGenerator.renderTest(SystemInput.class));
 		assertThat(testGenerator.renderTest(SystemInput.class), testsRun(SystemInput.class));
 	}
 	

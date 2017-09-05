@@ -8,14 +8,8 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.lang.reflect.Field;
-import java.util.function.Predicate;
-
 import org.junit.Before;
 import org.junit.Test;
-
-import net.amygdalum.testrecorder.util.testobjects.Simple;
-import net.amygdalum.testrecorder.util.testobjects.Static;
 
 public class ExtendingSerializationProfileTest {
 
@@ -35,62 +29,56 @@ public class ExtendingSerializationProfileTest {
         assertThat(extendingSerializationProfile.inherit(), is(false));
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testGetFieldExclusions() throws Exception {
-        Predicate<Field> p1 = f -> f.getName().equals("xy");
-        Predicate<Field> p2 = f -> f.getName().equals("yx");
+        Fields p1 = Fields.byName("xy");
+        Fields p2 = Fields.byName("yx");
         when(defaultProfile.getFieldExclusions()).thenReturn(asList(p1));
         when(profile.getFieldExclusions()).thenReturn(asList(p2));
 
         assertThat(extendingSerializationProfile.getFieldExclusions(), containsInAnyOrder(p1, p2));
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testGetFieldExclusionsDefault() throws Exception {
-        Predicate<Field> p1 = f -> f.getName().equals("xy");
+        Fields p1 = Fields.byName("xy");
         when(defaultProfile.getFieldExclusions()).thenReturn(asList(p1));
         when(profile.getFieldExclusions()).thenReturn(null);
 
         assertThat(extendingSerializationProfile.getFieldExclusions(), contains(p1));
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testGetFieldExclusionsNoDefault() throws Exception {
-        Predicate<Field> p1 = f -> f.getName().equals("xy");
+        Fields p1 = Fields.byName("xy");
         when(defaultProfile.getFieldExclusions()).thenReturn(null);
         when(profile.getFieldExclusions()).thenReturn(asList(p1));
 
         assertThat(extendingSerializationProfile.getFieldExclusions(), contains(p1));
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testGetClassExclusions() throws Exception {
-        Predicate<Class<?>> p1 = f -> f.getName().equals("xy");
-        Predicate<Class<?>> p2 = f -> f.getName().equals("yx");
+        Classes p1 = Classes.byName("xy");
+        Classes p2 = Classes.byName("yx");
         when(defaultProfile.getClassExclusions()).thenReturn(asList(p1));
         when(profile.getClassExclusions()).thenReturn(asList(p2));
 
         assertThat(extendingSerializationProfile.getClassExclusions(), containsInAnyOrder(p1, p2));
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testGetClassExclusionsDefault() throws Exception {
-        Predicate<Class<?>> p1 = f -> f.getName().equals("xy");
+        Classes p1 = Classes.byName("xy");
         when(defaultProfile.getClassExclusions()).thenReturn(asList(p1));
         when(profile.getClassExclusions()).thenReturn(null);
 
         assertThat(extendingSerializationProfile.getClassExclusions(), contains(p1));
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testGetClassExclusionsNoDefault() throws Exception {
-        Predicate<Class<?>> p2 = f -> f.getName().equals("yx");
+        Classes p2 = Classes.byName("yx");
         when(defaultProfile.getClassExclusions()).thenReturn(null);
         when(profile.getClassExclusions()).thenReturn(asList(p2));
 
@@ -99,26 +87,30 @@ public class ExtendingSerializationProfileTest {
 
     @Test
     public void testGetGlobalFields() throws Exception {
-        when(defaultProfile.getGlobalFields()).thenReturn(asList(Simple.class.getDeclaredField("str")));
-        when(profile.getGlobalFields()).thenReturn(asList(Static.class.getDeclaredField("global")));
+        Fields defaultField = Fields.byName("str");
+		when(defaultProfile.getGlobalFields()).thenReturn(asList(defaultField));
+        Fields valueField = Fields.byName("global");
+		when(profile.getGlobalFields()).thenReturn(asList(valueField));
 
-        assertThat(extendingSerializationProfile.getGlobalFields(), containsInAnyOrder(Simple.class.getDeclaredField("str"),Static.class.getDeclaredField("global")));
+        assertThat(extendingSerializationProfile.getGlobalFields(), containsInAnyOrder(defaultField,valueField));
     }
 
     @Test
     public void testGetGlobalFieldsDefault() throws Exception {
-        when(defaultProfile.getGlobalFields()).thenReturn(asList(Simple.class.getDeclaredField("str")));
+        Fields defaultField = Fields.byName("str");
+		when(defaultProfile.getGlobalFields()).thenReturn(asList(defaultField));
         when(profile.getGlobalFields()).thenReturn(null);
 
-        assertThat(extendingSerializationProfile.getGlobalFields(), contains(Simple.class.getDeclaredField("str")));
+        assertThat(extendingSerializationProfile.getGlobalFields(), contains(defaultField));
     }
 
     @Test
     public void testGetGlobalFieldsNoDefault() throws Exception {
         when(defaultProfile.getGlobalFields()).thenReturn(null);
-        when(profile.getGlobalFields()).thenReturn(asList(Static.class.getDeclaredField("global")));
+        Fields valueField = Fields.byName("global");
+		when(profile.getGlobalFields()).thenReturn(asList(valueField));
 
-        assertThat(extendingSerializationProfile.getGlobalFields(), contains(Static.class.getDeclaredField("global")));
+        assertThat(extendingSerializationProfile.getGlobalFields(), contains(valueField));
     }
 
 }

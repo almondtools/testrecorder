@@ -40,6 +40,23 @@ public class PrimitiveDataTypesTest {
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(PrimitiveDataTypes.class), compiles(PrimitiveDataTypes.class));
 		assertThat(testGenerator.renderTest(PrimitiveDataTypes.class), testsRun(PrimitiveDataTypes.class));
+    }
+    
+	@Test
+	public void testAsserts() throws Exception {
+		PrimitiveDataTypes dataTypes = new PrimitiveDataTypes();
+		for (int i = 1; i <= 10; i++) {
+			dataTypes.booleans(i % 2 == 0);
+			dataTypes.chars((char) i);
+			dataTypes.bytes((byte) i);
+			dataTypes.shorts((short) i);
+			dataTypes.integers(i);
+			dataTypes.floats((float) i);
+			dataTypes.longs(i);
+			dataTypes.doubles((double) i);
+		}
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(PrimitiveDataTypes.class), not(containsString("assertThat(false, equalTo(false))")));
         assertThat(testGenerator.renderTest(PrimitiveDataTypes.class), not(containsString("assertThat(true, equalTo(true))")));
         assertThat(testGenerator.renderTest(PrimitiveDataTypes.class), not(containsString("assertThat('\u0001', equalTo('\u0001'))")));

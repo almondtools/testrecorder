@@ -1,9 +1,6 @@
 package net.amygdalum.testrecorder;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.List;
-import java.util.function.Predicate;
 
 public class DefaultingSerializationProfile implements SerializationProfile {
 
@@ -21,8 +18,8 @@ public class DefaultingSerializationProfile implements SerializationProfile {
     }
 
     @Override
-    public List<Predicate<Field>> getFieldExclusions() {
-        List<Predicate<Field>> fieldExclusions = profile.getFieldExclusions();
+    public List<Fields> getFieldExclusions() {
+        List<Fields> fieldExclusions = profile.getFieldExclusions();
         if (fieldExclusions == null) {
             return defaultProfile.getFieldExclusions();
         } else {
@@ -31,8 +28,8 @@ public class DefaultingSerializationProfile implements SerializationProfile {
     }
 
     @Override
-    public List<Predicate<Class<?>>> getClassExclusions() {
-        List<Predicate<Class<?>>> classExclusions = profile.getClassExclusions();
+    public List<Classes> getClassExclusions() {
+        List<Classes> classExclusions = profile.getClassExclusions();
         if (classExclusions == null) {
             return defaultProfile.getClassExclusions();
         } else {
@@ -41,8 +38,8 @@ public class DefaultingSerializationProfile implements SerializationProfile {
     }
 
     @Override
-    public List<Field> getGlobalFields() {
-        List<Field> globalFields = profile.getGlobalFields();
+    public List<Fields> getGlobalFields() {
+        List<Fields> globalFields = profile.getGlobalFields();
         if (globalFields == null) {
             return defaultProfile.getGlobalFields();
         } else {
@@ -51,8 +48,8 @@ public class DefaultingSerializationProfile implements SerializationProfile {
     }
     
     @Override
-    public List<Method> getInputs() {
-        List<Method> inputs = profile.getInputs();
+    public List<Methods> getInputs() {
+        List<Methods> inputs = profile.getInputs();
         if (inputs == null) {
             return defaultProfile.getInputs();
         } else {
@@ -61,8 +58,8 @@ public class DefaultingSerializationProfile implements SerializationProfile {
     }
 
     @Override
-    public List<Method> getOutputs() {
-        List<Method> outputs = profile.getOutputs();
+    public List<Methods> getOutputs() {
+        List<Methods> outputs = profile.getOutputs();
         if (outputs == null) {
             return defaultProfile.getOutputs();
         } else {

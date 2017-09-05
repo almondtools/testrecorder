@@ -8,13 +8,8 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.lang.reflect.Field;
-import java.util.function.Predicate;
-
 import org.junit.Before;
 import org.junit.Test;
-
-import net.amygdalum.testrecorder.util.testobjects.Static;
 
 public class DefaultingSerializationProfileTest {
 
@@ -34,11 +29,10 @@ public class DefaultingSerializationProfileTest {
         assertThat(defaultingSerializationProfile.inherit(), is(false));
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testGetFieldExclusions() throws Exception {
-        Predicate<Field> p1 = f -> f.getName().equals("xy");
-        Predicate<Field> p2 = f -> f.getName().equals("yx");
+        Fields p1 = Fields.byName("xy");
+        Fields p2 = Fields.byName("yx");
         when(profile.getFieldExclusions()).thenReturn(asList(p1, p2));
         
         assertThat(defaultingSerializationProfile.getFieldExclusions(), contains(p1, p2));
@@ -50,11 +44,11 @@ public class DefaultingSerializationProfileTest {
         
         assertThat(defaultingSerializationProfile.getFieldExclusions(), equalTo(defaultProfile.getFieldExclusions()));
     }
-    @SuppressWarnings("unchecked")
+
     @Test
     public void testGetClassExclusions() throws Exception {
-        Predicate<Class<?>> p1 = f -> f.getName().equals("xy");
-        Predicate<Class<?>> p2 = f -> f.getName().equals("yx");
+        Classes p1 = Classes.byName("xy");
+        Classes p2 = Classes.byName("yx");
         when(profile.getClassExclusions()).thenReturn(asList(p1, p2));
         
         assertThat(defaultingSerializationProfile.getClassExclusions(), contains(p1, p2));
@@ -69,9 +63,10 @@ public class DefaultingSerializationProfileTest {
 
     @Test
     public void testGetGlobalFields() throws Exception {
-        when(profile.getGlobalFields()).thenReturn(asList(Static.class.getDeclaredField("global")));
+        Fields globalField = Fields.byName("global");
+		when(profile.getGlobalFields()).thenReturn(asList(globalField));
 
-        assertThat(defaultingSerializationProfile.getGlobalFields(), contains(Static.class.getDeclaredField("global")));
+        assertThat(defaultingSerializationProfile.getGlobalFields(), contains(globalField));
     }
 
     @Test

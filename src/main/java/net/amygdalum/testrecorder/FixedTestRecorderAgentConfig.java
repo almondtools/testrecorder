@@ -1,18 +1,22 @@
 package net.amygdalum.testrecorder;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
+/**
+ * Most TestRecorderAgentConfig are Factories, i.e. they produce all configurations when called (and therefore almost never return
+ * the same value at different call locations). This is ok at configuration time, but after this we want to rely on concrete values.
+ * 
+ * FixedTestRecorderAgentConfig materializes any given TestRecorderAgentConfig, ensuring that any call to any configuration method
+ * returns the same value. 
+ */
 public class FixedTestRecorderAgentConfig implements TestRecorderAgentConfig {
 
-	private List<Predicate<Field>> fieldExclusions;
-	private List<Predicate<Class<?>>> classExclusions;
-	private List<Field> globalFields;
-	private List<Method> inputs;
-    private List<Method> outputs;
+	private List<Fields> fieldExclusions;
+	private List<Classes> classExclusions;
+	private List<Fields> globalFields;
+	private List<Methods> inputs;
+    private List<Methods> outputs;
 
 	private SnapshotConsumer snapshotConsumer;
 	private long timeoutInMillis;
@@ -33,27 +37,27 @@ public class FixedTestRecorderAgentConfig implements TestRecorderAgentConfig {
     }
 
 	@Override
-	public List<Predicate<Field>> getFieldExclusions() {
+	public List<Fields> getFieldExclusions() {
 		return fieldExclusions;
 	}
 
 	@Override
-	public List<Predicate<Class<?>>> getClassExclusions() {
+	public List<Classes> getClassExclusions() {
 		return classExclusions;
 	}
 
 	@Override
-	public List<Field> getGlobalFields() {
+	public List<Fields> getGlobalFields() {
 		return globalFields;
 	}
 	
 	@Override
-	public List<Method> getInputs() {
+	public List<Methods> getInputs() {
         return inputs;
     }
 	
     @Override
-	public List<Method> getOutputs() {
+	public List<Methods> getOutputs() {
         return outputs;
     }
 

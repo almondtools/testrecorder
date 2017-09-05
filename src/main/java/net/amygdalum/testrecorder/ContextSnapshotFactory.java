@@ -1,10 +1,8 @@
 package net.amygdalum.testrecorder;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.List;
 
 public class ContextSnapshotFactory {
 
@@ -28,10 +26,6 @@ public class ContextSnapshotFactory {
 
     public SerializationProfile profile() {
 		return profile;
-	}
-
-	public List<Field> getGlobalFields() {
-		return profile.getGlobalFields();
 	}
 
 	public ContextSnapshot createSnapshot() {

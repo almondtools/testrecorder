@@ -8,8 +8,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,9 +27,11 @@ public class SnapshotManager {
 	private ThreadLocal<Deque<SnapshotProcess>> current = ThreadLocal.withInitial(() -> newStack());
 
 	private TestRecorderAgentConfig config;
+	private List<Field> globals;
 
 	public SnapshotManager(TestRecorderAgentConfig config) {
 		this.config = new FixedTestRecorderAgentConfig(config);
+		this.globals = new ArrayList<>();
 
 		this.snapshot = Executors.newSingleThreadExecutor(new TestrecorderThreadFactory("$snapshot"));
 		this.methodSnapshots = new HashMap<>();
@@ -51,7 +55,7 @@ public class SnapshotManager {
     }
 
     public void registerGlobal(String name, Field field) {
-        config.getGlobalFields().add(field);
+        globals.add(field);
 	}
 
 	public void register(String signature, Method method) {
@@ -62,7 +66,7 @@ public class SnapshotManager {
 
 	public SnapshotProcess push(String signature) {
 		ContextSnapshotFactory factory = methodSnapshots.get(signature);
-		SnapshotProcess process = new SnapshotProcess(snapshot, config.getTimeoutInMillis(), factory);
+		SnapshotProcess process = new SnapshotProcess(snapshot, config.getTimeoutInMillis(), factory, globals);
 		current.get().push(process);
 		return process;
 	}

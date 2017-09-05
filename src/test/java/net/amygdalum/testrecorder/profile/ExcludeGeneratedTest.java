@@ -9,12 +9,12 @@ public class ExcludeGeneratedTest {
 
 	@Test
 	public void testTestTrueIfContainingDollar() throws Exception {
-		assertThat(new ExcludeGenerated().test(AnObject.class.getDeclaredField("$generated")), is(true));
+		assertThat(new ExcludeGenerated().matches(AnObject.class.getDeclaredField("$generated")), is(true));
 	}
 
 	@Test
 	public void testTestFalseIfNotContainingDollar() throws Exception {
-		assertThat(new ExcludeGenerated().test(AnObject.class.getDeclaredField("notgenerated")), is(false));
+		assertThat(new ExcludeGenerated().matches(AnObject.class.getDeclaredField("notgenerated")), is(false));
 	}
 
 	@SuppressWarnings("unused")

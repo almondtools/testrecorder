@@ -1,10 +1,7 @@
 package net.amygdalum.testrecorder;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 public class ExtendingSerializationProfile implements SerializationProfile {
 
@@ -22,8 +19,8 @@ public class ExtendingSerializationProfile implements SerializationProfile {
     }
 
     @Override
-    public List<Predicate<Field>> getFieldExclusions() {
-        List<Predicate<Field>> fieldExclusions = new ArrayList<>();
+    public List<Fields> getFieldExclusions() {
+        List<Fields> fieldExclusions = new ArrayList<>();
 
         if (profile.getFieldExclusions() != null) {
             fieldExclusions.addAll(profile.getFieldExclusions());
@@ -36,8 +33,8 @@ public class ExtendingSerializationProfile implements SerializationProfile {
     }
 
     @Override
-    public List<Predicate<Class<?>>> getClassExclusions() {
-        List<Predicate<Class<?>>> classExclusions = new ArrayList<>();
+    public List<Classes> getClassExclusions() {
+        List<Classes> classExclusions = new ArrayList<>();
 
         if (profile.getClassExclusions() != null) {
             classExclusions.addAll(profile.getClassExclusions());
@@ -50,8 +47,8 @@ public class ExtendingSerializationProfile implements SerializationProfile {
     }
 
     @Override
-    public List<Field> getGlobalFields() {
-        List<Field> globalFields = new ArrayList<>();
+    public List<Fields> getGlobalFields() {
+        List<Fields> globalFields = new ArrayList<>();
 
         if (profile.getGlobalFields() != null) {
             globalFields.addAll(profile.getGlobalFields());
@@ -64,8 +61,8 @@ public class ExtendingSerializationProfile implements SerializationProfile {
     }
 
     @Override
-    public List<Method> getInputs() {
-        List<Method> inputs = new ArrayList<>();
+    public List<Methods> getInputs() {
+        List<Methods> inputs = new ArrayList<>();
         
         if (profile.getInputs() != null) {
             inputs.addAll(profile.getInputs());
@@ -78,8 +75,8 @@ public class ExtendingSerializationProfile implements SerializationProfile {
     }
     
     @Override
-    public List<Method> getOutputs() {
-        List<Method> outputs = new ArrayList<>();
+    public List<Methods> getOutputs() {
+        List<Methods> outputs = new ArrayList<>();
         
         if (profile.getOutputs() != null) {
             outputs.addAll(profile.getOutputs());

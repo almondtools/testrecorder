@@ -3,12 +3,13 @@ package net.amygdalum.testrecorder.profile;
 import static net.amygdalum.testrecorder.util.Types.isStatic;
 
 import java.lang.reflect.Field;
-import java.util.function.Predicate;
 
-public class ExcludeStatic implements Predicate<Field> {
+import net.amygdalum.testrecorder.FieldsAtRuntime;
+
+public class ExcludeStatic implements FieldsAtRuntime {
 
 	@Override
-	public boolean test(Field field) {
+	public boolean matches(Field field) {
 		return isStatic(field);
 	}
 

@@ -11,12 +11,12 @@ public class ExcludeExplicitExcludedTest {
 
 	@Test
 	public void testTestTrueIfContainingDollar() throws Exception {
-		assertThat(new ExcludeExplicitExcluded().test(AnObject.class.getDeclaredField("excluded")), is(true));
+		assertThat(new ExcludeExplicitExcluded().matches(AnObject.class.getDeclaredField("excluded")), is(true));
 	}
 
 	@Test
 	public void testTestFalseIfNotContainingDollar() throws Exception {
-		assertThat(new ExcludeExplicitExcluded().test(AnObject.class.getDeclaredField("included")), is(false));
+		assertThat(new ExcludeExplicitExcluded().matches(AnObject.class.getDeclaredField("included")), is(false));
 	}
 
 

@@ -4,10 +4,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.List;
-import java.util.function.Predicate;
 
 public interface SerializationProfile {
 
@@ -18,29 +15,29 @@ public interface SerializationProfile {
     public @interface Excluded {
     }
 
-	List<Predicate<Field>> getFieldExclusions();
+	List<Fields> getFieldExclusions();
 
-	List<Predicate<Class<?>>> getClassExclusions();
+	List<Classes> getClassExclusions();
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.FIELD})
     public @interface Global {
     }
 
-	List<Field> getGlobalFields();
+	List<Fields> getGlobalFields();
  
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ElementType.METHOD})
 	public @interface Input {
 	}
 	
-    List<Method> getInputs();
+    List<Methods> getInputs();
     
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ElementType.METHOD})
 	public @interface Output {
 	}
 
-    List<Method> getOutputs();
+    List<Methods> getOutputs();
     
 }
