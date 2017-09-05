@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.util;
 
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.ByteCode.pushAsArray;
@@ -50,7 +51,9 @@ import net.amygdalum.testrecorder.ByteCode;
 
 public class IORecorderClassLoader extends AbstractInstrumentedClassLoader {
 
-    private static final String Class_name = Type.getInternalName(Class.class);
+	private static final List<String> UNSUPPORTED_PACKAGE_PREFIXES = asList("java","org.junit","org.hamcrest","net.amygdalum.testrecorder.util");
+
+	private static final String Class_name = Type.getInternalName(Class.class);
     private static final String IORecorderClassLoader_name = Type.getInternalName(IORecorderClassLoader.class);
     private static final String InputProvider_name = Type.getInternalName(InputProvider.class);
     private static final String OutputListener_name = Type.getInternalName(OutputListener.class);
@@ -110,19 +113,33 @@ public class IORecorderClassLoader extends AbstractInstrumentedClassLoader {
         }
         if (isInstrumented(name)) {
             return findLoadedClass(name);
-        }
-        if (!classes.contains(name) && !name.startsWith("net.amygdalum.testrecorder.runtime")) {
+        } else if (instrumentationNotSupported(name)) {
         	return super.loadClass(name);
+        } else {
+            return defineInstrumented(name);
         }
+    }
 
-        try {
+	private boolean instrumentationNotSupported(String name) {
+		if (classes.contains(name)) {
+			return false;
+		}
+		for (String prefix : UNSUPPORTED_PACKAGE_PREFIXES) {
+			if (name.startsWith(prefix)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private Class<?> defineInstrumented(String name) throws ClassNotFoundException {
+		try {
             byte[] bytes = instrument(name);
             return define(name, bytes);
         } catch (Throwable t) {
             throw new ClassNotFoundException(t.getMessage(), t);
         }
-
-    }
+	}
 
     public byte[] instrument(String className) throws IOException {
         return instrument(new ClassReader(className));
