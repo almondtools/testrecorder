@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.profile;
 
 import net.amygdalum.testrecorder.Classes;
-import net.bytebuddy.jar.asm.Type;
+import org.objectweb.asm.Type;
 
 public class ClassesByPackage implements Classes {
 

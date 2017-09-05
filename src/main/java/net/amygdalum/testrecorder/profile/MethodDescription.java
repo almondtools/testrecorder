@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.profile;
 import java.lang.reflect.Method;
 
 import net.amygdalum.testrecorder.Methods;
-import net.bytebuddy.jar.asm.Type;
+import org.objectweb.asm.Type;
 
 public class MethodDescription implements Methods {
 

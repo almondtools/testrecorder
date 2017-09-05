@@ -2,8 +2,9 @@ package net.amygdalum.testrecorder.profile;
 
 import java.lang.reflect.Field;
 
+import org.objectweb.asm.Type;
+
 import net.amygdalum.testrecorder.Fields;
-import net.bytebuddy.jar.asm.Type;
 
 public class FieldDescription implements Fields {
 
