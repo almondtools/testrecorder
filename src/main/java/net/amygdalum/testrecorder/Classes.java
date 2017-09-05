@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder;
 
 import net.amygdalum.testrecorder.profile.ClassesByName;
+import net.amygdalum.testrecorder.profile.ClassesByPackage;
 
 public interface Classes {
 
@@ -10,6 +11,10 @@ public interface Classes {
 
 	static Classes byName(String name) {
 		return new ClassesByName(name);
+	}
+
+	static Classes byPackage(String name) {
+		return new ClassesByPackage(name);
 	}
 
 }

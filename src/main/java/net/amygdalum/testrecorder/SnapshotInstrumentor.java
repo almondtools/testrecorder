@@ -75,6 +75,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	private static final String REGISTER = "register";
 	private static final String REGISTER_GLOBAL = "registerGlobal";
 	private static final String SETUP_VARIABLES = "setupVariables";
+	private static final String PREPARE_INPUT_OUTPUT = "prepareInputOutput";
 	private static final String INPUT_VARIABLES = "inputVariables";
 	private static final String OUTPUT_VARIABLES = "outputVariables";
 	private static final String THROW_VARIABLES = "throwVariables";
@@ -96,12 +97,13 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	private static final String SnaphotManager_expectVariablesResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, EXPECT_VARIABLES, Object.class, Object.class, Object[].class);
 	private static final String SnaphotManager_expectVariablesNoResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, EXPECT_VARIABLES, Object.class, Object[].class);
 	private static final String SnaphotManager_throwVariables_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, THROW_VARIABLES, Object.class, Throwable.class, Object[].class);
-	private static final String SnaphotManager_outputVariables_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, OUTPUT_VARIABLES, Class.class, String.class,
+	private static final String SnaphotManager_outputVariables_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, OUTPUT_VARIABLES, int.class, Class.class, String.class,
 		java.lang.reflect.Type[].class, Object[].class);
-	private static final String SnaphotManager_inputVariablesResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, INPUT_VARIABLES, Class.class, String.class,
+	private static final String SnaphotManager_inputVariablesResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, INPUT_VARIABLES, int.class, Class.class, String.class,
 		java.lang.reflect.Type.class, Object.class, java.lang.reflect.Type[].class, Object[].class);
-	private static final String SnaphotManager_inputVariablesNoResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, INPUT_VARIABLES, Class.class, String.class,
+	private static final String SnaphotManager_inputVariablesNoResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, INPUT_VARIABLES, int.class, Class.class, String.class,
 		java.lang.reflect.Type[].class, Object[].class);
+	private static final String SnaphotManager_prepareInputOutput_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, PREPARE_INPUT_OUTPUT, int.class);
 
 	private static final String Types_getDeclaredMethod_descriptor = ByteCode.methodDescriptor(Types.class, GET_DECLARED_METHOD, Class.class, String.class, Class[].class);
 	private static final String Types_getDeclaredField_descriptor = ByteCode.methodDescriptor(Types.class, GET_DECLARED_FIELD, Class.class, String.class);
@@ -223,8 +225,12 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 	private void instrumentInputMethods(ClassNode classNode) {
 		for (MethodNode method : getInputMethods(classNode)) {
+			int id = System.identityHashCode(method);
+			InsnList prepareInput = prepareInputOutput(id);
+			method.instructions.insert(prepareInput);
+			
 			List<InsnNode> rets = findReturn(method.instructions);
-			InsnList notifyInput = notifyInput(classNode, method);
+			InsnList notifyInput = notifyInput(id, classNode, method);
 			for (InsnNode ret : rets) {
 				method.instructions.insertBefore(ret, notifyInput);
 			}
@@ -233,7 +239,15 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 	private void instrumentOutputMethods(ClassNode classNode) {
 		for (MethodNode method : getOutputMethods(classNode)) {
-			method.instructions.insert(notifyOutput(classNode, method));
+			int id = System.identityHashCode(method);
+			InsnList prepareInput = prepareInputOutput(id);
+			method.instructions.insert(prepareInput);
+
+			List<InsnNode> rets = findReturn(method.instructions);
+			InsnList notifyOutput = notifyOutput(id, classNode, method);
+			for (InsnNode ret : rets) {
+				method.instructions.insertBefore(ret, notifyOutput);
+			}
 		}
 	}
 
@@ -497,7 +511,16 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		return insnList;
 	}
 
-	private InsnList notifyInput(ClassNode classNode, MethodNode methodNode) {
+	private InsnList prepareInputOutput(int id) {
+		InsnList insnList = new InsnList();
+		insnList.add(new FieldInsnNode(GETSTATIC, SnapshotManager_name, SNAPSHOT_MANAGER_FIELD_NAME, SnaphotManager_descriptor));
+
+		insnList.add(new LdcInsnNode(id));
+		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapshotManager_name, PREPARE_INPUT_OUTPUT, SnaphotManager_prepareInputOutput_descriptor, false));
+		return insnList;
+	}
+
+	private InsnList notifyInput(int id, ClassNode classNode, MethodNode methodNode) {
 		int localVariableIndex = isStatic(methodNode) ? 0 : 1;
 
 		Type returnType = Type.getReturnType(methodNode.desc);
@@ -519,6 +542,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		insnList.add(new InsnNode(DUP));
 		insnList.add(new JumpInsnNode(IFNULL, skip));
 
+		insnList.add(new LdcInsnNode(id));
 		insnList.add(new LdcInsnNode(Type.getObjectType(classNode.name)));
 		insnList.add(new LdcInsnNode(methodNode.name));
 		if (returnType.getSize() > 0) {
@@ -539,7 +563,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		return insnList;
 	}
 
-	private InsnList notifyOutput(ClassNode classNode, MethodNode methodNode) {
+	private InsnList notifyOutput(int id, ClassNode classNode, MethodNode methodNode) {
 		int localVariableIndex = isStatic(methodNode) ? 0 : 1;
 
 		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
@@ -555,6 +579,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		insnList.add(new InsnNode(DUP));
 		insnList.add(new JumpInsnNode(IFNULL, skip));
 
+		insnList.add(new LdcInsnNode(id));
 		insnList.add(new LdcInsnNode(Type.getObjectType(classNode.name)));
 		insnList.add(new LdcInsnNode(methodNode.name));
 		insnList.add(pushTypes(argumentTypes));
