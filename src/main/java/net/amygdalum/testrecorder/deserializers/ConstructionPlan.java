@@ -76,7 +76,7 @@ public class ConstructionPlan implements Comparable<ConstructionPlan> {
             statements.add(setStatement);
         }
 
-        return new Computation(var.getName(), null, true, statements);
+        return new Computation(var.getName(), var.getType(), true, statements);
     }
 
     @Override

@@ -93,7 +93,7 @@ public class SetupGenerators implements Deserializer<Computation> {
     }
 
     public Computation forVariable(SerializedValue value, Type type, LocalVariableDefinition computation) {
-        LocalVariable local = localVariable(value, type);
+        LocalVariable local = localVariable(value, type, value.getResultType());
         try {
             Computation definition = computation.define(local);
             finishVariable(value);
@@ -112,9 +112,9 @@ public class SetupGenerators implements Deserializer<Computation> {
         return locals.fetchName(name);
     }
 
-    private LocalVariable localVariable(SerializedValue value, Type type) {
+    private LocalVariable localVariable(SerializedValue value, Type type, Type resultType) {
         String name = locals.fetchName(type);
-        LocalVariable definition = new LocalVariable(name);
+        LocalVariable definition = new LocalVariable(name, resultType);
         defined.put(value, definition);
         return definition;
     }

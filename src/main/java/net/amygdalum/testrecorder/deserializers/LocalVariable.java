@@ -13,6 +13,12 @@ public class LocalVariable {
 		this.progress = Progress.ALLOCATED;
 	}
 
+	public LocalVariable(String name, Type type) {
+		this.name = name;
+		this.type = type;
+		this.progress = Progress.ALLOCATED;
+	}
+
 	public String getName() {
 		return name;
 	}
