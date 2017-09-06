@@ -50,6 +50,11 @@ public class Inputs {
 	}
 
 	@Recorded
+	public String recordedWithConditionalReturns() {
+		return "conditional return: " + conditionalReturnRead() + "->" + conditionalReturnRead();
+	}
+
+	@Recorded
 	public String sideEffectsRecorded() {
 		char[] cs = new char[11];
 		read(cs);
@@ -106,4 +111,17 @@ public class Inputs {
 		return 'a';
 	}
 
+	@Input
+	public String conditionalReturnRead() {
+		String input = inputs.next();
+		if (input.trim().isEmpty()) {
+			if (inputs.hasNext()) {
+				return inputs.next();
+			} else {
+				return null;
+			}
+		} else {
+			return input;
+		}
+	}
 }

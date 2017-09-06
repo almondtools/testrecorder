@@ -43,6 +43,15 @@ public class InputsTest {
 	}
 	
 	@Test
+	public void testCompilableConditionalReturn() throws Exception {
+		Inputs in = new Inputs();
+		in.recordedWithConditionalReturns();
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(Inputs.class), compiles(Inputs.class));
+	}
+	
+	@Test
 	public void testPrimitivesCompilable() throws Exception {
 		Inputs in = new Inputs();
 		in.primitivesRecorded();
@@ -71,6 +80,19 @@ public class InputsTest {
             containsPattern(".provide(Inputs.class, \"read\", \" \")"),
             containsPattern(".provide(Inputs.class, \"read\", \"World\")")
             ));
+		assertThat(testGenerator.renderTest(Inputs.class), testsRun(Inputs.class));
+	}
+	
+	@Test
+	public void testRunnableConditionalReturns() throws Exception {
+		Inputs in = new Inputs();
+		in.recordedWithConditionalReturns();
+		
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(Inputs.class), allOf(
+			containsPattern(".provide(Inputs.class, \"conditionalReturnRead\", \"Hello\")"),
+			containsPattern(".provide(Inputs.class, \"conditionalReturnRead\", \"World\")")
+			));
 		assertThat(testGenerator.renderTest(Inputs.class), testsRun(Inputs.class));
 	}
 	

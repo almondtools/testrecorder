@@ -228,10 +228,10 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 			int id = System.identityHashCode(method);
 			InsnList prepareInput = prepareInputOutput(id);
 			method.instructions.insert(prepareInput);
-			
+
 			List<InsnNode> rets = findReturn(method.instructions);
-			InsnList notifyInput = notifyInput(id, classNode, method);
 			for (InsnNode ret : rets) {
+				InsnList notifyInput = notifyInput(id, classNode, method);
 				method.instructions.insertBefore(ret, notifyInput);
 			}
 		}
@@ -244,8 +244,8 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 			method.instructions.insert(prepareInput);
 
 			List<InsnNode> rets = findReturn(method.instructions);
-			InsnList notifyOutput = notifyOutput(id, classNode, method);
 			for (InsnNode ret : rets) {
+				InsnList notifyOutput = notifyOutput(id, classNode, method);
 				method.instructions.insertBefore(ret, notifyOutput);
 			}
 		}

@@ -31,6 +31,15 @@ public class Outputs {
 		printChar('b');
 	}
 
+	@Recorded
+	public void recordedWithConditionalReturn() {
+		conditionalReturnOutput('a');
+		conditionalReturnOutput(',');
+		conditionalReturnOutput(' ');
+		conditionalReturnOutput('b');
+		conditionalReturnOutput('\n');
+	}
+
 	@Output
 	public void print(String s) {
 	}
@@ -65,6 +74,15 @@ public class Outputs {
 	
 	@Output
 	public void printChar(char value) {
+	}
+	
+	@Output
+	public boolean conditionalReturnOutput(char value) {
+		if (Character.isWhitespace(value)) {
+			return false;
+		} else {
+			return true;
+		}
 	}
 	
 }

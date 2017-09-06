@@ -44,6 +44,15 @@ public class OutputsTest {
     }
 
     @Test
+    public void testCompilableConditionalReturn() throws Exception {
+    	Outputs out = new Outputs();
+    	out.recordedWithConditionalReturn();
+    	
+    	TestGenerator testGenerator = TestGenerator.fromRecorded();
+    	assertThat(testGenerator.renderTest(Outputs.class), compiles(Outputs.class));
+    }
+    
+    @Test
     public void testPrimitivesCompilable() throws Exception {
         Outputs out = new Outputs();
         out.primitivesRecorded();
@@ -65,6 +74,22 @@ public class OutputsTest {
         assertThat(testGenerator.renderTest(Outputs.class), testsRun(Outputs.class));
     }
 
+    @Test
+    public void testRunnableConditionalReturn() throws Exception {
+    	Outputs out = new Outputs();
+    	out.recordedWithConditionalReturn();
+    	
+    	TestGenerator testGenerator = TestGenerator.fromRecorded();
+    	assertThat(testGenerator.testsFor(Outputs.class), hasSize(1));
+    	assertThat(testGenerator.renderTest(Outputs.class), testsRun(Outputs.class));
+    	assertThat(testGenerator.renderTest(Outputs.class), allOf(
+    		containsPattern(".expect(Outputs.class, \"conditionalReturnOutput\", equalTo('a')"),
+    		containsPattern(".expect(Outputs.class, \"conditionalReturnOutput\", equalTo(',')"),
+    		containsPattern(".expect(Outputs.class, \"conditionalReturnOutput\", equalTo(' ')"),
+    		containsPattern(".expect(Outputs.class, \"conditionalReturnOutput\", equalTo('b')"),
+    		containsPattern(".expect(Outputs.class, \"conditionalReturnOutput\", equalTo('\\n')")));
+    }
+    
     @Test
     public void testPrimitivesRunnable() throws Exception {
         Outputs out = new Outputs();
