@@ -76,6 +76,30 @@ public final class ByteCode {
 
 	}
 
+	public static InsnList pushAsArray(int[] locals, Type... argumentTypes) {
+		int params = argumentTypes.length;
+		
+		InsnList insnList = new InsnList();
+		
+		insnList.add(new LdcInsnNode(params));
+		insnList.add(new TypeInsnNode(Opcodes.ANEWARRAY, Type.getInternalName(Object.class)));
+		
+		for (int i = 0; i < params; i++) {
+			insnList.add(new InsnNode(DUP));
+			insnList.add(new LdcInsnNode(i));
+
+			Type type = argumentTypes[i];
+			int index = locals[i];
+			
+			insnList.add(new VarInsnNode(type.getOpcode(ILOAD), index));
+			
+			insnList.add(boxPrimitives(type));
+			
+			insnList.add(new InsnNode(AASTORE));
+		}
+		return insnList;
+	}
+
 	public static InsnList pushAsArray(List<LocalVariableNode> locals, Type... argumentTypes) {
 		int params = argumentTypes.length;
 		

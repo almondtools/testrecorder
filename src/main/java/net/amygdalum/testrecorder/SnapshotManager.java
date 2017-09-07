@@ -89,20 +89,16 @@ public class SnapshotManager {
 		process.setupVariables(signature, self, args);
 	}
 
-	public void prepareInputOutput(int id) {
-		current().prepareInputOutput(id);
+	public void inputVariables(Class<?> clazz, String method, Type resultType, Object result, Type[] paramTypes, Object... args) {
+		current().inputVariables(clazz, method, resultType, result, paramTypes, args);
 	}
 
-	public void inputVariables(int id, Class<?> clazz, String method, Type resultType, Object result, Type[] paramTypes, Object... args) {
-		current().inputVariables(id, clazz, method, resultType, result, paramTypes, args);
+	public void inputVariables(Class<?> clazz, String method, Type[] paramTypes, Object... args) {
+		current().inputVariables(clazz, method, paramTypes, args);
 	}
 
-	public void inputVariables(int id, Class<?> clazz, String method, Type[] paramTypes, Object... args) {
-		current().inputVariables(id, clazz, method, paramTypes, args);
-	}
-
-	public void outputVariables(int id, Class<?> clazz, String method, Type[] paramTypes, Object... args) {
-		current().outputVariables(id, clazz, method, paramTypes, args);
+	public void outputVariables(Class<?> clazz, String method, Type[] paramTypes, Object... args) {
+		current().outputVariables(clazz, method, paramTypes, args);
 	}
 
 	public void expectVariables(Object self, Object result, Object... args) {

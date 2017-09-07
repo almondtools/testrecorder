@@ -28,8 +28,6 @@ public class SnapshotProcess {
 	private List<SerializedInput> input;
 	private List<SerializedOutput> output;
 
-	private Integer prepareId;
-
 	private SnapshotProcess() {
 	}
 
@@ -47,31 +45,16 @@ public class SnapshotProcess {
 		return snapshot;
 	}
 
-	public void prepareInputOutput(int id) {
-		if (this.prepareId == null) {
-			this.prepareId = id;
-		}
+	public void inputVariables(Class<?> clazz, String method, Type resultType, Object result, Type[] paramTypes, Object[] args) {
+		input.add(new SerializedInput(clazz, method, resultType, facade.serialize(resultType, result), paramTypes, facade.serialize(paramTypes, args)));
 	}
 
-	public void inputVariables(int id, Class<?> clazz, String method, Type resultType, Object result, Type[] paramTypes, Object[] args) {
-		if (this.prepareId == id) {
-			input.add(new SerializedInput(clazz, method, resultType, facade.serialize(resultType, result), paramTypes, facade.serialize(paramTypes, args)));
-			this.prepareId = null;
-		}
+	public void inputVariables(Class<?> clazz, String method, Type[] paramTypes, Object[] args) {
+		input.add(new SerializedInput(clazz, method, paramTypes, facade.serialize(paramTypes, args)));
 	}
 
-	public void inputVariables(int id, Class<?> clazz, String method, Type[] paramTypes, Object[] args) {
-		if (this.prepareId == id) {
-			input.add(new SerializedInput(clazz, method, paramTypes, facade.serialize(paramTypes, args)));
-			this.prepareId = null;
-		}
-	}
-
-	public void outputVariables(int id, Class<?> clazz, String method, Type[] paramTypes, Object[] args) {
-		if (this.prepareId == id) {
-			output.add(new SerializedOutput(clazz, method, paramTypes, facade.serialize(paramTypes, args)));
-			this.prepareId = null;
-		}
+	public void outputVariables(Class<?> clazz, String method, Type[] paramTypes, Object[] args) {
+		output.add(new SerializedOutput(clazz, method, paramTypes, facade.serialize(paramTypes, args)));
 	}
 
 	public void setupVariables(String signature, Object self, Object... args) {
@@ -143,21 +126,17 @@ public class SnapshotProcess {
 
 	private static SnapshotProcess passiveProcess() {
 		return new SnapshotProcess() {
-			
+
 			@Override
-			public void prepareInputOutput(int id) {
-			}
-			
-			@Override
-			public void inputVariables(int id, Class<?> clazz, String method, Type resultType, Object result, Type[] paramTypes, Object[] args) {
+			public void inputVariables(Class<?> clazz, String method, Type resultType, Object result, Type[] paramTypes, Object[] args) {
 			}
 
 			@Override
-			public void inputVariables(int id, Class<?> clazz, String method, Type[] paramTypes, Object[] args) {
+			public void inputVariables(Class<?> clazz, String method, Type[] paramTypes, Object[] args) {
 			}
 
 			@Override
-			public void outputVariables(int id, Class<?> clazz, String method, Type[] paramTypes, Object[] args) {
+			public void outputVariables(Class<?> clazz, String method, Type[] paramTypes, Object[] args) {
 			}
 
 			@Override

@@ -124,4 +124,5 @@ public class Inputs {
 			return input;
 		}
 	}
+	
 }
