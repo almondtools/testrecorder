@@ -52,7 +52,7 @@ public class HiddenInnerClassTest {
 			containsPattern("new GenericMatcher() {*"
 				+ "Matcher<?> o = new GenericMatcher() {*"
 				+ "String name = \"hidden name\";*"
-				+ "}.matching(clazz(\"net.amygdalum.testrecorder.scenarios.HiddenInnerClass$Hidden\"));*"
+				+ "}.matching(clazz(\"net.amygdalum.testrecorder.scenarios.HiddenInnerClass$Hidden\"), Object.class);*"
 				+ "}"
 				+ ".matching(HiddenInnerClass.class));")));
 	}

@@ -24,7 +24,7 @@ public class SerializedNull extends AbstractSerializedReferenceType implements S
 	private SerializedNull(Type type) {
 		super(type);
 	}
-
+	
 	@Override
 	public List<SerializedValue> referencedValues() {
 		return emptyList();

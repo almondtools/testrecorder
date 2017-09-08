@@ -38,6 +38,11 @@ public class SerializedMap extends AbstractSerializedReferenceType implements Se
 		return this;
 	}
 
+	public SerializedMap with(Map<SerializedValue, SerializedValue> values) {
+		map.putAll(values);
+		return this;
+	}
+
 	public Type getMapKeyType() {
 		 return typeArgument(getType(), 0)
 			.orElse(typeArgument(getResultType(), 0)

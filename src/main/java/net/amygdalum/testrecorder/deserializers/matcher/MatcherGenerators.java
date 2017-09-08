@@ -104,7 +104,7 @@ public class MatcherGenerators implements Deserializer<Computation> {
 
     @Override
     public Computation visitField(SerializedField field, DeserializerContext context) {
-        SerializedValue fieldValue = field.getValue();
+    	SerializedValue fieldValue = field.getValue();
         DeserializerContext fieldContext = newContext(field.getAnnotations());
         if (fieldContext.getHint(SkipChecks.class).isPresent()) {
             return null;

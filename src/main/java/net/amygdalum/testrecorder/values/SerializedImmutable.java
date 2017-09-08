@@ -29,7 +29,7 @@ public class SerializedImmutable<V> extends AbstractSerializedReferenceType impl
 		this.value = value;
 		return this;
 	}
-
+	
 	public V getValue() {
 		return value;
 	}

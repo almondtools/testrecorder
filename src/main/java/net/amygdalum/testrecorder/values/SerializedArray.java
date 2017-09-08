@@ -6,6 +6,7 @@ import static net.amygdalum.testrecorder.util.Types.component;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import net.amygdalum.testrecorder.Deserializer;
@@ -26,9 +27,18 @@ public class SerializedArray extends AbstractSerializedReferenceType implements 
 		this.array = new ArrayList<>();
 	}
 
-	public SerializedArray with(SerializedValue... values) {
-		array.addAll(asList(values));
+	public SerializedArray withResult(Type resultType) {
+		setResultType(resultType);
 		return this;
+	}
+	
+	public SerializedArray with(Collection<SerializedValue> values) {
+		array.addAll(values);
+		return this;
+	}
+
+	public SerializedArray with(SerializedValue... values) {
+		return with(asList(values));
 	}
 
 	public Type getComponentType() {

@@ -79,6 +79,7 @@ import net.amygdalum.testrecorder.util.Pair;
 import net.amygdalum.testrecorder.util.RecordInput;
 import net.amygdalum.testrecorder.util.RecordOutput;
 import net.amygdalum.testrecorder.util.SetupInput;
+import net.amygdalum.testrecorder.util.Triple;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedInput;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
@@ -187,7 +188,7 @@ public class TestGenerator implements SnapshotConsumer {
 			} catch (Throwable e) {
 				System.out.println("failed generating test for " + snapshot.getMethodName() + ": " + e.getClass().getSimpleName() + " " + e.getMessage());
 			}
-			
+
 		});
 	}
 
@@ -398,8 +399,9 @@ public class TestGenerator implements SnapshotConsumer {
 
 				List<String> methods = new ArrayList<>();
 				for (SerializedInput in : serializedInput) {
-					types.registerImport(in.getDeclaringClass());
-					inputClasses.add(in.getDeclaringClass().getTypeName());
+					Class<?> declaringClass = deanonymized(in.getDeclaringClass());
+					types.registerImport(declaringClass);
+					inputClasses.add(declaringClass.getTypeName());
 					inputSignatures.add(in.getSignature());
 
 					Computation result = null;
@@ -417,7 +419,7 @@ public class TestGenerator implements SnapshotConsumer {
 						.collect(toList()));
 
 					List<String> arguments = new ArrayList<>();
-					arguments.add(classOf(in.getDeclaringClass().getSimpleName()));
+					arguments.add(classOf(declaringClass.getSimpleName()));
 					arguments.add(stringOf(in.getName()));
 					if (result != null) {
 						arguments.add(result.getValue());
@@ -467,6 +469,13 @@ public class TestGenerator implements SnapshotConsumer {
 					: assign(arg.getElement2().value.getResultType(), arg.getElement1().getValue()))
 				.collect(toList());
 			return this;
+		}
+
+		private Class<?> deanonymized(Class<?> declaringClass) {
+			while (declaringClass.isAnonymousClass()) {
+				declaringClass = declaringClass.getSuperclass();
+			}
+			return declaringClass;
 		}
 
 		private Computation assignGlobal(Class<?> clazz, String name, Computation global) {
@@ -530,30 +539,33 @@ public class TestGenerator implements SnapshotConsumer {
 				statements.addAll(expectResult);
 			}
 
+			boolean thisChanged = compare(snapshot.getSetupThis(), snapshot.getExpectThis());
 			SerializedValue snapshotExpectThis = snapshot.getExpectThis();
 			List<String> expectThis = Optional.ofNullable(snapshotExpectThis)
 				.map(o -> o.accept(matcher.create(locals, types)))
-				.map(o -> createAssertion(o, base))
+				.map(o -> createAssertion(o, base, thisChanged))
 				.orElse(emptyList());
 
 			statements.addAll(expectThis);
 
+			Boolean[] argsChanged = compare(snapshot.getSetupArgs(),snapshot.getExpectArgs());
 			AnnotatedValue[] snapshotExpectArgs = snapshot.getAnnotatedExpectArgs();
-			Pair<AnnotatedValue, String>[] arguments = Pair.zip(snapshotExpectArgs, args.toArray(new String[0]));
+			Triple<AnnotatedValue, String, Boolean>[] arguments = Triple.zip(snapshotExpectArgs, args.toArray(new String[0]), argsChanged);
 			List<String> expectArgs = Stream.of(arguments)
 				.filter(arg -> !(arg.getElement1().value instanceof SerializedLiteral))
-				.map(arg -> new Pair<Computation, String>(arg.getElement1().value.accept(matcher.create(locals, types), newContext(arg.getElement1().annotations)), arg.getElement2()))
+				.map(arg -> new Triple<Computation, String, Boolean>(arg.getElement1().value.accept(matcher.create(locals, types), newContext(arg.getElement1().annotations)), arg.getElement2(), arg.getElement3()))
 				.filter(arg -> arg.getElement1() != null)
-				.map(arg -> createAssertion(arg.getElement1(), arg.getElement2()))
+				.map(arg -> createAssertion(arg.getElement1(), arg.getElement2(), arg.getElement3()))
 				.flatMap(statements -> statements.stream())
 				.collect(toList());
 
 			statements.addAll(expectArgs);
 
+			Boolean[] globalsChanged = compare(snapshot.getExpectGlobals(), snapshot.getExpectGlobals());
 			SerializedField[] snashotExpectGlobals = snapshot.getExpectGlobals();
 			List<String> expectGlobals = IntStream.range(0, snashotExpectGlobals.length)
 				.mapToObj(i -> createAssertion(snashotExpectGlobals[i].getValue().accept(matcher.create(locals, types)),
-					fieldAccess(types.getVariableTypeName(snashotExpectGlobals[i].getDeclaringClass()), snashotExpectGlobals[i].getName())))
+					fieldAccess(types.getVariableTypeName(snashotExpectGlobals[i].getDeclaringClass()), snashotExpectGlobals[i].getName()), globalsChanged[i]))
 				.flatMap(statements -> statements.stream())
 				.collect(toList());
 
@@ -565,6 +577,50 @@ public class TestGenerator implements SnapshotConsumer {
 			}
 
 			return this;
+		}
+
+		private Boolean[] compare(SerializedField[] s, SerializedField[] e) {
+			Boolean[] changes = new Boolean[s.length];
+			for (int i = 0; i < changes.length; i++) {
+				changes[i] = compare(s[i].getValue(), e[i].getValue());
+			}
+			return changes;
+		}
+
+		private Boolean[] compare(SerializedValue[] s, SerializedValue[] e) {
+			Boolean[] changes = new Boolean[s.length];
+			for (int i = 0; i < changes.length; i++) {
+				changes[i] = compare(s[i], e[i]);
+			}
+			return changes;
+		}
+
+		private boolean compare(SerializedValue s, SerializedValue e) {
+			if (s == e) {
+				return true;
+			} else if (s == null || e == null) {
+				return false;
+			}
+			Computation sc = s.accept(setup.create(new LocalVariableNameGenerator(), new TypeManager()));
+			Computation ec = e.accept(setup.create(new LocalVariableNameGenerator(), new TypeManager()));
+			return !ec.getValue().equals(sc.getValue())
+				|| !ec.getStatements().equals(sc.getStatements());
+		}
+
+		private List<String> createAssertion(Computation matcher, String exp, Boolean changed) {
+			List<String> statements = new ArrayList<>();
+
+			statements.addAll(matcher.getStatements());
+
+			if (changed == null) {
+				statements.add(callLocalMethodStatement("assertThat", exp, matcher.getValue()));
+			} else if (changed){
+				statements.add(callLocalMethodStatement("assertThat", asLiteral("expected change:"), exp, matcher.getValue()));
+			} else {
+				statements.add(callLocalMethodStatement("assertThat", asLiteral("expected no change, but was:"), exp, matcher.getValue()));
+			}
+
+			return statements;
 		}
 
 		private List<String> createAssertion(Computation matcher, String exp) {

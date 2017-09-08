@@ -32,11 +32,15 @@ public class SerializedObject extends AbstractSerializedReferenceType implements
 		return this;
 	}
 	
-	public SerializedObject withFields(SerializedField... fields) {
-		this.fields.addAll(asList(fields));
+	public SerializedObject withFields(List<SerializedField> fields) {
+		this.fields.addAll(fields);
 		return this;
 	}
-
+	
+	public SerializedObject withFields(SerializedField... fields) {
+		return withFields(asList(fields));
+	}
+	
 	public List<SerializedField> getFields() {
 		return fields;
 	}

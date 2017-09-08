@@ -27,6 +27,11 @@ public class SerializedEnum extends AbstractSerializedReferenceType implements S
 		return this;
 	}
 	
+	public SerializedEnum withName(String name) {
+		this.name = name;
+		return this;
+	}
+	
 	public void setName(String name) {
 		this.name = name;
 	}
