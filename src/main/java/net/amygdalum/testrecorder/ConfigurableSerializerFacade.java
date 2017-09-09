@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder;
 
+import static java.lang.System.identityHashCode;
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.isLiteral;
@@ -81,6 +82,9 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
             Serializer serializer = fetchSerializer(object.getClass());
             serializedObject = serializer.generate(type, object.getClass());
             serialized.put(object, serializedObject);
+            if (serializedObject instanceof SerializedReferenceType) {
+            	((SerializedReferenceType) serializedObject).setId(identityHashCode(object));
+            }
             serializer.populate(serializedObject, object);
         }
         return serializedObject;

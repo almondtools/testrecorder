@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.values;
 
+import static com.almondtools.conmatch.datatypes.MapMatcher.containsEntries;
 import static net.amygdalum.testrecorder.values.GenericTypes.hashMapOfStringListOfString;
 import static net.amygdalum.testrecorder.values.GenericTypes.hashMapOfStringString;
 import static net.amygdalum.testrecorder.values.GenericTypes.mapOfBounded;
@@ -18,6 +19,7 @@ import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.TypeVariable;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +49,15 @@ public class SerializedMapTest {
 	@Test
 	public void testGetResultTypeBounded() throws Exception {
 		assertThat(new SerializedMap(HashMap.class).withResult(mapOfBounded()).getResultType(), instanceOf(TypeVariable.class));
+	}
+
+	@Test
+	public void testWithSerializedValueArray() throws Exception {
+		SerializedMap result = new SerializedMap(HashMap.class)
+			.withResult(hashMapOfStringString())
+			.with(Collections.singletonMap(literal("a"), literal("b")));
+		
+		assertThat(result, containsEntries(SerializedValue.class, SerializedValue.class).entry(literal("a"), literal("b")));
 	}
 
 	@Test

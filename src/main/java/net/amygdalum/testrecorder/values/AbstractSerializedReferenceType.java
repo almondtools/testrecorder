@@ -6,11 +6,22 @@ import net.amygdalum.testrecorder.SerializedReferenceType;
 
 public abstract class AbstractSerializedReferenceType extends AbstractSerializedValue implements SerializedReferenceType {
 
+    private int id;
     private Type resultType;
 
     public AbstractSerializedReferenceType(Type type) {
         super(type);
     }
+    
+    @Override
+    public int getId() {
+		return id;
+	}
+    
+    @Override
+    public void setId(int id) {
+		this.id = id;
+	}
 
     @Override
     public Type getResultType() {

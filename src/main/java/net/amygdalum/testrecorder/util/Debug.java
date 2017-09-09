@@ -6,8 +6,12 @@ import org.objectweb.asm.util.Printer;
 import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceMethodVisitor;
 
-public class Debug {
+public final class Debug {
 
+	private Debug() {
+		
+	}
+	
 	public static InsnList print(InsnList instructions) {
 		Printer p = new Textifier();
 		TraceMethodVisitor mp = new TraceMethodVisitor(p);

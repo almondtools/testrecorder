@@ -31,7 +31,6 @@ public final class Templates {
 	private static final String CAPTURE_EXCEPTION = "capture(() -> {<statements>}, <type>)";
 
     private static final String ANNOTATION = "@<annotation>(<values : {value | <value.element1> = <value.element2>}; separator=\", \">)";
-	private static final String GENERIC_TYPE = "$type$<$typeParam; separator=\", \"$>";
 
 	private static final String GENERIC_OBJECT_MATCHER = "new GenericMatcher() {\n<fields; separator=\"\\n\">\n}.matching(<type : {type | <type>}; separator=\", \">)";
 	private static final String WIDENING_MATCHER = "widening(<value>)";
@@ -65,7 +64,7 @@ public final class Templates {
 			buffer.append("\\\\");
 		} else if (c == '\'') {
 			buffer.append("\\'");
-		} else if (c < 0x20 || c > 0x7f) {
+		} else if (c < 0x20 || c >= 0x7f) {
 			buffer.append("\\u");
 			if (c < 0x10) {
 				buffer.append("000");
@@ -98,7 +97,7 @@ public final class Templates {
 				buffer.append("\\\\");
 			} else if (c == '"') {
 				buffer.append("\\\"");
-			} else if (c < 0x20 || c > 0x7f) {
+			} else if (c < 0x20 || c >= 0x7f) {
 				buffer.append("\\u");
 				if (c < 0x10) {
 					buffer.append("000");
@@ -117,9 +116,7 @@ public final class Templates {
 	}
 
 	public static String asLiteral(Float f) {
-		if (Float.isFinite(f)) {
-			return f.toString() + "f";
-		} else if (f.isNaN()) {
+		if (f.isNaN()) {
 			return "Float.NaN";
 		} else if (f.floatValue() == Float.POSITIVE_INFINITY) {
 			return "Float.POSITIVE_INFINITY";
@@ -131,9 +128,7 @@ public final class Templates {
 	}
 
 	public static String asLiteral(Double d) {
-		if (Double.isFinite(d)) {
-			return d.toString();
-		} else if (d.isNaN()) {
+		if (d.isNaN()) {
 			return "Double.NaN";
 		} else if (d.doubleValue() == Double.POSITIVE_INFINITY) {
 			return "Double.POSITIVE_INFINITY";
@@ -168,10 +163,6 @@ public final class Templates {
 
 	public static String classOf(String name) {
 		return name + ".class";
-	}
-
-	public static String stringOf(String name) {
-		return asLiteral(name);
 	}
 
 	public static String expressionStatement(String value) {
@@ -348,14 +339,6 @@ public final class Templates {
 		matcher.add("value", value);
 
 		return matcher.render();
-	}
-
-	public static String genericType(String type, String... typeParams) {
-		ST genericType = new ST(GENERIC_TYPE, '$','$');
-		genericType.add("type", type);
-		genericType.add("typeParam", asList(typeParams));
-
-		return genericType.render();
 	}
 
 	public static String containsInOrderMatcher(String elementType, String... values) {

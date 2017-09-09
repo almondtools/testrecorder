@@ -13,6 +13,7 @@ import net.amygdalum.testrecorder.deserializers.ValuePrinter;
 
 public class SerializedInput {
 
+	private int id;
 	private Class<?> clazz;
 	private String name;
 	private Type resultType;
@@ -20,7 +21,8 @@ public class SerializedInput {
 	private Type[] types;
 	private SerializedValue[] values;
 
-	public SerializedInput(Class<?> clazz, String name, Type resultType, SerializedValue result, Type[] types, SerializedValue... values) {
+	public SerializedInput(int id, Class<?> clazz, String name, Type resultType, SerializedValue result, Type[] types, SerializedValue... values) {
+		this.id = id;
 		this.clazz = clazz;
 		this.name = name;
 		this.resultType = resultType;
@@ -29,18 +31,23 @@ public class SerializedInput {
 		this.values = values;
 	}
 
-	public SerializedInput(Class<?> clazz, String name, Type[] types, SerializedValue... values) {
+	public SerializedInput(int id, Class<?> clazz, String name, Type[] types, SerializedValue... values) {
+		this.id = id;
 		this.clazz = clazz;
 		this.name = name;
 		this.types = types;
 		this.values = values;
 	}
+	
+	public int getId() {
+		return id;
+	}
 
-    public String getSignature() {
-        return clazz.getName() + "." + name + Arrays.stream(types)
-        .map(type -> baseType(type).getName())
-        .collect(joining(",", "(", ")"));
-    }
+	public String getSignature() {
+		return clazz.getName()  + "." + name + Arrays.stream(types)
+			.map(type -> baseType(type).getName())
+			.collect(joining(",", "(", ")"));
+	}
 
 	public Class<?> getDeclaringClass() {
 		return clazz;
@@ -69,7 +76,7 @@ public class SerializedInput {
 	@Override
 	public String toString() {
 		ValuePrinter printer = new ValuePrinter();
-		return "<< " + clazz.getTypeName() + "." + name + "(" + Optional.ofNullable(result).map(r -> r.accept(printer)).orElse("void") + ", " + Stream.of(values)
+		return "<< " + clazz.getTypeName() + "@" + id + "." + name + "(" + Optional.ofNullable(result).map(r -> r.accept(printer)).orElse("void") + ", " + Stream.of(values)
 			.map(value -> value.accept(printer))
 			.collect(joining(", ")) + ")";
 	}
@@ -78,7 +85,7 @@ public class SerializedInput {
 	public int hashCode() {
 		return clazz.hashCode() * 31
 			+ name.hashCode() * 19
-			+ (resultType == null ?  0 : resultType.hashCode() * 7)
+			+ (resultType == null ? 0 : resultType.hashCode() * 7)
 			+ (result == null ? 0 : result.hashCode() * 3)
 			+ Arrays.hashCode(types) * 17
 			+ Arrays.hashCode(values);
@@ -96,7 +103,8 @@ public class SerializedInput {
 			return false;
 		}
 		SerializedInput that = (SerializedInput) obj;
-		return this.clazz.equals(that.clazz)
+		return this.id == that.id
+			&& this.clazz.equals(that.clazz)
 			&& this.name.equals(that.name)
 			&& this.resultType.equals(that.resultType)
 			&& this.result.equals(that.result)

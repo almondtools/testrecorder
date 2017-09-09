@@ -23,11 +23,19 @@ public class SerializedArrayTest {
 
 	@Test
 	public void testGetResultType() throws Exception {
-		SerializedArray array = new SerializedArray(String[].class).with(literal("s1"), literal("s2"));
+		SerializedArray array = new SerializedArray(String[].class);
 
 		assertThat(array.getResultType(), equalTo(String[].class));
 	}
 
+	@Test
+	public void testGetSetResultType() throws Exception {
+		SerializedArray array = new SerializedArray(String[].class)
+			.withResult(Object.class);
+		
+		assertThat(array.getResultType(), equalTo(Object.class));
+	}
+	
 	@Test
 	public void testGetComponentType() throws Exception {
 		SerializedArray array = new SerializedArray(String[].class).with(literal("s1"), literal("s2"));

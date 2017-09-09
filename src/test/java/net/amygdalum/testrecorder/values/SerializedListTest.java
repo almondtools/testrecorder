@@ -70,6 +70,15 @@ public class SerializedListTest {
 	}
 
 	@Test
+	public void testWithSerializedValueArray() throws Exception {
+		SerializedList result = new SerializedList(ArrayList.class)
+			.withResult(arrayListOfString())
+			.with(literal("a"), literal("b"));
+		
+		assertThat(result, contains(literal("a"), literal("b")));
+	}
+
+	@Test
 	public void testGetComponentTypeBounded() throws Exception {
 		assertThat(new SerializedList(ArrayList.class).withResult(listOfBounded()).getComponentType(), equalTo(Object.class));
 	}

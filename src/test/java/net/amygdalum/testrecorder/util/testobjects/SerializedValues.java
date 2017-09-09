@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.util.testobjects;
 
+import static java.util.Collections.emptyList;
 import static net.amygdalum.xrayinterface.XRayInterface.xray;
 
 import java.lang.reflect.Type;
@@ -9,10 +10,14 @@ import java.util.Map;
 
 import net.amygdalum.testrecorder.ConfigurableSerializerFacade;
 import net.amygdalum.testrecorder.DefaultTestRecorderAgentConfig;
+import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedValue;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.serializers.BigIntegerSerializer;
 import net.amygdalum.testrecorder.serializers.DefaultListSerializer;
 import net.amygdalum.testrecorder.serializers.GenericSerializer;
+import net.amygdalum.testrecorder.values.AbstractSerializedReferenceType;
+import net.amygdalum.testrecorder.values.AbstractSerializedValue;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 import net.amygdalum.testrecorder.values.SerializedList;
 import net.amygdalum.testrecorder.values.SerializedObject;
@@ -47,7 +52,39 @@ public class SerializedValues {
         return value;
     }
     
-    interface OpenFacade {
+	public static class ASerializedValue extends AbstractSerializedValue {
+		public ASerializedValue(Type type) {
+			super(type);
+		}
+
+		@Override
+		public List<SerializedValue> referencedValues() {
+			return emptyList();
+		}
+
+		@Override
+		public <T> T accept(Deserializer<T> visitor, DeserializerContext context) {
+			return null;
+		}
+	}
+
+	public static class ASerializedReferenceType extends AbstractSerializedReferenceType {
+		public ASerializedReferenceType(Type type) {
+			super(type);
+		}
+		
+		@Override
+		public List<SerializedValue> referencedValues() {
+			return emptyList();
+		}
+
+		@Override
+		public <T> T accept(Deserializer<T> visitor, DeserializerContext context) {
+			return null;
+		}
+	}
+
+	interface OpenFacade {
         Map<Object, SerializedValue> getSerialized();
     }
 

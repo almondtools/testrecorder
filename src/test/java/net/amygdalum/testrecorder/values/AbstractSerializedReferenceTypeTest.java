@@ -1,17 +1,12 @@
 package net.amygdalum.testrecorder.values;
 
-import static java.util.Collections.emptyList;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
-import java.lang.reflect.Type;
-import java.util.List;
-
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.Deserializer;
-import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
+import net.amygdalum.testrecorder.util.testobjects.SerializedValues.ASerializedReferenceType;
 
 public class AbstractSerializedReferenceTypeTest {
 
@@ -32,20 +27,12 @@ public class AbstractSerializedReferenceTypeTest {
 		assertThat(value.getResultType(), sameInstance(Object.class));
 	}
 
-	private static class ASerializedReferenceType extends AbstractSerializedReferenceType {
-		public ASerializedReferenceType(Type type) {
-			super(type);
-		}
+	@Test
+	public void testGetId() throws Exception {
+		ASerializedReferenceType value = new ASerializedReferenceType(String.class);
+		value.setId(33);
 		
-		@Override
-		public List<SerializedValue> referencedValues() {
-			return emptyList();
-		}
-
-		@Override
-		public <T> T accept(Deserializer<T> visitor, DeserializerContext context) {
-			return null;
-		}
+		assertThat(value.getId(), equalTo(33));
 	}
 
 }

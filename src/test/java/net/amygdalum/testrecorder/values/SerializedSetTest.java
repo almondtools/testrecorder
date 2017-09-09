@@ -76,6 +76,15 @@ public class SerializedSetTest {
 	}
 
 	@Test
+	public void testWithSerializedValueArray() throws Exception {
+		SerializedSet result = new SerializedSet(HashSet.class)
+			.withResult(hashSetOfString())
+			.with(literal("a"), literal("b"));
+		
+		assertThat(result, contains(literal("a"), literal("b")));
+	}
+
+	@Test
 	public void testSize0() throws Exception {
 		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
 

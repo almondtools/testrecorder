@@ -25,7 +25,6 @@ import static net.amygdalum.testrecorder.deserializers.Templates.fieldAccess;
 import static net.amygdalum.testrecorder.deserializers.Templates.fieldDeclaration;
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
 import static net.amygdalum.testrecorder.deserializers.Templates.returnStatement;
-import static net.amygdalum.testrecorder.deserializers.Templates.stringOf;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.isPrimitive;
 
@@ -382,7 +381,7 @@ public class TestGenerator implements SnapshotConsumer {
 						.collect(toList()));
 
 					List<String> arguments = Stream.concat(
-						asList(classOf(out.getDeclaringClass().getSimpleName()), stringOf(out.getName())).stream(),
+						asList(classOf(out.getDeclaringClass().getSimpleName()), asLiteral(out.getName())).stream(),
 						args.stream()
 							.map(arg -> arg.getValue()))
 						.collect(toList());
@@ -420,7 +419,7 @@ public class TestGenerator implements SnapshotConsumer {
 
 					List<String> arguments = new ArrayList<>();
 					arguments.add(classOf(declaringClass.getSimpleName()));
-					arguments.add(stringOf(in.getName()));
+					arguments.add(asLiteral(in.getName()));
 					if (result != null) {
 						arguments.add(result.getValue());
 					} else {

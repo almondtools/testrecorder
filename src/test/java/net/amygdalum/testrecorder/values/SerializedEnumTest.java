@@ -12,9 +12,10 @@ public class SerializedEnumTest {
 
 	@Test
 	public void testGetType() throws Exception {
-		SerializedEnum value = new SerializedEnum(MyEnum.class);
+		SerializedEnum value = new SerializedEnum(MyEnum.class).withName("VALUE1");
 
 		assertThat(value.getResultType(), equalTo(MyEnum.class));
+		assertThat(value.getName(), equalTo("VALUE1"));
 	}
 
 	@Test
@@ -54,5 +55,6 @@ public class SerializedEnumTest {
 	private static enum MyEnum {
 		VALUE1, VALUE2;
 	}
+
 
 }

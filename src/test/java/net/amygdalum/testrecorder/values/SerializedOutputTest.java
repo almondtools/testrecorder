@@ -4,6 +4,7 @@ import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefa
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
@@ -20,7 +21,12 @@ public class SerializedOutputTest {
 
 	@Before
 	public void before() throws Exception {
-		output = new SerializedOutput(PrintStream.class, "println", new Type[] { String.class }, literal("Hello"));
+		output = new SerializedOutput(41, PrintStream.class, "println", new Type[] { String.class }, literal("Hello"));
+	}
+
+	@Test
+	public void testGetId() throws Exception {
+		assertThat(output.getId(), equalTo(41));
 	}
 
 	@Test
@@ -46,11 +52,12 @@ public class SerializedOutputTest {
 	@Test
 	public void testEquals() throws Exception {
 		assertThat(output, satisfiesDefaultEquality()
-			.andEqualTo(new SerializedOutput(PrintStream.class, "println", new Type[] { String.class }, literal("Hello")))
-			.andNotEqualTo(new SerializedOutput(PrintWriter.class, "println", new Type[] { String.class }, literal("Hello")))
-			.andNotEqualTo(new SerializedOutput(PrintStream.class, "print", new Type[] { String.class }, literal("Hello")))
-			.andNotEqualTo(new SerializedOutput(PrintStream.class, "println", new Type[] { Object.class }, literal("Hello")))
-			.andNotEqualTo(new SerializedOutput(PrintStream.class, "println", new Type[] { String.class }, literal("Hello World"))));
+			.andEqualTo(new SerializedOutput(41, PrintStream.class, "println", new Type[] { String.class }, literal("Hello")))
+			.andNotEqualTo(new SerializedOutput(42, PrintStream.class, "println", new Type[] { String.class }, literal("Hello")))
+			.andNotEqualTo(new SerializedOutput(41, PrintWriter.class, "println", new Type[] { String.class }, literal("Hello")))
+			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "print", new Type[] { String.class }, literal("Hello")))
+			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "println", new Type[] { Object.class }, literal("Hello")))
+			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "println", new Type[] { String.class }, literal("Hello World"))));
 	}
 
 	@Test

@@ -73,8 +73,6 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 	private static final String STATIC_INIT_NAME = "<clinit>";
 
-	private static final String GET_CLASS = "getClass";
-
 	private static final String GET_DECLARED_METHOD = "getDeclaredMethod";
 	private static final String GET_DECLARED_FIELD = "getDeclaredField";
 
@@ -87,7 +85,6 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	private static final String THROW_VARIABLES = "throwVariables";
 	private static final String EXPECT_VARIABLES = "expectVariables";
 
-	private static final String Object_name = Type.getInternalName(Object.class);
 	private static final String Class_name = Type.getInternalName(Class.class);
 	private static final String Types_name = Type.getInternalName(Types.class);
 	private static final String SnapshotManager_name = Type.getInternalName(SnapshotManager.class);
@@ -98,19 +95,17 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	private static final String Output_descriptor = Type.getDescriptor(Output.class);
 	private static final String Global_descriptor = Type.getDescriptor(Global.class);
 
-    private static final String Object_getClass_descriptor = ByteCode.methodDescriptor(Object.class, GET_CLASS);
-
 	private static final String SnaphotManager_registerMethod_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, REGISTER, String.class, Method.class);
 	private static final String SnaphotManager_registerGlobal_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, REGISTER_GLOBAL, String.class, Field.class);
 	private static final String SnaphotManager_setupVariables_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, SETUP_VARIABLES, Object.class, String.class, Object[].class);
 	private static final String SnaphotManager_expectVariablesResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, EXPECT_VARIABLES, Object.class, Object.class, Object[].class);
 	private static final String SnaphotManager_expectVariablesNoResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, EXPECT_VARIABLES, Object.class, Object[].class);
 	private static final String SnaphotManager_throwVariables_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, THROW_VARIABLES, Object.class, Throwable.class, Object[].class);
-	private static final String SnaphotManager_outputVariables_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, OUTPUT_VARIABLES, Class.class, String.class,
+	private static final String SnaphotManager_outputVariables_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, OUTPUT_VARIABLES, Object.class, String.class,
 		java.lang.reflect.Type[].class, Object[].class);
-	private static final String SnaphotManager_inputVariablesResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, INPUT_VARIABLES, Class.class, String.class,
+	private static final String SnaphotManager_inputVariablesResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, INPUT_VARIABLES, Object.class, String.class,
 		java.lang.reflect.Type.class, Object.class, java.lang.reflect.Type[].class, Object[].class);
-	private static final String SnaphotManager_inputVariablesNoResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, INPUT_VARIABLES, Class.class, String.class,
+	private static final String SnaphotManager_inputVariablesNoResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, INPUT_VARIABLES, Object.class, String.class,
 		java.lang.reflect.Type[].class, Object[].class);
 
 	private static final String Types_getDeclaredMethod_descriptor = ByteCode.methodDescriptor(Types.class, GET_DECLARED_METHOD, Class.class, String.class, Class[].class);
@@ -300,7 +295,6 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 			insnList.add(new VarInsnNode(ASTORE, thisVar));
 		} else {
 			insnList.add(new InsnNode(DUP));
-			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Object_name, GET_CLASS, Object_getClass_descriptor, false));
 			insnList.add(new VarInsnNode(ASTORE, thisVar));
 		}
 		
@@ -381,7 +375,6 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 			insnList.add(new VarInsnNode(ASTORE, thisVar));
 		} else {
 			insnList.add(new InsnNode(DUP));
-			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Object_name, GET_CLASS, Object_getClass_descriptor, false));
 			insnList.add(new VarInsnNode(ASTORE, thisVar));
 		}
 		

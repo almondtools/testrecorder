@@ -1,17 +1,19 @@
 package net.amygdalum.testrecorder.values;
 
-import static java.util.Collections.emptyList;
+import static org.hamcrest.Matchers.arrayContaining;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
-import java.lang.reflect.Type;
-import java.util.List;
+import java.lang.annotation.Annotation;
 
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.Deserializer;
-import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
+import net.amygdalum.testrecorder.util.testobjects.Annotated;
+import net.amygdalum.testrecorder.util.testobjects.MyAnnotation;
+import net.amygdalum.testrecorder.util.testobjects.NoAnnotation;
+import net.amygdalum.testrecorder.util.testobjects.SerializedValues.ASerializedValue;
 
 public class AbstractSerializedValueTest {
 
@@ -27,25 +29,18 @@ public class AbstractSerializedValueTest {
 	public void testSetType() throws Exception {
 		ASerializedValue value = new ASerializedValue(String.class);
 		value.setType(Object.class);
-		
+
 		assertThat(value.getType(), sameInstance(Object.class));
 		assertThat(value.getResultType(), sameInstance(Object.class));
 	}
 
-	private static class ASerializedValue extends AbstractSerializedValue {
-		public ASerializedValue(Type type) {
-			super(type);
-		}
+	@Test
+	public void testGetAnnotations() throws Exception {
+		ASerializedValue value = new ASerializedValue(Annotated.class);
 
-		@Override
-		public List<SerializedValue> referencedValues() {
-			return emptyList();
-		}
-
-		@Override
-		public <T> T accept(Deserializer<T> visitor, DeserializerContext context) {
-			return null;
-		}
+		assertThat(value.getAnnotations(), arrayContaining((Annotation) Annotated.class.getAnnotation(MyAnnotation.class)));
+		assertThat(value.getAnnotation(MyAnnotation.class).get(), equalTo(Annotated.class.getAnnotation(MyAnnotation.class)));
+		assertThat(value.getAnnotation(NoAnnotation.class).isPresent(), is(false));
 	}
 
 }

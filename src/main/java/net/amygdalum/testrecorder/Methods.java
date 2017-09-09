@@ -3,6 +3,7 @@ package net.amygdalum.testrecorder;
 import java.lang.reflect.Method;
 
 import net.amygdalum.testrecorder.profile.MethodDescription;
+import net.amygdalum.testrecorder.profile.MethodsByName;
 
 public interface Methods {
 
@@ -12,6 +13,10 @@ public interface Methods {
 
 	static Methods byDescription(String className, String methodName, String methodDescriptor) {
 		return new MethodDescription(className, methodName, methodDescriptor);
+	}
+
+	static Methods byName(String name) {
+		return new MethodsByName(name);
 	}
 
 }

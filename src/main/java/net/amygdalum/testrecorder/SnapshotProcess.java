@@ -1,5 +1,7 @@
 package net.amygdalum.testrecorder;
 
+import static java.lang.System.identityHashCode;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -45,16 +47,22 @@ public class SnapshotProcess {
 		return snapshot;
 	}
 
-	public void inputVariables(Class<?> clazz, String method, Type resultType, Object result, Type[] paramTypes, Object[] args) {
-		input.add(new SerializedInput(clazz, method, resultType, facade.serialize(resultType, result), paramTypes, facade.serialize(paramTypes, args)));
+	public void inputVariables(Object object, String method, Type resultType, Object result, Type[] paramTypes, Object[] args) {
+		Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
+		int id = object instanceof Class<?> ? 0 : identityHashCode(object);
+		input.add(new SerializedInput(id, clazz, method, resultType, facade.serialize(resultType, result), paramTypes, facade.serialize(paramTypes, args)));
 	}
 
-	public void inputVariables(Class<?> clazz, String method, Type[] paramTypes, Object[] args) {
-		input.add(new SerializedInput(clazz, method, paramTypes, facade.serialize(paramTypes, args)));
+	public void inputVariables(Object object, String method, Type[] paramTypes, Object[] args) {
+		Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
+		int id = object instanceof Class<?> ? 0 : identityHashCode(object);
+		input.add(new SerializedInput(id, clazz, method, paramTypes, facade.serialize(paramTypes, args)));
 	}
 
-	public void outputVariables(Class<?> clazz, String method, Type[] paramTypes, Object[] args) {
-		output.add(new SerializedOutput(clazz, method, paramTypes, facade.serialize(paramTypes, args)));
+	public void outputVariables(Object object, String method, Type[] paramTypes, Object[] args) {
+		Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
+		int id = object instanceof Class<?> ? 0 : identityHashCode(object);
+		output.add(new SerializedOutput(id, clazz, method, paramTypes, facade.serialize(paramTypes, args)));
 	}
 
 	public void setupVariables(String signature, Object self, Object... args) {
@@ -128,15 +136,15 @@ public class SnapshotProcess {
 		return new SnapshotProcess() {
 
 			@Override
-			public void inputVariables(Class<?> clazz, String method, Type resultType, Object result, Type[] paramTypes, Object[] args) {
+			public void inputVariables(Object object, String method, Type resultType, Object result, Type[] paramTypes, Object[] args) {
 			}
 
 			@Override
-			public void inputVariables(Class<?> clazz, String method, Type[] paramTypes, Object[] args) {
+			public void inputVariables(Object object, String method, Type[] paramTypes, Object[] args) {
 			}
 
 			@Override
-			public void outputVariables(Class<?> clazz, String method, Type[] paramTypes, Object[] args) {
+			public void outputVariables(Object object, String method, Type[] paramTypes, Object[] args) {
 			}
 
 			@Override
