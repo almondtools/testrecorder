@@ -8,6 +8,6 @@ public interface TestRecorderAgentConfig extends SerializationProfile {
 
 	long getTimeoutInMillis();
 
-	List<String> getPackages();
+	List<Packages> getPackages();
 
 }

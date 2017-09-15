@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
-import java.util.Collections;
 import java.util.List;
 
 import net.amygdalum.testrecorder.profile.ExcludeExplicitExcluded;
@@ -64,8 +63,8 @@ public class DefaultTestRecorderAgentConfig implements TestRecorderAgentConfig {
     }
 
     @Override
-    public List<String> getPackages() {
-        return Collections.emptyList();
+    public List<Packages> getPackages() {
+        return emptyList();
     }
 
 }

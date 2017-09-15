@@ -122,9 +122,13 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 	@Override
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-		for (String pkg : config.getPackages()) {
-			pkg = pkg.replace('.', '/');
-			if (className != null && className.startsWith(pkg)) {
+		if (className == null) {
+			return null;
+		}
+		for (Packages pkg : config.getPackages()) {
+			int lastDot = className.indexOf('/');
+			String pkgName = className.substring(0, lastDot).replace('/', '.');
+			if (pkg.matches(pkgName)) {
 				System.out.println("recording snapshots of " + className);
 				return instrument(classfileBuffer);
 			}
