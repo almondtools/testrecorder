@@ -76,9 +76,9 @@ public class InputsTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
         assertThat(testGenerator.renderTest(Inputs.class), allOf(
-            containsPattern(".provide(Inputs.class, \"read\", \"Hello\")"),
-            containsPattern(".provide(Inputs.class, \"read\", \" \")"),
-            containsPattern(".provide(Inputs.class, \"read\", \"World\")")
+            containsPattern(".provide(\"read\", \"Hello\")"),
+            containsPattern(".provide(\"read\", \" \")"),
+            containsPattern(".provide(\"read\", \"World\")")
             ));
 		assertThat(testGenerator.renderTest(Inputs.class), testsRun(Inputs.class));
 	}
@@ -90,8 +90,8 @@ public class InputsTest {
 		
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Inputs.class), allOf(
-			containsPattern(".provide(Inputs.class, \"conditionalReturnRead\", \"Hello\")"),
-			containsPattern(".provide(Inputs.class, \"conditionalReturnRead\", \"World\")")
+			containsPattern(".provide(\"conditionalReturnRead\", \"Hello\")"),
+			containsPattern(".provide(\"conditionalReturnRead\", \"World\")")
 			));
 		assertThat(testGenerator.renderTest(Inputs.class), testsRun(Inputs.class));
 	}

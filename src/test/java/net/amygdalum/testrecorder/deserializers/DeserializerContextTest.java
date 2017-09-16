@@ -12,8 +12,8 @@ public class DeserializerContextTest {
 
     @Test
     public void testGetHints() throws Exception {
-        assertThat(DeserializerContext.newContext("1").getHints(Integer.class).toArray(len -> new Integer[len]), emptyArray());
-        assertThat(DeserializerContext.newContext(1).getHints(Integer.class).toArray(len -> new Integer[len]), arrayContaining(1));
+        assertThat(DeserializerContext.newContext("1").getHints(Integer.class).toArray(Integer[]::new), emptyArray());
+        assertThat(DeserializerContext.newContext(1).getHints(Integer.class).toArray(Integer[]::new), arrayContaining(1));
     }
 
     @Test

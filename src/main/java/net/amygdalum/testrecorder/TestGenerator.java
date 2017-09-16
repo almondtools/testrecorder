@@ -64,6 +64,7 @@ import net.amygdalum.testrecorder.ContextSnapshot.AnnotatedValue;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
+import net.amygdalum.testrecorder.deserializers.MockedInteractions;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
 import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerators;
@@ -75,12 +76,9 @@ import net.amygdalum.testrecorder.util.AnnotatedBy;
 import net.amygdalum.testrecorder.util.ExpectedOutput;
 import net.amygdalum.testrecorder.util.IORecorder;
 import net.amygdalum.testrecorder.util.Pair;
-import net.amygdalum.testrecorder.util.RecordInput;
 import net.amygdalum.testrecorder.util.RecordOutput;
-import net.amygdalum.testrecorder.util.SetupInput;
 import net.amygdalum.testrecorder.util.Triple;
 import net.amygdalum.testrecorder.values.SerializedField;
-import net.amygdalum.testrecorder.values.SerializedInput;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedOutput;
 
@@ -342,6 +340,7 @@ public class TestGenerator implements SnapshotConsumer {
 
 		private ContextSnapshot snapshot;
 		private TestGeneratorContext context;
+		private MockedInteractions mocked;
 
 		private List<String> statements;
 
@@ -350,9 +349,11 @@ public class TestGenerator implements SnapshotConsumer {
 		private String result;
 		private String error;
 
+
 		public MethodGenerator(ContextSnapshot snapshot, TestGeneratorContext context) {
 			this.snapshot = snapshot;
 			this.context = context;
+			this.mocked = new MockedInteractions(snapshot.getSetupInput(), snapshot.getExpectOutput());
 			this.locals = new LocalVariableNameGenerator();
 			this.statements = new ArrayList<>();
 		}
@@ -391,51 +392,8 @@ public class TestGenerator implements SnapshotConsumer {
 				String outputExpectation = callMethodChainStatement("expectedOutput", methods);
 				statements.add(outputExpectation);
 			}
-			List<SerializedInput> serializedInput = snapshot.getSetupInput();
-			if (serializedInput != null && !serializedInput.isEmpty()) {
-				types.registerTypes(RunWith.class, RecordInput.class, IORecorder.class, SetupInput.class);
-				fields.add(fieldDeclaration("public", SetupInput.class.getSimpleName(), "setupInput"));
 
-				List<String> methods = new ArrayList<>();
-				for (SerializedInput in : serializedInput) {
-					Class<?> declaringClass = deanonymized(in.getDeclaringClass());
-					types.registerImport(declaringClass);
-					inputClasses.add(declaringClass.getTypeName());
-					inputSignatures.add(in.getSignature());
-
-					Computation result = null;
-					if (in.getResult() != null) {
-						result = in.getResult().accept(setup.create(locals, types));
-						statements.addAll(result.getStatements());
-					}
-
-					List<Computation> args = Stream.of(in.getValues())
-						.map(arg -> arg.accept(setup.create(locals, types)))
-						.collect(toList());
-
-					statements.addAll(args.stream()
-						.flatMap(arg -> arg.getStatements().stream())
-						.collect(toList()));
-
-					List<String> arguments = new ArrayList<>();
-					arguments.add(classOf(declaringClass.getSimpleName()));
-					arguments.add(asLiteral(in.getName()));
-					if (result != null) {
-						arguments.add(result.getValue());
-					} else {
-						arguments.add("null");
-					}
-					arguments.addAll(args.stream()
-						.map(arg -> arg.getValue())
-						.collect(toList()));
-
-					methods.add(callLocalMethod("provide", arguments));
-				}
-				String inputSetup = callMethodChainStatement("setupInput", methods);
-				statements.add(inputSetup);
-			}
-
-			Deserializer<Computation> setupCode = setup.create(locals, types);
+			Deserializer<Computation> setupCode = setup.create(locals, types, mocked );
 			Computation setupThis = snapshot.getSetupThis() != null
 				? snapshot.getSetupThis().accept(setupCode)
 				: new Computation(types.getVariableTypeName(types.wrapHidden(snapshot.getThisType())), null, true);
@@ -468,13 +426,6 @@ public class TestGenerator implements SnapshotConsumer {
 					: assign(arg.getElement2().value.getResultType(), arg.getElement1().getValue()))
 				.collect(toList());
 			return this;
-		}
-
-		private Class<?> deanonymized(Class<?> declaringClass) {
-			while (declaringClass.isAnonymousClass()) {
-				declaringClass = declaringClass.getSuperclass();
-			}
-			return declaringClass;
 		}
 
 		private Computation assignGlobal(Class<?> clazz, String name, Computation global) {

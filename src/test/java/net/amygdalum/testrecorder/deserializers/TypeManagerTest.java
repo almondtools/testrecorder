@@ -202,7 +202,7 @@ public class TypeManagerTest {
         
         assertThat(types.getConstructorTypeName(array(parameterized(List.class, null, String.class))), equalTo("List<String>[]"));
         assertThat(types.getConstructorTypeName(array(parameterized(List.class, null, Date.class))), equalTo("List<java.util.Date>[]"));
-        assertThat(types.getConstructorTypeName(array(List.class)), equalTo("List<>[]"));
+        assertThat(types.getConstructorTypeName(array(List.class)), equalTo("List[]"));
     }
     
     @Test

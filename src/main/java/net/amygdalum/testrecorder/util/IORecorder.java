@@ -13,7 +13,6 @@ import org.junit.runners.model.TestClass;
 public class IORecorder extends BlockJUnit4ClassRunner {
 
     private IORecorderClassLoader loader;
-    private volatile SetupInput setupInput;
     private volatile ExpectedOutput expectedOutput;
 
     public IORecorder(Class<?> klass) throws InitializationError {
@@ -28,11 +27,6 @@ public class IORecorder extends BlockJUnit4ClassRunner {
                 field.setAccessible(true);
                 RecordOutput outputs = test.getClass().getAnnotation(RecordOutput.class);
                 field.set(test, fetchExpectedOutput(outputs.signatures()));
-            }
-            if (field.getType() == SetupInput.class) {
-                field.setAccessible(true);
-                RecordInput inputs = test.getClass().getAnnotation(RecordInput.class);
-                field.set(test, fetchSetupInput(inputs.signatures()));
             }
         }
         return test;
@@ -59,12 +53,8 @@ public class IORecorder extends BlockJUnit4ClassRunner {
         if (output != null) {
             classes.addAll(asList(output.value()));
         }
-        if (input != null) {
-            classes.addAll(asList(input.value()));
-        }
-        SetupInput in = fetchSetupInput(input == null ? new String[0] : input.signatures());
         ExpectedOutput out = fetchExpectedOutput(output == null ? new String[0] : output.signatures());
-        return new IORecorderClassLoader(klass, in, out, classes);
+        return new IORecorderClassLoader(klass, out, classes);
     }
 
     private synchronized ExpectedOutput fetchExpectedOutput(String[] signatures) {
@@ -72,13 +62,6 @@ public class IORecorder extends BlockJUnit4ClassRunner {
             expectedOutput = new ExpectedOutput(signatures);
         }
         return expectedOutput;
-    }
-
-    private synchronized SetupInput fetchSetupInput(String[] signatures) {
-        if (setupInput == null) {
-            setupInput = new SetupInput(signatures);
-        }
-        return setupInput;
     }
 
 }

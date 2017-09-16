@@ -17,6 +17,7 @@ public final class Templates {
 	private static final String FIELD_ACCESS_EXP = "<base>.<field>";
 	private static final String CALL_METHOD_EXP = "<base>.<method>(<arguments; separator=\", \">)";
 	private static final String CALL_LOCAL_METHOD_EXP = "<method>(<arguments; separator=\", \">)";
+	private static final String CALL_METHOD_CHAIN_EXP = "<base>.<methods;separator=\".\">";
 	private static final String CAST_EXP = "(<type>) <expression>";
 
 	private static final String FIELD_DECLARATION = "<modifiers> <type> <name>;";
@@ -256,14 +257,22 @@ public final class Templates {
 		return call.render();
 	}
 
-	public static String callMethodChainStatement(String base, List<String> methods) {
-		ST call = new ST(CALL_METHOD_CHAIN_STMT);
+	public static String callMethodChainExpression(String base, List<String> methods) {
+		ST call = new ST(CALL_METHOD_CHAIN_EXP);
 		call.add("base", base);
 		call.add("methods", methods);
 
 		return call.render();
 	}
 
+	public static String callMethodChainStatement(String base, List<String> methods) {
+		ST call = new ST(CALL_METHOD_CHAIN_STMT);
+		call.add("base", base);
+		call.add("methods", methods);
+		
+		return call.render();
+	}
+	
 	public static String callLocalMethodStatement(String method, String... arguments) {
 		return callLocalMethodStatement(method, asList(arguments));
 	}

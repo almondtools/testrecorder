@@ -131,7 +131,7 @@ public class TypeManager {
                 clazz = clazz.getComponentType();
             }
             String base = isNotImported(clazz) ? clazz.getCanonicalName() : clazz.getSimpleName();
-            String generics = clazz.getTypeParameters().length > 0 ? "<>" : "";
+            String generics = array.length() == 0 ? (clazz.getTypeParameters().length > 0 ? "<>" : "") : "";
             return base + generics + array;
         } else if (type instanceof GenericArrayType) {
             return getConstructorTypeName(((GenericArrayType) type).getGenericComponentType()) + "[]";

@@ -17,7 +17,7 @@ public class Inputs {
 	public Inputs() {
 		this.inputs = new ArrayList<>(asList("Hello", " ", "World")).iterator();
 	}
-
+	
 	@Recorded
 	public String recorded() {
 		String first = read();

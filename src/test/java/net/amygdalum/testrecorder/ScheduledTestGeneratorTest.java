@@ -35,6 +35,7 @@ import org.junit.rules.TemporaryFolder;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
+import net.amygdalum.testrecorder.deserializers.MockedInteractions;
 import net.amygdalum.testrecorder.deserializers.TestComputationValueVisitor;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedField;
@@ -121,6 +122,11 @@ public class ScheduledTestGeneratorTest {
             public Deserializer<Computation> create(LocalVariableNameGenerator locals, TypeManager types) {
                 return new TestComputationValueVisitor();
             }
+            
+            @Override
+            public Deserializer<Computation> create(LocalVariableNameGenerator locals, TypeManager types, MockedInteractions mocked) {
+                return new TestComputationValueVisitor();
+            }
 
             @Override
             public Type resultType(Type value) {
@@ -154,6 +160,11 @@ public class ScheduledTestGeneratorTest {
 
             @Override
             public Deserializer<Computation> create(LocalVariableNameGenerator locals, TypeManager types) {
+                return new TestComputationValueVisitor();
+            }
+            
+            @Override
+            public Deserializer<Computation> create(LocalVariableNameGenerator locals, TypeManager types, MockedInteractions mocked) {
                 return new TestComputationValueVisitor();
             }
 

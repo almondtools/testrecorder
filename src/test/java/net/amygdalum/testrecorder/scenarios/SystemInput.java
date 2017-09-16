@@ -15,7 +15,7 @@ public class SystemInput {
         return timestamp;
     }
 
-    public static long currentTimeMillis() {
+    public long currentTimeMillis() {
         return System.currentTimeMillis();
     }
 
