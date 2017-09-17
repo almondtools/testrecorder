@@ -128,7 +128,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 			return null;
 		}
 		for (Packages pkg : config.getPackages()) {
-			int lastDot = className.indexOf('/');
+			int lastDot = className.lastIndexOf('/');
 			String pkgName = className.substring(0, lastDot).replace('/', '.');
 			if (pkg.matches(pkgName)) {
 				System.out.println("recording snapshots of " + className);

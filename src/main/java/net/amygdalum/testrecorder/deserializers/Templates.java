@@ -23,7 +23,7 @@ public final class Templates {
 	private static final String FIELD_DECLARATION = "<modifiers> <type> <name>;";
 	private static final String EXPRESSION_STMT = "<value>;";
 	private static final String ASSIGN_FIELD_STMT = "<base>.<field> = <value>;";
-	private static final String ASSIGN_LOCAL_VARIABLE_STMT = "<type> <name> = <value>;";
+	private static final String ASSIGN_LOCAL_VARIABLE_STMT = "<if(type)><type> <endif><name> = <value>;";
 	private static final String CALL_METHOD_STMT = "<base>.<method>(<arguments; separator=\", \">);";
 	private static final String CALL_METHOD_CHAIN_STMT = "<base>.<methods;separator=\".\">;";
 	private static final String CALL_LOCAL_METHOD_STMT = "<method>(<arguments; separator=\", \">);";
@@ -233,6 +233,14 @@ public final class Templates {
 	public static String assignLocalVariableStatement(String type, String name, String value) {
 		ST assign = new ST(ASSIGN_LOCAL_VARIABLE_STMT);
 		assign.add("type", type);
+		assign.add("name", name);
+		assign.add("value", value);
+		
+		return assign.render();
+	}
+	
+	public static String assignLocalVariableStatement(String name, String value) {
+		ST assign = new ST(ASSIGN_LOCAL_VARIABLE_STMT);
 		assign.add("name", name);
 		assign.add("value", value);
 		

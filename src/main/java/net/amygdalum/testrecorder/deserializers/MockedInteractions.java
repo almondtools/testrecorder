@@ -112,9 +112,15 @@ public class MockedInteractions {
 
 		val = callMethodChainExpression(val, methods);
 
-		String var = locals.fetchName(computation.getType());
-		statements.add(assignLocalVariableStatement(types.getVariableTypeName(computation.getType()), var, val));
-		return new Computation(var, computation.getType(), true, statements);
+		if (computation.isStored()) {
+			String var = computation.getValue();
+			statements.add(assignLocalVariableStatement(var, val));
+			return new Computation(var, computation.getType(), true, statements);
+		} else {
+			String var = locals.fetchName(computation.getType());
+			statements.add(assignLocalVariableStatement(types.getVariableTypeName(computation.getType()), var, val));
+			return new Computation(var, computation.getType(), true, statements);
+		}
 	}
 
 	public Computation verifyInputInteractions(SerializedReferenceType value, Computation computation, LocalVariableNameGenerator locals, TypeManager types) {
@@ -180,9 +186,15 @@ public class MockedInteractions {
 
 		val = callMethodChainExpression(val, methods);
 
-		String var = locals.fetchName(computation.getType());
-		statements.add(assignLocalVariableStatement(types.getVariableTypeName(computation.getType()), var, val));
-		return new Computation(var, computation.getType(), true, statements);
+		if (computation.isStored()) {
+			String var = computation.getValue();
+			statements.add(assignLocalVariableStatement(var, val));
+			return new Computation(var, computation.getType(), true, statements);
+		} else {
+			String var = locals.fetchName(computation.getType());
+			statements.add(assignLocalVariableStatement(types.getVariableTypeName(computation.getType()), var, val));
+			return new Computation(var, computation.getType(), true, statements);
+		}
 	}
 
 	public Computation verifyOutputInteractions(SerializedReferenceType value, Computation computation, LocalVariableNameGenerator locals, TypeManager types) {
@@ -192,9 +204,9 @@ public class MockedInteractions {
 		String base = types.getRawTypeName(CombinableMatcher.class);
 
 		base = callMethod(base, "both", computation.getValue());
-		
+
 		String val = callMethod(base, "and", callMethod(types.getRawTypeName(OutputDecorator.class), "verifies"));
-		
+
 		return new Computation(val, computation.getType(), computation.isStored(), computation.getStatements());
 	}
 
