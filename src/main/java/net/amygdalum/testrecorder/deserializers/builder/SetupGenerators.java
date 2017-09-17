@@ -180,7 +180,10 @@ public class SetupGenerators implements Deserializer<Computation> {
 		Computation computation = adaptors.tryDeserialize(value, types, this, context);
 
 		if (mocked.hasInputInteractions(value)) {
-			computation = mocked.generateInputInteractions(value, computation, locals, types, this);
+			computation = mocked.prepareInputInteractions(value, computation, locals, types);
+		}
+		if (mocked.hasOutputInteractions(value)) {
+			computation = mocked.prepareOutputInteractions(value, computation, locals, types);
 		}
 		return computation;
 	}

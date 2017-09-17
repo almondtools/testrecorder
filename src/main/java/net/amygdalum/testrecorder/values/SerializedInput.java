@@ -5,6 +5,7 @@ import static net.amygdalum.testrecorder.util.Types.baseType;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -34,6 +35,8 @@ public class SerializedInput {
 	public SerializedInput(int id, Class<?> clazz, String name, Type[] types, SerializedValue... values) {
 		this.id = id;
 		this.clazz = clazz;
+		this.resultType = void.class;
+		this.result = null;
 		this.name = name;
 		this.types = types;
 		this.values = values;
@@ -107,7 +110,7 @@ public class SerializedInput {
 			&& this.clazz.equals(that.clazz)
 			&& this.name.equals(that.name)
 			&& this.resultType.equals(that.resultType)
-			&& this.result.equals(that.result)
+			&& Objects.equals(this.result,that.result)
 			&& Arrays.equals(this.types, that.types)
 			&& Arrays.equals(this.values, that.values);
 	}

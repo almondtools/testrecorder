@@ -3,6 +3,7 @@ package net.amygdalum.testrecorder.scenarios;
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
@@ -69,8 +70,9 @@ public class OutputsTest {
         TestGenerator testGenerator = TestGenerator.fromRecorded();
         assertThat(testGenerator.testsFor(Outputs.class), hasSize(1));
         assertThat(testGenerator.renderTest(Outputs.class), allOf(
-            containsPattern(".expect(Outputs.class, \"print\", equalTo(\"Hello \")"),
-            containsPattern(".expect(Outputs.class, \"print\", equalTo(\"World\")")));
+            containsPattern(".expect(\"print\", new Class[]{String.class}, null, equalTo(\"Hello \")"),
+            containsPattern(".expect(\"print\", new Class[]{String.class}, null, equalTo(\"World\")")));
+        assertThat(testGenerator.renderTest(Outputs.class), containsString("verifies"));
         assertThat(testGenerator.renderTest(Outputs.class), testsRun(Outputs.class));
     }
 
@@ -81,13 +83,15 @@ public class OutputsTest {
     	
     	TestGenerator testGenerator = TestGenerator.fromRecorded();
     	assertThat(testGenerator.testsFor(Outputs.class), hasSize(1));
-    	assertThat(testGenerator.renderTest(Outputs.class), testsRun(Outputs.class));
     	assertThat(testGenerator.renderTest(Outputs.class), allOf(
-    		containsPattern(".expect(Outputs.class, \"conditionalReturnOutput\", equalTo('a')"),
-    		containsPattern(".expect(Outputs.class, \"conditionalReturnOutput\", equalTo(',')"),
-    		containsPattern(".expect(Outputs.class, \"conditionalReturnOutput\", equalTo(' ')"),
-    		containsPattern(".expect(Outputs.class, \"conditionalReturnOutput\", equalTo('b')"),
-    		containsPattern(".expect(Outputs.class, \"conditionalReturnOutput\", equalTo('\\n')")));
+    		containsPattern(".expect(\"conditionalReturnOutput\", new Class[]{char.class}, true, equalTo('a')"),
+    		containsPattern(".expect(\"conditionalReturnOutput\", new Class[]{char.class}, true, equalTo(',')"),
+    		containsPattern(".expect(\"conditionalReturnOutput\", new Class[]{char.class}, false, equalTo(' ')"),
+    		containsPattern(".expect(\"conditionalReturnOutput\", new Class[]{char.class}, true, equalTo('b')"),
+    		containsPattern(".expect(\"conditionalReturnOutput\", new Class[]{char.class}, false, equalTo('\\n')")));
+
+        assertThat(testGenerator.renderTest(Outputs.class), containsString("verifies"));
+    	assertThat(testGenerator.renderTest(Outputs.class), testsRun(Outputs.class));
     }
     
     @Test
@@ -96,6 +100,7 @@ public class OutputsTest {
         out.primitivesRecorded();
 
         TestGenerator testGenerator = TestGenerator.fromRecorded();
+        assertThat(testGenerator.renderTest(Outputs.class), containsString("verifies"));
         assertThat(testGenerator.renderTest(Outputs.class), testsRun(Outputs.class));
     }
 

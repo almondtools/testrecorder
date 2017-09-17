@@ -18,10 +18,13 @@ import org.junit.Test;
 public class SerializedOutputTest {
 
 	private SerializedOutput output;
+	private SerializedOutput outputNoResult;
 
 	@Before
 	public void before() throws Exception {
-		output = new SerializedOutput(41, PrintStream.class, "println", new Type[] { String.class }, literal("Hello"));
+		output = new SerializedOutput(41, PrintStream.class, "append", PrintStream.class, null, new Type[] { CharSequence.class }, literal("Hello"));
+
+		outputNoResult = new SerializedOutput(41, PrintStream.class, "println", new Type[] { String.class }, literal("Hello"));
 	}
 
 	@Test
@@ -36,12 +39,14 @@ public class SerializedOutputTest {
 
 	@Test
 	public void testGetName() throws Exception {
-		assertThat(output.getName(), sameInstance("println"));
+		assertThat(output.getName(), sameInstance("append"));
+		assertThat(outputNoResult.getName(), sameInstance("println"));
 	}
 
 	@Test
 	public void testGetTypes() throws Exception {
-		assertThat(output.getTypes(), arrayContaining(String.class));
+		assertThat(output.getTypes(), arrayContaining(CharSequence.class));
+		assertThat(outputNoResult.getTypes(), arrayContaining(String.class));
 	}
 
 	@Test
@@ -51,20 +56,29 @@ public class SerializedOutputTest {
 
 	@Test
 	public void testEquals() throws Exception {
-		assertThat(output, satisfiesDefaultEquality()
+		assertThat(outputNoResult, satisfiesDefaultEquality()
 			.andEqualTo(new SerializedOutput(41, PrintStream.class, "println", new Type[] { String.class }, literal("Hello")))
+			.andNotEqualTo(output)
 			.andNotEqualTo(new SerializedOutput(42, PrintStream.class, "println", new Type[] { String.class }, literal("Hello")))
 			.andNotEqualTo(new SerializedOutput(41, PrintWriter.class, "println", new Type[] { String.class }, literal("Hello")))
 			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "print", new Type[] { String.class }, literal("Hello")))
 			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "println", new Type[] { Object.class }, literal("Hello")))
 			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "println", new Type[] { String.class }, literal("Hello World"))));
+
+		assertThat(output, satisfiesDefaultEquality()
+			.andEqualTo(new SerializedOutput(41, PrintStream.class, "append", PrintStream.class, null, new Type[] { CharSequence.class }, literal("Hello")))
+			.andNotEqualTo(outputNoResult));
 	}
 
 	@Test
 	public void testToString() throws Exception {
 		assertThat(output.toString(), containsString("PrintStream"));
-		assertThat(output.toString(), containsString("println"));
+		assertThat(output.toString(), containsString("append"));
 		assertThat(output.toString(), containsString("Hello"));
+
+		assertThat(outputNoResult.toString(), containsString("PrintStream"));
+		assertThat(outputNoResult.toString(), containsString("println"));
+		assertThat(outputNoResult.toString(), containsString("Hello"));
 	}
 
 }

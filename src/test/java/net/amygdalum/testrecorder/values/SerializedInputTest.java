@@ -27,7 +27,8 @@ public class SerializedInputTest {
 	@Before
 	public void before() throws Exception {
 		input = new SerializedInput(42, BufferedReader.class, "readLine", String.class, literal("Hello"), new Type[0], new SerializedValue[0]);
-		inputNoResult = new SerializedInput(43, InputStream.class, "read", new Type[] {byte[].class, int.class, int.class}, new SerializedArray(byte.class), literal(int.class, 0), literal(int.class, 0));
+		inputNoResult = new SerializedInput(43, InputStream.class, "read", new Type[] { byte[].class, int.class, int.class }, new SerializedArray(byte.class), literal(int.class, 0),
+			literal(int.class, 0));
 	}
 
 	@Test
@@ -63,7 +64,7 @@ public class SerializedInputTest {
 	@Test
 	public void testGetResultType() throws Exception {
 		assertThat(input.getResultType(), sameInstance(String.class));
-		assertThat(inputNoResult.getResultType(), nullValue());
+		assertThat(inputNoResult.getResultType(), sameInstance(void.class));
 	}
 
 	@Test
@@ -74,6 +75,8 @@ public class SerializedInputTest {
 
 	@Test
 	public void testEquals() throws Exception {
+		inputNoResult.equals(
+			new SerializedInput(43, InputStream.class, "read", new Type[] { byte[].class, int.class, int.class }, new SerializedArray(byte.class), literal(int.class, 0), literal(int.class, 0)));
 		assertThat(input, satisfiesDefaultEquality()
 			.andEqualTo(new SerializedInput(42, BufferedReader.class, "readLine", String.class, literal("Hello"), new Type[0], new SerializedValue[0]))
 			.andNotEqualTo(inputNoResult)
@@ -82,8 +85,12 @@ public class SerializedInputTest {
 			.andNotEqualTo(new SerializedInput(42, BufferedReader.class, "read", String.class, literal("Hello"), new Type[0], new SerializedValue[0]))
 			.andNotEqualTo(new SerializedInput(42, BufferedReader.class, "readLine", Object.class, literal("Hello"), new Type[0], new SerializedValue[0]))
 			.andNotEqualTo(new SerializedInput(42, BufferedReader.class, "readLine", String.class, literal("Hello World"), new Type[0], new SerializedValue[0]))
-			.andNotEqualTo(new SerializedInput(42, BufferedReader.class, "readLine", String.class, literal("Hello"), new Type[]{int.class}, new SerializedValue[0]))
+			.andNotEqualTo(new SerializedInput(42, BufferedReader.class, "readLine", String.class, literal("Hello"), new Type[] { int.class }, new SerializedValue[0]))
 			.andNotEqualTo(new SerializedInput(42, BufferedReader.class, "readLine", String.class, literal("Hello"), new Type[0], literal("value"))));
+
+		assertThat(inputNoResult, satisfiesDefaultEquality()
+			.andEqualTo(new SerializedInput(43,     InputStream.class, "read",      new Type[] { byte[].class, int.class, int.class }, inputNoResult.getValues()))
+			.andNotEqualTo(input));
 	}
 
 	@Test

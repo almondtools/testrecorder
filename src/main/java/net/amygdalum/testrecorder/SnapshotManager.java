@@ -97,6 +97,10 @@ public class SnapshotManager {
 		current().inputVariables(object, method, paramTypes, args);
 	}
 
+	public void outputVariables(Object object, String method, Type resultType, Object result, Type[] paramTypes, Object... args) {
+		current().outputVariables(object, method, resultType, result, paramTypes, args);
+	}
+
 	public void outputVariables(Object object, String method, Type[] paramTypes, Object... args) {
 		current().outputVariables(object, method, paramTypes, args);
 	}

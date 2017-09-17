@@ -13,16 +13,12 @@ import static net.amygdalum.testrecorder.deserializers.Templates.annotation;
 import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignFieldStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
-import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethod;
 import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethodStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
-import static net.amygdalum.testrecorder.deserializers.Templates.callMethodChainStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethodStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.captureException;
-import static net.amygdalum.testrecorder.deserializers.Templates.classOf;
 import static net.amygdalum.testrecorder.deserializers.Templates.expressionStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.fieldAccess;
-import static net.amygdalum.testrecorder.deserializers.Templates.fieldDeclaration;
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
 import static net.amygdalum.testrecorder.deserializers.Templates.returnStatement;
 import static net.amygdalum.testrecorder.util.Types.baseType;
@@ -57,7 +53,6 @@ import java.util.stream.Stream;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.runner.RunWith;
 import org.stringtemplate.v4.ST;
 
 import net.amygdalum.testrecorder.ContextSnapshot.AnnotatedValue;
@@ -73,14 +68,10 @@ import net.amygdalum.testrecorder.hints.AnnotateGroupExpression;
 import net.amygdalum.testrecorder.hints.AnnotateTimestamp;
 import net.amygdalum.testrecorder.runtime.Throwables;
 import net.amygdalum.testrecorder.util.AnnotatedBy;
-import net.amygdalum.testrecorder.util.ExpectedOutput;
-import net.amygdalum.testrecorder.util.IORecorder;
 import net.amygdalum.testrecorder.util.Pair;
-import net.amygdalum.testrecorder.util.RecordOutput;
 import net.amygdalum.testrecorder.util.Triple;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
-import net.amygdalum.testrecorder.values.SerializedOutput;
 
 public class TestGenerator implements SnapshotConsumer {
 
@@ -93,7 +84,6 @@ public class TestGenerator implements SnapshotConsumer {
 		+ "<imports: {pkg | import <pkg>;\n}>"
 		+ "\n\n\n"
 		+ "@SuppressWarnings(\"unused\")\n"
-		+ "<runner>"
 		+ "public class <className> {\n"
 		+ "\n"
 		+ "  <fields; separator=\"\\n\">\n"
@@ -102,11 +92,6 @@ public class TestGenerator implements SnapshotConsumer {
 		+ "\n"
 		+ "  <methods; separator=\"\\n\">"
 		+ "\n}";
-
-	private static final String RUNNER = "@RunWith(<runner>.class)\n";
-
-	private static final String RECORDED_INPUT = "@RecordInput(value={<classes : {class | \"<class>\"};separator=\", \">}, signatures={<signatures : {sig | \"<sig>\"};separator=\", \">})\n";
-	private static final String RECORDED_OUTPUT = "@RecordOutput(value={<classes : {class | \"<class>\"};separator=\", \">}, signatures={<signatures : {sig | \"<sig>\"};separator=\", \">})\n";
 
 	private static final String BEFORE_TEMPLATE = "@Before\n"
 		+ "public void before() throws Exception {\n"
@@ -128,10 +113,6 @@ public class TestGenerator implements SnapshotConsumer {
 	private DeserializerFactory matcher;
 	private Map<ClassDescriptor, TestGeneratorContext> tests;
 	private Set<String> fields;
-	private Set<String> inputClasses;
-	private Set<String> outputClasses;
-	private Set<String> inputSignatures;
-	private Set<String> outputSignatures;
 
 	public TestGenerator() {
 		this.executor = Executors.newSingleThreadExecutor(new TestrecorderThreadFactory("$consume"));
@@ -141,10 +122,6 @@ public class TestGenerator implements SnapshotConsumer {
 
 		this.tests = synchronizedMap(new LinkedHashMap<>());
 		this.fields = new LinkedHashSet<>();
-		this.inputClasses = new LinkedHashSet<>();
-		this.outputClasses = new LinkedHashSet<>();
-		this.inputSignatures = new LinkedHashSet<>();
-		this.outputSignatures = new LinkedHashSet<>();
 	}
 
 	@Override
@@ -209,10 +186,6 @@ public class TestGenerator implements SnapshotConsumer {
 	public void clearResults() {
 		this.tests.clear();
 		this.fields = new LinkedHashSet<>();
-		this.inputClasses = new LinkedHashSet<>();
-		this.outputClasses = new LinkedHashSet<>();
-		this.inputSignatures = new LinkedHashSet<>();
-		this.outputSignatures = new LinkedHashSet<>();
 	}
 
 	private Path locateTestFile(Path dir, ClassDescriptor clazz) throws IOException {
@@ -247,7 +220,6 @@ public class TestGenerator implements SnapshotConsumer {
 
 		ST file = new ST(TEST_FILE);
 		file.add("package", context.getPackage());
-		file.add("runner", computeRunner());
 		file.add("className", computeClassName(clazz));
 		file.add("fields", fields);
 		file.add("before", computeBefore(context));
@@ -255,37 +227,6 @@ public class TestGenerator implements SnapshotConsumer {
 		file.add("imports", context.getImports());
 
 		return file.render();
-	}
-
-	private String computeRunner() {
-		if (outputClasses.isEmpty() && inputClasses.isEmpty()) {
-			return null;
-		}
-		ServiceLoader<TestRecorderAgentInitializer> loader = ServiceLoader.load(TestRecorderAgentInitializer.class);
-
-		for (TestRecorderAgentInitializer initializer : loader) {
-			if (!outputClasses.isEmpty()) {
-				outputClasses.add(initializer.getClass().getCanonicalName());
-			}
-			if (!inputClasses.isEmpty()) {
-				inputClasses.add(initializer.getClass().getCanonicalName());
-			}
-		}
-
-		ST runner = new ST(RUNNER);
-		runner.add("runner", IORecorder.class.getSimpleName());
-
-		ST recordedInput = new ST(RECORDED_INPUT);
-		recordedInput.add("classes", inputClasses);
-		recordedInput.add("signatures", inputSignatures);
-
-		ST recordedOutput = new ST(RECORDED_OUTPUT);
-		recordedOutput.add("classes", outputClasses);
-		recordedOutput.add("signatures", outputSignatures);
-
-		return runner.render()
-			+ (inputClasses.isEmpty() ? "" : recordedInput.render())
-			+ (outputClasses.isEmpty() ? "" : recordedOutput.render());
 	}
 
 	private String computeBefore(TestGeneratorContext context) {
@@ -353,7 +294,7 @@ public class TestGenerator implements SnapshotConsumer {
 		public MethodGenerator(ContextSnapshot snapshot, TestGeneratorContext context) {
 			this.snapshot = snapshot;
 			this.context = context;
-			this.mocked = new MockedInteractions(snapshot.getSetupInput(), snapshot.getExpectOutput());
+			this.mocked = new MockedInteractions(setup, matcher, snapshot.getSetupInput(), snapshot.getExpectOutput());
 			this.locals = new LocalVariableNameGenerator();
 			this.statements = new ArrayList<>();
 		}
@@ -361,37 +302,6 @@ public class TestGenerator implements SnapshotConsumer {
 		public MethodGenerator generateArrange() {
 			TypeManager types = context.getTypes();
 			statements.add(BEGIN_ARRANGE);
-
-			List<SerializedOutput> serializedOutput = snapshot.getExpectOutput();
-			if (serializedOutput != null && !serializedOutput.isEmpty()) {
-				types.registerTypes(RunWith.class, RecordOutput.class, IORecorder.class, ExpectedOutput.class);
-				fields.add(fieldDeclaration("public", ExpectedOutput.class.getSimpleName(), "expectedOutput"));
-
-				List<String> methods = new ArrayList<>();
-				for (SerializedOutput out : serializedOutput) {
-					types.registerImport(out.getDeclaringClass());
-					outputClasses.add(out.getDeclaringClass().getTypeName());
-					outputSignatures.add(out.getSignature());
-
-					List<Computation> args = Stream.of(out.getValues())
-						.map(arg -> arg.accept(matcher.create(locals, types)))
-						.collect(toList());
-
-					statements.addAll(args.stream()
-						.flatMap(arg -> arg.getStatements().stream())
-						.collect(toList()));
-
-					List<String> arguments = Stream.concat(
-						asList(classOf(out.getDeclaringClass().getSimpleName()), asLiteral(out.getName())).stream(),
-						args.stream()
-							.map(arg -> arg.getValue()))
-						.collect(toList());
-
-					methods.add(callLocalMethod("expect", arguments));
-				}
-				String outputExpectation = callMethodChainStatement("expectedOutput", methods);
-				statements.add(outputExpectation);
-			}
 
 			Deserializer<Computation> setupCode = setup.create(locals, types, mocked );
 			Computation setupThis = snapshot.getSetupThis() != null
@@ -475,14 +385,14 @@ public class TestGenerator implements SnapshotConsumer {
 
 			if (error == null) {
 				List<String> expectResult = Optional.ofNullable(snapshot.getExpectResult())
-					.map(o -> o.accept(matcher.create(locals, types), newContext(snapshot.getResultAnnotation())))
+					.map(o -> o.accept(matcher.create(locals, types, mocked), newContext(snapshot.getResultAnnotation())))
 					.map(o -> createAssertion(o, result))
 					.orElse(emptyList());
 
 				statements.addAll(expectResult);
 			} else {
 				List<String> expectResult = Optional.ofNullable(snapshot.getExpectException())
-					.map(o -> o.accept(matcher.create(locals, types)))
+					.map(o -> o.accept(matcher.create(locals, types, mocked)))
 					.map(o -> createAssertion(o, error))
 					.orElse(emptyList());
 
@@ -492,7 +402,7 @@ public class TestGenerator implements SnapshotConsumer {
 			boolean thisChanged = compare(snapshot.getSetupThis(), snapshot.getExpectThis());
 			SerializedValue snapshotExpectThis = snapshot.getExpectThis();
 			List<String> expectThis = Optional.ofNullable(snapshotExpectThis)
-				.map(o -> o.accept(matcher.create(locals, types)))
+				.map(o -> o.accept(matcher.create(locals, types, mocked)))
 				.map(o -> createAssertion(o, base, thisChanged))
 				.orElse(emptyList());
 
@@ -503,7 +413,7 @@ public class TestGenerator implements SnapshotConsumer {
 			Triple<AnnotatedValue, String, Boolean>[] arguments = Triple.zip(snapshotExpectArgs, args.toArray(new String[0]), argsChanged);
 			List<String> expectArgs = Stream.of(arguments)
 				.filter(arg -> !(arg.getElement1().value instanceof SerializedLiteral))
-				.map(arg -> new Triple<Computation, String, Boolean>(arg.getElement1().value.accept(matcher.create(locals, types), newContext(arg.getElement1().annotations)), arg.getElement2(), arg.getElement3()))
+				.map(arg -> new Triple<Computation, String, Boolean>(arg.getElement1().value.accept(matcher.create(locals, types, mocked), newContext(arg.getElement1().annotations)), arg.getElement2(), arg.getElement3()))
 				.filter(arg -> arg.getElement1() != null)
 				.map(arg -> createAssertion(arg.getElement1(), arg.getElement2(), arg.getElement3()))
 				.flatMap(statements -> statements.stream())
@@ -514,17 +424,12 @@ public class TestGenerator implements SnapshotConsumer {
 			Boolean[] globalsChanged = compare(snapshot.getExpectGlobals(), snapshot.getExpectGlobals());
 			SerializedField[] snashotExpectGlobals = snapshot.getExpectGlobals();
 			List<String> expectGlobals = IntStream.range(0, snashotExpectGlobals.length)
-				.mapToObj(i -> createAssertion(snashotExpectGlobals[i].getValue().accept(matcher.create(locals, types)),
+				.mapToObj(i -> createAssertion(snashotExpectGlobals[i].getValue().accept(matcher.create(locals, types, mocked)),
 					fieldAccess(types.getVariableTypeName(snashotExpectGlobals[i].getDeclaringClass()), snashotExpectGlobals[i].getName()), globalsChanged[i]))
 				.flatMap(statements -> statements.stream())
 				.collect(toList());
 
 			statements.addAll(expectGlobals);
-
-			List<SerializedOutput> serializedOutput = snapshot.getExpectOutput();
-			if (serializedOutput != null && !serializedOutput.isEmpty()) {
-				statements.add(callMethodStatement("expectedOutput", "verify"));
-			}
 
 			return this;
 		}

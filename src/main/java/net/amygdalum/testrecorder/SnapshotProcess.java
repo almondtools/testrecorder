@@ -59,12 +59,18 @@ public class SnapshotProcess {
 		input.add(new SerializedInput(id, clazz, method, paramTypes, facade.serialize(paramTypes, args)));
 	}
 
+	public void outputVariables(Object object, String method, Type resultType, Object result, Type[] paramTypes, Object[] args) {
+		Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
+		int id = object instanceof Class<?> ? 0 : identityHashCode(object);
+		output.add(new SerializedOutput(id, clazz, method, resultType, facade.serialize(resultType, result), paramTypes, facade.serialize(paramTypes, args)));
+	}
+
 	public void outputVariables(Object object, String method, Type[] paramTypes, Object[] args) {
 		Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
 		int id = object instanceof Class<?> ? 0 : identityHashCode(object);
 		output.add(new SerializedOutput(id, clazz, method, paramTypes, facade.serialize(paramTypes, args)));
 	}
-
+	
 	public void setupVariables(String signature, Object self, Object... args) {
 		modify(snapshot -> {
 			if (self != null) {

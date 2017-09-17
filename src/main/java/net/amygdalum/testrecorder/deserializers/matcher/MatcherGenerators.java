@@ -151,7 +151,16 @@ public class MatcherGenerators implements Deserializer<Computation> {
                 return new Computation(recursiveMatcher(types.getRawClass(Object.class)), parameterized(Matcher.class, null, wildcard()));
             }
         }
-        return adaptors.tryDeserialize(value, types, this, context);
+        Computation computation = adaptors.tryDeserialize(value, types, this, context);
+
+        if (mocked.hasInputInteractions(value)) {
+			computation = mocked.verifyInputInteractions(value, computation, locals, types);
+		}
+		if (mocked.hasOutputInteractions(value)) {
+			computation = mocked.verifyOutputInteractions(value, computation, locals, types);
+		}
+		
+		return computation;
     }
 
     @Override

@@ -101,7 +101,9 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	private static final String SnaphotManager_expectVariablesResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, EXPECT_VARIABLES, Object.class, Object.class, Object[].class);
 	private static final String SnaphotManager_expectVariablesNoResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, EXPECT_VARIABLES, Object.class, Object[].class);
 	private static final String SnaphotManager_throwVariables_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, THROW_VARIABLES, Object.class, Throwable.class, Object[].class);
-	private static final String SnaphotManager_outputVariables_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, OUTPUT_VARIABLES, Object.class, String.class,
+	private static final String SnaphotManager_outputVariablesResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, OUTPUT_VARIABLES, Object.class, String.class,
+		java.lang.reflect.Type.class, Object.class, java.lang.reflect.Type[].class, Object[].class);
+	private static final String SnaphotManager_outputVariablesNoResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, OUTPUT_VARIABLES, Object.class, String.class,
 		java.lang.reflect.Type[].class, Object[].class);
 	private static final String SnaphotManager_inputVariablesResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, INPUT_VARIABLES, Object.class, String.class,
 		java.lang.reflect.Type.class, Object.class, java.lang.reflect.Type[].class, Object[].class);
@@ -370,6 +372,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		Type ownerType = Type.getObjectType(inputCall.owner);
 		Type methodType = Type.getMethodType(inputCall.desc);
 		Type[] argumentTypes = methodType.getArgumentTypes();
+		Type[] returnType = methodType.getReturnType().getSize() == 0 ? new Type[0] : new Type[] {methodType.getReturnType()};
 
 		InsnList insnList = new InsnList();
 
@@ -383,6 +386,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		}
 		
 		int[] argumentVars = new int[argumentTypes.length];
+		int[] returnVars = new int[returnType.length];
 		
 		for (int i = 0; i < argumentVars.length; i++) {
 			Type type = argumentTypes[i];
@@ -395,13 +399,30 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		}
 		insnList.add(inputCall);
 
+		if (returnVars.length >= 1) {
+			Type type = returnType[0];
+			int newLocal = method.maxLocals++;
+			returnVars[0] = newLocal;
+			insnList.add(memorizeLocal(type, newLocal));
+		}
+		
 		insnList.add(new FieldInsnNode(GETSTATIC, SnapshotManager_name, SNAPSHOT_MANAGER_FIELD_NAME, SnaphotManager_descriptor));
 
 		insnList.add(new VarInsnNode(ALOAD, thisVar));
 		insnList.add(new LdcInsnNode(inputCall.name));
+		for (int i = 0; i < returnType.length; i++) {
+			Type type = returnType[i];
+			int result = returnVars[i];
+			insnList.add(pushType(type));
+			insnList.add(recallLocal(result));
+		}
 		insnList.add(pushTypes(argumentTypes));
 		insnList.add(pushAsArray(argumentVars, argumentTypes));
-		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapshotManager_name, OUTPUT_VARIABLES, SnaphotManager_outputVariables_descriptor, false));
+		if (returnType.length > 0) {
+			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapshotManager_name, OUTPUT_VARIABLES, SnaphotManager_outputVariablesResult_descriptor, false));
+		} else {
+			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapshotManager_name, OUTPUT_VARIABLES, SnaphotManager_outputVariablesNoResult_descriptor, false));
+		}
 
 		return insnList;
 	}

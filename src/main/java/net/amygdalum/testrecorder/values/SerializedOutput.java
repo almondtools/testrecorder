@@ -5,6 +5,7 @@ import static net.amygdalum.testrecorder.util.Types.baseType;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.SerializedValue;
@@ -15,13 +16,27 @@ public class SerializedOutput {
 	private int id;
 	private Class<?> clazz;
 	private String name;
+	private Type resultType;
+	private SerializedValue result;
 	private Type[] types;
 	private SerializedValue[] values;
+
+	public SerializedOutput(int id, Class<?> clazz, String name, Type resultType, SerializedValue result, Type[] types, SerializedValue... values) {
+		this.id = id;
+		this.clazz = clazz;
+		this.name = name;
+		this.resultType = resultType;
+		this.result = result;
+		this.types = types;
+		this.values = values;
+	}
 
 	public SerializedOutput(int id, Class<?> clazz, String name, Type[] types, SerializedValue... values) {
 		this.id = id;
 		this.clazz = clazz;
 		this.name = name;
+		this.resultType = void.class;
+		this.result = null;
 		this.types = types;
 		this.values = values;
 	}
@@ -44,6 +59,14 @@ public class SerializedOutput {
 		return name;
 	}
 
+	public Type getResultType() {
+		return resultType;
+	}
+
+	public SerializedValue getResult() {
+		return result;
+	}
+
 	public Type[] getTypes() {
 		return types;
 	}
@@ -64,6 +87,8 @@ public class SerializedOutput {
 	public int hashCode() {
 		return clazz.hashCode() * 37
 			+ name.hashCode() * 29
+			+ (resultType == null ? 0 : resultType.hashCode() * 17)
+			+ (result == null ? 0 : result.hashCode() * 13)
 			+ Arrays.hashCode(types) * 11
 			+ Arrays.hashCode(values);
 	}
@@ -83,6 +108,8 @@ public class SerializedOutput {
 		return this.id == that.id
 			&& this.clazz.equals(that.clazz)
 			&& this.name.equals(that.name)
+			&& this.resultType.equals(that.resultType)
+			&& Objects.equals(this.result,that.result)
 			&& Arrays.equals(this.types, that.types)
 			&& Arrays.equals(this.values, that.values);
 	}
