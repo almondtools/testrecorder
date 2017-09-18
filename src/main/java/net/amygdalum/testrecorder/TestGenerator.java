@@ -8,6 +8,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.synchronizedMap;
 import static java.util.stream.Collectors.toList;
+import static net.amygdalum.testrecorder.deserializers.Computation.variable;
 import static net.amygdalum.testrecorder.deserializers.DeserializerContext.newContext;
 import static net.amygdalum.testrecorder.deserializers.Templates.annotation;
 import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
@@ -306,7 +307,7 @@ public class TestGenerator implements SnapshotConsumer {
 			Deserializer<Computation> setupCode = setup.create(locals, types, mocked );
 			Computation setupThis = snapshot.getSetupThis() != null
 				? snapshot.getSetupThis().accept(setupCode)
-				: new Computation(types.getVariableTypeName(types.wrapHidden(snapshot.getThisType())), null, true);
+				: variable(types.getVariableTypeName(types.wrapHidden(snapshot.getThisType())), null);
 			statements.addAll(setupThis.getStatements());
 
 			AnnotatedValue[] snapshotSetupArgs = snapshot.getAnnotatedSetupArgs();
@@ -344,7 +345,7 @@ public class TestGenerator implements SnapshotConsumer {
 			String base = types.getVariableTypeName(clazz);
 			statements.add(assignFieldStatement(base, name, global.getValue()));
 			String value = fieldAccess(base, name);
-			return new Computation(value, global.getType(), true, statements);
+			return variable(value, global.getType(), statements);
 		}
 
 		public MethodGenerator generateAct() {

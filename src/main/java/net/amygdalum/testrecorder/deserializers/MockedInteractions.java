@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.deserializers;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
+import static net.amygdalum.testrecorder.deserializers.Computation.variable;
 import static net.amygdalum.testrecorder.deserializers.Templates.arrayLiteral;
 import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
@@ -115,11 +116,11 @@ public class MockedInteractions {
 		if (computation.isStored()) {
 			String var = computation.getValue();
 			statements.add(assignLocalVariableStatement(var, val));
-			return new Computation(var, computation.getType(), true, statements);
+			return variable(var, computation.getType(), statements);
 		} else {
 			String var = locals.fetchName(computation.getType());
 			statements.add(assignLocalVariableStatement(types.getVariableTypeName(computation.getType()), var, val));
-			return new Computation(var, computation.getType(), true, statements);
+			return variable(var, computation.getType(), statements);
 		}
 	}
 
@@ -189,11 +190,11 @@ public class MockedInteractions {
 		if (computation.isStored()) {
 			String var = computation.getValue();
 			statements.add(assignLocalVariableStatement(var, val));
-			return new Computation(var, computation.getType(), true, statements);
+			return variable(var, computation.getType(), statements);
 		} else {
 			String var = locals.fetchName(computation.getType());
 			statements.add(assignLocalVariableStatement(types.getVariableTypeName(computation.getType()), var, val));
-			return new Computation(var, computation.getType(), true, statements);
+			return variable(var, computation.getType(), statements);
 		}
 	}
 

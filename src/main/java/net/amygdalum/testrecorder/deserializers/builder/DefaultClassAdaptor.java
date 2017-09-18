@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
+import static net.amygdalum.testrecorder.deserializers.Computation.expression;
 import static net.amygdalum.testrecorder.util.Types.equalTypes;
 
 import java.lang.reflect.Type;
@@ -33,7 +34,7 @@ public class DefaultClassAdaptor extends DefaultSetupGenerator<SerializedImmutab
 
 		Class<?> clazz = value.getValue();
 
-		return new Computation(types.getRawClass(clazz), value.getResultType());
+		return expression(types.getRawClass(clazz), value.getResultType());
 	}
 
 }

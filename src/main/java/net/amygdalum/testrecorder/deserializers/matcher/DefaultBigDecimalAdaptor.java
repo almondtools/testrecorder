@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static java.util.Collections.emptyList;
+import static net.amygdalum.testrecorder.deserializers.Computation.expression;
 import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
 import static net.amygdalum.testrecorder.deserializers.Templates.equalToMatcher;
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
@@ -42,7 +43,7 @@ public class DefaultBigDecimalAdaptor extends DefaultMatcherGenerator<Serialized
 		String bigDecimalLiteral = newObject("BigDecimal", literal);
 
 		String equalToMatcher = equalToMatcher(bigDecimalLiteral);
-		return new Computation(equalToMatcher, parameterized(Matcher.class, null, value.getType()), emptyList());
+		return expression(equalToMatcher, parameterized(Matcher.class, null, value.getType()), emptyList());
 	}
 
 }

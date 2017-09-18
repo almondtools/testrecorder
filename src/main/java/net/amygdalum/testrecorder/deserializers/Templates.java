@@ -241,6 +241,7 @@ public final class Templates {
 	
 	public static String assignLocalVariableStatement(String name, String value) {
 		ST assign = new ST(ASSIGN_LOCAL_VARIABLE_STMT);
+		assign.add("type", null);
 		assign.add("name", name);
 		assign.add("value", value);
 		

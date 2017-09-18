@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static java.util.stream.Collectors.toList;
+import static net.amygdalum.testrecorder.deserializers.Computation.expression;
 import static net.amygdalum.testrecorder.deserializers.FieldNamingStrategy.ensureUniqueNames;
 import static net.amygdalum.testrecorder.deserializers.Templates.genericObjectMatcher;
 import static net.amygdalum.testrecorder.util.Types.baseType;
@@ -51,7 +52,7 @@ public class DefaultObjectAdaptor extends DefaultMatcherGenerator<SerializedObje
 
 		String matcherExpression = with(types).createMatcherExpression(value, fieldAssignments);
 
-		return new Computation(matcherExpression, resultType, fieldComputations);
+		return expression(matcherExpression, resultType, fieldComputations);
 	}
 
 	public TypesAware with(TypeManager types) {

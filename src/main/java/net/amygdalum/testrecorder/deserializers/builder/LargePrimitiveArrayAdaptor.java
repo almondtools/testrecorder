@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
+import static net.amygdalum.testrecorder.deserializers.Computation.expression;
 import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
 import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethod;
 import static net.amygdalum.testrecorder.util.Types.baseType;
@@ -7,7 +8,6 @@ import static net.amygdalum.testrecorder.util.Types.isLiteral;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Optional;
 
 import net.amygdalum.testrecorder.DeserializationException;
@@ -52,9 +52,8 @@ public class LargePrimitiveArrayAdaptor implements SetupGenerator<SerializedArra
                 Object object = unwrap(value);
                 String fileName = FileSerializer.store(loadFromFile.writeTo(), object);
                 String result = callLocalMethod("load", asLiteral(loadFromFile.readFrom()), asLiteral(fileName), types.getRawClass(value.getType()));
-                return new Computation(result, value.getResultType(), new ArrayList<>());
+                return expression(result, value.getResultType());
             }
-            ;
         }
         throw new DeserializationException(value.toString());
     }

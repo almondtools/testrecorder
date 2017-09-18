@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
+import static net.amygdalum.testrecorder.deserializers.Computation.expression;
 import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
 import static net.amygdalum.testrecorder.deserializers.Templates.fieldAccess;
@@ -36,13 +37,13 @@ public class DefaultEnumAdaptor extends DefaultSetupGenerator<SerializedEnum> im
 			String expression = callMethod(types.getRawTypeName(Wrapped.class), "enumType", typeArgument, asLiteral(value.getName()));
 			
 			expression = generator.adapt(expression, value.getResultType(), value.getType());
-			return new Computation(expression, value.getResultType());
+			return expression(expression, value.getResultType());
 		} else {
 			String typeName = types.getVariableTypeName(value.getType());
 			String name = value.getName();
 
 			String enumConstant = fieldAccess(typeName, name);
-			return new Computation(enumConstant, value.getResultType());
+			return expression(enumConstant, value.getResultType());
 		}
 	}
 

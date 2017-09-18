@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
+import static net.amygdalum.testrecorder.deserializers.Computation.expression;
 import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
@@ -17,7 +18,7 @@ public class DefaultLiteralAdaptor extends DefaultSetupGenerator<SerializedLiter
 	public Computation tryDeserialize(SerializedLiteral value, SetupGenerators generator, DeserializerContext context) {
 		Object literalValue = value.getValue();
 		String literal = asLiteral(literalValue);
-		return new Computation(literal, value.getResultType());
+		return expression(literal, value.getResultType());
 	}
 
 }

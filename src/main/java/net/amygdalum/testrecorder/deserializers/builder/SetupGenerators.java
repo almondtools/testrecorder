@@ -1,5 +1,7 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
+import static net.amygdalum.testrecorder.deserializers.Computation.expression;
+import static net.amygdalum.testrecorder.deserializers.Computation.variable;
 import static net.amygdalum.testrecorder.deserializers.DeserializerContext.newContext;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
@@ -158,7 +160,7 @@ public class SetupGenerators implements Deserializer<Computation> {
 		expression = adapt(expression, fieldResultType, valueTemplate.getType());
 
 		String assignField = assignLocalVariableStatement(types.getVariableTypeName(fieldResultType), field.getName(), expression);
-		return new Computation(assignField, null, statements);
+		return expression(assignField, null, statements);
 	}
 
 	@Override
@@ -167,14 +169,14 @@ public class SetupGenerators implements Deserializer<Computation> {
 			LocalVariable definition = defined.get(value);
 			String name = definition.getName();
 			if (definition.isDefined()) {
-				return new Computation(name, definition.getType(), true);
+				return variable(name, definition.getType());
 			} else {
 				List<String> statements = new ArrayList<>();
 				String forwardExpression = callMethod(types.getVariableTypeName(GenericObject.class), "forward", types.getRawClass(value.getType()));
 				Type resultType = types.wrapHidden(value.getType());
 				statements.add(assignLocalVariableStatement(types.getRawTypeName(resultType), name, forwardExpression));
 				definition.define(resultType);
-				return new Computation(name, resultType, true, statements);
+				return variable(name, resultType, statements);
 			}
 		}
 		Computation computation = adaptors.tryDeserialize(value, types, this, context);

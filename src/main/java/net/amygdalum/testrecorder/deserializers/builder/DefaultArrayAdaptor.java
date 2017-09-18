@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static java.util.stream.Collectors.toList;
+import static net.amygdalum.testrecorder.deserializers.Computation.variable;
 import static net.amygdalum.testrecorder.deserializers.Templates.arrayLiteral;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 
@@ -42,7 +43,7 @@ public class DefaultArrayAdaptor extends DefaultSetupGenerator<SerializedArray> 
 
 			statements.add(assignLocalVariableStatement(types.getVariableTypeName(value.getResultType()), local.getName(), arrayLiteral));
 
-			return new Computation(local.getName(), value.getResultType(), statements);
+			return variable(local.getName(), value.getResultType(), statements);
 		});
 	}
 

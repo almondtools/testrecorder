@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static java.util.stream.Collectors.toList;
+import static net.amygdalum.testrecorder.deserializers.Computation.variable;
 import static net.amygdalum.testrecorder.deserializers.FieldNamingStrategy.ensureUniqueNames;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethodStatement;
@@ -57,7 +58,7 @@ public class DefaultObjectAdaptor extends DefaultSetupGenerator<SerializedObject
                 statements.add(assignLocalVariableStatement(types.getRawTypeName(effectiveResultType), definition.getName(), genericObject));
             }
 
-            return new Computation(definition.getName(), effectiveResultType, statements);
+            return variable(definition.getName(), effectiveResultType, statements);
         });
     }
 

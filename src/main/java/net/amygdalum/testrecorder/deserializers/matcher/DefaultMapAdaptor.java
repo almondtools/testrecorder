@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
+import static net.amygdalum.testrecorder.deserializers.Computation.expression;
 import static net.amygdalum.testrecorder.deserializers.Templates.containsEntriesMatcher;
 import static net.amygdalum.testrecorder.deserializers.Templates.noEntriesMatcher;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
@@ -47,7 +48,7 @@ public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> im
 
 			String noEntriesMatcher = noEntriesMatcher(keyType, valueType);
 
-			return new Computation(noEntriesMatcher, parameterized(Matcher.class, null, wildcard()), emptyList());
+			return expression(noEntriesMatcher, parameterized(Matcher.class, null, wildcard()), emptyList());
 		} else {
 			types.staticImport(MapMatcher.class, "containsEntries");
 			types.registerTypes(mapKeyType, mapValueType);
@@ -67,7 +68,7 @@ public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> im
 				.collect(toList());
 
 			String containsEntriesMatcher = containsEntriesMatcher(keyType, valueType, entryValues);
-			return new Computation(containsEntriesMatcher, parameterized(Matcher.class, null, wildcard()), entryStatements);
+			return expression(containsEntriesMatcher, parameterized(Matcher.class, null, wildcard()), entryStatements);
 		}
 	}
 

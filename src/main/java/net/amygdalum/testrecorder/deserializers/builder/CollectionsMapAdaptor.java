@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.deserializers.builder;
 
 import static java.util.Arrays.asList;
 import static net.amygdalum.testrecorder.TypeFilters.startingWith;
+import static net.amygdalum.testrecorder.deserializers.Computation.variable;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethod;
 import static net.amygdalum.testrecorder.util.Types.equalTypes;
@@ -97,7 +98,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 
 			String decoratingStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod(factoryMethod));
 
-			return new Computation(local.getName(), resultType, asList(decoratingStatement));
+			return variable(local.getName(), resultType, asList(decoratingStatement));
 		});
 	}
 
@@ -132,7 +133,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 			String decoratingStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod(factoryMethod, resultKey, resultValue));
 			statements.add(decoratingStatement);
 
-			return new Computation(local.getName(), resultType, statements);
+			return variable(local.getName(), resultType, statements);
 		});
 
 	}
@@ -160,7 +161,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 			String decoratingStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase));
 			statements.add(decoratingStatement);
 
-			return new Computation(local.getName(), resultType, statements);
+			return variable(local.getName(), resultType, statements);
 		});
 
 	}
@@ -188,7 +189,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 			String decoratingStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase));
 			statements.add(decoratingStatement);
 
-			return new Computation(local.getName(), resultType, statements);
+			return variable(local.getName(), resultType, statements);
 		});
 
 	}
@@ -218,7 +219,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 			String decoratingStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase, checkedKeyType, checkedValueType));
 			statements.add(decoratingStatement);
 
-			return new Computation(local.getName(), resultType, statements);
+			return variable(local.getName(), resultType, statements);
 		});
 	}
 

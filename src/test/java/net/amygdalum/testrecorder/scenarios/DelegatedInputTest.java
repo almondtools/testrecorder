@@ -9,7 +9,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import net.amygdalum.testrecorder.TestGenerator;
-import net.amygdalum.testrecorder.util.Debug;
 import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
 
@@ -41,7 +40,7 @@ public class DelegatedInputTest {
 		input1.combine(input2);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(Debug.print(testGenerator.renderTest(DelegatedInput.class)), testsRun(DelegatedInput.class));
+		assertThat(testGenerator.renderTest(DelegatedInput.class), testsRun(DelegatedInput.class));
 	}
 	
 }

@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static net.amygdalum.testrecorder.TypeFilters.in;
+import static net.amygdalum.testrecorder.deserializers.Computation.variable;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethod;
 import static net.amygdalum.testrecorder.util.Types.array;
@@ -73,7 +74,7 @@ public class ArraysListAdaptor implements SetupGenerator<SerializedList> {
             String asListStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod("asList", resultArray));
             statements.add(asListStatement);
 
-            return new Computation(local.getName(), value.getResultType(), statements);
+            return variable(local.getName(), value.getResultType(), statements);
         });
     }
 

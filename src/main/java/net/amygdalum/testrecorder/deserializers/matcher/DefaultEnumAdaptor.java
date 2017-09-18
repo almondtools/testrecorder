@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static java.util.Collections.emptyList;
+import static net.amygdalum.testrecorder.deserializers.Computation.expression;
 import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
 import static net.amygdalum.testrecorder.deserializers.Templates.enumMatcher;
 import static net.amygdalum.testrecorder.deserializers.Templates.fieldAccess;
@@ -54,14 +55,14 @@ public class DefaultEnumAdaptor extends DefaultMatcherGenerator<SerializedEnum> 
 			if (!Enum.class.isAssignableFrom(baseType(value.getResultType()))) {
 				enumMatcher = widening(enumMatcher); 
 			}
-			return new Computation(enumMatcher, parameterized(Matcher.class, null, wildcardExtends(Enum.class)), emptyList());
+			return expression(enumMatcher, parameterized(Matcher.class, null, wildcardExtends(Enum.class)), emptyList());
 		} else {
 			String typeName = types.getVariableTypeName(type);
 			String name = value.getName();
 
 			String matchingValue = fieldAccess(typeName, name);
 			String enumMatcher = sameInstanceMatcher(matchingValue);
-			return new Computation(enumMatcher, parameterized(Matcher.class, null, type), emptyList());
+			return expression(enumMatcher, parameterized(Matcher.class, null, type), emptyList());
 		}
 	}
 

@@ -92,13 +92,16 @@ public class ConstructorParam {
         SerializedValue serializedValue = computeSerializedValue();
         Computation computation = serializedValue.accept(generator);
         String value = computation.getValue();
+        boolean stored = computation.isStored();
         
         if (generator.needsAdaptation(type, computation.getType()))  {
             value = generator.adapt(value, type, computation.getType());
+            stored = true;
         } else if (castNeeded()) {
             value = cast(types.getVariableTypeName(type), value);
+            stored = true;
         }
-        computation = new Computation(value, type, computation.getStatements());
+        computation = new Computation(value, type, stored, computation.getStatements());
 
         return computation;
     }

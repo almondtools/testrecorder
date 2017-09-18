@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.matcher;
 
+import static net.amygdalum.testrecorder.deserializers.Computation.expression;
 import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
 import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethod;
 import static net.amygdalum.testrecorder.deserializers.Templates.equalToMatcher;
@@ -8,7 +9,6 @@ import static net.amygdalum.testrecorder.util.Types.isLiteral;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Optional;
 
 import org.hamcrest.Matcher;
@@ -58,7 +58,7 @@ public class LargePrimitiveArrayAdaptor implements MatcherGenerator<SerializedAr
                 String fileName = FileSerializer.store(loadFromFile.writeTo(), object);
                 String result = callLocalMethod("load", asLiteral(loadFromFile.readFrom()), asLiteral(fileName), types.getRawClass(value.getType()));
                 String matcher = equalToMatcher(result); 
-                return new Computation(matcher, Matcher.class, new ArrayList<>());
+                return expression(matcher, Matcher.class);
             };
         }
         throw new DeserializationException(value.toString());

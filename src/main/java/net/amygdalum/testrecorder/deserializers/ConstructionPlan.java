@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.deserializers;
 
 import static java.util.stream.Collectors.toList;
+import static net.amygdalum.testrecorder.deserializers.Computation.variable;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethodStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
@@ -76,7 +77,7 @@ public class ConstructionPlan implements Comparable<ConstructionPlan> {
             statements.add(setStatement);
         }
 
-        return new Computation(var.getName(), var.getType(), true, statements);
+        return variable(var.getName(), var.getType(), statements);
     }
 
     @Override

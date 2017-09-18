@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
+import static net.amygdalum.testrecorder.deserializers.Computation.expression;
 import static net.amygdalum.testrecorder.deserializers.Templates.containsInOrderMatcher;
 import static net.amygdalum.testrecorder.deserializers.Templates.emptyMatcher;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
@@ -38,7 +39,7 @@ public class DefaultSequenceAdaptor extends DefaultMatcherGenerator<SerializedLi
 		if (value.isEmpty()) {
 			types.staticImport(Matchers.class, "empty");
 
-			return new Computation(emptyMatcher(), parameterized(Matcher.class, null, wildcard()), emptyList());
+			return expression(emptyMatcher(), parameterized(Matcher.class, null, wildcard()), emptyList());
 		} else {
 			types.staticImport(ContainsInOrderMatcher.class, "containsInOrder");
 
@@ -57,7 +58,7 @@ public class DefaultSequenceAdaptor extends DefaultMatcherGenerator<SerializedLi
 	        String elementType = types.getRawTypeName(componentType);
 			String containsMatcher = containsInOrderMatcher(elementType, elementValues);
 
-			return new Computation(containsMatcher, parameterized(Matcher.class, null, wildcard()), elementComputations);
+			return expression(containsMatcher, parameterized(Matcher.class, null, wildcard()), elementComputations);
 		}
 	}
 

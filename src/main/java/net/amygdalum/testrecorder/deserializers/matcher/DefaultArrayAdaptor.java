@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static java.util.stream.Collectors.toList;
+import static net.amygdalum.testrecorder.deserializers.Computation.expression;
 import static net.amygdalum.testrecorder.deserializers.Templates.arrayContainingMatcher;
 import static net.amygdalum.testrecorder.deserializers.Templates.arrayEmptyMatcher;
 import static net.amygdalum.testrecorder.deserializers.Templates.primitiveArrayContainingMatcher;
@@ -55,13 +56,13 @@ public class DefaultArrayAdaptor extends DefaultMatcherGenerator<SerializedArray
 				.toArray(String[]::new);
 
 			String primitiveArrayContainingMatcher = primitiveArrayContainingMatcher(name, elementValues);
-			return new Computation(primitiveArrayContainingMatcher, parameterized(Matcher.class, null, wildcard()), elementComputations);
+			return expression(primitiveArrayContainingMatcher, parameterized(Matcher.class, null, wildcard()), elementComputations);
 		} else {
 			if (value.getArrayAsList().isEmpty()) {
 				types.staticImport(IsArrayWithSize.class, "emptyArray");
 
 				String arrayEmptyMatcher = arrayEmptyMatcher();
-				return new Computation(arrayEmptyMatcher, parameterized(Matcher.class, null, wildcard()));
+				return expression(arrayEmptyMatcher, parameterized(Matcher.class, null, wildcard()));
 			} else {
 				types.staticImport(ArrayMatcher.class, "arrayContaining");
 				String name = types.getRawTypeName(componentType);
@@ -79,7 +80,7 @@ public class DefaultArrayAdaptor extends DefaultMatcherGenerator<SerializedArray
 					.toArray(String[]::new);
 
 				String arrayContainingMatcher = arrayContainingMatcher(name, elementValues);
-				return new Computation(arrayContainingMatcher, parameterized(Matcher.class, null, wildcard()), elementComputations);
+				return expression(arrayContainingMatcher, parameterized(Matcher.class, null, wildcard()), elementComputations);
 			}
 		}
 	}

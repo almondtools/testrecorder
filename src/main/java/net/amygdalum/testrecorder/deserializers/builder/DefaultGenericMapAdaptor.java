@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static java.util.stream.Collectors.toList;
+import static net.amygdalum.testrecorder.deserializers.Computation.variable;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethodStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
@@ -104,7 +105,7 @@ public abstract class DefaultGenericMapAdaptor<T extends SerializedReferenceType
 
             if (definition.isDefined() && !definition.isReady()) {
                 statements.add(callMethodStatement(definition.getName(), "putAll", tempVar));
-                return new Computation(definition.getName(), definition.getType(), true, statements);
+                return variable(definition.getName(), definition.getType(), statements);
             } else if (generator.needsAdaptation(effectiveResultType, temporaryType)) {
                 tempVar = generator.adapt(tempVar, effectiveResultType, temporaryType);
                 statements.add(assignLocalVariableStatement(types.getVariableTypeName(effectiveResultType), definition.getName(), tempVar));
@@ -112,7 +113,7 @@ public abstract class DefaultGenericMapAdaptor<T extends SerializedReferenceType
                 statements.add(assignLocalVariableStatement(types.getVariableTypeName(effectiveResultType), definition.getName(), tempVar));
             }
 
-            return new Computation(definition.getName(), effectiveResultType, true, statements);
+            return variable(definition.getName(), effectiveResultType, statements);
         });
     }
 

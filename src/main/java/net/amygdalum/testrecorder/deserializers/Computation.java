@@ -6,24 +6,12 @@ import java.util.List;
 
 public class Computation {
 
-	public static final Computation NULL = new Computation("", null);
+	public static final Computation NULL = new Computation("", null, false, new ArrayList<>());
 	
 	private List<String> statements;
 	private String value;
 	private Type type;
 	private boolean stored;
-
-	public Computation(String value, Type type) {
-		this(value, type, false, new ArrayList<>());
-	}
-
-	public Computation(String value, Type type, boolean stored) {
-		this(value, type, stored, new ArrayList<>());
-	}
-
-	public Computation(String value, Type type, List<String> statements) {
-		this(value, type, false, statements);
-	}
 
 	public Computation(String value, Type type, boolean stored, List<String> statements) {
 		this.value = value;
@@ -32,6 +20,22 @@ public class Computation {
 		this.statements = statements;
 	}
 	
+	public static Computation expression(String value, Type type) {
+		return new Computation(value, type, false, new ArrayList<>());
+	}
+	
+	public static Computation expression(String value, Type type, List<String> statements) {
+		return new Computation(value, type, false, statements);
+	}
+	
+	public static Computation variable(String value, Type type) {
+		return new Computation(value, type, true, new ArrayList<>());
+	}
+
+	public static Computation variable(String value, Type type, List<String> statements) {
+		return new Computation(value, type, true, statements);
+	}
+
 	public String getValue() {
 		return value;
 	}

@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static java.util.Collections.emptyList;
+import static net.amygdalum.testrecorder.deserializers.Computation.expression;
 import static net.amygdalum.testrecorder.deserializers.Templates.equalToMatcher;
 import static net.amygdalum.testrecorder.util.Types.equalTypes;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
@@ -37,7 +38,7 @@ public class DefaultClassAdaptor extends DefaultMatcherGenerator<SerializedImmut
 		Class<?> clazz = value.getValue();
 
 		String equalToMatcher = equalToMatcher(types.getRawClass(clazz));
-		return new Computation(equalToMatcher, parameterized(Matcher.class, null, value.getType()), emptyList());
+		return expression(equalToMatcher, parameterized(Matcher.class, null, value.getType()), emptyList());
 	}
 
 }

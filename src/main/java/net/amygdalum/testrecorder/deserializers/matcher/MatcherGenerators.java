@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.matcher;
 
+import static net.amygdalum.testrecorder.deserializers.Computation.expression;
 import static net.amygdalum.testrecorder.deserializers.DeserializerContext.newContext;
 import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
@@ -91,9 +92,9 @@ public class MatcherGenerators implements Deserializer<Computation> {
 
     public Computation simpleMatcher(SerializedValue element, DeserializerContext context) {
         if (element instanceof SerializedNull) {
-            return new Computation("null", element.getResultType());
+            return expression("null", element.getResultType());
         } else if (element instanceof SerializedLiteral) {
-            return new Computation(asLiteral(((SerializedLiteral) element).getValue()), element.getResultType());
+            return expression(asLiteral(((SerializedLiteral) element).getValue()), element.getResultType());
         } else {
             return element.accept(this, context);
         }
@@ -105,9 +106,9 @@ public class MatcherGenerators implements Deserializer<Computation> {
 
     public Computation simpleValue(SerializedValue element, DeserializerContext context) {
         if (element instanceof SerializedNull) {
-            return new Computation("null", element.getResultType());
+            return expression("null", element.getResultType());
         } else if (element instanceof SerializedLiteral) {
-            return new Computation(asLiteral(((SerializedLiteral) element).getValue()), element.getResultType());
+            return expression(asLiteral(((SerializedLiteral) element).getValue()), element.getResultType());
         } else {
             return element.accept(this, context);
         }
@@ -124,7 +125,7 @@ public class MatcherGenerators implements Deserializer<Computation> {
             Computation value = simpleValue(fieldValue, fieldContext);
 
             String assignField = assignLocalVariableStatement(types.getRawTypeName(field.getType()), field.getName(), value.getValue());
-            return new Computation(assignField, null, value.getStatements());
+            return expression(assignField, null, value.getStatements());
         } else {
             types.registerImport(Matcher.class);
             Computation value = fieldValue.accept(this, fieldContext);
@@ -132,7 +133,7 @@ public class MatcherGenerators implements Deserializer<Computation> {
             String genericType = types.getVariableTypeName(parameterized(Matcher.class, null, wildcard()));
 
             String assignField = assignLocalVariableStatement(genericType, field.getName(), value.getValue());
-            return new Computation(assignField, null, value.getStatements());
+            return expression(assignField, null, value.getStatements());
         }
     }
 
@@ -144,11 +145,11 @@ public class MatcherGenerators implements Deserializer<Computation> {
             types.staticImport(GenericMatcher.class, "recursive");
             Type resultType = value.getResultType().equals(value.getType()) ? parameterized(Matcher.class, null, value.getResultType()) : parameterized(Matcher.class, null, wildcard());
             if (!types.isHidden(value.getType())) {
-                return new Computation(recursiveMatcher(types.getRawClass(value.getType())), resultType);
+                return expression(recursiveMatcher(types.getRawClass(value.getType())), resultType);
             } else if (!types.isHidden(value.getResultType())) {
-                return new Computation(recursiveMatcher(types.getRawClass(value.getResultType())), resultType);
+                return expression(recursiveMatcher(types.getRawClass(value.getResultType())), resultType);
             } else {
-                return new Computation(recursiveMatcher(types.getRawClass(Object.class)), parameterized(Matcher.class, null, wildcard()));
+                return expression(recursiveMatcher(types.getRawClass(Object.class)), parameterized(Matcher.class, null, wildcard()));
             }
         }
         Computation computation = adaptors.tryDeserialize(value, types, this, context);
