@@ -117,7 +117,7 @@ public class ScheduledTestGenerator extends TestGenerator {
 
 	@Override
 	public void accept(ContextSnapshot snapshot) {
-        if (counterMaximum < 0 || counter >= counterMaximum) {
+        if (counterMaximum > 0 && counter >= counterMaximum) {
             return;
         }
         counter++;
