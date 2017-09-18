@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
@@ -22,11 +21,6 @@ public class ExtendingSerializationProfileTest {
         defaultProfile = mock(SerializationProfile.class);
         profile = mock(SerializationProfile.class);
         extendingSerializationProfile = new ExtendingSerializationProfile(profile, defaultProfile);
-    }
-
-    @Test
-    public void testInherit() throws Exception {
-        assertThat(extendingSerializationProfile.inherit(), is(false));
     }
 
     @Test

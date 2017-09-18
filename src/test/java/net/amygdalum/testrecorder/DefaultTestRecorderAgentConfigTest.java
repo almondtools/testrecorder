@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
@@ -23,11 +22,6 @@ public class DefaultTestRecorderAgentConfigTest {
         config = new DefaultTestRecorderAgentConfig();
     }
     
-    @Test
-    public void testInherit() throws Exception {
-        assertThat(config.inherit(), is(false));
-    }
-
     @SuppressWarnings("unchecked")
     @Test
     public void testGetFieldExclusions() throws Exception {

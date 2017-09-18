@@ -2,7 +2,6 @@ package net.amygdalum.testrecorder;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -22,11 +21,6 @@ public class DefaultingSerializationProfileTest {
         defaultProfile = new DefaultTestRecorderAgentConfig();
         profile = mock(SerializationProfile.class);
         defaultingSerializationProfile = new DefaultingSerializationProfile(profile, defaultProfile);
-    }
-
-    @Test
-    public void testInherit() throws Exception {
-        assertThat(defaultingSerializationProfile.inherit(), is(false));
     }
 
     @Test

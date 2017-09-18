@@ -23,11 +23,6 @@ public class DefaultTestRecorderAgentConfig implements TestRecorderAgentConfig {
     public static final List<Methods> OUTPUT = emptyList();
 
     @Override
-    public boolean inherit() {
-        return false;
-    }
-
-    @Override
     public List<Fields> getFieldExclusions() {
         return DEFAULT_FIELD_EXCLUDES;
     }

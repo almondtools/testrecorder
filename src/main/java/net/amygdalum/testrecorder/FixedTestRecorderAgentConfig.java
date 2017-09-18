@@ -31,11 +31,6 @@ public class FixedTestRecorderAgentConfig implements TestRecorderAgentConfig {
 		this.packages = config.getPackages();
 	}
 
-    @Override
-    public boolean inherit() {
-        return false;
-    }
-
 	@Override
 	public List<Fields> getFieldExclusions() {
 		return fieldExclusions;

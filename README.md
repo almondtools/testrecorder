@@ -50,8 +50,8 @@ Write a java configuration file that implements `TestRecorderAgentConfig`. For e
         }
         
         @Override
-        public List<String> getPackages() {
-            return asList("com.almondtools.testrecorder.examples");
+        public List<Packages> getPackages() {
+            return asList(Packages.byName("com.almondtools.testrecorder.examples"));
         }
     
     }

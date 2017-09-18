@@ -13,11 +13,6 @@ public class DefaultingSerializationProfile implements SerializationProfile {
     }
 
     @Override
-    public boolean inherit() {
-        return false;
-    }
-
-    @Override
     public List<Fields> getFieldExclusions() {
         List<Fields> fieldExclusions = profile.getFieldExclusions();
         if (fieldExclusions == null) {

@@ -14,11 +14,6 @@ public class ExtendingSerializationProfile implements SerializationProfile {
     }
 
     @Override
-    public boolean inherit() {
-        return false;
-    }
-
-    @Override
     public List<Fields> getFieldExclusions() {
         List<Fields> fieldExclusions = new ArrayList<>();
 
