@@ -626,7 +626,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 		insnList.add(new LdcInsnNode(keySignature(classNode, methodNode)));
 
-		insnList.add(pushAsArray(arguments, argumentTypes));
+		insnList.add(pushAsArray(arguments));
 
 		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapshotManager_name, SETUP_VARIABLES, SnaphotManager_setupVariables_descriptor, false));
 
@@ -662,7 +662,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		if (returnType.getSize() > 0) {
 			insnList.add(recallLocal(newLocal));
 		}
-		insnList.add(pushAsArray(arguments, argumentTypes));
+		insnList.add(pushAsArray(arguments));
 
 		if (returnType.getSize() > 0) {
 			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapshotManager_name, EXPECT_VARIABLES, SnaphotManager_expectVariablesResult_descriptor, false));
@@ -695,7 +695,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 		insnList.add(new InsnNode(SWAP));
 
-		insnList.add(pushAsArray(arguments, argumentTypes));
+		insnList.add(pushAsArray(arguments));
 
 		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapshotManager_name, THROW_VARIABLES, SnaphotManager_throwVariables_descriptor, false));
 

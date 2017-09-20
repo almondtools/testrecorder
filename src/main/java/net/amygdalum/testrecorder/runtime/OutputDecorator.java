@@ -20,6 +20,8 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import net.amygdalum.testrecorder.util.Types;
+
 public class OutputDecorator<T> {
 	
 	private static final Map<Integer, Map<Method, List<InvocationData>>> invocations = new LinkedHashMap<>();
@@ -45,11 +47,11 @@ public class OutputDecorator<T> {
 		return this;
 	}
 
-	private Method resolveMethod(String method, Class<?>[] argTypes) {
+	private Method resolveMethod(String method, Class<?>[] parameterTypes) {
 		try {
-			return o.getClass().getDeclaredMethod(method, argTypes);
+			return Types.getDeclaredMethod(o.getClass(), method, parameterTypes);
 		} catch (ReflectiveOperationException e) {
-			throw new InputDecoratorException(e);
+			throw new OutputDecoratorException(e);
 		}
 	}
 
@@ -88,7 +90,7 @@ public class OutputDecorator<T> {
 						.toArray(Object[]::new);
 					method.invoke(mock, args);
 				} catch (ReflectiveOperationException e) {
-					throw new InputDecoratorException(e);
+					throw new OutputDecoratorException(e);
 				}
 			}
 		}

@@ -17,6 +17,8 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import net.amygdalum.testrecorder.util.Types;
+
 public class InputDecorator<T> {
 
 	private T o;
@@ -44,10 +46,10 @@ public class InputDecorator<T> {
 		return this;
 	}
 
-	private Method resolveMethod(String method, Class<?>[] argTypes) {
+	private Method resolveMethod(String method, Class<?>[] parameterTypes) {
 		try {
-			return o.getClass().getDeclaredMethod(method, argTypes);
-		} catch (ReflectiveOperationException e) {
+			return Types.getDeclaredMethod(o.getClass(), method, parameterTypes);
+		} catch (NoSuchMethodException e) {
 			throw new InputDecoratorException(e);
 		}
 	}

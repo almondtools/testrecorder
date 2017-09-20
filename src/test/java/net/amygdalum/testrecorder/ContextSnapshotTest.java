@@ -129,6 +129,8 @@ public class ContextSnapshotTest {
         }, new Type[]{Integer.class});
 
         assertThat(snapshot.getResultAnnotation(), arrayContaining(instanceOf(Anno.class)));
+        assertThat(snapshot.getMethodAnnotation(Anno.class).get().value(), equalTo("result"));
+        assertThat(snapshot.getMethodAnnotation(NoAnno.class).isPresent(), is(false));
         assertThat(((Anno) snapshot.getResultAnnotation()[0]).value(), equalTo("result"));
         assertThat(snapshot.getArgumentAnnotations(), arrayWithSize(1));
         assertThat(snapshot.getArgumentAnnotations()[0], arrayContaining(instanceOf(Anno.class)));
@@ -146,7 +148,8 @@ public class ContextSnapshotTest {
         snapshot.setSetupArgs(literal(int.class, 42));
 
         assertThat(snapshot.getAnnotatedSetupArgs(), arrayWithSize(1));
-        assertThat(snapshot.getAnnotatedSetupArgs()[0].annotations, arrayWithSize(1));
+        assertThat(snapshot.getAnnotatedSetupArgs()[0].getAnnotation(Anno.class).get().value(), equalTo("arg"));
+        assertThat(snapshot.getAnnotatedSetupArgs()[0].getAnnotation(NoAnno.class).isPresent(), is(false));
         assertThat(snapshot.getAnnotatedSetupArgs()[0].value, equalTo(literal(int.class, 42)));
     }    
 
@@ -161,7 +164,8 @@ public class ContextSnapshotTest {
         snapshot.setExpectArgs(literal(int.class, 42));
 
         assertThat(snapshot.getAnnotatedExpectArgs(), arrayWithSize(1));
-        assertThat(snapshot.getAnnotatedExpectArgs()[0].annotations, arrayWithSize(1));
+        assertThat(snapshot.getAnnotatedExpectArgs()[0].getAnnotation(Anno.class).get().value(), equalTo("arg"));
+        assertThat(snapshot.getAnnotatedExpectArgs()[0].getAnnotation(NoAnno.class).isPresent(), is(false));
         assertThat(snapshot.getAnnotatedExpectArgs()[0].value, equalTo(literal(int.class, 42)));
     }
 
@@ -195,6 +199,10 @@ public class ContextSnapshotTest {
     }
     
     @interface Anno {
+        String value();
+    }
+
+    @interface NoAnno {
         String value();
     }
 

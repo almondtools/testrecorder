@@ -27,6 +27,7 @@ import net.amygdalum.testrecorder.util.Instantiations;
 import net.amygdalum.testrecorder.util.NonDefaultValue;
 import net.amygdalum.testrecorder.util.NonNullValue;
 import net.amygdalum.testrecorder.util.Params;
+import net.amygdalum.testrecorder.util.Types;
 
 public abstract class GenericObject {
 
@@ -243,18 +244,10 @@ public abstract class GenericObject {
         }
         String className = name.substring(0, nameSeparatorPos).replace('$', '.');
         String fieldName = name.substring(nameSeparatorPos + 1);
-        Class<?> current = clazz;
-        while (current != Object.class) {
-            if (current.getCanonicalName() != null && current.getCanonicalName().equals(className) || current.getSimpleName().equals(className)) {
-                try {
-                    return Optional.of(current.getDeclaredField(fieldName));
-                } catch (NoSuchFieldException e) {
-                    continue;
-                }
-            }
-            current = current.getSuperclass();
-        }
-        return Optional.empty();
+        return Types.getDeclaredFields(clazz, fieldName).stream()
+        	.filter(field -> field.getDeclaringClass().getCanonicalName() != null)
+        	.filter(field -> field.getDeclaringClass().getCanonicalName().equals(className) || field.getDeclaringClass().getSimpleName().equals(className))
+        	.findFirst();
     }
 
 }

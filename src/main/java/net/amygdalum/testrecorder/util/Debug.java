@@ -1,10 +1,11 @@
 package net.amygdalum.testrecorder.util;
 
+import java.util.List;
+
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.util.Printer;
-import org.objectweb.asm.util.Textifier;
-import org.objectweb.asm.util.TraceMethodVisitor;
+
+import net.amygdalum.testrecorder.ByteCode;
 
 public final class Debug {
 
@@ -13,18 +14,14 @@ public final class Debug {
 	}
 	
 	public static InsnList print(InsnList instructions) {
-		Printer p = new Textifier();
-		TraceMethodVisitor mp = new TraceMethodVisitor(p);
-		instructions.accept(mp);
-		System.out.println(p.getText());
+		List<String> text = ByteCode.toString(instructions);
+		System.out.println(text);
 		return instructions;
 	}
 
 	public static <T extends AbstractInsnNode> T print(T node) {
-		Printer p = new Textifier();
-		TraceMethodVisitor mp = new TraceMethodVisitor(p);
-		node.accept(mp);
-		System.out.println(p.getText());
+		String text = ByteCode.toString(node);
+		System.out.println(text);
 		return node;
 	}
 

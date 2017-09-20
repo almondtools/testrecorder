@@ -1,20 +1,19 @@
 package net.amygdalum.testrecorder;
 
 import static java.util.Comparator.comparingInt;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ASTORE;
-import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.DUP2;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -27,12 +26,17 @@ import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.util.Printer;
+import org.objectweb.asm.util.Textifier;
+import org.objectweb.asm.util.TraceMethodVisitor;
+
+import net.amygdalum.testrecorder.util.Types;
 
 public final class ByteCode {
 
 	private ByteCode() {
 	}
-	
+
 	public static List<LocalVariableNode> range(List<LocalVariableNode> locals, int start, int length) {
 		return locals.stream()
 			.filter(local -> local.index >= start && local.index < start + length)
@@ -77,52 +81,44 @@ public final class ByteCode {
 	}
 
 	public static InsnList pushAsArray(int[] locals, Type... argumentTypes) {
-		int params = argumentTypes.length;
-		
+		LocalVar[] localvars = IntStream.range(0, locals.length)
+			.mapToObj(i -> new LocalVar(locals[i], argumentTypes[i]))
+			.toArray(LocalVar[]::new);
+		return pushAsArray(localvars);
+	}
+
+	public static InsnList pushAsArray(List<LocalVariableNode> locals) {
+		LocalVar[] localvars = locals.stream()
+			.map(local -> new LocalVar(local.index, Type.getType(local.desc)))
+			.toArray(LocalVar[]::new);
+		return pushAsArray(localvars);
+	}
+
+	private static InsnList pushAsArray(LocalVar[] locals) {
+		int params = locals.length;
+
 		InsnList insnList = new InsnList();
-		
+
 		insnList.add(new LdcInsnNode(params));
 		insnList.add(new TypeInsnNode(Opcodes.ANEWARRAY, Type.getInternalName(Object.class)));
-		
+
 		for (int i = 0; i < params; i++) {
 			insnList.add(new InsnNode(DUP));
 			insnList.add(new LdcInsnNode(i));
 
-			Type type = argumentTypes[i];
-			int index = locals[i];
-			
+			LocalVar local = locals[i];
+			int index = local.index;
+			Type type = local.type;
+
 			insnList.add(new VarInsnNode(type.getOpcode(ILOAD), index));
-			
+
 			insnList.add(boxPrimitives(type));
-			
+
 			insnList.add(new InsnNode(AASTORE));
 		}
 		return insnList;
 	}
 
-	public static InsnList pushAsArray(List<LocalVariableNode> locals, Type... argumentTypes) {
-		int params = argumentTypes.length;
-		
-		InsnList insnList = new InsnList();
-		
-		insnList.add(new LdcInsnNode(params));
-		insnList.add(new TypeInsnNode(Opcodes.ANEWARRAY, Type.getInternalName(Object.class)));
-		
-		for (int i = 0; i < params; i++) {
-			insnList.add(new InsnNode(DUP));
-			insnList.add(new LdcInsnNode(i));
-			LocalVariableNode node = (LocalVariableNode) locals.get(i);
-			Type type = Type.getType(node.desc);
-			
-			insnList.add(new VarInsnNode(type.getOpcode(ILOAD), node.index));
-			
-			insnList.add(boxPrimitives(type));
-			
-			insnList.add(new InsnNode(AASTORE));
-		}
-		return insnList;
-	}
-	
 	public static AbstractInsnNode pushType(Type type) {
 		if (type.getDescriptor().length() == 1) {
 			Class<?> boxedType = getBoxedType(type.getDescriptor().charAt(0));
@@ -144,40 +140,17 @@ public final class ByteCode {
 		return insnList;
 	}
 
-	public static InsnList unboxPrimitives(Type type) {
-		InsnList insnList = new InsnList();
-		if (type.getDescriptor().length() == 1) {
-			char desc = type.getDescriptor().charAt(0);
-			Class<?> raw = getRawType(desc);
-			Class<?> boxed = getBoxedType(desc);
-
-			insnList.add(new TypeInsnNode(CHECKCAST, Type.getInternalName(boxed)));
-
-			String methodName = raw.getSimpleName() + "Value";
-			insnList.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, Type.getInternalName(boxed), methodName, methodDescriptor(boxed, methodName), false));
-		}
-		return insnList;
-	}
-
 	public static String constructorDescriptor(Class<?> clazz, Class<?>... arguments) {
-		return Type.getConstructorDescriptor(constructorOf(clazz, arguments));	
-	}
-	
-	private static <T> Constructor<T> constructorOf(Class<T> clazz, Class<?>... arguments) {
 		try {
-			return clazz.getConstructor(arguments);
+			return Type.getConstructorDescriptor(Types.getDeclaredConstructor(clazz, arguments));
 		} catch (NoSuchMethodException e) {
 			throw new SerializationException(e);
 		}
 	}
 
 	public static String methodDescriptor(Class<?> clazz, String name, Class<?>... arguments) {
-		return Type.getMethodDescriptor(methodOf(clazz, name, arguments));	
-	}
-	
-	private static Method methodOf(Class<?> clazz, String name, Class<?>... arguments) {
 		try {
-			return clazz.getMethod(name, arguments);
+			return Type.getMethodDescriptor(Types.getDeclaredMethod(clazz, name, arguments));
 		} catch (NoSuchMethodException e) {
 			throw new SerializationException(e);
 		}
@@ -229,6 +202,37 @@ public final class ByteCode {
 		default:
 			return Void.class;
 		}
+	}
+
+	public static List<String> toString(InsnList instructions) {
+		Printer p = new Textifier();
+		TraceMethodVisitor mp = new TraceMethodVisitor(p);
+		instructions.accept(mp);
+		return p.getText().stream()
+			.map(Object::toString)
+			.collect(toList());
+	}
+
+	public static String toString(AbstractInsnNode instruction) {
+		Printer p = new Textifier();
+		TraceMethodVisitor mp = new TraceMethodVisitor(p);
+		instruction.accept(mp);
+		String text = p.getText().stream()
+			.map(Object::toString)
+			.collect(joining("\n"));
+		return text;
+	}
+
+	private static class LocalVar {
+
+		public int index;
+		public Type type;
+
+		public LocalVar(int index, Type type) {
+			this.index = index;
+			this.type = type;
+		}
+
 	}
 
 }

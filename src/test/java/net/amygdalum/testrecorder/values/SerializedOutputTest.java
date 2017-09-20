@@ -2,12 +2,15 @@ package net.amygdalum.testrecorder.values;
 
 import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefaultEquality;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
@@ -22,7 +25,7 @@ public class SerializedOutputTest {
 
 	@Before
 	public void before() throws Exception {
-		output = new SerializedOutput(41, PrintStream.class, "append", PrintStream.class, null, new Type[] { CharSequence.class }, literal("Hello"));
+		output = new SerializedOutput(41, PrintStream.class, "append", PrintStream.class, new SerializedObject(PrintStream.class), new Type[] { CharSequence.class }, literal("Hello"));
 
 		outputNoResult = new SerializedOutput(41, PrintStream.class, "println", new Type[] { String.class }, literal("Hello"));
 	}
@@ -55,6 +58,18 @@ public class SerializedOutputTest {
 	}
 
 	@Test
+	public void testGetResultType() throws Exception {
+		assertThat(output.getResultType(), sameInstance(PrintStream.class));
+		assertThat(outputNoResult.getResultType(), sameInstance(void.class));
+	}
+
+	@Test
+	public void testGetResult() throws Exception {
+		assertThat(output.getResult(), instanceOf(SerializedObject.class));
+		assertThat(outputNoResult.getResult(), nullValue());
+	}
+
+	@Test
 	public void testEquals() throws Exception {
 		assertThat(outputNoResult, satisfiesDefaultEquality()
 			.andEqualTo(new SerializedOutput(41, PrintStream.class, "println", new Type[] { String.class }, literal("Hello")))
@@ -66,8 +81,10 @@ public class SerializedOutputTest {
 			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "println", new Type[] { String.class }, literal("Hello World"))));
 
 		assertThat(output, satisfiesDefaultEquality()
-			.andEqualTo(new SerializedOutput(41, PrintStream.class, "append", PrintStream.class, null, new Type[] { CharSequence.class }, literal("Hello")))
-			.andNotEqualTo(outputNoResult));
+			.andEqualTo(new SerializedOutput(41, PrintStream.class, "append", PrintStream.class, output.getResult(), new Type[] { CharSequence.class }, literal("Hello")))
+			.andNotEqualTo(outputNoResult)
+			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "append", PrintStream.class, null, new Type[] { CharSequence.class }, literal("Hello")))
+			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "append", OutputStream.class, output.getResult(), new Type[] { CharSequence.class }, literal("Hello"))));
 	}
 
 	@Test
