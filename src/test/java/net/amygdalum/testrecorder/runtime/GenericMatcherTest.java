@@ -288,6 +288,34 @@ public class GenericMatcherTest {
         assertThat(matcher.matches(new DoubleShadowingObject("fieldshadowing", "field", 42)), is(true));
     }
 
+    @Test
+    public void testMismatchesNull() throws Exception {
+        assertThat((Simple) null, not(new GenericMatcher() {
+            public String str = "myStr";
+
+        }.matching(Simple.class)));
+        assertThat(new Simple(null), not(new GenericMatcher() {
+            public String str = "myStr";
+
+        }.matching(Simple.class)));
+        assertThat(new GenericObject() {
+        	public Simple simple = null;
+        }.as(Complex.class), not(new GenericMatcher() {
+            public Matcher<?> simple = new GenericMatcher() {
+            	public String str = "myStr";
+            }.matching(Simple.class);
+
+        }.matching(Complex.class)));
+    }
+
+    @Test
+    public void testMatchesNull() throws Exception {
+    	assertThat((Simple) new Simple(null), new GenericMatcher() {
+    		public String str = null;
+    		
+    	}.matching(Simple.class));
+    }
+    
     interface GenericComparisonMatcher extends Matcher<GenericComparison> {
 
         GenericComparisonMatcher withLeft(Object left);
