@@ -70,6 +70,15 @@ public class InputsTest {
 	}
 	
 	@Test
+	public void testObjectSideEffectsCompilable() throws Exception {
+		Inputs in = new Inputs();
+		in.objectSideEffectsRecorded();
+		
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(Inputs.class), compiles(Inputs.class));
+	}
+	
+	@Test
 	public void testRunnable() throws Exception {
 		Inputs in = new Inputs();
 		in.recorded();
@@ -110,6 +119,15 @@ public class InputsTest {
 		Inputs in = new Inputs();
 		in.sideEffectsRecorded();
 
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(Inputs.class), testsRun(Inputs.class));
+	}
+	
+	@Test
+	public void testObjectSideEffectsRunnable() throws Exception {
+		Inputs in = new Inputs();
+		in.objectSideEffectsRecorded();
+		
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Inputs.class), testsRun(Inputs.class));
 	}

@@ -89,9 +89,6 @@ public class InputDecorator<T> {
 	}
 
 	private void sync(Object from, Object to) {
-		if (from.getClass() != to.getClass()) {
-			throw new AssertionError("expected argument type " + from.getClass().getName() + ", but found " + to.getClass().getName());
-		}
 		Class<?> current = from.getClass();
 		if (current.isArray()) {
 			copyArrayValues(from, to);

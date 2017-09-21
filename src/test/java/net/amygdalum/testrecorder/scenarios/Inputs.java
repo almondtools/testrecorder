@@ -4,6 +4,7 @@ import static java.util.Arrays.asList;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import net.amygdalum.testrecorder.Recorded;
 import net.amygdalum.testrecorder.SerializationProfile.Excluded;
@@ -61,9 +62,23 @@ public class Inputs {
 		return new String(cs);
 	}
 
+	@Recorded
+	public String objectSideEffectsRecorded() {
+		List<String> str = new ArrayList<>();
+		read(str);
+		return str.toString();
+	}
+
 	@Input
 	public void read(char[] cs) {
 		System.arraycopy("Hello World".toCharArray(), 0, cs, 0, cs.length);
+	}
+
+	@Input
+	public void read(List<String> str) {
+		for (String s : "Hello World".split(" ")) {
+			str.add(s);
+		}
 	}
 
 	@Input
