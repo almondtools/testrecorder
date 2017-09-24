@@ -9,7 +9,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import net.amygdalum.testrecorder.util.Types;
 import net.amygdalum.testrecorder.util.WorkSet;
 
 public class GenericComparison {
@@ -140,12 +139,6 @@ public class GenericComparison {
             todo.add(GenericComparison.from(root, fieldName, left, right));
         }
         return true;
-    }
-
-    public static Object getValue(Class<?> clazz, String fieldName, Object item) throws ReflectiveOperationException {
-        Field field = Types.getDeclaredField(clazz, fieldName);
-
-        return getValue(field, item);
     }
 
     public static Object getValue(String fieldName, Object item) throws ReflectiveOperationException {

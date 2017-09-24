@@ -1,7 +1,9 @@
 package net.amygdalum.testrecorder.runtime;
 
+import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.runtime.GenericMatcher.recursive;
 import static net.amygdalum.xrayinterface.IsEquivalent.equivalentTo;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.contains;
@@ -14,6 +16,8 @@ import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
 import org.junit.Test;
 
+import com.almondtools.conmatch.strings.WildcardStringMatcher;
+
 import net.amygdalum.testrecorder.util.testobjects.Complex;
 import net.amygdalum.testrecorder.util.testobjects.DoubleShadowingObject;
 import net.amygdalum.testrecorder.util.testobjects.ShadowingObject;
@@ -24,302 +28,340 @@ import net.amygdalum.testrecorder.util.testobjects.Super;
 @SuppressWarnings("unused")
 public class GenericMatcherTest {
 
-    @Test
-    public void testMatchesSimple() throws Exception {
-        assertThat(new GenericMatcher() {
-            public String str = "myStr";
+	@Test
+	public void testMatchesSimple() throws Exception {
+		assertThat(new GenericMatcher() {
+			public String str = "myStr";
 
-        }.mismatchesWith(null, new Simple("myStr")), empty());
-    }
+		}.mismatchesWith(null, new Simple("myStr")), empty());
+	}
 
-    @Test
-    public void testMatchingSimple() throws Exception {
-        assertThat(new Simple("myStr"), new GenericMatcher() {
-            public String str = "myStr";
+	@Test
+	public void testMatchingSimple() throws Exception {
+		assertThat(new Simple("myStr"), new GenericMatcher() {
+			public String str = "myStr";
 
-        }.matching(Simple.class));
-    }
+		}.matching(Simple.class));
+	}
 
-    @Test
-    public void testNotMatchingSimple() throws Exception {
-        assertThat(new Simple("myStr"), not(new GenericMatcher() {
-            public String str = "myOtherStr";
+	@Test
+	public void testNotMatchingSimple() throws Exception {
+		assertThat(new Simple("myStr"), not(new GenericMatcher() {
+			public String str = "myOtherStr";
 
-        }.matching(Simple.class)));
-    }
+		}.matching(Simple.class)));
+	}
 
-    @Test
-    public void testMatchesComplex() throws Exception {
-        assertThat(new GenericMatcher() {
-            public Matcher<Simple> simple = new GenericMatcher() {
-                public String str = "otherStr";
-            }.matching(Simple.class);
-        }.mismatchesWith(null, new Complex()), empty());
-    }
+	@Test
+	public void testMatchesComplex() throws Exception {
+		assertThat(new GenericMatcher() {
+			public Matcher<Simple> simple = new GenericMatcher() {
+				public String str = "otherStr";
+			}.matching(Simple.class);
+		}.mismatchesWith(null, new Complex()), empty());
+	}
 
-    @Test
-    public void testMatchingNullMatcher() throws Exception {
-        assertThat(new GenericMatcher() {
-            Matcher<?> str = nullValue();
-        }.mismatchesWith(null, new Simple()), empty());
-    }
+	@Test
+	public void testMatchingNullMatcher() throws Exception {
+		assertThat(new GenericMatcher() {
+			Matcher<?> str = nullValue();
+		}.mismatchesWith(null, new Simple()), empty());
+	}
 
-    @Test
-    public void testMatchingNullValue() throws Exception {
-        assertThat(new GenericMatcher() {
-            String str = null;
-        }.mismatchesWith(null, new Simple()), empty());
-    }
+	@Test
+	public void testMatchingNullValue() throws Exception {
+		assertThat(new GenericMatcher() {
+			String str = null;
+		}.mismatchesWith(null, new Simple()), empty());
+	}
 
-    @Test
-    public void testMatchingComplex() throws Exception {
-        assertThat(new Complex(), new GenericMatcher() {
-            public Matcher<Simple> simple = new GenericMatcher() {
-                public String str = "otherStr";
-            }.matching(Simple.class);
-        }.matching(Complex.class));
-    }
+	@Test
+	public void testMatchingComplex() throws Exception {
+		assertThat(new Complex(), new GenericMatcher() {
+			public Matcher<Simple> simple = new GenericMatcher() {
+				public String str = "otherStr";
+			}.matching(Simple.class);
+		}.matching(Complex.class));
+	}
 
-    @Test
-    public void testNotMatchingComplex() throws Exception {
-        assertThat(new Complex(), not(new GenericMatcher() {
-            public Matcher<Simple> simple = new GenericMatcher() {
-                public String str = "myStr";
-            }.matching(Simple.class);
-        }.matching(Complex.class)));
-    }
+	@Test
+	public void testNotMatchingComplex() throws Exception {
+		assertThat(new Complex(), not(new GenericMatcher() {
+			public Matcher<Simple> simple = new GenericMatcher() {
+				public String str = "myStr";
+			}.matching(Simple.class);
+		}.matching(Complex.class)));
+	}
 
-    @Test
-    public void testMismatchesSimple() throws Exception {
-        assertThat(new GenericMatcher() {
-            public String str = "myStr";
-        }.mismatchesWith(null, new Simple("notMyStr")), contains(equivalentTo(GenericComparisonMatcher.class)
-            .withLeft("myStr")
-            .withRight("notMyStr")));
-    }
+	@Test
+	public void testMismatchesSimple() throws Exception {
+		assertThat(new GenericMatcher() {
+			public String str = "myStr";
+		}.mismatchesWith(null, new Simple("notMyStr")), contains(equivalentTo(GenericComparisonMatcher.class)
+			.withLeft("myStr")
+			.withRight("notMyStr")));
+	}
 
-    @Test
-    public void testRecursive() throws Exception {
-        assertThat(recursive(Super.class).matches(new Super()), is(true));
-        assertThat(recursive(Super.class).matches(new Sub()), is(true));
-        assertThat(recursive(Super.class).matches(new Simple()), is(false));
-        assertThat(recursive(Super.class).matches(new Complex()), is(false));
-    }
+	@Test
+	public void testRecursive() throws Exception {
+		assertThat(recursive(Super.class).matches(new Super()), is(true));
+		assertThat(recursive(Super.class).matches(new Sub()), is(true));
+		assertThat(recursive(Super.class).matches(new Simple()), is(false));
+		assertThat(recursive(Super.class).matches(new Complex()), is(false));
+	}
 
-    @Test
-    public void testRecursiveWrapped() throws Exception {
-        Wrapped wrapped = Wrapped.clazz(Super.class.getName());
+	@Test
+	public void testRecursiveWrapped() throws Exception {
+		Wrapped wrapped = Wrapped.clazz(Super.class.getName());
 
-        assertThat(recursive(wrapped).matches(new Super()), is(true));
-        assertThat(recursive(wrapped).matches(new Sub()), is(true));
-        assertThat(recursive(wrapped).matches(new Simple()), is(false));
-        assertThat(recursive(wrapped).matches(new Complex()), is(false));
-    }
+		assertThat(recursive(wrapped).matches(new Super()), is(true));
+		assertThat(recursive(wrapped).matches(new Sub()), is(true));
+		assertThat(recursive(wrapped).matches(new Simple()), is(false));
+		assertThat(recursive(wrapped).matches(new Complex()), is(false));
+	}
 
-    @Test
-    public void testMatchingWrapped() throws Exception {
-        Wrapped expected = Wrapped.clazz(Simple.class.getName());
-        expected.setField("str", "myStr");
+	@Test
+	public void testMatchingWrapped() throws Exception {
+		Wrapped expected = Wrapped.clazz(Simple.class.getName());
+		expected.setField("str", "myStr");
 
-        assertThat(new Simple("myStr"), new GenericMatcher() {
-            public String str = "myStr";
+		assertThat(new Simple("myStr"), new GenericMatcher() {
+			public String str = "myStr";
 
-        }.matching(expected));
-    }
+		}.matching(expected));
+	}
 
-    @Test
-    public void testMatchingCasting() throws Exception {
-        assertThat((Super) new Sub("myStr"), new GenericMatcher() {
-            public String str = "myStr";
+	@Test
+	public void testMatchingCasting() throws Exception {
+		assertThat((Super) new Sub("myStr"), new GenericMatcher() {
+			public String str = "myStr";
 
-        }.matching(Sub.class, Super.class));
-    }
+		}.matching(Sub.class, Super.class));
+	}
 
-    @Test
-    public void testMatchingCastingSourceWrapped() throws Exception {
-        Wrapped expected = Wrapped.clazz(Sub.class.getName());
-        expected.setField("str", "myStr");
+	@Test
+	public void testMatchingCastingSourceWrapped() throws Exception {
+		Wrapped expected = Wrapped.clazz(Sub.class.getName());
+		expected.setField("str", "myStr");
 
-        assertThat((Super) new Sub("myStr"), new GenericMatcher() {
-            public String str = "myStr";
+		assertThat((Super) new Sub("myStr"), new GenericMatcher() {
+			public String str = "myStr";
 
-        }.matching(expected, Super.class));
-    }
+		}.matching(expected, Super.class));
+	}
 
-    @Test
-    public void testInternalsMatcherNoMatchesType() throws Exception {
-        Matcher<Super> matcher = new GenericMatcher() {
-            String str = "str";
-        }.matching(Super.class);
+	@Test
+	public void testInternalsMatcherNoMatchesType() throws Exception {
+		Matcher<Super> matcher = new GenericMatcher() {
+			String str = "str";
+		}.matching(Super.class);
 
-        assertThat(matcher.matches(new Sub("str")), is(false));
-    }
+		assertThat(matcher.matches(new Sub("str")), is(false));
+	}
 
-    @Test
-    public void testInternalsMatcherDescribeTo() throws Exception {
-        Matcher<Simple> matcher = new GenericMatcher() {
-            String str = "myStr";
-        }.matching(Simple.class);
+	@Test
+	public void testInternalsMatcherDescribeTo() throws Exception {
+		Matcher<Simple> matcher = new GenericMatcher() {
+			String str = "myStr";
+		}.matching(Simple.class);
 
-        StringDescription desc = new StringDescription();
-        matcher.describeTo(desc);
-        assertThat(desc.toString(), equalTo("net.amygdalum.testrecorder.util.testobjects.Simple {"
-            + "\n\tString str: \"myStr\";"
-            + "\n}"));
-    }
+		StringDescription desc = new StringDescription();
+		matcher.describeTo(desc);
+		assertThat(desc.toString(), equalTo("net.amygdalum.testrecorder.util.testobjects.Simple {"
+			+ "\n\tString str: \"myStr\";"
+			+ "\n}"));
+	}
 
-    @Test
-    public void testInternalsMatcherDescribeMismatch() throws Exception {
-        Matcher<Simple> matcher = new GenericMatcher() {
-            String str = "myStr";
-        }.matching(Simple.class);
+	@Test
+	public void testInternalsMatcherDescribeMismatch() throws Exception {
+		Matcher<Simple> matcher = new GenericMatcher() {
+			String str = "myStr";
+		}.matching(Simple.class);
 
-        StringDescription desc = new StringDescription();
-        matcher.describeMismatch(new Simple("str"), desc);
+		StringDescription desc = new StringDescription();
+		matcher.describeMismatch(new Simple("str"), desc);
 
-        assertThat(desc.toString(), equalTo("net.amygdalum.testrecorder.util.testobjects.Simple {"
-            + "\n\tString str: \"str\";"
-            + "\n}"
-            + "\nfound mismatches at:"
-            + "\n\tstr: \"myStr\" != \"str\""));
-    }
+		assertThat(desc.toString(), equalTo("net.amygdalum.testrecorder.util.testobjects.Simple {"
+			+ "\n\tString str: \"str\";"
+			+ "\n}"
+			+ "\nfound mismatches at:"
+			+ "\n\tstr: \"myStr\" != \"str\""));
+	}
 
-    @Test
-    public void testInternalsMatcherDescribeMismatchEmpty() throws Exception {
-        Matcher<Simple> matcher = new GenericMatcher() {
-            String str = "myStr";
-        }.matching(Simple.class);
+	@Test
+	public void testInternalsMatcherDescribeMismatchEmpty() throws Exception {
+		Matcher<Simple> matcher = new GenericMatcher() {
+			String str = "myStr";
+		}.matching(Simple.class);
 
-        StringDescription desc = new StringDescription();
-        matcher.describeMismatch(new Simple("myStr"), desc);
+		StringDescription desc = new StringDescription();
+		matcher.describeMismatch(new Simple("myStr"), desc);
 
-        assertThat(desc.toString(), equalTo(""));
-    }
+		assertThat(desc.toString(), equalTo(""));
+	}
 
-    @Test
-    public void testInternalsMatcherDescribeMismatchNull() throws Exception {
-        Matcher<Simple> matcher = new GenericMatcher() {
-            String str = "myStr";
-        }.matching(Simple.class);
+	@Test
+	public void testInternalsMatcherDescribeMismatchNull() throws Exception {
+		Matcher<Simple> matcher = new GenericMatcher() {
+			String str = "myStr";
+		}.matching(Simple.class);
 
-        StringDescription desc = new StringDescription();
-        matcher.describeMismatch(null, desc);
+		StringDescription desc = new StringDescription();
+		matcher.describeMismatch(null, desc);
 
-        assertThat(desc.toString(), equalTo("was null"));
-    }
+		assertThat(desc.toString(), equalTo("was null"));
+	}
 
-    @Test
-    public void testInternalsMatcherDescribeMismatchRecursive() throws Exception {
-        Matcher<Complex> matcher = new GenericMatcher() {
-            Matcher<?> simple = new GenericMatcher() {
-                String str = "str";
-            }.matching(Simple.class);
-        }.matching(Complex.class);
+	@Test
+	public void testInternalsMatcherDescribeMismatchRecursive() throws Exception {
+		Matcher<Complex> matcher = new GenericMatcher() {
+			Matcher<?> simple = new GenericMatcher() {
+				String str = "str";
+			}.matching(Simple.class);
+		}.matching(Complex.class);
 
-        StringDescription desc = new StringDescription();
-        matcher.describeMismatch(new Complex(), desc);
+		StringDescription desc = new StringDescription();
+		matcher.describeMismatch(new Complex(), desc);
 
-        assertThat(desc.toString(), equalTo("net.amygdalum.testrecorder.util.testobjects.Complex {"
-            + "\n\tSimple simple: <Simple>;"
-            + "\n}"
-            + "\nfound mismatches at:"
-            + "\n\tsimple.str: \"str\" != \"otherStr\""));
-    }
+		assertThat(desc.toString(), equalTo("net.amygdalum.testrecorder.util.testobjects.Complex {"
+			+ "\n\tSimple simple: <Simple>;"
+			+ "\n}"
+			+ "\nfound mismatches at:"
+			+ "\n\tsimple.str: \"str\" != \"otherStr\""));
+	}
 
-    @Test
-    public void testCastingMatcherMatches() throws Exception {
-        Matcher<Super> matcher = new GenericMatcher() {
-            String str = "myStr";
-        }.matching(Sub.class, Super.class);
+	@Test
+	public void testCastingMatcherMatches() throws Exception {
+		Matcher<Super> matcher = new GenericMatcher() {
+			String str = "myStr";
+		}.matching(Sub.class, Super.class);
 
-        assertThat(matcher.matches(new Sub("myStr")), is(true));
-        assertThat(matcher.matches(new Super("myStr")), is(false));
-    }
+		assertThat(matcher.matches(new Sub("myStr")), is(true));
+		assertThat(matcher.matches(new Super("myStr")), is(false));
+	}
 
-    @Test
-    public void testCastingMatcherNoMatchesType() throws Exception {
-        Matcher<Super> matcher = new GenericMatcher() {
-            String str = "myStr";
-        }.matching(Sub.class, Super.class);
+	@Test
+	public void testCastingMatcherNoMatchesType() throws Exception {
+		Matcher<Super> matcher = new GenericMatcher() {
+			String str = "myStr";
+		}.matching(Sub.class, Super.class);
 
-        assertThat(matcher.matches(new Sub("myStr")), is(true));
-        assertThat(matcher.matches(new Simple("myStr")), is(false));
-    }
+		assertThat(matcher.matches(new Sub("myStr")), is(true));
+		assertThat(matcher.matches(new Simple("myStr")), is(false));
+	}
 
-    @Test
-    public void testCastingMatcherDescribeTo() throws Exception {
-        Matcher<Super> matcher = new GenericMatcher() {
-            String str = "myStr";
-        }.matching(Sub.class, Super.class);
+	@Test
+	public void testCastingMatcherDescribeTo() throws Exception {
+		Matcher<Super> matcher = new GenericMatcher() {
+			String str = "myStr";
+		}.matching(Sub.class, Super.class);
 
-        StringDescription desc = new StringDescription();
-        matcher.describeTo(desc);
+		StringDescription desc = new StringDescription();
+		matcher.describeTo(desc);
 
-        assertThat(desc.toString(), equalTo("net.amygdalum.testrecorder.util.testobjects.Sub {"
-            + "\n\tString str: \"myStr\";"
-            + "\n}"));
-    }
+		assertThat(desc.toString(), equalTo("net.amygdalum.testrecorder.util.testobjects.Sub {"
+			+ "\n\tString str: \"myStr\";"
+			+ "\n}"));
+	}
 
-    @Test
-    public void testCastingMatcherMismatches() throws Exception {
-        RecursiveMatcher matcher = (RecursiveMatcher) new GenericMatcher() {
-            String str = "myStr";
-        }.matching(Sub.class, Super.class);
+	@Test
+	public void testCastingMatcherMismatches() throws Exception {
+		RecursiveMatcher matcher = (RecursiveMatcher) new GenericMatcher() {
+			String str = "myStr";
+		}.matching(Sub.class, Super.class);
 
-        assertThat(matcher.mismatchesWith(null, new Sub("myStr")), empty());
-    }
+		assertThat(matcher.mismatchesWith(null, new Sub("myStr")), empty());
+	}
 
-    @Test
-    public void testShadowingObject() throws Exception {
-        Matcher<ShadowingObject> matcher = new GenericMatcher() {
-            int ShadowedObject$field = 42;
-            String ShadowingObject$field = "field";
-        }.matching(ShadowingObject.class);
-        assertThat(matcher.matches(new ShadowingObject("field", 42)), is(true));
-    }
+	@Test
+	public void testShadowingObject() throws Exception {
+		Matcher<ShadowingObject> matcher = new GenericMatcher() {
+			int ShadowedObject$field = 42;
+			String ShadowingObject$field = "field";
+		}.matching(ShadowingObject.class);
+		assertThat(matcher.matches(new ShadowingObject("field", 42)), is(true));
+	}
 
-    @Test
-    public void testDoubleShadowingObject() throws Exception {
-        Matcher<DoubleShadowingObject> matcher = new GenericMatcher() {
-            int ShadowedObject$field = 42;
-            String ShadowingObject$field = "field";
-            String DoubleShadowingObject$field = "fieldshadowing";
-        }.matching(DoubleShadowingObject.class);
-        assertThat(matcher.matches(new DoubleShadowingObject("fieldshadowing", "field", 42)), is(true));
-    }
+	@Test
+	public void testDoubleShadowingObject() throws Exception {
+		Matcher<DoubleShadowingObject> matcher = new GenericMatcher() {
+			int ShadowedObject$field = 42;
+			String ShadowingObject$field = "field";
+			String DoubleShadowingObject$field = "fieldshadowing";
+		}.matching(DoubleShadowingObject.class);
+		assertThat(matcher.matches(new DoubleShadowingObject("fieldshadowing", "field", 42)), is(true));
+	}
 
-    @Test
-    public void testMismatchesNull() throws Exception {
-        assertThat((Simple) null, not(new GenericMatcher() {
-            public String str = "myStr";
+	@Test
+	public void testMismatchesNull() throws Exception {
+		assertThat((Simple) null, not(new GenericMatcher() {
+			public String str = "myStr";
 
-        }.matching(Simple.class)));
-        assertThat(new Simple(null), not(new GenericMatcher() {
-            public String str = "myStr";
+		}.matching(Simple.class)));
+		assertThat(new Simple(null), not(new GenericMatcher() {
+			public String str = "myStr";
 
-        }.matching(Simple.class)));
-        assertThat(new GenericObject() {
-        	public Simple simple = null;
-        }.as(Complex.class), not(new GenericMatcher() {
-            public Matcher<?> simple = new GenericMatcher() {
-            	public String str = "myStr";
-            }.matching(Simple.class);
+		}.matching(Simple.class)));
+		assertThat(new GenericObject() {
+			public Simple simple = null;
+		}.as(Complex.class), not(new GenericMatcher() {
+			public Matcher<?> simple = new GenericMatcher() {
+				public String str = "myStr";
+			}.matching(Simple.class);
 
-        }.matching(Complex.class)));
-    }
+		}.matching(Complex.class)));
+	}
 
-    @Test
-    public void testMatchesNull() throws Exception {
-    	assertThat((Simple) new Simple(null), new GenericMatcher() {
-    		public String str = null;
-    		
-    	}.matching(Simple.class));
-    }
-    
-    interface GenericComparisonMatcher extends Matcher<GenericComparison> {
+	@Test
+	public void testMatchesNull() throws Exception {
+		assertThat((Simple) new Simple(null), new GenericMatcher() {
+			public String str = null;
 
-        GenericComparisonMatcher withLeft(Object left);
+		}.matching(Simple.class));
+	}
 
-        GenericComparisonMatcher withRight(Object right);
-    }
+	@Test
+	public void testMatchesSyntheticClasses() throws Exception {
+		Functional f = x -> x * x;
+		assertThat(f, not(new GenericMatcher() {
+		}.matching(String.class, Object.class)));
+		assertThat(f, new GenericMatcher() {
+		}.matching(Functional.class));
+
+	}
+
+	@Test
+	public void testDescribeWithValues() throws Exception {
+		StringDescription description = new StringDescription();
+		Matcher<Simple> matching = new GenericMatcher() {
+			String str = "str";
+
+		}.matching(Simple.class);
+		matching.describeTo(description);
+
+		assertThat(description.toString(), containsPattern("net.amygdalum.testrecorder.util.testobjects.Simple {*String str: \"str\";*}"));
+	}
+
+	@Test
+	public void testDescribeWithMatchers() throws Exception {
+		StringDescription description = new StringDescription();
+		Matcher<Simple> matching = new GenericMatcher() {
+			Matcher<?> str = containsString("st");
+
+		}.matching(Simple.class);
+		matching.describeTo(description);
+
+		assertThat(description.toString(), containsPattern("net.amygdalum.testrecorder.util.testobjects.Simple {*String str: a string containing \"st\";*}"));
+	}
+
+	interface GenericComparisonMatcher extends Matcher<GenericComparison> {
+
+		GenericComparisonMatcher withLeft(Object left);
+
+		GenericComparisonMatcher withRight(Object right);
+	}
+
+	interface Functional {
+		int func(int x);
+	}
 }

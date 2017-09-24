@@ -103,9 +103,6 @@ public class GenericMatcher extends GenericObject {
 
 		@Override
 		protected boolean matchesSafely(T item) {
-			if (item == null) {
-				return false;
-			}
 			Class<?> itemClass = item.getClass();
 			if (isSynthetic(itemClass)) {
 				if (!clazz.isAssignableFrom(itemClass)) {
@@ -126,10 +123,6 @@ public class GenericMatcher extends GenericObject {
 
 		@Override
 		protected void describeMismatchSafely(T item, Description mismatchDescription) {
-			if (item == null) {
-				mismatchDescription.appendText("found null value");
-				return;
-			}
 			List<GenericComparison> mismatches = mismatchesWith(null, item);
 			if (!mismatches.isEmpty()) {
 				mismatchDescription.appendText(item.getClass().getName()).appendText(" {");
@@ -169,7 +162,7 @@ public class GenericMatcher extends GenericObject {
 			describe(description, mismatch.getRight());
 		}
 
-		public void describe(Description description, Object value) {
+		private void describe(Description description, Object value) {
 			if (value instanceof SelfDescribing) {
 				description.appendDescriptionOf((SelfDescribing) value);
 			} else {
