@@ -17,13 +17,11 @@ import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import net.amygdalum.testrecorder.util.Types;
 
 public class OutputDecorator<T> {
-	
+
 	private static final Map<Integer, Map<Method, List<InvocationData>>> invocations = new LinkedHashMap<>();
 
 	private T o;
@@ -62,10 +60,8 @@ public class OutputDecorator<T> {
 			Iterator<InvocationData> itr = data.iterator();
 			if (!data.isEmpty()) {
 				try {
-					Object mock = Mockito.doAnswer(new Answer<Object>() {
-
-						@Override
-						public Object answer(InvocationOnMock invocation) throws Throwable {
+					Object mock = Mockito.doAnswer(invocation -> {
+						if (itr.hasNext()) {
 							InvocationData next = itr.next();
 							Object[] invocationArgs = invocation.getArguments();
 							for (int i = 0; i < next.args.length; i++) {
@@ -82,8 +78,14 @@ public class OutputDecorator<T> {
 							}
 							next.called = true;
 							return next.result;
+						} else {
+							Object[] invocationArgs = invocation.getArguments();
+							String found = Arrays.stream(invocationArgs)
+								.map(arg -> equalTo(arg))
+								.map(matcher -> StringDescription.toString(matcher))
+								.collect(joining(", ", method.getName() + "(", ")"));
+							throw new AssertionError("unexpected output found:\n" + found + "\n\nIf the output was recorded ensure that all call sites were recorded");
 						}
-
 					}).when(o);
 					Object[] args = Arrays.stream(method.getParameterTypes())
 						.map(type -> Mockito.any(type))
@@ -96,8 +98,9 @@ public class OutputDecorator<T> {
 		}
 		invocations.put(System.identityHashCode(o), invocationData);
 		return o;
+
 	}
-	
+
 	public static Matcher<Object> verifies() {
 		return new VerifyMatcher();
 	}
@@ -114,7 +117,7 @@ public class OutputDecorator<T> {
 		}
 
 	}
-	
+
 	private static class VerifyMatcher extends TypeSafeDiagnosingMatcher<Object> {
 
 		@Override
@@ -135,13 +138,12 @@ public class OutputDecorator<T> {
 			}
 			return true;
 		}
-		
 
 		@Override
 		public void describeTo(Description description) {
 			description.appendText("a sequence of outputs");
 		}
-		
+
 	}
 
 }

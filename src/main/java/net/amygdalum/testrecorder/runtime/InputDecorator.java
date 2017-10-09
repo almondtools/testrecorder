@@ -1,8 +1,10 @@
 package net.amygdalum.testrecorder.runtime;
 
+import static java.util.stream.Collectors.joining;
 import static net.amygdalum.testrecorder.runtime.GenericObject.copyArrayValues;
 import static net.amygdalum.testrecorder.runtime.GenericObject.copyField;
 import static net.amygdalum.testrecorder.util.Types.allFields;
+import static org.hamcrest.Matchers.equalTo;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -13,9 +15,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.hamcrest.StringDescription;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import net.amygdalum.testrecorder.util.Types;
 
@@ -61,13 +62,18 @@ public class InputDecorator<T> {
 			Iterator<InvocationData> itr = data.iterator();
 			if (!data.isEmpty()) {
 				try {
-					Object mock = Mockito.doAnswer(new Answer<Object>() {
-
-						@Override
-						public Object answer(InvocationOnMock invocation) throws Throwable {
+					Object mock = Mockito.doAnswer(invocation -> {
+						if (itr.hasNext()) {
 							InvocationData next = itr.next();
 							sync(next.args, invocation.getArguments());
 							return next.result;
+						} else {
+							Object[] invocationArgs = invocation.getArguments();
+							String found = Arrays.stream(invocationArgs)
+								.map(arg -> equalTo(arg))
+								.map(matcher -> StringDescription.toString(matcher))
+								.collect(joining(", ", method.getName() + "(", ")"));
+							throw new AssertionError("missing input for:\n" + found + "\n\nIf the input was recorded ensure that all call sites were recorded");
 						}
 					}).when(o);
 					Object[] args = Arrays.stream(method.getParameterTypes())
