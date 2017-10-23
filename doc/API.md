@@ -50,11 +50,12 @@ The string `code` will then contain:
 
 Serializing an object to matcher code  is done like this:
 
-    SerializationProfile profile = new DefaultSerializationProfile();
+    SerializationProfile profile = new DefaultTestRecorderAgentConfig();
     SerializerFacade facade = new ConfigurableSerializerFacade(profile);
-    DeserializerFactory factory = new ObjectToMatcherCode.Factory();
-                    
-    CodeSerializer codeSerializer = new CodeSerializer(facade, factory);
+    DeserializerFactory factory = new MatcherGenerators.Factory();
+
+    CodeSerializer codeSerializer = new CodeSerializer("", facade, factory);
+    codeSerializer.getTypes().registerTypes(Matcher.class, ExampleObject.class); // optional
     String code = codeSerializer.serialize(exampleObject);
 
 The string `code` will then contain:
