@@ -17,6 +17,8 @@ import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.mockito.Mockito;
+import org.mockito.invocation.Invocation;
+import org.mockito.invocation.InvocationOnMock;
 
 import net.amygdalum.testrecorder.util.Types;
 
@@ -32,9 +34,9 @@ public class OutputDecorator<T> {
 		this.invocationData = new HashMap<>();
 	}
 
-	public OutputDecorator<T> expect(String method, Class<?>[] argTypes, Object result, Matcher<?>... args) {
+	public OutputDecorator<T> expect(String method, String caller, Class<?>[] argTypes, Object result, Matcher<?>... args) {
 		Method resolvedMethod = resolveMethod(method, argTypes);
-		InvocationData data = new InvocationData(result, args);
+		InvocationData data = new InvocationData(caller, result, args);
 		invocationData.compute(resolvedMethod, (key, value) -> {
 			if (value == null) {
 				value = new ArrayList<>();
@@ -63,6 +65,9 @@ public class OutputDecorator<T> {
 					Object mock = Mockito.doAnswer(invocation -> {
 						if (itr.hasNext()) {
 							InvocationData next = itr.next();
+							if (!callerMatches(invocation, next)) {
+								throw new AssertionError("requested input from caller <" + caller(invocation) + "> was not recorded. Expected caller <" + next.caller + ">. Ensure that all call sites are recorded");
+							}
 							Object[] invocationArgs = invocation.getArguments();
 							for (int i = 0; i < next.args.length; i++) {
 								if (!next.args[i].matches(invocationArgs[i])) {
@@ -101,16 +106,32 @@ public class OutputDecorator<T> {
 
 	}
 
+	private String caller(InvocationOnMock invocation) {
+		if (invocation instanceof Invocation) {
+			return ((Invocation) invocation).getLocation().toString();
+		}
+		return "?";
+	}
+
+	private boolean callerMatches(InvocationOnMock invocation, InvocationData next) {
+		if (invocation instanceof Invocation) {
+			return ((Invocation) invocation).getLocation().toString().contains(next.caller);
+		}
+		return false;
+	}
+
 	public static Matcher<Object> verifies() {
 		return new VerifyMatcher();
 	}
 
 	private static class InvocationData {
+		public String caller;
 		public Object result;
 		public Matcher<?>[] args;
 		public boolean called;
 
-		public InvocationData(Object result, Matcher<?>[] args) {
+		public InvocationData(String caller, Object result, Matcher<?>[] args) {
+			this.caller = caller;
 			this.result = result;
 			this.args = args;
 			this.called = false;

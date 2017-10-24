@@ -14,6 +14,7 @@ import net.amygdalum.testrecorder.deserializers.ValuePrinter;
 public class SerializedInput {
 
 	private int id;
+	private String caller;
 	private Class<?> clazz;
 	private String name;
 	private Type resultType;
@@ -21,8 +22,9 @@ public class SerializedInput {
 	private Type[] types;
 	private SerializedValue[] values;
 
-	public SerializedInput(int id, Class<?> clazz, String name, Type resultType, SerializedValue result, Type[] types, SerializedValue... values) {
+	public SerializedInput(int id, String caller, Class<?> clazz, String name, Type resultType, SerializedValue result, Type[] types, SerializedValue... values) {
 		this.id = id;
+		this.caller = caller;
 		this.clazz = clazz;
 		this.name = name;
 		this.resultType = resultType;
@@ -31,8 +33,9 @@ public class SerializedInput {
 		this.values = values;
 	}
 
-	public SerializedInput(int id, Class<?> clazz, String name, Type[] types, SerializedValue... values) {
+	public SerializedInput(int id, String caller, Class<?> clazz, String name, Type[] types, SerializedValue... values) {
 		this.id = id;
+		this.caller = caller;
 		this.clazz = clazz;
 		this.resultType = void.class;
 		this.result = null;
@@ -43,6 +46,10 @@ public class SerializedInput {
 	
 	public int getId() {
 		return id;
+	}
+	
+	public String getCaller() {
+		return caller;
 	}
 
 	public Class<?> getDeclaringClass() {
@@ -100,6 +107,7 @@ public class SerializedInput {
 		}
 		SerializedInput that = (SerializedInput) obj;
 		return this.id == that.id
+			&& this.caller.equals(that.caller)
 			&& this.clazz.equals(that.clazz)
 			&& this.name.equals(that.name)
 			&& this.resultType.equals(that.resultType)

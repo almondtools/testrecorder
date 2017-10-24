@@ -17,6 +17,8 @@ import java.util.Map;
 
 import org.hamcrest.StringDescription;
 import org.mockito.Mockito;
+import org.mockito.invocation.Invocation;
+import org.mockito.invocation.InvocationOnMock;
 
 import net.amygdalum.testrecorder.util.Types;
 
@@ -29,14 +31,14 @@ public class InputDecorator<T> {
 		this.o = Mockito.spy(o);
 		this.invocationData = new HashMap<>();
 	}
-
-	public InputDecorator<T> provide(String method, Object result) {
-		return provide(method, new Class[0], result);
+	
+	public InputDecorator<T> provide(String method, String caller, Object result) {
+		return provide(method, caller, new Class[0], result);
 	}
 
-	public InputDecorator<T> provide(String method, Class<?>[] argTypes, Object result, Object... args) {
+	public InputDecorator<T> provide(String method, String caller, Class<?>[] argTypes, Object result, Object... args) {
 		Method resolvedMethod = resolveMethod(method, argTypes);
-		InvocationData data = new InvocationData(result, args);
+		InvocationData data = new InvocationData(caller, result, args);
 		invocationData.compute(resolvedMethod, (key, value) -> {
 			if (value == null) {
 				value = new ArrayList<>();
@@ -65,6 +67,9 @@ public class InputDecorator<T> {
 					Object mock = Mockito.doAnswer(invocation -> {
 						if (itr.hasNext()) {
 							InvocationData next = itr.next();
+							if (!callerMatches(invocation, next)) {
+								throw new AssertionError("requested input from caller <" + caller(invocation) + "> was not recorded. Expected caller <" + next.caller + ">. Ensure that all call sites are recorded");
+							}
 							sync(next.args, invocation.getArguments());
 							return next.result;
 						} else {
@@ -73,7 +78,7 @@ public class InputDecorator<T> {
 								.map(arg -> equalTo(arg))
 								.map(matcher -> StringDescription.toString(matcher))
 								.collect(joining(", ", method.getName() + "(", ")"));
-							throw new AssertionError("missing input for:\n" + found + "\n\nIf the input was recorded ensure that all call sites were recorded");
+							throw new AssertionError("missing input for:\n" + found + "\n\nIf the input was recorded ensure that all call sites are recorded");
 						}
 					}).when(o);
 					Object[] args = Arrays.stream(method.getParameterTypes())
@@ -86,6 +91,20 @@ public class InputDecorator<T> {
 			}
 		}
 		return o;
+	}
+
+	private String caller(InvocationOnMock invocation) {
+		if (invocation instanceof Invocation) {
+			return ((Invocation) invocation).getLocation().toString();
+		}
+		return "?";
+	}
+
+	private boolean callerMatches(InvocationOnMock invocation, InvocationData next) {
+		if (invocation instanceof Invocation) {
+			return ((Invocation) invocation).getLocation().toString().contains(next.caller);
+		}
+		return false;
 	}
 
 	private void sync(Object[] fromArgs, Object[] toArgs) {
@@ -106,10 +125,12 @@ public class InputDecorator<T> {
 	}
 
 	private static class InvocationData {
+		public String caller;
 		public Object result;
 		public Object[] args;
 
-		public InvocationData(Object result, Object[] args) {
+		public InvocationData(String caller, Object result, Object[] args) {
+			this.caller = caller;
 			this.result = result;
 			this.args = args;
 		}

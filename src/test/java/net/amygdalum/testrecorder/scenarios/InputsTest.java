@@ -85,9 +85,9 @@ public class InputsTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
         assertThat(testGenerator.renderTest(Inputs.class), allOf(
-            containsPattern(".provide(\"read\", \"Hello\")"),
-            containsPattern(".provide(\"read\", \" \")"),
-            containsPattern(".provide(\"read\", \"World\")")
+            containsPattern(".provide(\"read\", \"net.amygdalum.testrecorder.scenarios.Inputs.recorded\", \"Hello\")"),
+            containsPattern(".provide(\"read\", \"net.amygdalum.testrecorder.scenarios.Inputs.recorded\", \" \")"),
+            containsPattern(".provide(\"read\", \"net.amygdalum.testrecorder.scenarios.Inputs.recorded\", \"World\")")
             ));
 		assertThat(testGenerator.renderTest(Inputs.class), testsRun(Inputs.class));
 	}
@@ -99,8 +99,8 @@ public class InputsTest {
 		
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Inputs.class), allOf(
-			containsPattern(".provide(\"conditionalReturnRead\", \"Hello\")"),
-			containsPattern(".provide(\"conditionalReturnRead\", \"World\")")
+			containsPattern(".provide(\"conditionalReturnRead\", \"net.amygdalum.testrecorder.scenarios.Inputs.recordedWithConditionalReturns\", \"Hello\")"),
+			containsPattern(".provide(\"conditionalReturnRead\", \"net.amygdalum.testrecorder.scenarios.Inputs.recordedWithConditionalReturns\", \"World\")")
 			));
 		assertThat(testGenerator.renderTest(Inputs.class), testsRun(Inputs.class));
 	}

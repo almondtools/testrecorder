@@ -47,28 +47,44 @@ public class SnapshotProcess {
 		return snapshot;
 	}
 
+	private String caller() {
+		StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+		for (StackTraceElement caller : stackTrace) {
+			if (!caller.getClassName().startsWith("java.lang.Thread")
+				&& !caller.getClassName().startsWith("net.amygdalum.testrecorder.SnapshotManager")
+				&& !caller.getClassName().startsWith("net.amygdalum.testrecorder.SnapshotProcess")) {
+				return caller.getClassName() + "." + caller.getMethodName();
+			}
+		}
+		return "";
+	}
+
 	public void inputVariables(Object object, String method, Type resultType, Object result, Type[] paramTypes, Object[] args) {
+		String caller = caller();
 		Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
 		int id = object instanceof Class<?> ? 0 : identityHashCode(object);
-		input.add(new SerializedInput(id, clazz, method, resultType, facade.serialize(resultType, result), paramTypes, facade.serialize(paramTypes, args)));
+		input.add(new SerializedInput(id, caller, clazz, method, resultType, facade.serialize(resultType, result), paramTypes, facade.serialize(paramTypes, args)));
 	}
 
 	public void inputVariables(Object object, String method, Type[] paramTypes, Object[] args) {
+		String caller = caller();
 		Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
 		int id = object instanceof Class<?> ? 0 : identityHashCode(object);
-		input.add(new SerializedInput(id, clazz, method, paramTypes, facade.serialize(paramTypes, args)));
+		input.add(new SerializedInput(id, caller, clazz, method, paramTypes, facade.serialize(paramTypes, args)));
 	}
 
 	public void outputVariables(Object object, String method, Type resultType, Object result, Type[] paramTypes, Object[] args) {
+		String caller = caller();
 		Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
 		int id = object instanceof Class<?> ? 0 : identityHashCode(object);
-		output.add(new SerializedOutput(id, clazz, method, resultType, facade.serialize(resultType, result), paramTypes, facade.serialize(paramTypes, args)));
+		output.add(new SerializedOutput(id, caller, clazz, method, resultType, facade.serialize(resultType, result), paramTypes, facade.serialize(paramTypes, args)));
 	}
 
 	public void outputVariables(Object object, String method, Type[] paramTypes, Object[] args) {
+		String caller = caller();
 		Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
 		int id = object instanceof Class<?> ? 0 : identityHashCode(object);
-		output.add(new SerializedOutput(id, clazz, method, paramTypes, facade.serialize(paramTypes, args)));
+		output.add(new SerializedOutput(id, caller, clazz, method, paramTypes, facade.serialize(paramTypes, args)));
 	}
 	
 	public void setupVariables(String signature, Object self, Object... args) {

@@ -21,87 +21,87 @@ import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
 @Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.Outputs" })
 public class OutputsTest {
 
-    @Before
-    public void before() throws Exception {
-        TestGenerator.fromRecorded().clearResults();
-    }
+	@Before
+	public void before() throws Exception {
+		TestGenerator.fromRecorded().clearResults();
+	}
 
-    @Test
-    public void testCompilableNotRecorded() throws Exception {
-        Outputs out = new Outputs();
-        out.notrecorded();
+	@Test
+	public void testCompilableNotRecorded() throws Exception {
+		Outputs out = new Outputs();
+		out.notrecorded();
 
-        TestGenerator testGenerator = TestGenerator.fromRecorded();
-        assertThat(testGenerator.testsFor(Outputs.class), empty());
-    }
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.testsFor(Outputs.class), empty());
+	}
 
-    @Test
-    public void testCompilable() throws Exception {
-        Outputs out = new Outputs();
-        out.recorded();
+	@Test
+	public void testCompilable() throws Exception {
+		Outputs out = new Outputs();
+		out.recorded();
 
-        TestGenerator testGenerator = TestGenerator.fromRecorded();
-        assertThat(testGenerator.renderTest(Outputs.class), compiles(Outputs.class));
-    }
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(Outputs.class), compiles(Outputs.class));
+	}
 
-    @Test
-    public void testCompilableConditionalReturn() throws Exception {
-    	Outputs out = new Outputs();
-    	out.recordedWithConditionalReturn();
-    	
-    	TestGenerator testGenerator = TestGenerator.fromRecorded();
-    	assertThat(testGenerator.renderTest(Outputs.class), compiles(Outputs.class));
-    }
-    
-    @Test
-    public void testPrimitivesCompilable() throws Exception {
-        Outputs out = new Outputs();
-        out.primitivesRecorded();
+	@Test
+	public void testCompilableConditionalReturn() throws Exception {
+		Outputs out = new Outputs();
+		out.recordedWithConditionalReturn();
 
-        TestGenerator testGenerator = TestGenerator.fromRecorded();
-        assertThat(testGenerator.renderTest(Outputs.class), compiles(Outputs.class));
-    }
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(Outputs.class), compiles(Outputs.class));
+	}
 
-    @Test
-    public void testRunnable() throws Exception {
-        Outputs out = new Outputs();
-        out.recorded();
+	@Test
+	public void testPrimitivesCompilable() throws Exception {
+		Outputs out = new Outputs();
+		out.primitivesRecorded();
 
-        TestGenerator testGenerator = TestGenerator.fromRecorded();
-        assertThat(testGenerator.testsFor(Outputs.class), hasSize(1));
-        assertThat(testGenerator.renderTest(Outputs.class), allOf(
-            containsPattern(".expect(\"print\", new Class[]{String.class}, null, equalTo(\"Hello \")"),
-            containsPattern(".expect(\"print\", new Class[]{String.class}, null, equalTo(\"World\")")));
-        assertThat(testGenerator.renderTest(Outputs.class), containsString("verifies"));
-        assertThat(testGenerator.renderTest(Outputs.class), testsRun(Outputs.class));
-    }
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(Outputs.class), compiles(Outputs.class));
+	}
 
-    @Test
-    public void testRunnableConditionalReturn() throws Exception {
-    	Outputs out = new Outputs();
-    	out.recordedWithConditionalReturn();
-    	
-    	TestGenerator testGenerator = TestGenerator.fromRecorded();
-    	assertThat(testGenerator.testsFor(Outputs.class), hasSize(1));
-    	assertThat(testGenerator.renderTest(Outputs.class), allOf(
-    		containsPattern(".expect(\"conditionalReturnOutput\", new Class[]{char.class}, true, equalTo('a')"),
-    		containsPattern(".expect(\"conditionalReturnOutput\", new Class[]{char.class}, true, equalTo(',')"),
-    		containsPattern(".expect(\"conditionalReturnOutput\", new Class[]{char.class}, false, equalTo(' ')"),
-    		containsPattern(".expect(\"conditionalReturnOutput\", new Class[]{char.class}, true, equalTo('b')"),
-    		containsPattern(".expect(\"conditionalReturnOutput\", new Class[]{char.class}, false, equalTo('\\n')")));
+	@Test
+	public void testRunnable() throws Exception {
+		Outputs out = new Outputs();
+		out.recorded();
 
-        assertThat(testGenerator.renderTest(Outputs.class), containsString("verifies"));
-    	assertThat(testGenerator.renderTest(Outputs.class), testsRun(Outputs.class));
-    }
-    
-    @Test
-    public void testPrimitivesRunnable() throws Exception {
-        Outputs out = new Outputs();
-        out.primitivesRecorded();
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.testsFor(Outputs.class), hasSize(1));
+		assertThat(testGenerator.renderTest(Outputs.class), allOf(
+			containsPattern(".expect(\"print\", \"net.amygdalum.testrecorder.scenarios.Outputs.recorded\", new Class[]{String.class}, null, equalTo(\"Hello \")"),
+			containsPattern(".expect(\"print\", \"net.amygdalum.testrecorder.scenarios.Outputs.recorded\", new Class[]{String.class}, null, equalTo(\"World\")")));
+		assertThat(testGenerator.renderTest(Outputs.class), containsString("verifies"));
+		assertThat(testGenerator.renderTest(Outputs.class), testsRun(Outputs.class));
+	}
 
-        TestGenerator testGenerator = TestGenerator.fromRecorded();
-        assertThat(testGenerator.renderTest(Outputs.class), containsString("verifies"));
-        assertThat(testGenerator.renderTest(Outputs.class), testsRun(Outputs.class));
-    }
+	@Test
+	public void testRunnableConditionalReturn() throws Exception {
+		Outputs out = new Outputs();
+		out.recordedWithConditionalReturn();
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.testsFor(Outputs.class), hasSize(1));
+		assertThat(testGenerator.renderTest(Outputs.class), allOf(
+			containsPattern(".expect(\"conditionalReturnOutput\", \"net.amygdalum.testrecorder.scenarios.Outputs.recordedWithConditionalReturn\", new Class[]{char.class}, true, equalTo('a')"),
+			containsPattern(".expect(\"conditionalReturnOutput\", \"net.amygdalum.testrecorder.scenarios.Outputs.recordedWithConditionalReturn\", new Class[]{char.class}, true, equalTo(',')"),
+			containsPattern(".expect(\"conditionalReturnOutput\", \"net.amygdalum.testrecorder.scenarios.Outputs.recordedWithConditionalReturn\", new Class[]{char.class}, false, equalTo(' ')"),
+			containsPattern(".expect(\"conditionalReturnOutput\", \"net.amygdalum.testrecorder.scenarios.Outputs.recordedWithConditionalReturn\", new Class[]{char.class}, true, equalTo('b')"),
+			containsPattern(".expect(\"conditionalReturnOutput\", \"net.amygdalum.testrecorder.scenarios.Outputs.recordedWithConditionalReturn\", new Class[]{char.class}, false, equalTo('\\n')")));
+
+		assertThat(testGenerator.renderTest(Outputs.class), containsString("verifies"));
+		assertThat(testGenerator.renderTest(Outputs.class), testsRun(Outputs.class));
+	}
+
+	@Test
+	public void testPrimitivesRunnable() throws Exception {
+		Outputs out = new Outputs();
+		out.primitivesRecorded();
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(Outputs.class), containsString("verifies"));
+		assertThat(testGenerator.renderTest(Outputs.class), testsRun(Outputs.class));
+	}
 
 }

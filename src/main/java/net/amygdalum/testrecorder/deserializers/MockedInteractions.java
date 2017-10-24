@@ -88,6 +88,7 @@ public class MockedInteractions {
 			List<String> arguments = new ArrayList<>();
 
 			arguments.add(asLiteral(in.getName()));
+			arguments.add(asLiteral(in.getCaller()));
 
 			if (in.getTypes().length > 0) {
 				List<String> argTypes = Arrays.stream(in.getTypes())
@@ -165,6 +166,7 @@ public class MockedInteractions {
 			List<String> arguments = new ArrayList<>();
 
 			arguments.add(asLiteral(out.getName()));
+			arguments.add(asLiteral(out.getCaller()));
 
 			List<String> argTypes = Arrays.stream(out.getTypes())
 				.map(type -> types.getRawClass(type))
