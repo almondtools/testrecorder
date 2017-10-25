@@ -1,1 +1,4 @@
 body {padding-top: 50px;}
+div pre code {
+    min-width: 600px;
+}
