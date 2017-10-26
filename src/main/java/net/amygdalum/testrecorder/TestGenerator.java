@@ -5,7 +5,6 @@ import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.synchronizedMap;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.deserializers.Computation.variable;
@@ -45,11 +44,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.junit.Assert;
@@ -110,19 +107,23 @@ public class TestGenerator implements SnapshotConsumer {
 	private static final String BEGIN_ASSERT = "\n//Assert";
 
 	private ExecutorService executor;
+	private CompletableFuture<Void> future;
 	private DeserializerFactory setup;
 	private DeserializerFactory matcher;
 	private Map<ClassDescriptor, TestGeneratorContext> tests;
 	private Set<String> fields;
 
 	public TestGenerator() {
-		this.executor = Executors.newSingleThreadExecutor(new TestrecorderThreadFactory("$consume"));
+		executor = Executors.newSingleThreadExecutor(new TestrecorderThreadFactory("$consume"));
 
 		this.setup = new SetupGenerators.Factory();
 		this.matcher = new MatcherGenerators.Factory();
 
 		this.tests = synchronizedMap(new LinkedHashMap<>());
 		this.fields = new LinkedHashSet<>();
+		this.future = CompletableFuture.runAsync(() -> {
+			System.out.println("starting code generation");
+		}, executor);
 	}
 
 	@Override
@@ -146,24 +147,23 @@ public class TestGenerator implements SnapshotConsumer {
 
 	@Override
 	public synchronized void accept(ContextSnapshot snapshot) {
-		executor.submit(() -> {
-			try {
-				Class<?> thisType = baseType(snapshot.getThisType());
-				while (thisType.getEnclosingClass() != null) {
-					thisType = thisType.getEnclosingClass();
-				}
-				ClassDescriptor baseType = ClassDescriptor.of(thisType);
-				TestGeneratorContext context = tests.computeIfAbsent(baseType, key -> new TestGeneratorContext(key));
-				MethodGenerator methodGenerator = new MethodGenerator(snapshot, context)
-					.generateArrange()
-					.generateAct()
-					.generateAssert();
-
-				context.add(methodGenerator.generateTest());
-			} catch (Throwable e) {
-				System.out.println("failed generating test for " + snapshot.getMethodName() + ": " + e.getClass().getSimpleName() + " " + e.getMessage());
+		future = future.thenRunAsync(() -> {
+			Class<?> thisType = baseType(snapshot.getThisType());
+			while (thisType.getEnclosingClass() != null) {
+				thisType = thisType.getEnclosingClass();
 			}
+			ClassDescriptor baseType = ClassDescriptor.of(thisType);
+			TestGeneratorContext context = tests.computeIfAbsent(baseType, key -> new TestGeneratorContext(key));
+			MethodGenerator methodGenerator = new MethodGenerator(snapshot, context)
+				.generateArrange()
+				.generateAct()
+				.generateAssert();
 
+			context.add(methodGenerator.generateTest());
+		}, executor).exceptionally(e -> {
+			System.out.println("failed generating test for " + snapshot.getMethodName() + ": " + e.getClass().getSimpleName() + " " + e.getMessage());
+			e.printStackTrace();
+			return null;
 		});
 	}
 
@@ -260,20 +260,12 @@ public class TestGenerator implements SnapshotConsumer {
 	}
 
 	public TestGenerator await() {
-		try {
-			Future<TestGenerator> waiting = executor.submit(() -> this);
-			return waiting.get();
-		} catch (InterruptedException | ExecutionException e) {
-			return null;
-		}
+		future.join();
+		return this;
 	}
 
 	public void andThen(Runnable runnable) {
-		try {
-			Future<Void> waiting = executor.submit(runnable, null);
-			waiting.get();
-		} catch (InterruptedException | ExecutionException e) {
-		}
+		future.thenRun(runnable).join();
 	}
 
 	private class MethodGenerator {
@@ -291,7 +283,6 @@ public class TestGenerator implements SnapshotConsumer {
 		private String result;
 		private String error;
 
-
 		public MethodGenerator(ContextSnapshot snapshot, TestGeneratorContext context) {
 			this.snapshot = snapshot;
 			this.context = context;
@@ -304,28 +295,30 @@ public class TestGenerator implements SnapshotConsumer {
 			TypeManager types = context.getTypes();
 			statements.add(BEGIN_ARRANGE);
 
-			Deserializer<Computation> setupCode = setup.create(locals, types, mocked );
+			Deserializer<Computation> setupCode = setup.create(locals, types, mocked);
+
 			Computation setupThis = snapshot.getSetupThis() != null
 				? snapshot.getSetupThis().accept(setupCode)
 				: variable(types.getVariableTypeName(types.wrapHidden(snapshot.getThisType())), null);
-			statements.addAll(setupThis.getStatements());
+			setupThis.getStatements()
+				.forEach(statements::add);
 
 			AnnotatedValue[] snapshotSetupArgs = snapshot.getAnnotatedSetupArgs();
 			List<Computation> setupArgs = Stream.of(snapshotSetupArgs)
 				.map(arg -> arg.value.accept(setupCode, newContext(arg.annotations)))
 				.collect(toList());
 
-			statements.addAll(setupArgs.stream()
+			setupArgs.stream()
 				.flatMap(arg -> arg.getStatements().stream())
-				.collect(toList()));
+				.forEach(statements::add);
 
 			List<Computation> setupGlobals = Stream.of(snapshot.getSetupGlobals())
 				.map(global -> assignGlobal(global.getDeclaringClass(), global.getName(), global.getValue().accept(setupCode)))
 				.collect(toList());
 
-			statements.addAll(setupGlobals.stream()
+			setupGlobals.stream()
 				.flatMap(arg -> arg.getStatements().stream())
-				.collect(toList()));
+				.forEach(statements::add);
 
 			this.base = setupThis.isStored()
 				? setupThis.getValue()
@@ -336,6 +329,7 @@ public class TestGenerator implements SnapshotConsumer {
 					? arg.getElement1().getValue()
 					: assign(arg.getElement2().value.getResultType(), arg.getElement1().getValue()))
 				.collect(toList());
+			
 			return this;
 		}
 
@@ -385,54 +379,81 @@ public class TestGenerator implements SnapshotConsumer {
 			statements.add(BEGIN_ASSERT);
 
 			if (error == null) {
-				List<String> expectResult = Optional.ofNullable(snapshot.getExpectResult())
-					.map(o -> o.accept(matcher.create(locals, types, mocked), newContext(snapshot.getResultAnnotation())))
-					.map(o -> createAssertion(o, result))
-					.orElse(emptyList());
-
-				statements.addAll(expectResult);
+				Annotation[] resultAnnotation = snapshot.getResultAnnotation();
+				Stream.of(snapshot.getExpectResult())
+					.flatMap(res -> generateResultAssert(types, res, resultAnnotation, result))
+					.forEach(statements::add);
 			} else {
-				List<String> expectResult = Optional.ofNullable(snapshot.getExpectException())
-					.map(o -> o.accept(matcher.create(locals, types, mocked)))
-					.map(o -> createAssertion(o, error))
-					.orElse(emptyList());
-
-				statements.addAll(expectResult);
+				Stream.of(snapshot.getExpectException())
+					.flatMap(e -> generateExceptionAssert(types, e, error))
+					.forEach(statements::add);
 			}
 
 			boolean thisChanged = compare(snapshot.getSetupThis(), snapshot.getExpectThis());
 			SerializedValue snapshotExpectThis = snapshot.getExpectThis();
-			List<String> expectThis = Optional.ofNullable(snapshotExpectThis)
-				.map(o -> o.accept(matcher.create(locals, types, mocked)))
-				.map(o -> createAssertion(o, base, thisChanged))
-				.orElse(emptyList());
+			Stream.of(snapshotExpectThis)
+				.flatMap(self -> generateThisAssert(types, self, base, thisChanged))
+				.forEach(statements::add);
 
-			statements.addAll(expectThis);
-
-			Boolean[] argsChanged = compare(snapshot.getSetupArgs(),snapshot.getExpectArgs());
+			Boolean[] argsChanged = compare(snapshot.getSetupArgs(), snapshot.getExpectArgs());
 			AnnotatedValue[] snapshotExpectArgs = snapshot.getAnnotatedExpectArgs();
 			Triple<AnnotatedValue, String, Boolean>[] arguments = Triple.zip(snapshotExpectArgs, args.toArray(new String[0]), argsChanged);
-			List<String> expectArgs = Stream.of(arguments)
-				.filter(arg -> !(arg.getElement1().value instanceof SerializedLiteral))
-				.map(arg -> new Triple<Computation, String, Boolean>(arg.getElement1().value.accept(matcher.create(locals, types, mocked), newContext(arg.getElement1().annotations)), arg.getElement2(), arg.getElement3()))
-				.filter(arg -> arg.getElement1() != null)
-				.map(arg -> createAssertion(arg.getElement1(), arg.getElement2(), arg.getElement3()))
-				.flatMap(statements -> statements.stream())
-				.collect(toList());
-
-			statements.addAll(expectArgs);
+			Stream.of(arguments)
+				.flatMap(arg -> generateArgumentAssert(types, arg.getElement1(), arg.getElement2(), arg.getElement3()))
+				.forEach(statements::add);
 
 			Boolean[] globalsChanged = compare(snapshot.getExpectGlobals(), snapshot.getExpectGlobals());
-			SerializedField[] snashotExpectGlobals = snapshot.getExpectGlobals();
-			List<String> expectGlobals = IntStream.range(0, snashotExpectGlobals.length)
-				.mapToObj(i -> createAssertion(snashotExpectGlobals[i].getValue().accept(matcher.create(locals, types, mocked)),
-					fieldAccess(types.getVariableTypeName(snashotExpectGlobals[i].getDeclaringClass()), snashotExpectGlobals[i].getName()), globalsChanged[i]))
-				.flatMap(statements -> statements.stream())
-				.collect(toList());
-
-			statements.addAll(expectGlobals);
+			SerializedField[] snapshotExpectGlobals = snapshot.getExpectGlobals();
+			Pair<SerializedField, Boolean>[] globals = Pair.zip(snapshotExpectGlobals, globalsChanged);
+			Stream.of(globals)
+				.flatMap(global -> generateGlobalAssert(types, global.getElement1(), global.getElement2()))
+				.forEach(statements::add);
 
 			return this;
+		}
+
+		private Stream<String> generateResultAssert(TypeManager types, SerializedValue result, Annotation[] resultAnnotation, String expression) {
+			if (result == null) {
+				return Stream.empty();
+			}
+			Computation matcherExpression = result.accept(matcher.create(locals, types, mocked), newContext(resultAnnotation));
+			if (matcherExpression == null) {
+				return Stream.empty();
+			}
+			return createAssertion(matcherExpression, expression).stream();
+		}
+
+		private Stream<String> generateExceptionAssert(TypeManager types, SerializedValue exception, String expression) {
+			if (exception == null) {
+				return Stream.empty();
+			}
+			Computation matcherExpression = exception.accept(matcher.create(locals, types, mocked));
+			return createAssertion(matcherExpression, expression).stream();
+		}
+
+		private Stream<String> generateThisAssert(TypeManager types, SerializedValue value, String expression, Boolean changed) {
+			if (value == null) {
+				return Stream.empty();
+			}
+			Computation matcherExpression = value.accept(matcher.create(locals, types, mocked));
+			return createAssertion(matcherExpression, expression, changed).stream();
+		}
+
+		private Stream<String> generateArgumentAssert(TypeManager types, AnnotatedValue value, String expression, Boolean changed) {
+			if (value == null || value.value instanceof SerializedLiteral) {
+				return Stream.empty();
+			}
+			Computation matcherExpression = value.value.accept(matcher.create(locals, types, mocked), newContext(value.annotations));
+			if (matcherExpression == null) {
+				return Stream.empty();
+			}
+			return createAssertion(matcherExpression, expression, changed).stream();
+		}
+
+		private Stream<String> generateGlobalAssert(TypeManager types, SerializedField value, Boolean changed) {
+			Computation matcherExpression = value.getValue().accept(matcher.create(locals, types, mocked));
+			String expression = fieldAccess(types.getVariableTypeName(value.getDeclaringClass()), value.getName());
+			return createAssertion(matcherExpression, expression, changed).stream();
 		}
 
 		private Boolean[] compare(SerializedField[] s, SerializedField[] e) {
@@ -470,7 +491,7 @@ public class TestGenerator implements SnapshotConsumer {
 
 			if (changed == null) {
 				statements.add(callLocalMethodStatement("assertThat", exp, matcher.getValue()));
-			} else if (changed){
+			} else if (changed) {
 				statements.add(callLocalMethodStatement("assertThat", asLiteral("expected change:"), exp, matcher.getValue()));
 			} else {
 				statements.add(callLocalMethodStatement("assertThat", asLiteral("expected no change, but was:"), exp, matcher.getValue()));
