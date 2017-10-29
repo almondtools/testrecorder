@@ -144,7 +144,7 @@ public class SetupGenerators implements Deserializer<Computation> {
 	public Computation visitField(SerializedField field, DeserializerContext context) {
 		Type fieldType = field.getType();
 		Type resultType = field.getValue().getResultType();
-		Type fieldResultType = types.bestType(types.bestVisible(fieldType), Object.class);
+		Type fieldResultType = types.bestType(fieldType, Object.class);
 		types.registerTypes(fieldType, resultType, fieldResultType);
 
 		SerializedValue value = field.getValue();

@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.deserializers;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.values.SerializedField;
@@ -8,11 +9,13 @@ import net.amygdalum.testrecorder.values.SerializedField;
 public class SetterParam {
 
 	private Method method;
+	private Type type;
 	private SerializedField field;
 	private Object value;
 
-	public SetterParam(Method method, SerializedField field, Object value) {
+	public SetterParam(Method method, Type type, SerializedField field, Object value) {
 		this.method = method;
+		this.type = type;
 		this.field = field;
 		this.value = value;
 	}
@@ -23,6 +26,10 @@ public class SetterParam {
 	
 	public String getName() {
 		return method.getName();
+	}
+	
+	public Type getType() {
+		return type;
 	}
 	
 	public SerializedField getField() {

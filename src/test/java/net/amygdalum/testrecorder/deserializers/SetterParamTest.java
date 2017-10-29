@@ -21,7 +21,7 @@ public class SetterParamTest {
     @Before
     public void before() throws Exception {
         method = Bean.class.getDeclaredMethod("setAttribute", String.class);
-        setterParam = new SetterParam(method, new SerializedField(Simple.class, "attribute", String.class, literal("value")), "value");
+        setterParam = new SetterParam(method, String.class, new SerializedField(Simple.class, "attribute", String.class, literal("value")), "value");
     }
 
     @Test

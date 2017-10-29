@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.deserializers;
 
 import static net.amygdalum.testrecorder.deserializers.Templates.cast;
+import static net.amygdalum.testrecorder.util.Types.equalGenericTypes;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.isLiteral;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
@@ -85,7 +86,7 @@ public class ConstructorParam {
             || type == null) {
             return false;
         }
-        return !type.equals(field.getType());
+        return !equalGenericTypes(type,field.getType());
     }
 
     public Computation compile(TypeManager types, SetupGenerators generator) {

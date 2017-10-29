@@ -81,8 +81,8 @@ public class SetupGeneratorsTest {
 
         Computation result = setupCode.visitField(new SerializedField(ContainingList.class, "list", parameterized(classOfHiddenList(), null, String.class), value));
 
-        assertThat(result.getStatements().toString(), containsPattern("Object hiddenList2 = *new GenericObject*value()"));
-        assertThat(result.getValue(), equalTo("Object list = hiddenList2;"));
+        assertThat(result.getStatements().toString(), containsPattern("ArrayList hiddenList2 = *(ArrayList<?>) new GenericObject*value()"));
+        assertThat(result.getValue(), equalTo("ArrayList<?> list = hiddenList2;"));
     }
 
     @Test

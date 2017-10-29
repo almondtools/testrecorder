@@ -3,6 +3,7 @@ package net.amygdalum.testrecorder.util;
 import static java.lang.reflect.Modifier.isPrivate;
 import static java.lang.reflect.Modifier.isPublic;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
@@ -10,6 +11,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -19,7 +21,12 @@ import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -31,7 +38,7 @@ public final class Types {
 
 	private static final String SYNTHETIC_INDICATOR = "$";
 	private static final String[] HANDLED_SYNTHETIC_PREFIXES = { "this$" };
-
+	
 	private Types() {
 	}
 
@@ -112,6 +119,149 @@ public final class Types {
 		}
 	}
 
+	public static Type resolve(Type type, Class<?> context) {
+		Map<TypeVariable<?>, Type> resolved = computeResolvableVariables(type, context);
+		return updateTypes(type, resolved);
+	}
+
+	private static Type updateTypes(Type type, Map<TypeVariable<?>, Type> resolved) {
+		if (resolved.isEmpty()) {
+			return type;
+		}
+		if (type instanceof GenericArrayType) {
+			Type componentType = ((GenericArrayType) type).getGenericComponentType();
+			Type resolvedType = updateTypes(componentType, resolved);
+			if (resolvedType != componentType) {
+				return Types.array(resolvedType);
+			}
+		} else if (type instanceof ParameterizedType) {
+			Type[] actualTypeArguments = ((ParameterizedType) type).getActualTypeArguments();
+			Type ownerType = ((ParameterizedType) type).getOwnerType();
+			Type rawType =((ParameterizedType) type).getRawType();
+			
+			Type[] resolvedTypeArguments = Arrays.stream(actualTypeArguments)
+				.map(typeArgument -> updateTypes(typeArgument, resolved))
+				.toArray(Type[]::new);
+			
+			if (!Arrays.equals(resolvedTypeArguments, actualTypeArguments)) {
+				return Types.parameterized(rawType, ownerType, resolvedTypeArguments);
+			}
+		} else if (type instanceof TypeVariable<?>) {
+			Type resolvedType = resolved.get(type);
+			if (resolvedType != null) {
+				return resolvedType;
+			}
+		}
+		return type;
+	}
+
+	private static Map<TypeVariable<?>, Type> computeResolvableVariables(Type type, Class<?> context) {
+		Map<TypeVariable<?>, Type> resolvable = computeUnresolvedTypeVariables(type);
+		Set<ParameterizedType> types = computeBoundingTypes(context);
+		Map<TypeVariable<?>, Type> next = new HashMap<>(resolvable);
+		while (!next.isEmpty()) {
+			Iterator<Map.Entry<TypeVariable<?>, Type>> nexts = next.entrySet().iterator();
+			while (nexts.hasNext()) {
+				Entry<TypeVariable<?>, Type> entry = nexts.next();
+				TypeVariable<?> key = entry.getKey();
+				Type value = entry.getValue();
+				if (value instanceof TypeVariable<?>) {
+					Type resolved = resolve((TypeVariable<?>) value, types);
+					if (value != resolved) {
+						entry.setValue(resolved);
+						resolvable.put(key, resolved);
+						continue;
+					}
+				}
+				nexts.remove();
+			}
+		}
+		resolvable.entrySet().removeIf(entry -> entry.getValue() instanceof TypeVariable<?>);
+		return resolvable;
+	}
+
+	private static Type resolve(TypeVariable<? extends GenericDeclaration> value, Set<ParameterizedType> types) {
+		GenericDeclaration genericDeclaration = value.getGenericDeclaration();
+		if (genericDeclaration instanceof Class<?>) {
+			Class<?> clazz = (Class<?>) genericDeclaration;
+			Optional<ParameterizedType> matching = types.stream()
+				.filter(type -> type.getRawType() == clazz)
+				.sorted(Types::byMostConcrete)
+				.findFirst();
+			if (matching.isPresent()) {
+				TypeVariable<?>[] params = genericDeclaration.getTypeParameters();
+				Type[] actual = matching.get().getActualTypeArguments();
+				for (int i = 0; i < params.length && i < actual.length; i++) {
+					if (params[i] == value) {
+						return actual[i];
+					}
+				}
+			}
+		}
+		return value;
+	}
+
+	public static int byMostConcrete(Type type1, Type type2) {
+		if (type1 instanceof Class<?> && type2 instanceof Class<?>) {
+			Class<?> clazz1 = (Class<?>) type1;
+			Class<?> clazz2 = (Class<?>) type2;
+
+			if (clazz1.isAssignableFrom(clazz2)) {
+				return 1;
+			} else if (clazz1.isAssignableFrom(clazz2)) {
+				return -1;
+			} else {
+				return 0;
+			}
+		} else if (type1 instanceof Class<?>) {
+			return -1;
+		} else if (type2 instanceof Class<?>) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+
+	private static Map<TypeVariable<?>, Type> computeUnresolvedTypeVariables(Type type) {
+		Map<TypeVariable<?>, Type> unresolvedVariables = new HashMap<>();
+		if (type instanceof GenericArrayType) {
+			Type componentType = ((GenericArrayType) type).getGenericComponentType();
+			Map<TypeVariable<?>, Type> componentTypeVariables = computeUnresolvedTypeVariables(componentType);
+			unresolvedVariables.putAll(componentTypeVariables);
+		} else if (type instanceof ParameterizedType) {
+			for (Type typeArgument : ((ParameterizedType) type).getActualTypeArguments()) {
+				Map<TypeVariable<?>, Type> typeArgumentVariables = computeUnresolvedTypeVariables(typeArgument);
+				unresolvedVariables.putAll(typeArgumentVariables);
+			}
+		} else if (type instanceof TypeVariable<?>) {
+			unresolvedVariables.put((TypeVariable<?>) type, type);
+		}
+		return unresolvedVariables;
+	}
+
+	private static Set<ParameterizedType> computeBoundingTypes(Class<?> context) {
+		if (context == Object.class) {
+			return emptySet();
+		}
+		Set<ParameterizedType> types = new HashSet<>();
+		Type superType = context.getGenericSuperclass();
+		if (!types.contains(superType)) {
+			if (superType instanceof ParameterizedType) {
+				types.add((ParameterizedType) superType);
+			}
+			types.addAll(computeBoundingTypes(baseType(superType)));
+		}
+		for (Type interfaceType : context.getGenericInterfaces()) {
+			if (!types.contains(interfaceType)) {
+				if (interfaceType instanceof ParameterizedType) {
+					types.add((ParameterizedType) interfaceType);
+				}
+				types.addAll(computeBoundingTypes(baseType(interfaceType)));
+			}
+		}
+		return types;
+	}
+
 	public static Class<?> baseType(Type type) {
 		if (type instanceof Class<?>) {
 			return ((Class<?>) type);
@@ -176,6 +326,10 @@ public final class Types {
 
 	}
 
+	public static boolean equalGenericTypes(Type type1, Type type2) {
+		return type1.equals(type2) || type2.equals(type1);
+	}
+
 	public static boolean equalTypes(Type type1, Type type2) {
 		return baseType(type1).equals(baseType(type2));
 	}
@@ -217,13 +371,15 @@ public final class Types {
 		Class<?> clazz = baseType(type);
 		while (true) {
 			int modifiers = clazz.getModifiers();
-			if (clazz.isAnonymousClass()) {
+			if (clazz.isAnonymousClass() || clazz.isSynthetic()) {
 				return true;
 			} else if (isPublic(modifiers)) {
 				return false;
 			} else if (isPrivate(modifiers)) {
 				return true;
-			} else if (pkg == null || clazz.getPackage() != null && !pkg.equals(clazz.getPackage().getName())) {
+			} else if (clazz.isArray()) {
+				clazz = clazz.getComponentType();
+			} else if (pkg == null || !pkg.equals(clazz.getPackage().getName())) {
 				return true;
 			} else if (clazz.getEnclosingClass() != null) {
 				clazz = clazz.getEnclosingClass();
@@ -231,6 +387,10 @@ public final class Types {
 				return false;
 			}
 		}
+	}
+
+	public static boolean isGenericVariable(Type type, String pkg) {
+		return type instanceof TypeVariable<?>;
 	}
 
 	public static boolean isErasureHidden(Type type, String pkg) {

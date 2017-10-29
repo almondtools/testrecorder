@@ -7,6 +7,7 @@ import static net.amygdalum.testrecorder.util.Types.baseType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -196,7 +197,8 @@ public class Construction {
 								continue nextmethod;
 							}
 						}
-						setters.add(new SetterParam(method, field, fieldValue));
+						Type type = Types.resolve(method.getGenericParameterTypes()[0], baseType(serialized.getType()));
+						setters.add(new SetterParam(method, type, field, fieldValue));
 					}
 				}
 			}
