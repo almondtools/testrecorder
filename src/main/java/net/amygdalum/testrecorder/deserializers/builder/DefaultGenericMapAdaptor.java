@@ -92,7 +92,7 @@ public abstract class DefaultGenericMapAdaptor<T extends SerializedReferenceType
                 : newObject(types.getConstructorTypeName(type));
             String temporaryTypeName = Optional.of(temporaryType)
                 .filter(t -> typeArguments(t).count() > 0)
-                .filter(t -> typeArguments(t).allMatch(Types::isActual))
+                .filter(t -> typeArguments(t).allMatch(Types::isBound))
                 .map(t -> types.getVariableTypeName(t))
                 .orElse(types.getRawTypeName(temporaryType));
             String mapInit = assignLocalVariableStatement(temporaryTypeName, tempVar, map);

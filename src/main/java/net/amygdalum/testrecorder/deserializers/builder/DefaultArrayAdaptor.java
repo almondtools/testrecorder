@@ -26,7 +26,7 @@ public class DefaultArrayAdaptor extends DefaultSetupGenerator<SerializedArray> 
 	public Computation tryDeserialize(SerializedArray value, SetupGenerators generator, DeserializerContext context) {
 		TypeManager types = generator.getTypes();
 		Type componentType = types.bestType(value.getComponentType(), Object.class);
-		types.registerTypes(value.getResultType(), value.getComponentType());
+		types.registerTypes(value.getResultType(), value.getComponentType(), componentType);
 		
 
 		return generator.forVariable(value, value.getResultType(), local -> {

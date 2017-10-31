@@ -38,7 +38,7 @@ public final class Types {
 
 	private static final String SYNTHETIC_INDICATOR = "$";
 	private static final String[] HANDLED_SYNTHETIC_PREFIXES = { "this$" };
-	
+
 	private Types() {
 	}
 
@@ -120,8 +120,8 @@ public final class Types {
 	}
 
 	public static Type resolve(Type type, Class<?> context) {
-		Map<TypeVariable<?>, Type> resolved = computeResolvableVariables(type, context);
-		return updateTypes(type, resolved);
+		Map<TypeVariable<?>, Type> freeVariables = computeTypeVariableResolutions(type, context);
+		return updateTypes(type, freeVariables);
 	}
 
 	private static Type updateTypes(Type type, Map<TypeVariable<?>, Type> resolved) {
@@ -137,12 +137,12 @@ public final class Types {
 		} else if (type instanceof ParameterizedType) {
 			Type[] actualTypeArguments = ((ParameterizedType) type).getActualTypeArguments();
 			Type ownerType = ((ParameterizedType) type).getOwnerType();
-			Type rawType =((ParameterizedType) type).getRawType();
-			
+			Type rawType = ((ParameterizedType) type).getRawType();
+
 			Type[] resolvedTypeArguments = Arrays.stream(actualTypeArguments)
 				.map(typeArgument -> updateTypes(typeArgument, resolved))
 				.toArray(Type[]::new);
-			
+
 			if (!Arrays.equals(resolvedTypeArguments, actualTypeArguments)) {
 				return Types.parameterized(rawType, ownerType, resolvedTypeArguments);
 			}
@@ -151,14 +151,33 @@ public final class Types {
 			if (resolvedType != null) {
 				return resolvedType;
 			}
+		} else if (type instanceof WildcardType) {
+			Type[] upperBounds = ((WildcardType) type).getUpperBounds();
+			Type[] lowerBounds = ((WildcardType) type).getLowerBounds();
+			if (lowerBounds.length > 0) {
+				Type[] resolvedLowerBounds = Arrays.stream(lowerBounds)
+					.map(bound -> updateTypes(bound, resolved))
+					.toArray(Type[]::new);
+				if (!Arrays.equals(resolvedLowerBounds, lowerBounds)) {
+					return wildcardSuper(resolvedLowerBounds);
+				}
+			} else if (upperBounds.length > 0 && upperBounds[0] != Object.class) {
+				Type[] resolvedUpperBounds = Arrays.stream(upperBounds)
+					.map(bound -> updateTypes(bound, resolved))
+					.toArray(Type[]::new);
+				if (!Arrays.equals(resolvedUpperBounds, upperBounds)) {
+					return wildcardExtends(resolvedUpperBounds);
+				}
+			}
+			return type;
 		}
 		return type;
 	}
 
-	private static Map<TypeVariable<?>, Type> computeResolvableVariables(Type type, Class<?> context) {
-		Map<TypeVariable<?>, Type> resolvable = computeUnresolvedTypeVariables(type);
-		Set<ParameterizedType> types = computeBoundingTypes(context);
-		Map<TypeVariable<?>, Type> next = new HashMap<>(resolvable);
+	private static Map<TypeVariable<?>, Type> computeTypeVariableResolutions(Type type, Class<?> context) {
+		Map<TypeVariable<?>, Type> typeVariables = computeFreeTypeVariables(type);
+		Set<ParameterizedType> typeVariableDefinitions = computeTypeVariableDefinitions(context);
+		Map<TypeVariable<?>, Type> next = new HashMap<>(typeVariables);
 		while (!next.isEmpty()) {
 			Iterator<Map.Entry<TypeVariable<?>, Type>> nexts = next.entrySet().iterator();
 			while (nexts.hasNext()) {
@@ -166,18 +185,18 @@ public final class Types {
 				TypeVariable<?> key = entry.getKey();
 				Type value = entry.getValue();
 				if (value instanceof TypeVariable<?>) {
-					Type resolved = resolve((TypeVariable<?>) value, types);
+					Type resolved = resolve((TypeVariable<?>) value, typeVariableDefinitions);
 					if (value != resolved) {
 						entry.setValue(resolved);
-						resolvable.put(key, resolved);
+						typeVariables.put(key, resolved);
 						continue;
 					}
 				}
 				nexts.remove();
 			}
 		}
-		resolvable.entrySet().removeIf(entry -> entry.getValue() instanceof TypeVariable<?>);
-		return resolvable;
+		typeVariables.entrySet().removeIf(entry -> entry.getValue() instanceof TypeVariable<?>);
+		return typeVariables;
 	}
 
 	private static Type resolve(TypeVariable<? extends GenericDeclaration> value, Set<ParameterizedType> types) {
@@ -208,7 +227,7 @@ public final class Types {
 
 			if (clazz1.isAssignableFrom(clazz2)) {
 				return 1;
-			} else if (clazz1.isAssignableFrom(clazz2)) {
+			} else if (clazz2.isAssignableFrom(clazz1)) {
 				return -1;
 			} else {
 				return 0;
@@ -218,45 +237,52 @@ public final class Types {
 		} else if (type2 instanceof Class<?>) {
 			return 1;
 		} else {
-			return 0;
+			return byMostConcrete(baseType(type1), baseType(type2));
 		}
 	}
 
-	private static Map<TypeVariable<?>, Type> computeUnresolvedTypeVariables(Type type) {
+	private static Map<TypeVariable<?>, Type> computeFreeTypeVariables(Type type) {
 		Map<TypeVariable<?>, Type> unresolvedVariables = new HashMap<>();
 		if (type instanceof GenericArrayType) {
 			Type componentType = ((GenericArrayType) type).getGenericComponentType();
-			Map<TypeVariable<?>, Type> componentTypeVariables = computeUnresolvedTypeVariables(componentType);
+			Map<TypeVariable<?>, Type> componentTypeVariables = computeFreeTypeVariables(componentType);
 			unresolvedVariables.putAll(componentTypeVariables);
 		} else if (type instanceof ParameterizedType) {
 			for (Type typeArgument : ((ParameterizedType) type).getActualTypeArguments()) {
-				Map<TypeVariable<?>, Type> typeArgumentVariables = computeUnresolvedTypeVariables(typeArgument);
+				Map<TypeVariable<?>, Type> typeArgumentVariables = computeFreeTypeVariables(typeArgument);
 				unresolvedVariables.putAll(typeArgumentVariables);
 			}
 		} else if (type instanceof TypeVariable<?>) {
 			unresolvedVariables.put((TypeVariable<?>) type, type);
+		} else if (type instanceof WildcardType) {
+			for (Type typeBound : ((WildcardType) type).getUpperBounds()) {
+				Map<TypeVariable<?>, Type> typeBoundVariables = computeFreeTypeVariables(typeBound);
+				unresolvedVariables.putAll(typeBoundVariables);
+			}
+			for (Type typeBound : ((WildcardType) type).getLowerBounds()) {
+				Map<TypeVariable<?>, Type> typeBoundVariables = computeFreeTypeVariables(typeBound);
+				unresolvedVariables.putAll(typeBoundVariables);
+			}
 		}
 		return unresolvedVariables;
 	}
 
-	private static Set<ParameterizedType> computeBoundingTypes(Class<?> context) {
+	private static Set<ParameterizedType> computeTypeVariableDefinitions(Class<?> context) {
 		if (context == Object.class) {
 			return emptySet();
 		}
 		Set<ParameterizedType> types = new HashSet<>();
 		Type superType = context.getGenericSuperclass();
-		if (!types.contains(superType)) {
-			if (superType instanceof ParameterizedType) {
-				types.add((ParameterizedType) superType);
-			}
-			types.addAll(computeBoundingTypes(baseType(superType)));
+		if (superType instanceof ParameterizedType) {
+			types.add((ParameterizedType) superType);
 		}
+		types.addAll(computeTypeVariableDefinitions(baseType(superType)));
 		for (Type interfaceType : context.getGenericInterfaces()) {
 			if (!types.contains(interfaceType)) {
 				if (interfaceType instanceof ParameterizedType) {
 					types.add((ParameterizedType) interfaceType);
 				}
-				types.addAll(computeBoundingTypes(baseType(interfaceType)));
+				types.addAll(computeTypeVariableDefinitions(baseType(interfaceType)));
 			}
 		}
 		return types;
@@ -305,7 +331,7 @@ public final class Types {
 			return ((Class<?>) arrayType).getComponentType();
 		} else if (arrayType instanceof GenericArrayType) {
 			Type componentType = ((GenericArrayType) arrayType).getGenericComponentType();
-			return isActual(componentType) ? componentType : Object.class;
+			return isBound(componentType) ? componentType : Object.class;
 		} else {
 			return Object.class;
 		}
@@ -454,7 +480,7 @@ public final class Types {
 			|| type == String.class;
 	}
 
-	public static boolean isActual(Type type) {
+	public static boolean isBound(Type type) {
 		return !(type instanceof TypeVariable<?>)
 			&& !(type instanceof WildcardType);
 	}
@@ -743,6 +769,7 @@ public final class Types {
 			}
 			if (upperBounds.length > 0) {
 				buffer.append(" extends ").append(Stream.of(upperBounds)
+					.filter(type -> type != Object.class)
 					.map(type -> type.getTypeName())
 					.collect(joining(", ")));
 			}

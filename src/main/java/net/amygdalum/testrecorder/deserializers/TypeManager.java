@@ -138,7 +138,7 @@ public class TypeManager {
 		} else if (type instanceof ParameterizedType) {
 			return getRawTypeName(((ParameterizedType) type).getRawType())
 				+ Stream.of(((ParameterizedType) type).getActualTypeArguments())
-					.filter(Types::isActual)
+					.filter(Types::isBound)
 					.map(argtype -> getVariableTypeName(argtype))
 					.collect(joining(", ", "<", ">"));
 		} else {
