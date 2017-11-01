@@ -104,6 +104,7 @@ public class TypesTest {
 	@Test
 	public void testIsHiddenFalseForNestedProtected() throws Exception {
 		assertThat(Types.isHidden(NestedProtected.class, "net.amygdalum.testrecorder.util"), is(false));
+		assertThat(Types.isHidden(NestedProtected.class, "other"), is(true));
 	}
 
 	@Test
@@ -121,6 +122,16 @@ public class TypesTest {
 	public void testIsHiddenFalseForPublic() throws Exception {
 		assertThat(Types.isHidden(TypesPublic.class, "net.amygdalum.testrecorder.util"), is(false));
 		assertThat(Types.isHidden(TypesPublic.class, "other"), is(false));
+	}
+
+	@Test
+	public void testIsHiddenForArrays() throws Exception {
+		assertThat(Types.isHidden(TypesPublic[].class, "any"), is(false));
+		assertThat(Types.isHidden(TypesPackagePrivate[].class, "net.amygdalum.testrecorder.util"), is(false));
+		assertThat(Types.isHidden(TypesPackagePrivate[].class, "other"), is(true));
+		assertThat(Types.isHidden(NestedProtected[].class, "net.amygdalum.testrecorder.util"), is(false));
+		assertThat(Types.isHidden(NestedProtected[].class, "other"), is(true));
+		assertThat(Types.isHidden(NestedPrivate[].class, "any"), is(true));
 	}
 
 	@Test
