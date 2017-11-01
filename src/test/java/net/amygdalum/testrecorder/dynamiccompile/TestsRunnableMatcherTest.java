@@ -57,7 +57,7 @@ public class TestsRunnableMatcherTest {
         assertThat(matches, is(false));
         assertThat(description.toString(), containsPattern(""
             + "compiled successfully but got test failures : 1*"
-            + "- AssertionError: null"));
+            + "-\tnull\n\tAssertionError: null"));
     }
 
     @Test
@@ -99,7 +99,7 @@ public class TestsRunnableMatcherTest {
         assertThat(matches, is(false));
         assertThat(description.toString(), containsPattern(""
             + "compiled successfully but got test failures : 1*"
-            + "- RuntimeException: null"));
+            + "-\tnull\n\tRuntimeException: null"));
     }
 
 }

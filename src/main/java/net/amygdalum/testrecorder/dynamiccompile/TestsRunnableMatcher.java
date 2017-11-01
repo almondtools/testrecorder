@@ -33,9 +33,13 @@ public class TestsRunnableMatcher extends TypeSafeDiagnosingMatcher<String> {
             }
             mismatchDescription.appendText("compiled successfully but got test failures : " + result.getFailureCount());
             for (Failure failure : result.getFailures()) {
-                String message = failure.getMessage();
-                message = failure.getException().getClass().getSimpleName() + ": " + message;
-                mismatchDescription.appendText("\n- " + message);
+                StringBuilder message = new StringBuilder("\n-\t").append(failure.getMessage());
+                Throwable cause = failure.getException();
+                while (cause != null) {
+                	message.append("\n\t").append(cause.getClass().getSimpleName()).append(": ").append(cause.getMessage());
+                	cause = cause.getCause() == cause ? null : cause.getCause();
+                }
+                mismatchDescription.appendText(message.toString());
             }
             return false;
         } catch (DynamicClassCompilerException e) {
