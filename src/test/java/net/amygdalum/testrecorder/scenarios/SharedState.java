@@ -2,18 +2,23 @@ package net.amygdalum.testrecorder.scenarios;
 
 import net.amygdalum.testrecorder.Recorded;
 
-public class SharedState {
+public class SharedState implements State {
 
 	private State state;
 	
 	public SharedState() {
-		state = new State();
+		state = new StringState();
 	}
 	
 	public static SharedState create(State state) {
 		SharedState sharedState = new SharedState();
 		sharedState.state = state;
 		return sharedState;
+	}
+
+	@Override
+	public String next() {
+		return state.next();
 	}
 	
 	@Recorded
