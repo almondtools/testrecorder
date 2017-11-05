@@ -38,15 +38,8 @@ public class MockedInteractions {
 	public MockedInteractions(DeserializerFactory setup, DeserializerFactory matcher, List<SerializedInput> setupInput, List<SerializedOutput> expectOutput) {
 		this.setupFactory = setup;
 		this.matcherFactory = matcher;
-		this.setupInput = notNull(setupInput);
-		this.expectOutput = notNull(expectOutput);
-	}
-
-	private static <T> List<T> notNull(List<T> list) {
-		if (list == null) {
-			return emptyList();
-		}
-		return list;
+		this.setupInput = setupInput;
+		this.expectOutput = expectOutput;
 	}
 
 	public boolean hasInputInteractions(SerializedReferenceType value) {
@@ -56,7 +49,7 @@ public class MockedInteractions {
 				.anyMatch(input -> input.getId() == value.getId());
 	}
 
-	public Computation prepareInputInteractions(SerializedReferenceType value, Computation computation, LocalVariableNameGenerator locals, TypeManager types) {
+	public Computation prepareInputInteractions(SerializedReferenceType value, Computation computation, LocalVariableNameGenerator locals, TypeManager types, DeserializerContext context) {
 		Deserializer<Computation> setup = setupFactory.create(locals, types);
 
 		List<String> statements = new ArrayList<>(computation.getStatements());
@@ -73,12 +66,12 @@ public class MockedInteractions {
 
 			Computation result = null;
 			if (in.getResult() != null) {
-				result = in.getResult().accept(setup);
+				result = in.getResult().accept(setup, context);
 				statements.addAll(result.getStatements());
 			}
 
-			List<Computation> args = Stream.of(in.getValues())
-				.map(arg -> arg.accept(setup))
+			List<Computation> args = Stream.of(in.getArguments())
+				.map(arg -> arg.accept(setup, context))
 				.collect(toList());
 
 			statements.addAll(args.stream()
@@ -125,7 +118,7 @@ public class MockedInteractions {
 		}
 	}
 
-	public Computation verifyInputInteractions(SerializedReferenceType value, Computation computation, LocalVariableNameGenerator locals, TypeManager types) {
+	public Computation verifyInputInteractions(SerializedReferenceType value, Computation computation, LocalVariableNameGenerator locals, TypeManager types, DeserializerContext context) {
 		return computation;
 	}
 
@@ -136,7 +129,7 @@ public class MockedInteractions {
 				.anyMatch(output -> output.getId() == value.getId());
 	}
 
-	public Computation prepareOutputInteractions(SerializedReferenceType value, Computation computation, LocalVariableNameGenerator locals, TypeManager types) {
+	public Computation prepareOutputInteractions(SerializedReferenceType value, Computation computation, LocalVariableNameGenerator locals, TypeManager types, DeserializerContext context) {
 		Deserializer<Computation> setup = setupFactory.create(locals, types);
 		Deserializer<Computation> matcher = matcherFactory.create(locals, types);
 		List<String> statements = new ArrayList<>(computation.getStatements());
@@ -151,12 +144,12 @@ public class MockedInteractions {
 
 			Computation result = null;
 			if (out.getResult() != null) {
-				result = out.getResult().accept(setup);
+				result = out.getResult().accept(setup, context);
 				statements.addAll(result.getStatements());
 			}
 
-			List<Computation> args = Stream.of(out.getValues())
-				.map(arg -> arg.accept(matcher))
+			List<Computation> args = Stream.of(out.getArguments())
+				.map(arg -> arg.accept(matcher, context))
 				.collect(toList());
 
 			statements.addAll(args.stream()
@@ -200,7 +193,7 @@ public class MockedInteractions {
 		}
 	}
 
-	public Computation verifyOutputInteractions(SerializedReferenceType value, Computation computation, LocalVariableNameGenerator locals, TypeManager types) {
+	public Computation verifyOutputInteractions(SerializedReferenceType value, Computation computation, LocalVariableNameGenerator locals, TypeManager types, DeserializerContext context) {
 		types.registerImport(OutputDecorator.class);
 		types.registerImport(CombinableMatcher.class);
 

@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static net.amygdalum.testrecorder.deserializers.Computation.expression;
-import static net.amygdalum.testrecorder.deserializers.DeserializerContext.newContext;
 import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.recursiveMatcher;
@@ -86,10 +85,6 @@ public class MatcherGenerators implements Deserializer<Computation> {
             || element instanceof SerializedLiteral;
     }
 
-    public Computation simpleMatcher(SerializedValue element) {
-        return simpleMatcher(element, DeserializerContext.NULL);
-    }
-
     public Computation simpleMatcher(SerializedValue element, DeserializerContext context) {
         if (element instanceof SerializedNull) {
             return expression("null", element.getResultType());
@@ -98,10 +93,6 @@ public class MatcherGenerators implements Deserializer<Computation> {
         } else {
             return element.accept(this, context);
         }
-    }
-
-    public Computation simpleValue(SerializedValue element) {
-        return simpleValue(element, DeserializerContext.NULL);
     }
 
     public Computation simpleValue(SerializedValue element, DeserializerContext context) {
@@ -117,18 +108,18 @@ public class MatcherGenerators implements Deserializer<Computation> {
     @Override
     public Computation visitField(SerializedField field, DeserializerContext context) {
     	SerializedValue fieldValue = field.getValue();
-        DeserializerContext fieldContext = newContext(field.getAnnotations());
-        if (fieldContext.getHint(SkipChecks.class).isPresent()) {
+        DeserializerContext ctx = context.newWithHints(field.getAnnotations());
+        if (ctx.getHint(SkipChecks.class).isPresent()) {
             return null;
         } else if (isSimpleValue(fieldValue)) {
             types.registerImport(baseType(field.getType()));
-            Computation value = simpleValue(fieldValue, fieldContext);
+            Computation value = simpleValue(fieldValue, ctx);
 
             String assignField = assignLocalVariableStatement(types.getRawTypeName(field.getType()), field.getName(), value.getValue());
             return expression(assignField, null, value.getStatements());
         } else {
             types.registerImport(Matcher.class);
-            Computation value = fieldValue.accept(this, fieldContext);
+            Computation value = fieldValue.accept(this, ctx);
 
             String genericType = types.getVariableTypeName(parameterized(Matcher.class, null, wildcard()));
 
@@ -155,10 +146,10 @@ public class MatcherGenerators implements Deserializer<Computation> {
         Computation computation = adaptors.tryDeserialize(value, types, this, context);
 
         if (mocked.hasInputInteractions(value)) {
-			computation = mocked.verifyInputInteractions(value, computation, locals, types);
+			computation = mocked.verifyInputInteractions(value, computation, locals, types, context);
 		}
 		if (mocked.hasOutputInteractions(value)) {
-			computation = mocked.verifyOutputInteractions(value, computation, locals, types);
+			computation = mocked.verifyOutputInteractions(value, computation, locals, types, context);
 		}
 		
 		return computation;

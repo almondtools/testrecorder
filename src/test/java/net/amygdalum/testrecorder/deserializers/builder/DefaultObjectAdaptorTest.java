@@ -11,12 +11,15 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.util.testobjects.Simple;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class DefaultObjectAdaptorTest {
+
+	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
 	private DefaultObjectAdaptor adaptor;
 
@@ -42,7 +45,7 @@ public class DefaultObjectAdaptorTest {
 		value.addField(new SerializedField(String.class, "str", String.class, SerializedLiteral.literal("Hello World")));
 		SetupGenerators generator = new SetupGenerators(getClass());
 		
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 		
 		assertThat(result.getStatements().toString(), allOf(
 			containsString("Simple simple1 = new GenericObject"),

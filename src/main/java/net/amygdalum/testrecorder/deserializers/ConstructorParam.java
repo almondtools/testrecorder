@@ -89,9 +89,9 @@ public class ConstructorParam {
         return !equalGenericTypes(type,field.getType());
     }
 
-    public Computation compile(TypeManager types, SetupGenerators generator) {
+    public Computation compile(TypeManager types, SetupGenerators generator, DeserializerContext context) {
         SerializedValue serializedValue = computeSerializedValue();
-        Computation computation = serializedValue.accept(generator);
+        Computation computation = serializedValue.accept(generator, context);
         String value = computation.getValue();
         boolean stored = computation.isStored();
         

@@ -46,14 +46,14 @@ public class ConstructionPlan implements Comparable<ConstructionPlan> {
 		}
 	}
 
-	public Computation compute(TypeManager types, SetupGenerators generator) {
+	public Computation compute(TypeManager types, SetupGenerators generator, DeserializerContext context) {
 		Class<?> clazz = constructorParams.getType();
 		types.registerTypes(clazz);
 
 		List<String> statements = new ArrayList<>();
 
 		List<Computation> computedParams = constructorParams.getParams().stream()
-			.map(value -> value.compile(types, generator))
+			.map(value -> value.compile(types, generator, context))
 			.collect(toList());
 
 		statements.addAll(computedParams.stream()
@@ -70,7 +70,7 @@ public class ConstructionPlan implements Comparable<ConstructionPlan> {
 		var.define(clazz);
 
 		for (SetterParam param : setterParams) {
-			Computation fieldComputation = param.computeSerializedValue().accept(generator);
+			Computation fieldComputation = param.computeSerializedValue().accept(generator, context);
 			statements.addAll(fieldComputation.getStatements());
 
 			String value = generator.adapt(fieldComputation.getValue(), param.getType(), fieldComputation.getType());

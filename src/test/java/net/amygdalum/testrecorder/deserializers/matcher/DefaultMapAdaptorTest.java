@@ -16,9 +16,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedMap;
 
 public class DefaultMapAdaptorTest {
+
+	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
 	private DefaultMapAdaptor adaptor;
 
@@ -44,7 +47,7 @@ public class DefaultMapAdaptorTest {
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
 		MatcherGenerators generator = new MatcherGenerators(getClass());
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 		
 		assertThat(result.getStatements(), empty());
 		assertThat(result.getValue(), equalTo("containsEntries(Integer.class, Integer.class).entry(8, 15).entry(47, 11)"));
@@ -55,7 +58,7 @@ public class DefaultMapAdaptorTest {
 		SerializedMap value = new SerializedMap(BigInteger[].class);
 		MatcherGenerators generator = new MatcherGenerators(getClass());
 		
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 		
 		assertThat(result.getStatements(), empty());
 		assertThat(result.getValue(), equalTo("noEntries(Object.class, Object.class)"));

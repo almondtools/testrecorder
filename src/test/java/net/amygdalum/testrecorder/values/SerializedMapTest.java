@@ -27,9 +27,12 @@ import java.util.Map;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.SerializedValue;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 
 public class SerializedMapTest {
+
+	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
 	@Test
 	public void testGetResultTypeRaw() throws Exception {
@@ -235,7 +238,7 @@ public class SerializedMapTest {
 	@Test
 	public void testAccept() throws Exception {
 		SerializedMap map = new SerializedMap(HashMap.class).withResult(Map.class);
-		assertThat(map.accept(new TestValueVisitor()), equalTo("SerializedMap"));
+		assertThat(map.accept(new TestValueVisitor(), ctx), equalTo("SerializedMap"));
 	}
 
 }

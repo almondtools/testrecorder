@@ -2,8 +2,9 @@ package net.amygdalum.testrecorder.profile;
 
 import java.lang.reflect.Method;
 
-import net.amygdalum.testrecorder.Methods;
 import org.objectweb.asm.Type;
+
+import net.amygdalum.testrecorder.Methods;
 
 public class MethodDescription implements Methods {
 

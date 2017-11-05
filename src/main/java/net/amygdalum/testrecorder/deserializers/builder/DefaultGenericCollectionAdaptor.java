@@ -61,7 +61,7 @@ public abstract class DefaultGenericCollectionAdaptor<T extends SerializedRefere
         return generator.forVariable(value, matchingType, definition -> {
 
             List<Computation> elementTemplates = elements(value)
-                .map(element -> withResultType(element, componentResultType).accept(generator))
+                .map(element -> withResultType(element, componentResultType).accept(generator, context))
                 .filter(element -> element != null)
                 .collect(toList());
 

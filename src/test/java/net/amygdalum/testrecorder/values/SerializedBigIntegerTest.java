@@ -7,9 +7,12 @@ import java.math.BigInteger;
 
 import org.junit.Test;
 
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 
 public class SerializedBigIntegerTest {
+
+	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
 	@Test
 	public void testGetType() throws Exception {
@@ -22,7 +25,7 @@ public class SerializedBigIntegerTest {
 	public void testAccept() throws Exception {
 		SerializedImmutable<BigInteger> value = new SerializedImmutable<BigInteger>(BigInteger.class);
 
-		assertThat(value.accept(new TestValueVisitor()), equalTo("SerializedImmutable"));
+		assertThat(value.accept(new TestValueVisitor(), ctx), equalTo("SerializedImmutable"));
 	}
 
 }

@@ -24,49 +24,50 @@ import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class MappedDeserializerTest {
 
-    private Function<Integer, Long> mapping;
-    private Deserializer<Integer> deserializer;
-    private MappedDeserializer<Long, Integer> mappedDeserializer;
+	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
-    @SuppressWarnings("unchecked")
-    @Before
-    public void before() throws Exception {
-        deserializer = mock(Deserializer.class);
-        mapping = x -> (long) x;
-        mappedDeserializer = new MappedDeserializer<>(deserializer, mapping);
-    }
+	private Function<Integer, Long> mapping;
+	private Deserializer<Integer> deserializer;
+	private MappedDeserializer<Long, Integer> mappedDeserializer;
 
-    @Test
-    public void testVisitField() throws Exception {
-        SerializedField field = new SerializedField(Simple.class, "str", String.class, literal("v"));
-        when(deserializer.visitField(field, DeserializerContext.NULL)).thenReturn(2);
+	@SuppressWarnings("unchecked")
+	@Before
+	public void before() throws Exception {
+		deserializer = mock(Deserializer.class);
+		mapping = x -> (long) x;
+		mappedDeserializer = new MappedDeserializer<>(deserializer, mapping);
+	}
 
-        assertThat(mappedDeserializer.visitField(field), equalTo(2l));
+	@Test
+	public void testVisitField() throws Exception {
+		SerializedField field = new SerializedField(Simple.class, "str", String.class, literal("v"));
+		when(deserializer.visitField(field, ctx)).thenReturn(2);
 
-    }
+		assertThat(mappedDeserializer.visitField(field, ctx), equalTo(2l));
+	}
 
-    @Test
-    public void testVisitReferenceType() throws Exception {
-        SerializedReferenceType object = new SerializedObject(Simple.class);
-        when(deserializer.visitReferenceType(object, DeserializerContext.NULL)).thenReturn(3);
+	@Test
+	public void testVisitReferenceType() throws Exception {
+		SerializedReferenceType object = new SerializedObject(Simple.class);
+		when(deserializer.visitReferenceType(object, ctx)).thenReturn(3);
 
-        assertThat(mappedDeserializer.visitReferenceType(object), equalTo(3l));
-    }
+		assertThat(mappedDeserializer.visitReferenceType(object, ctx), equalTo(3l));
+	}
 
-    @Test
-    public void testVisitImmutableType() throws Exception {
-        SerializedImmutableType object = new SerializedImmutable<>(BigInteger.class);
-        when(deserializer.visitImmutableType(object, DeserializerContext.NULL)).thenReturn(4);
+	@Test
+	public void testVisitImmutableType() throws Exception {
+		SerializedImmutableType object = new SerializedImmutable<>(BigInteger.class);
+		when(deserializer.visitImmutableType(object, ctx)).thenReturn(4);
 
-        assertThat(mappedDeserializer.visitImmutableType(object), equalTo(4l));
-    }
+		assertThat(mappedDeserializer.visitImmutableType(object, ctx), equalTo(4l));
+	}
 
-    @Test
-    public void testVisitValueType() throws Exception {
-        SerializedValueType object = SerializedLiteral.literal("lit");
-        when(deserializer.visitValueType(object, DeserializerContext.NULL)).thenReturn(5);
+	@Test
+	public void testVisitValueType() throws Exception {
+		SerializedValueType object = SerializedLiteral.literal("lit");
+		when(deserializer.visitValueType(object, ctx)).thenReturn(5);
 
-        assertThat(mappedDeserializer.visitValueType(object), equalTo(5l));
-    }
+		assertThat(mappedDeserializer.visitValueType(object, ctx), equalTo(5l));
+	}
 
 }

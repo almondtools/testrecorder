@@ -35,7 +35,7 @@ public class DefaultObjectAdaptor extends DefaultMatcherGenerator<SerializedObje
 
 		List<Computation> fields = ensureUniqueNames(value.getFields()).stream()
 			.sorted()
-			.map(field -> field.accept(generator))
+			.map(field -> field.accept(generator, context))
 			.filter(Objects::nonNull)
 			.collect(toList());
 

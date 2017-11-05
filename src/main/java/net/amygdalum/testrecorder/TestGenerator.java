@@ -8,7 +8,6 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.synchronizedMap;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.deserializers.Computation.variable;
-import static net.amygdalum.testrecorder.deserializers.DeserializerContext.newContext;
 import static net.amygdalum.testrecorder.deserializers.Templates.annotation;
 import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignFieldStatement;
@@ -54,7 +53,9 @@ import org.junit.Before;
 import org.stringtemplate.v4.ST;
 
 import net.amygdalum.testrecorder.ContextSnapshot.AnnotatedValue;
+import net.amygdalum.testrecorder.deserializers.BackReferenceCollector;
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
 import net.amygdalum.testrecorder.deserializers.MockedInteractions;
@@ -154,7 +155,8 @@ public class TestGenerator implements SnapshotConsumer {
 			}
 			ClassDescriptor baseType = ClassDescriptor.of(thisType);
 			TestGeneratorContext context = tests.computeIfAbsent(baseType, key -> new TestGeneratorContext(key));
-			MethodGenerator methodGenerator = new MethodGenerator(snapshot, context)
+			MethodGenerator methodGenerator = new MethodGenerator(context.size(), context.getTypes())
+				.analyze(snapshot)
 				.generateArrange()
 				.generateAct()
 				.generateAssert();
@@ -272,8 +274,10 @@ public class TestGenerator implements SnapshotConsumer {
 
 		private LocalVariableNameGenerator locals;
 
+		private int no;
 		private ContextSnapshot snapshot;
-		private TestGeneratorContext context;
+		private DeserializerContext context;
+		private TypeManager types;
 		private MockedInteractions mocked;
 
 		private List<String> statements;
@@ -283,29 +287,77 @@ public class TestGenerator implements SnapshotConsumer {
 		private String result;
 		private String error;
 
-		public MethodGenerator(ContextSnapshot snapshot, TestGeneratorContext context) {
-			this.snapshot = snapshot;
-			this.context = context;
-			this.mocked = new MockedInteractions(setup, matcher, snapshot.getSetupInput(), snapshot.getExpectOutput());
+		public MethodGenerator(int no, TypeManager types) {
+			this.no = no;
+			this.types = types;
 			this.locals = new LocalVariableNameGenerator();
 			this.statements = new ArrayList<>();
 		}
 
+		public MethodGenerator analyze(ContextSnapshot snapshot) {
+			this.snapshot = snapshot;
+			this.context = computeInitialContext(snapshot);
+			this.mocked = new MockedInteractions(setup, matcher, snapshot.getSetupInput(), snapshot.getExpectOutput());
+			return this;
+		}
+
+		private DeserializerContext computeInitialContext(ContextSnapshot snapshot) {
+			DeserializerContext context = new DeserializerContext();
+			BackReferenceCollector collector = new BackReferenceCollector();
+
+			Optional.ofNullable(snapshot.getSetupThis())
+				.ifPresent(self -> collector.addSeed(self));
+			Optional.ofNullable(snapshot.getExpectThis())
+				.ifPresent(self -> collector.addSeed(self));
+
+			Arrays.stream(snapshot.getSetupArgs())
+				.filter(Objects::nonNull)
+				.forEach(arg -> collector.addSeed(arg));
+			Arrays.stream(snapshot.getExpectArgs())
+				.filter(Objects::nonNull)
+				.forEach(arg -> collector.addSeed(arg));
+
+			Optional.ofNullable(snapshot.getExpectResult())
+				.ifPresent(result -> collector.addSeed(result));
+
+			Optional.ofNullable(snapshot.getExpectException())
+				.ifPresent(exception -> collector.addSeed(exception));
+
+			Arrays.stream(snapshot.getSetupGlobals())
+				.filter(Objects::nonNull)
+				.forEach(global -> collector.addSeed(global));
+			Arrays.stream(snapshot.getExpectGlobals())
+				.filter(Objects::nonNull)
+				.forEach(global -> collector.addSeed(global));
+
+			snapshot.getSetupInput().stream()
+				.flatMap(input -> input.getAllValues().stream())
+				.filter(Objects::nonNull)
+				.forEach(input -> collector.addSeed(input));
+
+			snapshot.getExpectOutput().stream()
+				.flatMap(output -> output.getAllValues().stream())
+				.filter(Objects::nonNull)
+				.forEach(output -> collector.addSeed(output));
+
+			
+			return collector.walkTree(context);
+		}
+
 		public MethodGenerator generateArrange() {
-			TypeManager types = context.getTypes();
 			statements.add(BEGIN_ARRANGE);
 
 			Deserializer<Computation> setupCode = setup.create(locals, types, mocked);
 
 			Computation setupThis = snapshot.getSetupThis() != null
-				? snapshot.getSetupThis().accept(setupCode)
+				? snapshot.getSetupThis().accept(setupCode, context)
 				: variable(types.getVariableTypeName(types.wrapHidden(snapshot.getThisType())), null);
 			setupThis.getStatements()
 				.forEach(statements::add);
 
 			AnnotatedValue[] snapshotSetupArgs = snapshot.getAnnotatedSetupArgs();
 			List<Computation> setupArgs = Stream.of(snapshotSetupArgs)
-				.map(arg -> arg.value.accept(setupCode, newContext(arg.annotations)))
+				.map(arg -> arg.value.accept(setupCode, context.newWithHints(arg.annotations)))
 				.collect(toList());
 
 			setupArgs.stream()
@@ -313,7 +365,7 @@ public class TestGenerator implements SnapshotConsumer {
 				.forEach(statements::add);
 
 			List<Computation> setupGlobals = Stream.of(snapshot.getSetupGlobals())
-				.map(global -> assignGlobal(global.getDeclaringClass(), global.getName(), global.getValue().accept(setupCode)))
+				.map(global -> assignGlobal(global.getDeclaringClass(), global.getName(), global.getValue().accept(setupCode, context)))
 				.collect(toList());
 
 			setupGlobals.stream()
@@ -329,12 +381,11 @@ public class TestGenerator implements SnapshotConsumer {
 					? arg.getElement1().getValue()
 					: assign(arg.getElement2().value.getResultType(), arg.getElement1().getValue()))
 				.collect(toList());
-			
+
 			return this;
 		}
 
 		private Computation assignGlobal(Class<?> clazz, String name, Computation global) {
-			TypeManager types = context.getTypes();
 			List<String> statements = new ArrayList<>(global.getStatements());
 			String base = types.getVariableTypeName(clazz);
 			statements.add(assignFieldStatement(base, name, global.getValue()));
@@ -351,7 +402,7 @@ public class TestGenerator implements SnapshotConsumer {
 
 			MethodGenerator gen;
 			if (exception != null) {
-				gen = new MethodGenerator(snapshot, context);
+				gen = new MethodGenerator(no, types).analyze(snapshot);
 			} else {
 				gen = this;
 			}
@@ -374,7 +425,6 @@ public class TestGenerator implements SnapshotConsumer {
 		}
 
 		public MethodGenerator generateAssert() {
-			TypeManager types = context.getTypes();
 			types.staticImport(Assert.class, "assertThat");
 			statements.add(BEGIN_ASSERT);
 
@@ -416,7 +466,7 @@ public class TestGenerator implements SnapshotConsumer {
 			if (result == null) {
 				return Stream.empty();
 			}
-			Computation matcherExpression = result.accept(matcher.create(locals, types, mocked), newContext(resultAnnotation));
+			Computation matcherExpression = result.accept(matcher.create(locals, types, mocked), context.newWithHints(resultAnnotation));
 			if (matcherExpression == null) {
 				return Stream.empty();
 			}
@@ -427,7 +477,7 @@ public class TestGenerator implements SnapshotConsumer {
 			if (exception == null) {
 				return Stream.empty();
 			}
-			Computation matcherExpression = exception.accept(matcher.create(locals, types, mocked));
+			Computation matcherExpression = exception.accept(matcher.create(locals, types, mocked), context);
 			return createAssertion(matcherExpression, expression).stream();
 		}
 
@@ -435,7 +485,7 @@ public class TestGenerator implements SnapshotConsumer {
 			if (value == null) {
 				return Stream.empty();
 			}
-			Computation matcherExpression = value.accept(matcher.create(locals, types, mocked));
+			Computation matcherExpression = value.accept(matcher.create(locals, types, mocked), context);
 			return createAssertion(matcherExpression, expression, changed).stream();
 		}
 
@@ -443,7 +493,7 @@ public class TestGenerator implements SnapshotConsumer {
 			if (value == null || value.value instanceof SerializedLiteral) {
 				return Stream.empty();
 			}
-			Computation matcherExpression = value.value.accept(matcher.create(locals, types, mocked), newContext(value.annotations));
+			Computation matcherExpression = value.value.accept(matcher.create(locals, types, mocked), context.newWithHints(value.annotations));
 			if (matcherExpression == null) {
 				return Stream.empty();
 			}
@@ -451,7 +501,7 @@ public class TestGenerator implements SnapshotConsumer {
 		}
 
 		private Stream<String> generateGlobalAssert(TypeManager types, SerializedField value, Boolean changed) {
-			Computation matcherExpression = value.getValue().accept(matcher.create(locals, types, mocked));
+			Computation matcherExpression = value.getValue().accept(matcher.create(locals, types, mocked), context);
 			String expression = fieldAccess(types.getVariableTypeName(value.getDeclaringClass()), value.getName());
 			return createAssertion(matcherExpression, expression, changed).stream();
 		}
@@ -478,8 +528,8 @@ public class TestGenerator implements SnapshotConsumer {
 			} else if (s == null || e == null) {
 				return false;
 			}
-			Computation sc = s.accept(setup.create(new LocalVariableNameGenerator(), new TypeManager()));
-			Computation ec = e.accept(setup.create(new LocalVariableNameGenerator(), new TypeManager()));
+			Computation sc = s.accept(setup.create(new LocalVariableNameGenerator(), new TypeManager()), context);
+			Computation ec = e.accept(setup.create(new LocalVariableNameGenerator(), new TypeManager()), context);
 			return !ec.getValue().equals(sc.getValue())
 				|| !ec.getStatements().equals(sc.getStatements());
 		}
@@ -515,7 +565,6 @@ public class TestGenerator implements SnapshotConsumer {
 		}
 
 		public String assign(Type type, String value, boolean force) {
-			TypeManager types = context.getTypes();
 			if (isLiteral(type) && !force) {
 				return value;
 			} else {
@@ -533,7 +582,6 @@ public class TestGenerator implements SnapshotConsumer {
 		}
 
 		public String capture(List<String> capturedStatements, Type type) {
-			TypeManager types = context.getTypes();
 			types.staticImport(Throwables.class, "capture");
 			String name = locals.fetchName(type);
 
@@ -576,7 +624,6 @@ public class TestGenerator implements SnapshotConsumer {
 
 		private String generateTimestampAnnotation(String format) {
 			String date = new SimpleDateFormat(format).format(new Date(snapshot.getTime()));
-			TypeManager types = context.getTypes();
 			types.registerImport(AnnotatedBy.class);
 			return annotation(types.getRawTypeName(AnnotatedBy.class), asList(
 				new Pair<>("name", asLiteral("timestamp")),
@@ -584,7 +631,6 @@ public class TestGenerator implements SnapshotConsumer {
 		}
 
 		private String generateGroupAnnotation(String expression) {
-			TypeManager types = context.getTypes();
 			types.registerImport(AnnotatedBy.class);
 			Optional<SerializedValue> serialized = new SerializedValueEvaluator(expression).applyTo(snapshot.getSetupThis());
 			return serialized
@@ -599,7 +645,7 @@ public class TestGenerator implements SnapshotConsumer {
 		private String testName() {
 			String testName = snapshot.getMethodName();
 
-			return toUpperCase(testName.charAt(0)) + testName.substring(1) + context.size();
+			return toUpperCase(testName.charAt(0)) + testName.substring(1) + no;
 		}
 
 	}

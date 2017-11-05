@@ -15,9 +15,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 
+import net.amygdalum.testrecorder.SerializedImmutableType;
+import net.amygdalum.testrecorder.SerializedReferenceType;
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
 import net.amygdalum.testrecorder.runtime.GenericComparison;
@@ -29,6 +32,7 @@ import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class Construction {
 
+	private DeserializerContext context;
 	private SimpleDeserializer deserializer;
 	private SerializedObject serialized;
 	private LocalVariable var;
@@ -36,11 +40,12 @@ public class Construction {
 	private Map<Constructor<?>, List<ConstructorParam>> constructors;
 	private List<SetterParam> setters;
 
-	public Construction(LocalVariable var, SerializedObject value) {
+	public Construction(DeserializerContext context, LocalVariable var, SerializedObject value) {
+		this.context = context;
 		this.deserializer = new SimpleDeserializer();
 		this.var = var;
 		this.serialized = value;
-		this.value = serialized.accept(deserializer);
+		this.value = serialized.accept(deserializer, context);
 		this.constructors = new HashMap<>();
 		this.setters = new ArrayList<>();
 	}
@@ -58,7 +63,7 @@ public class Construction {
 			.filter(plan -> GenericComparison.equals("", plan.execute(), value, fields))
 			.sorted()
 			.findFirst()
-			.map(plan -> plan.compute(types, generator))
+			.map(plan -> plan.compute(types, generator, context))
 			.orElseThrow(() -> new InstantiationException());
 	}
 
@@ -71,12 +76,12 @@ public class Construction {
 	private List<ConstructionPlan> computeConstructionPlans() {
 		List<ConstructionPlan> constructionsPlans = new ArrayList<>();
 		for (Constructor<?> constructor : constructors.keySet()) {
-			constructionsPlans.add(computeConstructionPlan(constructor));
+			computeConstructionPlan(constructor).ifPresent(constructionsPlans::add);
 		}
 		return constructionsPlans;
 	}
 
-	private ConstructionPlan computeConstructionPlan(Constructor<?> constructor) {
+	private Optional<ConstructionPlan> computeConstructionPlan(Constructor<?> constructor) {
 		Set<SerializedField> todo = new HashSet<>(serialized.getFields());
 		ConstructorParams constructorParams = computeConstructorParams(constructor, todo);
 		List<SetterParam> setBySetter = new ArrayList<>();
@@ -87,7 +92,28 @@ public class Construction {
 				setBySetter.add(param);
 			}
 		}
-		return new ConstructionPlan(var, constructorParams, setBySetter);
+		todo.removeIf(this::isImmutable);
+		if (todo.isEmpty()) {
+			return Optional.of(new ConstructionPlan(var, constructorParams, setBySetter));
+		} else {
+			return Optional.empty();
+		}
+	}
+
+	private boolean isImmutable(SerializedField field) {
+		SerializedValue value = field.getValue();
+		if (value instanceof SerializedImmutableType) {
+			return true;
+		} else if (value instanceof SerializedReferenceType) {
+			if (context.refCount(value) > 1) {
+				return false;
+			}
+			return context.closureOf(value).stream()
+				.filter(val -> val instanceof SerializedReferenceType && !(val instanceof SerializedImmutableType))
+				.allMatch(val -> context.refCount(val) <= 1);
+		} else {
+			return true;
+		}
 	}
 
 	public ConstructorParams computeConstructorParams(Constructor<?> constructor, Set<SerializedField> todo) {
@@ -134,7 +160,7 @@ public class Construction {
 
 		for (SerializedField field : serialized.getFields()) {
 			String fieldName = field.getName();
-			Object fieldValue = field.getValue().accept(deserializer);
+			Object fieldValue = field.getValue().accept(deserializer, context);
 
 			for (Constructor<?> constructor : baseType(serialized.getType()).getConstructors()) {
 				if (types.isHidden(constructor)) {
@@ -175,7 +201,7 @@ public class Construction {
 	private void applySetters(List<Object> bases) {
 		for (SerializedField field : serialized.getFields()) {
 			String fieldName = field.getName();
-			Object fieldValue = field.getValue().accept(deserializer);
+			Object fieldValue = field.getValue().accept(deserializer, context);
 
 			nextmethod: for (Method method : baseType(serialized.getType()).getMethods()) {
 				if (method.getName().startsWith("set")) {

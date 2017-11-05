@@ -16,6 +16,7 @@ import net.amygdalum.testrecorder.values.SerializedField;
 
 public class ConstructorParamTest {
 
+	private DeserializerContext ctx = DeserializerContext.NULL;
     private Constructor<Simple> constructor;
     private ConstructorParam constructorParam;
 
@@ -53,23 +54,23 @@ public class ConstructorParamTest {
         TypeManager types = new TypeManager();
         
         assertThat(new ConstructorParam(constructor, 0, new SerializedField(Simple.class, "field", String.class, literal("value")), "value")
-            .compile(types , compiler).getValue(), equalTo("\"value\""));
+            .compile(types , compiler, ctx).getValue(), equalTo("\"value\""));
         assertThat(new ConstructorParam(constructor, 0)
             .assertType(String.class)
-            .compile(types , compiler).getValue(), equalTo("null"));
+            .compile(types , compiler, ctx).getValue(), equalTo("null"));
         assertThat(new ConstructorParam(constructor, 0)
             .insertTypeCasts()
             .assertType(String.class)
-            .compile(types , compiler).getValue(), equalTo("(String) null"));
+            .compile(types , compiler, ctx).getValue(), equalTo("(String) null"));
         assertThat(new ConstructorParam(constructor, 0, new SerializedField(Simple.class, "field", String.class, literal("value")), "value")
             .assertType(Integer.class)
-            .compile(types , compiler).getValue(), equalTo("(Integer) \"value\""));
+            .compile(types , compiler, ctx).getValue(), equalTo("(Integer) \"value\""));
         assertThat(new ConstructorParam(constructor, 0, new SerializedField(Simple.class, "field", String.class, literal("value")), "value")
             .assertType(String.class)
-            .compile(types , compiler).getValue(), equalTo("\"value\""));
+            .compile(types , compiler, ctx).getValue(), equalTo("\"value\""));
         assertThat(new ConstructorParam(constructor, 0, new SerializedField(Simple.class, "field", String.class, nullInstance(String.class)), null)
             .assertType(String.class)
-            .compile(types , compiler).getValue(), equalTo("null"));
+            .compile(types , compiler, ctx).getValue(), equalTo("null"));
     }
 
 }

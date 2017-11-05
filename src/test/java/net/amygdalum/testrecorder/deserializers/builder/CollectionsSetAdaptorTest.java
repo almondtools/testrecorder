@@ -20,9 +20,12 @@ import org.junit.Test;
 
 import net.amygdalum.testrecorder.DeserializationException;
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedSet;
 
 public class CollectionsSetAdaptorTest {
+
+	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
 	private CollectionsSetAdaptor adaptor;
 
@@ -57,7 +60,7 @@ public class CollectionsSetAdaptorTest {
 		SerializedSet value = setOf("java.util.Collections$UnmodifiableSet", 0, 8, 15);
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
 		assertThat(result.getStatements().toString(), setDecoratedBy("unmodifiableSet", 0, 8, 15));
 		assertThat(result.getValue(), equalTo("set1"));
@@ -68,7 +71,7 @@ public class CollectionsSetAdaptorTest {
 		SerializedSet value = setOf("java.util.Collections$UnmodifiableNavigableSet", 0, 8, 15);
 		SetupGenerators generator = new SetupGenerators(getClass());
 		
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 		
 		assertThat(result.getStatements().toString(), setDecoratedBy("unmodifiableSet", 0, 8, 15));
 		assertThat(result.getValue(), equalTo("set1"));
@@ -79,7 +82,7 @@ public class CollectionsSetAdaptorTest {
 		SerializedSet value = setOf("java.util.Collections$UnmodifiableSortedSet", 0, 8, 15);
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
 		assertThat(result.getStatements().toString(), setDecoratedBy("unmodifiableSet", 0, 8, 15));
 		assertThat(result.getValue(), equalTo("set1"));
@@ -90,7 +93,7 @@ public class CollectionsSetAdaptorTest {
 		SerializedSet value = setOf("java.util.Collections$SynchronizedSet", 0, 8, 15);
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
 		assertThat(result.getStatements().toString(), setDecoratedBy("synchronizedSet", 0, 8, 15));
 		assertThat(result.getValue(), equalTo("set1"));
@@ -101,7 +104,7 @@ public class CollectionsSetAdaptorTest {
         SerializedSet value = setOfRaw("java.util.Collections$SynchronizedSet", 0, 8, 15);
         SetupGenerators generator = new SetupGenerators(getClass());
 
-        Computation result = adaptor.tryDeserialize(value, generator);
+        Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
         assertThat(result.getStatements().toString(), rawSetDecoratedBy("synchronizedSet", 0, 8, 15));
         assertThat(result.getValue(), equalTo("set1"));
@@ -112,7 +115,7 @@ public class CollectionsSetAdaptorTest {
         SerializedSet value = setOfWildcard("java.util.Collections$SynchronizedSet", 0, 8, 15);
         SetupGenerators generator = new SetupGenerators(getClass());
 
-        Computation result = adaptor.tryDeserialize(value, generator);
+        Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
         assertThat(result.getStatements().toString(), wildcardSetDecoratedBy("synchronizedSet", 0, 8, 15));
         assertThat(result.getValue(), equalTo("set1"));
@@ -123,7 +126,7 @@ public class CollectionsSetAdaptorTest {
 		SerializedSet value = setOf("java.util.Collections$SynchronizedNavigableSet", 0, 8, 15);
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
 		assertThat(result.getStatements().toString(), setDecoratedBy("synchronizedSet", 0, 8, 15));
 		assertThat(result.getValue(), equalTo("set1"));
@@ -134,7 +137,7 @@ public class CollectionsSetAdaptorTest {
 		SerializedSet value = setOf("java.util.Collections$SynchronizedSortedSet", 0, 8, 15);
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
 		assertThat(result.getStatements().toString(), setDecoratedBy("synchronizedSet", 0, 8, 15));
 		assertThat(result.getValue(), equalTo("set1"));
@@ -145,7 +148,7 @@ public class CollectionsSetAdaptorTest {
 		SerializedSet value = setOf("java.util.Collections$CheckedSet", 0, 8, 15);
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
 		assertThat(result.getStatements().toString(), setDecoratedBy("checkedSet", Integer.class, 0, 8, 15));
 		assertThat(result.getValue(), equalTo("set1"));
@@ -156,7 +159,7 @@ public class CollectionsSetAdaptorTest {
 		SerializedSet value = setOf("java.util.Collections$CheckedSortedSet", 0, 8, 15);
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
 		assertThat(result.getStatements().toString(), setDecoratedBy("checkedSet", Integer.class, 0, 8, 15));
 		assertThat(result.getValue(), equalTo("set1"));
@@ -167,7 +170,7 @@ public class CollectionsSetAdaptorTest {
 		SerializedSet value = setOf("java.util.Collections$CheckedNavigableSet", 0, 8, 15);
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
 		assertThat(result.getStatements().toString(), setDecoratedBy("checkedSet", Integer.class, 0, 8, 15));
 		assertThat(result.getValue(), equalTo("set1"));
@@ -178,7 +181,7 @@ public class CollectionsSetAdaptorTest {
 		SerializedSet value = setOf("java.util.Collections$EmptySet");
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
 		assertThat(result.getStatements().toString(), containsString("Set<Integer> set1 = emptySet()"));
 		assertThat(result.getValue(), equalTo("set1"));
@@ -189,7 +192,7 @@ public class CollectionsSetAdaptorTest {
 		SerializedSet value = setOf("java.util.Collections$SingletonSet", 0);
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
 		assertThat(result.getStatements().toString(), containsString("Set<Integer> set1 = singleton(0)"));
 		assertThat(result.getValue(), equalTo("set1"));
@@ -200,7 +203,7 @@ public class CollectionsSetAdaptorTest {
 		SerializedSet value = setOf("java.lang.Object");
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		adaptor.tryDeserialize(value, generator);
+		adaptor.tryDeserialize(value, generator, ctx);
 	}
 
 	private SerializedSet setOf(String className, int... elements) throws ClassNotFoundException {

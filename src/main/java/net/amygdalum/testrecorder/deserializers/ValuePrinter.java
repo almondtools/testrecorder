@@ -30,7 +30,7 @@ public class ValuePrinter implements Deserializer<String> {
 
 	@Override
 	public String visitField(SerializedField field, DeserializerContext context) {
-		return field.getType().getTypeName() + " " + field.getName() + ": " + field.getValue().accept(this);
+		return field.getType().getTypeName() + " " + field.getName() + ": " + field.getValue().accept(this, context);
 	}
 
 	@Override
@@ -42,7 +42,7 @@ public class ValuePrinter implements Deserializer<String> {
 				return value.getType().getTypeName() + "/" + System.identityHashCode(value) + " "
 					+ value.getFields().stream()
 						.sorted()
-						.map(field -> field.accept(this))
+						.map(field -> field.accept(this, context))
 						.collect(joining(",\n", "{\n", "\n}"));
 			} else {
 				return value.getType() + "/" + System.identityHashCode(value);
@@ -50,22 +50,22 @@ public class ValuePrinter implements Deserializer<String> {
 		} else if (rt instanceof SerializedList) {
 			SerializedList value = (SerializedList) rt;
 			return value.stream()
-				.map(element -> element.accept(this))
+				.map(element -> element.accept(this, context))
 				.collect(joining(", ", "[", "]"));
 		} else if (rt instanceof SerializedMap) {
 			SerializedMap value = (SerializedMap) rt;
 			return value.entrySet().stream()
-				.map(element -> element.getKey().accept(this) + ":" + element.getValue().accept(this))
+				.map(element -> element.getKey().accept(this, context) + ":" + element.getValue().accept(this, context))
 				.collect(joining(",", "{", "}"));
 		} else if (rt instanceof SerializedSet) {
 			SerializedSet value = (SerializedSet) rt;
 			return value.stream()
-				.map(element -> element.accept(this))
+				.map(element -> element.accept(this, context))
 				.collect(joining(", ", "{", "}"));
 		} else if (rt instanceof SerializedArray) {
 			SerializedArray value = (SerializedArray) rt;
 			return Stream.of(value.getArray())
-				.map(element -> element.accept(this))
+				.map(element -> element.accept(this, context))
 				.collect(joining(", ", "<", ">"));
 		} else if (rt instanceof SerializedNull) {
 			return "null";

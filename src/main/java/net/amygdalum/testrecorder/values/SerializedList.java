@@ -157,7 +157,7 @@ public class SerializedList extends AbstractSerializedReferenceType implements S
 
 	@Override
 	public String toString() {
-		return accept(new ValuePrinter());
+		return accept(new ValuePrinter(), DeserializerContext.NULL);
 	}
 
 }

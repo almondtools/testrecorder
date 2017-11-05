@@ -12,10 +12,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 import net.amygdalum.testrecorder.values.SerializedList;
 
 public class DefaultSequenceAdaptorTest {
+
+	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
 	private DefaultSequenceAdaptor adaptor;
 
@@ -43,7 +46,7 @@ public class DefaultSequenceAdaptorTest {
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(15)));
 		MatcherGenerators generator = new MatcherGenerators(getClass());
 		
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 		
 		assertThat(result.getStatements(), empty());
 		assertThat(result.getValue(), equalTo("containsInOrder(Object.class, equalTo(new BigInteger(\"0\")), equalTo(new BigInteger(\"8\")), equalTo(new BigInteger(\"15\")))"));
@@ -55,7 +58,7 @@ public class DefaultSequenceAdaptorTest {
 
 		MatcherGenerators generator = new MatcherGenerators(getClass());
 		
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 		
 		assertThat(result.getStatements(), empty());
 		assertThat(result.getValue(), equalTo("empty()"));

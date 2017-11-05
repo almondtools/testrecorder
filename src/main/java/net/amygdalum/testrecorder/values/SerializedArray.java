@@ -73,7 +73,7 @@ public class SerializedArray extends AbstractSerializedReferenceType implements 
 
 	@Override
 	public String toString() {
-		return accept(new ValuePrinter());
+		return accept(new ValuePrinter(), DeserializerContext.NULL);
 	}
 	
 }

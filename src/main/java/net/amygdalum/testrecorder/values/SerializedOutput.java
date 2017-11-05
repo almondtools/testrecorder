@@ -3,11 +3,14 @@ package net.amygdalum.testrecorder.values;
 import static java.util.stream.Collectors.joining;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.SerializedValue;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.ValuePrinter;
 
 public class SerializedOutput {
@@ -19,9 +22,9 @@ public class SerializedOutput {
 	private Type resultType;
 	private SerializedValue result;
 	private Type[] types;
-	private SerializedValue[] values;
+	private SerializedValue[] arguments;
 
-	public SerializedOutput(int id, String caller, Class<?> clazz, String name, Type resultType, SerializedValue result, Type[] types, SerializedValue... values) {
+	public SerializedOutput(int id, String caller, Class<?> clazz, String name, Type resultType, SerializedValue result, Type[] types, SerializedValue... arguments) {
 		this.id = id;
 		this.caller = caller;
 		this.clazz = clazz;
@@ -29,10 +32,10 @@ public class SerializedOutput {
 		this.resultType = resultType;
 		this.result = result;
 		this.types = types;
-		this.values = values;
+		this.arguments = arguments;
 	}
 
-	public SerializedOutput(int id, String caller, Class<?> clazz, String name, Type[] types, SerializedValue... values) {
+	public SerializedOutput(int id, String caller, Class<?> clazz, String name, Type[] types, SerializedValue... arguments) {
 		this.id = id;
 		this.caller = caller;
 		this.clazz = clazz;
@@ -40,7 +43,7 @@ public class SerializedOutput {
 		this.resultType = void.class;
 		this.result = null;
 		this.types = types;
-		this.values = values;
+		this.arguments = arguments;
 	}
 	
 	public int getId() {
@@ -71,15 +74,24 @@ public class SerializedOutput {
 		return types;
 	}
 
-	public SerializedValue[] getValues() {
-		return values;
+	public SerializedValue[] getArguments() {
+		return arguments;
+	}
+
+	public List<SerializedValue> getAllValues() {
+		List<SerializedValue> allValues = new ArrayList<>();
+		allValues.add(result);
+		for (SerializedValue argument : arguments) {
+			allValues.add(argument);
+		}
+		return allValues;
 	}
 
 	@Override
 	public String toString() {
 		ValuePrinter printer = new ValuePrinter();
-		return ">> " + clazz.getTypeName() + "@" + id + "." + name + Stream.of(values)
-			.map(value -> value.accept(printer))
+		return ">> " + clazz.getTypeName() + "@" + id + "." + name + Stream.of(arguments)
+			.map(value -> value.accept(printer, DeserializerContext.NULL))
 			.collect(joining(", ", "(", ")"));
 	}
 
@@ -90,7 +102,7 @@ public class SerializedOutput {
 			+ resultType.hashCode() * 17
 			+ (result == null ? 0 : result.hashCode() * 13)
 			+ Arrays.hashCode(types) * 11
-			+ Arrays.hashCode(values);
+			+ Arrays.hashCode(arguments);
 	}
 
 	@Override
@@ -112,7 +124,7 @@ public class SerializedOutput {
 			&& this.resultType.equals(that.resultType)
 			&& Objects.equals(this.result,that.result)
 			&& Arrays.equals(this.types, that.types)
-			&& Arrays.equals(this.values, that.values);
+			&& Arrays.equals(this.arguments, that.arguments);
 	}
 
 }

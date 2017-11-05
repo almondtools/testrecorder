@@ -31,147 +31,149 @@ import net.amygdalum.testrecorder.values.SerializedSet;
 
 public class ValuePrinterTest {
 
-    private ValuePrinter printer;
+	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
-    @Before
-    public void before() throws Exception {
-        printer = new ValuePrinter();
-    }
+	private ValuePrinter printer;
 
-    @Test
-    public void testVisitField() throws Exception {
-        SerializedField field = new SerializedField(Simple.class, "field", String.class, literal("v"));
+	@Before
+	public void before() throws Exception {
+		printer = new ValuePrinter();
+	}
 
-        assertThat(printer.visitField(field), equalTo("java.lang.String field: v"));
-    }
+	@Test
+	public void testVisitField() throws Exception {
+		SerializedField field = new SerializedField(Simple.class, "field", String.class, literal("v"));
 
-    @Test
-    public void testVisitObject() throws Exception {
-        SerializedObject object = new SerializedObject(Simple.class);
-        object.addField(new SerializedField(Simple.class, "str", String.class, literal("v")));
+		assertThat(printer.visitField(field, ctx), equalTo("java.lang.String field: v"));
+	}
 
-        String visitReferenceType = printer.visitReferenceType(object);
+	@Test
+	public void testVisitObject() throws Exception {
+		SerializedObject object = new SerializedObject(Simple.class);
+		object.addField(new SerializedField(Simple.class, "str", String.class, literal("v")));
 
-        assertThat(visitReferenceType, containsPattern(""
-            + "net.amygdalum.testrecorder.util.testobjects.Simple/*{*"
-            + "java.lang.String str: v*"
-            + "}"));
-    }
+		String visitReferenceType = printer.visitReferenceType(object, ctx);
 
-    @Test
-    public void testVisitObjectCached() throws Exception {
-        SerializedObject object = new SerializedObject(Simple.class);
-        object.addField(new SerializedField(Simple.class, "str", String.class, literal("v")));
+		assertThat(visitReferenceType, containsPattern(""
+			+ "net.amygdalum.testrecorder.util.testobjects.Simple/*{*"
+			+ "java.lang.String str: v*"
+			+ "}"));
+	}
 
-        String visitReferenceType = printer.visitReferenceType(object);
-        visitReferenceType = printer.visitReferenceType(object);
+	@Test
+	public void testVisitObjectCached() throws Exception {
+		SerializedObject object = new SerializedObject(Simple.class);
+		object.addField(new SerializedField(Simple.class, "str", String.class, literal("v")));
 
-        assertThat(visitReferenceType, containsPattern("net.amygdalum.testrecorder.util.testobjects.Simple/*"));
-        assertThat(visitReferenceType, not(containsPattern("java.lang.String str: v")));
-    }
+		String visitReferenceType = printer.visitReferenceType(object, ctx);
+		visitReferenceType = printer.visitReferenceType(object, ctx);
 
-    @Test
-    public void testVisitArray() throws Exception {
-        SerializedArray object = new SerializedArray(int[].class);
-        object.add(literal(22));
+		assertThat(visitReferenceType, containsPattern("net.amygdalum.testrecorder.util.testobjects.Simple/*"));
+		assertThat(visitReferenceType, not(containsPattern("java.lang.String str: v")));
+	}
 
-        String visitReferenceType = printer.visitReferenceType(object);
+	@Test
+	public void testVisitArray() throws Exception {
+		SerializedArray object = new SerializedArray(int[].class);
+		object.add(literal(22));
 
-        assertThat(visitReferenceType, equalTo("<22>"));
-    }
+		String visitReferenceType = printer.visitReferenceType(object, ctx);
 
-    @Test
-    public void testVisitList() throws Exception {
-        SerializedList object = new SerializedList(ArrayList.class);
-        object.add(literal(1));
+		assertThat(visitReferenceType, equalTo("<22>"));
+	}
 
-        String visitReferenceType = printer.visitReferenceType(object);
+	@Test
+	public void testVisitList() throws Exception {
+		SerializedList object = new SerializedList(ArrayList.class);
+		object.add(literal(1));
 
-        assertThat(visitReferenceType, equalTo("[1]"));
-    }
+		String visitReferenceType = printer.visitReferenceType(object, ctx);
 
-    @Test
-    public void testVisitSet() throws Exception {
-        SerializedSet object = new SerializedSet(HashSet.class);
-        object.add(literal(true));
+		assertThat(visitReferenceType, equalTo("[1]"));
+	}
 
-        String visitReferenceType = printer.visitReferenceType(object);
+	@Test
+	public void testVisitSet() throws Exception {
+		SerializedSet object = new SerializedSet(HashSet.class);
+		object.add(literal(true));
 
-        assertThat(visitReferenceType, equalTo("{true}"));
-    }
+		String visitReferenceType = printer.visitReferenceType(object, ctx);
 
-    @Test
-    public void testVisitMap() throws Exception {
-        SerializedMap object = new SerializedMap(HashMap.class);
-        object.put(literal(1.0), literal("one"));
+		assertThat(visitReferenceType, equalTo("{true}"));
+	}
 
-        String visitReferenceType = printer.visitReferenceType(object);
+	@Test
+	public void testVisitMap() throws Exception {
+		SerializedMap object = new SerializedMap(HashMap.class);
+		object.put(literal(1.0), literal("one"));
 
-        assertThat(visitReferenceType, equalTo("{1.0:one}"));
-    }
+		String visitReferenceType = printer.visitReferenceType(object, ctx);
 
-    @Test
-    public void testVisitNull() throws Exception {
-        SerializedReferenceType object = SerializedNull.nullInstance(Object.class);
-        assertThat(printer.visitReferenceType(object), equalTo("null"));
-    }
+		assertThat(visitReferenceType, equalTo("{1.0:one}"));
+	}
 
-    @Test
-    public void testVisitOtherReferenceType() throws Exception {
-        SerializedReferenceType object = Mockito.mock(SerializedReferenceType.class);
-        assertThat(printer.visitReferenceType(object), equalTo(""));
-    }
+	@Test
+	public void testVisitNull() throws Exception {
+		SerializedReferenceType object = SerializedNull.nullInstance(Object.class);
+		assertThat(printer.visitReferenceType(object, ctx), equalTo("null"));
+	}
 
-    @Test
-    public void testVisitImmutable() throws Exception {
-        SerializedImmutable<BigDecimal> serializedImmutable = new SerializedImmutable<>(BigDecimal.class);
-        serializedImmutable.setValue(new BigDecimal("2.0"));
+	@Test
+	public void testVisitOtherReferenceType() throws Exception {
+		SerializedReferenceType object = Mockito.mock(SerializedReferenceType.class);
+		assertThat(printer.visitReferenceType(object, ctx), equalTo(""));
+	}
 
-        String visitImmutableType = printer.visitImmutableType(serializedImmutable);
+	@Test
+	public void testVisitImmutable() throws Exception {
+		SerializedImmutable<BigDecimal> serializedImmutable = new SerializedImmutable<>(BigDecimal.class);
+		serializedImmutable.setValue(new BigDecimal("2.0"));
 
-        assertThat(visitImmutableType, equalTo("2.0"));
-    }
+		String visitImmutableType = printer.visitImmutableType(serializedImmutable, ctx);
 
-    @Test
-    public void testVisitEnum() throws Exception {
-        SerializedEnum serializedEnum = new SerializedEnum(TestEnum.class);
-        serializedEnum.setName("ENUM");
+		assertThat(visitImmutableType, equalTo("2.0"));
+	}
 
-        String visitImmutableType = printer.visitImmutableType(serializedEnum);
+	@Test
+	public void testVisitEnum() throws Exception {
+		SerializedEnum serializedEnum = new SerializedEnum(TestEnum.class);
+		serializedEnum.setName("ENUM");
 
-        assertThat(visitImmutableType, equalTo("ENUM"));
-    }
+		String visitImmutableType = printer.visitImmutableType(serializedEnum, ctx);
 
-    @Test
-    public void testVisitOtherImmutable() throws Exception {
-        SerializedImmutableType serializedImmutable = Mockito.mock(SerializedImmutableType.class);
+		assertThat(visitImmutableType, equalTo("ENUM"));
+	}
 
-        String visitImmutableType = printer.visitImmutableType(serializedImmutable);
+	@Test
+	public void testVisitOtherImmutable() throws Exception {
+		SerializedImmutableType serializedImmutable = Mockito.mock(SerializedImmutableType.class);
 
-        assertThat(visitImmutableType, equalTo(""));
-    }
+		String visitImmutableType = printer.visitImmutableType(serializedImmutable, ctx);
 
-    @Test
-    public void testVisitValueType() throws Exception {
-        SerializedLiteral serializedLiteral = SerializedLiteral.literal('a');
+		assertThat(visitImmutableType, equalTo(""));
+	}
 
-        String visitImmutableType = printer.visitValueType(serializedLiteral);
+	@Test
+	public void testVisitValueType() throws Exception {
+		SerializedLiteral serializedLiteral = SerializedLiteral.literal('a');
 
-        assertThat(visitImmutableType, equalTo("a"));
-    }
+		String visitImmutableType = printer.visitValueType(serializedLiteral, ctx);
 
-    @Test
-    public void testVisitValueTypeCached() throws Exception {
-        SerializedLiteral serializedLiteral = SerializedLiteral.literal('a');
+		assertThat(visitImmutableType, equalTo("a"));
+	}
 
-        String visitImmutableType = printer.visitValueType(serializedLiteral);
-        visitImmutableType = printer.visitValueType(serializedLiteral);
+	@Test
+	public void testVisitValueTypeCached() throws Exception {
+		SerializedLiteral serializedLiteral = SerializedLiteral.literal('a');
 
-        assertThat(visitImmutableType, equalTo("a"));
-    }
+		String visitImmutableType = printer.visitValueType(serializedLiteral, ctx);
+		visitImmutableType = printer.visitValueType(serializedLiteral, ctx);
 
-    public static enum TestEnum {
-        ENUM;
-    }
+		assertThat(visitImmutableType, equalTo("a"));
+	}
+
+	public static enum TestEnum {
+		ENUM;
+	}
 
 }

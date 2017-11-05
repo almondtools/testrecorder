@@ -32,7 +32,7 @@ public class DefaultArrayAdaptor extends DefaultSetupGenerator<SerializedArray> 
 		return generator.forVariable(value, value.getResultType(), local -> {
 
 			List<Computation> elementTemplates = Stream.of(value.getArray())
-				.map(element -> element.accept(generator))
+				.map(element -> element.accept(generator, context))
 				.collect(toList());
 
 			List<String> elements = elementTemplates.stream()

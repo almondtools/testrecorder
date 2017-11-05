@@ -63,7 +63,7 @@ public class SimpleDeserializer implements Deserializer<Object> {
 			try {
 				Object object = fetch(value, () -> GenericObject.newInstance(baseType(value.getType())), base -> {
 					for (SerializedField field : value.getFields()) {
-						GenericObject.setField(base, field.getName(), field.getValue().accept(this));
+						GenericObject.setField(base, field.getName(), field.getValue().accept(this, context));
 					}
 				});
 				return object;
@@ -74,7 +74,7 @@ public class SimpleDeserializer implements Deserializer<Object> {
 			SerializedList value = (SerializedList) rt;
 			List<Object> list = fetch(value, ArrayList::new, base -> {
 				for (SerializedValue element : value) {
-					base.add(element.accept(this));
+					base.add(element.accept(this, context));
 				}
 			});
 			return list;
@@ -82,8 +82,8 @@ public class SimpleDeserializer implements Deserializer<Object> {
 			SerializedMap value = (SerializedMap) rt;
 			Map<Object, Object> map = fetch(value, LinkedHashMap::new, base -> {
 				for (Map.Entry<SerializedValue, SerializedValue> entry : value.entrySet()) {
-					Object k = entry.getKey().accept(this);
-					Object v = entry.getValue().accept(this);
+					Object k = entry.getKey().accept(this, context);
+					Object v = entry.getValue().accept(this, context);
 					base.put(k, v);
 				}
 			});
@@ -92,7 +92,7 @@ public class SimpleDeserializer implements Deserializer<Object> {
 			SerializedSet value = (SerializedSet) rt;
 			Set<Object> set = fetch(value, LinkedHashSet::new, base -> {
 				for (SerializedValue element : value) {
-					base.add(element.accept(this));
+					base.add(element.accept(this, context));
 				}
 			});
 			return set;
@@ -102,7 +102,7 @@ public class SimpleDeserializer implements Deserializer<Object> {
 			SerializedValue[] rawArray = value.getArray();
 			Object array = fetch(value, () -> Array.newInstance(componentType, rawArray.length), base -> {
 				for (int i = 0; i < rawArray.length; i++) {
-					Array.set(base, i, rawArray[i].accept(this));
+					Array.set(base, i, rawArray[i].accept(this, context));
 				}
 			});
 			return array;

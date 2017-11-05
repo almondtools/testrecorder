@@ -35,7 +35,7 @@ public class DefaultObjectAdaptor extends DefaultSetupGenerator<SerializedObject
 
             List<Computation> elementTemplates = ensureUniqueNames(value.getFields()).stream()
                 .sorted()
-                .map(field -> field.accept(generator))
+                .map(field -> field.accept(generator, context))
                 .collect(toList());
 
             List<String> elements = elementTemplates.stream()

@@ -44,7 +44,7 @@ public class DefaultSequenceAdaptor extends DefaultMatcherGenerator<SerializedLi
 			types.staticImport(ContainsInOrderMatcher.class, "containsInOrder");
 
 			List<Computation> elements = value.stream()
-				.map(element -> generator.simpleMatcher(element))
+				.map(element -> generator.simpleMatcher(element, context))
 				.collect(toList());
 
 			List<String> elementComputations = elements.stream()

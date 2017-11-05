@@ -31,7 +31,7 @@ public class BeanObjectAdaptor implements SetupGenerator<SerializedObject> {
 		TypeManager types = generator.getTypes();
 		return generator.forVariable(value, value.getType(), local -> {
 			try {
-				return new Construction(local, value).computeBest(types, generator);
+				return new Construction(context, local, value).computeBest(types, generator);
 			} catch (ReflectiveOperationException | RuntimeException e) {
 				throw new DeserializationException(value.toString());
 			}

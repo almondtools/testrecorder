@@ -20,10 +20,6 @@ import net.amygdalum.testrecorder.deserializers.DeserializerContext;
  */
 public interface SerializedValue {
 
-    default <T> T accept(Deserializer<T> visitor) {
-        return accept(visitor, DeserializerContext.NULL);
-    }
-    
 	<T> T accept(Deserializer<T> visitor, DeserializerContext context);
 
 	Type getResultType();

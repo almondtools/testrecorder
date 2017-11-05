@@ -2,7 +2,6 @@ package net.amygdalum.testrecorder.deserializers.builder;
 
 import static net.amygdalum.testrecorder.deserializers.Computation.expression;
 import static net.amygdalum.testrecorder.deserializers.Computation.variable;
-import static net.amygdalum.testrecorder.deserializers.DeserializerContext.newContext;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
 import static net.amygdalum.testrecorder.deserializers.Templates.cast;
@@ -151,7 +150,7 @@ public class SetupGenerators implements Deserializer<Computation> {
 		if (value instanceof SerializedReferenceType) {
 			((SerializedReferenceType) value).setResultType(fieldResultType);
 		}
-		Computation valueTemplate = value.accept(this, newContext(field.getAnnotations()));
+		Computation valueTemplate = value.accept(this, context.newWithHints(field.getAnnotations()));
 
 		List<String> statements = valueTemplate.getStatements();
 
@@ -182,10 +181,10 @@ public class SetupGenerators implements Deserializer<Computation> {
 		Computation computation = adaptors.tryDeserialize(value, types, this, context);
 
 		if (mocked.hasInputInteractions(value)) {
-			computation = mocked.prepareInputInteractions(value, computation, locals, types);
+			computation = mocked.prepareInputInteractions(value, computation, locals, types, context);
 		}
 		if (mocked.hasOutputInteractions(value)) {
-			computation = mocked.prepareOutputInteractions(value, computation, locals, types);
+			computation = mocked.prepareOutputInteractions(value, computation, locals, types, context);
 		}
 		return computation;
 	}

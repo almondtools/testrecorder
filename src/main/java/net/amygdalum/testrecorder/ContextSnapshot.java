@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder;
 
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
 
 import java.lang.annotation.Annotation;
@@ -200,6 +201,9 @@ public class ContextSnapshot {
     }
 
     public List<SerializedInput> getSetupInput() {
+    	if (setupInput == null) {
+    		return emptyList();
+    	}
         return setupInput;
     }
 
@@ -208,6 +212,9 @@ public class ContextSnapshot {
     }
 
     public List<SerializedOutput> getExpectOutput() {
+    	if (expectOutput == null) {
+    		return emptyList();
+    	}
         return expectOutput;
     }
 

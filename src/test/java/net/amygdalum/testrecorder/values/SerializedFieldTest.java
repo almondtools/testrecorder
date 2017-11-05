@@ -13,6 +13,7 @@ import java.lang.annotation.Annotation;
 
 import org.junit.Test;
 
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 import net.amygdalum.testrecorder.util.testobjects.Annotated;
 import net.amygdalum.testrecorder.util.testobjects.AnnotatedField;
@@ -20,6 +21,8 @@ import net.amygdalum.testrecorder.util.testobjects.MyAnnotation;
 import net.amygdalum.testrecorder.util.testobjects.NoAnnotation;
 
 public class SerializedFieldTest {
+
+	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
 	@Test
 	public void testGetName() throws Exception {
@@ -39,7 +42,7 @@ public class SerializedFieldTest {
 	@Test
 	public void testAccept() throws Exception {
 		assertThat(new SerializedField(null, "f", String.class, literal("sv"))
-			.accept(new TestValueVisitor()), equalTo("field"));
+			.accept(new TestValueVisitor(), ctx), equalTo("field"));
 	}
 
 	@Test

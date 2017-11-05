@@ -12,9 +12,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 
 public class DefaultBigDecimalAdaptorTest {
+
+	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
 	private DefaultBigDecimalAdaptor adaptor;
 
@@ -40,7 +43,7 @@ public class DefaultBigDecimalAdaptorTest {
 		value.setValue(new BigDecimal("0.815"));
 		MatcherGenerators generator = new MatcherGenerators(getClass());
 
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
 		assertThat(result.getStatements(), empty());
 		assertThat(result.getValue(), equalTo("equalTo(new BigDecimal(\"0.815\"))"));

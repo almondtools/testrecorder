@@ -58,7 +58,7 @@ public class CollectionsListAdaptor implements SetupGenerator<SerializedList> {
         if (name.contains("Empty")) {
             return tryDeserializeEmpty(value, generator);
         } else if (name.contains("Singleton")) {
-            return tryDeserializeSingleton(value, generator);
+            return tryDeserializeSingleton(value, generator, context);
         } else if (name.contains("Unmodifiable")) {
             return tryDeserializeUnmodifiable(value, generator, context);
         } else if (name.contains("Synchronized")) {
@@ -94,7 +94,7 @@ public class CollectionsListAdaptor implements SetupGenerator<SerializedList> {
         });
     }
 
-    private Computation tryDeserializeSingleton(SerializedList value, SetupGenerators generator) {
+    private Computation tryDeserializeSingleton(SerializedList value, SetupGenerators generator, DeserializerContext context) {
         Type componentType = value.getComponentType();
         String factoryMethod = "singletonList";
         TypeManager types = generator.getTypes();
@@ -107,7 +107,7 @@ public class CollectionsListAdaptor implements SetupGenerator<SerializedList> {
         Type resultType = parameterized(List.class, null, componentType);
         return generator.forVariable(value, resultType, local -> {
 
-            Computation computation = value.get(0).accept(generator);
+            Computation computation = value.get(0).accept(generator, context);
             List<String> statements = new LinkedList<>(computation.getStatements());
             String resultBase = computation.getValue();
 

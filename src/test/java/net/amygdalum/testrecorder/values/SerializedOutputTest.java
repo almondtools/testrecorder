@@ -53,9 +53,9 @@ public class SerializedOutputTest {
 	}
 
 	@Test
-	public void testGetValues() throws Exception {
-		assertThat(output.getValues(), arrayContaining(literal("Hello")));
-	}
+		public void testGetArguments() throws Exception {
+			assertThat(output.getArguments(), arrayContaining(literal("Hello")));
+		}
 
 	@Test
 	public void testGetResultType() throws Exception {

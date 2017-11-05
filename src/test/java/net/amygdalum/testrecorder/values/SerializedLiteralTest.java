@@ -12,9 +12,12 @@ import java.util.Collection;
 
 import org.junit.Test;
 
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 
 public class SerializedLiteralTest {
+
+	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
 	@Test
 	public void testIsLiteral() throws Exception {
@@ -55,7 +58,7 @@ public class SerializedLiteralTest {
 	public void testAccept() throws Exception {
 		SerializedLiteral value = literal("string");
 
-		assertThat(value.accept(new TestValueVisitor()), equalTo("SerializedLiteral"));
+		assertThat(value.accept(new TestValueVisitor(), ctx), equalTo("SerializedLiteral"));
 	}
 
 	@Test

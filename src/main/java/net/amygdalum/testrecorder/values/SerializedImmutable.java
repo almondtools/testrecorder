@@ -50,7 +50,7 @@ public class SerializedImmutable<V> extends AbstractSerializedReferenceType impl
 
 	@Override
 	public String toString() {
-		return accept(new ValuePrinter());
+		return accept(new ValuePrinter(), DeserializerContext.NULL);
 	}
 
 }

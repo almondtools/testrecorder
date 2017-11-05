@@ -20,9 +20,12 @@ import org.junit.Test;
 
 import net.amygdalum.testrecorder.DeserializationException;
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedMap;
 
 public class CollectionsMapAdaptorTest {
+
+	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
 	private CollectionsMapAdaptor adaptor;
 
@@ -57,7 +60,7 @@ public class CollectionsMapAdaptorTest {
 		SerializedMap value = mapOf("java.util.Collections$UnmodifiableMap", new int[] { 8, 15 }, new int[] { 47, 11 });
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
 		assertThat(result.getStatements().toString(), mapDecoratedBy("unmodifiableMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue(), equalTo("map1"));
@@ -68,7 +71,7 @@ public class CollectionsMapAdaptorTest {
 		SerializedMap value = mapOf("java.util.Collections$UnmodifiableNavigableMap", new int[] { 8, 15 }, new int[] { 47, 11 });
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
 		assertThat(result.getStatements().toString(), mapDecoratedBy("unmodifiableMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue(), equalTo("map1"));
@@ -79,7 +82,7 @@ public class CollectionsMapAdaptorTest {
 		SerializedMap value = mapOf("java.util.Collections$UnmodifiableSortedMap", new int[] { 8, 15 }, new int[] { 47, 11 });
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
 		assertThat(result.getStatements().toString(), mapDecoratedBy("unmodifiableMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue(), equalTo("map1"));
@@ -90,7 +93,7 @@ public class CollectionsMapAdaptorTest {
 		SerializedMap value = mapOf("java.util.Collections$SynchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 });
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
 		assertThat(result.getStatements().toString(), mapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue(), equalTo("map1"));
@@ -101,7 +104,7 @@ public class CollectionsMapAdaptorTest {
 	    SerializedMap value = mapOfRaw("java.util.Collections$SynchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 });
 	    SetupGenerators generator = new SetupGenerators(getClass());
 	    
-	    Computation result = adaptor.tryDeserialize(value, generator);
+	    Computation result = adaptor.tryDeserialize(value, generator, ctx);
 	    
 	    assertThat(result.getStatements().toString(), rawMapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
 	    assertThat(result.getValue(), equalTo("map1"));
@@ -112,7 +115,7 @@ public class CollectionsMapAdaptorTest {
 	    SerializedMap value = mapOfWildcard("java.util.Collections$SynchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 });
 	    SetupGenerators generator = new SetupGenerators(getClass());
 	    
-	    Computation result = adaptor.tryDeserialize(value, generator);
+	    Computation result = adaptor.tryDeserialize(value, generator, ctx);
 	    
 	    assertThat(result.getStatements().toString(), wildcardMapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
 	    assertThat(result.getValue(), equalTo("map1"));
@@ -123,7 +126,7 @@ public class CollectionsMapAdaptorTest {
 		SerializedMap value = mapOf("java.util.Collections$SynchronizedNavigableMap", new int[] { 8, 15 }, new int[] { 47, 11 });
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
 		assertThat(result.getStatements().toString(), mapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue(), equalTo("map1"));
@@ -134,7 +137,7 @@ public class CollectionsMapAdaptorTest {
 		SerializedMap value = mapOf("java.util.Collections$SynchronizedSortedMap", new int[] { 8, 15 }, new int[] { 47, 11 });
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
 		assertThat(result.getStatements().toString(), mapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue(), equalTo("map1"));
@@ -145,7 +148,7 @@ public class CollectionsMapAdaptorTest {
 		SerializedMap value = mapOf("java.util.Collections$CheckedMap", new int[] { 8, 15 }, new int[] { 47, 11 });
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
 		assertThat(result.getStatements().toString(), mapDecoratedBy("checkedMap", Integer.class, Integer.class, new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue(), equalTo("map1"));
@@ -156,7 +159,7 @@ public class CollectionsMapAdaptorTest {
 		SerializedMap value = mapOf("java.util.Collections$CheckedSortedMap", new int[] { 8, 15 }, new int[] { 47, 11 });
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
 		assertThat(result.getStatements().toString(), mapDecoratedBy("checkedMap", Integer.class, Integer.class, new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue(), equalTo("map1"));
@@ -167,7 +170,7 @@ public class CollectionsMapAdaptorTest {
 		SerializedMap value = mapOf("java.util.Collections$CheckedNavigableMap", new int[] { 8, 15 }, new int[] { 47, 11 });
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
 		assertThat(result.getStatements().toString(), mapDecoratedBy("checkedMap", Integer.class, Integer.class, new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue(), equalTo("map1"));
@@ -178,7 +181,7 @@ public class CollectionsMapAdaptorTest {
 		SerializedMap value = mapOf("java.util.Collections$EmptyMap");
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
 		assertThat(result.getStatements().toString(), containsString("Map<Integer, Integer> map1 = emptyMap()"));
 		assertThat(result.getValue(), equalTo("map1"));
@@ -189,7 +192,7 @@ public class CollectionsMapAdaptorTest {
 		SerializedMap value = mapOf("java.util.Collections$SingletonMap", new int[] { 8, 15 });
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
 		assertThat(result.getStatements().toString(), containsString("Map<Integer, Integer> map1 = singletonMap(8, 15)"));
 		assertThat(result.getValue(), equalTo("map1"));
@@ -200,7 +203,7 @@ public class CollectionsMapAdaptorTest {
 		SerializedMap value = mapOf("java.lang.Object");
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		adaptor.tryDeserialize(value, generator);
+		adaptor.tryDeserialize(value, generator, ctx);
 	}
 
 	private SerializedMap mapOf(String className, int[]... elements) throws ClassNotFoundException {

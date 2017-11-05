@@ -11,9 +11,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 
 public class DefaultLiteralAdaptorTest {
+
+	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
 	private DefaultLiteralAdaptor adaptor;
 
@@ -40,7 +43,7 @@ public class DefaultLiteralAdaptorTest {
 		SerializedLiteral value = literal("string");
 		MatcherGenerators generator = new MatcherGenerators(getClass());
 
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
 		assertThat(result.getStatements(), empty());
 		assertThat(result.getValue(), equalTo("equalTo(\"string\")"));

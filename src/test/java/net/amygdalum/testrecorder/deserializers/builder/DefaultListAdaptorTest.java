@@ -21,6 +21,7 @@ import org.junit.Test;
 
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.LocalVariable;
 import net.amygdalum.testrecorder.deserializers.LocalVariableDefinition;
 import net.amygdalum.testrecorder.util.testobjects.Hidden;
@@ -29,6 +30,8 @@ import net.amygdalum.testrecorder.util.testobjects.PublicList;
 import net.amygdalum.testrecorder.values.SerializedList;
 
 public class DefaultListAdaptorTest {
+
+	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
     private DefaultListAdaptor adaptor;
 
@@ -60,7 +63,7 @@ public class DefaultListAdaptorTest {
         value.add(literal(15));
         SetupGenerators generator = new SetupGenerators(getClass());
 
-        Computation result = adaptor.tryDeserialize(value, generator);
+        Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
         assertThat(result.getStatements().toString(), allOf(
             containsString("ArrayList<Integer> temp1 = new ArrayList<Integer>()"),
@@ -79,7 +82,7 @@ public class DefaultListAdaptorTest {
         value.add(literal(15));
         SetupGenerators generator = new SetupGenerators(getClass());
 
-        Computation result = adaptor.tryDeserialize(value, generator);
+        Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
         assertThat(result.getStatements().toString(), allOf(
             containsString("ArrayList<Integer> list1 = new ArrayList<Integer>()"),
@@ -98,7 +101,7 @@ public class DefaultListAdaptorTest {
         value.add(literal(15));
         SetupGenerators generator = new SetupGenerators(Object.class);
 
-        Computation result = adaptor.tryDeserialize(value, generator);
+        Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
         assertThat(result.getStatements().toString(), allOf(
             containsString("PublicList<Integer> temp1 = new PublicList<Integer>()"),
@@ -118,7 +121,7 @@ public class DefaultListAdaptorTest {
         value.add(literal(15));
         SetupGenerators generator = new SetupGenerators(Object.class);
 
-        Computation result = adaptor.tryDeserialize(value, generator);
+        Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
         assertThat(result.getStatements().toString(), allOf(
             containsString("java.util.List temp1 = (java.util.List<?>) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenList\").value();"),
@@ -137,7 +140,7 @@ public class DefaultListAdaptorTest {
         value.add(literal(15));
         SetupGenerators generator = new SetupGenerators(Object.class);
 
-        Computation result = adaptor.tryDeserialize(value, generator);
+        Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
         assertThat(result.getStatements().toString(), not(containsString("new net.amygdalum.testrecorder.util.testobjects.Hidden.HiddenList")));
         assertThat(result.getStatements().toString(), allOf(
@@ -163,7 +166,7 @@ public class DefaultListAdaptorTest {
             }
         };
 
-        Computation result = adaptor.tryDeserialize(value, generator);
+        Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
         assertThat(result.getStatements().toString(), allOf(
             containsString("ArrayList<Integer> temp1 = new ArrayList<Integer>()"),

@@ -26,9 +26,12 @@ import java.util.Set;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.SerializedValue;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 
 public class SerializedSetTest {
+
+	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
 	@Test
 	public void testGetResultTypeRaw() throws Exception {
@@ -261,7 +264,7 @@ public class SerializedSetTest {
 	@Test
 	public void testAccept() throws Exception {
 		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		assertThat(set.accept(new TestValueVisitor()), equalTo("SerializedSet"));
+		assertThat(set.accept(new TestValueVisitor(), ctx), equalTo("SerializedSet"));
 	}
 
 }

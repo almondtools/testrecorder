@@ -37,146 +37,148 @@ import net.amygdalum.testrecorder.values.SerializedSet;
 
 public class SimpleDeserializerTest {
 
-    private SimpleDeserializer deserializer;
+	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
-    @Before
-    public void before() throws Exception {
-        deserializer = new SimpleDeserializer();
-    }
+	private SimpleDeserializer deserializer;
 
-    @Test(expected = DeserializationException.class)
-    public void testVisitField() throws Exception {
-        SerializedField field = new SerializedField(Simple.class, "field", String.class, literal("v"));
-        deserializer.visitField(field);
-    }
+	@Before
+	public void before() throws Exception {
+		deserializer = new SimpleDeserializer();
+	}
 
-    @Test
-    public void testVisitObject() throws Exception {
-        SerializedObject object = new SerializedObject(Simple.class);
-        object.addField(new SerializedField(Simple.class, "str", String.class, literal("v")));
+	@Test(expected = DeserializationException.class)
+	public void testVisitField() throws Exception {
+		SerializedField field = new SerializedField(Simple.class, "field", String.class, literal("v"));
+		deserializer.visitField(field, ctx);
+	}
 
-        Object visitReferenceType = deserializer.visitReferenceType(object);
+	@Test
+	public void testVisitObject() throws Exception {
+		SerializedObject object = new SerializedObject(Simple.class);
+		object.addField(new SerializedField(Simple.class, "str", String.class, literal("v")));
 
-        assertThat(visitReferenceType, instanceOf(Simple.class));
-        assertThat(((Simple) visitReferenceType).getStr(), equalTo("v"));
-    }
+		Object visitReferenceType = deserializer.visitReferenceType(object, ctx);
 
-    @Test(expected = DeserializationException.class)
-    public void testVisitObjectNoDeserializable() throws Exception {
-        SerializedObject object = Mockito.mock(SerializedObject.class);
-        when(object.getFields()).thenThrow(new GenericObjectException());
+		assertThat(visitReferenceType, instanceOf(Simple.class));
+		assertThat(((Simple) visitReferenceType).getStr(), equalTo("v"));
+	}
 
-        deserializer.visitReferenceType(object);
-    }
+	@Test(expected = DeserializationException.class)
+	public void testVisitObjectNoDeserializable() throws Exception {
+		SerializedObject object = Mockito.mock(SerializedObject.class);
+		when(object.getFields()).thenThrow(new GenericObjectException());
 
-    @Test
-    public void testVisitArray() throws Exception {
-        SerializedArray object = new SerializedArray(int[].class);
-        object.add(literal(22));
+		deserializer.visitReferenceType(object, ctx);
+	}
 
-        Object visitReferenceType = deserializer.visitReferenceType(object);
+	@Test
+	public void testVisitArray() throws Exception {
+		SerializedArray object = new SerializedArray(int[].class);
+		object.add(literal(22));
 
-        assertThat(visitReferenceType, equalTo(new int[] { 22 }));
-    }
+		Object visitReferenceType = deserializer.visitReferenceType(object, ctx);
 
-    @SuppressWarnings("rawtypes")
-    @Test
-    public void testVisitList() throws Exception {
-        SerializedList object = new SerializedList(ArrayList.class);
-        object.add(literal(1));
+		assertThat(visitReferenceType, equalTo(new int[] { 22 }));
+	}
 
-        Object visitReferenceType = deserializer.visitReferenceType(object);
+	@SuppressWarnings("rawtypes")
+	@Test
+	public void testVisitList() throws Exception {
+		SerializedList object = new SerializedList(ArrayList.class);
+		object.add(literal(1));
 
-        assertThat(visitReferenceType, instanceOf(ArrayList.class));
-        assertThat(((List) visitReferenceType).get(0), equalTo(1));
-    }
+		Object visitReferenceType = deserializer.visitReferenceType(object, ctx);
 
-    @SuppressWarnings("rawtypes")
-    @Test
-    public void testVisitSet() throws Exception {
-        SerializedSet object = new SerializedSet(HashSet.class);
-        object.add(literal(true));
+		assertThat(visitReferenceType, instanceOf(ArrayList.class));
+		assertThat(((List) visitReferenceType).get(0), equalTo(1));
+	}
 
-        Object visitReferenceType = deserializer.visitReferenceType(object);
+	@SuppressWarnings("rawtypes")
+	@Test
+	public void testVisitSet() throws Exception {
+		SerializedSet object = new SerializedSet(HashSet.class);
+		object.add(literal(true));
 
-        assertThat(visitReferenceType, instanceOf(HashSet.class));
-        assertThat(((Set) visitReferenceType).iterator().next(), equalTo(true));
-    }
+		Object visitReferenceType = deserializer.visitReferenceType(object, ctx);
 
-    @SuppressWarnings("rawtypes")
-    @Test
-    public void testVisitMap() throws Exception {
-        SerializedMap object = new SerializedMap(HashMap.class);
-        object.put(literal(1.0), literal("one"));
+		assertThat(visitReferenceType, instanceOf(HashSet.class));
+		assertThat(((Set) visitReferenceType).iterator().next(), equalTo(true));
+	}
 
-        Object visitReferenceType = deserializer.visitReferenceType(object);
+	@SuppressWarnings("rawtypes")
+	@Test
+	public void testVisitMap() throws Exception {
+		SerializedMap object = new SerializedMap(HashMap.class);
+		object.put(literal(1.0), literal("one"));
 
-        assertThat(visitReferenceType, instanceOf(HashMap.class));
-        assertThat(((Map) visitReferenceType).get(1.0), equalTo("one"));
-    }
+		Object visitReferenceType = deserializer.visitReferenceType(object, ctx);
 
-    @Test
-    public void testVisitNull() throws Exception {
-        SerializedReferenceType object = SerializedNull.nullInstance(Object.class);
-        assertThat(deserializer.visitReferenceType(object), nullValue());
-    }
+		assertThat(visitReferenceType, instanceOf(HashMap.class));
+		assertThat(((Map) visitReferenceType).get(1.0), equalTo("one"));
+	}
 
-    @Test
-    public void testVisitOtherReferenceType() throws Exception {
-        SerializedReferenceType object = Mockito.mock(SerializedReferenceType.class);
-        assertThat(deserializer.visitReferenceType(object), nullValue());
-    }
+	@Test
+	public void testVisitNull() throws Exception {
+		SerializedReferenceType object = SerializedNull.nullInstance(Object.class);
+		assertThat(deserializer.visitReferenceType(object, ctx), nullValue());
+	}
 
-    @Test
-    public void testVisitImmutable() throws Exception {
-        SerializedImmutable<BigDecimal> serializedImmutable = new SerializedImmutable<>(BigDecimal.class);
-        serializedImmutable.setValue(new BigDecimal("2.0"));
+	@Test
+	public void testVisitOtherReferenceType() throws Exception {
+		SerializedReferenceType object = Mockito.mock(SerializedReferenceType.class);
+		assertThat(deserializer.visitReferenceType(object, ctx), nullValue());
+	}
 
-        Object visitImmutableType = deserializer.visitImmutableType(serializedImmutable);
+	@Test
+	public void testVisitImmutable() throws Exception {
+		SerializedImmutable<BigDecimal> serializedImmutable = new SerializedImmutable<>(BigDecimal.class);
+		serializedImmutable.setValue(new BigDecimal("2.0"));
 
-        assertThat(visitImmutableType, equalTo(new BigDecimal("2.0")));
-    }
+		Object visitImmutableType = deserializer.visitImmutableType(serializedImmutable, ctx);
 
-    @Test
-    public void testVisitEnum() throws Exception {
-        SerializedEnum serializedEnum = new SerializedEnum(TestEnum.class);
-        serializedEnum.setName("ENUM");
+		assertThat(visitImmutableType, equalTo(new BigDecimal("2.0")));
+	}
 
-        Object visitImmutableType = deserializer.visitImmutableType(serializedEnum);
+	@Test
+	public void testVisitEnum() throws Exception {
+		SerializedEnum serializedEnum = new SerializedEnum(TestEnum.class);
+		serializedEnum.setName("ENUM");
 
-        assertThat(visitImmutableType, equalTo(TestEnum.ENUM));
-    }
+		Object visitImmutableType = deserializer.visitImmutableType(serializedEnum, ctx);
 
-    @Test
-    public void testVisitOtherImmutable() throws Exception {
-        SerializedImmutableType serializedImmutable = Mockito.mock(SerializedImmutableType.class);
+		assertThat(visitImmutableType, equalTo(TestEnum.ENUM));
+	}
 
-        Object visitImmutableType = deserializer.visitImmutableType(serializedImmutable);
+	@Test
+	public void testVisitOtherImmutable() throws Exception {
+		SerializedImmutableType serializedImmutable = Mockito.mock(SerializedImmutableType.class);
 
-        assertThat(visitImmutableType, nullValue());
-    }
+		Object visitImmutableType = deserializer.visitImmutableType(serializedImmutable, ctx);
 
-    @Test
-    public void testVisitValueType() throws Exception {
-        SerializedLiteral serializedLiteral = SerializedLiteral.literal('a');
+		assertThat(visitImmutableType, nullValue());
+	}
 
-        Object visitImmutableType = deserializer.visitValueType(serializedLiteral);
+	@Test
+	public void testVisitValueType() throws Exception {
+		SerializedLiteral serializedLiteral = SerializedLiteral.literal('a');
 
-        assertThat(visitImmutableType, equalTo('a'));
-    }
+		Object visitImmutableType = deserializer.visitValueType(serializedLiteral, ctx);
 
-    @Test
-    public void testVisitValueTypeCached() throws Exception {
-        SerializedLiteral serializedLiteral = SerializedLiteral.literal('a');
+		assertThat(visitImmutableType, equalTo('a'));
+	}
 
-        Object visitImmutableType = deserializer.visitValueType(serializedLiteral);
-        visitImmutableType = deserializer.visitValueType(serializedLiteral);
+	@Test
+	public void testVisitValueTypeCached() throws Exception {
+		SerializedLiteral serializedLiteral = SerializedLiteral.literal('a');
 
-        assertThat(visitImmutableType, equalTo('a'));
-    }
+		Object visitImmutableType = deserializer.visitValueType(serializedLiteral, ctx);
+		visitImmutableType = deserializer.visitValueType(serializedLiteral, ctx);
 
-    public static enum TestEnum {
-        ENUM;
-    }
+		assertThat(visitImmutableType, equalTo('a'));
+	}
+
+	public static enum TestEnum {
+		ENUM;
+	}
 
 }

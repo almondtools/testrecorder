@@ -12,9 +12,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 
 public class DefaultBigIntegerAdaptorTest {
+
+	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
 	private DefaultBigIntegerAdaptor adaptor;
 
@@ -40,7 +43,7 @@ public class DefaultBigIntegerAdaptorTest {
 		value.setValue(new BigInteger("0815"));
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
 		assertThat(result.getStatements(), empty());
 		assertThat(result.getValue(), equalTo("new BigInteger(\"815\")"));

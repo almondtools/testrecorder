@@ -78,7 +78,7 @@ public class SerializedLiteral extends AbstractSerializedValue implements Serial
 
     @Override
     public String toString() {
-        return accept(new ValuePrinter());
+		return accept(new ValuePrinter(), DeserializerContext.NULL);
     }
 
 }

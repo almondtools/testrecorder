@@ -10,16 +10,18 @@ import org.junit.Test;
 
 public class DeserializerContextTest {
 
-    @Test
+	private DeserializerContext ctx = DeserializerContext.NULL;
+
+	@Test
     public void testGetHints() throws Exception {
-        assertThat(DeserializerContext.newContext("1").getHints(Integer.class).toArray(Integer[]::new), emptyArray());
-        assertThat(DeserializerContext.newContext(1).getHints(Integer.class).toArray(Integer[]::new), arrayContaining(1));
+		assertThat(ctx.newWithHints("1").getHints(Integer.class).toArray(Integer[]::new), emptyArray());
+        assertThat(ctx.newWithHints(1).getHints(Integer.class).toArray(Integer[]::new), arrayContaining(1));
     }
 
     @Test
     public void testGetHint() throws Exception {
-        assertThat(DeserializerContext.newContext("1").getHint(Integer.class).isPresent(), is(false));
-        assertThat(DeserializerContext.newContext(1).getHint(Integer.class).get(), equalTo(1));
+		assertThat(ctx.newWithHints("1").getHint(Integer.class).isPresent(), is(false));
+        assertThat(ctx.newWithHints(1).getHint(Integer.class).get(), equalTo(1));
     }
 
 }

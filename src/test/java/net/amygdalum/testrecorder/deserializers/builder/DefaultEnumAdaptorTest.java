@@ -12,10 +12,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.util.testobjects.PublicEnum;
 import net.amygdalum.testrecorder.values.SerializedEnum;
 
 public class DefaultEnumAdaptorTest {
+
+	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
 	private DefaultEnumAdaptor adaptor;
 
@@ -43,7 +46,7 @@ public class DefaultEnumAdaptorTest {
 		value.setName("VALUE1");
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 
 		assertThat(result.getStatements(), empty());
 		assertThat(result.getValue(), equalTo("PublicEnum.VALUE1"));
@@ -55,7 +58,7 @@ public class DefaultEnumAdaptorTest {
 		value.setName("VALUE2");
 		SetupGenerators generator = new SetupGenerators(getClass());
 		
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 		
 		assertThat(result.getStatements(), empty());
 		assertThat(result.getValue(), containsString("Wrapped.enumType(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenEnum\", \"VALUE2\").value()"));

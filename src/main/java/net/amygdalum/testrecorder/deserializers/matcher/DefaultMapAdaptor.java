@@ -55,8 +55,8 @@ public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> im
 
 			List<Pair<Computation, Computation>> elements = value.entrySet().stream()
 				.map(entry -> new Pair<>(
-					generator.simpleMatcher(entry.getKey()),
-					generator.simpleMatcher(entry.getValue())))
+					generator.simpleMatcher(entry.getKey(), context),
+					generator.simpleMatcher(entry.getValue(), context)))
 				.collect(toList());
 
 			List<String> entryStatements = elements.stream()

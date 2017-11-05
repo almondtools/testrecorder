@@ -45,7 +45,7 @@ public class DefaultSetAdaptor extends DefaultMatcherGenerator<SerializedSet> im
 			types.staticImport(ContainsMatcher.class, "contains");
 
 			List<Computation> elements = value.stream()
-				.map(element -> generator.simpleMatcher(element))
+				.map(element -> generator.simpleMatcher(element, context))
 				.collect(toList());
 
 			List<String> elementComputations = elements.stream()

@@ -68,7 +68,7 @@ public class DefaultArrayAdaptor extends DefaultMatcherGenerator<SerializedArray
 				String name = types.getRawTypeName(componentType);
 
 				List<Computation> elements = Stream.of(value.getArray())
-					.map(element -> generator.simpleValue(element))
+					.map(element -> generator.simpleValue(element, context))
 					.collect(toList());
 
 				List<String> elementComputations = elements.stream()

@@ -66,8 +66,8 @@ public abstract class DefaultGenericMapAdaptor<T extends SerializedReferenceType
 
             List<Pair<Computation, Computation>> elementTemplates = entries(value)
                 .map(entry -> new Pair<>(
-                    withResultType(entry.getElement1(), keyResultType).accept(generator),
-                    withResultType(entry.getElement2(), valueResultType).accept(generator)))
+                    withResultType(entry.getElement1(), keyResultType).accept(generator, context),
+                    withResultType(entry.getElement2(), valueResultType).accept(generator, context)))
                 .filter(pair -> pair.getElement1() != null && pair.getElement2() != null)
                 .collect(toList());
 

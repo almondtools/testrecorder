@@ -12,7 +12,6 @@ public class TestGeneratorContext {
 
 	private TypeManager types;
 	private Set<String> tests;
-
 	
 	public TestGeneratorContext(ClassDescriptor key) {
 		this.types = new TypeManager(key.getPackage());
@@ -44,4 +43,5 @@ public class TestGeneratorContext {
 	public synchronized void add(String test) {
 		tests.add(test);
 	}
+
 }

@@ -58,17 +58,13 @@ public class SerializedField implements Comparable<SerializedField> {
         return Optional.empty();
     }
 
-    public <T> T accept(Deserializer<T> visitor) {
-        return accept(visitor, DeserializerContext.NULL);
-    }
-
     public <T> T accept(Deserializer<T> visitor, DeserializerContext context) {
         return visitor.visitField(this, context);
     }
 
     @Override
     public String toString() {
-        return accept(new ValuePrinter());
+		return accept(new ValuePrinter(), DeserializerContext.NULL);
     }
 
     @Override

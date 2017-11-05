@@ -61,7 +61,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 		if (name.contains("Empty")) {
 			return tryDeserializeEmpty(value, generator);
 		} else if (name.contains("Singleton")) {
-			return tryDeserializeSingleton(value, generator);
+			return tryDeserializeSingleton(value, generator, context);
 		} else if (name.contains("Unmodifiable")) {
 			return tryDeserializeUnmodifiable(value, generator, context);
 		} else if (name.contains("Synchronized")) {
@@ -102,7 +102,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 		});
 	}
 
-	private Computation tryDeserializeSingleton(SerializedMap value, SetupGenerators generator) {
+	private Computation tryDeserializeSingleton(SerializedMap value, SetupGenerators generator, DeserializerContext context) {
         Type mapKeyType = value.getMapKeyType();
         Type mapValueType = value.getMapValueType();
 		String factoryMethod = "singletonMap";
@@ -122,11 +122,11 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 			Entry<SerializedValue, SerializedValue> entry = value.entrySet().iterator().next();
 			List<String> statements = new LinkedList<>();
 
-			Computation keyComputation = entry.getKey().accept(generator);
+			Computation keyComputation = entry.getKey().accept(generator, context);
 			statements.addAll(keyComputation.getStatements());
 			String resultKey = keyComputation.getValue();
 
-			Computation valueComputation = entry.getValue().accept(generator);
+			Computation valueComputation = entry.getValue().accept(generator, context);
 			statements.addAll(valueComputation.getStatements());
 			String resultValue = valueComputation.getValue();
 

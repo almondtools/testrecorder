@@ -12,10 +12,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 import net.amygdalum.testrecorder.values.SerializedSet;
 
 public class DefaultSetAdaptorTest {
+
+	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
 	private DefaultSetAdaptor adaptor;
 
@@ -44,7 +47,7 @@ public class DefaultSetAdaptorTest {
 
 		MatcherGenerators generator = new MatcherGenerators(getClass());
 		
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 		
 		assertThat(result.getStatements(), empty());
 		assertThat(result.getValue(), equalTo("contains(Object.class, equalTo(new BigInteger(\"0\")), equalTo(new BigInteger(\"8\")), equalTo(new BigInteger(\"15\")))"));
@@ -55,7 +58,7 @@ public class DefaultSetAdaptorTest {
 		SerializedSet value = new SerializedSet(BigInteger[].class);
 		MatcherGenerators generator = new MatcherGenerators(getClass());
 		
-		Computation result = adaptor.tryDeserialize(value, generator);
+		Computation result = adaptor.tryDeserialize(value, generator, ctx);
 		
 		assertThat(result.getStatements(), empty());
 		assertThat(result.getValue(), equalTo("empty()"));

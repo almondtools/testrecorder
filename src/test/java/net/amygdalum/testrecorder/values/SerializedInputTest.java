@@ -56,10 +56,10 @@ public class SerializedInputTest {
 	}
 
 	@Test
-	public void testGetValues() throws Exception {
-		assertThat(input.getValues(), arrayWithSize(0));
-		assertThat(inputNoResult.getValues(), arrayContaining(inputNoResult.getValues()[0], literal(int.class, 0), literal(int.class, 0)));
-	}
+		public void testGetArguments() throws Exception {
+			assertThat(input.getArguments(), arrayWithSize(0));
+			assertThat(inputNoResult.getArguments(), arrayContaining(inputNoResult.getArguments()[0], literal(int.class, 0), literal(int.class, 0)));
+		}
 
 	@Test
 	public void testGetResultType() throws Exception {
@@ -91,7 +91,7 @@ public class SerializedInputTest {
 			.andNotEqualTo(new SerializedInput(42, "caller", BufferedReader.class, "readLine", String.class, literal("Hello"), new Type[0], literal("value"))));
 
 		assertThat(inputNoResult, satisfiesDefaultEquality()
-			.andEqualTo(new SerializedInput(43, "caller", InputStream.class, "read", new Type[] { byte[].class, int.class, int.class }, inputNoResult.getValues()))
+			.andEqualTo(new SerializedInput(43, "caller", InputStream.class, "read", new Type[] { byte[].class, int.class, int.class }, inputNoResult.getArguments()))
 			.andNotEqualTo(input));
 	}
 
