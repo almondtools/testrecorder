@@ -145,10 +145,10 @@ public class MatcherGenerators implements Deserializer<Computation> {
         }
         Computation computation = adaptors.tryDeserialize(value, types, this, context);
 
-        if (mocked.hasInputInteractions(value)) {
+        if (context.hasInputInteractions(value)) {
 			computation = mocked.verifyInputInteractions(value, computation, locals, types, context);
 		}
-		if (mocked.hasOutputInteractions(value)) {
+		if (context.hasOutputInteractions(value)) {
 			computation = mocked.verifyOutputInteractions(value, computation, locals, types, context);
 		}
 		

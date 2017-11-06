@@ -53,7 +53,7 @@ import org.junit.Before;
 import org.stringtemplate.v4.ST;
 
 import net.amygdalum.testrecorder.ContextSnapshot.AnnotatedValue;
-import net.amygdalum.testrecorder.deserializers.BackReferenceCollector;
+import net.amygdalum.testrecorder.deserializers.TreeAnalyzer;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
@@ -303,7 +303,7 @@ public class TestGenerator implements SnapshotConsumer {
 
 		private DeserializerContext computeInitialContext(ContextSnapshot snapshot) {
 			DeserializerContext context = new DeserializerContext();
-			BackReferenceCollector collector = new BackReferenceCollector();
+			TreeAnalyzer collector = new TreeAnalyzer();
 
 			Optional.ofNullable(snapshot.getSetupThis())
 				.ifPresent(self -> collector.addSeed(self));
@@ -325,23 +325,19 @@ public class TestGenerator implements SnapshotConsumer {
 
 			Arrays.stream(snapshot.getSetupGlobals())
 				.filter(Objects::nonNull)
-				.forEach(global -> collector.addSeed(global));
+				.forEach(global -> collector.addGlobalSeed(global));
 			Arrays.stream(snapshot.getExpectGlobals())
 				.filter(Objects::nonNull)
-				.forEach(global -> collector.addSeed(global));
+				.forEach(global -> collector.addGlobalSeed(global));
 
 			snapshot.getSetupInput().stream()
-				.flatMap(input -> input.getAllValues().stream())
-				.filter(Objects::nonNull)
-				.forEach(input -> collector.addSeed(input));
+				.forEach(input -> collector.addInputSeed(input));
 
 			snapshot.getExpectOutput().stream()
-				.flatMap(output -> output.getAllValues().stream())
-				.filter(Objects::nonNull)
-				.forEach(output -> collector.addSeed(output));
+				.forEach(output -> collector.addOutputSeed(output));
 
 			
-			return collector.walkTree(context);
+			return collector.analyze(context);
 		}
 
 		public MethodGenerator generateArrange() {

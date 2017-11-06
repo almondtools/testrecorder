@@ -20,31 +20,33 @@ import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedImmutableType;
 import net.amygdalum.testrecorder.SerializedReferenceType;
 import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.util.Types;
-import net.amygdalum.testrecorder.values.SerializedField;
 
 public class DeserializerContext {
 
 	public static final DeserializerContext NULL = new DeserializerContext();
+	private static final SerializedReferenceType GLOBAL_REFERRER = new GlobalRoot();
 
 	private DeserializerContext parent;
-	private Map<Class<?>, SerializedReferenceType> globals;
 	private Map<SerializedValue, Set<SerializedReferenceType>> backReferences;
 	private Map<SerializedValue, Set<SerializedValue>> closures;
+	private Set<SerializedReferenceType> inputs;
+	private Set<SerializedReferenceType> outputs;
 	private List<Object> hints;
 
 	public DeserializerContext() {
-		this.globals = new IdentityHashMap<>();
 		this.backReferences = new IdentityHashMap<>();
 		this.closures = new IdentityHashMap<>();
+		this.inputs = new HashSet<>();
+		this.outputs = new HashSet<>();
 		this.hints = emptyList();
 	}
 
 	private DeserializerContext(DeserializerContext parent, Collection<Object> hints) {
 		this.parent = parent;
-		this.globals = parent.globals;
 		this.backReferences = parent.backReferences;
 		this.closures = parent.closures;
+		this.inputs = parent.inputs;
+		this.outputs = parent.outputs;
 		this.hints = new ArrayList<>(hints);
 	}
 
@@ -89,18 +91,14 @@ public class DeserializerContext {
 		});
 	}
 
-	public void staticRef(Class<?> clazz, SerializedField referencedValue) {
-		backReferences.compute(referencedValue.getValue(), (referenced, backreferenced) -> {
+	public void staticRef(SerializedValue referencedValue) {
+		backReferences.compute(referencedValue, (referenced, backreferenced) -> {
 			if (backreferenced == null) {
 				backreferenced = new HashSet<>();
 			}
-			backreferenced.add(globalFor(clazz));
+			backreferenced.add(GLOBAL_REFERRER);
 			return backreferenced;
 		});
-	}
-
-	private SerializedReferenceType globalFor(Class<?> clazz) {
-		return globals.computeIfAbsent(clazz, GlobalRoot::new);
 	}
 
 	public Set<SerializedValue> closureOf(SerializedValue value) {
@@ -126,11 +124,25 @@ public class DeserializerContext {
 		}
 	}
 
-	private static class GlobalRoot implements SerializedReferenceType {
-		private Class<?> clazz;
+	public void inputFrom(SerializedReferenceType object) {
+		inputs.add(object);
+	}
 
-		public GlobalRoot(Class<?> clazz) {
-			this.clazz = clazz;
+	public void outputFrom(SerializedReferenceType object) {
+		outputs.add(object);
+	}
+
+	public boolean hasInputInteractions(SerializedReferenceType value) {
+		return inputs.contains(value);
+	}
+
+	public boolean hasOutputInteractions(SerializedReferenceType value) {
+		return outputs.contains(value);
+	}
+
+	private static class GlobalRoot implements SerializedReferenceType {
+
+		public GlobalRoot() {
 		}
 		
 		@Override
@@ -144,7 +156,7 @@ public class DeserializerContext {
 
 		@Override
 		public Type getResultType() {
-			return Types.parameterized(Class.class, null, clazz);
+			return Class.class;
 		}
 
 		@Override
@@ -153,7 +165,7 @@ public class DeserializerContext {
 
 		@Override
 		public Type getType() {
-			return Types.parameterized(Class.class, null, clazz);
+			return Class.class;
 		}
 
 		@Override

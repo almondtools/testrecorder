@@ -42,14 +42,10 @@ public class MockedInteractions {
 		this.expectOutput = expectOutput;
 	}
 
-	public boolean hasInputInteractions(SerializedReferenceType value) {
-		return setupFactory != null
-			&& matcherFactory != null
-			&& setupInput.stream()
-				.anyMatch(input -> input.getId() == value.getId());
-	}
-
 	public Computation prepareInputInteractions(SerializedReferenceType value, Computation computation, LocalVariableNameGenerator locals, TypeManager types, DeserializerContext context) {
+		if (setupFactory == null || matcherFactory == null) {
+			return computation;
+		}
 		Deserializer<Computation> setup = setupFactory.create(locals, types);
 
 		List<String> statements = new ArrayList<>(computation.getStatements());
@@ -107,29 +103,22 @@ public class MockedInteractions {
 
 		val = callMethodChainExpression(val, methods);
 
-		if (computation.isStored()) {
-			String var = computation.getValue();
-			statements.add(assignLocalVariableStatement(var, val));
-			return variable(var, computation.getType(), statements);
-		} else {
-			String var = locals.fetchName(computation.getType());
-			statements.add(assignLocalVariableStatement(types.getVariableTypeName(computation.getType()), var, val));
-			return variable(var, computation.getType(), statements);
-		}
+		String var = locals.fetchName(computation.getType());
+		statements.add(assignLocalVariableStatement(types.getVariableTypeName(computation.getType()), var, val));
+		return variable(var, computation.getType(), statements);
 	}
 
 	public Computation verifyInputInteractions(SerializedReferenceType value, Computation computation, LocalVariableNameGenerator locals, TypeManager types, DeserializerContext context) {
+		if (setupFactory == null || matcherFactory == null) {
+			return computation;
+		}
 		return computation;
 	}
 
-	public boolean hasOutputInteractions(SerializedReferenceType value) {
-		return setupFactory != null
-			&& matcherFactory != null
-			&& expectOutput.stream()
-				.anyMatch(output -> output.getId() == value.getId());
-	}
-
 	public Computation prepareOutputInteractions(SerializedReferenceType value, Computation computation, LocalVariableNameGenerator locals, TypeManager types, DeserializerContext context) {
+		if (setupFactory == null || matcherFactory == null) {
+			return computation;
+		}
 		Deserializer<Computation> setup = setupFactory.create(locals, types);
 		Deserializer<Computation> matcher = matcherFactory.create(locals, types);
 		List<String> statements = new ArrayList<>(computation.getStatements());
@@ -182,18 +171,15 @@ public class MockedInteractions {
 
 		val = callMethodChainExpression(val, methods);
 
-		if (computation.isStored()) {
-			String var = computation.getValue();
-			statements.add(assignLocalVariableStatement(var, val));
-			return variable(var, computation.getType(), statements);
-		} else {
-			String var = locals.fetchName(computation.getType());
-			statements.add(assignLocalVariableStatement(types.getVariableTypeName(computation.getType()), var, val));
-			return variable(var, computation.getType(), statements);
-		}
+		String var = locals.fetchName(computation.getType());
+		statements.add(assignLocalVariableStatement(types.getVariableTypeName(computation.getType()), var, val));
+		return variable(var, computation.getType(), statements);
 	}
 
 	public Computation verifyOutputInteractions(SerializedReferenceType value, Computation computation, LocalVariableNameGenerator locals, TypeManager types, DeserializerContext context) {
+		if (setupFactory == null || matcherFactory == null) {
+			return computation;
+		}
 		types.registerImport(OutputDecorator.class);
 		types.registerImport(CombinableMatcher.class);
 

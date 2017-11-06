@@ -135,6 +135,10 @@ public class SetupGenerators implements Deserializer<Computation> {
 		defined.computeIfPresent(value, (val, def) -> def.finish());
 	}
 
+	private void redefineVariable(SerializedValue value, String name) {
+		defined.computeIfPresent(value, (val, def) -> def.redefine(name));
+	}
+
 	private void resetVariable(SerializedValue value) {
 		defined.remove(value);
 	}
@@ -180,11 +184,17 @@ public class SetupGenerators implements Deserializer<Computation> {
 		}
 		Computation computation = adaptors.tryDeserialize(value, types, this, context);
 
-		if (mocked.hasInputInteractions(value)) {
+		if (context.hasInputInteractions(value)) {
 			computation = mocked.prepareInputInteractions(value, computation, locals, types, context);
+			if (computation.isStored()) {
+				redefineVariable(value, computation.getValue());
+			}
 		}
-		if (mocked.hasOutputInteractions(value)) {
+		if (context.hasOutputInteractions(value)) {
 			computation = mocked.prepareOutputInteractions(value, computation, locals, types, context);
+			if (computation.isStored()) {
+				redefineVariable(value, computation.getValue());
+			}
 		}
 		return computation;
 	}
