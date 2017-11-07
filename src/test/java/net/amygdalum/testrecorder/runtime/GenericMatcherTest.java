@@ -16,8 +16,6 @@ import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
 import org.junit.Test;
 
-import com.almondtools.conmatch.strings.WildcardStringMatcher;
-
 import net.amygdalum.testrecorder.util.testobjects.Complex;
 import net.amygdalum.testrecorder.util.testobjects.DoubleShadowingObject;
 import net.amygdalum.testrecorder.util.testobjects.ShadowingObject;

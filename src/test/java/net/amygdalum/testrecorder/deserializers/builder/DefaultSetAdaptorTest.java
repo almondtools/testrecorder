@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
+import static net.amygdalum.testrecorder.deserializers.DeserializerContext.NULL;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenSet;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
@@ -23,7 +24,6 @@ import org.junit.Test;
 
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.LocalVariable;
 import net.amygdalum.testrecorder.deserializers.LocalVariableDefinition;
 import net.amygdalum.testrecorder.util.testobjects.OrthogonalInterface;
@@ -31,8 +31,6 @@ import net.amygdalum.testrecorder.util.testobjects.PublicSet;
 import net.amygdalum.testrecorder.values.SerializedSet;
 
 public class DefaultSetAdaptorTest {
-
-	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
 	private DefaultSetAdaptor adaptor;
 
@@ -64,7 +62,7 @@ public class DefaultSetAdaptorTest {
 		value.add(literal(15));
 		SetupGenerators generator = new SetupGenerators(getClass());
 		
-		Computation result = adaptor.tryDeserialize(value, generator, ctx);
+		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 		
 		assertThat(result.getStatements().toString(), allOf(
 			containsString("LinkedHashSet<Integer> temp1 = new LinkedHashSet<Integer>()"),
@@ -83,7 +81,7 @@ public class DefaultSetAdaptorTest {
 		value.add(literal(15));
 		SetupGenerators generator = new SetupGenerators(getClass());
 		
-		Computation result = adaptor.tryDeserialize(value, generator, ctx);
+		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 		
 		assertThat(result.getStatements().toString(), allOf(
 			containsString("LinkedHashSet<Integer> set1 = new LinkedHashSet<Integer>()"),
@@ -102,7 +100,7 @@ public class DefaultSetAdaptorTest {
         value.add(literal(15));
         SetupGenerators generator = new SetupGenerators(Object.class);
 
-        Computation result = adaptor.tryDeserialize(value, generator, ctx);
+        Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements().toString(), allOf(
             containsString("PublicSet<Integer> temp1 = new PublicSet<Integer>()"), 
@@ -122,7 +120,7 @@ public class DefaultSetAdaptorTest {
         value.add(literal(15));
         SetupGenerators generator = new SetupGenerators(Object.class);
 
-        Computation result = adaptor.tryDeserialize(value, generator, ctx);
+        Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements().toString(), allOf(
             containsString("java.util.Set temp1 = (java.util.Set<?>) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenSet\").value();"),
@@ -141,7 +139,7 @@ public class DefaultSetAdaptorTest {
         value.add(literal(15));
         SetupGenerators generator = new SetupGenerators(Object.class);
 
-        Computation result = adaptor.tryDeserialize(value, generator, ctx);
+        Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements().toString(), not(containsString("new net.amygdalum.testrecorder.util.testobjects.Hidden.HiddenSet"))); 
         assertThat(result.getStatements().toString(), allOf(
@@ -167,7 +165,7 @@ public class DefaultSetAdaptorTest {
             }
         };
 
-        Computation result = adaptor.tryDeserialize(value, generator, ctx);
+        Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements().toString(), allOf(
             containsString("LinkedHashSet<Integer> temp1 = new LinkedHashSet<Integer>()"),

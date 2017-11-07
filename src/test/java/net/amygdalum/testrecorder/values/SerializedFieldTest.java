@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.values;
 
 import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefaultEquality;
+import static net.amygdalum.testrecorder.deserializers.DeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -13,7 +14,6 @@ import java.lang.annotation.Annotation;
 
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 import net.amygdalum.testrecorder.util.testobjects.Annotated;
 import net.amygdalum.testrecorder.util.testobjects.AnnotatedField;
@@ -21,8 +21,6 @@ import net.amygdalum.testrecorder.util.testobjects.MyAnnotation;
 import net.amygdalum.testrecorder.util.testobjects.NoAnnotation;
 
 public class SerializedFieldTest {
-
-	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
 	@Test
 	public void testGetName() throws Exception {
@@ -42,7 +40,7 @@ public class SerializedFieldTest {
 	@Test
 	public void testAccept() throws Exception {
 		assertThat(new SerializedField(null, "f", String.class, literal("sv"))
-			.accept(new TestValueVisitor(), ctx), equalTo("field"));
+			.accept(new TestValueVisitor(), NULL), equalTo("field"));
 	}
 
 	@Test

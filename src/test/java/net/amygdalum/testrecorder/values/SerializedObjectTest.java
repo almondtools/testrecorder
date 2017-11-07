@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.values;
 
+import static net.amygdalum.testrecorder.deserializers.DeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
@@ -7,12 +8,9 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 
 public class SerializedObjectTest {
-
-	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
 	@Test
 	public void testGetResultType() throws Exception {
@@ -53,7 +51,7 @@ public class SerializedObjectTest {
 	public void testAccept() throws Exception {
 		SerializedObject serializedObject = new SerializedObject(Object.class);
 
-		assertThat(serializedObject.accept(new TestValueVisitor(), ctx), equalTo("SerializedObject"));
+		assertThat(serializedObject.accept(new TestValueVisitor(), NULL), equalTo("SerializedObject"));
 	}
 
 	@Test

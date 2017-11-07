@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.values;
 
 import static java.util.Arrays.asList;
+import static net.amygdalum.testrecorder.deserializers.DeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.GenericTypes.arrayListOfSetOfString;
 import static net.amygdalum.testrecorder.values.GenericTypes.arrayListOfString;
 import static net.amygdalum.testrecorder.values.GenericTypes.listOfBounded;
@@ -25,12 +26,9 @@ import java.util.Set;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 
 public class SerializedListTest {
-
-	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
 	@Test
 	public void testGetResultTypeRaw() throws Exception {
@@ -386,7 +384,7 @@ public class SerializedListTest {
 	@Test
 	public void testAccept() throws Exception {
 		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		assertThat(list.accept(new TestValueVisitor(), ctx), equalTo("SerializedList"));
+		assertThat(list.accept(new TestValueVisitor(), NULL), equalTo("SerializedList"));
 	}
 
 }

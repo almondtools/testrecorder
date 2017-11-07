@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
+import static net.amygdalum.testrecorder.deserializers.DeserializerContext.NULL;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
@@ -12,14 +13,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 
 public class DefaultClassAdaptorTest {
 
-	private static final DeserializerContext ctx = DeserializerContext.NULL;
-
-    private DefaultClassAdaptor adaptor;
+	private DefaultClassAdaptor adaptor;
 
     @Before
     public void before() throws Exception {
@@ -43,7 +41,7 @@ public class DefaultClassAdaptorTest {
         value.setValue(BigInteger.class);
         SetupGenerators generator = new SetupGenerators(getClass());
 
-        Computation result = adaptor.tryDeserialize(value, generator, ctx);
+        Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements(), empty());
         assertThat(result.getValue(), equalTo("java.math.BigInteger.class"));

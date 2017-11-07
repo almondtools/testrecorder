@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.matcher;
 
+import static net.amygdalum.testrecorder.deserializers.DeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.empty;
@@ -13,15 +14,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedArray;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 
 public class DefaultArrayAdaptorTest {
 
-	private static final DeserializerContext ctx = DeserializerContext.NULL;
-
-    private DefaultArrayAdaptor adaptor;
+	private DefaultArrayAdaptor adaptor;
 
     @Before
     public void before() throws Exception {
@@ -48,7 +46,7 @@ public class DefaultArrayAdaptorTest {
         value.add(literal(int.class, 15));
         MatcherGenerators generator = new MatcherGenerators(getClass());
 
-        Computation result = adaptor.tryDeserialize(value, generator, ctx);
+        Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements(), empty());
         assertThat(result.getValue(), equalTo("intArrayContaining(0, 8, 15)"));
@@ -63,7 +61,7 @@ public class DefaultArrayAdaptorTest {
         MatcherGenerators generator = new MatcherGenerators(getClass());
         generator.getTypes().registerTypes(BigInteger.class);
 
-        Computation result = adaptor.tryDeserialize(value, generator, ctx);
+        Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements(), empty());
         assertThat(result.getValue(), equalTo("arrayContaining(BigInteger.class, equalTo(new BigInteger(\"0\")), equalTo(new BigInteger(\"8\")), equalTo(new BigInteger(\"15\")))"));
@@ -74,7 +72,7 @@ public class DefaultArrayAdaptorTest {
         SerializedArray value = new SerializedArray(BigInteger[].class);
         MatcherGenerators generator = new MatcherGenerators(getClass());
 
-        Computation result = adaptor.tryDeserialize(value, generator, ctx);
+        Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements(), empty());
         assertThat(result.getValue(), equalTo("emptyArray()"));

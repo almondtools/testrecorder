@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
+import static net.amygdalum.testrecorder.deserializers.DeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.containsString;
@@ -11,12 +12,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedArray;
 
 public class DefaultArrayAdaptorTest {
-
-	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
 	private DefaultArrayAdaptor adaptor;
 
@@ -45,7 +43,7 @@ public class DefaultArrayAdaptorTest {
 		value.add(literal(int.class, 15));
 		SetupGenerators generator = new SetupGenerators(getClass());
 		
-		Computation result = adaptor.tryDeserialize(value, generator, ctx);
+		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 		
 		assertThat(result.getStatements().toString(), containsString("int[] intArray1 = new int[]{0, 8, 15}"));
 		assertThat(result.getValue(), equalTo("intArray1"));

@@ -1,7 +1,9 @@
 package net.amygdalum.testrecorder;
 
 import static com.almondtools.conmatch.conventions.UtilityClassMatcher.isUtilityClass;
-import static net.amygdalum.testrecorder.TypeFilters.*;
+import static net.amygdalum.testrecorder.TypeFilters.endingWith;
+import static net.amygdalum.testrecorder.TypeFilters.in;
+import static net.amygdalum.testrecorder.TypeFilters.startingWith;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 

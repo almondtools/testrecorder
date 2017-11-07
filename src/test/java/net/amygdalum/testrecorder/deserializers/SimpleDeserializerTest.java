@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers;
 
+import static net.amygdalum.testrecorder.deserializers.DeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
@@ -37,8 +38,6 @@ import net.amygdalum.testrecorder.values.SerializedSet;
 
 public class SimpleDeserializerTest {
 
-	private static final DeserializerContext ctx = DeserializerContext.NULL;
-
 	private SimpleDeserializer deserializer;
 
 	@Before
@@ -49,7 +48,7 @@ public class SimpleDeserializerTest {
 	@Test(expected = DeserializationException.class)
 	public void testVisitField() throws Exception {
 		SerializedField field = new SerializedField(Simple.class, "field", String.class, literal("v"));
-		deserializer.visitField(field, ctx);
+		deserializer.visitField(field, NULL);
 	}
 
 	@Test
@@ -57,7 +56,7 @@ public class SimpleDeserializerTest {
 		SerializedObject object = new SerializedObject(Simple.class);
 		object.addField(new SerializedField(Simple.class, "str", String.class, literal("v")));
 
-		Object visitReferenceType = deserializer.visitReferenceType(object, ctx);
+		Object visitReferenceType = deserializer.visitReferenceType(object, NULL);
 
 		assertThat(visitReferenceType, instanceOf(Simple.class));
 		assertThat(((Simple) visitReferenceType).getStr(), equalTo("v"));
@@ -68,7 +67,7 @@ public class SimpleDeserializerTest {
 		SerializedObject object = Mockito.mock(SerializedObject.class);
 		when(object.getFields()).thenThrow(new GenericObjectException());
 
-		deserializer.visitReferenceType(object, ctx);
+		deserializer.visitReferenceType(object, NULL);
 	}
 
 	@Test
@@ -76,7 +75,7 @@ public class SimpleDeserializerTest {
 		SerializedArray object = new SerializedArray(int[].class);
 		object.add(literal(22));
 
-		Object visitReferenceType = deserializer.visitReferenceType(object, ctx);
+		Object visitReferenceType = deserializer.visitReferenceType(object, NULL);
 
 		assertThat(visitReferenceType, equalTo(new int[] { 22 }));
 	}
@@ -87,7 +86,7 @@ public class SimpleDeserializerTest {
 		SerializedList object = new SerializedList(ArrayList.class);
 		object.add(literal(1));
 
-		Object visitReferenceType = deserializer.visitReferenceType(object, ctx);
+		Object visitReferenceType = deserializer.visitReferenceType(object, NULL);
 
 		assertThat(visitReferenceType, instanceOf(ArrayList.class));
 		assertThat(((List) visitReferenceType).get(0), equalTo(1));
@@ -99,7 +98,7 @@ public class SimpleDeserializerTest {
 		SerializedSet object = new SerializedSet(HashSet.class);
 		object.add(literal(true));
 
-		Object visitReferenceType = deserializer.visitReferenceType(object, ctx);
+		Object visitReferenceType = deserializer.visitReferenceType(object, NULL);
 
 		assertThat(visitReferenceType, instanceOf(HashSet.class));
 		assertThat(((Set) visitReferenceType).iterator().next(), equalTo(true));
@@ -111,7 +110,7 @@ public class SimpleDeserializerTest {
 		SerializedMap object = new SerializedMap(HashMap.class);
 		object.put(literal(1.0), literal("one"));
 
-		Object visitReferenceType = deserializer.visitReferenceType(object, ctx);
+		Object visitReferenceType = deserializer.visitReferenceType(object, NULL);
 
 		assertThat(visitReferenceType, instanceOf(HashMap.class));
 		assertThat(((Map) visitReferenceType).get(1.0), equalTo("one"));
@@ -120,13 +119,13 @@ public class SimpleDeserializerTest {
 	@Test
 	public void testVisitNull() throws Exception {
 		SerializedReferenceType object = SerializedNull.nullInstance(Object.class);
-		assertThat(deserializer.visitReferenceType(object, ctx), nullValue());
+		assertThat(deserializer.visitReferenceType(object, NULL), nullValue());
 	}
 
 	@Test
 	public void testVisitOtherReferenceType() throws Exception {
 		SerializedReferenceType object = Mockito.mock(SerializedReferenceType.class);
-		assertThat(deserializer.visitReferenceType(object, ctx), nullValue());
+		assertThat(deserializer.visitReferenceType(object, NULL), nullValue());
 	}
 
 	@Test
@@ -134,7 +133,7 @@ public class SimpleDeserializerTest {
 		SerializedImmutable<BigDecimal> serializedImmutable = new SerializedImmutable<>(BigDecimal.class);
 		serializedImmutable.setValue(new BigDecimal("2.0"));
 
-		Object visitImmutableType = deserializer.visitImmutableType(serializedImmutable, ctx);
+		Object visitImmutableType = deserializer.visitImmutableType(serializedImmutable, NULL);
 
 		assertThat(visitImmutableType, equalTo(new BigDecimal("2.0")));
 	}
@@ -144,7 +143,7 @@ public class SimpleDeserializerTest {
 		SerializedEnum serializedEnum = new SerializedEnum(TestEnum.class);
 		serializedEnum.setName("ENUM");
 
-		Object visitImmutableType = deserializer.visitImmutableType(serializedEnum, ctx);
+		Object visitImmutableType = deserializer.visitImmutableType(serializedEnum, NULL);
 
 		assertThat(visitImmutableType, equalTo(TestEnum.ENUM));
 	}
@@ -153,7 +152,7 @@ public class SimpleDeserializerTest {
 	public void testVisitOtherImmutable() throws Exception {
 		SerializedImmutableType serializedImmutable = Mockito.mock(SerializedImmutableType.class);
 
-		Object visitImmutableType = deserializer.visitImmutableType(serializedImmutable, ctx);
+		Object visitImmutableType = deserializer.visitImmutableType(serializedImmutable, NULL);
 
 		assertThat(visitImmutableType, nullValue());
 	}
@@ -162,7 +161,7 @@ public class SimpleDeserializerTest {
 	public void testVisitValueType() throws Exception {
 		SerializedLiteral serializedLiteral = SerializedLiteral.literal('a');
 
-		Object visitImmutableType = deserializer.visitValueType(serializedLiteral, ctx);
+		Object visitImmutableType = deserializer.visitValueType(serializedLiteral, NULL);
 
 		assertThat(visitImmutableType, equalTo('a'));
 	}
@@ -171,8 +170,8 @@ public class SimpleDeserializerTest {
 	public void testVisitValueTypeCached() throws Exception {
 		SerializedLiteral serializedLiteral = SerializedLiteral.literal('a');
 
-		Object visitImmutableType = deserializer.visitValueType(serializedLiteral, ctx);
-		visitImmutableType = deserializer.visitValueType(serializedLiteral, ctx);
+		Object visitImmutableType = deserializer.visitValueType(serializedLiteral, NULL);
+		visitImmutableType = deserializer.visitValueType(serializedLiteral, NULL);
 
 		assertThat(visitImmutableType, equalTo('a'));
 	}

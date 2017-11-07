@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.matcher;
 
+import static net.amygdalum.testrecorder.deserializers.DeserializerContext.NULL;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfCompletelyHidden;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfPartiallyHidden;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
@@ -13,15 +14,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.util.testobjects.Hidden;
 import net.amygdalum.testrecorder.values.SerializedNull;
 
 public class DefaultNullAdaptorTest {
 
-	private static final DeserializerContext ctx = DeserializerContext.NULL;
-
-    private DefaultNullAdaptor adaptor;
+	private DefaultNullAdaptor adaptor;
 
     @Before
     public void before() throws Exception {
@@ -45,7 +43,7 @@ public class DefaultNullAdaptorTest {
         SerializedNull value = nullInstance(String.class);
         MatcherGenerators generator = new MatcherGenerators(getClass());
 
-        Computation result = adaptor.tryDeserialize(value, generator, ctx);
+        Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements(), empty());
         assertThat(result.getValue(), equalTo("nullValue(String.class)"));
@@ -58,7 +56,7 @@ public class DefaultNullAdaptorTest {
 
         MatcherGenerators generator = new MatcherGenerators(getClass());
 
-        Computation result = adaptor.tryDeserialize(value, generator, ctx);
+        Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements(), empty());
         assertThat(result.getValue(), equalTo("nullValue(net.amygdalum.testrecorder.util.testobjects.Hidden.VisibleInterface.class)"));
@@ -71,7 +69,7 @@ public class DefaultNullAdaptorTest {
 
         MatcherGenerators generator = new MatcherGenerators(getClass());
 
-        Computation result = adaptor.tryDeserialize(value, generator, ctx);
+        Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements(), empty());
         assertThat(result.getValue(), equalTo("nullValue()"));

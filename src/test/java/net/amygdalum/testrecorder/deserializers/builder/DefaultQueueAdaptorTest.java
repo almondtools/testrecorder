@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
+import static net.amygdalum.testrecorder.deserializers.DeserializerContext.NULL;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenQueue;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
@@ -22,7 +23,6 @@ import org.junit.Test;
 
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.LocalVariable;
 import net.amygdalum.testrecorder.deserializers.LocalVariableDefinition;
 import net.amygdalum.testrecorder.util.testobjects.OrthogonalInterface;
@@ -30,8 +30,6 @@ import net.amygdalum.testrecorder.util.testobjects.PublicQueue;
 import net.amygdalum.testrecorder.values.SerializedList;
 
 public class DefaultQueueAdaptorTest {
-
-	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
 	private DefaultQueueAdaptor adaptor;
 
@@ -62,7 +60,7 @@ public class DefaultQueueAdaptorTest {
 		value.add(literal(15));
 		SetupGenerators generator = new SetupGenerators(getClass());
 		
-		Computation result = adaptor.tryDeserialize(value, generator, ctx);
+		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 		
 		assertThat(result.getStatements().toString(), allOf(
 			containsString("LinkedList<Integer> temp1 = new LinkedList<Integer>()"),
@@ -81,7 +79,7 @@ public class DefaultQueueAdaptorTest {
 		value.add(literal(15));
 		SetupGenerators generator = new SetupGenerators(getClass());
 		
-		Computation result = adaptor.tryDeserialize(value, generator, ctx);
+		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 		
 		assertThat(result.getStatements().toString(), allOf(
 			containsString("LinkedList<Integer> queue1 = new LinkedList<Integer>()"),
@@ -100,7 +98,7 @@ public class DefaultQueueAdaptorTest {
         value.add(literal(15));
         SetupGenerators generator = new SetupGenerators(Object.class);
 
-        Computation result = adaptor.tryDeserialize(value, generator, ctx);
+        Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements().toString(), allOf(
             containsString("PublicQueue<Integer> temp1 = new PublicQueue<Integer>()"), 
@@ -120,7 +118,7 @@ public class DefaultQueueAdaptorTest {
         value.add(literal(15));
         SetupGenerators generator = new SetupGenerators(Object.class);
 
-        Computation result = adaptor.tryDeserialize(value, generator, ctx);
+        Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements().toString(), allOf(
             containsString("java.util.Queue temp1 = (java.util.Queue<?>) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenQueue\").value();"),
@@ -139,7 +137,7 @@ public class DefaultQueueAdaptorTest {
         value.add(literal(15));
         SetupGenerators generator = new SetupGenerators(Object.class);
 
-        Computation result = adaptor.tryDeserialize(value, generator, ctx);
+        Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements().toString(), not(containsString("new net.amygdalum.testrecorder.util.testobjects.Hidden.HiddenQueue"))); 
         assertThat(result.getStatements().toString(), allOf(
@@ -165,7 +163,7 @@ public class DefaultQueueAdaptorTest {
             }
         };
 
-        Computation result = adaptor.tryDeserialize(value, generator, ctx);
+        Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements().toString(), allOf(
             containsString("LinkedList<Integer> temp1 = new LinkedList<Integer>()"),

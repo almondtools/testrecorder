@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
+import static net.amygdalum.testrecorder.deserializers.DeserializerContext.NULL;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
@@ -12,12 +13,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 
 public class DefaultBigDecimalAdaptorTest {
-
-	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
 	private DefaultBigDecimalAdaptor adaptor;
 
@@ -43,7 +41,7 @@ public class DefaultBigDecimalAdaptorTest {
 		value.setValue(new BigDecimal("0.815"));
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		Computation result = adaptor.tryDeserialize(value, generator, ctx);
+		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements(), empty());
 		assertThat(result.getValue(), equalTo("new BigDecimal(\"0.815\")"));

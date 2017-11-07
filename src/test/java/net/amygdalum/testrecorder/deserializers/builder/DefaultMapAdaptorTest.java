@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
+import static net.amygdalum.testrecorder.deserializers.DeserializerContext.NULL;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenMap;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
@@ -21,7 +22,6 @@ import org.junit.Test;
 
 import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.LocalVariable;
 import net.amygdalum.testrecorder.deserializers.LocalVariableDefinition;
 import net.amygdalum.testrecorder.util.testobjects.OrthogonalInterface;
@@ -30,9 +30,7 @@ import net.amygdalum.testrecorder.values.SerializedMap;
 
 public class DefaultMapAdaptorTest {
 
-	private static final DeserializerContext ctx = DeserializerContext.NULL;
-
-    private DefaultMapAdaptor adaptor;
+	private DefaultMapAdaptor adaptor;
 
     @Before
     public void before() throws Exception {
@@ -60,7 +58,7 @@ public class DefaultMapAdaptorTest {
         value.put(literal(47), literal(11));
         SetupGenerators generator = new SetupGenerators(getClass());
 
-        Computation result = adaptor.tryDeserialize(value, generator, ctx);
+        Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements().toString(), allOf(
             containsString("LinkedHashMap<Integer, Integer> temp1 = new LinkedHashMap<Integer, Integer>()"),
@@ -78,7 +76,7 @@ public class DefaultMapAdaptorTest {
         value.put(literal(47), literal(11));
         SetupGenerators generator = new SetupGenerators(getClass());
 
-        Computation result = adaptor.tryDeserialize(value, generator, ctx);
+        Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements().toString(), allOf(
             containsString("LinkedHashMap<Integer, Integer> map1 = new LinkedHashMap<Integer, Integer>()"),
@@ -95,7 +93,7 @@ public class DefaultMapAdaptorTest {
         value.put(literal(47), literal(11));
         SetupGenerators generator = new SetupGenerators(Object.class);
 
-        Computation result = adaptor.tryDeserialize(value, generator, ctx);
+        Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements().toString(), allOf(
             containsString("PublicMap<Integer, Integer> temp1 = new PublicMap<Integer, Integer>()"), 
@@ -113,7 +111,7 @@ public class DefaultMapAdaptorTest {
         value.put(literal(47), literal(11));
         SetupGenerators generator = new SetupGenerators(Object.class);
 
-        Computation result = adaptor.tryDeserialize(value, generator, ctx);
+        Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements().toString(), allOf(
             containsString("Map temp1 = (Map<?, ?>) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenMap\").value();"),
@@ -130,7 +128,7 @@ public class DefaultMapAdaptorTest {
         value.put(literal(47), literal(11));
         SetupGenerators generator = new SetupGenerators(Object.class);
 
-        Computation result = adaptor.tryDeserialize(value, generator, ctx);
+        Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements().toString(), not(containsString("new net.amygdalum.testrecorder.util.testobjects.Hidden.HiddenMap"))); 
         assertThat(result.getStatements().toString(), allOf(
@@ -154,7 +152,7 @@ public class DefaultMapAdaptorTest {
             }
         };
 
-        Computation result = adaptor.tryDeserialize(value, generator, ctx);
+        Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements().toString(), allOf(
             containsString("LinkedHashMap<Integer, Integer> temp1 = new LinkedHashMap<Integer, Integer>()"),

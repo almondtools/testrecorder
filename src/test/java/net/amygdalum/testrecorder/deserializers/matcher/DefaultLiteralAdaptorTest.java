@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.matcher;
 
+import static net.amygdalum.testrecorder.deserializers.DeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.empty;
@@ -11,12 +12,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 
 public class DefaultLiteralAdaptorTest {
-
-	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
 	private DefaultLiteralAdaptor adaptor;
 
@@ -43,7 +41,7 @@ public class DefaultLiteralAdaptorTest {
 		SerializedLiteral value = literal("string");
 		MatcherGenerators generator = new MatcherGenerators(getClass());
 
-		Computation result = adaptor.tryDeserialize(value, generator, ctx);
+		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements(), empty());
 		assertThat(result.getValue(), equalTo("equalTo(\"string\")"));

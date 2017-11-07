@@ -1,17 +1,15 @@
 package net.amygdalum.testrecorder.values;
 
+import static net.amygdalum.testrecorder.deserializers.DeserializerContext.NULL;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 
 public class SerializedEnumTest {
-
-	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
 	@Test
 	public void testGetType() throws Exception {
@@ -25,7 +23,7 @@ public class SerializedEnumTest {
 	public void testAccept() throws Exception {
 		SerializedEnum value = new SerializedEnum(MyEnum.class);
 
-		assertThat(value.accept(new TestValueVisitor(), ctx), equalTo("SerializedEnum"));
+		assertThat(value.accept(new TestValueVisitor(), NULL), equalTo("SerializedEnum"));
 	}
 
 	@Test

@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
+import static net.amygdalum.testrecorder.deserializers.DeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.empty;
@@ -11,12 +12,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedNull;
 
 public class DefaultNullAdaptorTest {
-
-	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
 	private DefaultNullAdaptor adaptor;
 
@@ -41,7 +39,7 @@ public class DefaultNullAdaptorTest {
 		SerializedNull value = nullInstance(String.class);
 		SetupGenerators generator = new SetupGenerators(getClass());
 		
-		Computation result = adaptor.tryDeserialize(value, generator, ctx);
+		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 		
 		assertThat(result.getStatements(), empty());
 		assertThat(result.getValue(), equalTo("null"));

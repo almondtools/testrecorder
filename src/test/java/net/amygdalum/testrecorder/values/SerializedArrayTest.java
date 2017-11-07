@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.values;
 
+import static net.amygdalum.testrecorder.deserializers.DeserializerContext.NULL;
 import static net.amygdalum.testrecorder.util.Types.array;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.ParameterizedTypeMatcher.parameterizedType;
@@ -14,12 +15,9 @@ import java.util.List;
 
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 
 public class SerializedArrayTest {
-
-	private static final DeserializerContext ctx = DeserializerContext.NULL;
 
 	@SuppressWarnings("unused")
 	private List<String>[] genericArray = null;
@@ -81,7 +79,7 @@ public class SerializedArrayTest {
 	public void testAccept() throws Exception {
 		SerializedArray array = new SerializedArray(String[].class);
 
-		assertThat(array.accept(new TestValueVisitor(), ctx), equalTo("SerializedArray"));
+		assertThat(array.accept(new TestValueVisitor(), NULL), equalTo("SerializedArray"));
 	}
 
 	@Test
