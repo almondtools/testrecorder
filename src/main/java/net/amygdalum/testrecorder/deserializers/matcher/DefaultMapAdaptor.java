@@ -3,23 +3,28 @@ package net.amygdalum.testrecorder.deserializers.matcher;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.deserializers.Computation.expression;
+import static net.amygdalum.testrecorder.deserializers.Templates.cast;
 import static net.amygdalum.testrecorder.deserializers.Templates.containsEntriesMatcher;
 import static net.amygdalum.testrecorder.deserializers.Templates.noEntriesMatcher;
+import static net.amygdalum.testrecorder.util.Types.assignableTypes;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.stream.Stream;
 
 import org.hamcrest.Matcher;
 
+import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.runtime.MapMatcher;
 import net.amygdalum.testrecorder.util.Pair;
 import net.amygdalum.testrecorder.values.SerializedMap;
+import net.amygdalum.testrecorder.values.SerializedNull;
 
 public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> implements MatcherGenerator<SerializedMap> {
 
@@ -30,19 +35,19 @@ public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> im
 
 	@Override
 	public Computation tryDeserialize(SerializedMap value, MatcherGenerators generator, DeserializerContext context) {
-	    Type mapKeyType = value.getMapKeyType();
-	    Type mapValueType = value.getMapValueType();
-	    
+		Type mapKeyType = value.getMapKeyType();
+		Type mapValueType = value.getMapValueType();
+
 		TypeManager types = generator.getTypes();
 		if (types.isHidden(mapKeyType)) {
-		    mapKeyType = Object.class;
+			mapKeyType = Object.class;
 		}
-        if (types.isHidden(mapValueType)) {
-            mapValueType = Object.class;
-        }
-		
-        String keyType = types.getRawTypeName(mapKeyType);
-        String valueType = types.getRawTypeName(mapValueType);
+		if (types.isHidden(mapValueType)) {
+			mapValueType = Object.class;
+		}
+
+		String keyType = types.getRawTypeName(mapKeyType);
+		String valueType = types.getRawTypeName(mapValueType);
 		if (value.isEmpty()) {
 			types.staticImport(MapMatcher.class, "noEntries");
 
@@ -53,10 +58,9 @@ public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> im
 			types.staticImport(MapMatcher.class, "containsEntries");
 			types.registerTypes(mapKeyType, mapValueType);
 
+			EntryDeserializer deserializer = new EntryDeserializer(generator, context, mapKeyType, mapValueType);
 			List<Pair<Computation, Computation>> elements = value.entrySet().stream()
-				.map(entry -> new Pair<>(
-					generator.simpleMatcher(entry.getKey(), context),
-					generator.simpleMatcher(entry.getValue(), context)))
+				.map(deserializer::computeKeyValues)
 				.collect(toList());
 
 			List<String> entryStatements = elements.stream()
@@ -70,6 +74,46 @@ public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> im
 			String containsEntriesMatcher = containsEntriesMatcher(keyType, valueType, entryValues);
 			return expression(containsEntriesMatcher, parameterized(Matcher.class, null, wildcard()), entryStatements);
 		}
+	}
+
+	private static class EntryDeserializer {
+
+		private MatcherGenerators generator;
+		private DeserializerContext context;
+		private Type mapKeyType;
+		private Type mapValueType;
+
+		public EntryDeserializer(MatcherGenerators generator, DeserializerContext context, Type mapKeyType, Type mapValueType) {
+			this.generator = generator;
+			this.context = context;
+			this.mapKeyType = mapKeyType;
+			this.mapValueType = mapValueType;
+		}
+
+		private Pair<Computation, Computation> computeKeyValues(Entry<SerializedValue, SerializedValue> entry) {
+			SerializedValue key = entry.getKey();
+			SerializedValue value = entry.getValue();
+
+			Computation keyDeserialized = generator.simpleMatcher(key, context);
+
+			Computation valueDeserialized = generator.simpleMatcher(value, context);
+
+			Type keyType = key instanceof SerializedNull ? null : key.getResultType();
+			Type valueType = value instanceof SerializedNull ? null : value.getResultType();
+			
+			TypeManager types = generator.getTypes();
+			if (assignableTypes(mapKeyType, keyType) && assignableTypes(Matcher.class, keyType)) {
+				String keyTypeName = types.getRawTypeName(mapKeyType);
+				keyDeserialized = new Computation(cast(keyTypeName, keyDeserialized.getValue()), keyDeserialized.getType(), false, keyDeserialized.getStatements());
+			}
+			if (assignableTypes(mapValueType, valueType) && assignableTypes(Matcher.class, valueType)) {
+				String valueTypeName = types.getRawTypeName(mapValueType);
+				valueDeserialized = new Computation(cast(valueTypeName, valueDeserialized.getValue()), valueDeserialized.getType(), false, valueDeserialized.getStatements());
+			}
+
+			return new Pair<>(keyDeserialized, valueDeserialized);
+		}
+
 	}
 
 }

@@ -54,7 +54,7 @@ public class ConstructorParamTest {
         TypeManager types = new TypeManager();
         
         assertThat(new ConstructorParam(constructor, 0, new SerializedField(Simple.class, "field", String.class, literal("value")), "value")
-            .compile(types , compiler, ctx).getValue(), equalTo("\"value\""));
+            .compile(types , compiler, ctx).getValue(), equalTo("(Object) \"value\""));
         assertThat(new ConstructorParam(constructor, 0)
             .assertType(String.class)
             .compile(types , compiler, ctx).getValue(), equalTo("null"));

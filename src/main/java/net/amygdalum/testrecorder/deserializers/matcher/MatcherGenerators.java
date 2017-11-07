@@ -95,16 +95,6 @@ public class MatcherGenerators implements Deserializer<Computation> {
         }
     }
 
-    public Computation simpleValue(SerializedValue element, DeserializerContext context) {
-        if (element instanceof SerializedNull) {
-            return expression("null", element.getResultType());
-        } else if (element instanceof SerializedLiteral) {
-            return expression(asLiteral(((SerializedLiteral) element).getValue()), element.getResultType());
-        } else {
-            return element.accept(this, context);
-        }
-    }
-
     @Override
     public Computation visitField(SerializedField field, DeserializerContext context) {
     	SerializedValue fieldValue = field.getValue();
@@ -113,7 +103,7 @@ public class MatcherGenerators implements Deserializer<Computation> {
             return null;
         } else if (isSimpleValue(fieldValue)) {
             types.registerImport(baseType(field.getType()));
-            Computation value = simpleValue(fieldValue, ctx);
+            Computation value = simpleMatcher(fieldValue, ctx);
 
             String assignField = assignLocalVariableStatement(types.getRawTypeName(field.getType()), field.getName(), value.getValue());
             return expression(assignField, null, value.getStatements());

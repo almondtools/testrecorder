@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import net.amygdalum.testrecorder.TestGenerator;
+import net.amygdalum.testrecorder.util.Debug;
 import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
 
@@ -185,7 +186,7 @@ public class CollectionDataTypesTest {
 		dataTypes.maps(map, 0);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles(CollectionDataTypes.class));
+		assertThat(Debug.print(testGenerator.renderTest(CollectionDataTypes.class)), compiles(CollectionDataTypes.class));
 		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRun(CollectionDataTypes.class));
 	}
 

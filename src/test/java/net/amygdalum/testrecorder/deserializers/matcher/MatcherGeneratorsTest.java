@@ -53,22 +53,22 @@ public class MatcherGeneratorsTest {
 	@Test
 	public void testNullIsSimpleValue() throws Exception {
 		assertThat(matcherCode.isSimpleValue(nullInstance(Object.class)), is(true));
-		assertThat(matcherCode.simpleValue(nullInstance(Object.class), ctx).getStatements(), empty());
-		assertThat(matcherCode.simpleValue(nullInstance(Object.class), ctx).getValue(), equalTo("null"));
+		assertThat(matcherCode.simpleMatcher(nullInstance(Object.class), ctx).getStatements(), empty());
+		assertThat(matcherCode.simpleMatcher(nullInstance(Object.class), ctx).getValue(), equalTo("null"));
 	}
 
 	@Test
 	public void testLiteralIsSimpleValue() throws Exception {
 		assertThat(matcherCode.isSimpleValue(literal("str")), is(true));
-		assertThat(matcherCode.simpleValue(literal("str"), ctx).getStatements(), empty());
-		assertThat(matcherCode.simpleValue(literal("str"), ctx).getValue(), equalTo("\"str\""));
+		assertThat(matcherCode.simpleMatcher(literal("str"), ctx).getStatements(), empty());
+		assertThat(matcherCode.simpleMatcher(literal("str"), ctx).getValue(), equalTo("\"str\""));
 	}
 
 	@Test
 	public void testOtherIsNotSimpleValue() throws Exception {
 		assertThat(matcherCode.isSimpleValue(values.object(Dubble.class, new Dubble("Foo", "Bar"))), is(false));
-		assertThat(matcherCode.simpleValue(values.object(Dubble.class, new Dubble("Foo", "Bar")), ctx).getStatements(), empty());
-		assertThat(matcherCode.simpleValue(values.object(Dubble.class, new Dubble("Foo", "Bar")), ctx).getValue(), containsPattern("new GenericMatcher() {*"
+		assertThat(matcherCode.simpleMatcher(values.object(Dubble.class, new Dubble("Foo", "Bar")), ctx).getStatements(), empty());
+		assertThat(matcherCode.simpleMatcher(values.object(Dubble.class, new Dubble("Foo", "Bar")), ctx).getValue(), containsPattern("new GenericMatcher() {*"
 			+ "a = \"Foo\"*"
 			+ "b = \"Bar\"*"
 			+ "}.matching(Dubble.class)"));

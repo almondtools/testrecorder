@@ -44,7 +44,7 @@ public class DefaultArrayAdaptor extends DefaultMatcherGenerator<SerializedArray
 			types.staticImport(PrimitiveArrayMatcher.class, name + "ArrayContaining");
 
 			List<Computation> elements = Stream.of(value.getArray())
-				.map(element -> generator.simpleValue(element, context))
+				.map(element -> generator.simpleMatcher(element, context))
 				.collect(toList());
 
 			List<String> elementComputations = elements.stream()
@@ -68,7 +68,7 @@ public class DefaultArrayAdaptor extends DefaultMatcherGenerator<SerializedArray
 				String name = types.getRawTypeName(componentType);
 
 				List<Computation> elements = Stream.of(value.getArray())
-					.map(element -> generator.simpleValue(element, context))
+					.map(element -> generator.simpleMatcher(element, context))
 					.collect(toList());
 
 				List<String> elementComputations = elements.stream()

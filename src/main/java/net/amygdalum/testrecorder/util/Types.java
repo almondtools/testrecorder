@@ -338,6 +338,12 @@ public final class Types {
 	}
 
 	public static boolean assignableTypes(Type toType, Type fromType) {
+		if (toType == null) {
+			return false;
+		}
+		if (fromType == null) {
+			return true;
+		}
 		Class<?> toClass = baseType(toType);
 		Class<?> fromClass = baseType(fromType);
 		if (!toClass.isAssignableFrom(fromClass)) {
