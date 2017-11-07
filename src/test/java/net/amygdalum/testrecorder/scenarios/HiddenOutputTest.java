@@ -23,6 +23,19 @@ public class HiddenOutputTest {
 	}
 
 	@Test
+	public void testOutputImmediate() throws Exception {
+		HiddenOutput output = new HiddenOutput();
+
+		output.outputImmediate("Hello");
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(HiddenOutput.class), compiles(HiddenOutput.class));
+		assertThat(testGenerator.renderTest(HiddenOutput.class), testsRun(HiddenOutput.class));
+		assertThat(testGenerator.renderTest(HiddenOutput.class), containsString(".expect(\"print\""));
+		assertThat(testGenerator.renderTest(HiddenOutput.class), containsString("verifies()"));
+	}
+
+	@Test
 	public void testOutputWithUnexposedDependency() throws Exception {
 		HiddenOutput output = new HiddenOutput();
 

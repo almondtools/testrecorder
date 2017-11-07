@@ -24,6 +24,20 @@ public class HiddenInputTest {
 	}
 
 	@Test
+	public void testInputImmediate() throws Exception {
+		HiddenInput input = new HiddenInput();
+
+		String result = input.inputImmediate();
+
+		assertThat(result, equalTo("Hello"));
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(HiddenInput.class), compiles(HiddenInput.class));
+		assertThat(testGenerator.renderTest(HiddenInput.class), testsRun(HiddenInput.class));
+		assertThat(testGenerator.renderTest(HiddenInput.class), containsString(".provide(\"read\""));
+	}
+
+	@Test
 	public void testInputWithUnexposedDependency() throws Exception {
 		HiddenInput input = new HiddenInput();
 
