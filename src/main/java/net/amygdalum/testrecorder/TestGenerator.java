@@ -53,12 +53,12 @@ import org.junit.Before;
 import org.stringtemplate.v4.ST;
 
 import net.amygdalum.testrecorder.ContextSnapshot.AnnotatedValue;
-import net.amygdalum.testrecorder.deserializers.TreeAnalyzer;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
 import net.amygdalum.testrecorder.deserializers.MockedInteractions;
+import net.amygdalum.testrecorder.deserializers.TreeAnalyzer;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
 import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerators;
@@ -108,7 +108,9 @@ public class TestGenerator implements SnapshotConsumer {
 	private static final String BEGIN_ASSERT = "\n//Assert";
 
 	private ExecutorService executor;
-	private CompletableFuture<Void> future;
+
+	private volatile CompletableFuture<Void> pipeline;
+
 	private DeserializerFactory setup;
 	private DeserializerFactory matcher;
 	private Map<ClassDescriptor, TestGeneratorContext> tests;
@@ -122,7 +124,7 @@ public class TestGenerator implements SnapshotConsumer {
 
 		this.tests = synchronizedMap(new LinkedHashMap<>());
 		this.fields = new LinkedHashSet<>();
-		this.future = CompletableFuture.runAsync(() -> {
+		this.pipeline = CompletableFuture.runAsync(() -> {
 			System.out.println("starting code generation");
 		}, executor);
 	}
@@ -148,7 +150,7 @@ public class TestGenerator implements SnapshotConsumer {
 
 	@Override
 	public synchronized void accept(ContextSnapshot snapshot) {
-		future = future.thenRunAsync(() -> {
+		pipeline = this.pipeline.thenRunAsync(() -> {
 			Class<?> thisType = baseType(snapshot.getThisType());
 			while (thisType.getEnclosingClass() != null) {
 				thisType = thisType.getEnclosingClass();
@@ -189,6 +191,9 @@ public class TestGenerator implements SnapshotConsumer {
 	public void clearResults() {
 		this.tests.clear();
 		this.fields = new LinkedHashSet<>();
+		this.pipeline = CompletableFuture.runAsync(() -> {
+			System.out.println("starting code generation");
+		}, executor);
 	}
 
 	private Path locateTestFile(Path dir, ClassDescriptor clazz) throws IOException {
@@ -262,12 +267,12 @@ public class TestGenerator implements SnapshotConsumer {
 	}
 
 	public TestGenerator await() {
-		future.join();
+		this.pipeline.join();
 		return this;
 	}
 
 	public void andThen(Runnable runnable) {
-		future.thenRun(runnable).join();
+		this.pipeline.thenRun(runnable).join();
 	}
 
 	private class MethodGenerator {
@@ -336,7 +341,6 @@ public class TestGenerator implements SnapshotConsumer {
 			snapshot.getExpectOutput().stream()
 				.forEach(output -> collector.addOutputSeed(output));
 
-			
 			return collector.analyze(context);
 		}
 
