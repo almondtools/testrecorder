@@ -13,8 +13,8 @@ import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
 
 @RunWith(InstrumentedClassLoaderRunner.class)
-@Instrumented(classes={"net.amygdalum.testrecorder.scenarios.SystemInput"}, config=SystemInputTestRecorderAgentConfig.class)
-public class SystemInputTest {
+@Instrumented(classes={"net.amygdalum.testrecorder.scenarios.StandardLibInputOutput"}, config=StandardLibInputOutputTestRecorderAgentConfig.class)
+public class StandardLibInputTest {
 
 	@Before
 	public void before() throws Exception {
@@ -23,20 +23,20 @@ public class SystemInputTest {
 	
 	@Test
 	public void testCompilable() throws Exception {
-		SystemInput time = new SystemInput();
+		StandardLibInputOutput time = new StandardLibInputOutput();
 		time.getTimestamp();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(SystemInput.class), compiles(SystemInput.class));
+		assertThat(testGenerator.renderTest(StandardLibInputOutput.class), compiles(StandardLibInputOutput.class));
 	}
 	
 	@Test
 	public void testRunnable() throws Exception {
-        SystemInput time = new SystemInput();
-        time.getTimestamp();
+		StandardLibInputOutput time = new StandardLibInputOutput();
+		time.getTimestamp();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(SystemInput.class), testsRun(SystemInput.class));
+		assertThat(testGenerator.renderTest(StandardLibInputOutput.class), testsRun(StandardLibInputOutput.class));
 	}
 	
 }

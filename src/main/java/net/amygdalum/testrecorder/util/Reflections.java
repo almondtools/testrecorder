@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.util;
 
 import static java.lang.reflect.Modifier.isFinal;
 import static java.lang.reflect.Modifier.isPublic;
+import static net.amygdalum.testrecorder.util.Types.getDeclaredField;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
@@ -17,6 +18,16 @@ public final class Reflections {
 
     public static <T extends AccessibleObject & Member> Accessing<T> accessing(T o) {
         return new Accessing<>(o);
+    }
+
+    public static Object getValue(String fieldName, Object item) throws ReflectiveOperationException {
+        Field field = getDeclaredField(item.getClass(), fieldName);
+
+        return getValue(field, item);
+    }
+
+    public static Object getValue(Field field, Object item) throws ReflectiveOperationException {
+        return accessing(field).call(() -> field.get(item));
     }
 
     public static class Accessing<T extends AccessibleObject & Member> {

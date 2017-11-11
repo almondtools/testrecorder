@@ -28,7 +28,7 @@ public class DynamicClassCompiler {
 	private JavaCompiler compiler;
 
 	public DynamicClassCompiler(ClassLoader loader) {
-		this.loader = loader;
+		this.loader = new ExtensibleClassLoader(loader);
 		this.compiler = ToolProvider.getSystemJavaCompiler();
 	}
 

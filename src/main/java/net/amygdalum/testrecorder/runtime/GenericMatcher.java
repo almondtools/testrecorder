@@ -4,7 +4,7 @@ import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.MATCH;
 import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.MISMATCH;
 import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.NOT_APPLYING;
-import static net.amygdalum.testrecorder.runtime.GenericComparison.getValue;
+import static net.amygdalum.testrecorder.util.Reflections.getValue;
 import static net.amygdalum.testrecorder.util.Types.allFields;
 import static org.hamcrest.Matchers.instanceOf;
 

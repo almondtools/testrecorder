@@ -6,7 +6,6 @@ import static net.amygdalum.testrecorder.util.Types.inferType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.typeArgument;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,7 +16,6 @@ import java.util.Objects;
 import net.amygdalum.testrecorder.SerializerFacade;
 import net.amygdalum.testrecorder.SerializerFactory;
 import net.amygdalum.testrecorder.util.Reflections;
-import net.amygdalum.testrecorder.util.Types;
 import net.amygdalum.testrecorder.values.SerializedMap;
 
 public class CollectionsMapSerializer extends HiddenInnerClassSerializer<SerializedMap> {
@@ -78,8 +76,7 @@ public class CollectionsMapSerializer extends HiddenInnerClassSerializer<Seriali
 
     private Class<?> getKeyTypeField(Object object) {
         try {
-            Field type = Types.getDeclaredField(object.getClass(), "keyType");
-            return Reflections.accessing(type).call(() -> (Class<?>) type.get(object));
+        	return (Class<?>) Reflections.getValue("keyType", object);
         } catch (ReflectiveOperationException e) {
             return Object.class;
         }
@@ -87,8 +84,7 @@ public class CollectionsMapSerializer extends HiddenInnerClassSerializer<Seriali
 
     private Class<?> getValueTypeField(Object object) {
         try {
-            Field type = Types.getDeclaredField(object.getClass(), "valueType");
-            return Reflections.accessing(type).call(() -> (Class<?>) type.get(object));
+        	return (Class<?>) Reflections.getValue("valueType", object);
         } catch (ReflectiveOperationException e) {
             return Object.class;
         }

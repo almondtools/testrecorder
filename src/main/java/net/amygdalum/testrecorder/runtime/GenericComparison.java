@@ -1,8 +1,7 @@
 package net.amygdalum.testrecorder.runtime;
 
-import static net.amygdalum.testrecorder.util.Reflections.accessing;
+import static net.amygdalum.testrecorder.util.Reflections.getValue;
 import static net.amygdalum.testrecorder.util.Types.allFields;
-import static net.amygdalum.testrecorder.util.Types.getDeclaredField;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.isLiteral;
 
 import java.lang.reflect.Array;
@@ -139,16 +138,6 @@ public class GenericComparison {
             todo.add(GenericComparison.from(root, fieldName, left, right));
         }
         return true;
-    }
-
-    public static Object getValue(String fieldName, Object item) throws ReflectiveOperationException {
-        Field field = getDeclaredField(item.getClass(), fieldName);
-
-        return getValue(field, item);
-    }
-
-    public static Object getValue(Field field, Object item) throws ReflectiveOperationException {
-        return accessing(field).call(() -> field.get(item));
     }
 
     public static GenericComparison from(String root, String field, Object left, Object right) {

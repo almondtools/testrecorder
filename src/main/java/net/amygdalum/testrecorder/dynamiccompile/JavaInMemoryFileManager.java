@@ -21,7 +21,7 @@ public class JavaInMemoryFileManager extends ForwardingJavaFileManager<JavaFileM
 
 	public JavaInMemoryFileManager(ClassLoader loader, JavaFileManager fileManager) {
 		super(fileManager);
-		this.loader = new ExtensibleClassLoader(loader);
+		this.loader = loader;
 		this.files = new ArrayList<>();
 	}
 
