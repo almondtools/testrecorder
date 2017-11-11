@@ -85,9 +85,10 @@ public class InputsTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
         assertThat(testGenerator.renderTest(Inputs.class), allOf(
-            containsPattern(".provide(\"read\", \"net.amygdalum.testrecorder.scenarios.Inputs.recorded\", \"Hello\")"),
-            containsPattern(".provide(\"read\", \"net.amygdalum.testrecorder.scenarios.Inputs.recorded\", \" \")"),
-            containsPattern(".provide(\"read\", \"net.amygdalum.testrecorder.scenarios.Inputs.recorded\", \"World\")")
+        	containsPattern("new FakeIn<String>(Inputs.class, \"read\", new Class[0])"),
+            containsPattern(".provide(\"net.amygdalum.testrecorder.scenarios.Inputs.recorded\", \"Hello\")"),
+            containsPattern(".provide(\"net.amygdalum.testrecorder.scenarios.Inputs.recorded\", \" \")"),
+            containsPattern(".provide(\"net.amygdalum.testrecorder.scenarios.Inputs.recorded\", \"World\")")
             ));
 		assertThat(testGenerator.renderTest(Inputs.class), testsRun(Inputs.class));
 	}
@@ -99,18 +100,30 @@ public class InputsTest {
 		
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Inputs.class), allOf(
-			containsPattern(".provide(\"conditionalReturnRead\", \"net.amygdalum.testrecorder.scenarios.Inputs.recordedWithConditionalReturns\", \"Hello\")"),
-			containsPattern(".provide(\"conditionalReturnRead\", \"net.amygdalum.testrecorder.scenarios.Inputs.recordedWithConditionalReturns\", \"World\")")
+			containsPattern("new FakeIn<String>(Inputs.class, \"conditionalReturnRead\", new Class[0])"),
+            containsPattern(".provide(\"net.amygdalum.testrecorder.scenarios.Inputs.recordedWithConditionalReturns\", \"Hello\")"),
+			containsPattern(".provide(\"net.amygdalum.testrecorder.scenarios.Inputs.recordedWithConditionalReturns\", \"World\")")
 			));
 		assertThat(testGenerator.renderTest(Inputs.class), testsRun(Inputs.class));
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testPrimitivesRunnable() throws Exception {
 		Inputs in = new Inputs();
 		in.primitivesRecorded();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(Inputs.class), allOf(
+        	containsPattern("new FakeIn<Boolean>(Inputs.class, \"readBoolean\", new Class[0])"),
+        	containsPattern("new FakeIn<Byte>(Inputs.class, \"readByte\", new Class[0])"),
+        	containsPattern("new FakeIn<Short>(Inputs.class, \"readShort\", new Class[0])"),
+        	containsPattern("new FakeIn<Integer>(Inputs.class, \"readInt\", new Class[0])"),
+        	containsPattern("new FakeIn<Long>(Inputs.class, \"readLong\", new Class[0])"),
+        	containsPattern("new FakeIn<Float>(Inputs.class, \"readFloat\", new Class[0])"),
+        	containsPattern("new FakeIn<Double>(Inputs.class, \"readDouble\", new Class[0])"),
+        	containsPattern("new FakeIn<Character>(Inputs.class, \"readChar\", new Class[0])")
+            ));
 		assertThat(testGenerator.renderTest(Inputs.class), testsRun(Inputs.class));
 	}
 	

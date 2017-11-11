@@ -12,7 +12,7 @@ import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.JavaFileObject.Kind;
 
-import net.amygdalum.testrecorder.util.ClassInstrumenting;
+import net.amygdalum.testrecorder.util.RedefiningClassLoader;
 
 public class JavaInMemoryFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 
@@ -37,13 +37,13 @@ public class JavaInMemoryFileManager extends ForwardingJavaFileManager<JavaFileM
 
 	@Override
 	public ClassLoader getClassLoader(Location location) {
-		if (loader instanceof ClassInstrumenting) {
-			ClassInstrumenting instrumentedLoader = (ClassInstrumenting) loader;
+		if (loader instanceof RedefiningClassLoader) {
+			RedefiningClassLoader instrumentedLoader = (RedefiningClassLoader) loader;
 			for (JavaClassFileObject file : files) {
 				byte[] bytes = file.getBytes();
 				if (bytes != null && bytes.length > 0) {
 					String name = file.getClassName();
-					if (!instrumentedLoader.isInstrumented(name)) {
+					if (!instrumentedLoader.isRedefined(name)) {
 						instrumentedLoader.define(name, bytes);
 					}
 				}

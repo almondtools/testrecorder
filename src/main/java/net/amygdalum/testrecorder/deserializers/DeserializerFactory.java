@@ -8,8 +8,6 @@ public interface DeserializerFactory {
 
 	Deserializer<Computation> create(LocalVariableNameGenerator locals, TypeManager types);
 
-	Deserializer<Computation> create(LocalVariableNameGenerator locals, TypeManager types, MockedInteractions mocked);
-
 	Type resultType(Type type);
 
 }

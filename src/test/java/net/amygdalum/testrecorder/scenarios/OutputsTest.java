@@ -70,9 +70,9 @@ public class OutputsTest {
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(Outputs.class), hasSize(1));
 		assertThat(testGenerator.renderTest(Outputs.class), allOf(
-			containsPattern(".expect(\"print\", \"net.amygdalum.testrecorder.scenarios.Outputs.recorded\", new Class[]{String.class}, null, equalTo(\"Hello \")"),
-			containsPattern(".expect(\"print\", \"net.amygdalum.testrecorder.scenarios.Outputs.recorded\", new Class[]{String.class}, null, equalTo(\"World\")")));
-		assertThat(testGenerator.renderTest(Outputs.class), containsString("verifies"));
+			containsPattern(".provide(\"net.amygdalum.testrecorder.scenarios.Outputs.recorded\", null, equalTo(\"Hello \")"),
+			containsPattern(".provide(\"net.amygdalum.testrecorder.scenarios.Outputs.recorded\", null, equalTo(\"World\")")));
+		assertThat(testGenerator.renderTest(Outputs.class), containsString("verify()"));
 		assertThat(testGenerator.renderTest(Outputs.class), testsRun(Outputs.class));
 	}
 
@@ -84,13 +84,13 @@ public class OutputsTest {
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(Outputs.class), hasSize(1));
 		assertThat(testGenerator.renderTest(Outputs.class), allOf(
-			containsPattern(".expect(\"conditionalReturnOutput\", \"net.amygdalum.testrecorder.scenarios.Outputs.recordedWithConditionalReturn\", new Class[]{char.class}, true, equalTo('a')"),
-			containsPattern(".expect(\"conditionalReturnOutput\", \"net.amygdalum.testrecorder.scenarios.Outputs.recordedWithConditionalReturn\", new Class[]{char.class}, true, equalTo(',')"),
-			containsPattern(".expect(\"conditionalReturnOutput\", \"net.amygdalum.testrecorder.scenarios.Outputs.recordedWithConditionalReturn\", new Class[]{char.class}, false, equalTo(' ')"),
-			containsPattern(".expect(\"conditionalReturnOutput\", \"net.amygdalum.testrecorder.scenarios.Outputs.recordedWithConditionalReturn\", new Class[]{char.class}, true, equalTo('b')"),
-			containsPattern(".expect(\"conditionalReturnOutput\", \"net.amygdalum.testrecorder.scenarios.Outputs.recordedWithConditionalReturn\", new Class[]{char.class}, false, equalTo('\\n')")));
+			containsPattern(".provide(\"net.amygdalum.testrecorder.scenarios.Outputs.recordedWithConditionalReturn\", true, equalTo('a')"),
+			containsPattern(".provide(\"net.amygdalum.testrecorder.scenarios.Outputs.recordedWithConditionalReturn\", true, equalTo(',')"),
+			containsPattern(".provide(\"net.amygdalum.testrecorder.scenarios.Outputs.recordedWithConditionalReturn\", false, equalTo(' ')"),
+			containsPattern(".provide(\"net.amygdalum.testrecorder.scenarios.Outputs.recordedWithConditionalReturn\", true, equalTo('b')"),
+			containsPattern(".provide(\"net.amygdalum.testrecorder.scenarios.Outputs.recordedWithConditionalReturn\", false, equalTo('\\n')")));
 
-		assertThat(testGenerator.renderTest(Outputs.class), containsString("verifies"));
+		assertThat(testGenerator.renderTest(Outputs.class), containsString("verify()"));
 		assertThat(testGenerator.renderTest(Outputs.class), testsRun(Outputs.class));
 	}
 
@@ -100,7 +100,7 @@ public class OutputsTest {
 		out.primitivesRecorded();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Outputs.class), containsString("verifies"));
+		assertThat(testGenerator.renderTest(Outputs.class), containsString("verify()"));
 		assertThat(testGenerator.renderTest(Outputs.class), testsRun(Outputs.class));
 	}
 

@@ -28,7 +28,6 @@ import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.deserializers.LocalVariable;
 import net.amygdalum.testrecorder.deserializers.LocalVariableDefinition;
 import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
-import net.amygdalum.testrecorder.deserializers.MockedInteractions;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.runtime.GenericObject;
 import net.amygdalum.testrecorder.runtime.Wrapped;
@@ -41,13 +40,12 @@ public class SetupGenerators implements Deserializer<Computation> {
 
 	private LocalVariableNameGenerator locals;
 	private TypeManager types;
-	private MockedInteractions mocked;
 	private Adaptors<SetupGenerators> adaptors;
 
 	private Map<SerializedValue, LocalVariable> defined;
 
 	public SetupGenerators(Class<?> clazz) {
-		this(new LocalVariableNameGenerator(), new TypeManager(clazz.getPackage().getName()), MockedInteractions.NONE, DEFAULT);
+		this(new LocalVariableNameGenerator(), new TypeManager(clazz.getPackage().getName()));
 	}
 
 	public SetupGenerators(LocalVariableNameGenerator locals, TypeManager types) {
@@ -55,17 +53,8 @@ public class SetupGenerators implements Deserializer<Computation> {
 	}
 
 	public SetupGenerators(LocalVariableNameGenerator locals, TypeManager types, Adaptors<SetupGenerators> adaptors) {
-		this(locals, types, MockedInteractions.NONE, adaptors);
-	}
-
-	public SetupGenerators(LocalVariableNameGenerator locals, TypeManager types, MockedInteractions mocked) {
-		this(locals, types, mocked, DEFAULT);
-	}
-
-	public SetupGenerators(LocalVariableNameGenerator locals, TypeManager types, MockedInteractions mocked, Adaptors<SetupGenerators> adaptors) {
 		this.types = types;
 		this.locals = locals;
-		this.mocked = mocked;
 		this.adaptors = adaptors;
 		this.defined = new IdentityHashMap<>();
 	}
@@ -135,10 +124,6 @@ public class SetupGenerators implements Deserializer<Computation> {
 		defined.computeIfPresent(value, (val, def) -> def.finish());
 	}
 
-	private void redefineVariable(SerializedValue value, String name) {
-		defined.computeIfPresent(value, (val, def) -> def.redefine(name));
-	}
-
 	private void resetVariable(SerializedValue value) {
 		defined.remove(value);
 	}
@@ -182,21 +167,7 @@ public class SetupGenerators implements Deserializer<Computation> {
 				return variable(name, resultType, statements);
 			}
 		}
-		Computation computation = adaptors.tryDeserialize(value, types, this, context);
-
-		if (context.hasInputInteractions(value)) {
-			computation = mocked.prepareInputInteractions(value, computation, locals, types, context);
-			if (computation.isStored()) {
-				redefineVariable(value, computation.getValue());
-			}
-		}
-		if (context.hasOutputInteractions(value)) {
-			computation = mocked.prepareOutputInteractions(value, computation, locals, types, context);
-			if (computation.isStored()) {
-				redefineVariable(value, computation.getValue());
-			}
-		}
-		return computation;
+		return adaptors.tryDeserialize(value, types, this, context);
 	}
 
 	@Override
@@ -214,11 +185,6 @@ public class SetupGenerators implements Deserializer<Computation> {
 		@Override
 		public SetupGenerators create(LocalVariableNameGenerator locals, TypeManager types) {
 			return new SetupGenerators(locals, types);
-		}
-
-		@Override
-		public Deserializer<Computation> create(LocalVariableNameGenerator locals, TypeManager types, MockedInteractions mocked) {
-			return new SetupGenerators(locals, types, mocked);
 		}
 
 		@Override

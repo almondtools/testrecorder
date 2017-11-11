@@ -34,7 +34,7 @@ public class HiddenInputTest {
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(HiddenInput.class), compiles(HiddenInput.class));
 		assertThat(testGenerator.renderTest(HiddenInput.class), testsRun(HiddenInput.class));
-		assertThat(testGenerator.renderTest(HiddenInput.class), containsString(".provide(\"read\""));
+		assertThat(testGenerator.renderTest(HiddenInput.class), containsString(".provide(\"net.amygdalum.testrecorder.scenarios.HiddenInput.inputImmediate\", \"Hello\")"));
 	}
 
 	@Test
@@ -48,7 +48,7 @@ public class HiddenInputTest {
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(HiddenInput.class), compiles(HiddenInput.class));
 		assertThat(testGenerator.renderTest(HiddenInput.class), testsRun(HiddenInput.class));
-		assertThat(testGenerator.renderTest(HiddenInput.class), containsString(".provide(\"read\""));
+		assertThat(testGenerator.renderTest(HiddenInput.class), containsString(".provide(\"net.amygdalum.testrecorder.scenarios.HiddenInput.inputFromField\", \"Hello\")"));
 	}
 
 }

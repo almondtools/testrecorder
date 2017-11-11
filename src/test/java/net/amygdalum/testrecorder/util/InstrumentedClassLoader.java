@@ -7,7 +7,7 @@ import java.util.Set;
 
 import net.amygdalum.testrecorder.SnapshotInstrumentor;
 
-public class InstrumentedClassLoader extends AbstractInstrumentedClassLoader {
+public class InstrumentedClassLoader extends AbstractRedefiningClassLoader {
 
 	private SnapshotInstrumentor instrumentor;
 	private String root;

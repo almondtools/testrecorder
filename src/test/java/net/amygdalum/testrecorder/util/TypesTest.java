@@ -177,7 +177,7 @@ public class TypesTest {
 		assertThat(boxedType(char.class), equalTo(Character.class));
 		assertThat(boxedType(boolean.class), equalTo(Boolean.class));
 
-		assertThat(boxedType(void.class), equalTo(void.class));
+		assertThat(boxedType(void.class), equalTo(Void.class));
 
 		assertThat(boxedType(Integer.class), equalTo(Integer.class));
 

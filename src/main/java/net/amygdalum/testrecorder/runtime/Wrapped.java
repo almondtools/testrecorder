@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.runtime;
 
-import net.amygdalum.testrecorder.util.ClassInstrumenting;
+import net.amygdalum.testrecorder.util.RedefiningClassLoader;
 
 public class Wrapped {
 
@@ -15,7 +15,7 @@ public class Wrapped {
 	public static Class<?> classForName(String name) {
 		try {
 			ClassLoader loader = Thread.currentThread().getContextClassLoader();
-			if (loader == null || !(loader instanceof ClassInstrumenting)) {
+			if (loader == null || !(loader instanceof RedefiningClassLoader)) {
 				loader = Wrapped.class.getClassLoader();
 			}
             return loader.loadClass(name);

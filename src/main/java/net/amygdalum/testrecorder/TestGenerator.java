@@ -347,7 +347,7 @@ public class TestGenerator implements SnapshotConsumer {
 		public MethodGenerator generateArrange() {
 			statements.add(BEGIN_ARRANGE);
 
-			Deserializer<Computation> setupCode = setup.create(locals, types, mocked);
+			Deserializer<Computation> setupCode = setup.create(locals, types);
 
 			Computation setupThis = snapshot.getSetupThis() != null
 				? snapshot.getSetupThis().accept(setupCode, context)
@@ -381,6 +381,9 @@ public class TestGenerator implements SnapshotConsumer {
 					? arg.getElement1().getValue()
 					: assign(arg.getElement2().value.getResultType(), arg.getElement1().getValue()))
 				.collect(toList());
+			
+			statements.addAll(mocked.prepareInput(snapshot.getSetupInput(), locals, types, context));
+			statements.addAll(mocked.prepareOutput(snapshot.getExpectOutput(), locals, types, context));
 
 			return this;
 		}
@@ -459,6 +462,8 @@ public class TestGenerator implements SnapshotConsumer {
 				.flatMap(global -> generateGlobalAssert(types, global.getElement1(), global.getElement2()))
 				.forEach(statements::add);
 
+			statements.addAll(mocked.verify(locals, types, context));
+
 			return this;
 		}
 
@@ -466,7 +471,7 @@ public class TestGenerator implements SnapshotConsumer {
 			if (result == null) {
 				return Stream.empty();
 			}
-			Computation matcherExpression = result.accept(matcher.create(locals, types, mocked), context.newWithHints(resultAnnotation));
+			Computation matcherExpression = result.accept(matcher.create(locals, types), context.newWithHints(resultAnnotation));
 			if (matcherExpression == null) {
 				return Stream.empty();
 			}
@@ -477,7 +482,7 @@ public class TestGenerator implements SnapshotConsumer {
 			if (exception == null) {
 				return Stream.empty();
 			}
-			Computation matcherExpression = exception.accept(matcher.create(locals, types, mocked), context);
+			Computation matcherExpression = exception.accept(matcher.create(locals, types), context);
 			return createAssertion(matcherExpression, expression).stream();
 		}
 
@@ -485,7 +490,7 @@ public class TestGenerator implements SnapshotConsumer {
 			if (value == null) {
 				return Stream.empty();
 			}
-			Computation matcherExpression = value.accept(matcher.create(locals, types, mocked), context);
+			Computation matcherExpression = value.accept(matcher.create(locals, types), context);
 			return createAssertion(matcherExpression, expression, changed).stream();
 		}
 
@@ -493,7 +498,7 @@ public class TestGenerator implements SnapshotConsumer {
 			if (value == null || value.value instanceof SerializedLiteral) {
 				return Stream.empty();
 			}
-			Computation matcherExpression = value.value.accept(matcher.create(locals, types, mocked), context.newWithHints(value.annotations));
+			Computation matcherExpression = value.value.accept(matcher.create(locals, types), context.newWithHints(value.annotations));
 			if (matcherExpression == null) {
 				return Stream.empty();
 			}
@@ -501,7 +506,7 @@ public class TestGenerator implements SnapshotConsumer {
 		}
 
 		private Stream<String> generateGlobalAssert(TypeManager types, SerializedField value, Boolean changed) {
-			Computation matcherExpression = value.getValue().accept(matcher.create(locals, types, mocked), context);
+			Computation matcherExpression = value.getValue().accept(matcher.create(locals, types), context);
 			String expression = fieldAccess(types.getVariableTypeName(value.getDeclaringClass()), value.getName());
 			return createAssertion(matcherExpression, expression, changed).stream();
 		}

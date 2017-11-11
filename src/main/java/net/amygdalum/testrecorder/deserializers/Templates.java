@@ -14,13 +14,16 @@ public final class Templates {
 	private static final String GENERIC_OBJECT_CONVERTER = "new GenericObject() {\n<fields; separator=\"\\n\">\n}.as(<type>)";
 	private static final String ARRAY_LITERAL = "new <type>{<elements; separator=\", \">}";
 	private static final String NEW_OBJECT = "new <type>(<args; separator=\", \">)";
+	private static final String NEW_ARRAY = "new <type>[<len>]";
 	private static final String FIELD_ACCESS_EXP = "<base>.<field>";
 	private static final String CALL_METHOD_EXP = "<base>.<method>(<arguments; separator=\", \">)";
 	private static final String CALL_LOCAL_METHOD_EXP = "<method>(<arguments; separator=\", \">)";
 	private static final String CALL_METHOD_CHAIN_EXP = "<base>.<methods;separator=\".\">";
 	private static final String CAST_EXP = "(<type>) <expression>";
 
-	private static final String FIELD_DECLARATION = "<modifiers> <type> <name>;";
+	private static final String NEW_ANONYMOUS_CLASS_INSTANCE = "new <type>(<args; separator=\", \">) {\n<body>\n}";
+	private static final String FIELD_DECLARATION = "<if(modifiers)><modifiers> <endif><type> <name><if(value)> = <value><endif>;";
+	private static final String METHOD_DECLARATION = "<if(modifiers)><modifiers> <endif><returntype> <name>(<args; separator=\", \">) {\n<body>\n}";
 	private static final String EXPRESSION_STMT = "<value>;";
 	private static final String ASSIGN_FIELD_STMT = "<base>.<field> = <value>;";
 	private static final String ASSIGN_LOCAL_VARIABLE_STMT = "<if(type)><type> <endif><name> = <value>;";
@@ -31,7 +34,8 @@ public final class Templates {
 
 	private static final String CAPTURE_EXCEPTION = "capture(() -> {<statements>}, <type>)";
 
-    private static final String ANNOTATION = "@<annotation>(<values : {value | <value.element1> = <value.element2>}; separator=\", \">)";
+	private static final String PARAM = "<type> <name>";
+    private static final String ANNOTATION = "@<annotation><if(values)>(<values : {value | <value.element1> = <value.element2>}; separator=\", \">)<endif>";
 
 	private static final String GENERIC_OBJECT_MATCHER = "new GenericMatcher() {\n<fields; separator=\"\\n\">\n}.matching(<type : {type | <type>}; separator=\", \">)";
 	private static final String WIDENING_MATCHER = "widening(<value>)";
@@ -207,29 +211,76 @@ public final class Templates {
 	}
 
 	public static String newObject(String type, String... arguments) {
+		return newObject(type, asList(arguments));
+	}
+
+	public static String newObject(String type, List<String> arguments) {
 		ST bean = new ST(NEW_OBJECT);
 		bean.add("type", type);
-		bean.add("args", asList(arguments));
+		bean.add("args", arguments);
 
 		return bean.render();
+	}
+
+	public static String newArray(String type, String len) {
+		ST statement = new ST(NEW_ARRAY);
+		statement.add("type", type);
+		statement.add("len", len);
+		
+
+		return statement.render();
 	}
 
 	public static String arrayLiteral(String type, List<String> elements) {
 		ST statement = new ST(ARRAY_LITERAL);
 		statement.add("type", type);
 		statement.add("elements", elements);
+		
 		return statement.render();
 	}
 
-	public static String fieldDeclaration(String modifiers, String type, String name) {
-		ST assign = new ST(FIELD_DECLARATION);
-		assign.add("modifiers", modifiers);
-		assign.add("type", type);
-		assign.add("name", name);
+	public static String newAnonymousClassInstance(String type, List<String> arguments, String body) {
+		ST object = new ST(NEW_ANONYMOUS_CLASS_INSTANCE);
+		object.add("type", type);
+		object.add("args", arguments);
+		object.add("body", body);
 
-		return assign.render();
+		return object.render();
 	}
 
+	public static String fieldDeclaration(String modifiers, String type, String name, String value) {
+		ST field = new ST(FIELD_DECLARATION);
+		field.add("modifiers", modifiers);
+		field.add("type", type);
+		field.add("name", name);
+		field.add("value", value);
+
+		return field.render();
+	}
+
+	public static String fieldDeclaration(String modifiers, String type, String name) {
+		return fieldDeclaration(modifiers, type, name, null);
+	}
+
+	public static String methodDeclaration(String modifiers, String type, String name, List<String> args, String body) {
+		ST method = new ST(METHOD_DECLARATION);
+		method.add("modifiers", modifiers);
+		method.add("returntype", type);
+		method.add("name", name);
+		method.add("args", args);
+		method.add("body", body);
+
+		return method.render();
+	}
+
+	public static String param(String type, String name) {
+		ST field = new ST(PARAM);
+		field.add("type", type);
+		field.add("name", name);
+
+		return field.render();
+	}
+	
 	public static String assignLocalVariableStatement(String type, String name, String value) {
 		ST assign = new ST(ASSIGN_LOCAL_VARIABLE_STMT);
 		assign.add("type", type);
@@ -461,6 +512,11 @@ public final class Templates {
 		matcher.add("expression", expression);
 
 		return matcher.render();
+	}
+
+    @SafeVarargs
+	public static String annotation(String annotation, Pair<String, String>... values) {
+    	return annotation(annotation, asList(values));
 	}
 
     public static String annotation(String annotation, List<Pair<String, String>> values) {

@@ -321,6 +321,8 @@ public final class Types {
 			return Long.class;
 		} else if (clazz == double.class) {
 			return Double.class;
+		} else if (clazz == void.class) {
+			return Void.class;
 		} else {
 			return clazz;
 		}

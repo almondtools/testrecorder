@@ -24,7 +24,6 @@ import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
-import net.amygdalum.testrecorder.deserializers.MockedInteractions;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.hints.SkipChecks;
 import net.amygdalum.testrecorder.runtime.GenericMatcher;
@@ -39,31 +38,21 @@ public class MatcherGenerators implements Deserializer<Computation> {
 
     private LocalVariableNameGenerator locals;
     private TypeManager types;
-    private MockedInteractions mocked;
     private Adaptors<MatcherGenerators> adaptors;
 
     private Set<SerializedValue> computed;
 
     public MatcherGenerators(Class<?> clazz) {
-        this(new LocalVariableNameGenerator(), new TypeManager(clazz.getPackage().getName()), MockedInteractions.NONE, DEFAULT);
+        this(new LocalVariableNameGenerator(), new TypeManager(clazz.getPackage().getName()), DEFAULT);
     }
 
     public MatcherGenerators(LocalVariableNameGenerator locals, TypeManager types) {
-        this(locals, types, MockedInteractions.NONE, DEFAULT);
-    }
-
-    public MatcherGenerators(LocalVariableNameGenerator locals, TypeManager types, MockedInteractions mocked) {
-        this(locals, types, mocked, DEFAULT);
+        this(locals, types, DEFAULT);
     }
 
     public MatcherGenerators(LocalVariableNameGenerator locals, TypeManager types, Adaptors<MatcherGenerators> adaptors) {
-        this(locals, types, MockedInteractions.NONE, adaptors);
-    }
-
-    public MatcherGenerators(LocalVariableNameGenerator locals, TypeManager types, MockedInteractions mocked, Adaptors<MatcherGenerators> adaptors) {
         this.locals = locals;
         this.types = types;
-        this.mocked = mocked;
         this.adaptors = adaptors;
         this.computed = new HashSet<>();
     }
@@ -133,16 +122,7 @@ public class MatcherGenerators implements Deserializer<Computation> {
                 return expression(recursiveMatcher(types.getRawClass(Object.class)), parameterized(Matcher.class, null, wildcard()));
             }
         }
-        Computation computation = adaptors.tryDeserialize(value, types, this, context);
-
-        if (context.hasInputInteractions(value)) {
-			computation = mocked.verifyInputInteractions(value, computation, locals, types, context);
-		}
-		if (context.hasOutputInteractions(value)) {
-			computation = mocked.verifyOutputInteractions(value, computation, locals, types, context);
-		}
-		
-		return computation;
+        return adaptors.tryDeserialize(value, types, this, context);
     }
 
     @Override
@@ -168,11 +148,6 @@ public class MatcherGenerators implements Deserializer<Computation> {
             return new MatcherGenerators(locals, types);
         }
         
-        @Override
-        public Deserializer<Computation> create(LocalVariableNameGenerator locals, TypeManager types, MockedInteractions mocked) {
-            return new MatcherGenerators(locals, types, mocked);
-        }
-
         @Override
         public Type resultType(Type type) {
             return parameterized(Matcher.class, null, type);

@@ -8,6 +8,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -29,15 +30,15 @@ public class DeserializerContext {
 	private DeserializerContext parent;
 	private Map<SerializedValue, Set<SerializedReferenceType>> backReferences;
 	private Map<SerializedValue, Set<SerializedValue>> closures;
-	private Set<SerializedReferenceType> inputs;
-	private Set<SerializedReferenceType> outputs;
+	private Map<Integer, SerializedReferenceType> inputs;
+	private Map<Integer, SerializedReferenceType> outputs;
 	private List<Object> hints;
 
 	public DeserializerContext() {
 		this.backReferences = new IdentityHashMap<>();
 		this.closures = new IdentityHashMap<>();
-		this.inputs = new HashSet<>();
-		this.outputs = new HashSet<>();
+		this.inputs = new HashMap<>();
+		this.outputs = new HashMap<>();
 		this.hints = emptyList();
 	}
 
@@ -125,19 +126,15 @@ public class DeserializerContext {
 	}
 
 	public void inputFrom(SerializedReferenceType object) {
-		inputs.add(object);
+		inputs.put(object.getId(), object);
 	}
 
 	public void outputFrom(SerializedReferenceType object) {
-		outputs.add(object);
-	}
-
-	public boolean hasInputInteractions(SerializedReferenceType value) {
-		return inputs.contains(value);
+		outputs.put(object.getId(), object);
 	}
 
 	public boolean hasOutputInteractions(SerializedReferenceType value) {
-		return outputs.contains(value);
+		return outputs.containsValue(value);
 	}
 
 	private static class GlobalRoot implements SerializedReferenceType {

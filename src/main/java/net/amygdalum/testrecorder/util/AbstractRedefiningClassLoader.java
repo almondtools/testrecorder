@@ -9,13 +9,13 @@ import java.util.Set;
 
 
 
-public abstract class AbstractInstrumentedClassLoader extends URLClassLoader implements ClassInstrumenting {
+public abstract class AbstractRedefiningClassLoader extends URLClassLoader implements RedefiningClassLoader {
 
-	private Map<String, byte[]> instrumentations;
+	private Map<String, byte[]> redefinitions;
 
-	public AbstractInstrumentedClassLoader(ClassLoader loader) {
-		super(extractUrls(loader), uninstrument(loader));
-		this.instrumentations = new LinkedHashMap<>();
+	public AbstractRedefiningClassLoader(ClassLoader loader) {
+		super(extractUrls(loader), unwrap(loader));
+		this.redefinitions = new LinkedHashMap<>();
 	}
 
 	private static URL[] extractUrls(ClassLoader loader) {
@@ -31,8 +31,8 @@ public abstract class AbstractInstrumentedClassLoader extends URLClassLoader imp
 		return urls.toArray(new URL[0]);
 	}
 
-	private static ClassLoader uninstrument(ClassLoader loader) {
-		if (loader instanceof ClassInstrumenting) {
+	private static ClassLoader unwrap(ClassLoader loader) {
+		if (loader instanceof RedefiningClassLoader) {
 			return loader.getParent();
 		} else {
 			return loader;
@@ -40,24 +40,24 @@ public abstract class AbstractInstrumentedClassLoader extends URLClassLoader imp
 	}
 
 	@Override
-	public Map<String, byte[]> getInstrumentations() {
-		return instrumentations;
+	public Map<String, byte[]> getRedefinitions() {
+		return redefinitions;
 	}
 
 	@Override
-	public boolean isInstrumented(String name) {
-		return instrumentations.containsKey(name);
+	public boolean isRedefined(String name) {
+		return redefinitions.containsKey(name);
 	}
 
 	@Override
 	public Class<?> define(String name, byte[] bytes) {
-		instrumentations.put(name, bytes);
+		redefinitions.put(name, bytes);
 		return defineClass(name, bytes, 0, bytes.length);
 	}
 
 	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
-		if (instrumentations.containsKey(name) || instrumentations.containsKey(enclosingClassName(name))) {
+		if (redefinitions.containsKey(name) || redefinitions.containsKey(enclosingClassName(name))) {
 			Class<?> find = findLoadedClass(name);
 			if (find == null) {
 				find = findClass(name);
