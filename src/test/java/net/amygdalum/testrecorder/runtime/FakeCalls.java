@@ -47,7 +47,7 @@ public abstract class FakeCalls<T> {
 		try {
 			return Types.getDeclaredMethod(clazz, method, parameterTypes);
 		} catch (NoSuchMethodException e) {
-			throw new InputDecoratorException(e);
+			throw new FakeCallException(e);
 		}
 	}
 

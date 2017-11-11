@@ -20,8 +20,6 @@ import org.hamcrest.core.CombinableMatcher;
 
 import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.SerializedReferenceType;
-import net.amygdalum.testrecorder.runtime.InputDecorator;
-import net.amygdalum.testrecorder.runtime.OutputDecorator;
 import net.amygdalum.testrecorder.values.SerializedInput;
 import net.amygdalum.testrecorder.values.SerializedOutput;
 
@@ -198,5 +196,9 @@ public class MockedInteractions {
 		}
 		return declaringClass;
 	}
-
+	
+	public static class InputDecorator { 
+	}
+	public static class OutputDecorator { 
+	}
 }

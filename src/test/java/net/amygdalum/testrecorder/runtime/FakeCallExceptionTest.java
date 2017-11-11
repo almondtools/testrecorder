@@ -5,11 +5,11 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-public class InputDecoratorExceptionTest {
+public class FakeCallExceptionTest {
 
 	@Test
 	public void testInputDecoratorException() throws Exception {
-		assertThat(new InputDecoratorException(new IllegalArgumentException("msg")).getCause(), matchesException(IllegalArgumentException.class).withMessage("msg"));
+		assertThat(new FakeCallException(new IllegalArgumentException("msg")).getCause(), matchesException(IllegalArgumentException.class).withMessage("msg"));
 	}
 
 }
