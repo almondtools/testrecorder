@@ -37,7 +37,7 @@ public abstract class FakeCalls<T> {
 		return method;
 	}
 	
-	public FakeCalls<T> provide(String caller, Object result, Object... args) {
+	public FakeCalls<T> add(String caller, Object result, Object... args) {
 		InvocationData data = new InvocationData(caller, result, args);
 		invocationData.add(data);
 		return this;

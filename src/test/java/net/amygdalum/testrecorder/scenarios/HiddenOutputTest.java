@@ -31,7 +31,7 @@ public class HiddenOutputTest {
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(HiddenOutput.class), compiles(HiddenOutput.class));
 		assertThat(testGenerator.renderTest(HiddenOutput.class), testsRun(HiddenOutput.class));
-		assertThat(testGenerator.renderTest(HiddenOutput.class), containsString(".provide(\"net.amygdalum.testrecorder.scenarios.HiddenOutput.outputImmediate\", null, equalTo(\"Hello\")"));
+		assertThat(testGenerator.renderTest(HiddenOutput.class), containsString(".add(\"net.amygdalum.testrecorder.scenarios.HiddenOutput.outputImmediate\", null, equalTo(\"Hello\")"));
 		assertThat(testGenerator.renderTest(HiddenOutput.class), containsString("verify()"));
 	}
 
@@ -44,7 +44,7 @@ public class HiddenOutputTest {
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(HiddenOutput.class), compiles(HiddenOutput.class));
 		assertThat(testGenerator.renderTest(HiddenOutput.class), testsRun(HiddenOutput.class));
-		assertThat(testGenerator.renderTest(HiddenOutput.class), containsString(".provide(\"net.amygdalum.testrecorder.scenarios.HiddenOutput.outputToField\", null, equalTo(\"Hello\")"));
+		assertThat(testGenerator.renderTest(HiddenOutput.class), containsString(".add(\"net.amygdalum.testrecorder.scenarios.HiddenOutput.outputToField\", null, equalTo(\"Hello\")"));
 		assertThat(testGenerator.renderTest(HiddenOutput.class), containsString("verify()"));
 	}
 

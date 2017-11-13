@@ -265,7 +265,7 @@ public class MockedInteractions {
 					.map(arg -> arg.getValue())
 					.collect(toList()));
 
-				methods.add(callLocalMethod("provide", arguments));
+				methods.add(callLocalMethod("add", arguments));
 			}
 			value = callMethodChainExpression(value, methods);
 
@@ -328,7 +328,7 @@ public class MockedInteractions {
 					.map(arg -> arg.getValue())
 					.collect(toList()));
 
-				methods.add(callLocalMethod("provide", arguments));
+				methods.add(callLocalMethod("add", arguments));
 			}
 			value = callMethodChainExpression(value, methods);
 

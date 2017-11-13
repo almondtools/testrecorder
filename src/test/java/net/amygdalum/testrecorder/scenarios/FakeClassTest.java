@@ -28,9 +28,9 @@ public class FakeClassTest {
 		FakeClass<Inputs> faked = new FakeClass<Inputs>() {
 
 			FakeCalls<String> read = new FakeIn<String>(inputs, "read", new Class[0])
-				.provide("net.amygdalum.testrecorder.scenarios.Inputs.recorded", "Hello")
-				.provide("net.amygdalum.testrecorder.scenarios.Inputs.recorded", " ")
-				.provide("net.amygdalum.testrecorder.scenarios.Inputs.recorded", "World");
+				.add("net.amygdalum.testrecorder.scenarios.Inputs.recorded", "Hello")
+				.add("net.amygdalum.testrecorder.scenarios.Inputs.recorded", " ")
+				.add("net.amygdalum.testrecorder.scenarios.Inputs.recorded", "World");
 
 			@Mock
 			public String read(Invocation invocation) {
@@ -50,7 +50,7 @@ public class FakeClassTest {
 		FakeClass<Inputs> faked = new FakeClass<Inputs>() {
 
 			FakeCalls<Void> read = new FakeIn<Void>(inputs, "read", new Class[] {char[].class})
-				.provide("net.amygdalum.testrecorder.scenarios.Inputs.sideEffectsRecorded", null, "Hello World".toCharArray());
+				.add("net.amygdalum.testrecorder.scenarios.Inputs.sideEffectsRecorded", null, "Hello World".toCharArray());
 
 			@Mock
 			public void read(Invocation invocation, char[] cs) {
@@ -73,7 +73,7 @@ public class FakeClassTest {
 		FakeClass<Inputs> faked = new FakeClass<Inputs>() {
 			
 			FakeCalls<Void> read = new FakeIn<Void>(inputs, "read", new Class[] {List.class})
-				.provide("net.amygdalum.testrecorder.scenarios.Inputs.objectSideEffectsRecorded", null, list);
+				.add("net.amygdalum.testrecorder.scenarios.Inputs.objectSideEffectsRecorded", null, list);
 			
 			@Mock
 			public void read(Invocation invocation, List<String> s) {
@@ -93,9 +93,9 @@ public class FakeClassTest {
 		FakeClass<Inputs> faked = new FakeClass<Inputs>() {
 
 			FakeCalls<String> read = new FakeIn<String>(inputs, "read", new Class[0])
-				.provide("net.amygdalum.testrecorder.scenarios.Inputs.recorded", "Hello")
-				.provide("net.amygdalum.testrecorder.scenarios.Inputs.recorded", "")
-				.provide("net.amygdalum.testrecorder.scenarios.Inputs.recorded", "World");
+				.add("net.amygdalum.testrecorder.scenarios.Inputs.recorded", "Hello")
+				.add("net.amygdalum.testrecorder.scenarios.Inputs.recorded", "")
+				.add("net.amygdalum.testrecorder.scenarios.Inputs.recorded", "World");
 
 			@Mock
 			public String read(Invocation invocation) {
@@ -122,8 +122,8 @@ public class FakeClassTest {
 		FakeClass<Inputs> faked = new FakeClass<Inputs>() {
 
 			FakeCalls<String> read = new FakeIn<String>(inputs, "read", new Class[0])
-				.provide("net.amygdalum.testrecorder.scenarios.Inputs.recorded", "Hello")
-				.provide("net.amygdalum.testrecorder.scenarios.Inputs.recorded", "");
+				.add("net.amygdalum.testrecorder.scenarios.Inputs.recorded", "Hello")
+				.add("net.amygdalum.testrecorder.scenarios.Inputs.recorded", "");
 
 			@Mock
 			public String read(Invocation invocation) {
@@ -143,7 +143,7 @@ public class FakeClassTest {
 		FakeClass<System> faked = new FakeClass<System>() {
 
 			FakeCalls<Long> read = new FakeIn<Long>(System.class, "currentTimeMillis", new Class[0])
-				.provide("net.amygdalum.testrecorder.scenarios.StandardLibInputOutput.getTimestamp", 42l);
+				.add("net.amygdalum.testrecorder.scenarios.StandardLibInputOutput.getTimestamp", 42l);
 
 			@Mock
 			public long currentTimeMillis(Invocation invocation) {
@@ -164,8 +164,8 @@ public class FakeClassTest {
 		FakeClass<Outputs> faked = new FakeClass<Outputs>() {
 
 			FakeCalls<Void> print = new FakeOut<Void>(outputs, "print", new Class[] { String.class })
-				.provide("net.amygdalum.testrecorder.scenarios.Outputs.recorded", null, equalTo("Hello "))
-				.provide("net.amygdalum.testrecorder.scenarios.Outputs.recorded", null, equalTo("World"));
+				.add("net.amygdalum.testrecorder.scenarios.Outputs.recorded", null, equalTo("Hello "))
+				.add("net.amygdalum.testrecorder.scenarios.Outputs.recorded", null, equalTo("World"));
 
 			@Mock
 			public void print(Invocation invocation, String s) {
@@ -184,8 +184,8 @@ public class FakeClassTest {
 		FakeClass<Outputs> faked = new FakeClass<Outputs>() {
 
 			FakeCalls<Void> print = new FakeOut<Void>(outputs, "print", new Class[] { String.class })
-				.provide("net.amygdalum.testrecorder.scenarios.Outputs.recorded", null, equalTo("Hello "))
-				.provide("net.amygdalum.testrecorder.scenarios.Outputs.recorded", null, equalTo("World"));
+				.add("net.amygdalum.testrecorder.scenarios.Outputs.recorded", null, equalTo("Hello "))
+				.add("net.amygdalum.testrecorder.scenarios.Outputs.recorded", null, equalTo("World"));
 
 			@Mock
 			public void print(Invocation invocation, String s) {
@@ -210,8 +210,8 @@ public class FakeClassTest {
 		FakeClass<Outputs> faked = new FakeClass<Outputs>() {
 
 			FakeCalls<Void> print = new FakeOut<Void>(outputs, "print", new Class[] { String.class })
-				.provide("net.amygdalum.testrecorder.scenarios.Outputs.recorded", null, equalTo("Hello "))
-				.provide("net.amygdalum.testrecorder.scenarios.Outputs.recorded", null, equalTo("Welt"));
+				.add("net.amygdalum.testrecorder.scenarios.Outputs.recorded", null, equalTo("Hello "))
+				.add("net.amygdalum.testrecorder.scenarios.Outputs.recorded", null, equalTo("Welt"));
 
 			@Mock
 			public void print(Invocation invocation, String s) {
@@ -234,9 +234,9 @@ public class FakeClassTest {
 		FakeClass<Outputs> faked = new FakeClass<Outputs>() {
 
 			FakeCalls<Void> print = new FakeOut<Void>(outputs, "print", new Class[] { String.class })
-				.provide("net.amygdalum.testrecorder.scenarios.Outputs.recorded", null, equalTo("Hello "))
-				.provide("net.amygdalum.testrecorder.scenarios.Outputs.recorded", null, equalTo("World"))
-				.provide("net.amygdalum.testrecorder.scenarios.Outputs.recorded", null, equalTo("!"));
+				.add("net.amygdalum.testrecorder.scenarios.Outputs.recorded", null, equalTo("Hello "))
+				.add("net.amygdalum.testrecorder.scenarios.Outputs.recorded", null, equalTo("World"))
+				.add("net.amygdalum.testrecorder.scenarios.Outputs.recorded", null, equalTo("!"));
 
 			@Mock
 			public void print(Invocation invocation, String s) {
@@ -260,7 +260,7 @@ public class FakeClassTest {
 		FakeClass<ByteArrayOutputStream> faked = new FakeClass<ByteArrayOutputStream>() {
 
 			FakeCalls<Void> write = new FakeOut<Void>(ByteArrayOutputStream.class, "write", new Class[] {byte[].class})
-				.provide("net.amygdalum.testrecorder.scenarios.StandardLibInputOutput.store", null, "My Output".getBytes());
+				.add("net.amygdalum.testrecorder.scenarios.StandardLibInputOutput.store", null, "My Output".getBytes());
 
 			@Mock
 			public void write(Invocation invocation, byte[] value) {
