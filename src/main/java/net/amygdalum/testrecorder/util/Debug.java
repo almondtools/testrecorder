@@ -5,8 +5,6 @@ import java.util.List;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
 
-import net.amygdalum.testrecorder.ByteCode;
-
 public final class Debug {
 
 	private Debug() {

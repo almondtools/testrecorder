@@ -27,7 +27,7 @@ public final class Reflections {
     }
 
     public static Object getValue(Field field, Object item) throws ReflectiveOperationException {
-        return accessing(field).call(() -> field.get(item));
+        return accessing(field).call(f -> f.get(item));
     }
 
     public static class Accessing<T extends AccessibleObject & Member> {
@@ -41,7 +41,7 @@ public final class Reflections {
         public <S> S call(AccessFunction<T, S> code) throws ReflectiveOperationException {
             boolean reset = ensureAccess();
             try {
-                S result = code.apply();
+                S result = code.apply(object);
                 return result;
             } finally {
                 resetAccess(reset);
@@ -51,7 +51,7 @@ public final class Reflections {
         public void exec(AccessConsumer<T> code) throws ReflectiveOperationException {
             boolean reset = ensureAccess();
             try {
-                code.accept();
+                code.accept(object);
             } finally {
                 resetAccess(reset);
             }
@@ -88,13 +88,13 @@ public final class Reflections {
 
     public interface AccessFunction<T, S> {
 
-        S apply() throws ReflectiveOperationException;
+        S apply(T member) throws ReflectiveOperationException;
 
     }
 
     public interface AccessConsumer<T> {
 
-        void accept() throws ReflectiveOperationException;
+        void accept(T member) throws ReflectiveOperationException;
 
     }
 

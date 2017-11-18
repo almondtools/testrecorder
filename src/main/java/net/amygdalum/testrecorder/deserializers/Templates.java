@@ -41,6 +41,7 @@ public final class Templates {
 	private static final String WIDENING_MATCHER = "widening(<value>)";
 	private static final String ENUM_MATCHER = "matchingEnum(<value>)";
 	private static final String RECURSIVE_MATCHER = "recursive(<type>)";
+	private static final String LAMBDA_MATCHER = "lambda(<name>)";
 	private static final String CONTAINS_IN_ORDER_MATCHER = "containsInOrder(<type>.class, <values; separator=\", \">)";
 	private static final String EMPTY_MATCHER = "empty()";
 	private static final String CONTAINS_IN_ANY_ORDER_MATCHER = "contains(<type>.class, <values; separator=\", \">)";
@@ -456,6 +457,13 @@ public final class Templates {
 		return matcher.render();
 	}
 
+	public static String lambdaMatcher(String name) {
+		ST matcher = new ST(LAMBDA_MATCHER);
+		matcher.add("name", name);
+		
+		return matcher.render();
+	}
+	
 	public static String arrayContainingMatcher(String type, String... elementValues) {
 		ST matcher = new ST(ARRAY_CONTAINING_MATCHER);
 		matcher.add("type", type);

@@ -1,5 +1,6 @@
-package net.amygdalum.testrecorder;
+package net.amygdalum.testrecorder.util;
 
+import static java.lang.Class.forName;
 import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
@@ -30,7 +31,7 @@ import org.objectweb.asm.util.Printer;
 import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceMethodVisitor;
 
-import net.amygdalum.testrecorder.util.Types;
+import net.amygdalum.testrecorder.SerializationException;
 
 public final class ByteCode {
 
@@ -202,6 +203,65 @@ public final class ByteCode {
 		default:
 			return Void.class;
 		}
+	}
+
+	public static Class<?> classFromInternalName(String name, ClassLoader loader) throws ClassNotFoundException {
+		switch (name) {
+		case "boolean":
+			return boolean.class;
+		case "char":
+			return char.class;
+		case "byte":
+			return byte.class;
+		case "short":
+			return short.class;
+		case "int":
+			return int.class;
+		case "float":
+			return float.class;
+		case "long":
+			return long.class;
+		case "double":
+			return double.class;
+		case "void":
+			return void.class;
+		default:
+			return loader.loadClass(name.replace('/', '.'));
+		}
+	}
+
+	public static Class<?> classFromInternalName(String name) throws ClassNotFoundException {
+		switch (name) {
+		case "boolean":
+			return boolean.class;
+		case "char":
+			return char.class;
+		case "byte":
+			return byte.class;
+		case "short":
+			return short.class;
+		case "int":
+			return int.class;
+		case "float":
+			return float.class;
+		case "long":
+			return long.class;
+		case "double":
+			return double.class;
+		case "void":
+			return void.class;
+		default:
+			return forName(name.replace('/', '.'));
+		}
+	}
+
+	public static Class<?>[] getArgumentTypes(String signature) throws ClassNotFoundException {
+		org.objectweb.asm.Type[] argumentTypeDescriptions = org.objectweb.asm.Type.getMethodType(signature).getArgumentTypes();
+		Class<?>[] argumentTypes = new Class<?>[argumentTypeDescriptions.length];
+		for (int i = 0; i < argumentTypes.length; i++) {
+			argumentTypes[i] = classFromInternalName(argumentTypeDescriptions[i].getClassName());
+		}
+		return argumentTypes;
 	}
 
 	public static List<String> toString(InsnList instructions) {

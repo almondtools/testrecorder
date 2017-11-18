@@ -10,4 +10,3 @@ net.amygdalum.testrecorder.serializers.DefaultMapSerializer$Factory
 net.amygdalum.testrecorder.serializers.ClassSerializer$Factory
 net.amygdalum.testrecorder.serializers.BigIntegerSerializer$Factory
 net.amygdalum.testrecorder.serializers.BigDecimalSerializer$Factory
-	

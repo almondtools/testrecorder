@@ -1,13 +1,16 @@
 package net.amygdalum.testrecorder.scenarios;
 
+import java.io.Serializable;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import net.amygdalum.testrecorder.Recorded;
 
+@SuppressWarnings({ "unchecked" })
 public class Lambdas {
 
 	private Function<Object, Object> id = o -> o;
+	private Function<Object, Object> serializableId = (Serializable & Function<Object, Object>) o -> o;
 	
 	public Lambdas() {
 	}
@@ -15,6 +18,11 @@ public class Lambdas {
 	@Recorded
 	public Object id(Object o) {
 		return id.apply(o);
+	}
+
+	@Recorded
+	public Object serializedId(Object o) {
+		return serializableId.apply(o);
 	}
 
 	@Recorded

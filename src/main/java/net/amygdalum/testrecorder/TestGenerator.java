@@ -495,7 +495,7 @@ public class TestGenerator implements SnapshotConsumer {
 		}
 
 		private Stream<String> generateArgumentAssert(TypeManager types, AnnotatedValue value, String expression, Boolean changed) {
-			if (value == null || value.value instanceof SerializedLiteral) {
+			if (value == null || value.value instanceof SerializedLiteral || value.value instanceof SerializedImmutableType) {
 				return Stream.empty();
 			}
 			Computation matcherExpression = value.value.accept(matcher.create(locals, types), context.newWithHints(value.annotations));

@@ -1,26 +1,36 @@
 package net.amygdalum.testrecorder;
 
 import java.lang.instrument.Instrumentation;
+import java.lang.instrument.UnmodifiableClassException;
 import java.util.ServiceLoader;
 
 public class TestRecorderAgent {
 
 	public static void premain(String agentArgs, Instrumentation inst) {
 		TestRecorderAgentConfig config = loadConfig(agentArgs);
+
 		inst.addTransformer(new SnapshotInstrumentor(config));
+
+		try {
+			inst.addTransformer(AllLambdasSerializableTransformer.INSTANCE, true);
+			inst.retransformClasses(AllLambdasSerializableTransformer.INSTANCE.classesToRetransform());
+		} catch (ClassNotFoundException | UnmodifiableClassException e) {
+			System.out.println("unexpected class transforming restriction: " + e.getMessage());
+		}
+
 		initialize(config);
 	}
 
 	public static void initialize(TestRecorderAgentConfig config) {
-        ServiceLoader<TestRecorderAgentInitializer> loader = ServiceLoader.load(TestRecorderAgentInitializer.class);
-        
-        for (TestRecorderAgentInitializer initializer : loader) {
-            try {
-                initializer.run();
-            } catch (RuntimeException e) {
-                System.out.println("initializer " + initializer.getClass().getSimpleName() + " failed with " + e.getMessage() + ", skipping");
-            }
-        }
+		ServiceLoader<TestRecorderAgentInitializer> loader = ServiceLoader.load(TestRecorderAgentInitializer.class);
+
+		for (TestRecorderAgentInitializer initializer : loader) {
+			try {
+				initializer.run();
+			} catch (RuntimeException e) {
+				System.out.println("initializer " + initializer.getClass().getSimpleName() + " failed with " + e.getMessage() + ", skipping");
+			}
+		}
 	}
 
 	@SuppressWarnings("unchecked")

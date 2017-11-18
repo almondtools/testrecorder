@@ -269,8 +269,8 @@ public class Construction {
 
 	private boolean isSet(Object base, String fieldName, Object expectedValue) throws IllegalAccessException {
 		try {
-			Field f = Types.getDeclaredField(base.getClass(), fieldName);
-			return accessing(f).call(() -> {
+			Field field = Types.getDeclaredField(base.getClass(), fieldName);
+			return accessing(field).call(f -> {
 				Object foundValue = f.get(base);
 				if (foundValue == expectedValue) {
 					return true;

@@ -43,7 +43,7 @@ public abstract class GenericObject {
 		Object value = o instanceof Wrapped ? ((Wrapped) o).value() : o;
 		for (Field field : genericObject.getGenericFields(o.getClass())) {
 			try {
-				accessing(field).exec(() -> setField(value, field.getName(), field.get(genericObject)));
+				accessing(field).exec(f -> setField(value, f.getName(), f.get(genericObject)));
 			} catch (ReflectiveOperationException e) {
 				throw new GenericObjectException("definition of object failed.", e);
 			}
@@ -68,8 +68,8 @@ public abstract class GenericObject {
 	public static <T> T newEnum(Class<T> clazz) {
 		try {
 			Method valuesMethod = clazz.getDeclaredMethod("values");
-			T value = accessing(valuesMethod).call(() -> {
-				Object values = valuesMethod.invoke(null);
+			T value = accessing(valuesMethod).call(m -> {
+				Object values = m.invoke(null);
 				if (values != null && Array.getLength(values) > 0) {
 					return clazz.cast(Array.get(values, 0));
 				} else {
@@ -89,10 +89,10 @@ public abstract class GenericObject {
 		try {
 			for (Constructor<T> constructor : (Constructor<T>[]) clazz.getDeclaredConstructors()) {
 				try {
-					return accessing(constructor).call(() -> {
-						for (Params params : bestParams(constructor.getParameterTypes())) {
+					return accessing(constructor).call(c -> {
+						for (Params params : bestParams(c.getParameterTypes())) {
 							try {
-								return constructor.newInstance(params.values());
+								return c.newInstance(params.values());
 							} catch (ReflectiveOperationException | RuntimeException e) {
 								suppressed.add(e);
 								tries.add("new " + clazz.getSimpleName() + params.getDescription());
@@ -133,7 +133,7 @@ public abstract class GenericObject {
 	public Wrapped as(Wrapped wrapped) {
 		for (Field field : getGenericFields(wrapped.getWrappedClass())) {
 			try {
-				accessing(field).exec(() -> wrapped.setField(field.getName(), field.get(this)));
+				accessing(field).exec(f -> wrapped.setField(f.getName(), f.get(this)));
 			} catch (ReflectiveOperationException e) {
 				throw new GenericObjectException("setting fields failed:", e);
 			}
@@ -144,7 +144,7 @@ public abstract class GenericObject {
 	public <T> T as(T o) {
 		for (Field field : getGenericFields(o.getClass())) {
 			try {
-				accessing(field).exec(() -> setField(o, field.getName(), field.get(this)));
+				accessing(field).exec(f -> setField(o, f.getName(), f.get(this)));
 			} catch (ReflectiveOperationException e) {
 				throw new GenericObjectException("settings fields failed:", e);
 			}
@@ -181,7 +181,7 @@ public abstract class GenericObject {
 
 	public static void setField(Object o, Field to, Object value) {
 		try {
-			accessing(to).exec(() -> to.set(o, value));
+			accessing(to).exec(f -> f.set(o, value));
 		} catch (ReflectiveOperationException e) {
 			throw new GenericObjectException("settings field " + to.getName() + " failed:", e);
 		}
@@ -201,9 +201,9 @@ public abstract class GenericObject {
 
 	public static void copyField(Field field, Object from, Object to) {
 		try {
-			accessing(field).exec(() -> {
-				Object value = field.get(from);
-				field.set(to, value);
+			accessing(field).exec(f -> {
+				Object value = f.get(from);
+				f.set(to, value);
 			});
 		} catch (ReflectiveOperationException e) {
 			throw new GenericObjectException("copying field " + field.getName() + " failed:", e);

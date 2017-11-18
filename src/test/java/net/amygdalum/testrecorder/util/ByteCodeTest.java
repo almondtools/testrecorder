@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder;
+package net.amygdalum.testrecorder.util;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
@@ -15,6 +15,8 @@ import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.LocalVariableNode;
 
 import com.almondtools.conmatch.conventions.UtilityClassMatcher;
+
+import net.amygdalum.testrecorder.util.ByteCode;
 
 public class ByteCodeTest {
 

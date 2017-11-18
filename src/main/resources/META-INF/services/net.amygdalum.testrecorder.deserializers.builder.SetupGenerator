@@ -4,6 +4,7 @@ net.amygdalum.testrecorder.deserializers.builder.DefaultClassAdaptor
 net.amygdalum.testrecorder.deserializers.builder.DefaultBigIntegerAdaptor
 net.amygdalum.testrecorder.deserializers.builder.DefaultBigDecimalAdaptor
 net.amygdalum.testrecorder.deserializers.builder.DefaultEnumAdaptor
+net.amygdalum.testrecorder.deserializers.builder.DefaultLambdaAdaptor
 net.amygdalum.testrecorder.deserializers.builder.BeanObjectAdaptor
 net.amygdalum.testrecorder.deserializers.builder.DefaultObjectAdaptor
 net.amygdalum.testrecorder.deserializers.builder.DefaultArrayAdaptor

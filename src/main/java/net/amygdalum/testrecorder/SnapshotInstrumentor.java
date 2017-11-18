@@ -1,12 +1,12 @@
 package net.amygdalum.testrecorder;
 
 import static java.util.stream.Collectors.toList;
-import static net.amygdalum.testrecorder.ByteCode.memorizeLocal;
-import static net.amygdalum.testrecorder.ByteCode.pushAsArray;
-import static net.amygdalum.testrecorder.ByteCode.pushType;
-import static net.amygdalum.testrecorder.ByteCode.pushTypes;
-import static net.amygdalum.testrecorder.ByteCode.range;
-import static net.amygdalum.testrecorder.ByteCode.recallLocal;
+import static net.amygdalum.testrecorder.util.ByteCode.memorizeLocal;
+import static net.amygdalum.testrecorder.util.ByteCode.pushAsArray;
+import static net.amygdalum.testrecorder.util.ByteCode.pushType;
+import static net.amygdalum.testrecorder.util.ByteCode.pushTypes;
+import static net.amygdalum.testrecorder.util.ByteCode.range;
+import static net.amygdalum.testrecorder.util.ByteCode.recallLocal;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_ANNOTATION;
 import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
@@ -67,6 +67,7 @@ import org.objectweb.asm.tree.VarInsnNode;
 import net.amygdalum.testrecorder.SerializationProfile.Global;
 import net.amygdalum.testrecorder.SerializationProfile.Input;
 import net.amygdalum.testrecorder.SerializationProfile.Output;
+import net.amygdalum.testrecorder.util.ByteCode;
 import net.amygdalum.testrecorder.util.Types;
 
 public class SnapshotInstrumentor implements ClassFileTransformer {
@@ -291,7 +292,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		Type ownerType = Type.getObjectType(inputCall.owner);
 		Type methodType = Type.getMethodType(inputCall.desc);
 		Type[] argumentTypes = methodType.getArgumentTypes();
-		Type[] returnType = methodType.getReturnType().getSize() == 0 ? new Type[0] : new Type[] {methodType.getReturnType()};
+		Type[] returnType = methodType.getReturnType().getSize() == 0 ? new Type[0] : new Type[] { methodType.getReturnType() };
 
 		InsnList insnList = new InsnList();
 
@@ -303,10 +304,10 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 			insnList.add(new InsnNode(DUP));
 			insnList.add(new VarInsnNode(ASTORE, thisVar));
 		}
-		
+
 		int[] argumentVars = new int[argumentTypes.length];
 		int[] returnVars = new int[returnType.length];
-		
+
 		for (int i = 0; i < argumentVars.length; i++) {
 			Type type = argumentTypes[i];
 			int newLocal = method.maxLocals++;
@@ -324,7 +325,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 			returnVars[0] = newLocal;
 			insnList.add(memorizeLocal(type, newLocal));
 		}
-		
+
 		insnList.add(new FieldInsnNode(GETSTATIC, SnapshotManager_name, SNAPSHOT_MANAGER_FIELD_NAME, SnaphotManager_descriptor));
 
 		insnList.add(new VarInsnNode(ALOAD, thisVar));
@@ -372,7 +373,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		Type ownerType = Type.getObjectType(inputCall.owner);
 		Type methodType = Type.getMethodType(inputCall.desc);
 		Type[] argumentTypes = methodType.getArgumentTypes();
-		Type[] returnType = methodType.getReturnType().getSize() == 0 ? new Type[0] : new Type[] {methodType.getReturnType()};
+		Type[] returnType = methodType.getReturnType().getSize() == 0 ? new Type[0] : new Type[] { methodType.getReturnType() };
 
 		InsnList insnList = new InsnList();
 
@@ -384,10 +385,10 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 			insnList.add(new InsnNode(DUP));
 			insnList.add(new VarInsnNode(ASTORE, thisVar));
 		}
-		
+
 		int[] argumentVars = new int[argumentTypes.length];
 		int[] returnVars = new int[returnType.length];
-		
+
 		for (int i = 0; i < argumentVars.length; i++) {
 			Type type = argumentTypes[i];
 			int newLocal = method.maxLocals++;
@@ -405,7 +406,7 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 			returnVars[0] = newLocal;
 			insnList.add(memorizeLocal(type, newLocal));
 		}
-		
+
 		insnList.add(new FieldInsnNode(GETSTATIC, SnapshotManager_name, SNAPSHOT_MANAGER_FIELD_NAME, SnaphotManager_descriptor));
 
 		insnList.add(new VarInsnNode(ALOAD, thisVar));

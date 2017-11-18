@@ -32,9 +32,9 @@ public class GenericObjectGenerator<T> implements TestValueGenerator<T> {
 		}
 		for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
 			try {
-				return accessing(constructor).call(() -> {
-					Object[] args = createArgs(generator, constructor.getParameterTypes());
-					return (T) constructor.newInstance(args);
+				return accessing(constructor).call(c -> {
+					Object[] args = createArgs(generator, c.getParameterTypes());
+					return (T) c.newInstance(args);
 				});
 			} catch (ReflectiveOperationException e) {
 			}
@@ -56,7 +56,7 @@ public class GenericObjectGenerator<T> implements TestValueGenerator<T> {
 			return;
 		}
 		try {
-			accessing(field).exec(() -> field.set(instance, generator.create(field.getType())));
+			accessing(field).exec(f -> f.set(instance, generator.create(f.getType())));
 		} catch (ReflectiveOperationException e) {
 		}
 	}

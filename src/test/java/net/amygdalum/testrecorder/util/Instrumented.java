@@ -15,5 +15,7 @@ public @interface Instrumented {
 	Class<? extends TestRecorderAgentConfig> config() default DefaultTestRecorderAgentConfig.class;
 
 	String[] classes();
+	
+	boolean serializeLambdas() default false;
 
 }
