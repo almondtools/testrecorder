@@ -6,6 +6,10 @@ import java.util.ServiceLoader;
 
 public class TestRecorderAgent {
 
+	public static void agentmain(String agentArgs, Instrumentation inst) {
+		premain(agentArgs, inst);
+	}
+	
 	public static void premain(String agentArgs, Instrumentation inst) {
 		TestRecorderAgentConfig config = loadConfig(agentArgs);
 
