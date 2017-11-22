@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.scenarios;
+package net.amygdalum.testrecorder.ioscenarios;
 
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
@@ -13,10 +13,10 @@ import org.junit.runner.RunWith;
 
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.Instrumented;
-import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
+import net.amygdalum.testrecorder.util.TestrecorderAgentRunner;
 
-@RunWith(InstrumentedClassLoaderRunner.class)
-@Instrumented(classes={"net.amygdalum.testrecorder.scenarios.Inputs"})
+@RunWith(TestrecorderAgentRunner.class)
+@Instrumented(classes={"net.amygdalum.testrecorder.ioscenarios.Inputs"})
 public class InputsTest {
 
 	@Before
@@ -85,10 +85,11 @@ public class InputsTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
         assertThat(testGenerator.renderTest(Inputs.class), allOf(
-        	containsPattern("new FakeIn<String>(Inputs.class, \"read\", new Class[0])"),
-            containsPattern(".add(\"net.amygdalum.testrecorder.scenarios.Inputs.recorded\", \"Hello\")"),
-            containsPattern(".add(\"net.amygdalum.testrecorder.scenarios.Inputs.recorded\", \" \")"),
-            containsPattern(".add(\"net.amygdalum.testrecorder.scenarios.Inputs.recorded\", \"World\")")
+        	containsPattern("FakeIO.fake(Inputs.class)"),
+           	containsPattern(".fakeInput(new Aspect() {*public String read() {*}*})"),
+            containsPattern(".add(Inputs.class, \"recorded\", *, \"Hello\")"),
+            containsPattern(".add(Inputs.class, \"recorded\", *, \" \")"),
+            containsPattern(".add(Inputs.class, \"recorded\", *, \"World\")")
             ));
 		assertThat(testGenerator.renderTest(Inputs.class), testsRun(Inputs.class));
 	}
@@ -100,9 +101,10 @@ public class InputsTest {
 		
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Inputs.class), allOf(
-			containsPattern("new FakeIn<String>(Inputs.class, \"conditionalReturnRead\", new Class[0])"),
-            containsPattern(".add(\"net.amygdalum.testrecorder.scenarios.Inputs.recordedWithConditionalReturns\", \"Hello\")"),
-			containsPattern(".add(\"net.amygdalum.testrecorder.scenarios.Inputs.recordedWithConditionalReturns\", \"World\")")
+			containsPattern("FakeIO.fake(Inputs.class)"),
+           	containsPattern(".fakeInput(new Aspect() {*public String conditionalReturnRead() {*}*})"
+           		+ ".add(Inputs.class, \"recordedWithConditionalReturns\", *, \"Hello\")"
+           		+ ".add(Inputs.class, \"recordedWithConditionalReturns\", *, \"World\")")
 			));
 		assertThat(testGenerator.renderTest(Inputs.class), testsRun(Inputs.class));
 	}
@@ -115,14 +117,23 @@ public class InputsTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Inputs.class), allOf(
-        	containsPattern("new FakeIn<Boolean>(Inputs.class, \"readBoolean\", new Class[0])"),
-        	containsPattern("new FakeIn<Byte>(Inputs.class, \"readByte\", new Class[0])"),
-        	containsPattern("new FakeIn<Short>(Inputs.class, \"readShort\", new Class[0])"),
-        	containsPattern("new FakeIn<Integer>(Inputs.class, \"readInt\", new Class[0])"),
-        	containsPattern("new FakeIn<Long>(Inputs.class, \"readLong\", new Class[0])"),
-        	containsPattern("new FakeIn<Float>(Inputs.class, \"readFloat\", new Class[0])"),
-        	containsPattern("new FakeIn<Double>(Inputs.class, \"readDouble\", new Class[0])"),
-        	containsPattern("new FakeIn<Character>(Inputs.class, \"readChar\", new Class[0])")
+        	containsPattern("FakeIO.fake(Inputs.class)"),
+           	containsPattern(".fakeInput(new Aspect() {*public boolean readBoolean() {*}*})"
+           		+ ".add(Inputs.class, \"primitivesRecorded\", *, true)"),
+           	containsPattern(".fakeInput(new Aspect() {*public byte readByte() {*}*})"
+           		+ ".add(Inputs.class, \"primitivesRecorded\", *, (byte) 42)"),
+           	containsPattern(".fakeInput(new Aspect() {*public short readShort() {*}*})"
+           		+ ".add(Inputs.class, \"primitivesRecorded\", *, (short) 42)"),
+           	containsPattern(".fakeInput(new Aspect() {*public int readInt() {*}*})"
+           		+ ".add(Inputs.class, \"primitivesRecorded\", *, 42)"),
+           	containsPattern(".fakeInput(new Aspect() {*public long readLong() {*}*})"
+           		+ ".add(Inputs.class, \"primitivesRecorded\", *, 42l)"),
+           	containsPattern(".fakeInput(new Aspect() {*public float readFloat() {*}*})"
+           		+ ".add(Inputs.class, \"primitivesRecorded\", *, 42.0f)"),
+           	containsPattern(".fakeInput(new Aspect() {*public double readDouble() {*}*})"
+           		+ ".add(Inputs.class, \"primitivesRecorded\", *, 42.0)"),
+           	containsPattern(".fakeInput(new Aspect() {*public char readChar() {*}*})"
+           		+ ".add(Inputs.class, \"primitivesRecorded\", *, 'a')")
             ));
 		assertThat(testGenerator.renderTest(Inputs.class), testsRun(Inputs.class));
 	}

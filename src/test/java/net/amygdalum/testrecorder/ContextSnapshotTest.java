@@ -34,7 +34,7 @@ public class ContextSnapshotTest {
 		assertThat(snapshot.getArgumentTypes(), hasItemInArray(Object.class));
 	}
 
-    @Test
+	@Test
 	public void testInvalidate() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
@@ -113,97 +113,104 @@ public class ContextSnapshotTest {
 		assertThat(snapshot.getExpectException(), sameInstance(expectException));
 	}
 
-    @Test
-    public void testGetTime() throws Exception {
-        assertThat(new ContextSnapshot(0l, Object.class, new Annotation[0], Object.class, "method", new Annotation[0][0], new Type[0]).getTime(), equalTo(0l));
-        assertThat(new ContextSnapshot(1l, Object.class, new Annotation[0], Object.class, "method", new Annotation[0][0], new Type[0]).getTime(), equalTo(1l));
-    }
+	@Test
+	public void testGetTime() throws Exception {
+		assertThat(new ContextSnapshot(0l, new MethodSignature(Object.class, new Annotation[0], Object.class, "method", new Annotation[0][0], new Type[0])).getTime(), equalTo(0l));
+		assertThat(new ContextSnapshot(1l, new MethodSignature(Object.class, new Annotation[0], Object.class, "method", new Annotation[0][0], new Type[0])).getTime(), equalTo(1l));
+	}
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testGetAnnotation() throws Exception {
-        ContextSnapshot snapshot = new ContextSnapshot(0l, Object.class, 
-            new Annotation[]{anno("result")}, Object.class, "method", 
-            new Annotation[][]{
-            new Annotation[]{anno("arg")}
-        }, new Type[]{Integer.class});
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testGetAnnotation() throws Exception {
+		ContextSnapshot snapshot = new ContextSnapshot(0l, new MethodSignature(
+			Object.class,
+			new Annotation[] { anno("result") },
+			Object.class,
+			"method",
+			new Annotation[][] { new Annotation[] { anno("arg") } },
+			new Type[] { Integer.class }));
 
-        assertThat(snapshot.getResultAnnotation(), arrayContaining(instanceOf(Anno.class)));
-        assertThat(snapshot.getMethodAnnotation(Anno.class).get().value(), equalTo("result"));
-        assertThat(snapshot.getMethodAnnotation(NoAnno.class).isPresent(), is(false));
-        assertThat(((Anno) snapshot.getResultAnnotation()[0]).value(), equalTo("result"));
-        assertThat(snapshot.getArgumentAnnotations(), arrayWithSize(1));
-        assertThat(snapshot.getArgumentAnnotations()[0], arrayContaining(instanceOf(Anno.class)));
-        assertThat(((Anno) snapshot.getArgumentAnnotations()[0][0]).value(), equalTo("arg"));
-    }
+		assertThat(snapshot.getResultAnnotation(), arrayContaining(instanceOf(Anno.class)));
+		assertThat(snapshot.getMethodAnnotation(Anno.class).get().value(), equalTo("result"));
+		assertThat(snapshot.getMethodAnnotation(NoAnno.class).isPresent(), is(false));
+		assertThat(((Anno) snapshot.getResultAnnotation()[0]).value(), equalTo("result"));
+		assertThat(snapshot.getArgumentAnnotations(), arrayWithSize(1));
+		assertThat(snapshot.getArgumentAnnotations()[0], arrayContaining(instanceOf(Anno.class)));
+		assertThat(((Anno) snapshot.getArgumentAnnotations()[0][0]).value(), equalTo("arg"));
+	}
 
-    @Test
-    public void testGetAnnotatedSetupArgs() throws Exception {
-        ContextSnapshot snapshot = new ContextSnapshot(0l, Object.class, 
-            new Annotation[]{anno("result")}, String.class, "method", 
-            new Annotation[][]{
-            new Annotation[]{anno("arg")}
-        }, new Type[]{Integer.class});
+	@Test
+	public void testGetAnnotatedSetupArgs() throws Exception {
+		ContextSnapshot snapshot = new ContextSnapshot(0l, new MethodSignature(
+			Object.class,
+			new Annotation[] { anno("result") },
+			String.class,
+			"method",
+			new Annotation[][] { new Annotation[] { anno("arg") } },
+			new Type[] { Integer.class }));
 
-        snapshot.setSetupArgs(literal(int.class, 42));
+		snapshot.setSetupArgs(literal(int.class, 42));
 
-        assertThat(snapshot.getAnnotatedSetupArgs(), arrayWithSize(1));
-        assertThat(snapshot.getAnnotatedSetupArgs()[0].getAnnotation(Anno.class).get().value(), equalTo("arg"));
-        assertThat(snapshot.getAnnotatedSetupArgs()[0].getAnnotation(NoAnno.class).isPresent(), is(false));
-        assertThat(snapshot.getAnnotatedSetupArgs()[0].value, equalTo(literal(int.class, 42)));
-    }    
+		assertThat(snapshot.getAnnotatedSetupArgs(), arrayWithSize(1));
+		assertThat(snapshot.getAnnotatedSetupArgs()[0].getAnnotation(Anno.class).get().value(), equalTo("arg"));
+		assertThat(snapshot.getAnnotatedSetupArgs()[0].getAnnotation(NoAnno.class).isPresent(), is(false));
+		assertThat(snapshot.getAnnotatedSetupArgs()[0].value, equalTo(literal(int.class, 42)));
+	}
 
-    @Test
-    public void testGetAnnotatedExpectArgs() throws Exception {
-        ContextSnapshot snapshot = new ContextSnapshot(0l, Object.class, 
-            new Annotation[]{anno("result")}, String.class, "method", 
-            new Annotation[][]{
-            new Annotation[]{anno("arg")}
-        }, new Type[]{Integer.class});
-        
-        snapshot.setExpectArgs(literal(int.class, 42));
+	@Test
+	public void testGetAnnotatedExpectArgs() throws Exception {
+		ContextSnapshot snapshot = new ContextSnapshot(0l, new MethodSignature(
+			Object.class,
+			new Annotation[] { anno("result") },
+			String.class,
+			"method",
+			new Annotation[][] { new Annotation[] { anno("arg") } },
+			new Type[] { Integer.class }));
 
-        assertThat(snapshot.getAnnotatedExpectArgs(), arrayWithSize(1));
-        assertThat(snapshot.getAnnotatedExpectArgs()[0].getAnnotation(Anno.class).get().value(), equalTo("arg"));
-        assertThat(snapshot.getAnnotatedExpectArgs()[0].getAnnotation(NoAnno.class).isPresent(), is(false));
-        assertThat(snapshot.getAnnotatedExpectArgs()[0].value, equalTo(literal(int.class, 42)));
-    }
+		snapshot.setExpectArgs(literal(int.class, 42));
 
-    @Test
-    public void testToString() throws Exception {
-        ContextSnapshot snapshot = contextSnapshot(Object.class, String.class, "method", Integer.class);
-        
-        assertThat(snapshot.toString(), containsString("Object"));
-        assertThat(snapshot.toString(), containsString("String"));
-        assertThat(snapshot.toString(), containsString("method"));
-        assertThat(snapshot.toString(), containsString("Integer"));
-}
-    
-    private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
-        return new ContextSnapshot(0, declaringClass, new Annotation[0], resultType, methodName, new Annotation[0][0], argumentTypes);
-    }
+		assertThat(snapshot.getAnnotatedExpectArgs(), arrayWithSize(1));
+		assertThat(snapshot.getAnnotatedExpectArgs()[0].getAnnotation(Anno.class).get().value(), equalTo("arg"));
+		assertThat(snapshot.getAnnotatedExpectArgs()[0].getAnnotation(NoAnno.class).isPresent(), is(false));
+		assertThat(snapshot.getAnnotatedExpectArgs()[0].value, equalTo(literal(int.class, 42)));
+	}
 
-    private Anno anno(String value) {
-        return new Anno() {
+	@Test
+	public void testToString() throws Exception {
+		ContextSnapshot snapshot = contextSnapshot(Object.class, String.class, "method", Integer.class);
 
-            @Override
-            public String value() {
-                return value;
-            }
-            @Override
-            public Class<? extends Annotation> annotationType() {
-                return Anno.class;
-            }
-            
-        };
-    }
-    
-    @interface Anno {
-        String value();
-    }
+		assertThat(snapshot.toString(), containsString("Object"));
+		assertThat(snapshot.toString(), containsString("String"));
+		assertThat(snapshot.toString(), containsString("method"));
+		assertThat(snapshot.toString(), containsString("Integer"));
+	}
 
-    @interface NoAnno {
-        String value();
-    }
+	private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
+		return new ContextSnapshot(0, new MethodSignature(declaringClass, new Annotation[0], resultType, methodName, new Annotation[0][0], argumentTypes));
+	}
+
+	private Anno anno(String value) {
+		return new Anno() {
+
+			@Override
+			public String value() {
+				return value;
+			}
+
+			@Override
+			public Class<? extends Annotation> annotationType() {
+				return Anno.class;
+			}
+
+		};
+	}
+
+	@interface Anno {
+		String value();
+	}
+
+	@interface NoAnno {
+		String value();
+	}
 
 }

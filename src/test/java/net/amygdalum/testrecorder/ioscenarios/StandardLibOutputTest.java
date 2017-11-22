@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.scenarios;
+package net.amygdalum.testrecorder.ioscenarios;
 
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
@@ -10,33 +10,33 @@ import org.junit.runner.RunWith;
 
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.Instrumented;
-import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
+import net.amygdalum.testrecorder.util.TestrecorderAgentRunner;
 
-@RunWith(InstrumentedClassLoaderRunner.class)
-@Instrumented(classes={"net.amygdalum.testrecorder.scenarios.StandardLibInputOutput"}, config=StandardLibInputOutputTestRecorderAgentConfig.class)
-public class StandardLibInputTest {
+@RunWith(TestrecorderAgentRunner.class)
+@Instrumented(classes = { "net.amygdalum.testrecorder.ioscenarios.StandardLibInputOutput" }, config = StandardLibInputOutputTestRecorderAgentConfig.class)
+public class StandardLibOutputTest {
 
 	@Before
 	public void before() throws Exception {
 		TestGenerator.fromRecorded().clearResults();
 	}
-	
+
 	@Test
 	public void testCompilable() throws Exception {
 		StandardLibInputOutput time = new StandardLibInputOutput();
-		time.getTimestamp();
+		time.store("My Output");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(StandardLibInputOutput.class), compiles(StandardLibInputOutput.class));
 	}
-	
+
 	@Test
 	public void testRunnable() throws Exception {
 		StandardLibInputOutput time = new StandardLibInputOutput();
-		time.getTimestamp();
+		time.store("My Output");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(StandardLibInputOutput.class), testsRun(StandardLibInputOutput.class));
 	}
-	
+
 }

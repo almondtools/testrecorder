@@ -1,40 +1,28 @@
 package net.amygdalum.testrecorder;
 
 import java.lang.instrument.Instrumentation;
-import java.lang.instrument.UnmodifiableClassException;
 import java.util.ServiceLoader;
 
 public class TestRecorderAgent {
 
-	public static void agentmain(String agentArgs, Instrumentation inst) {
-		premain(agentArgs, inst);
+	private Instrumentation inst;
+	private AttachableClassFileTransformer lambdaTransformer;
+	private AttachableClassFileTransformer snapshotInstrumentor;
+
+	public TestRecorderAgent(Instrumentation inst) {
+		this.inst = inst;
 	}
-	
+
+	public static void agentmain(String agentArgs, Instrumentation inst) {
+		TestRecorderAgentConfig config = loadConfig(agentArgs);
+
+		new TestRecorderAgent(inst).prepareInstrumentations(config);
+	}
+
 	public static void premain(String agentArgs, Instrumentation inst) {
 		TestRecorderAgentConfig config = loadConfig(agentArgs);
 
-		inst.addTransformer(new SnapshotInstrumentor(config));
-
-		try {
-			inst.addTransformer(AllLambdasSerializableTransformer.INSTANCE, true);
-			inst.retransformClasses(AllLambdasSerializableTransformer.INSTANCE.classesToRetransform());
-		} catch (ClassNotFoundException | UnmodifiableClassException e) {
-			System.out.println("unexpected class transforming restriction: " + e.getMessage());
-		}
-
-		initialize(config);
-	}
-
-	public static void initialize(TestRecorderAgentConfig config) {
-		ServiceLoader<TestRecorderAgentInitializer> loader = ServiceLoader.load(TestRecorderAgentInitializer.class);
-
-		for (TestRecorderAgentInitializer initializer : loader) {
-			try {
-				initializer.run();
-			} catch (RuntimeException e) {
-				System.out.println("initializer " + initializer.getClass().getSimpleName() + " failed with " + e.getMessage() + ", skipping");
-			}
-		}
+		new TestRecorderAgent(inst).prepareInstrumentations(config);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -44,8 +32,39 @@ public class TestRecorderAgent {
 			System.out.println("loading config " + config.getSimpleName());
 			return config.newInstance();
 		} catch (RuntimeException | ReflectiveOperationException e) {
+			System.err.println("failed loading config " + agentArgs + ": " + e.getMessage());
+			e.printStackTrace(System.err);
 			System.out.println("loading default config");
 			return new DefaultTestRecorderAgentConfig();
+		}
+	}
+
+	public void prepareInstrumentations(TestRecorderAgentConfig config) {
+		snapshotInstrumentor = new SnapshotInstrumentor(config).attach(inst);
+		lambdaTransformer = new AllLambdasSerializableTransformer().attach(inst);
+
+		initialize(config);
+	}
+
+	public void initialize(TestRecorderAgentConfig config) {
+		ServiceLoader<TestRecorderAgentInitializer> loader = ServiceLoader.load(TestRecorderAgentInitializer.class);
+
+		for (TestRecorderAgentInitializer initializer : loader) {
+			try {
+				initializer.run();
+			} catch (RuntimeException e) {
+				System.err.println("initializer " + initializer.getClass().getSimpleName() + " failed with " + e.getMessage() + ", skipping");
+				e.printStackTrace(System.err);
+			}
+		}
+	}
+
+	public void clearInstrumentations() {
+		if (snapshotInstrumentor != null) {
+			snapshotInstrumentor.detach(inst);
+		}
+		if (lambdaTransformer != null) {
+			lambdaTransformer.detach(inst);
 		}
 	}
 

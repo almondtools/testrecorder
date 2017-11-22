@@ -1,10 +1,9 @@
-package net.amygdalum.testrecorder.scenarios;
+package net.amygdalum.testrecorder.ioscenarios;
 
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
@@ -15,10 +14,10 @@ import org.junit.runner.RunWith;
 
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.Instrumented;
-import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
+import net.amygdalum.testrecorder.util.TestrecorderAgentRunner;
 
-@RunWith(InstrumentedClassLoaderRunner.class)
-@Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.Outputs" })
+@RunWith(TestrecorderAgentRunner.class)
+@Instrumented(classes = { "net.amygdalum.testrecorder.ioscenarios.Outputs" })
 public class OutputsTest {
 
 	@Before
@@ -69,9 +68,9 @@ public class OutputsTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(Outputs.class), hasSize(1));
-		assertThat(testGenerator.renderTest(Outputs.class), allOf(
-			containsPattern(".add(\"net.amygdalum.testrecorder.scenarios.Outputs.recorded\", null, equalTo(\"Hello \")"),
-			containsPattern(".add(\"net.amygdalum.testrecorder.scenarios.Outputs.recorded\", null, equalTo(\"World\")")));
+		assertThat(testGenerator.renderTest(Outputs.class), containsPattern(".fakeOutput(new Aspect() {*print(String*)*})"
+			+ ".add(Outputs.class, \"recorded\", *, null, equalTo(\"Hello \"))"
+			+ ".add(Outputs.class, \"recorded\", *, null, equalTo(\"World\")"));
 		assertThat(testGenerator.renderTest(Outputs.class), containsString("verify()"));
 		assertThat(testGenerator.renderTest(Outputs.class), testsRun(Outputs.class));
 	}
@@ -83,12 +82,12 @@ public class OutputsTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(Outputs.class), hasSize(1));
-		assertThat(testGenerator.renderTest(Outputs.class), allOf(
-			containsPattern(".add(\"net.amygdalum.testrecorder.scenarios.Outputs.recordedWithConditionalReturn\", true, equalTo('a')"),
-			containsPattern(".add(\"net.amygdalum.testrecorder.scenarios.Outputs.recordedWithConditionalReturn\", true, equalTo(',')"),
-			containsPattern(".add(\"net.amygdalum.testrecorder.scenarios.Outputs.recordedWithConditionalReturn\", false, equalTo(' ')"),
-			containsPattern(".add(\"net.amygdalum.testrecorder.scenarios.Outputs.recordedWithConditionalReturn\", true, equalTo('b')"),
-			containsPattern(".add(\"net.amygdalum.testrecorder.scenarios.Outputs.recordedWithConditionalReturn\", false, equalTo('\\n')")));
+		assertThat(testGenerator.renderTest(Outputs.class), containsPattern(".fakeOutput(new Aspect() {*conditionalReturnOutput(char*)*})"
+				+ ".add(Outputs.class, \"recordedWithConditionalReturn\", *, true, equalTo('a'))"
+				+ ".add(Outputs.class, \"recordedWithConditionalReturn\", *, true, equalTo(','))"
+				+ ".add(Outputs.class, \"recordedWithConditionalReturn\", *, false, equalTo(' '))"
+				+ ".add(Outputs.class, \"recordedWithConditionalReturn\", *, true, equalTo('b'))"
+				+ ".add(Outputs.class, \"recordedWithConditionalReturn\", *, false, equalTo('\\n')"));
 
 		assertThat(testGenerator.renderTest(Outputs.class), containsString("verify()"));
 		assertThat(testGenerator.renderTest(Outputs.class), testsRun(Outputs.class));

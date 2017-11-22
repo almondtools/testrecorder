@@ -20,14 +20,18 @@ import org.junit.Test;
 
 public class SerializedOutputTest {
 
+	private StackTraceElement caller;
+	private StackTraceElement notcaller;
 	private SerializedOutput output;
 	private SerializedOutput outputNoResult;
 
 	@Before
 	public void before() throws Exception {
-		output = new SerializedOutput(41, "caller", PrintStream.class, "append", PrintStream.class, new SerializedObject(PrintStream.class), new Type[] { CharSequence.class }, literal("Hello"));
+		caller = new StackTraceElement("class", "method", "file", 4711);
+		notcaller = new StackTraceElement("class", "method", "file", 815);
 
-		outputNoResult = new SerializedOutput(41, "caller", PrintStream.class, "println", new Type[] { String.class }, literal("Hello"));
+		output = new SerializedOutput(41, caller, PrintStream.class, "append", PrintStream.class, new SerializedObject(PrintStream.class), new Type[] { CharSequence.class }, literal("Hello"));
+		outputNoResult = new SerializedOutput(41, caller, PrintStream.class, "println", new Type[] { String.class }, literal("Hello"));
 	}
 
 	@Test
@@ -72,21 +76,21 @@ public class SerializedOutputTest {
 	@Test
 	public void testEquals() throws Exception {
 		assertThat(outputNoResult, satisfiesDefaultEquality()
-			.andEqualTo(new SerializedOutput(41, "caller", PrintStream.class, "println", new Type[] { String.class }, literal("Hello")))
+			.andEqualTo(new SerializedOutput(41, caller, PrintStream.class, "println", new Type[] { String.class }, literal("Hello")))
 			.andNotEqualTo(output)
-			.andNotEqualTo(new SerializedOutput(41, "notcaller", PrintStream.class, "println", new Type[] { String.class }, literal("Hello")))
-			.andNotEqualTo(new SerializedOutput(42, "caller", PrintStream.class, "println", new Type[] { String.class }, literal("Hello")))
-			.andNotEqualTo(new SerializedOutput(41, "caller", PrintWriter.class, "println", new Type[] { String.class }, literal("Hello")))
-			.andNotEqualTo(new SerializedOutput(41, "caller", PrintStream.class, "print", new Type[] { String.class }, literal("Hello")))
-			.andNotEqualTo(new SerializedOutput(41, "caller", PrintStream.class, "println", new Type[] { Object.class }, literal("Hello")))
-			.andNotEqualTo(new SerializedOutput(41, "caller", PrintStream.class, "println", new Type[] { String.class }, literal("Hello World"))));
+			.andNotEqualTo(new SerializedOutput(41, notcaller, PrintStream.class, "println", new Type[] { String.class }, literal("Hello")))
+			.andNotEqualTo(new SerializedOutput(42, caller, PrintStream.class, "println", new Type[] { String.class }, literal("Hello")))
+			.andNotEqualTo(new SerializedOutput(41, caller, PrintWriter.class, "println", new Type[] { String.class }, literal("Hello")))
+			.andNotEqualTo(new SerializedOutput(41, caller, PrintStream.class, "print", new Type[] { String.class }, literal("Hello")))
+			.andNotEqualTo(new SerializedOutput(41, caller, PrintStream.class, "println", new Type[] { Object.class }, literal("Hello")))
+			.andNotEqualTo(new SerializedOutput(41, caller, PrintStream.class, "println", new Type[] { String.class }, literal("Hello World"))));
 
 		assertThat(output, satisfiesDefaultEquality()
-			.andEqualTo(new SerializedOutput(41, "caller", PrintStream.class, "append", PrintStream.class, output.getResult(), new Type[] { CharSequence.class }, literal("Hello")))
+			.andEqualTo(new SerializedOutput(41, caller, PrintStream.class, "append", PrintStream.class, output.getResult(), new Type[] { CharSequence.class }, literal("Hello")))
 			.andNotEqualTo(outputNoResult)
-			.andNotEqualTo(new SerializedOutput(41, "notcaller", PrintStream.class, "append", PrintStream.class, output.getResult(), new Type[] { CharSequence.class }, literal("Hello")))
-			.andNotEqualTo(new SerializedOutput(41, "caller", PrintStream.class, "append", PrintStream.class, null, new Type[] { CharSequence.class }, literal("Hello")))
-			.andNotEqualTo(new SerializedOutput(41, "caller", PrintStream.class, "append", OutputStream.class, output.getResult(), new Type[] { CharSequence.class }, literal("Hello"))));
+			.andNotEqualTo(new SerializedOutput(41, notcaller, PrintStream.class, "append", PrintStream.class, output.getResult(), new Type[] { CharSequence.class }, literal("Hello")))
+			.andNotEqualTo(new SerializedOutput(41, caller, PrintStream.class, "append", PrintStream.class, null, new Type[] { CharSequence.class }, literal("Hello")))
+			.andNotEqualTo(new SerializedOutput(41, caller, PrintStream.class, "append", OutputStream.class, output.getResult(), new Type[] { CharSequence.class }, literal("Hello"))));
 	}
 
 	@Test

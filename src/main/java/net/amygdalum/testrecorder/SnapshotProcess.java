@@ -33,11 +33,11 @@ public class SnapshotProcess {
 	private SnapshotProcess() {
 	}
 
-	public SnapshotProcess(ExecutorService executor, long timeoutInMillis, ContextSnapshotFactory factory, List<Field> globals) {
+	public SnapshotProcess(ExecutorService executor, SerializationProfile profile, ContextSnapshot snapshot, List<Field> globals) {
 		this.executor = executor;
-		this.timeoutInMillis = timeoutInMillis;
-		this.snapshot = factory.createSnapshot();
-		this.facade = new ConfigurableSerializerFacade(factory.profile());
+		this.timeoutInMillis = profile.getTimeoutInMillis();
+		this.snapshot = snapshot;
+		this.facade = new ConfigurableSerializerFacade(profile);
 		this.globals = globals;
 		this.input = new ArrayList<>();
 		this.output = new ArrayList<>();
@@ -47,41 +47,41 @@ public class SnapshotProcess {
 		return snapshot;
 	}
 
-	private String caller() {
+	private StackTraceElement caller() {
 		StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 		for (StackTraceElement caller : stackTrace) {
 			if (!caller.getClassName().startsWith("java.lang.Thread")
 				&& !caller.getClassName().startsWith("net.amygdalum.testrecorder.SnapshotManager")
 				&& !caller.getClassName().startsWith("net.amygdalum.testrecorder.SnapshotProcess")) {
-				return caller.getClassName() + "." + caller.getMethodName();
+				return caller;
 			}
 		}
-		return "";
+		return null;
 	}
 
 	public void inputVariables(Object object, String method, Type resultType, Object result, Type[] paramTypes, Object[] args) {
-		String caller = caller();
+		StackTraceElement caller = caller();
 		Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
 		int id = object instanceof Class<?> ? 0 : identityHashCode(object);
 		input.add(new SerializedInput(id, caller, clazz, method, resultType, facade.serialize(resultType, result), paramTypes, facade.serialize(paramTypes, args)));
 	}
 
 	public void inputVariables(Object object, String method, Type[] paramTypes, Object[] args) {
-		String caller = caller();
+		StackTraceElement caller = caller();
 		Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
 		int id = object instanceof Class<?> ? 0 : identityHashCode(object);
 		input.add(new SerializedInput(id, caller, clazz, method, paramTypes, facade.serialize(paramTypes, args)));
 	}
 
 	public void outputVariables(Object object, String method, Type resultType, Object result, Type[] paramTypes, Object[] args) {
-		String caller = caller();
+		StackTraceElement caller = caller();
 		Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
 		int id = object instanceof Class<?> ? 0 : identityHashCode(object);
 		output.add(new SerializedOutput(id, caller, clazz, method, resultType, facade.serialize(resultType, result), paramTypes, facade.serialize(paramTypes, args)));
 	}
 
 	public void outputVariables(Object object, String method, Type[] paramTypes, Object[] args) {
-		String caller = caller();
+		StackTraceElement caller = caller();
 		Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
 		int id = object instanceof Class<?> ? 0 : identityHashCode(object);
 		output.add(new SerializedOutput(id, caller, clazz, method, paramTypes, facade.serialize(paramTypes, args)));
@@ -150,7 +150,8 @@ public class SnapshotProcess {
 			facade.reset();
 		} catch (InterruptedException | ExecutionException | TimeoutException | CancellationException e) {
 			snapshot.invalidate();
-			System.out.println("failed serializing " + snapshot);
+			System.err.println("failed serializing " + snapshot);
+			e.printStackTrace(System.err);
 		}
 	}
 

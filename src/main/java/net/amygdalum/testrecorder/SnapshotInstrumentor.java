@@ -1,17 +1,16 @@
 package net.amygdalum.testrecorder;
 
 import static java.util.stream.Collectors.toList;
+import static net.amygdalum.testrecorder.util.ByteCode.isStatic;
 import static net.amygdalum.testrecorder.util.ByteCode.memorizeLocal;
 import static net.amygdalum.testrecorder.util.ByteCode.pushAsArray;
 import static net.amygdalum.testrecorder.util.ByteCode.pushType;
 import static net.amygdalum.testrecorder.util.ByteCode.pushTypes;
 import static net.amygdalum.testrecorder.util.ByteCode.range;
 import static net.amygdalum.testrecorder.util.ByteCode.recallLocal;
-import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_ANNOTATION;
 import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
-import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ASTORE;
@@ -24,21 +23,20 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.IRETURN;
 import static org.objectweb.asm.Opcodes.ISTORE;
-import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.SWAP;
 
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
@@ -46,7 +44,6 @@ import java.util.stream.StreamSupport;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -61,33 +58,22 @@ import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
-import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import net.amygdalum.testrecorder.SerializationProfile.Global;
 import net.amygdalum.testrecorder.SerializationProfile.Input;
 import net.amygdalum.testrecorder.SerializationProfile.Output;
 import net.amygdalum.testrecorder.util.ByteCode;
-import net.amygdalum.testrecorder.util.Types;
 
-public class SnapshotInstrumentor implements ClassFileTransformer {
-
-	private static final String STATIC_INIT_NAME = "<clinit>";
-
-	private static final String GET_DECLARED_METHOD = "getDeclaredMethod";
-	private static final String GET_DECLARED_FIELD = "getDeclaredField";
+public class SnapshotInstrumentor extends AttachableClassFileTransformer implements ClassFileTransformer {
 
 	public static final String SNAPSHOT_MANAGER_FIELD_NAME = "MANAGER";
-	private static final String REGISTER = "register";
-	private static final String REGISTER_GLOBAL = "registerGlobal";
 	private static final String SETUP_VARIABLES = "setupVariables";
 	private static final String INPUT_VARIABLES = "inputVariables";
 	private static final String OUTPUT_VARIABLES = "outputVariables";
 	private static final String THROW_VARIABLES = "throwVariables";
 	private static final String EXPECT_VARIABLES = "expectVariables";
 
-	private static final String Class_name = Type.getInternalName(Class.class);
-	private static final String Types_name = Type.getInternalName(Types.class);
 	private static final String SnapshotManager_name = Type.getInternalName(SnapshotManager.class);
 
 	private static final String SnaphotManager_descriptor = Type.getDescriptor(SnapshotManager.class);
@@ -96,8 +82,6 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	private static final String Output_descriptor = Type.getDescriptor(Output.class);
 	private static final String Global_descriptor = Type.getDescriptor(Global.class);
 
-	private static final String SnaphotManager_registerMethod_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, REGISTER, String.class, Method.class);
-	private static final String SnaphotManager_registerGlobal_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, REGISTER_GLOBAL, String.class, Field.class);
 	private static final String SnaphotManager_setupVariables_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, SETUP_VARIABLES, Object.class, String.class, Object[].class);
 	private static final String SnaphotManager_expectVariablesResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, EXPECT_VARIABLES, Object.class, Object.class, Object[].class);
 	private static final String SnaphotManager_expectVariablesNoResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, EXPECT_VARIABLES, Object.class, Object[].class);
@@ -111,30 +95,57 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 	private static final String SnaphotManager_inputVariablesNoResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, INPUT_VARIABLES, Object.class, String.class,
 		java.lang.reflect.Type[].class, Object[].class);
 
-	private static final String Types_getDeclaredMethod_descriptor = ByteCode.methodDescriptor(Types.class, GET_DECLARED_METHOD, Class.class, String.class, Class[].class);
-	private static final String Types_getDeclaredField_descriptor = ByteCode.methodDescriptor(Types.class, GET_DECLARED_FIELD, Class.class, String.class);
-
 	private TestRecorderAgentConfig config;
 	private Map<String, ClassNode> classCache;
+	private Set<String> instrumentedClassNames;
+	private Set<Class<?>> instrumentedClasses;
 
 	public SnapshotInstrumentor(TestRecorderAgentConfig config) {
 		this.config = config;
 		this.classCache = new HashMap<>();
+		this.instrumentedClassNames = new LinkedHashSet<>();
+		this.instrumentedClasses = new LinkedHashSet<>();
 		SnapshotManager.init(config);
 	}
 
 	@Override
+	public Class<?>[] classesToRetransform() throws ClassNotFoundException {
+		Set<Class<?>> classesToRetransform = new LinkedHashSet<>();
+		classesToRetransform.addAll(instrumentedClasses);
+
+		for (String className : instrumentedClassNames) {
+			classesToRetransform.add(ByteCode.classFromInternalName(className));
+		}
+		
+		return classesToRetransform.toArray(new Class[0]);
+	}
+
+	@Override
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-		if (className == null) {
+		try {
+			if (className == null) {
+				return null;
+			}
+			for (Classes clazz : config.getClasses()) {
+				if (clazz.matches(className)) {
+					System.out.println("recording snapshots of " + className);
+					byte[] instrument = instrument(classfileBuffer);
+					if (classBeingRedefined != null) {
+						instrumentedClasses.add(classBeingRedefined);
+					} else {
+						instrumentedClassNames.add(className);
+					}
+					
+					return instrument;
+				}
+			}
+			return null;
+		} catch (Throwable e) {
+			System.err.println("exception occured while preparing recording of snapshots: " + e.getMessage());
+			e.printStackTrace(System.err);
 			return null;
 		}
-		for (Classes clazz : config.getClasses()) {
-			if (clazz.matches(className)) {
-				System.out.println("recording snapshots of " + className);
-				return instrument(classfileBuffer);
-			}
-		}
-		return null;
+
 	}
 
 	private ClassNode fetchClassNode(String className) throws IOException {
@@ -199,48 +210,17 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 
 	private void logSkippedSnapshotMethods(ClassNode classNode) {
 		for (MethodNode methodNode : getSkippedSnapshotMethods(classNode)) {
-			System.out.println("method " + Type.getMethodType(methodNode.desc).getDescriptor() + " in " + Type.getType(classNode.name) + " is not accessible, skipping");
+			System.err.println("method " + Type.getMethodType(methodNode.desc).getDescriptor() + " in " + Type.getType(classNode.name) + " is not accessible, skipping");
 		}
 	}
 
 	private void instrumentStaticInitializer(ClassNode classNode) {
-		MethodNode method = findStaticInitializer(classNode.methods);
-
-		InsnList insnList = new InsnList();
-
-		insnList.add(new FieldInsnNode(Opcodes.GETSTATIC, SnapshotManager_name, SNAPSHOT_MANAGER_FIELD_NAME, SnaphotManager_descriptor));
 		for (MethodNode methodNode : getSnapshotMethods(classNode)) {
-			insnList.add(new InsnNode(DUP));
-			insnList.add(new LdcInsnNode(keySignature(classNode, methodNode)));
-
-			insnList.add(pushMethod(classNode, methodNode));
-
-			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapshotManager_name, REGISTER, SnaphotManager_registerMethod_descriptor, false));
+			SnapshotManager.MANAGER.registerRecordedMethod(keySignature(classNode, methodNode), classNode.name, methodNode.name, methodNode.desc);
 		}
 		for (FieldNode fieldNode : getGlobalFields(classNode)) {
-			insnList.add(new InsnNode(DUP));
-			insnList.add(new LdcInsnNode(fieldNode.name));
-
-			insnList.add(pushField(classNode, fieldNode));
-
-			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapshotManager_name, REGISTER_GLOBAL, SnaphotManager_registerGlobal_descriptor, false));
+			SnapshotManager.MANAGER.registerGlobal(classNode.name, fieldNode.name);
 		}
-		insnList.add(new InsnNode(POP));
-
-		method.instructions.insert(insnList);
-
-	}
-
-	private MethodNode findStaticInitializer(List<MethodNode> methods) {
-		for (MethodNode method : methods) {
-			if (method.name.equals(STATIC_INIT_NAME)) {
-				return method;
-			}
-		}
-		MethodNode method = new MethodNode(ACC_STATIC, STATIC_INIT_NAME, "()V", "()V", new String[0]);
-		method.instructions.add(new InsnNode(RETURN));
-		methods.add(method);
-		return method;
 	}
 
 	private void instrumentSnapshotMethods(ClassNode classNode) {
@@ -439,40 +419,6 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 			.collect(toList());
 	}
 
-	private InsnList pushMethod(ClassNode classNode, MethodNode method) {
-		Type[] argumentTypes = Type.getArgumentTypes(method.desc);
-		int argCount = argumentTypes.length;
-
-		InsnList insnList = new InsnList();
-
-		insnList.add(new LdcInsnNode(Type.getObjectType(classNode.name)));
-
-		insnList.add(new LdcInsnNode(method.name));
-
-		insnList.add(new LdcInsnNode(argCount));
-		insnList.add(new TypeInsnNode(Opcodes.ANEWARRAY, Class_name));
-		for (int i = 0; i < argCount; i++) {
-			insnList.add(new InsnNode(DUP));
-			insnList.add(new LdcInsnNode(i));
-			insnList.add(pushType(argumentTypes[i]));
-			insnList.add(new InsnNode(AASTORE));
-		}
-
-		insnList.add(new MethodInsnNode(INVOKESTATIC, Types_name, GET_DECLARED_METHOD, Types_getDeclaredMethod_descriptor, false));
-		return insnList;
-	}
-
-	private InsnList pushField(ClassNode classNode, FieldNode field) {
-		InsnList insnList = new InsnList();
-
-		insnList.add(new LdcInsnNode(Type.getObjectType(classNode.name)));
-
-		insnList.add(new LdcInsnNode(field.name));
-
-		insnList.add(new MethodInsnNode(INVOKESTATIC, Types_name, GET_DECLARED_FIELD, Types_getDeclaredField_descriptor, false));
-		return insnList;
-	}
-
 	private List<MethodNode> getSnapshotMethods(ClassNode classNode) {
 		if (!isVisible(classNode)) {
 			return Collections.emptyList();
@@ -630,10 +576,6 @@ public class SnapshotInstrumentor implements ClassFileTransformer {
 		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapshotManager_name, SETUP_VARIABLES, SnaphotManager_setupVariables_descriptor, false));
 
 		return insnList;
-	}
-
-	private boolean isStatic(MethodNode methodNode) {
-		return (methodNode.access & ACC_STATIC) != 0;
 	}
 
 	private InsnList expectVariables(ClassNode classNode, MethodNode methodNode) {

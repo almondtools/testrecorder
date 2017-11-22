@@ -56,7 +56,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 					}
 				});
 		} catch (ServiceConfigurationError serviceError) {
-			System.out.println("failed loading serializers: " + serviceError.getMessage());
+			System.err.println("failed loading serializers: " + serviceError.getMessage());
 		}
 
 		return serializers;

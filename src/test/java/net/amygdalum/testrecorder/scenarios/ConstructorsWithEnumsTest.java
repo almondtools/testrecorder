@@ -17,9 +17,9 @@ import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.scenarios.ConstructorsWithEnums.ChainedEnum;
 import net.amygdalum.testrecorder.scenarios.ConstructorsWithEnums.InnerEnum;
 import net.amygdalum.testrecorder.util.Instrumented;
-import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
+import net.amygdalum.testrecorder.util.TestrecorderAgentRunner;
 
-@RunWith(InstrumentedClassLoaderRunner.class)
+@RunWith(TestrecorderAgentRunner.class)
 @Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.ConstructorsWithEnums" })
 public class ConstructorsWithEnumsTest {
 

@@ -61,7 +61,7 @@ public class LargePrimitiveArrayAdaptor implements MatcherGenerator<SerializedAr
                 return expression(matcher, Matcher.class);
             };
         }
-        throw new DeserializationException(value.toString());
+        throw new DeserializationException("failed deserializing: " + value);
     }
 
     private Object unwrap(SerializedArray value) {
@@ -80,7 +80,7 @@ public class LargePrimitiveArrayAdaptor implements MatcherGenerator<SerializedAr
         } else if (value instanceof SerializedArray) {
             return unwrap((SerializedArray) value);
         } else {
-            throw new DeserializationException(value.toString());
+            throw new DeserializationException("failed deserializing: " + value);
         }
     }
 

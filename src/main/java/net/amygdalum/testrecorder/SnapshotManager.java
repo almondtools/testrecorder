@@ -5,10 +5,8 @@ import static net.amygdalum.testrecorder.SnapshotProcess.PASSIVE;
 import static net.amygdalum.testrecorder.TestrecorderThreadFactory.RECORDING;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
@@ -18,23 +16,23 @@ import java.util.concurrent.Executors;
 
 public class SnapshotManager {
 
-	public static SnapshotManager MANAGER;
+	public static volatile SnapshotManager MANAGER;
 
 	private ExecutorService snapshot;
 
 	private Map<String, ContextSnapshotFactory> methodSnapshots;
+	private GlobalContext globalContext;
 
 	private ThreadLocal<Deque<SnapshotProcess>> current = ThreadLocal.withInitial(() -> newStack());
 
 	private TestRecorderAgentConfig config;
-	private List<Field> globals;
 
 	public SnapshotManager(TestRecorderAgentConfig config) {
 		this.config = new FixedTestRecorderAgentConfig(config);
-		this.globals = new ArrayList<>();
 
 		this.snapshot = Executors.newSingleThreadExecutor(new TestrecorderThreadFactory("$snapshot"));
 		this.methodSnapshots = new HashMap<>();
+		this.globalContext = new GlobalContext();
 	}
 
 	public void close() throws Throwable {
@@ -54,19 +52,22 @@ public class SnapshotManager {
 		return config.getSnapshotConsumer();
     }
 
-    public void registerGlobal(String name, Field field) {
-        globals.add(field);
-	}
-
-	public void register(String signature, Method method) {
-		ContextSnapshotFactory factory = new ContextSnapshotFactory(config, method);
+	public void registerRecordedMethod(String signature, String className, String methodName, String methodDesc) {
+		ContextSnapshotFactory factory = new ContextSnapshotFactory(config, className, methodName, methodDesc);
 
 		methodSnapshots.put(signature, factory);
 	}
 
+	public void registerGlobal(String className, String fieldName) {
+		globalContext.add(className, fieldName);
+	}
+
 	public SnapshotProcess push(String signature) {
 		ContextSnapshotFactory factory = methodSnapshots.get(signature);
-		SnapshotProcess process = new SnapshotProcess(snapshot, config.getTimeoutInMillis(), factory, globals);
+		SerializationProfile profile = config;
+		List<Field> contextGlobals = globalContext.globals();
+		ContextSnapshot contextSnapshot = factory.createSnapshot();
+		SnapshotProcess process = new SnapshotProcess(snapshot, profile, contextSnapshot, contextGlobals);
 		current.get().push(process);
 		return process;
 	}
@@ -139,4 +140,5 @@ public class SnapshotManager {
 			return new ArrayDeque<>();
 		}
 	}
+
 }

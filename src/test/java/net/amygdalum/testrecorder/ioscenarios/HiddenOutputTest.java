@@ -1,5 +1,6 @@
-package net.amygdalum.testrecorder.scenarios;
+package net.amygdalum.testrecorder.ioscenarios;
 
+import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
 import static org.hamcrest.Matchers.containsString;
@@ -11,10 +12,10 @@ import org.junit.runner.RunWith;
 
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.Instrumented;
-import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
+import net.amygdalum.testrecorder.util.TestrecorderAgentRunner;
 
-@RunWith(InstrumentedClassLoaderRunner.class)
-@Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.HiddenOutput", "net.amygdalum.testrecorder.scenarios.Outputs" })
+@RunWith(TestrecorderAgentRunner.class)
+@Instrumented(classes = { "net.amygdalum.testrecorder.ioscenarios.HiddenOutput", "net.amygdalum.testrecorder.ioscenarios.Outputs" })
 public class HiddenOutputTest {
 
 	@Before
@@ -31,7 +32,7 @@ public class HiddenOutputTest {
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(HiddenOutput.class), compiles(HiddenOutput.class));
 		assertThat(testGenerator.renderTest(HiddenOutput.class), testsRun(HiddenOutput.class));
-		assertThat(testGenerator.renderTest(HiddenOutput.class), containsString(".add(\"net.amygdalum.testrecorder.scenarios.HiddenOutput.outputImmediate\", null, equalTo(\"Hello\")"));
+		assertThat(testGenerator.renderTest(HiddenOutput.class), containsPattern(".add(HiddenOutput.class, \"outputImmediate\", *, null, equalTo(\"Hello\")"));
 		assertThat(testGenerator.renderTest(HiddenOutput.class), containsString("verify()"));
 	}
 
@@ -44,7 +45,7 @@ public class HiddenOutputTest {
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(HiddenOutput.class), compiles(HiddenOutput.class));
 		assertThat(testGenerator.renderTest(HiddenOutput.class), testsRun(HiddenOutput.class));
-		assertThat(testGenerator.renderTest(HiddenOutput.class), containsString(".add(\"net.amygdalum.testrecorder.scenarios.HiddenOutput.outputToField\", null, equalTo(\"Hello\")"));
+		assertThat(testGenerator.renderTest(HiddenOutput.class), containsPattern(".add(HiddenOutput.class, \"outputToField\", *, null, equalTo(\"Hello\")"));
 		assertThat(testGenerator.renderTest(HiddenOutput.class), containsString("verify()"));
 	}
 

@@ -165,8 +165,8 @@ public class TestGenerator implements SnapshotConsumer {
 
 			context.add(methodGenerator.generateTest());
 		}, executor).exceptionally(e -> {
-			System.out.println("failed generating test for " + snapshot.getMethodName() + ": " + e.getClass().getSimpleName() + " " + e.getMessage());
-			e.printStackTrace();
+			System.err.println("failed generating test for " + snapshot.getMethodName() + ": " + e.getClass().getSimpleName() + " " + e.getMessage());
+			e.printStackTrace(System.err);
 			return null;
 		});
 	}
@@ -183,7 +183,8 @@ public class TestGenerator implements SnapshotConsumer {
 					writer.write(rendered);
 				}
 			} catch (IOException e) {
-				System.out.println(rendered);
+				System.err.println("failed writing tests for " + rendered);
+				e.printStackTrace(System.err);
 			}
 		}
 	}
@@ -382,8 +383,7 @@ public class TestGenerator implements SnapshotConsumer {
 					: assign(arg.getElement2().value.getResultType(), arg.getElement1().getValue()))
 				.collect(toList());
 			
-			statements.addAll(mocked.prepareInput(snapshot.getSetupInput(), locals, types, context));
-			statements.addAll(mocked.prepareOutput(snapshot.getExpectOutput(), locals, types, context));
+			statements.addAll(mocked.prepare(locals, types, context));
 
 			return this;
 		}

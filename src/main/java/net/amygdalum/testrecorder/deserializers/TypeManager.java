@@ -165,6 +165,14 @@ public class TypeManager {
 		}
 	}
 
+	public String getRawClass(String type) {
+		try {
+			return getRawClass(Class.forName(type));
+		} catch (ClassNotFoundException e) {
+			return getRawClass(Object.class);
+		}
+	}
+
 	public String getRawClass(Type type) {
 		if (isHidden(type)) {
 			return getWrappedName(type);

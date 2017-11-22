@@ -563,7 +563,7 @@ public final class Types {
 				current = current.getSuperclass();
 			}
 		}
-		throw new NoSuchMethodException(name);
+		return current.getDeclaredMethod(name, parameterTypes);
 	}
 
 	public static Field getDeclaredField(Class<?> clazz, String name) throws NoSuchFieldException {
@@ -575,7 +575,7 @@ public final class Types {
 				current = current.getSuperclass();
 			}
 		}
-		throw new NoSuchFieldException(name);
+		return current.getDeclaredField(name);
 	}
 
 	public static List<Field> getDeclaredFields(Class<?> clazz, String name) {

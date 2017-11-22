@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.scenarios;
+package net.amygdalum.testrecorder.ioscenarios;
 
 import net.amygdalum.testrecorder.Recorded;
 import net.amygdalum.testrecorder.SerializationProfile.Output;

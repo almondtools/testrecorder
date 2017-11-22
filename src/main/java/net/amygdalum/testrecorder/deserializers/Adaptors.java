@@ -85,7 +85,7 @@ public class Adaptors<G extends Deserializer<Computation>> {
 				add(adaptor);
 			}
 		} catch (ServiceConfigurationError serviceError) {
-			System.out.println("failed loading adaptors: " + serviceError.getMessage());
+			System.err.println("failed loading adaptors: " + serviceError.getMessage());
 		}
 		return this;
 	}

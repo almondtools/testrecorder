@@ -1,27 +1,20 @@
 package net.amygdalum.testrecorder;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-
 public class ContextSnapshotFactory {
 
 	private SerializationProfile profile;
-	private Class<?> declaringClass;
-	private Type resultType;
-	private Annotation[] resultAnnotation;
+	
+	private String className;
 	private String methodName;
-	private Type[] argumentTypes;
-    private Annotation[][] argumentAnnotations;
+	private String methodDesc;
 
-	public ContextSnapshotFactory(SerializationProfile profile, Method method) {
-        this.profile = profile;
-        this.declaringClass = method.getDeclaringClass();
-        this.resultType = method.getGenericReturnType();
-        this.resultAnnotation = method.getAnnotations();
-        this.methodName = method.getName();
-        this.argumentTypes = method.getGenericParameterTypes();
-        this.argumentAnnotations = method.getParameterAnnotations();
+	private MethodSignature signature;
+
+	public ContextSnapshotFactory(SerializationProfile profile, String className, String methodName, String methodDesc) {
+		this.profile = profile;
+		this.className = className;
+		this.methodName = methodName;
+		this.methodDesc = methodDesc;
     }
 
     public SerializationProfile profile() {
@@ -29,7 +22,14 @@ public class ContextSnapshotFactory {
 	}
 
 	public ContextSnapshot createSnapshot() {
-		return new ContextSnapshot(System.currentTimeMillis(), declaringClass, resultAnnotation, resultType, methodName, argumentAnnotations, argumentTypes);
+		if (signature == null) {
+			try {
+				signature = MethodSignature.fromDescriptor(className, methodName, methodDesc);
+			} catch (ReflectiveOperationException e) {
+				throw new SerializationException(e);
+			}
+		}
+		return new ContextSnapshot(System.currentTimeMillis(), signature);
 	}
 
 }

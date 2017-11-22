@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.scenarios;
+package net.amygdalum.testrecorder.ioscenarios;
 
 import static java.util.Arrays.asList;
 

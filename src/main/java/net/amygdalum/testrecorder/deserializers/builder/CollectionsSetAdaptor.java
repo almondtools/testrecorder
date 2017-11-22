@@ -67,7 +67,7 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
 		} else if (name.contains("Checked")) {
 			return tryDeserializeChecked(value, generator, context);
 		} else {
-			throw new DeserializationException(value.toString());
+			throw new DeserializationException("failed deserializing: " + value);
 		}
 	}
 

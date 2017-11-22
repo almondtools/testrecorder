@@ -14,7 +14,7 @@ import net.amygdalum.testrecorder.runtime.GenericObject;
 import net.amygdalum.testrecorder.runtime.Throwables;
 
 @SuppressWarnings("unused")
-@RunWith(InstrumentedClassLoaderRunner.class)
+@RunWith(TestrecorderAgentRunner.class)
 public class GenericObjectIsolatedTest {
 
     @Test

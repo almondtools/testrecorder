@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.amygdalum</groupId>
@@ -51,6 +52,11 @@
 			<version>2.5.1</version>
 		</dependency>
 		<dependency>
+			<groupId>net.bytebuddy</groupId>
+			<artifactId>byte-buddy-agent</artifactId>
+			<version>1.7.9</version>
+		</dependency>
+		<dependency>
 			<groupId>org.antlr</groupId>
 			<artifactId>ST4</artifactId>
 			<version>4.0.8</version>
@@ -66,9 +72,9 @@
 			<version>1.3</version>
 		</dependency>
 		<dependency>
-			<groupId>org.jmockit</groupId>
-			<artifactId>jmockit</artifactId>
-			<version>1.36.1</version>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
 		</dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -76,11 +82,6 @@
             <version>2.7.22</version>
             <scope>test</scope>
         </dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
-		</dependency>
 		<dependency>
 			<groupId>net.amygdalum</groupId>
 			<artifactId>xrayinterface</artifactId>
@@ -147,9 +148,9 @@
 								</manifest>
 								<manifestEntries>
 									<Premain-Class>net.amygdalum.testrecorder.TestRecorderAgent</Premain-Class>
-                                    <Agent-Class>net.amygdalum.testrecorder.TestRecorderAgent</Agent-Class>
+									<Agent-Class>net.amygdalum.testrecorder.TestRecorderAgent</Agent-Class>
 									<Can-Redefine-Classes>true</Can-Redefine-Classes>
-                                    <Can-Retransform-Classes>true</Can-Retransform-Classes>
+									<Can-Retransform-Classes>true</Can-Retransform-Classes>
 								</manifestEntries>
 							</archive>
 						</configuration>

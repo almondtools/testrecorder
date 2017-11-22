@@ -17,39 +17,45 @@ import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-public class AllLambdasSerializableTransformer implements ClassFileTransformer {
+public class AllLambdasSerializableTransformer extends AttachableClassFileTransformer implements ClassFileTransformer {
 
 	private static final int IS_SERIALIZABLE_PARAMETER_LOCAL = 7;
 
-	public static AllLambdasSerializableTransformer INSTANCE = new AllLambdasSerializableTransformer();
-
-	private AllLambdasSerializableTransformer() {
+	public AllLambdasSerializableTransformer() {
 	}
 
+	@Override
 	public Class<?>[] classesToRetransform() throws ClassNotFoundException {
 		return new Class[] { Class.forName("java.lang.invoke.InnerClassLambdaMetafactory") };
 	}
 
 	@Override
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-		if (className != null && className.equals("java/lang/invoke/InnerClassLambdaMetafactory")) {
-			ClassReader cr = new ClassReader(classfileBuffer);
-			ClassNode classNode = new ClassNode();
+		try {
+			if (className != null && className.equals("java/lang/invoke/InnerClassLambdaMetafactory")) {
+				ClassReader cr = new ClassReader(classfileBuffer);
+				ClassNode classNode = new ClassNode();
 
-			cr.accept(classNode, 0);
-			classNode.methods.stream()
-				.filter(method -> "<init>".equals(method.name))
-				.findFirst()
-				.ifPresent(method -> {
-					VarInsnNode serialized = findIsSerializeableLocalVariable(method);
-					method.instructions.set(serialized, new InsnNode(Opcodes.ICONST_1));
-				});
+				cr.accept(classNode, 0);
+				classNode.methods.stream()
+					.filter(method -> "<init>".equals(method.name))
+					.findFirst()
+					.ifPresent(method -> {
+						VarInsnNode serialized = findIsSerializeableLocalVariable(method);
+						method.instructions.set(serialized, new InsnNode(Opcodes.ICONST_1));
+					});
 
-			ClassWriter out = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
-			classNode.accept(out);
-			return out.toByteArray();
+				ClassWriter out = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+				classNode.accept(out);
+				return out.toByteArray();
+			}
+			return null;
+		} catch (Throwable e) {
+			System.err.println("transformation error: " + e.getMessage());
+			e.printStackTrace(System.err);
+			return null;
 		}
-		return null;
+
 	}
 
 	private VarInsnNode findIsSerializeableLocalVariable(MethodNode method) {

@@ -10,15 +10,15 @@ import org.junit.runner.RunWith;
 
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.Instrumented;
-import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
+import net.amygdalum.testrecorder.util.TestrecorderAgentRunner;
 
-@RunWith(InstrumentedClassLoaderRunner.class)
+@RunWith(TestrecorderAgentRunner.class)
 @Instrumented(classes={
 	"net.amygdalum.testrecorder.scenarios.DifferentPublicDeclarationTypes",
-	"net.amygdalum.testrecorder.scenarios.DifferentPublicDeclarationTypes.MyEnum",
-	"net.amygdalum.testrecorder.scenarios.DifferentPublicDeclarationTypes.MyAnnotation",
-	"net.amygdalum.testrecorder.scenarios.DifferentPublicDeclarationTypes.MyInterface",
-	"net.amygdalum.testrecorder.scenarios.DifferentPublicDeclarationTypes.MyClass"})
+	"net.amygdalum.testrecorder.scenarios.DifferentPublicDeclarationTypes$MyEnum",
+	"net.amygdalum.testrecorder.scenarios.DifferentPublicDeclarationTypes$MyAnnotation",
+	"net.amygdalum.testrecorder.scenarios.DifferentPublicDeclarationTypes$MyInterface",
+	"net.amygdalum.testrecorder.scenarios.DifferentPublicDeclarationTypes$MyClass"})
 public class DifferentPublicDeclarationTypesTest {
 
 	@Before

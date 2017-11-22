@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface SerializationProfile {
 
+	long getTimeoutInMillis();
+
 	/**
 	 * Annotating a field or class with {@link Excluded} excludes it from serialization.
 	 * 

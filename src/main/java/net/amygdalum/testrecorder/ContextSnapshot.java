@@ -19,12 +19,7 @@ public class ContextSnapshot {
     protected static final ContextSnapshot INVALID = new ContextSnapshot();
 
     private long time;
-    private Class<?> declaringClass;
-    private Annotation[] resultAnnotation;
-    private Type resultType;
-    private String methodName;
-    private Annotation[][] argumentAnnotations;
-    private Type[] argumentTypes;
+    private MethodSignature signature;
 
     private boolean valid;
 
@@ -46,14 +41,9 @@ public class ContextSnapshot {
         this.valid = false;
     }
 
-    public ContextSnapshot(long time, Class<?> declaringClass, Annotation[] resultAnnotation,Type resultType, String methodName, Annotation[][] argumentAnnotations, Type[] argumentTypes) {
+    public ContextSnapshot(long time, MethodSignature signature) {
         this.time = time;
-        this.declaringClass = declaringClass;
-        this.resultAnnotation = resultAnnotation;
-        this.resultType = resultType;
-        this.methodName = methodName;
-        this.argumentAnnotations = argumentAnnotations;
-        this.argumentTypes = argumentTypes;
+        this.signature = signature;
         this.valid = true;
     }
     
@@ -70,34 +60,34 @@ public class ContextSnapshot {
     }
 
     public Class<?> getDeclaringClass() {
-        return declaringClass;
+        return signature.declaringClass;
     }
 
     public Type getResultType() {
-        return resultType;
+        return signature.resultType;
     }
     
     public Annotation[] getResultAnnotation() {
-        return resultAnnotation;
+        return signature.resultAnnotation;
     }
 
     public String getMethodName() {
-        return methodName;
+        return signature.methodName;
     }
 
     public Type[] getArgumentTypes() {
-        return argumentTypes;
+        return signature.argumentTypes;
     }
     
     public Annotation[][] getArgumentAnnotations() {
-        return argumentAnnotations;
+        return signature.argumentAnnotations;
     }
 
     public Type getThisType() {
         if (setupThis != null) {
             return setupThis.getType();
         } else {
-            return declaringClass;
+            return signature.declaringClass;
         }
     }
 
@@ -119,7 +109,7 @@ public class ContextSnapshot {
 
     public AnnotatedValue[] getAnnotatedSetupArgs() {
         AnnotatedValue[] annotatedValues = new AnnotatedValue[setupArgs.length];
-        Annotation[][] annotations =  argumentAnnotations;
+        Annotation[][] annotations =  signature.argumentAnnotations;
         if (annotations.length != setupArgs.length) {
             annotations = new Annotation[setupArgs.length][];
             Arrays.fill(annotations, new Annotation[0]);
@@ -155,9 +145,9 @@ public class ContextSnapshot {
     }
 
     public <T extends Annotation> Optional<T> getMethodAnnotation(Class<T> clazz) {
-        for (int i = 0; i < resultAnnotation.length; i++) {
-            if (clazz.isInstance(resultAnnotation[i])) {
-                return Optional.of(clazz.cast(resultAnnotation[i]));
+        for (int i = 0; i < signature.resultAnnotation.length; i++) {
+            if (clazz.isInstance(signature.resultAnnotation[i])) {
+                return Optional.of(clazz.cast(signature.resultAnnotation[i]));
             }
         }
         return Optional.empty();
@@ -177,7 +167,7 @@ public class ContextSnapshot {
 
     public AnnotatedValue[] getAnnotatedExpectArgs() {
         AnnotatedValue[] annotatedValues = new AnnotatedValue[expectArgs.length];
-        Annotation[][] annotations =  argumentAnnotations;
+        Annotation[][] annotations =  signature.argumentAnnotations;
         if (annotations.length != expectArgs.length) {
             annotations = new Annotation[expectArgs.length][];
             Arrays.fill(annotations, new Annotation[0]);
@@ -224,7 +214,7 @@ public class ContextSnapshot {
 
     @Override
     public String toString() {
-        return resultType.getTypeName() + " " + methodName + Stream.of(argumentTypes).map(type -> type.getTypeName()).collect(joining(",", "(", ")")) + " of " + declaringClass.getName();
+        return signature.resultType.getTypeName() + " " + signature.methodName + Stream.of(signature.argumentTypes).map(type -> type.getTypeName()).collect(joining(",", "(", ")")) + " of " + signature.declaringClass.getName();
     }
 
     public static class AnnotatedValue {

@@ -5,14 +5,19 @@ import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.objectweb.asm.Opcodes.AASTORE;
+import static org.objectweb.asm.Opcodes.ACC_NATIVE;
+import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ASTORE;
+import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.DUP2;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 
+import java.lang.reflect.Array;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -25,6 +30,7 @@ import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import org.objectweb.asm.util.Printer;
@@ -35,7 +41,69 @@ import net.amygdalum.testrecorder.SerializationException;
 
 public final class ByteCode {
 
+	private static final PrimitiveTypeInfo[] PRIMITIVES = new PrimitiveTypeInfo[] {
+		new PrimitiveTypeInfo('Z', boolean.class, Boolean.class, "valueOf", "booleanValue"),
+		new PrimitiveTypeInfo('C', char.class, Character.class, "valueOf", "charValue"),
+		new PrimitiveTypeInfo('B', byte.class, Byte.class, "valueOf", "byteValue"),
+		new PrimitiveTypeInfo('S', short.class, Short.class, "valueOf", "shortValue"),
+		new PrimitiveTypeInfo('I', int.class, Integer.class, "valueOf", "intValue"),
+		new PrimitiveTypeInfo('J', long.class, Long.class, "valueOf", "longValue"),
+		new PrimitiveTypeInfo('F', float.class, Float.class, "valueOf", "floatValue"),
+		new PrimitiveTypeInfo('D', double.class, Double.class, "valueOf", "doubleValue"),
+		new PrimitiveTypeInfo('V', void.class, Void.class, null, null)
+	};
+
 	private ByteCode() {
+	}
+
+	private static PrimitiveTypeInfo primitive(char desc) {
+		for (PrimitiveTypeInfo info : PRIMITIVES) {
+			if (info.desc == desc) {
+				return info;
+			}
+		}
+		return null;
+	}
+
+	private static PrimitiveTypeInfo primitiveByInternalName(String name) {
+		for (PrimitiveTypeInfo info : PRIMITIVES) {
+			if (name.equals(info.rawType)) {
+				return info;
+			}
+		}
+		return null;
+	}
+
+	public static boolean isStatic(MethodNode methodNode) {
+		return (methodNode.access & ACC_STATIC) != 0;
+	}
+
+	public static boolean isNative(MethodNode methodNode) {
+		return (methodNode.access & ACC_NATIVE) != 0;
+	}
+
+	public static boolean isPrimitive(Type type) {
+		return type.getDescriptor().length() == 1;
+	}
+
+	public static AbstractInsnNode primitiveNull(Type type) {
+		char desc = type.getDescriptor().charAt(0);
+		switch (desc) {
+		case 'C':
+		case 'Z':
+		case 'B':
+		case 'S':
+		case 'I':
+			return new InsnNode(Opcodes.ICONST_0);
+		case 'J':
+			return new InsnNode(Opcodes.LCONST_0);
+		case 'F':
+			return new InsnNode(Opcodes.FCONST_0);
+		case 'D':
+			return new InsnNode(Opcodes.DCONST_0);
+		default:
+			return null;
+		}
 	}
 
 	public static List<LocalVariableNode> range(List<LocalVariableNode> locals, int start, int length) {
@@ -121,9 +189,10 @@ public final class ByteCode {
 	}
 
 	public static AbstractInsnNode pushType(Type type) {
-		if (type.getDescriptor().length() == 1) {
-			Class<?> boxedType = getBoxedType(type.getDescriptor().charAt(0));
-			return new FieldInsnNode(GETSTATIC, Type.getInternalName(boxedType), "TYPE", Type.getDescriptor(Class.class));
+		if (isPrimitive(type)) {
+			char desc = type.getDescriptor().charAt(0);
+			String boxedType = primitive(desc).boxedType;
+			return new FieldInsnNode(GETSTATIC, boxedType, "TYPE", Type.getDescriptor(Class.class));
 		} else {
 			return new LdcInsnNode(type);
 		}
@@ -131,14 +200,32 @@ public final class ByteCode {
 
 	public static InsnList boxPrimitives(Type type) {
 		InsnList insnList = new InsnList();
-		if (type.getDescriptor().length() == 1) {
+		if (isPrimitive(type)) {
 			char desc = type.getDescriptor().charAt(0);
-			Class<?> raw = getRawType(desc);
-			Class<?> boxed = getBoxedType(desc);
+			PrimitiveTypeInfo info = primitive(desc);
 
-			insnList.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(boxed), "valueOf", methodDescriptor(boxed, "valueOf", raw), false));
+			String factoryDesc = "(" + info.desc + ")L" + info.boxedType + ";";
+			insnList.add(new MethodInsnNode(INVOKESTATIC, info.boxedType, info.boxingFactory, factoryDesc, false));
 		}
 		return insnList;
+	}
+
+	public static InsnList unboxPrimitives(Type type) {
+		char desc = type.getDescriptor().charAt(0);
+
+		InsnList insnList = new InsnList();
+
+		String factoryDesc = "()" + desc;
+		String boxedClassName = primitive(desc).boxedType;
+		String factoryName = getUnboxingFactory(desc);
+
+		insnList.add(new TypeInsnNode(CHECKCAST, boxedClassName));
+		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, boxedClassName, factoryName, factoryDesc, false));
+		return insnList;
+	}
+
+	private static String getUnboxingFactory(char desc) {
+		return primitive(desc).unboxingFactory;
 	}
 
 	public static String constructorDescriptor(Class<?> clazz, Class<?>... arguments) {
@@ -157,100 +244,46 @@ public final class ByteCode {
 		}
 	}
 
-	public static Class<?> getRawType(char desc) {
-		switch (desc) {
-		case 'Z':
-			return boolean.class;
-		case 'C':
-			return char.class;
-		case 'B':
-			return byte.class;
-		case 'S':
-			return short.class;
-		case 'I':
-			return int.class;
-		case 'F':
-			return float.class;
-		case 'J':
-			return long.class;
-		case 'D':
-			return double.class;
-		case 'V':
-		default:
-			return void.class;
-		}
-	}
-
-	public static Class<?> getBoxedType(char desc) {
-		switch (desc) {
-		case 'Z':
-			return Boolean.class;
-		case 'C':
-			return Character.class;
-		case 'B':
-			return Byte.class;
-		case 'S':
-			return Short.class;
-		case 'I':
-			return Integer.class;
-		case 'F':
-			return Float.class;
-		case 'J':
-			return Long.class;
-		case 'D':
-			return Double.class;
-		case 'V':
-		default:
-			return Void.class;
-		}
-	}
-
 	public static Class<?> classFromInternalName(String name, ClassLoader loader) throws ClassNotFoundException {
-		switch (name) {
-		case "boolean":
-			return boolean.class;
-		case "char":
-			return char.class;
-		case "byte":
-			return byte.class;
-		case "short":
-			return short.class;
-		case "int":
-			return int.class;
-		case "float":
-			return float.class;
-		case "long":
-			return long.class;
-		case "double":
-			return double.class;
-		case "void":
-			return void.class;
-		default:
+		int arrayDimensions = 0;
+		while (name.endsWith("[]")) {
+			name = name.substring(0, name.length() - 2);
+			arrayDimensions++;
+		}
+		Class<?> clazz = componentClassFromInternalName(name, loader);
+		for (int i = 0; i < arrayDimensions; i++) {
+			clazz = Array.newInstance(clazz, 0).getClass();
+		}
+		return clazz;
+	}
+
+	private static Class<?> componentClassFromInternalName(String name, ClassLoader loader) throws ClassNotFoundException {
+		PrimitiveTypeInfo primitive = primitiveByInternalName(name);
+		if (primitive != null) {
+			return primitive.rawClass;
+		} else {
 			return loader.loadClass(name.replace('/', '.'));
 		}
 	}
 
 	public static Class<?> classFromInternalName(String name) throws ClassNotFoundException {
-		switch (name) {
-		case "boolean":
-			return boolean.class;
-		case "char":
-			return char.class;
-		case "byte":
-			return byte.class;
-		case "short":
-			return short.class;
-		case "int":
-			return int.class;
-		case "float":
-			return float.class;
-		case "long":
-			return long.class;
-		case "double":
-			return double.class;
-		case "void":
-			return void.class;
-		default:
+		int arrayDimensions = 0;
+		while (name.endsWith("[]")) {
+			name = name.substring(0, name.length() - 2);
+			arrayDimensions++;
+		}
+		Class<?> clazz = componentClassFromInternalName(name);
+		for (int i = 0; i < arrayDimensions; i++) {
+			clazz = Array.newInstance(clazz, 0).getClass();
+		}
+		return clazz;
+	}
+
+	private static Class<?> componentClassFromInternalName(String name) throws ClassNotFoundException {
+		PrimitiveTypeInfo primitive = primitiveByInternalName(name);
+		if (primitive != null) {
+			return primitive.rawClass;
+		} else {
 			return forName(name.replace('/', '.'));
 		}
 	}
@@ -291,6 +324,28 @@ public final class ByteCode {
 		public LocalVar(int index, Type type) {
 			this.index = index;
 			this.type = type;
+		}
+
+	}
+
+	private static class PrimitiveTypeInfo {
+		public char desc;
+		public Class<?> rawClass;
+		public String rawType;
+		@SuppressWarnings("unused")
+		public Class<?> boxedClass;
+		public String boxedType;
+		public String boxingFactory;
+		public String unboxingFactory;
+
+		public PrimitiveTypeInfo(char desc, Class<?> raw, Class<?> boxed, String boxingFactory, String unboxingFactory) {
+			this.desc = desc;
+			this.rawClass = raw;
+			this.rawType = raw.getName();
+			this.boxedClass = boxed;
+			this.boxedType = Type.getInternalName(boxed);
+			this.boxingFactory = boxingFactory;
+			this.unboxingFactory = unboxingFactory;
 		}
 
 	}

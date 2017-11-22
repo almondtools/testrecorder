@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.scenarios;
+package net.amygdalum.testrecorder.ioscenarios;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

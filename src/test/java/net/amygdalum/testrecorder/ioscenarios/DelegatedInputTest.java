@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.scenarios;
+package net.amygdalum.testrecorder.ioscenarios;
 
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
@@ -10,10 +10,10 @@ import org.junit.runner.RunWith;
 
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.Instrumented;
-import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
+import net.amygdalum.testrecorder.util.TestrecorderAgentRunner;
 
-@RunWith(InstrumentedClassLoaderRunner.class)
-@Instrumented(classes={"net.amygdalum.testrecorder.scenarios.DelegatedInput"})
+@RunWith(TestrecorderAgentRunner.class)
+@Instrumented(classes={"net.amygdalum.testrecorder.ioscenarios.DelegatedInput"})
 public class DelegatedInputTest {
 
 	@Before

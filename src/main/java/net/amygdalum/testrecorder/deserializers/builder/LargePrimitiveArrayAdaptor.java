@@ -55,7 +55,7 @@ public class LargePrimitiveArrayAdaptor implements SetupGenerator<SerializedArra
                 return expression(result, value.getResultType());
             }
         }
-        throw new DeserializationException(value.toString());
+        throw new DeserializationException("failed deserializing: " + value);
     }
 
     private Object unwrap(SerializedArray value) {
@@ -74,7 +74,7 @@ public class LargePrimitiveArrayAdaptor implements SetupGenerator<SerializedArra
         } else if (value instanceof SerializedArray) {
             return unwrap((SerializedArray) value);
         } else {
-            throw new DeserializationException(value.toString());
+            throw new DeserializationException("failed deserializing: " + value);
         }
     }
 

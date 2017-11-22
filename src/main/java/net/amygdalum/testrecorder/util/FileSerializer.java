@@ -36,9 +36,9 @@ public final class FileSerializer {
                 return path.getFileName().toString();
             }
         } catch (NullPointerException | IOException e) {
-            throw new DeserializationException("failed writing object to file");
+            throw new DeserializationException("failed writing object to file", e);
         } catch (NoSuchAlgorithmException e) {
-            throw new DeserializationException("failed hashing data to produce unique file name");
+            throw new DeserializationException("failed hashing data to produce unique file name", e);
         }
     }
 

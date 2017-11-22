@@ -13,10 +13,10 @@ import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.ValuePrinter;
 
-public class SerializedOutput {
+public class SerializedOutput implements SerializedInteraction {
 
 	private int id;
-	private String caller;
+	private StackTraceElement caller;
 	private Class<?> clazz;
 	private String name;
 	private Type resultType;
@@ -24,7 +24,7 @@ public class SerializedOutput {
 	private Type[] types;
 	private SerializedValue[] arguments;
 
-	public SerializedOutput(int id, String caller, Class<?> clazz, String name, Type resultType, SerializedValue result, Type[] types, SerializedValue... arguments) {
+	public SerializedOutput(int id, StackTraceElement caller, Class<?> clazz, String name, Type resultType, SerializedValue result, Type[] types, SerializedValue... arguments) {
 		this.id = id;
 		this.caller = caller;
 		this.clazz = clazz;
@@ -35,7 +35,7 @@ public class SerializedOutput {
 		this.arguments = arguments;
 	}
 
-	public SerializedOutput(int id, String caller, Class<?> clazz, String name, Type[] types, SerializedValue... arguments) {
+	public SerializedOutput(int id, StackTraceElement caller, Class<?> clazz, String name, Type[] types, SerializedValue... arguments) {
 		this.id = id;
 		this.caller = caller;
 		this.clazz = clazz;
@@ -46,38 +46,57 @@ public class SerializedOutput {
 		this.arguments = arguments;
 	}
 	
+	@Override
 	public int getId() {
 		return id;
 	}
 
-	public String getCaller() {
-		return caller;
+	@Override
+	public String getCallerClass() {
+		return caller.getClassName();
+	}
+	
+	@Override
+	public String getCallerMethod() {
+		return caller.getMethodName();
 	}
 
+	@Override
+	public int getCallerLine() {
+		return caller.getLineNumber();
+	}
+
+	@Override
 	public Class<?> getDeclaringClass() {
 		return clazz;
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}
 
+	@Override
 	public Type getResultType() {
 		return resultType;
 	}
 
+	@Override
 	public SerializedValue getResult() {
 		return result;
 	}
 
+	@Override
 	public Type[] getTypes() {
 		return types;
 	}
 
+	@Override
 	public SerializedValue[] getArguments() {
 		return arguments;
 	}
 
+	@Override
 	public List<SerializedValue> getAllValues() {
 		List<SerializedValue> allValues = new ArrayList<>();
 		allValues.add(result);

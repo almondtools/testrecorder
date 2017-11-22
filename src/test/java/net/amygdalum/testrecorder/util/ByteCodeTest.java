@@ -16,8 +16,6 @@ import org.objectweb.asm.tree.LocalVariableNode;
 
 import com.almondtools.conmatch.conventions.UtilityClassMatcher;
 
-import net.amygdalum.testrecorder.util.ByteCode;
-
 public class ByteCodeTest {
 
 	@Test
@@ -101,34 +99,6 @@ public class ByteCodeTest {
 			"GETSTATIC java/lang/Character.TYPE : Ljava/lang/Class;"));
 		assertThat(toString(ByteCode.pushType(Type.getType(String.class))), equalTo(
 			"LDC Ljava/lang/String;.class"));
-	}
-
-	@Test
-	public void testGetRawType() throws Exception {
-		assertThat(ByteCode.getRawType('Z'), equalTo(boolean.class));
-		assertThat(ByteCode.getRawType('C'), equalTo(char.class));
-		assertThat(ByteCode.getRawType('B'), equalTo(byte.class));
-		assertThat(ByteCode.getRawType('S'), equalTo(short.class));
-		assertThat(ByteCode.getRawType('I'), equalTo(int.class));
-		assertThat(ByteCode.getRawType('F'), equalTo(float.class));
-		assertThat(ByteCode.getRawType('J'), equalTo(long.class));
-		assertThat(ByteCode.getRawType('D'), equalTo(double.class));
-		assertThat(ByteCode.getRawType('V'), equalTo(void.class));
-		assertThat(ByteCode.getRawType(' '), equalTo(void.class));
-	}
-
-	@Test
-	public void testGetBoxedType() throws Exception {
-		assertThat(ByteCode.getBoxedType('Z'), equalTo(Boolean.class));
-		assertThat(ByteCode.getBoxedType('C'), equalTo(Character.class));
-		assertThat(ByteCode.getBoxedType('B'), equalTo(Byte.class));
-		assertThat(ByteCode.getBoxedType('S'), equalTo(Short.class));
-		assertThat(ByteCode.getBoxedType('I'), equalTo(Integer.class));
-		assertThat(ByteCode.getBoxedType('F'), equalTo(Float.class));
-		assertThat(ByteCode.getBoxedType('J'), equalTo(Long.class));
-		assertThat(ByteCode.getBoxedType('D'), equalTo(Double.class));
-		assertThat(ByteCode.getBoxedType('V'), equalTo(Void.class));
-		assertThat(ByteCode.getBoxedType(' '), equalTo(Void.class));
 	}
 
 	@Test

@@ -53,7 +53,7 @@ public class SimpleDeserializer implements Deserializer<Object> {
 
 	@Override
 	public Object visitField(SerializedField field, DeserializerContext context) {
-		throw new DeserializationException(field.toString());
+		throw new DeserializationException("failed deserializing: " + field);
 	}
 
 	@Override
@@ -68,7 +68,7 @@ public class SimpleDeserializer implements Deserializer<Object> {
 				});
 				return object;
 			} catch (GenericObjectException e) {
-				throw new DeserializationException(value.toString());
+				throw new DeserializationException("failed deserializing: " + value, e);
 			}
 		} else if (rt instanceof SerializedList) {
 			SerializedList value = (SerializedList) rt;

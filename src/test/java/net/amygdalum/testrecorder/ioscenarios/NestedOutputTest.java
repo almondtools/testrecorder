@@ -1,8 +1,8 @@
-package net.amygdalum.testrecorder.scenarios;
+package net.amygdalum.testrecorder.ioscenarios;
 
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Before;
@@ -11,11 +11,11 @@ import org.junit.runner.RunWith;
 
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.Instrumented;
-import net.amygdalum.testrecorder.util.InstrumentedClassLoaderRunner;
+import net.amygdalum.testrecorder.util.TestrecorderAgentRunner;
 
-@RunWith(InstrumentedClassLoaderRunner.class)
-@Instrumented(classes={"net.amygdalum.testrecorder.scenarios.NestedInput"})
-public class NestedInputTest {
+@RunWith(TestrecorderAgentRunner.class)
+@Instrumented(classes={"net.amygdalum.testrecorder.ioscenarios.NestedOutput"})
+public class NestedOutputTest {
 
 	@Before
 	public void before() throws Exception {
@@ -24,24 +24,26 @@ public class NestedInputTest {
 	
 	@Test
 	public void testCompilable() throws Exception {
-		NestedInput input = new NestedInput();
-		String time = input.getTime();
+		NestedOutput input = new NestedOutput();
+		int time = input.getTime();
+		time = input.getTime();
 
-		assertThat(time.matches("\\d+:\\d+"), is(true));
+		assertThat(time, equalTo(2));
 		
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(NestedInput.class), compiles(NestedInput.class));
+		assertThat(testGenerator.renderTest(NestedOutput.class), compiles(NestedOutput.class));
 	}
 	
 	@Test
 	public void testRunnable() throws Exception {
-		NestedInput input = new NestedInput();
-		String time = input.getTime();
+		NestedOutput input = new NestedOutput();
+		int time = input.getTime();
+		time = input.getTime();
 
-		assertThat(time.matches("\\d+:\\d+"), is(true));
+		assertThat(time, equalTo(2));
 		
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(NestedInput.class), testsRun(NestedInput.class));
+		assertThat(testGenerator.renderTest(NestedOutput.class), testsRun(NestedOutput.class));
 	}
 	
 }

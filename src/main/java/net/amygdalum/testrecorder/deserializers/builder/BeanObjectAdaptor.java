@@ -33,7 +33,7 @@ public class BeanObjectAdaptor implements SetupGenerator<SerializedObject> {
 			try {
 				return new Construction(context, local, value).computeBest(types, generator);
 			} catch (ReflectiveOperationException | RuntimeException e) {
-				throw new DeserializationException(value.toString());
+				throw new DeserializationException("failed deserializing: " + value, e);
 			}
 		});
 	}

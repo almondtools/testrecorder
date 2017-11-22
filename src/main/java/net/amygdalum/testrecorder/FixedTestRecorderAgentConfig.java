@@ -26,6 +26,8 @@ public class FixedTestRecorderAgentConfig implements TestRecorderAgentConfig {
 		this.fieldExclusions = new ArrayList<>(config.getFieldExclusions());
 		this.classExclusions = new ArrayList<>(config.getClassExclusions());
 		this.globalFields = new ArrayList<>(config.getGlobalFields());
+		this.inputs = new ArrayList<>(config.getInputs());
+		this.outputs = new ArrayList<>(config.getOutputs());
 		this.snapshotConsumer = config.getSnapshotConsumer();
 		this.timeoutInMillis = config.getTimeoutInMillis();
 		this.classes = config.getClasses();
