@@ -58,7 +58,7 @@ public class DefaultTestRecorderAgentConfig implements TestRecorderAgentConfig {
     }
 
     @Override
-    public List<Packages> getPackages() {
+    public List<Classes> getClasses() {
         return emptyList();
     }
 

@@ -49,7 +49,7 @@ public class DefaultTestRecorderAgentConfigTest {
 
     @Test
     public void testGetPackages() throws Exception {
-        assertThat(config.getPackages(), empty());
+        assertThat(config.getClasses(), empty());
     }
 
     @Test

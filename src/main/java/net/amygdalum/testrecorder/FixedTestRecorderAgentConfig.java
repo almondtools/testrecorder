@@ -20,7 +20,7 @@ public class FixedTestRecorderAgentConfig implements TestRecorderAgentConfig {
 
 	private SnapshotConsumer snapshotConsumer;
 	private long timeoutInMillis;
-	private List<Packages> packages;
+	private List<Classes> classes;
 
 	public FixedTestRecorderAgentConfig(TestRecorderAgentConfig config) {
 		this.fieldExclusions = new ArrayList<>(config.getFieldExclusions());
@@ -28,7 +28,7 @@ public class FixedTestRecorderAgentConfig implements TestRecorderAgentConfig {
 		this.globalFields = new ArrayList<>(config.getGlobalFields());
 		this.snapshotConsumer = config.getSnapshotConsumer();
 		this.timeoutInMillis = config.getTimeoutInMillis();
-		this.packages = config.getPackages();
+		this.classes = config.getClasses();
 	}
 
 	@Override
@@ -67,8 +67,8 @@ public class FixedTestRecorderAgentConfig implements TestRecorderAgentConfig {
 	}
 
 	@Override
-	public List<Packages> getPackages() {
-		return packages;
+	public List<Classes> getClasses() {
+		return classes;
 	}
 
 }
