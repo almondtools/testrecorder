@@ -82,6 +82,10 @@ public final class ByteCode {
 		return (methodNode.access & ACC_NATIVE) != 0;
 	}
 
+	public static boolean returnsResult(MethodNode methodNode) {
+		return Type.getReturnType(methodNode.desc).getSize() > 0;
+	}
+
 	public static boolean isPrimitive(Type type) {
 		return type.getDescriptor().length() == 1;
 	}
@@ -211,6 +215,15 @@ public final class ByteCode {
 		return insnList;
 	}
 
+	public static Type boxedType(Type type) {
+		if (isPrimitive(type)) {
+			char desc = type.getDescriptor().charAt(0);
+			PrimitiveTypeInfo info = primitive(desc);
+			return Type.getType(info.boxedClass);
+		}
+		return type;
+	}
+
 	public static InsnList unboxPrimitives(Type type) {
 		char desc = type.getDescriptor().charAt(0);
 
@@ -227,6 +240,14 @@ public final class ByteCode {
 
 	private static String getUnboxingFactory(char desc) {
 		return primitive(desc).unboxingFactory;
+	}
+
+	public static InsnList list(AbstractInsnNode... insnNodes) {
+		InsnList insnList = new InsnList();
+		for (AbstractInsnNode insnNode : insnNodes) {
+			insnList.add(insnNode);
+		}
+		return insnList;
 	}
 
 	public static String constructorDescriptor(Class<?> clazz, Class<?>... arguments) {

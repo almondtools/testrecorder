@@ -19,7 +19,7 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-public class WrapArguments implements InsnListBuilder {
+public class WrapArguments implements SequenceInstruction {
 
 	private MethodNode methodNode;
 
@@ -28,7 +28,7 @@ public class WrapArguments implements InsnListBuilder {
 	}
 
 	@Override
-	public InsnList build() {
+	public InsnList build(Sequence sequence) {
 		int localVariableIndex = isStatic(methodNode) ? 0 : 1;
 		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
 		List<LocalVariableNode> arguments = range(methodNode.localVariables, localVariableIndex, argumentTypes.length);

@@ -1,9 +1,11 @@
 package net.amygdalum.testrecorder.asm;
 
+import static net.amygdalum.testrecorder.util.ByteCode.list;
+
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.LdcInsnNode;
 
-public class Ldc extends AbstractInsnListBuilder {
+public class Ldc implements SequenceInstruction {
 
 	private Object constant;
 
@@ -16,7 +18,7 @@ public class Ldc extends AbstractInsnListBuilder {
 	}
 
 	@Override
-	public InsnList build() {
+	public InsnList build(Sequence sequence) {
 		return list(new LdcInsnNode(constant));
 	}
 
