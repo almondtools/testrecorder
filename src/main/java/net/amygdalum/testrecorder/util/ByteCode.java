@@ -237,6 +237,14 @@ public final class ByteCode {
 		}
 	}
 
+	public static String fieldDescriptor(Class<?> clazz, String name) {
+		try {
+			return Type.getDescriptor(Types.getDeclaredField(clazz, name).getType());
+		} catch (NoSuchFieldException e) {
+			throw new SerializationException(e);
+		}
+	}
+
 	public static String methodDescriptor(Class<?> clazz, String name, Class<?>... arguments) {
 		try {
 			return Type.getMethodDescriptor(Types.getDeclaredMethod(clazz, name, arguments));

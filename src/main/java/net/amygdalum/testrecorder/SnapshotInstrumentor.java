@@ -63,12 +63,16 @@ import org.objectweb.asm.tree.VarInsnNode;
 import net.amygdalum.testrecorder.SerializationProfile.Global;
 import net.amygdalum.testrecorder.SerializationProfile.Input;
 import net.amygdalum.testrecorder.SerializationProfile.Output;
+import net.amygdalum.testrecorder.asm.GetStatic;
+import net.amygdalum.testrecorder.asm.GetThis;
+import net.amygdalum.testrecorder.asm.InvokeVirtual;
+import net.amygdalum.testrecorder.asm.Ldc;
+import net.amygdalum.testrecorder.asm.WrapArguments;
 import net.amygdalum.testrecorder.util.ByteCode;
 
 public class SnapshotInstrumentor extends AttachableClassFileTransformer implements ClassFileTransformer {
 
 	public static final String SNAPSHOT_MANAGER_FIELD_NAME = "MANAGER";
-	private static final String SETUP_VARIABLES = "setupVariables";
 	private static final String INPUT_VARIABLES = "inputVariables";
 	private static final String OUTPUT_VARIABLES = "outputVariables";
 	private static final String THROW_VARIABLES = "throwVariables";
@@ -82,7 +86,6 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 	private static final String Output_descriptor = Type.getDescriptor(Output.class);
 	private static final String Global_descriptor = Type.getDescriptor(Global.class);
 
-	private static final String SnaphotManager_setupVariables_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, SETUP_VARIABLES, Object.class, String.class, Object[].class);
 	private static final String SnaphotManager_expectVariablesResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, EXPECT_VARIABLES, Object.class, String.class, Object.class, Object[].class);
 	private static final String SnaphotManager_expectVariablesNoResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, EXPECT_VARIABLES, Object.class, String.class, Object[].class);
 	private static final String SnaphotManager_throwVariables_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, THROW_VARIABLES, Throwable.class, Object.class, String.class, Object[].class);
@@ -554,28 +557,12 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 	}
 
 	protected InsnList setupVariables(ClassNode classNode, MethodNode methodNode) {
-		int localVariableIndex = isStatic(methodNode) ? 0 : 1;
-
-		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
-		List<LocalVariableNode> arguments = range(methodNode.localVariables, localVariableIndex, argumentTypes.length);
-
-		InsnList insnList = new InsnList();
-
-		insnList.add(new FieldInsnNode(GETSTATIC, SnapshotManager_name, SNAPSHOT_MANAGER_FIELD_NAME, SnaphotManager_descriptor));
-
-		if (isStatic(methodNode)) {
-			insnList.add(new InsnNode(ACONST_NULL));
-		} else {
-			insnList.add(new VarInsnNode(ALOAD, 0));
-		}
-
-		insnList.add(new LdcInsnNode(keySignature(classNode, methodNode)));
-
-		insnList.add(pushAsArray(arguments));
-
-		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapshotManager_name, SETUP_VARIABLES, SnaphotManager_setupVariables_descriptor, false));
-
-		return insnList;
+		return new InvokeVirtual(SnapshotManager.class, "setupVariables", Object.class, String.class, Object[].class)
+			.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+			.withArgument(0, new GetThis(methodNode))
+			.withArgument(1, new Ldc(keySignature(classNode, methodNode)))
+			.withArgument(2, new WrapArguments(methodNode))
+			.build();
 	}
 
 	private InsnList expectVariables(ClassNode classNode, MethodNode methodNode) {
