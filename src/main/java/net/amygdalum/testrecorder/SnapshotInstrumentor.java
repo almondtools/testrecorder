@@ -148,7 +148,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 	}
 
-	private ClassNode fetchClassNode(String className) throws IOException {
+	protected ClassNode fetchClassNode(String className) throws IOException {
 		ClassNode classNode = classCache.get(className);
 		if (classNode == null) {
 			ClassReader cr = new ClassReader(className);
@@ -169,7 +169,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		return classNode;
 	}
 
-	private MethodNode fetchMethodNode(String className, String methodName, String methodDesc) throws IOException, NoSuchMethodException {
+	protected MethodNode fetchMethodNode(String className, String methodName, String methodDesc) throws IOException, NoSuchMethodException {
 		ClassNode classNode = fetchClassNode(className);
 		return classNode.methods.stream()
 			.filter(method -> method.name.equals(methodName) && method.desc.equals(methodDesc))
@@ -553,7 +553,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		return insnList;
 	}
 
-	private InsnList setupVariables(ClassNode classNode, MethodNode methodNode) {
+	protected InsnList setupVariables(ClassNode classNode, MethodNode methodNode) {
 		int localVariableIndex = isStatic(methodNode) ? 0 : 1;
 
 		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
