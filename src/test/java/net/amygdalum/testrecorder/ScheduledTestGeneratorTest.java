@@ -448,7 +448,7 @@ public class ScheduledTestGeneratorTest {
     }
 
     private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
-        return new ContextSnapshot(0, new MethodSignature(declaringClass, new Annotation[0], resultType, methodName, new Annotation[0][0], argumentTypes));
+        return new ContextSnapshot(0, "key", new MethodSignature(declaringClass, new Annotation[0], resultType, methodName, new Annotation[0][0], argumentTypes));
     }
 
     private static int base = 8;

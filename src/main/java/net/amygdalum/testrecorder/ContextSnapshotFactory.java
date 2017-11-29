@@ -4,14 +4,17 @@ public class ContextSnapshotFactory {
 
 	private SerializationProfile profile;
 	
+	private String key;
 	private String className;
 	private String methodName;
 	private String methodDesc;
 
 	private MethodSignature signature;
 
-	public ContextSnapshotFactory(SerializationProfile profile, String className, String methodName, String methodDesc) {
+
+	public ContextSnapshotFactory(SerializationProfile profile, String key, String className, String methodName, String methodDesc) {
 		this.profile = profile;
+		this.key = key;
 		this.className = className;
 		this.methodName = methodName;
 		this.methodDesc = methodDesc;
@@ -29,7 +32,7 @@ public class ContextSnapshotFactory {
 				throw new SerializationException(e);
 			}
 		}
-		return new ContextSnapshot(System.currentTimeMillis(), signature);
+		return new ContextSnapshot(System.currentTimeMillis(), key, signature);
 	}
 
 }

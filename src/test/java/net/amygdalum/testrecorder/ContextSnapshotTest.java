@@ -115,14 +115,14 @@ public class ContextSnapshotTest {
 
 	@Test
 	public void testGetTime() throws Exception {
-		assertThat(new ContextSnapshot(0l, new MethodSignature(Object.class, new Annotation[0], Object.class, "method", new Annotation[0][0], new Type[0])).getTime(), equalTo(0l));
-		assertThat(new ContextSnapshot(1l, new MethodSignature(Object.class, new Annotation[0], Object.class, "method", new Annotation[0][0], new Type[0])).getTime(), equalTo(1l));
+		assertThat(new ContextSnapshot(0l, "key", new MethodSignature(Object.class, new Annotation[0], Object.class, "method", new Annotation[0][0], new Type[0])).getTime(), equalTo(0l));
+		assertThat(new ContextSnapshot(1l, "key", new MethodSignature(Object.class, new Annotation[0], Object.class, "method", new Annotation[0][0], new Type[0])).getTime(), equalTo(1l));
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetAnnotation() throws Exception {
-		ContextSnapshot snapshot = new ContextSnapshot(0l, new MethodSignature(
+		ContextSnapshot snapshot = new ContextSnapshot(0l, "key", new MethodSignature(
 			Object.class,
 			new Annotation[] { anno("result") },
 			Object.class,
@@ -141,7 +141,7 @@ public class ContextSnapshotTest {
 
 	@Test
 	public void testGetAnnotatedSetupArgs() throws Exception {
-		ContextSnapshot snapshot = new ContextSnapshot(0l, new MethodSignature(
+		ContextSnapshot snapshot = new ContextSnapshot(0l, "key", new MethodSignature(
 			Object.class,
 			new Annotation[] { anno("result") },
 			String.class,
@@ -159,7 +159,7 @@ public class ContextSnapshotTest {
 
 	@Test
 	public void testGetAnnotatedExpectArgs() throws Exception {
-		ContextSnapshot snapshot = new ContextSnapshot(0l, new MethodSignature(
+		ContextSnapshot snapshot = new ContextSnapshot(0l, "key", new MethodSignature(
 			Object.class,
 			new Annotation[] { anno("result") },
 			String.class,
@@ -186,7 +186,7 @@ public class ContextSnapshotTest {
 	}
 
 	private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
-		return new ContextSnapshot(0, new MethodSignature(declaringClass, new Annotation[0], resultType, methodName, new Annotation[0][0], argumentTypes));
+		return new ContextSnapshot(0, "key", new MethodSignature(declaringClass, new Annotation[0], resultType, methodName, new Annotation[0][0], argumentTypes));
 	}
 
 	private Anno anno(String value) {

@@ -47,6 +47,10 @@ public class SnapshotProcess {
 		return snapshot;
 	}
 
+	public boolean matches(String key) {
+		return snapshot.matches(key);
+	}
+
 	private StackTraceElement caller() {
 		StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 		for (StackTraceElement caller : stackTrace) {

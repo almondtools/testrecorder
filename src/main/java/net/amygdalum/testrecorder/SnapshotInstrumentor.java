@@ -83,9 +83,9 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 	private static final String Global_descriptor = Type.getDescriptor(Global.class);
 
 	private static final String SnaphotManager_setupVariables_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, SETUP_VARIABLES, Object.class, String.class, Object[].class);
-	private static final String SnaphotManager_expectVariablesResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, EXPECT_VARIABLES, Object.class, Object.class, Object[].class);
-	private static final String SnaphotManager_expectVariablesNoResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, EXPECT_VARIABLES, Object.class, Object[].class);
-	private static final String SnaphotManager_throwVariables_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, THROW_VARIABLES, Object.class, Throwable.class, Object[].class);
+	private static final String SnaphotManager_expectVariablesResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, EXPECT_VARIABLES, Object.class, String.class, Object.class, Object[].class);
+	private static final String SnaphotManager_expectVariablesNoResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, EXPECT_VARIABLES, Object.class, String.class, Object[].class);
+	private static final String SnaphotManager_throwVariables_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, THROW_VARIABLES, Throwable.class, Object.class, String.class, Object[].class);
 	private static final String SnaphotManager_outputVariablesResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, OUTPUT_VARIABLES, Object.class, String.class,
 		java.lang.reflect.Type.class, Object.class, java.lang.reflect.Type[].class, Object[].class);
 	private static final String SnaphotManager_outputVariablesNoResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, OUTPUT_VARIABLES, Object.class, String.class,
@@ -600,6 +600,8 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 			insnList.add(new VarInsnNode(ALOAD, 0));
 		}
 
+		insnList.add(new LdcInsnNode(keySignature(classNode, methodNode)));
+
 		if (returnType.getSize() > 0) {
 			insnList.add(recallLocal(newLocal));
 		}
@@ -634,7 +636,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 			insnList.add(new VarInsnNode(ALOAD, 0));
 		}
 
-		insnList.add(new InsnNode(SWAP));
+		insnList.add(new LdcInsnNode(keySignature(classNode, methodNode)));
 
 		insnList.add(pushAsArray(arguments));
 

@@ -19,6 +19,7 @@ public class ContextSnapshot {
     protected static final ContextSnapshot INVALID = new ContextSnapshot();
 
     private long time;
+	private String key;
     private MethodSignature signature;
 
     private boolean valid;
@@ -41,12 +42,17 @@ public class ContextSnapshot {
         this.valid = false;
     }
 
-    public ContextSnapshot(long time, MethodSignature signature) {
+    public ContextSnapshot(long time, String key, MethodSignature signature) {
         this.time = time;
+		this.key = key;
         this.signature = signature;
         this.valid = true;
     }
     
+	public boolean matches(String signature) {
+		return key.equals(signature);
+	}
+
     public long getTime() {
         return time;
     }

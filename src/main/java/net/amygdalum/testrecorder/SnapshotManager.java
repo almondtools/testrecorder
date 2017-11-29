@@ -53,7 +53,7 @@ public class SnapshotManager {
     }
 
 	public void registerRecordedMethod(String signature, String className, String methodName, String methodDesc) {
-		ContextSnapshotFactory factory = new ContextSnapshotFactory(config, className, methodName, methodDesc);
+		ContextSnapshotFactory factory = new ContextSnapshotFactory(config, signature, className, methodName, methodDesc);
 
 		methodSnapshots.put(signature, factory);
 	}
@@ -81,8 +81,14 @@ public class SnapshotManager {
 		}
 	}
 
-	public SnapshotProcess pop() {
-		return current.get().pop();
+	public SnapshotProcess pop(String signature) {
+		Deque<SnapshotProcess> processes = current.get();
+		SnapshotProcess currentProcess = processes.pop();
+		while (!currentProcess.matches(signature)) {
+			currentProcess.getSnapshot().invalidate();
+			currentProcess = processes.pop();
+		}
+		return currentProcess;
 	}
 
 	public void setupVariables(Object self, String signature, Object... args) {
@@ -106,20 +112,20 @@ public class SnapshotManager {
 		current().outputVariables(object, method, paramTypes, args);
 	}
 
-	public void expectVariables(Object self, Object result, Object... args) {
-		SnapshotProcess process = pop();
+	public void expectVariables(Object self, String signature, Object result, Object... args) {
+		SnapshotProcess process = pop(signature);
 		process.expectVariables(self, result, args);
 		consume(process.getSnapshot());
 	}
 
-	public void expectVariables(Object self, Object... args) {
-		SnapshotProcess process = pop();
+	public void expectVariables(Object self, String signature, Object... args) {
+		SnapshotProcess process = pop(signature);
 		process.expectVariables(self, args);
 		consume(process.getSnapshot());
 	}
 
-	public void throwVariables(Object self, Throwable throwable, Object... args) {
-		SnapshotProcess process = pop();
+	public void throwVariables(Throwable throwable, Object self, String signature, Object... args) {
+		SnapshotProcess process = pop(signature);
 		process.throwVariables(self, throwable, args);
 		consume(process.getSnapshot());
 	}
