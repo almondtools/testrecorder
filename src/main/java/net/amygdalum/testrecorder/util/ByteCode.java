@@ -108,8 +108,9 @@ public final class ByteCode {
 
 	public static List<LocalVariableNode> range(List<LocalVariableNode> locals, int start, int length) {
 		return locals.stream()
-			.filter(local -> local.index >= start && local.index < start + length)
 			.sorted(comparingInt(local -> local.index))
+			.skip(start)
+			.limit(length)
 			.collect(toList());
 	}
 
@@ -303,6 +304,7 @@ public final class ByteCode {
 		instructions.accept(mp);
 		return p.getText().stream()
 			.map(Object::toString)
+			.map(String::trim)
 			.collect(toList());
 	}
 
