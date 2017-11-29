@@ -67,6 +67,7 @@ import net.amygdalum.testrecorder.asm.GetStatic;
 import net.amygdalum.testrecorder.asm.GetThis;
 import net.amygdalum.testrecorder.asm.InvokeVirtual;
 import net.amygdalum.testrecorder.asm.Ldc;
+import net.amygdalum.testrecorder.asm.Locals;
 import net.amygdalum.testrecorder.asm.WrapArguments;
 import net.amygdalum.testrecorder.util.ByteCode;
 
@@ -270,6 +271,8 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 	}
 
 	private InsnList wrapInputCall(MethodNode method, MethodInsnNode inputCall) {
+		Locals locals = new Locals(method);
+		
 		Type ownerType = Type.getObjectType(inputCall.owner);
 		Type methodType = Type.getMethodType(inputCall.desc);
 		Type[] argumentTypes = methodType.getArgumentTypes();
@@ -277,7 +280,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 		InsnList insnList = new InsnList();
 
-		int thisVar = method.maxLocals++;
+		int thisVar = locals.newLocalObject();
 		if (inputCall.getOpcode() == INVOKESTATIC) {
 			insnList.add(new LdcInsnNode(ownerType));
 			insnList.add(new VarInsnNode(ASTORE, thisVar));
@@ -291,7 +294,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 		for (int i = 0; i < argumentVars.length; i++) {
 			Type type = argumentTypes[i];
-			int newLocal = method.maxLocals++;
+			int newLocal = locals.newLocal(type);
 			argumentVars[i] = newLocal;
 			int storecode = type.getOpcode(ISTORE);
 			insnList.insert(new VarInsnNode(storecode, newLocal));
@@ -302,7 +305,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 		if (returnVars.length >= 1) {
 			Type type = returnType[0];
-			int newLocal = method.maxLocals++;
+			int newLocal = locals.newLocal(type);
 			returnVars[0] = newLocal;
 			insnList.add(memorizeLocal(type, newLocal));
 		}
@@ -351,6 +354,8 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 	}
 
 	private InsnList wrapOutputCall(MethodNode method, MethodInsnNode inputCall) {
+		Locals locals = new Locals(method);
+		
 		Type ownerType = Type.getObjectType(inputCall.owner);
 		Type methodType = Type.getMethodType(inputCall.desc);
 		Type[] argumentTypes = methodType.getArgumentTypes();
@@ -358,7 +363,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 		InsnList insnList = new InsnList();
 
-		int thisVar = method.maxLocals++;
+		int thisVar = locals.newLocalObject();
 		if (inputCall.getOpcode() == INVOKESTATIC) {
 			insnList.add(new LdcInsnNode(ownerType));
 			insnList.add(new VarInsnNode(ASTORE, thisVar));
@@ -372,7 +377,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 		for (int i = 0; i < argumentVars.length; i++) {
 			Type type = argumentTypes[i];
-			int newLocal = method.maxLocals++;
+			int newLocal = locals.newLocal(type);
 			argumentVars[i] = newLocal;
 			int storecode = type.getOpcode(ISTORE);
 			insnList.insert(new VarInsnNode(storecode, newLocal));
@@ -383,7 +388,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 		if (returnVars.length >= 1) {
 			Type type = returnType[0];
-			int newLocal = method.maxLocals++;
+			int newLocal = locals.newLocal(type);
 			returnVars[0] = newLocal;
 			insnList.add(memorizeLocal(type, newLocal));
 		}
@@ -565,15 +570,19 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 			.build();
 	}
 
-	private InsnList expectVariables(ClassNode classNode, MethodNode methodNode) {
+	protected InsnList expectVariables(ClassNode classNode, MethodNode methodNode) {
+		Locals locals = new Locals(methodNode);
 		int localVariableIndex = isStatic(methodNode) ? 0 : 1;
 
 		Type returnType = Type.getReturnType(methodNode.desc);
 		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
+
 		List<LocalVariableNode> arguments = range(methodNode.localVariables, localVariableIndex, argumentTypes.length);
 
 		InsnList insnList = new InsnList();
-		int newLocal = methodNode.maxLocals;
+		
+		int newLocal = locals.newLocal(returnType);
+		
 
 		if (returnType.getSize() > 0) {
 			insnList.add(memorizeLocal(returnType, newLocal));
