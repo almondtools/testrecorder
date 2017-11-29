@@ -593,7 +593,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		}
 	}
 
-	private InsnList throwVariables(ClassNode classNode, MethodNode methodNode) {
+	protected InsnList throwVariables(ClassNode classNode, MethodNode methodNode) {
 		int localVariableIndex = isStatic(methodNode) ? 0 : 1;
 
 		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
