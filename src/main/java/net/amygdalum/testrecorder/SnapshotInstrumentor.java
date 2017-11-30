@@ -59,7 +59,7 @@ import net.amygdalum.testrecorder.SerializationProfile.Global;
 import net.amygdalum.testrecorder.SerializationProfile.Input;
 import net.amygdalum.testrecorder.SerializationProfile.Output;
 import net.amygdalum.testrecorder.asm.GetStatic;
-import net.amygdalum.testrecorder.asm.GetThis;
+import net.amygdalum.testrecorder.asm.GetThisOrNull;
 import net.amygdalum.testrecorder.asm.InvokeVirtual;
 import net.amygdalum.testrecorder.asm.Ldc;
 import net.amygdalum.testrecorder.asm.Locals;
@@ -557,10 +557,10 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 	protected InsnList setupVariables(ClassNode classNode, MethodNode methodNode) {
 		return new InvokeVirtual(SnapshotManager.class, "setupVariables", Object.class, String.class, Object[].class)
 			.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-			.withArgument(0, new GetThis(methodNode))
+			.withArgument(0, new GetThisOrNull(methodNode))
 			.withArgument(1, new Ldc(keySignature(classNode, methodNode)))
-			.withArgument(2, new WrapArguments(methodNode))
-			.build(Sequence.NULL);
+			.withArgument(2, new WrapArguments())
+			.build(Sequence.sequence(new Locals(methodNode)));
 	}
 
 	protected InsnList expectVariables(ClassNode classNode, MethodNode methodNode) {
@@ -569,18 +569,18 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 				.then(new Memoize("returnValue", Type.getReturnType(methodNode.desc)))
 				.then(new InvokeVirtual(SnapshotManager.class, "expectVariables", Object.class, String.class, Object.class, Object[].class)
 					.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-					.withArgument(0, new GetThis(methodNode))
+					.withArgument(0, new GetThisOrNull(methodNode))
 					.withArgument(1, new Ldc(keySignature(classNode, methodNode)))
 					.withArgument(2, new Recall("returnValue"))
-					.withArgument(3, new WrapArguments(methodNode)))
+					.withArgument(3, new WrapArguments()))
 				.build();
 		} else {
 			return Sequence.sequence(new Locals(methodNode))
 				.then(new InvokeVirtual(SnapshotManager.class, "expectVariables", Object.class, String.class, Object[].class)
 					.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-					.withArgument(0, new GetThis(methodNode))
+					.withArgument(0, new GetThisOrNull(methodNode))
 					.withArgument(1, new Ldc(keySignature(classNode, methodNode)))
-					.withArgument(2, new WrapArguments(methodNode)))
+					.withArgument(2, new WrapArguments()))
 				.build();
 		}
 	}
@@ -591,9 +591,9 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 			.then(new InvokeVirtual(SnapshotManager.class, "throwVariables", Throwable.class, Object.class, String.class, Object[].class)
 				.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
 				.withArgument(0, new Recall("throwable"))
-				.withArgument(1, new GetThis(methodNode))
+				.withArgument(1, new GetThisOrNull(methodNode))
 				.withArgument(2, new Ldc(keySignature(classNode, methodNode)))
-				.withArgument(3, new WrapArguments(methodNode)))
+				.withArgument(3, new WrapArguments()))
 			.build();
 	}
 

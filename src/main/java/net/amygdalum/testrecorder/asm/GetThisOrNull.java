@@ -10,11 +10,11 @@ import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-public class GetThis implements SequenceInstruction {
+public class GetThisOrNull implements SequenceInstruction {
 
 	private MethodNode methodNode;
 
-	public GetThis(MethodNode methodNode) {
+	public GetThisOrNull(MethodNode methodNode) {
 		this.methodNode = methodNode;
 	}
 

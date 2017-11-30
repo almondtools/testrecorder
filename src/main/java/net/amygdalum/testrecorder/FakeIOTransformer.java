@@ -1,27 +1,7 @@
 package net.amygdalum.testrecorder;
 
 import static java.util.stream.Collectors.toList;
-import static net.amygdalum.testrecorder.util.ByteCode.constructorDescriptor;
 import static net.amygdalum.testrecorder.util.ByteCode.isNative;
-import static net.amygdalum.testrecorder.util.ByteCode.isPrimitive;
-import static net.amygdalum.testrecorder.util.ByteCode.isStatic;
-import static net.amygdalum.testrecorder.util.ByteCode.methodDescriptor;
-import static net.amygdalum.testrecorder.util.ByteCode.primitiveNull;
-import static net.amygdalum.testrecorder.util.ByteCode.pushAsArray;
-import static net.amygdalum.testrecorder.util.ByteCode.unboxPrimitives;
-import static org.objectweb.asm.Opcodes.ACONST_NULL;
-import static org.objectweb.asm.Opcodes.ALOAD;
-import static org.objectweb.asm.Opcodes.ARETURN;
-import static org.objectweb.asm.Opcodes.CHECKCAST;
-import static org.objectweb.asm.Opcodes.DUP;
-import static org.objectweb.asm.Opcodes.GETSTATIC;
-import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
-import static org.objectweb.asm.Opcodes.INVOKESTATIC;
-import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
-import static org.objectweb.asm.Opcodes.IRETURN;
-import static org.objectweb.asm.Opcodes.NEW;
-import static org.objectweb.asm.Opcodes.POP;
-import static org.objectweb.asm.Opcodes.RETURN;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -38,19 +18,22 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.JumpInsnNode;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.LdcInsnNode;
-import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.TypeInsnNode;
-import org.objectweb.asm.tree.VarInsnNode;
 
+import net.amygdalum.testrecorder.asm.GetClassName;
+import net.amygdalum.testrecorder.asm.GetMethodDesc;
+import net.amygdalum.testrecorder.asm.GetMethodName;
+import net.amygdalum.testrecorder.asm.GetStackTrace;
+import net.amygdalum.testrecorder.asm.GetThisOrNull;
+import net.amygdalum.testrecorder.asm.InvokeStatic;
+import net.amygdalum.testrecorder.asm.Locals;
+import net.amygdalum.testrecorder.asm.ReturnDummy;
+import net.amygdalum.testrecorder.asm.ReturnFakeOrProceed;
+import net.amygdalum.testrecorder.asm.Sequence;
+import net.amygdalum.testrecorder.asm.SequenceInstruction;
+import net.amygdalum.testrecorder.asm.WrapArguments;
 import net.amygdalum.testrecorder.bridge.BridgedFakeIO;
 import net.amygdalum.testrecorder.runtime.FakeIO;
 
@@ -144,11 +127,11 @@ public class FakeIOTransformer extends AttachableClassFileTransformer implements
 	}
 
 	private void insertIOFakes(ClassNode classNode, MethodNode methodNode, Class<?> clazz) {
-		InsnList insnList = createIOFakes(classNode, methodNode, clazz);
+		InsnList insnList = createIOFakes(classNode, methodNode, clazz).build();
 		methodNode.instructions.insert(insnList);
 	}
 
-	private InsnList createIOFakes(ClassNode classNode, MethodNode methodNode, Class<?> clazz) {
+	private Sequence createIOFakes(ClassNode classNode, MethodNode methodNode, Class<?> clazz) {
 		if (isNative(methodNode)) {
 			return createNativeIOFakes(classNode, methodNode, clazz);
 		} else {
@@ -156,227 +139,50 @@ public class FakeIOTransformer extends AttachableClassFileTransformer implements
 		}
 	}
 
-	private InsnList createNativeIOFakes(ClassNode classNode, MethodNode methodNode, Class<?> clazz) {
+	private Sequence createNativeIOFakes(ClassNode classNode, MethodNode methodNode, Class<?> clazz) {
 		nativeClasses.add(clazz);
 		methodNode.access = methodNode.access & ~Opcodes.ACC_NATIVE;
 
-		InsnList insnList = new InsnList();
+		return Sequence.sequence(new Locals(methodNode))
+			.then(createCommonIOFakes(classNode, methodNode, clazz))
+			.then(new ReturnDummy(methodNode));
+	}
 
+	private Sequence createOrdinaryIOFakes(ClassNode classNode, MethodNode methodNode, Class<?> clazz) {
+		return Sequence.sequence(new Locals(methodNode))
+			.then(createCommonIOFakes(classNode, methodNode, clazz));
+	}
+
+	private SequenceInstruction createCommonIOFakes(ClassNode classNode, MethodNode methodNode, Class<?> clazz) {
 		if (needsBridging(classNode, clazz)) {
-			insnList.add(createBridgedIOFake(classNode, methodNode));
+			return createBridgedIOFake(classNode, methodNode);
 		} else {
-			insnList.add(createDirectIOFake(classNode, methodNode));
-		}
-
-		Type returnType = Type.getReturnType(methodNode.desc);
-		insnList.add(returnDummy(returnType));
-
-		return insnList;
-	}
-
-	private InsnList createOrdinaryIOFakes(ClassNode classNode, MethodNode methodNode, Class<?> clazz) {
-		InsnList insnList = new InsnList();
-
-		if (needsBridging(classNode, clazz)) {
-			insnList.add(createBridgedIOFake(classNode, methodNode));
-		} else {
-			insnList.add(createDirectIOFake(classNode, methodNode));
-		}
-
-		return insnList;
-	}
-
-	protected InsnList createBridgedIOFake(ClassNode classNode, MethodNode methodNode) {
-		InsnList insnList = new InsnList();
-
-		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
-		Type returnType = Type.getReturnType(methodNode.desc);
-
-		int[] argumentVars = resolveArgumentLocals(methodNode, argumentTypes);
-
-		insnList.add(pushClassName(classNode, methodNode));
-		insnList.add(pushStackTrace());
-		insnList.add(pushInstance(methodNode));
-		insnList.add(pushMethodName(methodNode));
-		insnList.add(pushMethodDesc(methodNode));
-		insnList.add(pushArguments(argumentTypes, argumentVars));
-		insnList.add(callBridgedFake());
-
-		insnList.add(returnBridgedFakeOrProceed(returnType));
-		return insnList;
-	}
-
-	protected InsnList createDirectIOFake(ClassNode classNode, MethodNode methodNode) {
-		InsnList insnList = new InsnList();
-
-		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
-		Type returnType = Type.getReturnType(methodNode.desc);
-
-		int[] argumentVars = resolveArgumentLocals(methodNode, argumentTypes);
-
-		insnList.add(pushClassName(classNode, methodNode));
-		insnList.add(pushStackTrace());
-		insnList.add(pushInstance(methodNode));
-		insnList.add(pushMethodName(methodNode));
-		insnList.add(pushMethodDesc(methodNode));
-		insnList.add(pushArguments(argumentTypes, argumentVars));
-		insnList.add(callFake());
-
-		insnList.add(returnFakeOrProceed(returnType));
-		return insnList;
-	}
-
-	/* 
-	 * String name = this.getClass().getName();
-	 */
-	private InsnList pushClassName(ClassNode classNode, MethodNode methodNode) {
-		InsnList insnList = new InsnList();
-		if (isStatic(methodNode)) {
-			insnList.add(new LdcInsnNode(Type.getObjectType(classNode.name).getClassName()));
-		} else {
-			insnList.add(new VarInsnNode(Opcodes.ALOAD, 0));
-			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getInternalName(Object.class), "getClass", methodDescriptor(Object.class, "getClass"), false));
-			insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getInternalName(Class.class), "getName", methodDescriptor(Class.class, "getName"), false));
-		}
-		return insnList;
-	}
-
-	/*
-	 * StackTraceElement[] stackTrace = new Throwable().getStackTrace();
-	 */
-	private InsnList pushStackTrace() {
-		InsnList insnList = new InsnList();
-		insnList.add(new TypeInsnNode(NEW, Type.getInternalName(Throwable.class)));
-		insnList.add(new InsnNode(DUP));
-		insnList.add(new MethodInsnNode(INVOKESPECIAL, Type.getInternalName(Throwable.class), "<init>", constructorDescriptor(Throwable.class), false));
-		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getInternalName(Throwable.class), "getStackTrace", methodDescriptor(Throwable.class, "getStackTrace"), false));
-		return insnList;
-	}
-
-	/*
-	 * Object instance = <static ? null : this>;
-	 */
-	private AbstractInsnNode pushInstance(MethodNode methodNode) {
-		if (isStatic(methodNode)) {
-			return new InsnNode(ACONST_NULL);
-		} else {
-			return new VarInsnNode(ALOAD, 0);
+			return createDirectIOFake(classNode, methodNode);
 		}
 	}
 
-	/*
-	 * String methodName = <methodNode.name>;
-	 */
-	private LdcInsnNode pushMethodName(MethodNode methodNode) {
-		return new LdcInsnNode(methodNode.name);
+	protected SequenceInstruction createBridgedIOFake(ClassNode classNode, MethodNode methodNode) {
+		return Sequence.sequence(new Locals(methodNode))
+			.then(new InvokeStatic(BridgedFakeIO.class, "callFake", String.class, StackTraceElement[].class, Object.class, String.class, String.class, Object[].class)
+				.withArgument(0, new GetClassName(classNode, methodNode))
+				.withArgument(1, new GetStackTrace())
+				.withArgument(2, new GetThisOrNull(methodNode))
+				.withArgument(3, new GetMethodName(methodNode))
+				.withArgument(4, new GetMethodDesc(methodNode))
+				.withArgument(5, new WrapArguments()))
+			.then(new ReturnFakeOrProceed(methodNode, BridgedFakeIO.class, "NO_RESULT"));
 	}
 
-	/*
-	 * String methodDesc = <methodNode.desc>;
-	 */
-	private LdcInsnNode pushMethodDesc(MethodNode methodNode) {
-		return new LdcInsnNode(methodNode.desc);
-	}
-
-	/*
-	 * 	Object[] varargs = <argumentVars>;
-	 */
-	private InsnList pushArguments(Type[] argumentTypes, int[] argumentVars) {
-		return pushAsArray(argumentVars, argumentTypes);
-	}
-
-	/*
-	 * Object result = FakeIO.callFake(name, stackTrace, instance, methodName, methodDesc, varargs);
-	 */
-	private AbstractInsnNode callFake() {
-		String desc = methodDescriptor(FakeIO.class, "callFake", String.class, StackTraceElement[].class, Object.class, String.class, String.class, Object[].class);
-		return new MethodInsnNode(INVOKESTATIC, Type.getInternalName(FakeIO.class), "callFake", desc, false);
-	}
-
-	/*
-	 * Object result = BridgedFakeIO.callFake(name, stackTrace, instance, methodName, methodDesc, varargs);
-	 */
-	private AbstractInsnNode callBridgedFake() {
-		String desc = methodDescriptor(BridgedFakeIO.class, "callFake", String.class, StackTraceElement[].class, Object.class, String.class, String.class, Object[].class);
-		return new MethodInsnNode(INVOKESTATIC, Type.getInternalName(BridgedFakeIO.class), "callFake", desc, false);
-	}
-
-	/*
-	 * if (result != FakeIO.NO_RESULT) {
-	 *   return result;
-	 * }
-	 */
-	private InsnList returnFakeOrProceed(Type returnType) {
-		InsnList insnList = new InsnList();
-		LabelNode continueLabel = new LabelNode();
-		insnList.add(new InsnNode(DUP));
-		insnList.add(new FieldInsnNode(GETSTATIC, Type.getInternalName(FakeIO.class), "NO_RESULT", Type.getDescriptor(Object.class)));
-		insnList.add(new JumpInsnNode(Opcodes.IF_ACMPEQ, continueLabel));
-		if (returnType.getSize() == 0) {
-			insnList.add(new InsnNode(POP));
-			insnList.add(new InsnNode(RETURN));
-		} else if (isPrimitive(returnType)) {
-			insnList.add(unboxPrimitives(returnType));
-			insnList.add(new InsnNode(returnType.getOpcode(IRETURN)));
-		} else {
-			insnList.add(new TypeInsnNode(CHECKCAST, returnType.getInternalName()));
-			insnList.add(new InsnNode(ARETURN));
-		}
-		insnList.add(continueLabel);
-		insnList.add(new InsnNode(POP));
-		return insnList;
-	}
-
-	/*
-	 * if (result != BridgedFakeIO.NO_RESULT) {
-	 *   return result;
-	 * }
-	 */
-	private InsnList returnBridgedFakeOrProceed(Type returnType) {
-		InsnList insnList = new InsnList();
-		LabelNode continueLabel = new LabelNode();
-		insnList.add(new InsnNode(DUP));
-		insnList.add(new FieldInsnNode(GETSTATIC, Type.getInternalName(BridgedFakeIO.class), "NO_RESULT", Type.getDescriptor(Object.class)));
-		insnList.add(new JumpInsnNode(Opcodes.IF_ACMPEQ, continueLabel));
-		if (returnType.getSize() == 0) {
-			insnList.add(new InsnNode(POP));
-			insnList.add(new InsnNode(RETURN));
-		} else if (isPrimitive(returnType)) {
-			insnList.add(unboxPrimitives(returnType));
-			insnList.add(new InsnNode(returnType.getOpcode(IRETURN)));
-		} else {
-			insnList.add(new TypeInsnNode(CHECKCAST, returnType.getInternalName()));
-			insnList.add(new InsnNode(ARETURN));
-		}
-		insnList.add(continueLabel);
-		insnList.add(new InsnNode(POP));
-		return insnList;
-	}
-
-	/*
-	 * return 0; // null value
-	 */
-	private InsnList returnDummy(Type returnType) {
-		InsnList insnList = new InsnList();
-		if (returnType.getSize() == 0) {
-			insnList.add(new InsnNode(RETURN));
-		} else if (isPrimitive(returnType)) {
-			insnList.add(primitiveNull(returnType));
-			insnList.add(new InsnNode(returnType.getOpcode(IRETURN)));
-		} else {
-			insnList.add(new InsnNode(ACONST_NULL));
-			insnList.add(new InsnNode(ARETURN));
-		}
-		return insnList;
-	}
-
-	private int[] resolveArgumentLocals(MethodNode methodNode, Type[] argumentTypes) {
-		int localVariableIndex = isStatic(methodNode) ? 0 : 1;
-		int[] argumentVars = new int[argumentTypes.length];
-		for (int i = 0; i < argumentVars.length; i++) {
-			argumentVars[i] = localVariableIndex++;
-		}
-		return argumentVars;
+	protected SequenceInstruction createDirectIOFake(ClassNode classNode, MethodNode methodNode) {
+		return Sequence.sequence(new Locals(methodNode))
+			.then(new InvokeStatic(FakeIO.class, "callFake", String.class, StackTraceElement[].class, Object.class, String.class, String.class, Object[].class)
+				.withArgument(0, new GetClassName(classNode, methodNode))
+				.withArgument(1, new GetStackTrace())
+				.withArgument(2, new GetThisOrNull(methodNode))
+				.withArgument(3, new GetMethodName(methodNode))
+				.withArgument(4, new GetMethodDesc(methodNode))
+				.withArgument(5, new WrapArguments()))
+			.then(new ReturnFakeOrProceed(methodNode, FakeIO.class, "NO_RESULT"));
 	}
 
 	private List<MethodNode> fakedMethods(ClassNode classNode) {

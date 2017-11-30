@@ -8,10 +8,8 @@ import java.util.Map;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.InsnList;
 
-public class Sequence {
+public class Sequence implements SequenceInstruction {
 
-	public static final Sequence NULL = new Sequence(null);
-	
 	private List<SequenceInstruction> insns;
 	private Locals locals;
 	private Map<String, Integer> variables;
@@ -36,6 +34,14 @@ public class Sequence {
 		return variables.get(variableName);
 	}
 
+	public Type[] getArgumentTypes() {
+		return locals.getArgumentTypes();
+	}
+
+	public int[] getArguments() {
+		return locals.getArguments();
+	}
+
 	public Sequence then(SequenceInstruction insn) {
 		insns.add(insn);
 		return this;
@@ -47,6 +53,12 @@ public class Sequence {
 			insnList.add(insn.build(this));
 		}
 		return insnList;
+	}
+	
+	@Override
+	public InsnList build(Sequence sequence) {
+		this.locals = sequence.locals;
+		return build();
 	}
 
 }

@@ -8,6 +8,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.objectweb.asm.tree.InsnList;
 
+import net.amygdalum.testrecorder.asm.Locals;
+import net.amygdalum.testrecorder.asm.Sequence;
 import net.amygdalum.testrecorder.util.ByteCode;
 
 public class FakeIOTransformerTest {
@@ -22,7 +24,7 @@ public class FakeIOTransformerTest {
 	@Test
 	public void testCreateDirectIOFakePrimitiveResultNoArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "primitiveResultNoArgs");
-		InsnList insnlist = fakeIOTransformer.createDirectIOFake(unit.classNode, unit.methodNode);
+		InsnList insnlist = fakeIOTransformer.createDirectIOFake(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"ALOAD 0",
@@ -51,7 +53,7 @@ public class FakeIOTransformerTest {
 	@Test
 	public void testCreateDirectIOFakeObjectResultNoArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "objectResultNoArgs");
-		InsnList insnlist = fakeIOTransformer.createDirectIOFake(unit.classNode, unit.methodNode);
+		InsnList insnlist = fakeIOTransformer.createDirectIOFake(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"ALOAD 0",
@@ -79,7 +81,7 @@ public class FakeIOTransformerTest {
 	@Test
 	public void testCreateDirectIOFakeNoResultPrimitiveArg() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "noResultPrimitiveArg");
-		InsnList insnlist = fakeIOTransformer.createDirectIOFake(unit.classNode, unit.methodNode);
+		InsnList insnlist = fakeIOTransformer.createDirectIOFake(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"ALOAD 0",
@@ -112,7 +114,7 @@ public class FakeIOTransformerTest {
 	@Test
 	public void testCreateDirectIOFakeNoResultArrayArg() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "noResultArrayArg");
-		InsnList insnlist = fakeIOTransformer.createDirectIOFake(unit.classNode, unit.methodNode);
+		InsnList insnlist = fakeIOTransformer.createDirectIOFake(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"ALOAD 0",
@@ -144,7 +146,7 @@ public class FakeIOTransformerTest {
 	@Test
 	public void testCreateDirectIOFakeNoResultObjectArrayArg() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "noResultObjectArrayArg");
-		InsnList insnlist = fakeIOTransformer.createDirectIOFake(unit.classNode, unit.methodNode);
+		InsnList insnlist = fakeIOTransformer.createDirectIOFake(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"ALOAD 0",
@@ -176,7 +178,7 @@ public class FakeIOTransformerTest {
 	@Test
 	public void testCreateDirectIOFakeNoResultObjectArg() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "noResultObjectArg");
-		InsnList insnlist = fakeIOTransformer.createDirectIOFake(unit.classNode, unit.methodNode);
+		InsnList insnlist = fakeIOTransformer.createDirectIOFake(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"ALOAD 0",
@@ -208,7 +210,7 @@ public class FakeIOTransformerTest {
 	@Test
 	public void testCreateDirectIOFakeObjectResultMixedArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "objectResultMixedArgs");
-		InsnList insnlist = fakeIOTransformer.createDirectIOFake(unit.classNode, unit.methodNode);
+		InsnList insnlist = fakeIOTransformer.createDirectIOFake(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"ALOAD 0",
@@ -230,7 +232,7 @@ public class FakeIOTransformerTest {
 			"AASTORE",
 			"DUP",
 			"LDC 1",
-			"ALOAD 2",
+			"ALOAD 3",
 			"AASTORE",
 			"INVOKESTATIC net/amygdalum/testrecorder/runtime/FakeIO.callFake (Ljava/lang/String;[Ljava/lang/StackTraceElement;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;",
 			"DUP",
@@ -245,7 +247,7 @@ public class FakeIOTransformerTest {
 	@Test
 	public void testCreateDirectIOFakeStaticPrimitiveResultMixedArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "staticPrimitiveResultMixedArgs");
-		InsnList insnlist = fakeIOTransformer.createDirectIOFake(unit.classNode, unit.methodNode);
+		InsnList insnlist = fakeIOTransformer.createDirectIOFake(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"LDC \"net.amygdalum.testrecorder.Example\"",
@@ -281,7 +283,7 @@ public class FakeIOTransformerTest {
 	@Test
 	public void testCreateBridgedIOFakePrimitiveResultNoArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "primitiveResultNoArgs");
-		InsnList insnlist = fakeIOTransformer.createBridgedIOFake(unit.classNode, unit.methodNode);
+		InsnList insnlist = fakeIOTransformer.createBridgedIOFake(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 		
 		assertThat(ByteCode.toString(insnlist), contains(
 			"ALOAD 0",
@@ -310,7 +312,7 @@ public class FakeIOTransformerTest {
 	@Test
 	public void testCreateBridgedIOFakeObjectResultNoArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "objectResultNoArgs");
-		InsnList insnlist = fakeIOTransformer.createBridgedIOFake(unit.classNode, unit.methodNode);
+		InsnList insnlist = fakeIOTransformer.createBridgedIOFake(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 		
 		assertThat(ByteCode.toString(insnlist), contains(
 			"ALOAD 0",
@@ -338,7 +340,7 @@ public class FakeIOTransformerTest {
 	@Test
 	public void testCreateBridgedIOFakeNoResultPrimitiveArg() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "noResultPrimitiveArg");
-		InsnList insnlist = fakeIOTransformer.createBridgedIOFake(unit.classNode, unit.methodNode);
+		InsnList insnlist = fakeIOTransformer.createBridgedIOFake(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 		
 		assertThat(ByteCode.toString(insnlist), contains(
 			"ALOAD 0",
@@ -371,7 +373,7 @@ public class FakeIOTransformerTest {
 	@Test
 	public void testCreateBridgedIOFakeNoResultArrayArg() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "noResultArrayArg");
-		InsnList insnlist = fakeIOTransformer.createBridgedIOFake(unit.classNode, unit.methodNode);
+		InsnList insnlist = fakeIOTransformer.createBridgedIOFake(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 		
 		assertThat(ByteCode.toString(insnlist), contains(
 			"ALOAD 0",
@@ -403,7 +405,7 @@ public class FakeIOTransformerTest {
 	@Test
 	public void testCreateBridgedIOFakeNoResultObjectArrayArg() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "noResultObjectArrayArg");
-		InsnList insnlist = fakeIOTransformer.createBridgedIOFake(unit.classNode, unit.methodNode);
+		InsnList insnlist = fakeIOTransformer.createBridgedIOFake(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 		
 		assertThat(ByteCode.toString(insnlist), contains(
 			"ALOAD 0",
@@ -435,7 +437,7 @@ public class FakeIOTransformerTest {
 	@Test
 	public void testCreateBridgedIOFakeNoResultObjectArg() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "noResultObjectArg");
-		InsnList insnlist = fakeIOTransformer.createBridgedIOFake(unit.classNode, unit.methodNode);
+		InsnList insnlist = fakeIOTransformer.createBridgedIOFake(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 		
 		assertThat(ByteCode.toString(insnlist), contains(
 			"ALOAD 0",
@@ -467,7 +469,7 @@ public class FakeIOTransformerTest {
 	@Test
 	public void testCreateBridgedIOFakeObjectResultMixedArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "objectResultMixedArgs");
-		InsnList insnlist = fakeIOTransformer.createBridgedIOFake(unit.classNode, unit.methodNode);
+		InsnList insnlist = fakeIOTransformer.createBridgedIOFake(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 		
 		assertThat(ByteCode.toString(insnlist), contains(
 			"ALOAD 0",
@@ -489,7 +491,7 @@ public class FakeIOTransformerTest {
 			"AASTORE",
 			"DUP",
 			"LDC 1",
-			"ALOAD 2",
+			"ALOAD 3",
 			"AASTORE",
 			"INVOKESTATIC net/amygdalum/testrecorder/bridge/BridgedFakeIO.callFake (Ljava/lang/String;[Ljava/lang/StackTraceElement;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;",
 			"DUP",
@@ -505,7 +507,7 @@ public class FakeIOTransformerTest {
 	@Test
 	public void testCreateBridgedIOFakeStaticPrimitiveResultMixedArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "staticPrimitiveResultMixedArgs");
-		InsnList insnlist = fakeIOTransformer.createBridgedIOFake(unit.classNode, unit.methodNode);
+		InsnList insnlist = fakeIOTransformer.createBridgedIOFake(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 		
 		assertThat(ByteCode.toString(insnlist), contains(
 			"LDC \"net.amygdalum.testrecorder.Example\"",
