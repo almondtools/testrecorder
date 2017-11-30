@@ -33,7 +33,6 @@ import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
 
 import net.amygdalum.testrecorder.DeserializationException;
-import net.amygdalum.testrecorder.FakeIOTransformer;
 import net.amygdalum.testrecorder.SnapshotManager;
 import net.amygdalum.testrecorder.bridge.BridgedFakeIO;
 import net.amygdalum.testrecorder.util.ByteCode;
