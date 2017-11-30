@@ -1,18 +1,12 @@
 package net.amygdalum.testrecorder;
 
+import static net.amygdalum.testrecorder.InstrumentationUnit.instrument;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-
 import org.junit.Before;
 import org.junit.Test;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.MethodNode;
 
 import net.amygdalum.testrecorder.util.ByteCode;
 
@@ -33,7 +27,7 @@ public class SnapshotInstrumentorTest {
 		assertThat(ByteCode.toString(insnlist), contains(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 0",
-			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:noResultNoArgs()V\"",
+			"LDC \"net/amygdalum/testrecorder/Example:noResultNoArgs()V\"",
 			"LDC 0",
 			"ANEWARRAY java/lang/Object",
 			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.setupVariables (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
@@ -47,7 +41,7 @@ public class SnapshotInstrumentorTest {
 		assertThat(ByteCode.toString(insnlist), contains(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 0",
-			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:primitiveResultNoArgs()Z\"",
+			"LDC \"net/amygdalum/testrecorder/Example:primitiveResultNoArgs()Z\"",
 			"LDC 0",
 			"ANEWARRAY java/lang/Object",
 			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.setupVariables (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
@@ -61,7 +55,7 @@ public class SnapshotInstrumentorTest {
 		assertThat(ByteCode.toString(insnlist), contains(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 0",
-			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:objectResultNoArgs()Lnet/amygdalum/testrecorder/SnapshotInstrumentorTest$ResultObject;\"",
+			"LDC \"net/amygdalum/testrecorder/Example:objectResultNoArgs()Lnet/amygdalum/testrecorder/ResultObject;\"",
 			"LDC 0",
 			"ANEWARRAY java/lang/Object",
 			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.setupVariables (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
@@ -75,7 +69,7 @@ public class SnapshotInstrumentorTest {
 		assertThat(ByteCode.toString(insnlist), contains(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 0",
-			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:noResultPrimitiveArg(I)V\"",
+			"LDC \"net/amygdalum/testrecorder/Example:noResultPrimitiveArg(I)V\"",
 			"LDC 1",
 			"ANEWARRAY java/lang/Object",
 			"DUP",
@@ -94,7 +88,7 @@ public class SnapshotInstrumentorTest {
 		assertThat(ByteCode.toString(insnlist), contains(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 0",
-			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:noResultObjectArg(Lnet/amygdalum/testrecorder/SnapshotInstrumentorTest$ArgumentObject;)V\"",
+			"LDC \"net/amygdalum/testrecorder/Example:noResultObjectArg(Lnet/amygdalum/testrecorder/ArgumentObject;)V\"",
 			"LDC 1",
 			"ANEWARRAY java/lang/Object",
 			"DUP",
@@ -112,7 +106,7 @@ public class SnapshotInstrumentorTest {
 		assertThat(ByteCode.toString(insnlist), contains(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 0",
-			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:objectResultMixedArgs(DLnet/amygdalum/testrecorder/SnapshotInstrumentorTest$ArgumentObject;)Lnet/amygdalum/testrecorder/SnapshotInstrumentorTest$ResultObject;\"",
+			"LDC \"net/amygdalum/testrecorder/Example:objectResultMixedArgs(DLnet/amygdalum/testrecorder/ArgumentObject;)Lnet/amygdalum/testrecorder/ResultObject;\"",
 			"LDC 2",
 			"ANEWARRAY java/lang/Object",
 			"DUP",
@@ -126,7 +120,7 @@ public class SnapshotInstrumentorTest {
 			"AASTORE",
 			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.setupVariables (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
 	}
-	
+
 	@Test
 	public void testSetupVariablesWithStaticPrimitiveResultMixedArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "staticPrimitiveResultMixedArgs");
@@ -135,7 +129,7 @@ public class SnapshotInstrumentorTest {
 		assertThat(ByteCode.toString(insnlist), contains(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ACONST_NULL",
-			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:staticPrimitiveResultMixedArgs(Lnet/amygdalum/testrecorder/SnapshotInstrumentorTest$ArgumentObject;C)J\"",
+			"LDC \"net/amygdalum/testrecorder/Example:staticPrimitiveResultMixedArgs(Lnet/amygdalum/testrecorder/ArgumentObject;C)J\"",
 			"LDC 2",
 			"ANEWARRAY java/lang/Object",
 			"DUP",
@@ -149,7 +143,7 @@ public class SnapshotInstrumentorTest {
 			"AASTORE",
 			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.setupVariables (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
 	}
-	
+
 	@Test
 	public void testExpectVariablesWithNoResultNoArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "noResultNoArgs");
@@ -158,7 +152,7 @@ public class SnapshotInstrumentorTest {
 		assertThat(ByteCode.toString(insnlist), contains(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 0",
-			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:noResultNoArgs()V\"",
+			"LDC \"net/amygdalum/testrecorder/Example:noResultNoArgs()V\"",
 			"LDC 0",
 			"ANEWARRAY java/lang/Object",
 			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.expectVariables (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
@@ -175,7 +169,7 @@ public class SnapshotInstrumentorTest {
 			"ASTORE 1",
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 0",
-			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:primitiveResultNoArgs()Z\"",
+			"LDC \"net/amygdalum/testrecorder/Example:primitiveResultNoArgs()Z\"",
 			"ALOAD 1",
 			"LDC 0",
 			"ANEWARRAY java/lang/Object",
@@ -192,7 +186,7 @@ public class SnapshotInstrumentorTest {
 			"ASTORE 1",
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 0",
-			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:objectResultNoArgs()Lnet/amygdalum/testrecorder/SnapshotInstrumentorTest$ResultObject;\"",
+			"LDC \"net/amygdalum/testrecorder/Example:objectResultNoArgs()Lnet/amygdalum/testrecorder/ResultObject;\"",
 			"ALOAD 1",
 			"LDC 0",
 			"ANEWARRAY java/lang/Object",
@@ -207,7 +201,7 @@ public class SnapshotInstrumentorTest {
 		assertThat(ByteCode.toString(insnlist), contains(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 0",
-			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:noResultPrimitiveArg(I)V\"",
+			"LDC \"net/amygdalum/testrecorder/Example:noResultPrimitiveArg(I)V\"",
 			"LDC 1",
 			"ANEWARRAY java/lang/Object",
 			"DUP",
@@ -226,7 +220,7 @@ public class SnapshotInstrumentorTest {
 		assertThat(ByteCode.toString(insnlist), contains(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 0",
-			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:noResultObjectArg(Lnet/amygdalum/testrecorder/SnapshotInstrumentorTest$ArgumentObject;)V\"",
+			"LDC \"net/amygdalum/testrecorder/Example:noResultObjectArg(Lnet/amygdalum/testrecorder/ArgumentObject;)V\"",
 			"LDC 1",
 			"ANEWARRAY java/lang/Object",
 			"DUP",
@@ -246,7 +240,7 @@ public class SnapshotInstrumentorTest {
 			"ASTORE 4",
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 0",
-			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:objectResultMixedArgs(DLnet/amygdalum/testrecorder/SnapshotInstrumentorTest$ArgumentObject;)Lnet/amygdalum/testrecorder/SnapshotInstrumentorTest$ResultObject;\"",
+			"LDC \"net/amygdalum/testrecorder/Example:objectResultMixedArgs(DLnet/amygdalum/testrecorder/ArgumentObject;)Lnet/amygdalum/testrecorder/ResultObject;\"",
 			"ALOAD 4",
 			"LDC 2",
 			"ANEWARRAY java/lang/Object",
@@ -261,7 +255,7 @@ public class SnapshotInstrumentorTest {
 			"AASTORE",
 			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.expectVariables (Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)V"));
 	}
-	
+
 	@Test
 	public void testExpectVariablesWithStaticPrimitiveResultMixedArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "staticPrimitiveResultMixedArgs");
@@ -273,7 +267,7 @@ public class SnapshotInstrumentorTest {
 			"ASTORE 2",
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ACONST_NULL",
-			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:staticPrimitiveResultMixedArgs(Lnet/amygdalum/testrecorder/SnapshotInstrumentorTest$ArgumentObject;C)J\"",
+			"LDC \"net/amygdalum/testrecorder/Example:staticPrimitiveResultMixedArgs(Lnet/amygdalum/testrecorder/ArgumentObject;C)J\"",
 			"ALOAD 2",
 			"LDC 2",
 			"ANEWARRAY java/lang/Object",
@@ -288,70 +282,70 @@ public class SnapshotInstrumentorTest {
 			"AASTORE",
 			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.expectVariables (Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)V"));
 	}
-	
+
 	@Test
 	public void testThrowVariablesWithNoResultNoArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "noResultNoArgs");
 		InsnList insnlist = snapshotInstrumentor.throwVariables(unit.classNode, unit.methodNode);
-		
+
 		assertThat(ByteCode.toString(insnlist), contains(
 			"DUP",
 			"ASTORE 1",
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 1",
 			"ALOAD 0",
-			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:noResultNoArgs()V\"",
+			"LDC \"net/amygdalum/testrecorder/Example:noResultNoArgs()V\"",
 			"LDC 0",
 			"ANEWARRAY java/lang/Object",
 			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.throwVariables (Ljava/lang/Throwable;Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
 	}
-	
+
 	@Test
 	public void testThrowVariablesWithPrimitiveResultNoArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "primitiveResultNoArgs");
 		InsnList insnlist = snapshotInstrumentor.throwVariables(unit.classNode, unit.methodNode);
-		
+
 		assertThat(ByteCode.toString(insnlist), contains(
 			"DUP",
 			"ASTORE 1",
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 1",
 			"ALOAD 0",
-			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:primitiveResultNoArgs()Z\"",
+			"LDC \"net/amygdalum/testrecorder/Example:primitiveResultNoArgs()Z\"",
 			"LDC 0",
 			"ANEWARRAY java/lang/Object",
 			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.throwVariables (Ljava/lang/Throwable;Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
 	}
-	
+
 	@Test
 	public void testThrowVariablesWithObjectResultNoArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "objectResultNoArgs");
 		InsnList insnlist = snapshotInstrumentor.throwVariables(unit.classNode, unit.methodNode);
-		
+
 		assertThat(ByteCode.toString(insnlist), contains(
 			"DUP",
 			"ASTORE 1",
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 1",
 			"ALOAD 0",
-			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:objectResultNoArgs()Lnet/amygdalum/testrecorder/SnapshotInstrumentorTest$ResultObject;\"",
+			"LDC \"net/amygdalum/testrecorder/Example:objectResultNoArgs()Lnet/amygdalum/testrecorder/ResultObject;\"",
 			"LDC 0",
 			"ANEWARRAY java/lang/Object",
 			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.throwVariables (Ljava/lang/Throwable;Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
 	}
-	
+
 	@Test
 	public void testThrowVariablesWithNoResultPrimitiveArg() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "noResultPrimitiveArg");
 		InsnList insnlist = snapshotInstrumentor.throwVariables(unit.classNode, unit.methodNode);
-		
+
 		assertThat(ByteCode.toString(insnlist), contains(
 			"DUP",
 			"ASTORE 2",
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 2",
 			"ALOAD 0",
-			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:noResultPrimitiveArg(I)V\"",
+			"LDC \"net/amygdalum/testrecorder/Example:noResultPrimitiveArg(I)V\"",
 			"LDC 1",
 			"ANEWARRAY java/lang/Object",
 			"DUP",
@@ -361,19 +355,19 @@ public class SnapshotInstrumentorTest {
 			"AASTORE",
 			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.throwVariables (Ljava/lang/Throwable;Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
 	}
-	
+
 	@Test
 	public void testThrowVariablesWithNoResultObjectArg() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "noResultObjectArg");
 		InsnList insnlist = snapshotInstrumentor.throwVariables(unit.classNode, unit.methodNode);
-		
+
 		assertThat(ByteCode.toString(insnlist), contains(
 			"DUP",
 			"ASTORE 2",
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 2",
 			"ALOAD 0",
-			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:noResultObjectArg(Lnet/amygdalum/testrecorder/SnapshotInstrumentorTest$ArgumentObject;)V\"",
+			"LDC \"net/amygdalum/testrecorder/Example:noResultObjectArg(Lnet/amygdalum/testrecorder/ArgumentObject;)V\"",
 			"LDC 1",
 			"ANEWARRAY java/lang/Object",
 			"DUP",
@@ -382,19 +376,19 @@ public class SnapshotInstrumentorTest {
 			"AASTORE",
 			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.throwVariables (Ljava/lang/Throwable;Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
 	}
-	
+
 	@Test
 	public void testThrowVariablesWithObjectResultMixedArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "objectResultMixedArgs");
 		InsnList insnlist = snapshotInstrumentor.throwVariables(unit.classNode, unit.methodNode);
-		
+
 		assertThat(ByteCode.toString(insnlist), contains(
 			"DUP",
 			"ASTORE 4",
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 4",
 			"ALOAD 0",
-			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:objectResultMixedArgs(DLnet/amygdalum/testrecorder/SnapshotInstrumentorTest$ArgumentObject;)Lnet/amygdalum/testrecorder/SnapshotInstrumentorTest$ResultObject;\"",
+			"LDC \"net/amygdalum/testrecorder/Example:objectResultMixedArgs(DLnet/amygdalum/testrecorder/ArgumentObject;)Lnet/amygdalum/testrecorder/ResultObject;\"",
 			"LDC 2",
 			"ANEWARRAY java/lang/Object",
 			"DUP",
@@ -408,19 +402,19 @@ public class SnapshotInstrumentorTest {
 			"AASTORE",
 			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.throwVariables (Ljava/lang/Throwable;Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
 	}
-	
+
 	@Test
 	public void testThrowVariablesWithStaticPrimitiveResultMixedArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "staticPrimitiveResultMixedArgs");
 		InsnList insnlist = snapshotInstrumentor.throwVariables(unit.classNode, unit.methodNode);
-		
+
 		assertThat(ByteCode.toString(insnlist), contains(
 			"DUP",
 			"ASTORE 2",
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 2",
 			"ACONST_NULL",
-			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:staticPrimitiveResultMixedArgs(Lnet/amygdalum/testrecorder/SnapshotInstrumentorTest$ArgumentObject;C)J\"",
+			"LDC \"net/amygdalum/testrecorder/Example:staticPrimitiveResultMixedArgs(Lnet/amygdalum/testrecorder/ArgumentObject;C)J\"",
 			"LDC 2",
 			"ANEWARRAY java/lang/Object",
 			"DUP",
@@ -433,65 +427,5 @@ public class SnapshotInstrumentorTest {
 			"INVOKESTATIC java/lang/Character.valueOf (C)Ljava/lang/Character;",
 			"AASTORE",
 			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.throwVariables (Ljava/lang/Throwable;Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
-	}
-	
-	private InstrumentationUnit instrument(Class<?> clazz, String methodName) throws IOException, NoSuchMethodException {
-		Method method = Arrays.stream(clazz.getDeclaredMethods())
-			.filter(m -> m.getName().equals(methodName))
-			.findFirst()
-			.orElse(null);
-		String className = Type.getInternalName(clazz);
-		String methodDesc = Type.getMethodDescriptor(method);
-		ClassNode classNode = snapshotInstrumentor.fetchClassNode(className);
-		MethodNode methodNode = snapshotInstrumentor.fetchMethodNode(className, methodName, methodDesc);
-
-		return new InstrumentationUnit(classNode, methodNode);
-	}
-
-	private static class InstrumentationUnit {
-		public ClassNode classNode;
-		public MethodNode methodNode;
-
-		public InstrumentationUnit(ClassNode classNode, MethodNode methodNode) {
-			this.classNode = classNode;
-			this.methodNode = methodNode;
-		}
-
-	}
-
-	public static class Example {
-		public void noResultNoArgs() {
-		}
-
-		public boolean primitiveResultNoArgs() {
-			return true;
-		}
-
-		public ResultObject objectResultNoArgs() {
-			return null;
-		}
-
-		public void noResultPrimitiveArg(int i) {
-		}
-
-		public void noResultObjectArg(ArgumentObject o) {
-		}
-
-		public ResultObject objectResultMixedArgs(double d, ArgumentObject o) {
-			return null;
-		}
-
-		public static long staticPrimitiveResultMixedArgs(ArgumentObject o, char c) {
-			return 1l;
-		}
-
-	}
-	
-	public class ResultObject {
-		
-	}
-
-	public class ArgumentObject {
-		
 	}
 }

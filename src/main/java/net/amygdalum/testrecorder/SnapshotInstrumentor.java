@@ -145,7 +145,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 	}
 
-	protected ClassNode fetchClassNode(String className) throws IOException {
+	private ClassNode fetchClassNode(String className) throws IOException {
 		ClassNode classNode = classCache.get(className);
 		if (classNode == null) {
 			ClassReader cr = new ClassReader(className);
@@ -166,7 +166,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		return classNode;
 	}
 
-	protected MethodNode fetchMethodNode(String className, String methodName, String methodDesc) throws IOException, NoSuchMethodException {
+	private MethodNode fetchMethodNode(String className, String methodName, String methodDesc) throws IOException, NoSuchMethodException {
 		ClassNode classNode = fetchClassNode(className);
 		return classNode.methods.stream()
 			.filter(method -> method.name.equals(methodName) && method.desc.equals(methodDesc))

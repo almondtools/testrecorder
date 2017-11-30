@@ -186,7 +186,7 @@ public class FakeIOTransformer extends AttachableClassFileTransformer implements
 		return insnList;
 	}
 
-	private InsnList createBridgedIOFake(ClassNode classNode, MethodNode methodNode) {
+	protected InsnList createBridgedIOFake(ClassNode classNode, MethodNode methodNode) {
 		InsnList insnList = new InsnList();
 
 		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
@@ -206,7 +206,7 @@ public class FakeIOTransformer extends AttachableClassFileTransformer implements
 		return insnList;
 	}
 
-	private InsnList createDirectIOFake(ClassNode classNode, MethodNode methodNode) {
+	protected InsnList createDirectIOFake(ClassNode classNode, MethodNode methodNode) {
 		InsnList insnList = new InsnList();
 
 		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
