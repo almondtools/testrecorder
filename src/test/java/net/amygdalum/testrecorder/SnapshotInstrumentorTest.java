@@ -296,8 +296,9 @@ public class SnapshotInstrumentorTest {
 		
 		assertThat(ByteCode.toString(insnlist), contains(
 			"DUP",
+			"ASTORE 1",
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
-			"SWAP",
+			"ALOAD 1",
 			"ALOAD 0",
 			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:noResultNoArgs()V\"",
 			"LDC 0",
@@ -312,8 +313,9 @@ public class SnapshotInstrumentorTest {
 		
 		assertThat(ByteCode.toString(insnlist), contains(
 			"DUP",
+			"ASTORE 1",
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
-			"SWAP",
+			"ALOAD 1",
 			"ALOAD 0",
 			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:primitiveResultNoArgs()Z\"",
 			"LDC 0",
@@ -328,8 +330,9 @@ public class SnapshotInstrumentorTest {
 		
 		assertThat(ByteCode.toString(insnlist), contains(
 			"DUP",
+			"ASTORE 1",
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
-			"SWAP",
+			"ALOAD 1",
 			"ALOAD 0",
 			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:objectResultNoArgs()Lnet/amygdalum/testrecorder/SnapshotInstrumentorTest$ResultObject;\"",
 			"LDC 0",
@@ -344,8 +347,9 @@ public class SnapshotInstrumentorTest {
 		
 		assertThat(ByteCode.toString(insnlist), contains(
 			"DUP",
+			"ASTORE 2",
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
-			"SWAP",
+			"ALOAD 2",
 			"ALOAD 0",
 			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:noResultPrimitiveArg(I)V\"",
 			"LDC 1",
@@ -365,8 +369,9 @@ public class SnapshotInstrumentorTest {
 		
 		assertThat(ByteCode.toString(insnlist), contains(
 			"DUP",
+			"ASTORE 2",
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
-			"SWAP",
+			"ALOAD 2",
 			"ALOAD 0",
 			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:noResultObjectArg(Lnet/amygdalum/testrecorder/SnapshotInstrumentorTest$ArgumentObject;)V\"",
 			"LDC 1",
@@ -385,8 +390,9 @@ public class SnapshotInstrumentorTest {
 		
 		assertThat(ByteCode.toString(insnlist), contains(
 			"DUP",
+			"ASTORE 4",
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
-			"SWAP",
+			"ALOAD 4",
 			"ALOAD 0",
 			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:objectResultMixedArgs(DLnet/amygdalum/testrecorder/SnapshotInstrumentorTest$ArgumentObject;)Lnet/amygdalum/testrecorder/SnapshotInstrumentorTest$ResultObject;\"",
 			"LDC 2",
@@ -410,8 +416,9 @@ public class SnapshotInstrumentorTest {
 		
 		assertThat(ByteCode.toString(insnlist), contains(
 			"DUP",
+			"ASTORE 2",
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
-			"SWAP",
+			"ALOAD 2",
 			"ACONST_NULL",
 			"LDC \"net/amygdalum/testrecorder/SnapshotInstrumentorTest$Example:staticPrimitiveResultMixedArgs(Lnet/amygdalum/testrecorder/SnapshotInstrumentorTest$ArgumentObject;C)J\"",
 			"LDC 2",

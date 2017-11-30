@@ -1,17 +1,14 @@
 package net.amygdalum.testrecorder;
 
 import static java.util.stream.Collectors.toList;
-import static net.amygdalum.testrecorder.util.ByteCode.isStatic;
 import static net.amygdalum.testrecorder.util.ByteCode.memorizeLocal;
 import static net.amygdalum.testrecorder.util.ByteCode.pushAsArray;
 import static net.amygdalum.testrecorder.util.ByteCode.pushType;
 import static net.amygdalum.testrecorder.util.ByteCode.pushTypes;
-import static net.amygdalum.testrecorder.util.ByteCode.range;
 import static net.amygdalum.testrecorder.util.ByteCode.recallLocal;
 import static org.objectweb.asm.Opcodes.ACC_ANNOTATION;
 import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
-import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.ATHROW;
@@ -24,7 +21,6 @@ import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.IRETURN;
 import static org.objectweb.asm.Opcodes.ISTORE;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.SWAP;
 
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
@@ -54,7 +50,6 @@ import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LdcInsnNode;
-import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
@@ -79,7 +74,6 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 	public static final String SNAPSHOT_MANAGER_FIELD_NAME = "MANAGER";
 	private static final String INPUT_VARIABLES = "inputVariables";
 	private static final String OUTPUT_VARIABLES = "outputVariables";
-	private static final String THROW_VARIABLES = "throwVariables";
 
 	private static final String SnapshotManager_name = Type.getInternalName(SnapshotManager.class);
 
@@ -89,8 +83,6 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 	private static final String Output_descriptor = Type.getDescriptor(Output.class);
 	private static final String Global_descriptor = Type.getDescriptor(Global.class);
 
-	private static final String SnaphotManager_throwVariables_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, THROW_VARIABLES, Throwable.class, Object.class, String.class,
-		Object[].class);
 	private static final String SnaphotManager_outputVariablesResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, OUTPUT_VARIABLES, Object.class, String.class,
 		java.lang.reflect.Type.class, Object.class, java.lang.reflect.Type[].class, Object[].class);
 	private static final String SnaphotManager_outputVariablesNoResult_descriptor = ByteCode.methodDescriptor(SnapshotManager.class, OUTPUT_VARIABLES, Object.class, String.class,
@@ -594,32 +586,15 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 	}
 
 	protected InsnList throwVariables(ClassNode classNode, MethodNode methodNode) {
-		int localVariableIndex = isStatic(methodNode) ? 0 : 1;
-
-		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
-		List<LocalVariableNode> arguments = range(methodNode.localVariables, localVariableIndex, argumentTypes.length);
-
-		InsnList insnList = new InsnList();
-
-		insnList.add(new InsnNode(DUP));
-
-		insnList.add(new FieldInsnNode(GETSTATIC, SnapshotManager_name, SNAPSHOT_MANAGER_FIELD_NAME, SnaphotManager_descriptor));
-
-		insnList.add(new InsnNode(SWAP));
-
-		if (isStatic(methodNode)) {
-			insnList.add(new InsnNode(ACONST_NULL));
-		} else {
-			insnList.add(new VarInsnNode(ALOAD, 0));
-		}
-
-		insnList.add(new LdcInsnNode(keySignature(classNode, methodNode)));
-
-		insnList.add(pushAsArray(arguments));
-
-		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, SnapshotManager_name, THROW_VARIABLES, SnaphotManager_throwVariables_descriptor, false));
-
-		return insnList;
+		return Sequence.sequence(new Locals(methodNode))
+			.then(new Memoize("throwable", Type.getType(Throwable.class)))
+			.then(new InvokeVirtual(SnapshotManager.class, "throwVariables", Throwable.class, Object.class, String.class, Object[].class)
+				.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+				.withArgument(0, new Recall("throwable"))
+				.withArgument(1, new GetThis(methodNode))
+				.withArgument(2, new Ldc(keySignature(classNode, methodNode)))
+				.withArgument(3, new WrapArguments(methodNode)))
+			.build();
 	}
 
 	private String keySignature(ClassNode classNode, MethodNode methodNode) {
