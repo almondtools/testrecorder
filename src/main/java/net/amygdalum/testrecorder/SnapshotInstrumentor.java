@@ -191,6 +191,10 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 			instrumentSnapshotMethods(classNode);
 
+			instrumentInputMethods(classNode);
+
+			instrumentOutputMethods(classNode);
+
 			instrumentInputCalls(classNode);
 
 			instrumentOutputCalls(classNode);
@@ -222,23 +226,47 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 	private void instrumentSnapshotMethods(ClassNode classNode) {
 		for (MethodNode method : getSnapshotMethods(classNode)) {
-			LabelNode tryLabel = new LabelNode();
-			LabelNode catchLabel = new LabelNode();
-			LabelNode finallyLabel = new LabelNode();
-			method.tryCatchBlocks.add(createTryCatchBlock(tryLabel, catchLabel));
-			method.instructions.insert(createTry(tryLabel, setupVariables(classNode, method)));
-			List<InsnNode> rets = findReturn(method.instructions);
-			for (InsnNode ret : rets) {
-				method.instructions.insert(ret, new JumpInsnNode(GOTO, finallyLabel));
-				method.instructions.remove(ret);
-			}
-			int returnOpcode = rets.stream()
-				.map(ret -> ret.getOpcode())
-				.distinct()
-				.findFirst()
-				.orElse(RETURN);
-			method.instructions.add(createCatchFinally(catchLabel, throwVariables(classNode, method), finallyLabel, expectVariables(classNode, method), new InsnNode(returnOpcode)));
+			instrumentSnapshotMethod(classNode, method);
 		}
+	}
+
+	protected void instrumentSnapshotMethod(ClassNode classNode, MethodNode methodNode) {
+		LabelNode tryLabel = new LabelNode();
+		LabelNode catchLabel = new LabelNode();
+		LabelNode finallyLabel = new LabelNode();
+		methodNode.tryCatchBlocks.add(createTryCatchBlock(tryLabel, catchLabel));
+		methodNode.instructions.insert(createTry(tryLabel, setupVariables(classNode, methodNode)));
+		List<InsnNode> rets = findReturn(methodNode.instructions);
+		for (InsnNode ret : rets) {
+			methodNode.instructions.insert(ret, new JumpInsnNode(GOTO, finallyLabel));
+			methodNode.instructions.remove(ret);
+		}
+		int returnOpcode = rets.stream()
+			.map(ret -> ret.getOpcode())
+			.distinct()
+			.findFirst()
+			.orElse(RETURN);
+		methodNode.instructions.add(createCatchFinally(catchLabel, throwVariables(classNode, methodNode), finallyLabel, expectVariables(classNode, methodNode), new InsnNode(returnOpcode)));
+	}
+
+	private void instrumentInputMethods(ClassNode classNode) {
+		for (MethodNode method : getInputMethods(classNode)) {
+			instrumentInputMethod(classNode, method);
+		}
+	}
+
+	protected void instrumentInputMethod(ClassNode classNode, MethodNode methodNode) {
+
+	}
+
+	private void instrumentOutputMethods(ClassNode classNode) {
+		for (MethodNode method : getOutputMethods(classNode)) {
+			instrumentOutputMethod(classNode, method);
+		}
+	}
+
+	protected void instrumentOutputMethod(ClassNode classNode, MethodNode methodNode) {
+
 	}
 
 	private void instrumentInputCalls(ClassNode classNode) {
@@ -430,6 +458,24 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 			.collect(toList());
 	}
 
+	private List<MethodNode> getInputMethods(ClassNode classNode) {
+		if (!isVisible(classNode)) {
+			return Collections.emptyList();
+		}
+		return classNode.methods.stream()
+			.filter(method -> isInputMethod(classNode, method))
+			.collect(toList());
+	}
+
+	private List<MethodNode> getOutputMethods(ClassNode classNode) {
+		if (!isVisible(classNode)) {
+			return Collections.emptyList();
+		}
+		return classNode.methods.stream()
+			.filter(method -> isOutputMethod(classNode, method))
+			.collect(toList());
+	}
+
 	private List<FieldNode> getGlobalFields(ClassNode classNode) {
 		if (!isVisible(classNode)) {
 			return Collections.emptyList();
@@ -495,6 +541,13 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		}
 	}
 
+	protected boolean isInputMethod(ClassNode classNode, MethodNode methodNode) {
+		return methodNode.visibleAnnotations != null && methodNode.visibleAnnotations.stream()
+			.anyMatch(annotation -> annotation.desc.equals(Input_descriptor))
+			|| config.getInputs().stream()
+				.anyMatch(method -> matches(method, classNode.name, methodNode.name, methodNode.desc));
+	}
+
 	protected boolean isInputMethod(String className, MethodNode methodNode) {
 		return methodNode.visibleAnnotations != null && methodNode.visibleAnnotations.stream()
 			.anyMatch(annotation -> annotation.desc.equals(Input_descriptor))
@@ -514,6 +567,13 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		} catch (IOException | NoSuchMethodException e) {
 			return false;
 		}
+	}
+
+	protected boolean isOutputMethod(ClassNode classNode, MethodNode methodNode) {
+		return methodNode.visibleAnnotations != null && methodNode.visibleAnnotations.stream()
+			.anyMatch(annotation -> annotation.desc.equals(Output_descriptor))
+			|| config.getOutputs().stream()
+				.anyMatch(method -> matches(method, classNode.name, methodNode.name, methodNode.desc));
 	}
 
 	protected boolean isOutputMethod(String className, MethodNode methodNode) {

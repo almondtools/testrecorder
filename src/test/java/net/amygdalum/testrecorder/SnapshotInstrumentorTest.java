@@ -1,12 +1,19 @@
 package net.amygdalum.testrecorder;
 
 import static net.amygdalum.testrecorder.InstrumentationUnit.instrument;
+import static net.bytebuddy.jar.asm.Opcodes.POP;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.doReturn;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.LdcInsnNode;
+import org.objectweb.asm.tree.MethodNode;
 
 import net.amygdalum.testrecorder.util.ByteCode;
 
@@ -428,4 +435,192 @@ public class SnapshotInstrumentorTest {
 			"AASTORE",
 			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.throwVariables (Ljava/lang/Throwable;Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
 	}
+
+	@Test
+	public void testInstrumentSnapshotMethodWithNoResultNoArgs() throws Exception {
+		InstrumentationUnit unit = instrument(Example.class, "noResultNoArgs");
+		
+		stubbedSnapshotInstrumentor().instrumentSnapshotMethod(unit.classNode, unit.methodNode);
+
+		assertThat(ByteCode.toString(unit.methodNode.instructions), contains(
+			"L0", 
+			"LDC \"setupVariables\"", 
+			"POP", 
+			"L1", 
+			"LINENUMBER 5 L1", 
+			"GOTO L2", 
+			"L3", 
+			"GOTO L2", 
+			"L4", 
+			"LDC \"throwVariables\"", 
+			"POP", 
+			"ATHROW", 
+			"L2", 
+			"LDC \"expectVariables\"", 
+			"POP", 
+			"RETURN"));
+	}
+
+	@Test
+	public void testInstrumentSnapshotMethodWithPrimitiveResultNoArgs() throws Exception {
+		InstrumentationUnit unit = instrument(Example.class, "primitiveResultNoArgs");
+		
+		stubbedSnapshotInstrumentor().instrumentSnapshotMethod(unit.classNode, unit.methodNode);
+
+		assertThat(ByteCode.toString(unit.methodNode.instructions), contains(
+			"L0", 
+			"LDC \"setupVariables\"", 
+			"POP", 
+			"L1", 
+			"LINENUMBER 8 L1",
+			"ICONST_1",
+			"GOTO L2", 
+			"L3", 
+			"GOTO L2", 
+			"L4", 
+			"LDC \"throwVariables\"", 
+			"POP", 
+			"ATHROW", 
+			"L2", 
+			"LDC \"expectVariables\"", 
+			"POP", 
+			"IRETURN"));
+	}
+
+	@Test
+	public void testInstrumentSnapshotMethodWithObjectResultNoArgs() throws Exception {
+		InstrumentationUnit unit = instrument(Example.class, "objectResultNoArgs");
+		
+		stubbedSnapshotInstrumentor().instrumentSnapshotMethod(unit.classNode, unit.methodNode);
+
+		assertThat(ByteCode.toString(unit.methodNode.instructions), contains(
+			"L0", 
+			"LDC \"setupVariables\"", 
+			"POP", 
+			"L1", 
+			"LINENUMBER 12 L1", 
+			"ACONST_NULL",
+			"GOTO L2", 
+			"L3", 
+			"GOTO L2", 
+			"L4", 
+			"LDC \"throwVariables\"", 
+			"POP", 
+			"ATHROW", 
+			"L2", 
+			"LDC \"expectVariables\"", 
+			"POP", 
+			"ARETURN"));
+	}
+
+	@Test
+	public void testInstrumentSnapshotMethodWithNoResultPrimitiveArg() throws Exception {
+		InstrumentationUnit unit = instrument(Example.class, "noResultPrimitiveArg");
+		
+		stubbedSnapshotInstrumentor().instrumentSnapshotMethod(unit.classNode, unit.methodNode);
+
+		assertThat(ByteCode.toString(unit.methodNode.instructions), contains(
+			"L0", 
+			"LDC \"setupVariables\"", 
+			"POP", 
+			"L1", 
+			"LINENUMBER 16 L1", 
+			"GOTO L2", 
+			"L3", 
+			"GOTO L2", 
+			"L4", 
+			"LDC \"throwVariables\"", 
+			"POP", 
+			"ATHROW", 
+			"L2", 
+			"LDC \"expectVariables\"", 
+			"POP", 
+			"RETURN"));
+	}
+
+	@Test
+	public void testInstrumentSnapshotMethodWithNoResultObjectArg() throws Exception {
+		InstrumentationUnit unit = instrument(Example.class, "noResultObjectArg");
+		
+		stubbedSnapshotInstrumentor().instrumentSnapshotMethod(unit.classNode, unit.methodNode);
+
+		assertThat(ByteCode.toString(unit.methodNode.instructions), contains(
+			"L0", 
+			"LDC \"setupVariables\"", 
+			"POP", 
+			"L1", 
+			"LINENUMBER 25 L1", 
+			"GOTO L2", 
+			"L3", 
+			"GOTO L2", 
+			"L4", 
+			"LDC \"throwVariables\"", 
+			"POP", 
+			"ATHROW", 
+			"L2", 
+			"LDC \"expectVariables\"", 
+			"POP", 
+			"RETURN"));
+	}
+
+	@Test
+	public void testInstrumentSnapshotMethodWithObjectResultMixedArgs() throws Exception {
+		InstrumentationUnit unit = instrument(Example.class, "objectResultMixedArgs");
+		
+		stubbedSnapshotInstrumentor().instrumentSnapshotMethod(unit.classNode, unit.methodNode);
+
+		assertThat(ByteCode.toString(unit.methodNode.instructions), contains(
+			"L0", 
+			"LDC \"setupVariables\"", 
+			"POP", 
+			"L1", 
+			"LINENUMBER 28 L1", 
+			"ACONST_NULL", 
+			"GOTO L2", 
+			"L3", 
+			"GOTO L2", 
+			"L4", 
+			"LDC \"throwVariables\"", 
+			"POP", 
+			"ATHROW", 
+			"L2", 
+			"LDC \"expectVariables\"", 
+			"POP", 
+			"ARETURN"));
+	}
+
+	@Test
+	public void testInstrumentSnapshotMethodWithStaticPrimitiveResultMixedArgs() throws Exception {
+		InstrumentationUnit unit = instrument(Example.class, "staticPrimitiveResultMixedArgs");
+		
+		stubbedSnapshotInstrumentor().instrumentSnapshotMethod(unit.classNode, unit.methodNode);
+
+		assertThat(ByteCode.toString(unit.methodNode.instructions), contains(
+			"L0", 
+			"LDC \"setupVariables\"", 
+			"POP", 
+			"L1", 
+			"LINENUMBER 32 L1",
+			"LCONST_1",
+			"GOTO L2", 
+			"L3", 
+			"GOTO L2", 
+			"L4", 
+			"LDC \"throwVariables\"", 
+			"POP", 
+			"ATHROW", 
+			"L2", 
+			"LDC \"expectVariables\"", 
+			"POP", 
+			"LRETURN"));
+	}
+
+	private SnapshotInstrumentor stubbedSnapshotInstrumentor() {
+		SnapshotInstrumentor spy = Mockito.spy(snapshotInstrumentor);
+		doReturn(ByteCode.list(new LdcInsnNode("setupVariables"), new InsnNode(POP))).when(spy).setupVariables(Mockito.any(ClassNode.class), Mockito.any(MethodNode.class));
+		doReturn(ByteCode.list(new LdcInsnNode("expectVariables"), new InsnNode(POP))).when(spy).expectVariables(Mockito.any(ClassNode.class), Mockito.any(MethodNode.class));
+		doReturn(ByteCode.list(new LdcInsnNode("throwVariables"), new InsnNode(POP))).when(spy).throwVariables(Mockito.any(ClassNode.class), Mockito.any(MethodNode.class));
+		return spy;
+	}
+
 }
