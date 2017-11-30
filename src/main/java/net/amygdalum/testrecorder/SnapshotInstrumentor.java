@@ -11,16 +11,12 @@ import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ASTORE;
-import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
-import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
-import static org.objectweb.asm.Opcodes.IRETURN;
 import static org.objectweb.asm.Opcodes.ISTORE;
-import static org.objectweb.asm.Opcodes.RETURN;
 
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
@@ -47,12 +43,9 @@ import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.JumpInsnNode;
-import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.TryCatchBlockNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import net.amygdalum.testrecorder.SerializationProfile.Global;
@@ -66,6 +59,8 @@ import net.amygdalum.testrecorder.asm.Locals;
 import net.amygdalum.testrecorder.asm.Memoize;
 import net.amygdalum.testrecorder.asm.Recall;
 import net.amygdalum.testrecorder.asm.Sequence;
+import net.amygdalum.testrecorder.asm.SequenceInstruction;
+import net.amygdalum.testrecorder.asm.TryCatch;
 import net.amygdalum.testrecorder.asm.WrapArguments;
 import net.amygdalum.testrecorder.util.ByteCode;
 
@@ -231,22 +226,11 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 	}
 
 	protected void instrumentSnapshotMethod(ClassNode classNode, MethodNode methodNode) {
-		LabelNode tryLabel = new LabelNode();
-		LabelNode catchLabel = new LabelNode();
-		LabelNode finallyLabel = new LabelNode();
-		methodNode.tryCatchBlocks.add(createTryCatchBlock(tryLabel, catchLabel));
-		methodNode.instructions.insert(createTry(tryLabel, setupVariables(classNode, methodNode)));
-		List<InsnNode> rets = findReturn(methodNode.instructions);
-		for (InsnNode ret : rets) {
-			methodNode.instructions.insert(ret, new JumpInsnNode(GOTO, finallyLabel));
-			methodNode.instructions.remove(ret);
-		}
-		int returnOpcode = rets.stream()
-			.map(ret -> ret.getOpcode())
-			.distinct()
-			.findFirst()
-			.orElse(RETURN);
-		methodNode.instructions.add(createCatchFinally(catchLabel, throwVariables(classNode, methodNode), finallyLabel, expectVariables(classNode, methodNode), new InsnNode(returnOpcode)));
+		methodNode.instructions = new TryCatch(methodNode)
+			.withTry(setupVariables(classNode, methodNode))
+			.withCatch(throwVariables(classNode, methodNode))
+			.withReturn(expectVariables(classNode, methodNode))
+			.build(Sequence.sequence(new Locals(methodNode)));
 	}
 
 	private void instrumentInputMethods(ClassNode classNode) {
@@ -440,14 +424,6 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		return StreamSupport.stream(spliterator, false);
 	}
 
-	private List<InsnNode> findReturn(InsnList instructions) {
-		return stream(instructions.iterator())
-			.filter(insn -> insn instanceof InsnNode)
-			.map(insn -> (InsnNode) insn)
-			.filter(insn -> IRETURN <= insn.getOpcode() && insn.getOpcode() <= RETURN)
-			.collect(toList());
-	}
-
 	private List<MethodNode> getSnapshotMethods(ClassNode classNode) {
 		if (!isVisible(classNode)) {
 			return Collections.emptyList();
@@ -591,39 +567,15 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		return method.matches(className, methodName, methodDescriptor);
 	}
 
-	private TryCatchBlockNode createTryCatchBlock(LabelNode tryLabel, LabelNode catchLabel) {
-		return new TryCatchBlockNode(tryLabel, catchLabel, catchLabel, null);
-	}
-
-	private InsnList createTry(LabelNode tryLabel, InsnList onBegin) {
-		InsnList insnList = new InsnList();
-		insnList.add(tryLabel);
-		insnList.add(onBegin);
-		return insnList;
-	}
-
-	private InsnList createCatchFinally(LabelNode catchLabel, InsnList onError, LabelNode finallyLabel, InsnList onSuccess, InsnNode ret) {
-		InsnList insnList = new InsnList();
-		insnList.add(new JumpInsnNode(GOTO, finallyLabel));
-		insnList.add(catchLabel);
-		insnList.add(onError);
-		insnList.add(new InsnNode(ATHROW));
-		insnList.add(finallyLabel);
-		insnList.add(onSuccess);
-		insnList.add(ret);
-		return insnList;
-	}
-
-	protected InsnList setupVariables(ClassNode classNode, MethodNode methodNode) {
+	protected SequenceInstruction setupVariables(ClassNode classNode, MethodNode methodNode) {
 		return new InvokeVirtual(SnapshotManager.class, "setupVariables", Object.class, String.class, Object[].class)
 			.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
 			.withArgument(0, new GetThisOrNull(methodNode))
 			.withArgument(1, new Ldc(keySignature(classNode, methodNode)))
-			.withArgument(2, new WrapArguments())
-			.build(Sequence.sequence(new Locals(methodNode)));
+			.withArgument(2, new WrapArguments());
 	}
 
-	protected InsnList expectVariables(ClassNode classNode, MethodNode methodNode) {
+	protected SequenceInstruction expectVariables(ClassNode classNode, MethodNode methodNode) {
 		if (ByteCode.returnsResult(methodNode)) {
 			return Sequence.sequence(new Locals(methodNode))
 				.then(new Memoize("returnValue", Type.getReturnType(methodNode.desc)))
@@ -632,20 +584,18 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 					.withArgument(0, new GetThisOrNull(methodNode))
 					.withArgument(1, new Ldc(keySignature(classNode, methodNode)))
 					.withArgument(2, new Recall("returnValue"))
-					.withArgument(3, new WrapArguments()))
-				.build();
+					.withArgument(3, new WrapArguments()));
 		} else {
 			return Sequence.sequence(new Locals(methodNode))
 				.then(new InvokeVirtual(SnapshotManager.class, "expectVariables", Object.class, String.class, Object[].class)
 					.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
 					.withArgument(0, new GetThisOrNull(methodNode))
 					.withArgument(1, new Ldc(keySignature(classNode, methodNode)))
-					.withArgument(2, new WrapArguments()))
-				.build();
+					.withArgument(2, new WrapArguments()));
 		}
 	}
 
-	protected InsnList throwVariables(ClassNode classNode, MethodNode methodNode) {
+	protected SequenceInstruction throwVariables(ClassNode classNode, MethodNode methodNode) {
 		return Sequence.sequence(new Locals(methodNode))
 			.then(new Memoize("throwable", Type.getType(Throwable.class)))
 			.then(new InvokeVirtual(SnapshotManager.class, "throwVariables", Throwable.class, Object.class, String.class, Object[].class)
@@ -653,8 +603,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 				.withArgument(0, new Recall("throwable"))
 				.withArgument(1, new GetThisOrNull(methodNode))
 				.withArgument(2, new Ldc(keySignature(classNode, methodNode)))
-				.withArgument(3, new WrapArguments()))
-			.build();
+				.withArgument(3, new WrapArguments()));
 	}
 
 	private String keySignature(ClassNode classNode, MethodNode methodNode) {

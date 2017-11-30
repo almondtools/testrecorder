@@ -15,6 +15,9 @@ import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
+import net.amygdalum.testrecorder.asm.Locals;
+import net.amygdalum.testrecorder.asm.Sequence;
+import net.amygdalum.testrecorder.asm.SequenceInstruction;
 import net.amygdalum.testrecorder.util.ByteCode;
 
 public class SnapshotInstrumentorTest {
@@ -29,7 +32,7 @@ public class SnapshotInstrumentorTest {
 	@Test
 	public void testSetupVariablesWithNoResultNoArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "noResultNoArgs");
-		InsnList insnlist = snapshotInstrumentor.setupVariables(unit.classNode, unit.methodNode);
+		InsnList insnlist = snapshotInstrumentor.setupVariables(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
@@ -43,7 +46,7 @@ public class SnapshotInstrumentorTest {
 	@Test
 	public void testSetupVariablesWithPrimitiveResultNoArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "primitiveResultNoArgs");
-		InsnList insnlist = snapshotInstrumentor.setupVariables(unit.classNode, unit.methodNode);
+		InsnList insnlist = snapshotInstrumentor.setupVariables(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
@@ -57,7 +60,7 @@ public class SnapshotInstrumentorTest {
 	@Test
 	public void testSetupVariablesWithObjectResultNoArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "objectResultNoArgs");
-		InsnList insnlist = snapshotInstrumentor.setupVariables(unit.classNode, unit.methodNode);
+		InsnList insnlist = snapshotInstrumentor.setupVariables(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
@@ -71,7 +74,7 @@ public class SnapshotInstrumentorTest {
 	@Test
 	public void testSetupVariablesWithNoResultPrimitiveArg() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "noResultPrimitiveArg");
-		InsnList insnlist = snapshotInstrumentor.setupVariables(unit.classNode, unit.methodNode);
+		InsnList insnlist = snapshotInstrumentor.setupVariables(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
@@ -90,7 +93,7 @@ public class SnapshotInstrumentorTest {
 	@Test
 	public void testSetupVariablesWithNoResultObjectArg() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "noResultObjectArg");
-		InsnList insnlist = snapshotInstrumentor.setupVariables(unit.classNode, unit.methodNode);
+		InsnList insnlist = snapshotInstrumentor.setupVariables(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
@@ -108,7 +111,7 @@ public class SnapshotInstrumentorTest {
 	@Test
 	public void testSetupVariablesWithObjectResultMixedArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "objectResultMixedArgs");
-		InsnList insnlist = snapshotInstrumentor.setupVariables(unit.classNode, unit.methodNode);
+		InsnList insnlist = snapshotInstrumentor.setupVariables(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
@@ -131,7 +134,7 @@ public class SnapshotInstrumentorTest {
 	@Test
 	public void testSetupVariablesWithStaticPrimitiveResultMixedArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "staticPrimitiveResultMixedArgs");
-		InsnList insnlist = snapshotInstrumentor.setupVariables(unit.classNode, unit.methodNode);
+		InsnList insnlist = snapshotInstrumentor.setupVariables(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
@@ -154,7 +157,7 @@ public class SnapshotInstrumentorTest {
 	@Test
 	public void testExpectVariablesWithNoResultNoArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "noResultNoArgs");
-		InsnList insnlist = snapshotInstrumentor.expectVariables(unit.classNode, unit.methodNode);
+		InsnList insnlist = snapshotInstrumentor.expectVariables(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
@@ -168,7 +171,7 @@ public class SnapshotInstrumentorTest {
 	@Test
 	public void testExpectVariablesWithPrimitiveResultNoArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "primitiveResultNoArgs");
-		InsnList insnlist = snapshotInstrumentor.expectVariables(unit.classNode, unit.methodNode);
+		InsnList insnlist = snapshotInstrumentor.expectVariables(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"DUP",
@@ -186,7 +189,7 @@ public class SnapshotInstrumentorTest {
 	@Test
 	public void testExpectVariablesWithObjectResultNoArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "objectResultNoArgs");
-		InsnList insnlist = snapshotInstrumentor.expectVariables(unit.classNode, unit.methodNode);
+		InsnList insnlist = snapshotInstrumentor.expectVariables(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"DUP",
@@ -203,7 +206,7 @@ public class SnapshotInstrumentorTest {
 	@Test
 	public void testExpectVariablesWithNoResultPrimitiveArg() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "noResultPrimitiveArg");
-		InsnList insnlist = snapshotInstrumentor.expectVariables(unit.classNode, unit.methodNode);
+		InsnList insnlist = snapshotInstrumentor.expectVariables(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
@@ -222,7 +225,7 @@ public class SnapshotInstrumentorTest {
 	@Test
 	public void testExpectVariablesWithNoResultObjectArg() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "noResultObjectArg");
-		InsnList insnlist = snapshotInstrumentor.expectVariables(unit.classNode, unit.methodNode);
+		InsnList insnlist = snapshotInstrumentor.expectVariables(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
@@ -240,7 +243,7 @@ public class SnapshotInstrumentorTest {
 	@Test
 	public void testExpectVariablesWithObjectResultMixedArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "objectResultMixedArgs");
-		InsnList insnlist = snapshotInstrumentor.expectVariables(unit.classNode, unit.methodNode);
+		InsnList insnlist = snapshotInstrumentor.expectVariables(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"DUP",
@@ -266,7 +269,7 @@ public class SnapshotInstrumentorTest {
 	@Test
 	public void testExpectVariablesWithStaticPrimitiveResultMixedArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "staticPrimitiveResultMixedArgs");
-		InsnList insnlist = snapshotInstrumentor.expectVariables(unit.classNode, unit.methodNode);
+		InsnList insnlist = snapshotInstrumentor.expectVariables(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"DUP2",
@@ -293,7 +296,7 @@ public class SnapshotInstrumentorTest {
 	@Test
 	public void testThrowVariablesWithNoResultNoArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "noResultNoArgs");
-		InsnList insnlist = snapshotInstrumentor.throwVariables(unit.classNode, unit.methodNode);
+		InsnList insnlist = snapshotInstrumentor.throwVariables(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"DUP",
@@ -310,7 +313,7 @@ public class SnapshotInstrumentorTest {
 	@Test
 	public void testThrowVariablesWithPrimitiveResultNoArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "primitiveResultNoArgs");
-		InsnList insnlist = snapshotInstrumentor.throwVariables(unit.classNode, unit.methodNode);
+		InsnList insnlist = snapshotInstrumentor.throwVariables(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"DUP",
@@ -327,7 +330,7 @@ public class SnapshotInstrumentorTest {
 	@Test
 	public void testThrowVariablesWithObjectResultNoArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "objectResultNoArgs");
-		InsnList insnlist = snapshotInstrumentor.throwVariables(unit.classNode, unit.methodNode);
+		InsnList insnlist = snapshotInstrumentor.throwVariables(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"DUP",
@@ -344,7 +347,7 @@ public class SnapshotInstrumentorTest {
 	@Test
 	public void testThrowVariablesWithNoResultPrimitiveArg() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "noResultPrimitiveArg");
-		InsnList insnlist = snapshotInstrumentor.throwVariables(unit.classNode, unit.methodNode);
+		InsnList insnlist = snapshotInstrumentor.throwVariables(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"DUP",
@@ -366,7 +369,7 @@ public class SnapshotInstrumentorTest {
 	@Test
 	public void testThrowVariablesWithNoResultObjectArg() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "noResultObjectArg");
-		InsnList insnlist = snapshotInstrumentor.throwVariables(unit.classNode, unit.methodNode);
+		InsnList insnlist = snapshotInstrumentor.throwVariables(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"DUP",
@@ -387,7 +390,7 @@ public class SnapshotInstrumentorTest {
 	@Test
 	public void testThrowVariablesWithObjectResultMixedArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "objectResultMixedArgs");
-		InsnList insnlist = snapshotInstrumentor.throwVariables(unit.classNode, unit.methodNode);
+		InsnList insnlist = snapshotInstrumentor.throwVariables(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"DUP",
@@ -413,7 +416,7 @@ public class SnapshotInstrumentorTest {
 	@Test
 	public void testThrowVariablesWithStaticPrimitiveResultMixedArgs() throws Exception {
 		InstrumentationUnit unit = instrument(Example.class, "staticPrimitiveResultMixedArgs");
-		InsnList insnlist = snapshotInstrumentor.throwVariables(unit.classNode, unit.methodNode);
+		InsnList insnlist = snapshotInstrumentor.throwVariables(unit.classNode, unit.methodNode).build(Sequence.sequence(new Locals(unit.methodNode)));
 
 		assertThat(ByteCode.toString(insnlist), contains(
 			"DUP",
@@ -617,9 +620,9 @@ public class SnapshotInstrumentorTest {
 
 	private SnapshotInstrumentor stubbedSnapshotInstrumentor() {
 		SnapshotInstrumentor spy = Mockito.spy(snapshotInstrumentor);
-		doReturn(ByteCode.list(new LdcInsnNode("setupVariables"), new InsnNode(POP))).when(spy).setupVariables(Mockito.any(ClassNode.class), Mockito.any(MethodNode.class));
-		doReturn(ByteCode.list(new LdcInsnNode("expectVariables"), new InsnNode(POP))).when(spy).expectVariables(Mockito.any(ClassNode.class), Mockito.any(MethodNode.class));
-		doReturn(ByteCode.list(new LdcInsnNode("throwVariables"), new InsnNode(POP))).when(spy).throwVariables(Mockito.any(ClassNode.class), Mockito.any(MethodNode.class));
+		doReturn((SequenceInstruction) seq -> ByteCode.list(new LdcInsnNode("setupVariables"), new InsnNode(POP))).when(spy).setupVariables(Mockito.any(ClassNode.class), Mockito.any(MethodNode.class));
+		doReturn((SequenceInstruction) seq -> ByteCode.list(new LdcInsnNode("expectVariables"), new InsnNode(POP))).when(spy).expectVariables(Mockito.any(ClassNode.class), Mockito.any(MethodNode.class));
+		doReturn((SequenceInstruction) seq -> ByteCode.list(new LdcInsnNode("throwVariables"), new InsnNode(POP))).when(spy).throwVariables(Mockito.any(ClassNode.class), Mockito.any(MethodNode.class));
 		return spy;
 	}
 
