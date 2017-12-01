@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.evaluator;
 
 import java.util.Optional;
 
-import net.amygdalum.testrecorder.SerializedValue;
+import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.values.SerializedArray;
 import net.amygdalum.testrecorder.values.SerializedList;
 

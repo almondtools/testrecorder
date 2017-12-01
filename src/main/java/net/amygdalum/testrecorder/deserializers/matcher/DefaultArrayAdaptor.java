@@ -17,10 +17,10 @@ import org.hamcrest.Matcher;
 import org.hamcrest.collection.IsArrayWithSize;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.runtime.ArrayMatcher;
 import net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher;
+import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedArray;
 
 public class DefaultArrayAdaptor extends DefaultMatcherGenerator<SerializedArray> implements MatcherGenerator<SerializedArray> {

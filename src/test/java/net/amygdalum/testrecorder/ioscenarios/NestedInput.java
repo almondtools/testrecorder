@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.ioscenarios;
 
 import net.amygdalum.testrecorder.Recorded;
-import net.amygdalum.testrecorder.SerializationProfile.Input;
+import net.amygdalum.testrecorder.profile.SerializationProfile.Input;
 
 public class NestedInput {
 

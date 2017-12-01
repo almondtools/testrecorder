@@ -17,11 +17,11 @@ import java.util.stream.Stream;
 
 import org.hamcrest.Matcher;
 
-import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.runtime.MapMatcher;
+import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.util.Pair;
 import net.amygdalum.testrecorder.values.SerializedMap;
 import net.amygdalum.testrecorder.values.SerializedNull;

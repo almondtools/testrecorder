@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import net.amygdalum.testrecorder.ConfigurableSerializerFacade;
 import net.amygdalum.testrecorder.DefaultTestRecorderAgentConfig;
-import net.amygdalum.testrecorder.SerializedValue;
+import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.util.testobjects.Complex;
 import net.amygdalum.testrecorder.util.testobjects.Simple;
 

@@ -4,8 +4,6 @@ import java.lang.reflect.Field;
 
 import org.objectweb.asm.Type;
 
-import net.amygdalum.testrecorder.Fields;
-
 public class FieldDescription implements Fields {
 
 	private String className;

@@ -9,11 +9,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import net.amygdalum.testrecorder.Deserializer;
-import net.amygdalum.testrecorder.SerializedReferenceType;
-import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
-import net.amygdalum.testrecorder.deserializers.ValuePrinter;
+import net.amygdalum.testrecorder.types.Deserializer;
+import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.SerializedReferenceType;
+import net.amygdalum.testrecorder.types.SerializedValue;
 
 /**
  * Serializing to SerializedArray is restricted to arrays of any variant. It is recommended not to use another serialized array implementation. 
@@ -73,7 +72,7 @@ public class SerializedArray extends AbstractSerializedReferenceType implements 
 
 	@Override
 	public String toString() {
-		return accept(new ValuePrinter(), DeserializerContext.NULL);
+		return ValuePrinter.print(this);
 	}
 	
 }

@@ -6,8 +6,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import net.amygdalum.testrecorder.Serializer;
-import net.amygdalum.testrecorder.SerializerFacade;
+import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.values.SerializedArray;
 
 public class ArraySerializer implements Serializer<SerializedArray> {

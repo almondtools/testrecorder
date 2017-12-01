@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.runtime;
 
 import static net.amygdalum.testrecorder.util.Reflections.getValue;
 import static net.amygdalum.testrecorder.util.Types.allFields;
-import static net.amygdalum.testrecorder.values.SerializedLiteral.isLiteral;
+import static net.amygdalum.testrecorder.util.Types.isLiteral;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;

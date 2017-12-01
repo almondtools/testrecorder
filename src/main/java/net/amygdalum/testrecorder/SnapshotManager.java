@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import net.amygdalum.testrecorder.profile.SerializationProfile;
+
 public class SnapshotManager {
 
 	public static volatile SnapshotManager MANAGER;

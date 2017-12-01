@@ -1,11 +1,11 @@
 package net.amygdalum.testrecorder;
 
 import static java.util.stream.Collectors.toList;
-import static net.amygdalum.testrecorder.util.ByteCode.memorizeLocal;
-import static net.amygdalum.testrecorder.util.ByteCode.pushAsArray;
-import static net.amygdalum.testrecorder.util.ByteCode.pushType;
-import static net.amygdalum.testrecorder.util.ByteCode.pushTypes;
-import static net.amygdalum.testrecorder.util.ByteCode.recallLocal;
+import static net.amygdalum.testrecorder.asm.ByteCode.memorizeLocal;
+import static net.amygdalum.testrecorder.asm.ByteCode.pushAsArray;
+import static net.amygdalum.testrecorder.asm.ByteCode.pushType;
+import static net.amygdalum.testrecorder.asm.ByteCode.pushTypes;
+import static net.amygdalum.testrecorder.asm.ByteCode.recallLocal;
 import static org.objectweb.asm.Opcodes.ACC_ANNOTATION;
 import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
@@ -48,9 +48,7 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-import net.amygdalum.testrecorder.SerializationProfile.Global;
-import net.amygdalum.testrecorder.SerializationProfile.Input;
-import net.amygdalum.testrecorder.SerializationProfile.Output;
+import net.amygdalum.testrecorder.asm.ByteCode;
 import net.amygdalum.testrecorder.asm.GetStatic;
 import net.amygdalum.testrecorder.asm.GetThisOrNull;
 import net.amygdalum.testrecorder.asm.InvokeVirtual;
@@ -62,7 +60,13 @@ import net.amygdalum.testrecorder.asm.Sequence;
 import net.amygdalum.testrecorder.asm.SequenceInstruction;
 import net.amygdalum.testrecorder.asm.TryCatch;
 import net.amygdalum.testrecorder.asm.WrapArguments;
-import net.amygdalum.testrecorder.util.ByteCode;
+import net.amygdalum.testrecorder.profile.Classes;
+import net.amygdalum.testrecorder.profile.Fields;
+import net.amygdalum.testrecorder.profile.Methods;
+import net.amygdalum.testrecorder.profile.SerializationProfile.Global;
+import net.amygdalum.testrecorder.profile.SerializationProfile.Input;
+import net.amygdalum.testrecorder.profile.SerializationProfile.Output;
+import net.amygdalum.testrecorder.util.AttachableClassFileTransformer;
 
 public class SnapshotInstrumentor extends AttachableClassFileTransformer implements ClassFileTransformer {
 
@@ -101,7 +105,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 	}
 
 	@Override
-	public Class<?>[] classesToRetransform() throws ClassNotFoundException {
+	public Class<?>[] classesToRetransform() {
 		Set<Class<?>> classesToRetransform = new LinkedHashSet<>();
 		classesToRetransform.addAll(instrumentedClasses);
 

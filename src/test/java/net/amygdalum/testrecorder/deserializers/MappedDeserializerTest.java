@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.deserializers;
 
-import static net.amygdalum.testrecorder.deserializers.DeserializerContext.NULL;
+import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -13,10 +13,10 @@ import java.util.function.Function;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.Deserializer;
-import net.amygdalum.testrecorder.SerializedImmutableType;
-import net.amygdalum.testrecorder.SerializedReferenceType;
-import net.amygdalum.testrecorder.SerializedValueType;
+import net.amygdalum.testrecorder.types.Deserializer;
+import net.amygdalum.testrecorder.types.SerializedImmutableType;
+import net.amygdalum.testrecorder.types.SerializedReferenceType;
+import net.amygdalum.testrecorder.types.SerializedValueType;
 import net.amygdalum.testrecorder.util.testobjects.Simple;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedImmutable;

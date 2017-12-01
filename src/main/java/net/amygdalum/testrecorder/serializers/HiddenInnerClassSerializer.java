@@ -2,9 +2,8 @@ package net.amygdalum.testrecorder.serializers;
 
 import java.util.List;
 
-import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.Serializer;
-import net.amygdalum.testrecorder.SerializerFacade;
+import net.amygdalum.testrecorder.types.SerializedValue;
+import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.util.Types;
 
 public abstract class HiddenInnerClassSerializer<T extends SerializedValue> implements Serializer<T> {

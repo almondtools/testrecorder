@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.runtime;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
-import static net.amygdalum.testrecorder.util.Params.NONE;
+import static net.amygdalum.testrecorder.runtime.Params.NONE;
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
 import static net.amygdalum.testrecorder.util.Types.getDeclaredField;
 import static net.amygdalum.testrecorder.util.Types.isFinal;
@@ -22,11 +22,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import net.amygdalum.testrecorder.util.DefaultValue;
 import net.amygdalum.testrecorder.util.Instantiations;
-import net.amygdalum.testrecorder.util.NonDefaultValue;
-import net.amygdalum.testrecorder.util.NonNullValue;
-import net.amygdalum.testrecorder.util.Params;
 import net.amygdalum.testrecorder.util.Types;
 
 public abstract class GenericObject {

@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder.deserializers;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
-import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethod;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
@@ -12,6 +11,7 @@ import static net.amygdalum.testrecorder.deserializers.Templates.callMethodState
 import static net.amygdalum.testrecorder.deserializers.Templates.methodDeclaration;
 import static net.amygdalum.testrecorder.deserializers.Templates.newAnonymousClassInstance;
 import static net.amygdalum.testrecorder.deserializers.Templates.returnStatement;
+import static net.amygdalum.testrecorder.util.Literals.asLiteral;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -22,13 +22,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import net.amygdalum.testrecorder.DeserializationException;
-import net.amygdalum.testrecorder.Deserializer;
 import net.amygdalum.testrecorder.runtime.Aspect;
 import net.amygdalum.testrecorder.runtime.FakeIO;
+import net.amygdalum.testrecorder.types.DeserializationException;
+import net.amygdalum.testrecorder.types.Deserializer;
+import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.SerializedInteraction;
 import net.amygdalum.testrecorder.util.Types;
 import net.amygdalum.testrecorder.values.SerializedInput;
-import net.amygdalum.testrecorder.values.SerializedInteraction;
 import net.amygdalum.testrecorder.values.SerializedOutput;
 
 public class MockedInteractions {

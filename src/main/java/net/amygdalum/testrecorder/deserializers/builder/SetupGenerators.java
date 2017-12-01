@@ -15,15 +15,8 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.amygdalum.testrecorder.DeserializationException;
-import net.amygdalum.testrecorder.Deserializer;
-import net.amygdalum.testrecorder.SerializedImmutableType;
-import net.amygdalum.testrecorder.SerializedReferenceType;
-import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.SerializedValueType;
 import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.deserializers.LocalVariable;
 import net.amygdalum.testrecorder.deserializers.LocalVariableDefinition;
@@ -31,7 +24,14 @@ import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.runtime.GenericObject;
 import net.amygdalum.testrecorder.runtime.Wrapped;
-import net.amygdalum.testrecorder.values.SerializedField;
+import net.amygdalum.testrecorder.types.DeserializationException;
+import net.amygdalum.testrecorder.types.Deserializer;
+import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.SerializedFieldType;
+import net.amygdalum.testrecorder.types.SerializedImmutableType;
+import net.amygdalum.testrecorder.types.SerializedReferenceType;
+import net.amygdalum.testrecorder.types.SerializedValue;
+import net.amygdalum.testrecorder.types.SerializedValueType;
 
 public class SetupGenerators implements Deserializer<Computation> {
 
@@ -129,7 +129,7 @@ public class SetupGenerators implements Deserializer<Computation> {
 	}
 
 	@Override
-	public Computation visitField(SerializedField field, DeserializerContext context) {
+	public Computation visitField(SerializedFieldType field, DeserializerContext context) {
 		Type fieldType = field.getType();
 		Type resultType = field.getValue().getResultType();
 		Type fieldResultType = types.bestType(fieldType, Object.class);

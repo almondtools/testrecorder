@@ -16,14 +16,13 @@ import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import net.amygdalum.testrecorder.DeserializationException;
 
 public final class FileSerializer {
 
     private FileSerializer() {
     }
 
-    public static String store(String dir, Object object) {
+    public static String store(String dir, Object object) throws IOException {
         try {
             byte[] data = serialize(object);
             String string = digest(data);
@@ -36,9 +35,9 @@ public final class FileSerializer {
                 return path.getFileName().toString();
             }
         } catch (NullPointerException | IOException e) {
-            throw new DeserializationException("failed writing object to file", e);
+            throw new IOException("failed writing object to file", e);
         } catch (NoSuchAlgorithmException e) {
-            throw new DeserializationException("failed hashing data to produce unique file name", e);
+            throw new IOException("failed hashing data to produce unique file name", e);
         }
     }
 

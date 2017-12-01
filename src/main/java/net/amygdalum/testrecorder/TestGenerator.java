@@ -9,7 +9,6 @@ import static java.util.Collections.synchronizedMap;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.deserializers.Computation.variable;
 import static net.amygdalum.testrecorder.deserializers.Templates.annotation;
-import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignFieldStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethodStatement;
@@ -20,6 +19,7 @@ import static net.amygdalum.testrecorder.deserializers.Templates.expressionState
 import static net.amygdalum.testrecorder.deserializers.Templates.fieldAccess;
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
 import static net.amygdalum.testrecorder.deserializers.Templates.returnStatement;
+import static net.amygdalum.testrecorder.util.Literals.asLiteral;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.isPrimitive;
 
@@ -54,7 +54,7 @@ import org.stringtemplate.v4.ST;
 
 import net.amygdalum.testrecorder.ContextSnapshot.AnnotatedValue;
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
+import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
 import net.amygdalum.testrecorder.deserializers.MockedInteractions;
@@ -66,6 +66,9 @@ import net.amygdalum.testrecorder.evaluator.SerializedValueEvaluator;
 import net.amygdalum.testrecorder.hints.AnnotateGroupExpression;
 import net.amygdalum.testrecorder.hints.AnnotateTimestamp;
 import net.amygdalum.testrecorder.runtime.Throwables;
+import net.amygdalum.testrecorder.types.Deserializer;
+import net.amygdalum.testrecorder.types.SerializedImmutableType;
+import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.util.AnnotatedBy;
 import net.amygdalum.testrecorder.util.Pair;
 import net.amygdalum.testrecorder.util.Triple;
@@ -282,7 +285,7 @@ public class TestGenerator implements SnapshotConsumer {
 
 		private int no;
 		private ContextSnapshot snapshot;
-		private DeserializerContext context;
+		private DefaultDeserializerContext context;
 		private TypeManager types;
 		private MockedInteractions mocked;
 
@@ -307,8 +310,8 @@ public class TestGenerator implements SnapshotConsumer {
 			return this;
 		}
 
-		private DeserializerContext computeInitialContext(ContextSnapshot snapshot) {
-			DeserializerContext context = new DeserializerContext();
+		private DefaultDeserializerContext computeInitialContext(ContextSnapshot snapshot) {
+			DefaultDeserializerContext context = new DefaultDeserializerContext();
 			TreeAnalyzer collector = new TreeAnalyzer();
 
 			Optional.ofNullable(snapshot.getSetupThis())

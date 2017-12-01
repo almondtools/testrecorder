@@ -10,10 +10,9 @@ import org.objectweb.asm.tree.InsnList;
 
 import net.amygdalum.testrecorder.Example;
 import net.amygdalum.testrecorder.InstrumentationUnit;
+import net.amygdalum.testrecorder.asm.ByteCode;
 import net.amygdalum.testrecorder.asm.Locals;
 import net.amygdalum.testrecorder.asm.Sequence;
-import net.amygdalum.testrecorder.runtime.FakeIOTransformer;
-import net.amygdalum.testrecorder.util.ByteCode;
 
 public class FakeIOTransformerTest {
 

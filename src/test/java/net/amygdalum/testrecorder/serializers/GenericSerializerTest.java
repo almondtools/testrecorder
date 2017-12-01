@@ -21,10 +21,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import net.amygdalum.testrecorder.SerializedReferenceType;
-import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.Serializer;
-import net.amygdalum.testrecorder.SerializerFacade;
+import net.amygdalum.testrecorder.types.SerializedReferenceType;
+import net.amygdalum.testrecorder.types.SerializedValue;
+import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedNull;
 import net.amygdalum.testrecorder.values.SerializedObject;

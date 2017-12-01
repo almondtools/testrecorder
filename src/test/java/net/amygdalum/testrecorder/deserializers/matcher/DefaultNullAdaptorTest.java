@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.matcher;
 
-import static net.amygdalum.testrecorder.deserializers.DeserializerContext.NULL;
+import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfCompletelyHidden;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfPartiallyHidden;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;

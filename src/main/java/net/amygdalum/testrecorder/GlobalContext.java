@@ -6,7 +6,8 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.amygdalum.testrecorder.util.ByteCode;
+import net.amygdalum.testrecorder.asm.ByteCode;
+import net.amygdalum.testrecorder.types.SerializationException;
 import net.amygdalum.testrecorder.util.Types;
 
 public class GlobalContext {
@@ -50,7 +51,7 @@ public class GlobalContext {
 			try {
 				Class<?> clazz = ByteCode.classFromInternalName(className);
 				return Types.getDeclaredField(clazz, fieldName);
-			} catch (ReflectiveOperationException e) {
+			} catch (RuntimeException | ReflectiveOperationException e) {
 				throw new SerializationException(e);
 			}
 		}

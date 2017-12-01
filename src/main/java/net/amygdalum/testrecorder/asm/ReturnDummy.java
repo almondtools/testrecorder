@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.asm;
 
-import static net.amygdalum.testrecorder.util.ByteCode.isPrimitive;
-import static net.amygdalum.testrecorder.util.ByteCode.primitiveNull;
+import static net.amygdalum.testrecorder.asm.ByteCode.isPrimitive;
+import static net.amygdalum.testrecorder.asm.ByteCode.primitiveNull;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.IRETURN;

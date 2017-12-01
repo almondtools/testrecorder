@@ -4,29 +4,20 @@ import static java.util.Collections.emptyList;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 
 import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import net.amygdalum.testrecorder.Deserializer;
-import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.SerializedValueType;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
-import net.amygdalum.testrecorder.deserializers.ValuePrinter;
+import net.amygdalum.testrecorder.types.Deserializer;
+import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.SerializedValue;
+import net.amygdalum.testrecorder.types.SerializedValueType;
 
 /**
  * Serializing to SerializedLiteral is only valid for primitive types and non-null Strings. For this use the factory method 
  * {@link #literal(Type, Object)}
  */
 public class SerializedLiteral extends AbstractSerializedValue implements SerializedValueType {
-
-    public static Set<Class<?>> LITERAL_TYPES = new HashSet<>(Arrays.asList(
-        boolean.class, char.class, byte.class, short.class, int.class, float.class, long.class, double.class,
-        Boolean.class, Character.class, Byte.class, Short.class, Integer.class, Float.class, Long.class, Double.class,
-        String.class));
 
     private static final Map<Object, SerializedLiteral> KNOWN_PRIMITIVE_LITERALS = new HashMap<>();
     private static final Map<Object, SerializedLiteral> KNOWN_LITERALS = new HashMap<>();
@@ -38,10 +29,6 @@ public class SerializedLiteral extends AbstractSerializedValue implements Serial
         super(value.getClass());
         this.resultType = type;
         this.value = value;
-    }
-
-    public static boolean isLiteral(Type type) {
-        return LITERAL_TYPES.contains(type);
     }
 
     public static SerializedLiteral literal(Object value) {
@@ -78,7 +65,7 @@ public class SerializedLiteral extends AbstractSerializedValue implements Serial
 
     @Override
     public String toString() {
-		return accept(new ValuePrinter(), DeserializerContext.NULL);
+		return ValuePrinter.print(this);
     }
 
 }

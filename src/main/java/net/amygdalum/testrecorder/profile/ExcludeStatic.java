@@ -4,8 +4,6 @@ import static net.amygdalum.testrecorder.util.Types.isStatic;
 
 import java.lang.reflect.Field;
 
-import net.amygdalum.testrecorder.FieldsAtRuntime;
-
 public class ExcludeStatic implements FieldsAtRuntime {
 
 	@Override

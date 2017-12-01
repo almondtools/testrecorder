@@ -7,8 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.amygdalum.testrecorder.Recorded;
-import net.amygdalum.testrecorder.SerializationProfile.Excluded;
-import net.amygdalum.testrecorder.SerializationProfile.Input;
+import net.amygdalum.testrecorder.profile.SerializationProfile.Excluded;
+import net.amygdalum.testrecorder.profile.SerializationProfile.Input;
 
 public class Inputs {
 

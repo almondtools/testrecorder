@@ -17,6 +17,8 @@ import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
+import net.amygdalum.testrecorder.util.AttachableClassFileTransformer;
+
 public class AllLambdasSerializableTransformer extends AttachableClassFileTransformer implements ClassFileTransformer {
 
 	private static final int IS_SERIALIZABLE_PARAMETER_LOCAL = 7;
@@ -25,8 +27,12 @@ public class AllLambdasSerializableTransformer extends AttachableClassFileTransf
 	}
 
 	@Override
-	public Class<?>[] classesToRetransform() throws ClassNotFoundException {
-		return new Class[] { Class.forName("java.lang.invoke.InnerClassLambdaMetafactory") };
+	public Class<?>[] classesToRetransform() {
+		try {
+			return new Class[] { Class.forName("java.lang.invoke.InnerClassLambdaMetafactory") };
+		} catch (ClassNotFoundException e) {
+			return new Class[0];
+		}
 	}
 
 	@Override

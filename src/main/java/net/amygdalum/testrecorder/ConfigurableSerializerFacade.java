@@ -1,11 +1,10 @@
 package net.amygdalum.testrecorder;
 
 import static java.lang.System.identityHashCode;
-import static net.amygdalum.testrecorder.runtime.LambdaSignature.isSerializableLambda;
-import static net.amygdalum.testrecorder.util.ByteCode.classFromInternalName;
+import static net.amygdalum.testrecorder.asm.ByteCode.classFromInternalName;
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
 import static net.amygdalum.testrecorder.util.Types.baseType;
-import static net.amygdalum.testrecorder.values.SerializedLiteral.isLiteral;
+import static net.amygdalum.testrecorder.util.Types.isLiteral;
 
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Field;
@@ -18,12 +17,21 @@ import java.util.ServiceLoader;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
-import net.amygdalum.testrecorder.SerializationProfile.Excluded;
-import net.amygdalum.testrecorder.runtime.LambdaSignature;
+import net.amygdalum.testrecorder.profile.Classes;
+import net.amygdalum.testrecorder.profile.Fields;
+import net.amygdalum.testrecorder.profile.SerializationProfile;
+import net.amygdalum.testrecorder.profile.SerializationProfile.Excluded;
 import net.amygdalum.testrecorder.serializers.ArraySerializer;
 import net.amygdalum.testrecorder.serializers.EnumSerializer;
 import net.amygdalum.testrecorder.serializers.GenericSerializer;
 import net.amygdalum.testrecorder.serializers.LambdaSerializer;
+import net.amygdalum.testrecorder.serializers.SerializerFacade;
+import net.amygdalum.testrecorder.serializers.SerializerFactory;
+import net.amygdalum.testrecorder.types.SerializationException;
+import net.amygdalum.testrecorder.types.SerializedReferenceType;
+import net.amygdalum.testrecorder.types.SerializedValue;
+import net.amygdalum.testrecorder.types.Serializer;
+import net.amygdalum.testrecorder.util.Lambdas;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedNull;
@@ -75,7 +83,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 			return SerializedLiteral.literal(type, object);
 		} else if (isLiteral(object.getClass())) {
 			return SerializedLiteral.literal(object);
-		} else if (isSerializableLambda(object.getClass())) {
+		} else if (Lambdas.isSerializableLambda(object.getClass())) {
 			return createLambdaObject(type, object);
 		} else {
 			return createObject(type, object);
@@ -86,7 +94,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 	private SerializedValue createLambdaObject(Type type, Object object) {
 		SerializedValue serializedObject = serialized.get(object);
 		if (serializedObject == null) {
-			SerializedLambda serializedLambda = LambdaSignature.serialize(object);
+			SerializedLambda serializedLambda = Lambdas.serializeLambda(object);
 			try {
 				Class<?> functionalInterfaceType = classFromInternalName(serializedLambda.getFunctionalInterfaceClass());
 				Serializer serializer = fetchSerializer(serializedLambda.getClass());
@@ -96,7 +104,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 					((SerializedReferenceType) serializedObject).setId(identityHashCode(object));
 				}
 				serializer.populate(serializedObject, serializedLambda);
-			} catch (ReflectiveOperationException e) {
+			} catch (RuntimeException e) {
 				throw new SerializationException(e);
 			}
 		}

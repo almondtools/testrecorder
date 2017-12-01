@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
-import static net.amygdalum.testrecorder.deserializers.DeserializerContext.NULL;
+import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.testobjects.Collections.arrayList;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenList;

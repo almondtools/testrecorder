@@ -5,9 +5,12 @@ import static java.util.Collections.emptyList;
 
 import java.util.List;
 
+import net.amygdalum.testrecorder.profile.Classes;
 import net.amygdalum.testrecorder.profile.ExcludeExplicitExcluded;
 import net.amygdalum.testrecorder.profile.ExcludeGenerated;
 import net.amygdalum.testrecorder.profile.ExcludeStatic;
+import net.amygdalum.testrecorder.profile.Fields;
+import net.amygdalum.testrecorder.profile.Methods;
 
 public class DefaultTestRecorderAgentConfig implements TestRecorderAgentConfig {
 

@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.values;
 
 import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefaultEquality;
-import static net.amygdalum.testrecorder.deserializers.DeserializerContext.NULL;
+import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.hamcrest.CoreMatchers.equalTo;

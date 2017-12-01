@@ -8,11 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
+import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
+import net.amygdalum.testrecorder.serializers.SerializerFacade;
+import net.amygdalum.testrecorder.types.Deserializer;
+import net.amygdalum.testrecorder.types.SerializedValue;
 
 public class CodeSerializer {
 
@@ -71,7 +74,7 @@ public class CodeSerializer {
 		public String generateCode() {
 			Deserializer<Computation> serializer = serializers.create(locals, types);
 			
-			Computation serialized = value.accept(serializer, DeserializerContext.NULL);
+			Computation serialized = value.accept(serializer, DefaultDeserializerContext.NULL);
 
 			statements.addAll(serialized.getStatements());
 			if (!serialized.isStored()) {

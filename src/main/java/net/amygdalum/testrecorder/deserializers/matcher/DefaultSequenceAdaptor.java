@@ -15,9 +15,9 @@ import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.runtime.ContainsInOrderMatcher;
+import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedList;
 
 public class DefaultSequenceAdaptor extends DefaultMatcherGenerator<SerializedList> implements MatcherGenerator<SerializedList> {

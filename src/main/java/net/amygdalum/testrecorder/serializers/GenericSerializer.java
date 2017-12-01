@@ -7,9 +7,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import net.amygdalum.testrecorder.SerializedReferenceType;
-import net.amygdalum.testrecorder.Serializer;
-import net.amygdalum.testrecorder.SerializerFacade;
+import net.amygdalum.testrecorder.types.SerializedReferenceType;
+import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.values.SerializedNull;
 import net.amygdalum.testrecorder.values.SerializedObject;
 

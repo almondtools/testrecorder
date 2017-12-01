@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.asm;
 
-import static net.amygdalum.testrecorder.util.ByteCode.list;
+import static net.amygdalum.testrecorder.asm.ByteCode.list;
 
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.LdcInsnNode;

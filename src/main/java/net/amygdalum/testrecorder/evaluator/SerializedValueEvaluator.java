@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.StringTokenizer;
 import java.util.function.Function;
 
-import net.amygdalum.testrecorder.SerializedValue;
+import net.amygdalum.testrecorder.types.SerializedValue;
 
 public class SerializedValueEvaluator {
 

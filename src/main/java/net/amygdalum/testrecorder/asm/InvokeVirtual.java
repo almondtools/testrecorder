@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.asm;
 
-import static net.amygdalum.testrecorder.util.ByteCode.methodDescriptor;
+import static net.amygdalum.testrecorder.asm.ByteCode.methodDescriptor;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 
 import org.objectweb.asm.Type;

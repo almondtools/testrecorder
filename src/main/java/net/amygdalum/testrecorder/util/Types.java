@@ -38,7 +38,6 @@ public final class Types {
 
 	private static final String SYNTHETIC_INDICATOR = "$";
 	private static final String[] HANDLED_SYNTHETIC_PREFIXES = { "this$" };
-
 	private Types() {
 	}
 

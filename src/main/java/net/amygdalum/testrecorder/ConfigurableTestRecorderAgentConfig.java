@@ -3,6 +3,10 @@ package net.amygdalum.testrecorder;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.amygdalum.testrecorder.profile.Classes;
+import net.amygdalum.testrecorder.profile.Fields;
+import net.amygdalum.testrecorder.profile.Methods;
+
 public class ConfigurableTestRecorderAgentConfig implements TestRecorderAgentConfig {
 
 	private List<Fields> fieldExclusions;

@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
-import static net.amygdalum.testrecorder.deserializers.DeserializerContext.NULL;
+import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.testobjects.Collections.arrayList;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.createCompletelyHidden;
@@ -44,8 +44,8 @@ public class MatcherGeneratorsTest {
 
 	@Before
 	public void before() throws Exception {
-	    values = new SerializedValues();
-   		matcherCode = new MatcherGenerators(getClass());
+		values = new SerializedValues();
+		matcherCode = new MatcherGenerators(getClass());
 	}
 
 	@Test
@@ -97,62 +97,62 @@ public class MatcherGeneratorsTest {
 			+ "}.matching(Dubble.class)"));
 	}
 
-    @Test
-    public void testVisitReferenceTypePartiallyHidden() throws Exception {
-        VisibleInterface o = createPartiallyHidden();
-        SerializedObject value = values.object(Hidden.VisibleInterface.class, o);
+	@Test
+	public void testVisitReferenceTypePartiallyHidden() throws Exception {
+		VisibleInterface o = createPartiallyHidden();
+		SerializedObject value = values.object(Hidden.VisibleInterface.class, o);
 
-        Computation result = matcherCode.visitReferenceType(value, NULL);
+		Computation result = matcherCode.visitReferenceType(value, NULL);
 
-        assertThat(result.getStatements(), empty());
-        assertThat(result.getValue(), containsPattern("new GenericMatcher() {*"
-            + "}.matching(clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$PartiallyHidden\"), VisibleInterface.class)"));
-    }
+		assertThat(result.getStatements(), empty());
+		assertThat(result.getValue(), containsPattern("new GenericMatcher() {*"
+			+ "}.matching(clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$PartiallyHidden\"), VisibleInterface.class)"));
+	}
 
-    @Test
-    public void testVisitReferenceTypeCompletelyHidden() throws Exception {
-        Object o = createCompletelyHidden();
-        SerializedObject value = values.object(o.getClass(), o);
-        
-        Computation result = matcherCode.visitReferenceType(value, NULL);
-        
-        assertThat(result.getStatements(), empty());
-        assertThat(result.getValue(), containsPattern("new GenericMatcher() {*}"
-            + ".matching(clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$CompletelyHidden\"))"));
-    }
-    
-    @Test
-    public void testVisitReferenceTypeComputedPartiallyHidden() throws Exception {
-        VisibleInterface o = createPartiallyHidden();
-        SerializedObject value = values.object(Hidden.VisibleInterface.class, o);
-        Computation result = matcherCode.visitReferenceType(value, NULL);
+	@Test
+	public void testVisitReferenceTypeCompletelyHidden() throws Exception {
+		Object o = createCompletelyHidden();
+		SerializedObject value = values.object(o.getClass(), o);
 
-        result = matcherCode.visitReferenceType(value, NULL);
+		Computation result = matcherCode.visitReferenceType(value, NULL);
 
-        assertThat(result.getStatements(), empty());
-        assertThat(result.getValue(), containsPattern("recursive(VisibleInterface.class)"));
-    }
+		assertThat(result.getStatements(), empty());
+		assertThat(result.getValue(), containsPattern("new GenericMatcher() {*}"
+			+ ".matching(clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$CompletelyHidden\"))"));
+	}
 
-    @Test
-    public void testVisitReferenceTypeComputedCompletelyHidden() throws Exception {
-        Object o = createCompletelyHidden();
-        SerializedObject value = values.object(o.getClass(), o);
-        Computation result = matcherCode.visitReferenceType(value, NULL);
+	@Test
+	public void testVisitReferenceTypeComputedPartiallyHidden() throws Exception {
+		VisibleInterface o = createPartiallyHidden();
+		SerializedObject value = values.object(Hidden.VisibleInterface.class, o);
+		Computation result = matcherCode.visitReferenceType(value, NULL);
 
-        result = matcherCode.visitReferenceType(value, NULL);
-        
-        assertThat(result.getStatements(), empty());
-        assertThat(result.getValue(), containsPattern("recursive(Object.class)"));
-    }
-    
-    @Test
-    public void testVisitReferenceTypeCheckSkipped() throws Exception {
-        SerializedObject value = values.object(Dubble.class, new Dubble("Foo", "Bar"));
+		result = matcherCode.visitReferenceType(value, NULL);
 
-        Computation result = matcherCode.visitReferenceType(value, NULL.newWithHints(skipChecks()));
+		assertThat(result.getStatements(), empty());
+		assertThat(result.getValue(), containsPattern("recursive(VisibleInterface.class)"));
+	}
 
-        assertThat(result, nullValue());
-    }
+	@Test
+	public void testVisitReferenceTypeComputedCompletelyHidden() throws Exception {
+		Object o = createCompletelyHidden();
+		SerializedObject value = values.object(o.getClass(), o);
+		Computation result = matcherCode.visitReferenceType(value, NULL);
+
+		result = matcherCode.visitReferenceType(value, NULL);
+
+		assertThat(result.getStatements(), empty());
+		assertThat(result.getValue(), containsPattern("recursive(Object.class)"));
+	}
+
+	@Test
+	public void testVisitReferenceTypeCheckSkipped() throws Exception {
+		SerializedObject value = values.object(Dubble.class, new Dubble("Foo", "Bar"));
+
+		Computation result = matcherCode.visitReferenceType(value, NULL.newWithHints(skipChecks()));
+
+		assertThat(result, nullValue());
+	}
 
 	@Test
 	public void testVisitReferenceTypeRevisited() throws Exception {
@@ -175,14 +175,14 @@ public class MatcherGeneratorsTest {
 		assertThat(result.getValue(), equalTo("equalTo(new BigInteger(\"42\"))"));
 	}
 
-    @Test
-    public void testVisitImmutableTypeCheckSkipped() throws Exception {
-        SerializedImmutable<BigInteger> value = values.bigInteger(BigInteger.valueOf(42));
+	@Test
+	public void testVisitImmutableTypeCheckSkipped() throws Exception {
+		SerializedImmutable<BigInteger> value = values.bigInteger(BigInteger.valueOf(42));
 
-        Computation result = matcherCode.visitImmutableType(value, NULL.newWithHints(skipChecks()));
+		Computation result = matcherCode.visitImmutableType(value, NULL.newWithHints(skipChecks()));
 
-        assertThat(result, nullValue());
-    }
+		assertThat(result, nullValue());
+	}
 
 	@Test
 	public void testVisitValueType() throws Exception {
@@ -196,57 +196,57 @@ public class MatcherGeneratorsTest {
 
 	@Test
 	public void testVisitValueTypeCheckSkipped() throws Exception {
-	    SerializedLiteral value = literal(int.class, 42);
-	    
-	    Computation result = matcherCode.visitValueType(value, NULL.newWithHints(skipChecks()));
-	    
-	    assertThat(result, nullValue());
-    }
-    
-    @Test
-    public void testSimpleMatcherSerializedValueNull() throws Exception {
-        Computation result = matcherCode.simpleMatcher(SerializedNull.nullInstance(String.class), NULL);
+		SerializedLiteral value = literal(int.class, 42);
 
-        assertThat(result.getStatements(), empty());
-        assertThat("generic matchers can match nulls and do not need matchers here", result.getValue(), equalTo("null"));
-    }
+		Computation result = matcherCode.visitValueType(value, NULL.newWithHints(skipChecks()));
 
-    @Test
-    public void testSimpleMatcherSerializedValueLiteral() throws Exception {
-        Computation result = matcherCode.simpleMatcher(SerializedLiteral.literal("string"), NULL);
-        
-        assertThat(result.getStatements(), empty());
-        assertThat("generic matchers can match literals and do not need matchers here", result.getValue(), equalTo("\"string\""));
-    }
-    
-    @Test
-    public void testSimpleMatcherSerializedValueObject() throws Exception {
-        Computation result = matcherCode.simpleMatcher(values.object(Simple.class, new Simple()), NULL);
-        
-        assertThat(result.getStatements(), empty());
-        assertThat(result.getValue(), containsPattern("new GenericMatcher() {*String str = null;*}.matching(Simple.class)"));
-    }
-    
-    @Test
-    public void testTemporaryLocal() throws Exception {
-        assertThat(matcherCode.temporaryLocal(), equalTo("temp1"));
-        assertThat(matcherCode.temporaryLocal(), equalTo("temp2"));
-    }
+		assertThat(result, nullValue());
+	}
 
-    @Test
-    public void testNewLocal() throws Exception {
-        assertThat(matcherCode.newLocal("var"), equalTo("var1"));
-        assertThat(matcherCode.newLocal("var"), equalTo("var2"));
-    }
+	@Test
+	public void testSimpleMatcherSerializedValueNull() throws Exception {
+		Computation result = matcherCode.simpleMatcher(SerializedNull.nullInstance(String.class), NULL);
 
-    private SkipChecks skipChecks() {
-        return new SkipChecks() {
-            
-            @Override
-            public Class<? extends Annotation> annotationType() {
-                return SkipChecks.class;
-            }
-        };
-    }
+		assertThat(result.getStatements(), empty());
+		assertThat("generic matchers can match nulls and do not need matchers here", result.getValue(), equalTo("null"));
+	}
+
+	@Test
+	public void testSimpleMatcherSerializedValueLiteral() throws Exception {
+		Computation result = matcherCode.simpleMatcher(SerializedLiteral.literal("string"), NULL);
+
+		assertThat(result.getStatements(), empty());
+		assertThat("generic matchers can match literals and do not need matchers here", result.getValue(), equalTo("\"string\""));
+	}
+
+	@Test
+	public void testSimpleMatcherSerializedValueObject() throws Exception {
+		Computation result = matcherCode.simpleMatcher(values.object(Simple.class, new Simple()), NULL);
+
+		assertThat(result.getStatements(), empty());
+		assertThat(result.getValue(), containsPattern("new GenericMatcher() {*String str = null;*}.matching(Simple.class)"));
+	}
+
+	@Test
+	public void testTemporaryLocal() throws Exception {
+		assertThat(matcherCode.temporaryLocal(), equalTo("temp1"));
+		assertThat(matcherCode.temporaryLocal(), equalTo("temp2"));
+	}
+
+	@Test
+	public void testNewLocal() throws Exception {
+		assertThat(matcherCode.newLocal("var"), equalTo("var1"));
+		assertThat(matcherCode.newLocal("var"), equalTo("var2"));
+	}
+
+	private Object[] skipChecks() {
+		return new Object[] { new SkipChecks() {
+
+			@Override
+			public Class<? extends Annotation> annotationType() {
+				return SkipChecks.class;
+			}
+		}};
+	}
 
 }

@@ -8,10 +8,9 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.Serializer;
-import net.amygdalum.testrecorder.SerializerFacade;
-import net.amygdalum.testrecorder.runtime.LambdaSignature;
+import net.amygdalum.testrecorder.types.SerializedValue;
+import net.amygdalum.testrecorder.types.Serializer;
+import net.amygdalum.testrecorder.values.LambdaSignature;
 import net.amygdalum.testrecorder.values.SerializedLambdaObject;
 
 public class LambdaSerializer implements Serializer<SerializedLambdaObject> {

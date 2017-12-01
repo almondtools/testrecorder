@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.deserializers;
 
-import net.amygdalum.testrecorder.DeserializationException;
+import net.amygdalum.testrecorder.types.DeserializationException;
 
 public interface LocalVariableDefinition {
 

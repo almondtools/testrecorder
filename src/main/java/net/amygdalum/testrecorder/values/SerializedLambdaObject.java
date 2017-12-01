@@ -3,11 +3,10 @@ package net.amygdalum.testrecorder.values;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import net.amygdalum.testrecorder.Deserializer;
-import net.amygdalum.testrecorder.SerializedImmutableType;
-import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
-import net.amygdalum.testrecorder.runtime.LambdaSignature;
+import net.amygdalum.testrecorder.types.Deserializer;
+import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.SerializedImmutableType;
+import net.amygdalum.testrecorder.types.SerializedValue;
 
 public class SerializedLambdaObject extends AbstractSerializedReferenceType implements SerializedImmutableType {
 

@@ -1,9 +1,9 @@
 package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static net.amygdalum.testrecorder.deserializers.Computation.expression;
-import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.recursiveMatcher;
+import static net.amygdalum.testrecorder.util.Literals.asLiteral;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
@@ -14,20 +14,20 @@ import java.util.Set;
 
 import org.hamcrest.Matcher;
 
-import net.amygdalum.testrecorder.Deserializer;
-import net.amygdalum.testrecorder.SerializedImmutableType;
-import net.amygdalum.testrecorder.SerializedReferenceType;
-import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.SerializedValueType;
 import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.hints.SkipChecks;
 import net.amygdalum.testrecorder.runtime.GenericMatcher;
-import net.amygdalum.testrecorder.values.SerializedField;
+import net.amygdalum.testrecorder.types.Deserializer;
+import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.SerializedFieldType;
+import net.amygdalum.testrecorder.types.SerializedImmutableType;
+import net.amygdalum.testrecorder.types.SerializedReferenceType;
+import net.amygdalum.testrecorder.types.SerializedValue;
+import net.amygdalum.testrecorder.types.SerializedValueType;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedNull;
 
@@ -85,7 +85,7 @@ public class MatcherGenerators implements Deserializer<Computation> {
     }
 
     @Override
-    public Computation visitField(SerializedField field, DeserializerContext context) {
+    public Computation visitField(SerializedFieldType field, DeserializerContext context) {
     	SerializedValue fieldValue = field.getValue();
         DeserializerContext ctx = context.newWithHints(field.getAnnotations());
         if (ctx.getHint(SkipChecks.class).isPresent()) {

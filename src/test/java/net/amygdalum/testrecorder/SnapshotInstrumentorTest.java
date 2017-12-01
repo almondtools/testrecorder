@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder;
 
 import static net.amygdalum.testrecorder.InstrumentationUnit.instrument;
-import static net.bytebuddy.jar.asm.Opcodes.POP;
+import static org.objectweb.asm.Opcodes.POP;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doReturn;
@@ -15,10 +15,10 @@ import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
+import net.amygdalum.testrecorder.asm.ByteCode;
 import net.amygdalum.testrecorder.asm.Locals;
 import net.amygdalum.testrecorder.asm.Sequence;
 import net.amygdalum.testrecorder.asm.SequenceInstruction;
-import net.amygdalum.testrecorder.util.ByteCode;
 
 public class SnapshotInstrumentorTest {
 

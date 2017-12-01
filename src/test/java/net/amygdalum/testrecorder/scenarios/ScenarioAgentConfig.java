@@ -4,8 +4,8 @@ import static java.util.Arrays.asList;
 
 import java.util.List;
 
-import net.amygdalum.testrecorder.Classes;
 import net.amygdalum.testrecorder.DefaultTestRecorderAgentConfig;
+import net.amygdalum.testrecorder.profile.Classes;
 
 public class ScenarioAgentConfig extends DefaultTestRecorderAgentConfig {
 

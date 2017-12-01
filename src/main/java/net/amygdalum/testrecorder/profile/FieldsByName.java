@@ -2,8 +2,6 @@ package net.amygdalum.testrecorder.profile;
 
 import java.lang.reflect.Field;
 
-import net.amygdalum.testrecorder.Fields;
-
 public class FieldsByName implements Fields {
 
 	private String name;

@@ -5,7 +5,6 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.Classes;
 import net.amygdalum.testrecorder.util.testobjects.Simple;
 
 public class ClassesByPackageTest {

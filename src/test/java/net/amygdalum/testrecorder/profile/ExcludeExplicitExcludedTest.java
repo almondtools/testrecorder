@@ -5,7 +5,7 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.SerializationProfile.Excluded;
+import net.amygdalum.testrecorder.profile.SerializationProfile.Excluded;
 
 public class ExcludeExplicitExcludedTest {
 

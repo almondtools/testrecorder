@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.values;
 
 import static com.almondtools.conmatch.datatypes.MapMatcher.containsEntries;
-import static net.amygdalum.testrecorder.deserializers.DeserializerContext.NULL;
+import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.GenericTypes.hashMapOfStringListOfString;
 import static net.amygdalum.testrecorder.values.GenericTypes.hashMapOfStringString;
 import static net.amygdalum.testrecorder.values.GenericTypes.mapOfBounded;
@@ -27,8 +27,8 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
+import net.amygdalum.testrecorder.types.SerializedValue;
 
 public class SerializedMapTest {
 

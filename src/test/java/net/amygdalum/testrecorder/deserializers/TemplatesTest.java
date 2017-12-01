@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.deserializers;
 
 import static com.almondtools.conmatch.conventions.UtilityClassMatcher.isUtilityClass;
-import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
+import static net.amygdalum.testrecorder.util.Literals.asLiteral;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 

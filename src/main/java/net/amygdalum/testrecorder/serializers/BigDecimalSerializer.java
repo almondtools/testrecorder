@@ -6,9 +6,7 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.List;
 
-import net.amygdalum.testrecorder.Serializer;
-import net.amygdalum.testrecorder.SerializerFacade;
-import net.amygdalum.testrecorder.SerializerFactory;
+import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 
 public class BigDecimalSerializer implements Serializer<SerializedImmutable<BigDecimal>> {

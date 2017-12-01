@@ -2,11 +2,12 @@ package net.amygdalum.testrecorder.deserializers;
 
 import java.util.function.Function;
 
-import net.amygdalum.testrecorder.Deserializer;
-import net.amygdalum.testrecorder.SerializedImmutableType;
-import net.amygdalum.testrecorder.SerializedReferenceType;
-import net.amygdalum.testrecorder.SerializedValueType;
-import net.amygdalum.testrecorder.values.SerializedField;
+import net.amygdalum.testrecorder.types.Deserializer;
+import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.SerializedFieldType;
+import net.amygdalum.testrecorder.types.SerializedImmutableType;
+import net.amygdalum.testrecorder.types.SerializedReferenceType;
+import net.amygdalum.testrecorder.types.SerializedValueType;
 
 public class MappedDeserializer<T, S> implements Deserializer<T>{
 
@@ -19,7 +20,7 @@ public class MappedDeserializer<T, S> implements Deserializer<T>{
 	}
 	
 	@Override
-	public T visitField(SerializedField field, DeserializerContext context) {
+	public T visitField(SerializedFieldType field, DeserializerContext context) {
 		return mapping.apply(field.accept(visitor, context));
 	}
 	

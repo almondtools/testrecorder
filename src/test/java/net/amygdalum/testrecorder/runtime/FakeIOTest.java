@@ -10,14 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
-import org.objectweb.asm.Opcodes;
-
-import com.almondtools.conmatch.exceptions.ExceptionMatcher;
 
 import net.amygdalum.testrecorder.ioscenarios.Inputs;
 import net.amygdalum.testrecorder.ioscenarios.Outputs;
 import net.amygdalum.testrecorder.ioscenarios.StandardLibInputOutput;
-import net.bytebuddy.jar.asm.Type;
 
 @SuppressWarnings("unused")
 public class FakeIOTest {

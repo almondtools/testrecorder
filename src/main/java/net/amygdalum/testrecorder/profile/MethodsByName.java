@@ -2,8 +2,6 @@ package net.amygdalum.testrecorder.profile;
 
 import java.lang.reflect.Method;
 
-import net.amygdalum.testrecorder.Methods;
-
 public class MethodsByName implements Methods {
 
 	private String name;

@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.values;
 
 import java.lang.reflect.Type;
 
-import net.amygdalum.testrecorder.SerializedReferenceType;
+import net.amygdalum.testrecorder.types.SerializedReferenceType;
 
 public abstract class AbstractSerializedReferenceType extends AbstractSerializedValue implements SerializedReferenceType {
 

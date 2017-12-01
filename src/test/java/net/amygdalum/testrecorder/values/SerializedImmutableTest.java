@@ -10,8 +10,8 @@ import java.lang.reflect.Type;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.Deserializer;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
+import net.amygdalum.testrecorder.types.Deserializer;
+import net.amygdalum.testrecorder.types.DeserializerContext;
 
 public class SerializedImmutableTest {
 
@@ -57,7 +57,7 @@ public class SerializedImmutableTest {
 		}
 
 		@Override
-		public <T> T accept(Deserializer<T> visitor, DeserializerContext ctx) {
+		public <T> T accept(Deserializer<T> visitor, DeserializerContext context) {
 			return null;
 		}
 

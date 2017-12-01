@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.deserializers;
 
 import java.lang.reflect.Type;
 
-import net.amygdalum.testrecorder.Deserializer;
+import net.amygdalum.testrecorder.types.Deserializer;
 
 public interface DeserializerFactory {
 

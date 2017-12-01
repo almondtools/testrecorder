@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.asm;
 
-import static net.amygdalum.testrecorder.util.ByteCode.boxPrimitives;
-import static net.amygdalum.testrecorder.util.ByteCode.boxedType;
+import static net.amygdalum.testrecorder.asm.ByteCode.boxPrimitives;
+import static net.amygdalum.testrecorder.asm.ByteCode.boxedType;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.DUP2;

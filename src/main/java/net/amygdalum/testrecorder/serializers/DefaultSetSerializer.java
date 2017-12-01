@@ -9,9 +9,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import net.amygdalum.testrecorder.Serializer;
-import net.amygdalum.testrecorder.SerializerFacade;
-import net.amygdalum.testrecorder.SerializerFactory;
+import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.values.SerializedSet;
 
 public class DefaultSetSerializer implements Serializer<SerializedSet>{

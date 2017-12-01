@@ -17,7 +17,7 @@ import java.lang.reflect.Type;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.SerializedValue;
+import net.amygdalum.testrecorder.types.SerializedValue;
 
 public class SerializedInputTest {
 

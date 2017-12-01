@@ -1,10 +1,10 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static java.util.Arrays.asList;
-import static net.amygdalum.testrecorder.TypeFilters.startingWith;
 import static net.amygdalum.testrecorder.deserializers.Computation.variable;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethod;
+import static net.amygdalum.testrecorder.util.TypeFilters.startingWith;
 import static net.amygdalum.testrecorder.util.Types.equalTypes;
 import static net.amygdalum.testrecorder.util.Types.innerClasses;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
@@ -18,11 +18,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.amygdalum.testrecorder.DeserializationException;
-import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
+import net.amygdalum.testrecorder.types.DeserializationException;
+import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.values.SerializedMap;
 
 public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {

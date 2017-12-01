@@ -51,6 +51,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -299,7 +300,11 @@ public class TypesTest {
 		assertThat(isLiteral(Object.class), is(false));
 		assertThat(isLiteral(List.class), is(false));
 		assertThat(isLiteral(Super.class), is(false));
+		assertThat(isLiteral(BigDecimal.class), is(false));
+		assertThat(isLiteral(Collection.class), is(false));
 	}
+
+
 
 	@Test
 	public void testTypeArgument() throws Exception {

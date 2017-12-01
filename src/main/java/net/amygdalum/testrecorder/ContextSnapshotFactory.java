@@ -1,5 +1,7 @@
 package net.amygdalum.testrecorder;
 
+import net.amygdalum.testrecorder.profile.SerializationProfile;
+
 public class ContextSnapshotFactory {
 
 	private SerializationProfile profile;
@@ -26,11 +28,7 @@ public class ContextSnapshotFactory {
 
 	public ContextSnapshot createSnapshot() {
 		if (signature == null) {
-			try {
-				signature = MethodSignature.fromDescriptor(className, methodName, methodDesc);
-			} catch (ReflectiveOperationException e) {
-				throw new SerializationException(e);
-			}
+			signature = MethodSignature.fromDescriptor(className, methodName, methodDesc);
 		}
 		return new ContextSnapshot(System.currentTimeMillis(), key, signature);
 	}

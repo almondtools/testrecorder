@@ -6,8 +6,7 @@ import static net.amygdalum.testrecorder.util.Types.baseType;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import net.amygdalum.testrecorder.Serializer;
-import net.amygdalum.testrecorder.SerializerFacade;
+import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.values.SerializedEnum;
 
 public class EnumSerializer implements Serializer<SerializedEnum> {

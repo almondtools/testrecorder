@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.asm;
 
-import static net.amygdalum.testrecorder.util.ByteCode.methodDescriptor;
-import static net.bytebuddy.jar.asm.Opcodes.INVOKESTATIC;
+import static net.amygdalum.testrecorder.asm.ByteCode.methodDescriptor;
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.InsnList;

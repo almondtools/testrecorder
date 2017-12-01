@@ -1,10 +1,10 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static java.util.stream.Collectors.toList;
-import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
-import static net.amygdalum.testrecorder.deserializers.Templates.classOf;
+import static net.amygdalum.testrecorder.util.Literals.asLiteral;
+import static net.amygdalum.testrecorder.util.Literals.classOf;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 
 import java.lang.reflect.Type;
@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
-import net.amygdalum.testrecorder.runtime.LambdaSignature;
+import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.values.LambdaSignature;
 import net.amygdalum.testrecorder.values.SerializedLambdaObject;
 
 public class DefaultLambdaAdaptor extends DefaultSetupGenerator<SerializedLambdaObject> implements SetupGenerator<SerializedLambdaObject> {

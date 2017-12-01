@@ -5,6 +5,8 @@ import java.lang.invoke.SerializedLambda;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 
+import net.amygdalum.testrecorder.util.Lambdas;
+
 public class LambdaMatcher extends BaseMatcher<Object> {
 
 	private String name;
@@ -20,10 +22,10 @@ public class LambdaMatcher extends BaseMatcher<Object> {
 
 	@Override
 	public boolean matches(Object item) {
-		if (!LambdaSignature.isSerializableLambda(item.getClass())) {
+		if (!Lambdas.isSerializableLambda(item.getClass())) {
 			return false;
 		}
-		SerializedLambda lambda = LambdaSignature.serialize(item);
+		SerializedLambda lambda = Lambdas.serializeLambda(item);
 		return lambda.getImplMethodName().equals(name);
 	}
 

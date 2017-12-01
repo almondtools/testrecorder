@@ -13,7 +13,7 @@ import java.util.function.Function;
 
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.runtime.LambdaSignature;
+import net.amygdalum.testrecorder.util.Lambdas;
 
 public class LambdaSignatureTest {
 
@@ -39,16 +39,16 @@ public class LambdaSignatureTest {
 
 	@Test
 	public void testIsSerializableLambda() throws Exception {
-		assertThat(LambdaSignature.isSerializableLambda(plus.getClass()), is(false));
-		assertThat(LambdaSignature.isSerializableLambda(lplus.getClass()), is(false));
-		assertThat(LambdaSignature.isSerializableLambda(splus.getClass()), is(true));
-		assertThat(LambdaSignature.isSerializableLambda(splusCapturing(2).getClass()), is(true));
+		assertThat(Lambdas.isSerializableLambda(plus.getClass()), is(false));
+		assertThat(Lambdas.isSerializableLambda(lplus.getClass()), is(false));
+		assertThat(Lambdas.isSerializableLambda(splus.getClass()), is(true));
+		assertThat(Lambdas.isSerializableLambda(splusCapturing(2).getClass()), is(true));
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testSerializeStaticNonCapturing() throws Exception {
-		SerializedLambda serializedLambda = LambdaSignature.serialize(splus);
+		SerializedLambda serializedLambda = Lambdas.serializeLambda(splus);
 
 		assertThat(serializedLambda.getCapturedArgCount(), equalTo(0));
 		
@@ -79,7 +79,7 @@ public class LambdaSignatureTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testSerializeStaticCapturing() throws Exception {
-		SerializedLambda serializedLambda = LambdaSignature.serialize(splusCapturing(42));
+		SerializedLambda serializedLambda = Lambdas.serializeLambda(splusCapturing(42));
 
 		assertThat(serializedLambda.getCapturedArgCount(), equalTo(1));
 		assertThat(serializedLambda.getCapturedArg(0), equalTo(42));
@@ -110,7 +110,7 @@ public class LambdaSignatureTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testSerializeInstanceCapturing() throws Exception {
-		SerializedLambda serializedLambda = LambdaSignature.serialize(this.splusInstanceCapturing());
+		SerializedLambda serializedLambda = Lambdas.serializeLambda(this.splusInstanceCapturing());
 
 		assertThat(serializedLambda.getCapturedArgCount(), equalTo(1));
 		assertThat(serializedLambda.getCapturedArg(0), equalTo(this));

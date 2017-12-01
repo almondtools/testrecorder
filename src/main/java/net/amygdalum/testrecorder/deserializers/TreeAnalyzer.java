@@ -4,8 +4,8 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import net.amygdalum.testrecorder.SerializedReferenceType;
-import net.amygdalum.testrecorder.SerializedValue;
+import net.amygdalum.testrecorder.types.SerializedReferenceType;
+import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.util.WorkSet;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedInput;
@@ -47,7 +47,7 @@ public class TreeAnalyzer {
 			.forEach(seed::add);
 	}
 
-	public DeserializerContext analyze(DeserializerContext context) {
+	public DefaultDeserializerContext analyze(DefaultDeserializerContext context) {
 		while (seed.hasMoreElements()) {
 			SerializedValue value = seed.remove();
 			analyzeValue(context, value);
@@ -60,7 +60,7 @@ public class TreeAnalyzer {
 		return context;
 	}
 
-	private void analyzeValue(DeserializerContext context, SerializedValue value) {
+	private void analyzeValue(DefaultDeserializerContext context, SerializedValue value) {
 		context.staticRef(value);
 		if (value instanceof SerializedReferenceType) {
 			SerializedReferenceType object = (SerializedReferenceType) value;
@@ -74,7 +74,7 @@ public class TreeAnalyzer {
 		}
 	}
 
-	private void analyzeReference(DeserializerContext context, SerializedReferenceType value, SerializedValue referencedValue) {
+	private void analyzeReference(DefaultDeserializerContext context, SerializedReferenceType value, SerializedValue referencedValue) {
 		context.ref(value, referencedValue);
 		if (referencedValue instanceof SerializedReferenceType) {
 			SerializedReferenceType object = (SerializedReferenceType) referencedValue;

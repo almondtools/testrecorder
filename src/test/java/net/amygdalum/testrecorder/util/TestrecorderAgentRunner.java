@@ -12,11 +12,11 @@ import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
 
-import net.amygdalum.testrecorder.Classes;
 import net.amygdalum.testrecorder.ConfigurableTestRecorderAgentConfig;
 import net.amygdalum.testrecorder.DefaultTestRecorderAgentConfig;
 import net.amygdalum.testrecorder.TestRecorderAgent;
 import net.amygdalum.testrecorder.TestRecorderAgentConfig;
+import net.amygdalum.testrecorder.profile.Classes;
 import net.amygdalum.testrecorder.runtime.FakeIO;
 import net.bytebuddy.agent.ByteBuddyAgent;
 

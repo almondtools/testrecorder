@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.data;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
-import net.amygdalum.testrecorder.util.DefaultValue;
+import net.amygdalum.testrecorder.runtime.DefaultValue;
 
 public class TestDataGenerator {
 

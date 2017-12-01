@@ -32,10 +32,8 @@ import java.util.jar.Manifest;
 import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
 
-import net.amygdalum.testrecorder.DeserializationException;
-import net.amygdalum.testrecorder.SnapshotManager;
+import net.amygdalum.testrecorder.asm.ByteCode;
 import net.amygdalum.testrecorder.bridge.BridgedFakeIO;
-import net.amygdalum.testrecorder.util.ByteCode;
 import net.amygdalum.testrecorder.util.Types;
 import net.bytebuddy.agent.ByteBuddyAgent;
 
@@ -55,7 +53,7 @@ public class FakeIO {
 	}
 
 	public static Object callFake(String name, StackTraceElement[] stackTrace, Object instance, String methodName, String methodDesc, Object... varargs) {
-		if (isProfiling(stackTrace)) {
+		if (isRecording(stackTrace)) {
 			return NO_RESULT;
 		}
 		FakeIO fake = faked.get(name);
@@ -66,9 +64,9 @@ public class FakeIO {
 		return fake.call(invocation, varargs);
 	}
 
-	private static boolean isProfiling(StackTraceElement[] stackTrace) {
+	private static boolean isRecording(StackTraceElement[] stackTrace) {
 		for (StackTraceElement stackTraceElement : stackTrace) {
-			if (stackTraceElement.getClassName() != null && stackTraceElement.getClassName().equals(SnapshotManager.class.getName())) {
+			if (stackTraceElement.getClassName() != null && stackTraceElement.getClassName().startsWith("net.amygdalum.testrecorder.SnapshotManager")) {
 				return true;
 			}
 		}
@@ -85,38 +83,39 @@ public class FakeIO {
 		return (FakeIOTransformer) new FakeIOTransformer().attach(inst);
 	}
 
-	private static void installBridge(Instrumentation inst)  {
+	private static void installBridge(Instrumentation inst) {
 		try {
 			inst.appendToBootstrapClassLoaderSearch(jarfile());
-			BridgedFakeIO.callFake = MethodHandles.lookup().findStatic(FakeIO.class, "callFake", MethodType.methodType(Object.class, String.class, StackTraceElement[].class, Object.class, String.class, String.class, Object[].class));
+			BridgedFakeIO.callFake = MethodHandles.lookup().findStatic(FakeIO.class, "callFake",
+				MethodType.methodType(Object.class, String.class, StackTraceElement[].class, Object.class, String.class, String.class, Object[].class));
 			BridgedFakeIO.NO_RESULT = NO_RESULT;
 		} catch (ReflectiveOperationException | IOException e) {
-			throw new DeserializationException("failed installing fake bridge", e);
+			throw new RuntimeException("failed installing fake bridge", e);
 		}
 	}
 
 	public static JarFile jarfile() throws IOException {
-			String bridge = "net/amygdalum/testrecorder/bridge/BridgedFakeIO.class";
-			InputStream resourceStream = FakeIO.class.getResourceAsStream("/" + bridge);
-			if (resourceStream == null) {
-				throw  new FileNotFoundException(bridge);
-			}
-			try (InputStream inputStream = resourceStream){
-				File agentJar = File.createTempFile("agent", "jar");
-				agentJar.deleteOnExit();
-				Manifest manifest = new Manifest();
-				try (JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(agentJar), manifest)) {
-				
-					jarOutputStream.putNextEntry(new JarEntry(bridge));
-					byte[] buffer = new byte[4096];
-					int index;
-					while ((index = inputStream.read(buffer)) != -1) {
-						jarOutputStream.write(buffer, 0, index);
-					}
-					jarOutputStream.closeEntry();
+		String bridge = "net/amygdalum/testrecorder/bridge/BridgedFakeIO.class";
+		InputStream resourceStream = FakeIO.class.getResourceAsStream("/" + bridge);
+		if (resourceStream == null) {
+			throw new FileNotFoundException(bridge);
+		}
+		try (InputStream inputStream = resourceStream) {
+			File agentJar = File.createTempFile("agent", "jar");
+			agentJar.deleteOnExit();
+			Manifest manifest = new Manifest();
+			try (JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(agentJar), manifest)) {
+
+				jarOutputStream.putNextEntry(new JarEntry(bridge));
+				byte[] buffer = new byte[4096];
+				int index;
+				while ((index = inputStream.read(buffer)) != -1) {
+					jarOutputStream.write(buffer, 0, index);
 				}
-				return new JarFile(agentJar);
+				jarOutputStream.closeEntry();
 			}
+			return new JarFile(agentJar);
+		}
 	}
 
 	public Input fakeInput(Aspect aspect) {
@@ -204,7 +203,7 @@ public class FakeIO {
 				Method method = Types.getDeclaredMethod(clazz, methodName, ByteCode.getArgumentTypes(methodDesc));
 				return method.getDeclaringClass();
 			} catch (ReflectiveOperationException e) {
-				throw new DeserializationException("failed to resolve class of virtual call", e);
+				throw new RuntimeException("failed to resolve class of virtual call", e);
 			}
 		}
 

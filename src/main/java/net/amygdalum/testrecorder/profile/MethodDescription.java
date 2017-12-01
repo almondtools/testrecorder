@@ -4,8 +4,6 @@ import java.lang.reflect.Method;
 
 import org.objectweb.asm.Type;
 
-import net.amygdalum.testrecorder.Methods;
-
 public class MethodDescription implements Methods {
 
 	private String className;

@@ -2,9 +2,9 @@ package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static java.util.Collections.emptyList;
 import static net.amygdalum.testrecorder.deserializers.Computation.expression;
-import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
 import static net.amygdalum.testrecorder.deserializers.Templates.equalToMatcher;
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
+import static net.amygdalum.testrecorder.util.Literals.asLiteral;
 import static net.amygdalum.testrecorder.util.Types.equalTypes;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 
@@ -15,8 +15,8 @@ import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
+import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 
 public class DefaultBigDecimalAdaptor extends DefaultMatcherGenerator<SerializedImmutable<BigDecimal>> implements MatcherGenerator<SerializedImmutable<BigDecimal>> {

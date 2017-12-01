@@ -9,9 +9,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
-import net.amygdalum.testrecorder.deserializers.ValuePrinter;
+import net.amygdalum.testrecorder.types.SerializedInteraction;
+import net.amygdalum.testrecorder.types.SerializedValue;
 
 public class SerializedOutput implements SerializedInteraction {
 
@@ -110,7 +109,7 @@ public class SerializedOutput implements SerializedInteraction {
 	public String toString() {
 		ValuePrinter printer = new ValuePrinter();
 		return ">> " + clazz.getTypeName() + "@" + id + "." + name + Stream.of(arguments)
-			.map(value -> value.accept(printer, DeserializerContext.NULL))
+			.map(value -> value.accept(printer, printer))
 			.collect(joining(", ", "(", ")"));
 	}
 

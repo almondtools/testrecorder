@@ -1,10 +1,10 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static net.amygdalum.testrecorder.deserializers.Computation.expression;
-import static net.amygdalum.testrecorder.deserializers.Templates.asLiteral;
+import static net.amygdalum.testrecorder.util.Literals.asLiteral;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
+import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 
 public class DefaultLiteralAdaptor extends DefaultSetupGenerator<SerializedLiteral> implements SetupGenerator<SerializedLiteral> {

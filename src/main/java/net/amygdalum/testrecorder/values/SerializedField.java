@@ -4,13 +4,13 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import net.amygdalum.testrecorder.Deserializer;
-import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
-import net.amygdalum.testrecorder.deserializers.ValuePrinter;
+import net.amygdalum.testrecorder.types.Deserializer;
+import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.SerializedFieldType;
+import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.util.Types;
 
-public class SerializedField implements Comparable<SerializedField> {
+public class SerializedField implements SerializedFieldType {
 
     private String name;
     private Type type;
@@ -24,23 +24,31 @@ public class SerializedField implements Comparable<SerializedField> {
         this.value = value;
     }
 
-    public Class<?> getDeclaringClass() {
+    @Override
+	public Class<?> getDeclaringClass() {
         return clazz;
     }
 
-    public String getName() {
+    /* (non-Javadoc)
+	 * @see net.amygdalum.testrecorder.values.SerializedFieldType#getName()
+	 */
+    @Override
+	public String getName() {
         return name;
     }
 
-    public Type getType() {
+    @Override
+	public Type getType() {
         return type;
     }
 
-    public SerializedValue getValue() {
+    @Override
+	public SerializedValue getValue() {
         return value;
     }
 
-    public Annotation[] getAnnotations() {
+    @Override
+	public Annotation[] getAnnotations() {
         try {
             return Types.getDeclaredField(clazz, name).getAnnotations();
         } catch (NoSuchFieldException e) {
@@ -48,7 +56,8 @@ public class SerializedField implements Comparable<SerializedField> {
         }
     }
 
-    public <T extends Annotation> Optional<T> getAnnotation(Class<T> clazz) {
+    @Override
+	public <T extends Annotation> Optional<T> getAnnotation(Class<T> clazz) {
         Annotation[] annotations = getAnnotations();
         for (int i = 0; i < annotations.length; i++) {
             if (clazz.isInstance(annotations[i])) {
@@ -58,18 +67,14 @@ public class SerializedField implements Comparable<SerializedField> {
         return Optional.empty();
     }
 
-    public <T> T accept(Deserializer<T> visitor, DeserializerContext context) {
+    @Override
+	public <T> T accept(Deserializer<T> visitor, DeserializerContext context) {
         return visitor.visitField(this, context);
     }
 
     @Override
     public String toString() {
-		return accept(new ValuePrinter(), DeserializerContext.NULL);
-    }
-
-    @Override
-    public int compareTo(SerializedField o) {
-        return name.compareTo(o.name);
+		return ValuePrinter.print(this);
     }
 
     @Override

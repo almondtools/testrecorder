@@ -3,6 +3,10 @@ package net.amygdalum.testrecorder;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.amygdalum.testrecorder.profile.Classes;
+import net.amygdalum.testrecorder.profile.Fields;
+import net.amygdalum.testrecorder.profile.Methods;
+
 /**
  * Most TestRecorderAgentConfig are Factories, i.e. they produce all configurations when called (and therefore almost never return
  * the same value at different call locations). This is ok at configuration time, but after this we want to rely on concrete values.

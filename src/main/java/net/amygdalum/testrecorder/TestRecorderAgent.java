@@ -3,6 +3,8 @@ package net.amygdalum.testrecorder;
 import java.lang.instrument.Instrumentation;
 import java.util.ServiceLoader;
 
+import net.amygdalum.testrecorder.util.AttachableClassFileTransformer;
+
 public class TestRecorderAgent {
 
 	private Instrumentation inst;

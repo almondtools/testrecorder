@@ -10,9 +10,10 @@ import java.util.Map;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 
-import net.amygdalum.testrecorder.DeserializationException;
-import net.amygdalum.testrecorder.Deserializer;
-import net.amygdalum.testrecorder.SerializedValue;
+import net.amygdalum.testrecorder.types.DeserializationException;
+import net.amygdalum.testrecorder.types.Deserializer;
+import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.SerializedValue;
 
 public class Adaptors<G extends Deserializer<Computation>> {
 

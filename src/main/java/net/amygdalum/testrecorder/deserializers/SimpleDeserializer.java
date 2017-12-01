@@ -13,14 +13,16 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import net.amygdalum.testrecorder.DeserializationException;
-import net.amygdalum.testrecorder.Deserializer;
-import net.amygdalum.testrecorder.SerializedImmutableType;
-import net.amygdalum.testrecorder.SerializedReferenceType;
-import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.SerializedValueType;
 import net.amygdalum.testrecorder.runtime.GenericObject;
 import net.amygdalum.testrecorder.runtime.GenericObjectException;
+import net.amygdalum.testrecorder.types.DeserializationException;
+import net.amygdalum.testrecorder.types.Deserializer;
+import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.SerializedFieldType;
+import net.amygdalum.testrecorder.types.SerializedImmutableType;
+import net.amygdalum.testrecorder.types.SerializedReferenceType;
+import net.amygdalum.testrecorder.types.SerializedValue;
+import net.amygdalum.testrecorder.types.SerializedValueType;
 import net.amygdalum.testrecorder.values.SerializedArray;
 import net.amygdalum.testrecorder.values.SerializedEnum;
 import net.amygdalum.testrecorder.values.SerializedField;
@@ -52,7 +54,7 @@ public class SimpleDeserializer implements Deserializer<Object> {
 	}
 
 	@Override
-	public Object visitField(SerializedField field, DeserializerContext context) {
+	public Object visitField(SerializedFieldType field, DeserializerContext context) {
 		throw new DeserializationException("failed deserializing: " + field);
 	}
 

@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.asm;
 
-import static net.amygdalum.testrecorder.util.ByteCode.isStatic;
+import static net.amygdalum.testrecorder.asm.ByteCode.isStatic;
 
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.MethodNode;

@@ -2,11 +2,10 @@ package net.amygdalum.testrecorder.deserializers.builder;
 
 import java.lang.reflect.Type;
 
-import net.amygdalum.testrecorder.DeserializationException;
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.Construction;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
+import net.amygdalum.testrecorder.types.DeserializationException;
+import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class BeanObjectAdaptor implements SetupGenerator<SerializedObject> {

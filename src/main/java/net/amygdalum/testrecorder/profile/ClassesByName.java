@@ -2,8 +2,6 @@ package net.amygdalum.testrecorder.profile;
 
 import org.objectweb.asm.Type;
 
-import net.amygdalum.testrecorder.Classes;
-
 public class ClassesByName implements Classes {
 
 	private String name;

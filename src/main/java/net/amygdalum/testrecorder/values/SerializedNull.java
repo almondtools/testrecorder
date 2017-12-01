@@ -7,11 +7,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.amygdalum.testrecorder.Deserializer;
-import net.amygdalum.testrecorder.SerializedImmutableType;
-import net.amygdalum.testrecorder.SerializedValue;
-import net.amygdalum.testrecorder.deserializers.DeserializerContext;
-import net.amygdalum.testrecorder.deserializers.ValuePrinter;
+import net.amygdalum.testrecorder.types.Deserializer;
+import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.SerializedImmutableType;
+import net.amygdalum.testrecorder.types.SerializedValue;
 
 /**
  * Serializing to SerializedNull is only valid and strongly recommended for any value that is null. Use the factory method  
@@ -41,7 +40,7 @@ public class SerializedNull extends AbstractSerializedReferenceType implements S
 
 	@Override
 	public String toString() {
-		return accept(new ValuePrinter(), DeserializerContext.NULL);
+		return ValuePrinter.print(this);
 	}
 
 }

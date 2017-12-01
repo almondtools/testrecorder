@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
-import static net.amygdalum.testrecorder.deserializers.DeserializerContext.NULL;
+import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenMap;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
@@ -20,10 +20,10 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.SerializedValue;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.LocalVariable;
 import net.amygdalum.testrecorder.deserializers.LocalVariableDefinition;
+import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.util.testobjects.OrthogonalInterface;
 import net.amygdalum.testrecorder.util.testobjects.PublicMap;
 import net.amygdalum.testrecorder.values.SerializedMap;

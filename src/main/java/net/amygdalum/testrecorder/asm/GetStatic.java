@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.asm;
 
-import static net.amygdalum.testrecorder.util.ByteCode.fieldDescriptor;
-import static net.amygdalum.testrecorder.util.ByteCode.list;
+import static net.amygdalum.testrecorder.asm.ByteCode.fieldDescriptor;
+import static net.amygdalum.testrecorder.asm.ByteCode.list;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;

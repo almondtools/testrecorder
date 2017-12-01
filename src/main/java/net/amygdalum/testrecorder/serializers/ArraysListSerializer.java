@@ -1,14 +1,12 @@
 package net.amygdalum.testrecorder.serializers;
 
 import static java.util.stream.Collectors.toList;
-import static net.amygdalum.testrecorder.TypeFilters.in;
+import static net.amygdalum.testrecorder.util.TypeFilters.in;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 
-import net.amygdalum.testrecorder.SerializerFacade;
-import net.amygdalum.testrecorder.SerializerFactory;
 import net.amygdalum.testrecorder.values.SerializedList;
 
 public class ArraysListSerializer extends HiddenInnerClassSerializer<SerializedList> {

@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.serializers;
 
 import static java.util.stream.Collectors.toList;
-import static net.amygdalum.testrecorder.TypeFilters.startingWith;
+import static net.amygdalum.testrecorder.util.TypeFilters.startingWith;
 import static net.amygdalum.testrecorder.util.Types.inferType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.typeArgument;
@@ -12,8 +12,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import net.amygdalum.testrecorder.SerializerFacade;
-import net.amygdalum.testrecorder.SerializerFactory;
 import net.amygdalum.testrecorder.util.Reflections;
 import net.amygdalum.testrecorder.values.SerializedList;
 

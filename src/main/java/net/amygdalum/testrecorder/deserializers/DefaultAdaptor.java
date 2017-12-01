@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.deserializers;
 
 import java.lang.reflect.Type;
 
-import net.amygdalum.testrecorder.SerializedValue;
+import net.amygdalum.testrecorder.types.SerializedValue;
 
 public abstract class DefaultAdaptor<T extends SerializedValue,G> implements Adaptor<T,G> {
 

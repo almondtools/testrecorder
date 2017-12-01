@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.asm;
 
-import static net.amygdalum.testrecorder.util.ByteCode.constructorDescriptor;
-import static net.bytebuddy.jar.asm.Opcodes.INVOKESPECIAL;
+import static net.amygdalum.testrecorder.asm.ByteCode.constructorDescriptor;
+import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.NEW;
 
