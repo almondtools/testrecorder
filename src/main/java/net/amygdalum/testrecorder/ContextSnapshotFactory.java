@@ -25,12 +25,16 @@ public class ContextSnapshotFactory {
     public SerializationProfile profile() {
 		return profile;
 	}
-
-	public ContextSnapshot createSnapshot() {
+    
+    public synchronized MethodSignature signature() {
 		if (signature == null) {
 			signature = MethodSignature.fromDescriptor(className, methodName, methodDesc);
 		}
-		return new ContextSnapshot(System.currentTimeMillis(), key, signature);
+		return signature;
+    }
+
+	public ContextSnapshot createSnapshot() {
+		return new ContextSnapshot(System.currentTimeMillis(), key, signature());
 	}
 
 }

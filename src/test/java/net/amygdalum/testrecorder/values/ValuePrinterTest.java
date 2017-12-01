@@ -19,17 +19,6 @@ import org.mockito.Mockito;
 import net.amygdalum.testrecorder.types.SerializedImmutableType;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.util.testobjects.Simple;
-import net.amygdalum.testrecorder.values.SerializedArray;
-import net.amygdalum.testrecorder.values.SerializedEnum;
-import net.amygdalum.testrecorder.values.SerializedField;
-import net.amygdalum.testrecorder.values.SerializedImmutable;
-import net.amygdalum.testrecorder.values.SerializedList;
-import net.amygdalum.testrecorder.values.SerializedLiteral;
-import net.amygdalum.testrecorder.values.SerializedMap;
-import net.amygdalum.testrecorder.values.SerializedNull;
-import net.amygdalum.testrecorder.values.SerializedObject;
-import net.amygdalum.testrecorder.values.SerializedSet;
-import net.amygdalum.testrecorder.values.ValuePrinter;
 
 public class ValuePrinterTest {
 

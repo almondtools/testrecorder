@@ -64,6 +64,14 @@ public class SnapshotManager {
 		globalContext.add(className, fieldName);
 	}
 
+	private boolean matches(Object self, String signature) {
+		if (self == null) {
+			return true;
+		}
+		ContextSnapshotFactory contextSnapshotFactory = methodSnapshots.get(signature);
+		return contextSnapshotFactory.signature().validIn(self.getClass());
+	}
+
 	public SnapshotProcess push(String signature) {
 		ContextSnapshotFactory factory = methodSnapshots.get(signature);
 		SerializationProfile profile = config;
@@ -94,6 +102,9 @@ public class SnapshotManager {
 	}
 
 	public void setupVariables(Object self, String signature, Object... args) {
+		if (!matches(self, signature)) {
+			return;
+		}
 		SnapshotProcess process = push(signature);
 		process.setupVariables(signature, self, args);
 	}
@@ -115,18 +126,27 @@ public class SnapshotManager {
 	}
 
 	public void expectVariables(Object self, String signature, Object result, Object... args) {
+		if (!matches(self, signature)) {
+			return;
+		}
 		SnapshotProcess process = pop(signature);
 		process.expectVariables(self, result, args);
 		consume(process.getSnapshot());
 	}
 
 	public void expectVariables(Object self, String signature, Object... args) {
+		if (!matches(self, signature)) {
+			return;
+		}
 		SnapshotProcess process = pop(signature);
 		process.expectVariables(self, args);
 		consume(process.getSnapshot());
 	}
 
 	public void throwVariables(Throwable throwable, Object self, String signature, Object... args) {
+		if (!matches(self, signature)) {
+			return;
+		}
 		SnapshotProcess process = pop(signature);
 		process.throwVariables(self, throwable, args);
 		consume(process.getSnapshot());

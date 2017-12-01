@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.values;
 
-import static net.amygdalum.testrecorder.asm.ByteCode.classFromInternalName;
-import static net.amygdalum.testrecorder.asm.ByteCode.getArgumentTypes;
+import static net.amygdalum.testrecorder.asm.ByteCode.argumentTypesFrom;
+import static net.amygdalum.testrecorder.asm.ByteCode.classFrom;
 
 import java.lang.invoke.CallSite;
 import java.lang.invoke.LambdaMetafactory;
@@ -59,10 +59,10 @@ public class LambdaSignature {
 	@SuppressWarnings("unchecked")
 	public <T> T deserialize(Class<T> resultType, Object... capturedArgs) {
 		try {
-			Class<?> capturingClass = classFromInternalName(this.capturingClass);
+			Class<?> capturingClass = classFrom(this.capturingClass);
 			ClassLoader cl = capturingClass.getClassLoader();
-			Class<?> implClass = classFromInternalName(this.implClass, cl);
-			Class<?> interfaceType = classFromInternalName(this.functionalInterfaceClass, cl);
+			Class<?> implClass = classFrom(this.implClass, cl);
+			Class<?> interfaceType = classFrom(this.functionalInterfaceClass, cl);
 
 			Lookup lookup = privateLookup(implClass);
 
@@ -147,8 +147,8 @@ public class LambdaSignature {
 
 	public Method getFunctionalInterfaceMethod() {
 		try {
-			Class<?> base = classFromInternalName(functionalInterfaceClass);
-			Class<?>[] parameterTypes = getArgumentTypes(functionalInterfaceMethodSignature);
+			Class<?> base = classFrom(functionalInterfaceClass);
+			Class<?>[] parameterTypes = argumentTypesFrom(functionalInterfaceMethodSignature);
 			return base.getDeclaredMethod(functionalInterfaceMethodName, parameterTypes);
 		} catch (ReflectiveOperationException e) {
 			throw new RuntimeException(e);
@@ -173,8 +173,8 @@ public class LambdaSignature {
 
 	public Method getImplMethod() {
 		try {
-			Class<?> base = classFromInternalName(implClass);
-			Class<?>[] parameterTypes = getArgumentTypes(implMethodSignature);
+			Class<?> base = classFrom(implClass);
+			Class<?>[] parameterTypes = argumentTypesFrom(implMethodSignature);
 			return base.getDeclaredMethod(implMethodName, parameterTypes);
 		} catch (ReflectiveOperationException e) {
 			throw new RuntimeException(e);

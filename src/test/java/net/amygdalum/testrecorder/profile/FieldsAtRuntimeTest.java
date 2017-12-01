@@ -7,8 +7,6 @@ import java.lang.reflect.Field;
 
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.profile.FieldsAtRuntime;
-
 public class FieldsAtRuntimeTest {
 
 	@Test

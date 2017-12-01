@@ -110,7 +110,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		classesToRetransform.addAll(instrumentedClasses);
 
 		for (String className : instrumentedClassNames) {
-			classesToRetransform.add(ByteCode.classFromInternalName(className));
+			classesToRetransform.add(ByteCode.classFrom(className));
 		}
 
 		return classesToRetransform.toArray(new Class[0]);

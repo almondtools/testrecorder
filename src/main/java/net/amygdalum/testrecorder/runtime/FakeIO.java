@@ -200,7 +200,7 @@ public class FakeIO {
 
 		public Class<?> resolve(Class<?> clazz) {
 			try {
-				Method method = Types.getDeclaredMethod(clazz, methodName, ByteCode.getArgumentTypes(methodDesc));
+				Method method = Types.getDeclaredMethod(clazz, methodName, ByteCode.argumentTypesFrom(methodDesc));
 				return method.getDeclaringClass();
 			} catch (ReflectiveOperationException e) {
 				throw new RuntimeException("failed to resolve class of virtual call", e);

@@ -83,11 +83,11 @@ public class OutputsTest {
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(Outputs.class), hasSize(1));
 		assertThat(testGenerator.renderTest(Outputs.class), containsPattern(".fakeOutput(new Aspect() {*conditionalReturnOutput(char*)*})"
-				+ ".add(Outputs.class, \"recordedWithConditionalReturn\", *, true, equalTo('a'))"
-				+ ".add(Outputs.class, \"recordedWithConditionalReturn\", *, true, equalTo(','))"
-				+ ".add(Outputs.class, \"recordedWithConditionalReturn\", *, false, equalTo(' '))"
-				+ ".add(Outputs.class, \"recordedWithConditionalReturn\", *, true, equalTo('b'))"
-				+ ".add(Outputs.class, \"recordedWithConditionalReturn\", *, false, equalTo('\\n')"));
+			+ ".add(Outputs.class, \"recordedWithConditionalReturn\", *, true, equalTo('a'))"
+			+ ".add(Outputs.class, \"recordedWithConditionalReturn\", *, true, equalTo(','))"
+			+ ".add(Outputs.class, \"recordedWithConditionalReturn\", *, false, equalTo(' '))"
+			+ ".add(Outputs.class, \"recordedWithConditionalReturn\", *, true, equalTo('b'))"
+			+ ".add(Outputs.class, \"recordedWithConditionalReturn\", *, false, equalTo('\\n')"));
 
 		assertThat(testGenerator.renderTest(Outputs.class), containsString("verify()"));
 		assertThat(testGenerator.renderTest(Outputs.class), testsRun(Outputs.class));

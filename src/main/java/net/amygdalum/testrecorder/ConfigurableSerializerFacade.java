@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder;
 
 import static java.lang.System.identityHashCode;
-import static net.amygdalum.testrecorder.asm.ByteCode.classFromInternalName;
+import static net.amygdalum.testrecorder.asm.ByteCode.classFrom;
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.isLiteral;
@@ -96,7 +96,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 		if (serializedObject == null) {
 			SerializedLambda serializedLambda = Lambdas.serializeLambda(object);
 			try {
-				Class<?> functionalInterfaceType = classFromInternalName(serializedLambda.getFunctionalInterfaceClass());
+				Class<?> functionalInterfaceType = classFrom(serializedLambda.getFunctionalInterfaceClass());
 				Serializer serializer = fetchSerializer(serializedLambda.getClass());
 				serializedObject = serializer.generate(type, functionalInterfaceType);
 				serialized.put(object, serializedObject);

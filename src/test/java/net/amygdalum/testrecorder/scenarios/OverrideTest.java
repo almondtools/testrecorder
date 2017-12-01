@@ -1,7 +1,5 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -24,7 +22,7 @@ public class OverrideTest {
 	}
 
 	@Test
-	public void testReplacementRunnable() throws Exception {
+	public void testOverridingRecordedMethodsReplacingSuperDoesNotRecord() throws Exception {
 		Overriding o = new Overriding();
 		int result = o.methodForReplacement(0l);
 
@@ -32,12 +30,10 @@ public class OverrideTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(Overridden.class), empty());
-		assertThat(testGenerator.renderTest(Overriding.class), compiles(Overriding.class));
-		assertThat(testGenerator.renderTest(Overriding.class), testsRun(Overriding.class));
 	}
 
 	@Test
-	public void testExtensionRunnable() throws Exception {
+	public void testOverridingRecordedMethodsCallingSuperDoesNotRecord() throws Exception {
 		Overriding o = new Overriding();
 		int result = o.methodForExtension(0l);
 
@@ -45,7 +41,5 @@ public class OverrideTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(Overridden.class), empty());
-		assertThat(testGenerator.renderTest(Overriding.class), compiles(Overriding.class));
-		assertThat(testGenerator.renderTest(Overriding.class), testsRun(Overriding.class));
 	}
 }

@@ -49,7 +49,7 @@ public class GlobalContext {
 
 		public Field field() {
 			try {
-				Class<?> clazz = ByteCode.classFromInternalName(className);
+				Class<?> clazz = ByteCode.classFrom(className);
 				return Types.getDeclaredField(clazz, fieldName);
 			} catch (RuntimeException | ReflectiveOperationException e) {
 				throw new SerializationException(e);

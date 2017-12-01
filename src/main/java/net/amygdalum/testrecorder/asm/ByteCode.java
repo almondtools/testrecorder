@@ -1,6 +1,5 @@
 package net.amygdalum.testrecorder.asm;
 
-import static java.lang.Class.forName;
 import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
@@ -42,15 +41,15 @@ import net.amygdalum.testrecorder.util.Types;
 public final class ByteCode {
 
 	private static final PrimitiveTypeInfo[] PRIMITIVES = new PrimitiveTypeInfo[] {
-		new PrimitiveTypeInfo('Z', boolean.class, Boolean.class, "valueOf", "booleanValue"),
-		new PrimitiveTypeInfo('C', char.class, Character.class, "valueOf", "charValue"),
-		new PrimitiveTypeInfo('B', byte.class, Byte.class, "valueOf", "byteValue"),
-		new PrimitiveTypeInfo('S', short.class, Short.class, "valueOf", "shortValue"),
-		new PrimitiveTypeInfo('I', int.class, Integer.class, "valueOf", "intValue"),
-		new PrimitiveTypeInfo('J', long.class, Long.class, "valueOf", "longValue"),
-		new PrimitiveTypeInfo('F', float.class, Float.class, "valueOf", "floatValue"),
-		new PrimitiveTypeInfo('D', double.class, Double.class, "valueOf", "doubleValue"),
-		new PrimitiveTypeInfo('V', void.class, Void.class, null, null)
+		new PrimitiveTypeInfo('Z', Type.BOOLEAN, boolean.class, Boolean.class, "valueOf", "booleanValue"),
+		new PrimitiveTypeInfo('C', Type.CHAR, char.class, Character.class, "valueOf", "charValue"),
+		new PrimitiveTypeInfo('B', Type.BYTE, byte.class, Byte.class, "valueOf", "byteValue"),
+		new PrimitiveTypeInfo('S', Type.SHORT, short.class, Short.class, "valueOf", "shortValue"),
+		new PrimitiveTypeInfo('I', Type.INT, int.class, Integer.class, "valueOf", "intValue"),
+		new PrimitiveTypeInfo('J', Type.LONG, long.class, Long.class, "valueOf", "longValue"),
+		new PrimitiveTypeInfo('F', Type.FLOAT, float.class, Float.class, "valueOf", "floatValue"),
+		new PrimitiveTypeInfo('D', Type.DOUBLE, double.class, Double.class, "valueOf", "doubleValue"),
+		new PrimitiveTypeInfo('V', Type.VOID, void.class, Void.class, null, null)
 	};
 
 	private ByteCode() {
@@ -65,9 +64,9 @@ public final class ByteCode {
 		return null;
 	}
 
-	private static PrimitiveTypeInfo primitiveByInternalName(String name) {
+	private static PrimitiveTypeInfo primitive(int sort) {
 		for (PrimitiveTypeInfo info : PRIMITIVES) {
-			if (name.equals(info.rawType)) {
+			if (info.sort == sort) {
 				return info;
 			}
 		}
@@ -274,14 +273,28 @@ public final class ByteCode {
 		}
 	}
 
-	public static Class<?> classFromInternalName(String name, ClassLoader loader) {
+	public static Class<?> classFrom(String name) {
+		return classFrom(Type.getObjectType(name), ByteCode.class.getClassLoader());
+	}
+
+	public static Class<?> classFrom(String name, ClassLoader loader) {
+		return classFrom(Type.getObjectType(name), loader);
+	}
+
+	public static Class<?> classFrom(Type type) {
+		return classFrom(type, ByteCode.class.getClassLoader());
+	}
+
+	public static Class<?> classFrom(Type type, ClassLoader loader) {
 		try {
 			int arrayDimensions = 0;
-			while (name.endsWith("[]")) {
-				name = name.substring(0, name.length() - 2);
-				arrayDimensions++;
+			
+			if (type.getSort() == Type.ARRAY) {
+				arrayDimensions +=type.getDimensions();
+				type = type.getElementType();
 			}
-			Class<?> clazz = componentClassFromInternalName(name, loader);
+			PrimitiveTypeInfo primitive = primitive(type.getSort());
+			Class<?> clazz = primitive != null ? primitive.rawClass : loader.loadClass(type.getClassName());
 			for (int i = 0; i < arrayDimensions; i++) {
 				clazz = Array.newInstance(clazz, 0).getClass();
 			}
@@ -291,50 +304,28 @@ public final class ByteCode {
 		}
 	}
 
-	private static Class<?> componentClassFromInternalName(String name, ClassLoader loader) throws ClassNotFoundException {
-		PrimitiveTypeInfo primitive = primitiveByInternalName(name);
-		if (primitive != null) {
-			return primitive.rawClass;
-		} else {
-			return loader.loadClass(name.replace('/', '.'));
-		}
+	public static Class<?>[] argumentTypesFrom(String desc) {
+		return argumentTypesFrom(desc, ByteCode.class.getClassLoader());
 	}
 
-	public static Class<?> classFromInternalName(String name) {
-		try {
-			int arrayDimensions = 0;
-			while (name.endsWith("[]")) {
-				name = name.substring(0, name.length() - 2);
-				arrayDimensions++;
-			}
-			Class<?> clazz = componentClassFromInternalName(name);
-			for (int i = 0; i < arrayDimensions; i++) {
-				clazz = Array.newInstance(clazz, 0).getClass();
-			}
-			return clazz;
-		} catch (ClassNotFoundException e) {
-			throw new ByteCodeException(e);
-		}
-	}
-
-	private static Class<?> componentClassFromInternalName(String name) throws ClassNotFoundException {
-		PrimitiveTypeInfo primitive = primitiveByInternalName(name);
-		if (primitive != null) {
-			return primitive.rawClass;
-		} else {
-			return forName(name.replace('/', '.'));
-		}
-	}
-
-	public static Class<?>[] getArgumentTypes(String signature) {
-		Type[] argumentTypeDescriptions = Type.getMethodType(signature).getArgumentTypes();
+	public static Class<?>[] argumentTypesFrom(String desc, ClassLoader loader) {
+		Type[] argumentTypeDescriptions = Type.getMethodType(desc).getArgumentTypes();
 		Class<?>[] argumentTypes = new Class<?>[argumentTypeDescriptions.length];
 		for (int i = 0; i < argumentTypes.length; i++) {
-			argumentTypes[i] = classFromInternalName(argumentTypeDescriptions[i].getClassName());
+			argumentTypes[i] = classFrom(argumentTypeDescriptions[i], loader);
 		}
 		return argumentTypes;
 	}
 
+	public static Class<?> resultTypeFrom(String desc) {
+		return resultTypeFrom(desc, ByteCode.class.getClassLoader());
+	}
+
+	public static Class<?> resultTypeFrom(String desc, ClassLoader loader) {
+		Type resultTypeDescription = Type.getMethodType(desc).getReturnType();
+		return classFrom(resultTypeDescription, loader);
+	}
+	
 	public static List<String> toString(InsnList instructions) {
 		Printer p = new Textifier();
 		TraceMethodVisitor mp = new TraceMethodVisitor(p);
@@ -367,18 +358,20 @@ public final class ByteCode {
 
 	}
 
+	@SuppressWarnings("unused")
 	private static class PrimitiveTypeInfo {
 		public char desc;
+		public int sort;
 		public Class<?> rawClass;
 		public String rawType;
-		@SuppressWarnings("unused")
 		public Class<?> boxedClass;
 		public String boxedType;
 		public String boxingFactory;
 		public String unboxingFactory;
 
-		public PrimitiveTypeInfo(char desc, Class<?> raw, Class<?> boxed, String boxingFactory, String unboxingFactory) {
+		public PrimitiveTypeInfo(char desc, int sort, Class<?> raw, Class<?> boxed, String boxingFactory, String unboxingFactory) {
 			this.desc = desc;
+			this.sort = sort;
 			this.rawClass = raw;
 			this.rawType = raw.getName();
 			this.boxedClass = boxed;

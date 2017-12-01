@@ -3,6 +3,10 @@ package net.amygdalum.testrecorder;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 import net.amygdalum.testrecorder.asm.ByteCode;
 import net.amygdalum.testrecorder.types.SerializationException;
@@ -17,6 +21,14 @@ public class MethodSignature {
 	public Annotation[][] argumentAnnotations;
 	public Type[] argumentTypes;
 
+	private Set<Class<?>> valid;
+	private Set<Class<?>> invalid;
+
+	private MethodSignature() {
+		this.valid = new HashSet<>();
+		this.invalid = new HashSet<>();
+	}
+
 	public MethodSignature(Class<?> declaringClass, Annotation[] resultAnnotation, Type resultType, String methodName, Annotation[][] argumentAnnotations, Type[] argumentTypes) {
 		this.declaringClass = declaringClass;
 		this.resultAnnotation = resultAnnotation;
@@ -24,16 +36,16 @@ public class MethodSignature {
 		this.methodName = methodName;
 		this.argumentAnnotations = argumentAnnotations;
 		this.argumentTypes = argumentTypes;
-	}
 
-	private MethodSignature() {
+		this.valid = new HashSet<>();
+		this.invalid = new HashSet<>();
 	}
 
 	public static MethodSignature fromDescriptor(String className, String methodName, String methodDesc) {
 		try {
 			MethodSignature signature = new MethodSignature();
-			signature.declaringClass = ByteCode.classFromInternalName(className);
-			Method method = Types.getDeclaredMethod(signature.declaringClass, methodName, ByteCode.getArgumentTypes(methodDesc));
+			signature.declaringClass = ByteCode.classFrom(className);
+			Method method = Types.getDeclaredMethod(signature.declaringClass, methodName, ByteCode.argumentTypesFrom(methodDesc));
 			signature.resultAnnotation = method.getAnnotations();
 			signature.resultType = method.getGenericReturnType();
 			signature.methodName = method.getName();
@@ -44,6 +56,42 @@ public class MethodSignature {
 			throw new SerializationException(e);
 		}
 
+	}
+
+	public synchronized boolean validIn(Class<?> clazz) {
+		if (valid.contains(clazz)) {
+			return true;
+		} else if (invalid.contains(clazz)) {
+			return false;
+		}
+		Class<?> resolvedClass = resolveClass(clazz);
+
+		boolean valid = Objects.equals(resolvedClass.getName(), declaringClass.getName());
+		if (valid) {
+			this.valid.add(clazz);
+		} else {
+			this.invalid.add(clazz);
+		}
+		return valid;
+	}
+
+	private Class<?> resolveClass(Class<?> clazz) {
+		try {
+			ClassLoader loader = clazz.getClassLoader();
+			Class<?>[] parameterTypes = Arrays.stream(argumentTypes)
+				.map(type -> {
+					try {
+						return Types.classFrom(Types.baseType(type), loader);
+					} catch (ClassNotFoundException e) {
+						return null;
+					}
+				})
+				.toArray(Class[]::new);
+			Method method = Types.getDeclaredMethod(clazz, methodName, parameterTypes);
+			return method.getDeclaringClass();
+		} catch (NoSuchMethodException e) {
+			return null;
+		}
 	}
 
 }
