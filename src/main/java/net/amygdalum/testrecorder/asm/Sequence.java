@@ -1,9 +1,7 @@
 package net.amygdalum.testrecorder.asm;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.InsnList;
@@ -12,26 +10,26 @@ public class Sequence implements SequenceInstruction {
 
 	private List<SequenceInstruction> insns;
 	private Locals locals;
-	private Map<String, Integer> variables;
 
 	public Sequence(Locals locals) {
 		this.insns = new ArrayList<>();
 		this.locals = locals;
-		this.variables = new HashMap<>();
 	}
 
 	public static Sequence sequence(Locals locals) {
 		return new Sequence(locals);
 	}
 
-	public int newLocal(String variableName, Type type) {
-		int newLocal = locals.newLocal(type);
-		variables.put(variableName, newLocal);
-		return newLocal;
+	public Local newLocal(String variableName, Type type) {
+		return locals.newLocal(variableName, type);
 	}
 
-	public int local(String variableName) {
-		return variables.get(variableName);
+	public Local local(String variableName) {
+		return locals.local(variableName);
+	}
+
+	public Type getResultType() {
+		return locals.getResultType();
 	}
 
 	public Type[] getArgumentTypes() {

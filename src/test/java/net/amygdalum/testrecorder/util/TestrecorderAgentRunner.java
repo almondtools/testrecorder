@@ -22,14 +22,11 @@ import net.bytebuddy.agent.ByteBuddyAgent;
 
 public class TestrecorderAgentRunner extends BlockJUnit4ClassRunner {
 
-	public static Instrumentation inst;
+	public static Instrumentation inst = ByteBuddyAgent.install();
 	private TestRecorderAgent agent;
 
 	public TestrecorderAgentRunner(Class<?> klass) throws InitializationError {
 		super(klass);
-		if (inst == null) {
-			inst = ByteBuddyAgent.install();
-		}
 	}
 
 	@Override

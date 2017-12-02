@@ -13,6 +13,8 @@ public interface SerializedInteraction {
 
 	int getCallerLine();
 	
+	boolean prefixesStackTrace(StackTraceElement[] stackTrace);
+
 	Class<?> getDeclaringClass();
 
 	String getName();

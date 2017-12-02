@@ -30,9 +30,12 @@ public class SerializedInputTest {
 	public void before() throws Exception {
 		caller = new StackTraceElement("class", "method", "file", 4711);
 		notcaller = new StackTraceElement("class", "method", "file", 815);
-		input = new SerializedInput(42, caller, BufferedReader.class, "readLine", String.class, literal("Hello"), new Type[0], new SerializedValue[0]);
-		inputNoResult = new SerializedInput(43, caller, InputStream.class, "read", new Type[] { byte[].class, int.class, int.class }, new SerializedArray(byte.class), literal(int.class, 0),
-			literal(int.class, 0));
+		
+		input = new SerializedInput(42, call(caller, BufferedReader.class, "readLine"), BufferedReader.class, "readLine", String.class, new Type[0])
+			.updateResult(literal("Hello"))
+			.updateArguments(new SerializedValue[0]);
+		inputNoResult = new SerializedInput(43, call(caller, InputStream.class, "read"), InputStream.class, "read", void.class, new Type[] { byte[].class, int.class, int.class })
+			.updateArguments(new SerializedArray(byte.class), literal(int.class, 0), literal(int.class, 0));
 	}
 
 	@Test
@@ -79,23 +82,41 @@ public class SerializedInputTest {
 
 	@Test
 	public void testEquals() throws Exception {
-		inputNoResult.equals(
-			new SerializedInput(43, caller, InputStream.class, "read", new Type[] { byte[].class, int.class, int.class }, new SerializedArray(byte.class), literal(int.class, 0),
-				literal(int.class, 0)));
+		inputNoResult.equals(new SerializedInput(43, call(caller, InputStream.class, "read"), InputStream.class, "read", void.class, new Type[] { byte[].class, int.class, int.class })
+			.updateArguments(new SerializedArray(byte.class), literal(int.class, 0), literal(int.class, 0)));
 		assertThat(input, satisfiesDefaultEquality()
-			.andEqualTo(new SerializedInput(42, caller, BufferedReader.class, "readLine", String.class, literal("Hello"), new Type[0], new SerializedValue[0]))
+			.andEqualTo(new SerializedInput(42, call(caller, BufferedReader.class, "readLine"), BufferedReader.class, "readLine", String.class, new Type[0])
+				.updateResult(literal("Hello"))
+				.updateArguments(new SerializedValue[0]))
 			.andNotEqualTo(inputNoResult)
-			.andNotEqualTo(new SerializedInput(42, notcaller, BufferedReader.class, "readLine", String.class, literal("Hello"), new Type[0], new SerializedValue[0]))
-			.andNotEqualTo(new SerializedInput(43, caller, BufferedReader.class, "readLine", String.class, literal("Hello"), new Type[0], new SerializedValue[0]))
-			.andNotEqualTo(new SerializedInput(42, caller, InputStream.class, "readLine", String.class, literal("Hello"), new Type[0], new SerializedValue[0]))
-			.andNotEqualTo(new SerializedInput(42, caller, BufferedReader.class, "read", String.class, literal("Hello"), new Type[0], new SerializedValue[0]))
-			.andNotEqualTo(new SerializedInput(42, caller, BufferedReader.class, "readLine", Object.class, literal("Hello"), new Type[0], new SerializedValue[0]))
-			.andNotEqualTo(new SerializedInput(42, caller, BufferedReader.class, "readLine", String.class, literal("Hello World"), new Type[0], new SerializedValue[0]))
-			.andNotEqualTo(new SerializedInput(42, caller, BufferedReader.class, "readLine", String.class, literal("Hello"), new Type[] { int.class }, new SerializedValue[0]))
-			.andNotEqualTo(new SerializedInput(42, caller, BufferedReader.class, "readLine", String.class, literal("Hello"), new Type[0], literal("value"))));
+			.andNotEqualTo(new SerializedInput(42, call(notcaller, BufferedReader.class, "readLine"), BufferedReader.class, "readLine", String.class, new Type[0])
+				.updateResult(literal("Hello"))
+				.updateArguments(new SerializedValue[0]))
+			.andNotEqualTo(new SerializedInput(43, call(caller, BufferedReader.class, "readLine"), BufferedReader.class, "readLine", String.class, new Type[0])
+				.updateResult(literal("Hello"))
+				.updateArguments(new SerializedValue[0]))
+			.andNotEqualTo(new SerializedInput(42, call(caller, InputStream.class, "readLine"), InputStream.class, "readLine", String.class, new Type[0])
+				.updateResult(literal("Hello"))
+				.updateArguments(new SerializedValue[0]))
+			.andNotEqualTo(new SerializedInput(42, call(caller, BufferedReader.class, "read"), BufferedReader.class, "read", String.class, new Type[0])
+				.updateResult(literal("Hello"))
+				.updateArguments(new SerializedValue[0]))
+			.andNotEqualTo(new SerializedInput(42, call(caller, BufferedReader.class, "readLine"), BufferedReader.class, "readLine", Object.class, new Type[0])
+				.updateResult(literal("Hello"))
+				.updateArguments(new SerializedValue[0]))
+			.andNotEqualTo(new SerializedInput(42, call(caller, BufferedReader.class, "readLine"), BufferedReader.class, "readLine", String.class, new Type[0])
+				.updateResult(literal("Hello World"))
+				.updateArguments(new SerializedValue[0]))
+			.andNotEqualTo(new SerializedInput(42, call(caller, BufferedReader.class, "readLine"), BufferedReader.class, "readLine", String.class, new Type[] { int.class })
+				.updateResult(literal("Hello"))
+				.updateArguments(new SerializedValue[0]))
+			.andNotEqualTo(new SerializedInput(42, call(caller, BufferedReader.class, "readLine"), BufferedReader.class, "readLine", String.class, new Type[0])
+				.updateResult(literal("Hello"))
+				.updateArguments(literal("value"))));
 
 		assertThat(inputNoResult, satisfiesDefaultEquality()
-			.andEqualTo(new SerializedInput(43, caller, InputStream.class, "read", new Type[] { byte[].class, int.class, int.class }, inputNoResult.getArguments()))
+			.andEqualTo(new SerializedInput(43, call(caller, InputStream.class, "read"), InputStream.class, "read", void.class, new Type[] { byte[].class, int.class, int.class })
+				.updateArguments(inputNoResult.getArguments()))
 			.andNotEqualTo(input));
 	}
 
@@ -109,6 +130,11 @@ public class SerializedInputTest {
 		assertThat(inputNoResult.toString(), containsString("void"));
 		assertThat(inputNoResult.toString(), containsString("read"));
 		assertThat(inputNoResult.toString(), containsString("0"));
+	}
+
+	private StackTraceElement[] call(StackTraceElement caller, Class<?> clazz, String method) {
+		StackTraceElement callee = new StackTraceElement(clazz.getName(), method, "", 0);
+		return new StackTraceElement[] {caller, callee};
 	}
 
 }

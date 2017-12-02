@@ -14,39 +14,39 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 
-public class TryCatch implements SequenceInstruction {
+public class WrapWithTryCatch implements SequenceInstruction {
 
 	private MethodNode methodNode;
 	private LabelNode tryLabel;
 	private LabelNode catchLabel;
-	private LabelNode finallyLabel;
+	private LabelNode returnLabel;
 
 	private SequenceInstruction tryInstructions;
 	private SequenceInstruction catchInstructions;
 	private SequenceInstruction returnInstructions;
 
-	public TryCatch(MethodNode methodNode) {
+	public WrapWithTryCatch(MethodNode methodNode) {
 		this.methodNode = methodNode;
 		this.tryLabel = new LabelNode();
 		this.catchLabel = new LabelNode();
-		this.finallyLabel = new LabelNode();
+		this.returnLabel = new LabelNode();
 	}
 
-	public TryCatch withTry(SequenceInstruction tryInstructions) {
+	public WrapWithTryCatch before(SequenceInstruction tryInstructions) {
 		this.tryInstructions = tryInstructions;
 		return this;
 	}
 
-	public TryCatch withCatch(SequenceInstruction catchInstructions) {
-		this.catchInstructions = catchInstructions;
-		return this;
-	}
-
-	public TryCatch withReturn(SequenceInstruction returnInstructions) {
+	public WrapWithTryCatch after(SequenceInstruction returnInstructions) {
 		this.returnInstructions = returnInstructions;
 		return this;
 	}
 	
+	public WrapWithTryCatch handler(SequenceInstruction catchInstructions) {
+		this.catchInstructions = catchInstructions;
+		return this;
+	}
+
 	@Override
 	public InsnList build(Sequence sequence) {
 		Type returnType = Type.getReturnType(methodNode.desc);
@@ -59,18 +59,17 @@ public class TryCatch implements SequenceInstruction {
 		
 		for (AbstractInsnNode insn : methodNode.instructions.toArray()) {
 			if (isReturn(insn)) {
-				insnList.add(new JumpInsnNode(GOTO, finallyLabel));
+				insnList.add(new JumpInsnNode(GOTO, returnLabel));
 			} else {
 				insnList.add(insn);
 			}
 		}
-		insnList.add(new JumpInsnNode(GOTO, finallyLabel));
+		insnList.add(returnLabel);
+		insnList.add(returnInstructions.build(sequence));
+		insnList.add(new InsnNode(returnType.getOpcode(IRETURN)));
 		insnList.add(catchLabel);
 		insnList.add(catchInstructions.build(sequence));
 		insnList.add(new InsnNode(ATHROW));
-		insnList.add(finallyLabel);
-		insnList.add(returnInstructions.build(sequence));
-		insnList.add(new InsnNode(returnType.getOpcode(IRETURN)));
 		
 		return insnList;
 	}

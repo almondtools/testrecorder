@@ -13,7 +13,7 @@ import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.TestrecorderAgentRunner;
 
 @RunWith(TestrecorderAgentRunner.class)
-@Instrumented(classes={"net.amygdalum.testrecorder.ioscenarios.DelegatedInput"})
+@Instrumented(classes={"net.amygdalum.testrecorder.ioscenarios.DelegatedInput", "net.amygdalum.testrecorder.ioscenarios.DelegatedInput$SingleInput"})
 public class DelegatedInputTest {
 
 	@Before

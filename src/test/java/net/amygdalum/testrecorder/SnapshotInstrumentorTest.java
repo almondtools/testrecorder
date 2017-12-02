@@ -453,15 +453,14 @@ public class SnapshotInstrumentorTest {
 			"LINENUMBER 5 L1", 
 			"GOTO L2", 
 			"L3", 
-			"GOTO L2", 
-			"L4", 
-			"LDC \"throwVariables\"", 
-			"POP", 
-			"ATHROW", 
 			"L2", 
 			"LDC \"expectVariables\"", 
 			"POP", 
-			"RETURN"));
+			"RETURN", 
+			"L4", 
+			"LDC \"throwVariables\"", 
+			"POP", 
+			"ATHROW"));
 	}
 
 	@Test
@@ -479,15 +478,14 @@ public class SnapshotInstrumentorTest {
 			"ICONST_1",
 			"GOTO L2", 
 			"L3", 
-			"GOTO L2", 
-			"L4", 
-			"LDC \"throwVariables\"", 
-			"POP", 
-			"ATHROW", 
 			"L2", 
 			"LDC \"expectVariables\"", 
 			"POP", 
-			"IRETURN"));
+			"IRETURN", 
+			"L4", 
+			"LDC \"throwVariables\"", 
+			"POP", 
+			"ATHROW"));
 	}
 
 	@Test
@@ -505,15 +503,14 @@ public class SnapshotInstrumentorTest {
 			"ACONST_NULL",
 			"GOTO L2", 
 			"L3", 
-			"GOTO L2", 
-			"L4", 
-			"LDC \"throwVariables\"", 
-			"POP", 
-			"ATHROW", 
 			"L2", 
 			"LDC \"expectVariables\"", 
 			"POP", 
-			"ARETURN"));
+			"ARETURN", 
+			"L4", 
+			"LDC \"throwVariables\"", 
+			"POP", 
+			"ATHROW"));
 	}
 
 	@Test
@@ -530,15 +527,14 @@ public class SnapshotInstrumentorTest {
 			"LINENUMBER 16 L1", 
 			"GOTO L2", 
 			"L3", 
-			"GOTO L2", 
-			"L4", 
-			"LDC \"throwVariables\"", 
-			"POP", 
-			"ATHROW", 
 			"L2", 
 			"LDC \"expectVariables\"", 
 			"POP", 
-			"RETURN"));
+			"RETURN", 
+			"L4", 
+			"LDC \"throwVariables\"", 
+			"POP", 
+			"ATHROW"));
 	}
 
 	@Test
@@ -555,15 +551,14 @@ public class SnapshotInstrumentorTest {
 			"LINENUMBER 25 L1", 
 			"GOTO L2", 
 			"L3", 
-			"GOTO L2", 
-			"L4", 
-			"LDC \"throwVariables\"", 
-			"POP", 
-			"ATHROW", 
 			"L2", 
 			"LDC \"expectVariables\"", 
 			"POP", 
-			"RETURN"));
+			"RETURN", 
+			"L4", 
+			"LDC \"throwVariables\"", 
+			"POP", 
+			"ATHROW"));
 	}
 
 	@Test
@@ -581,15 +576,14 @@ public class SnapshotInstrumentorTest {
 			"ACONST_NULL", 
 			"GOTO L2", 
 			"L3", 
-			"GOTO L2", 
-			"L4", 
-			"LDC \"throwVariables\"", 
-			"POP", 
-			"ATHROW", 
 			"L2", 
 			"LDC \"expectVariables\"", 
 			"POP", 
-			"ARETURN"));
+			"ARETURN", 
+			"L4", 
+			"LDC \"throwVariables\"", 
+			"POP", 
+			"ATHROW"));
 	}
 
 	@Test
@@ -607,15 +601,14 @@ public class SnapshotInstrumentorTest {
 			"LCONST_1",
 			"GOTO L2", 
 			"L3", 
-			"GOTO L2", 
-			"L4", 
-			"LDC \"throwVariables\"", 
-			"POP", 
-			"ATHROW", 
 			"L2", 
 			"LDC \"expectVariables\"", 
 			"POP", 
-			"LRETURN"));
+			"LRETURN", 
+			"L4", 
+			"LDC \"throwVariables\"", 
+			"POP", 
+			"ATHROW"));
 	}
 
 	private SnapshotInstrumentor stubbedSnapshotInstrumentor() {

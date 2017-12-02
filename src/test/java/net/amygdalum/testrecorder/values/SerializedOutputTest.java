@@ -30,8 +30,11 @@ public class SerializedOutputTest {
 		caller = new StackTraceElement("class", "method", "file", 4711);
 		notcaller = new StackTraceElement("class", "method", "file", 815);
 
-		output = new SerializedOutput(41, caller, PrintStream.class, "append", PrintStream.class, new SerializedObject(PrintStream.class), new Type[] { CharSequence.class }, literal("Hello"));
-		outputNoResult = new SerializedOutput(41, caller, PrintStream.class, "println", new Type[] { String.class }, literal("Hello"));
+		output = new SerializedOutput(41, call(caller, PrintStream.class, "append"), PrintStream.class, "append", PrintStream.class, new Type[] { CharSequence.class })
+			.updateArguments(literal("Hello"))
+			.updateResult(new SerializedObject(PrintStream.class));
+		outputNoResult = new SerializedOutput(41, call(caller, PrintStream.class, "println"), PrintStream.class, "println", void.class, new Type[] { String.class })
+			.updateArguments(literal("Hello"));
 	}
 
 	@Test
@@ -57,9 +60,9 @@ public class SerializedOutputTest {
 	}
 
 	@Test
-		public void testGetArguments() throws Exception {
-			assertThat(output.getArguments(), arrayContaining(literal("Hello")));
-		}
+	public void testGetArguments() throws Exception {
+		assertThat(output.getArguments(), arrayContaining(literal("Hello")));
+	}
 
 	@Test
 	public void testGetResultType() throws Exception {
@@ -76,21 +79,36 @@ public class SerializedOutputTest {
 	@Test
 	public void testEquals() throws Exception {
 		assertThat(outputNoResult, satisfiesDefaultEquality()
-			.andEqualTo(new SerializedOutput(41, caller, PrintStream.class, "println", new Type[] { String.class }, literal("Hello")))
+			.andEqualTo(new SerializedOutput(41, call(caller, PrintStream.class, "println"), PrintStream.class, "println", void.class, new Type[] { String.class })
+				.updateArguments(literal("Hello")))
 			.andNotEqualTo(output)
-			.andNotEqualTo(new SerializedOutput(41, notcaller, PrintStream.class, "println", new Type[] { String.class }, literal("Hello")))
-			.andNotEqualTo(new SerializedOutput(42, caller, PrintStream.class, "println", new Type[] { String.class }, literal("Hello")))
-			.andNotEqualTo(new SerializedOutput(41, caller, PrintWriter.class, "println", new Type[] { String.class }, literal("Hello")))
-			.andNotEqualTo(new SerializedOutput(41, caller, PrintStream.class, "print", new Type[] { String.class }, literal("Hello")))
-			.andNotEqualTo(new SerializedOutput(41, caller, PrintStream.class, "println", new Type[] { Object.class }, literal("Hello")))
-			.andNotEqualTo(new SerializedOutput(41, caller, PrintStream.class, "println", new Type[] { String.class }, literal("Hello World"))));
+			.andNotEqualTo(new SerializedOutput(41, call(notcaller, PrintStream.class, "println"), PrintStream.class, "println", void.class, new Type[] { String.class })
+				.updateArguments(literal("Hello")))
+			.andNotEqualTo(new SerializedOutput(42, call(caller, PrintStream.class, "println"), PrintStream.class, "println", void.class, new Type[] { String.class })
+				.updateArguments(literal("Hello")))
+			.andNotEqualTo(new SerializedOutput(41, call(caller, PrintWriter.class, "println"), PrintWriter.class, "println", void.class, new Type[] { String.class })
+				.updateArguments(literal("Hello")))
+			.andNotEqualTo(new SerializedOutput(41, call(caller, PrintStream.class, "print"), PrintStream.class, "print", void.class, new Type[] { String.class })
+				.updateArguments(literal("Hello")))
+			.andNotEqualTo(new SerializedOutput(41, call(caller, PrintStream.class, "println"), PrintStream.class, "println", void.class, new Type[] { Object.class })
+				.updateArguments(literal("Hello")))
+			.andNotEqualTo(new SerializedOutput(41, call(caller, PrintStream.class, "println"), PrintStream.class, "println", void.class, new Type[] { String.class })
+				.updateArguments(literal("Hello World"))));
 
 		assertThat(output, satisfiesDefaultEquality()
-			.andEqualTo(new SerializedOutput(41, caller, PrintStream.class, "append", PrintStream.class, output.getResult(), new Type[] { CharSequence.class }, literal("Hello")))
+			.andEqualTo(new SerializedOutput(41, call(caller, PrintStream.class, "append"), PrintStream.class, "append", PrintStream.class, new Type[] { CharSequence.class })
+				.updateArguments(literal("Hello"))
+				.updateResult(output.getResult()))
 			.andNotEqualTo(outputNoResult)
-			.andNotEqualTo(new SerializedOutput(41, notcaller, PrintStream.class, "append", PrintStream.class, output.getResult(), new Type[] { CharSequence.class }, literal("Hello")))
-			.andNotEqualTo(new SerializedOutput(41, caller, PrintStream.class, "append", PrintStream.class, null, new Type[] { CharSequence.class }, literal("Hello")))
-			.andNotEqualTo(new SerializedOutput(41, caller, PrintStream.class, "append", OutputStream.class, output.getResult(), new Type[] { CharSequence.class }, literal("Hello"))));
+			.andNotEqualTo(new SerializedOutput(41, call(notcaller, PrintStream.class, "append"), PrintStream.class, "append", PrintStream.class, new Type[] { CharSequence.class })
+				.updateArguments(literal("Hello"))
+				.updateResult(output.getResult()))
+			.andNotEqualTo(new SerializedOutput(41, call(caller, PrintStream.class, "append"), PrintStream.class, "append", PrintStream.class, new Type[] { CharSequence.class })
+				.updateArguments(literal("Hello"))
+				.updateResult(null))
+			.andNotEqualTo(new SerializedOutput(41, call(caller, PrintStream.class, "append"), PrintStream.class, "append", OutputStream.class, new Type[] { CharSequence.class })
+				.updateArguments(literal("Hello"))
+				.updateResult(output.getResult())));
 	}
 
 	@Test
@@ -102,6 +120,11 @@ public class SerializedOutputTest {
 		assertThat(outputNoResult.toString(), containsString("PrintStream"));
 		assertThat(outputNoResult.toString(), containsString("println"));
 		assertThat(outputNoResult.toString(), containsString("Hello"));
+	}
+
+	private StackTraceElement[] call(StackTraceElement caller, Class<?> clazz, String method) {
+		StackTraceElement callee = new StackTraceElement(clazz.getName(), method, "", 0);
+		return new StackTraceElement[] { caller, callee };
 	}
 
 }

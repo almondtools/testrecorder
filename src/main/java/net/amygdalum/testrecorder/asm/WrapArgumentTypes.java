@@ -1,0 +1,37 @@
+package net.amygdalum.testrecorder.asm;
+
+import static net.amygdalum.testrecorder.asm.ByteCode.pushType;
+import static org.objectweb.asm.Opcodes.AASTORE;
+import static org.objectweb.asm.Opcodes.DUP;
+
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.LdcInsnNode;
+import org.objectweb.asm.tree.TypeInsnNode;
+
+public class WrapArgumentTypes implements SequenceInstruction {
+
+	public WrapArgumentTypes() {
+	}
+
+	@Override
+	public InsnList build(Sequence sequence) {
+		Type[] argumentTypes = sequence.getArgumentTypes();
+
+		InsnList insnList = new InsnList();
+
+		insnList.add(new LdcInsnNode(argumentTypes.length));
+		insnList.add(new TypeInsnNode(Opcodes.ANEWARRAY, Type.getInternalName(java.lang.reflect.Type.class)));
+
+		for (int i = 0; i < argumentTypes.length; i++) {
+			insnList.add(new InsnNode(DUP));
+			insnList.add(new LdcInsnNode(i));
+			insnList.add(pushType(argumentTypes[i]));
+			insnList.add(new InsnNode(AASTORE));
+		}
+		return insnList;
+	}
+
+}

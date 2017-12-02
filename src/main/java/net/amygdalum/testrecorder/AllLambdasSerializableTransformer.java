@@ -4,6 +4,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
@@ -47,8 +48,8 @@ public class AllLambdasSerializableTransformer extends AttachableClassFileTransf
 					.filter(method -> "<init>".equals(method.name))
 					.findFirst()
 					.ifPresent(method -> {
-						VarInsnNode serialized = findIsSerializeableLocalVariable(method);
-						method.instructions.set(serialized, new InsnNode(Opcodes.ICONST_1));
+						Optional<VarInsnNode> serialized = findIsSerializeableLocalVariable(method);
+						serialized.ifPresent(val -> method.instructions.set(val, new InsnNode(Opcodes.ICONST_1)));
 					});
 
 				ClassWriter out = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
@@ -64,13 +65,13 @@ public class AllLambdasSerializableTransformer extends AttachableClassFileTransf
 
 	}
 
-	private VarInsnNode findIsSerializeableLocalVariable(MethodNode method) {
+	private Optional<VarInsnNode> findIsSerializeableLocalVariable(MethodNode method) {
 		return stream(method.instructions.iterator())
 			.filter(node -> node instanceof VarInsnNode)
 			.map(node -> (VarInsnNode) node)
+			.filter(node -> node.getOpcode() == Opcodes.ILOAD)
 			.filter(node -> node.var == IS_SERIALIZABLE_PARAMETER_LOCAL)
-			.findFirst()
-			.orElse(null);
+			.findFirst();
 	}
 
 	private <T> Stream<T> stream(Iterator<T> iterator) {

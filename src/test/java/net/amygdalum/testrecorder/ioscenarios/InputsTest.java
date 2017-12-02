@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import net.amygdalum.testrecorder.TestGenerator;
+import net.amygdalum.testrecorder.util.Debug;
 import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.TestrecorderAgentRunner;
 
@@ -84,7 +85,7 @@ public class InputsTest {
 		in.recorded();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-        assertThat(testGenerator.renderTest(Inputs.class), allOf(
+        assertThat(Debug.print(testGenerator.renderTest(Inputs.class)), allOf(
         	containsPattern("FakeIO.fake(Inputs.class)"),
            	containsPattern(".fakeInput(new Aspect() {*public String read() {*}*})"),
             containsPattern(".add(Inputs.class, \"recorded\", *, \"Hello\")"),

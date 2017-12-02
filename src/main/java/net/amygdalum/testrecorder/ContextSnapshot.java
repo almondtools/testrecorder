@@ -204,7 +204,7 @@ public class ContextSnapshot {
         return setupInput;
     }
 
-    public void setSetupInput(List<SerializedInput> setupInput) {
+    public void setInput(List<SerializedInput> setupInput) {
         this.setupInput = setupInput;
     }
 
@@ -215,7 +215,7 @@ public class ContextSnapshot {
         return expectOutput;
     }
 
-    public void setExpectOutput(List<SerializedOutput> expectOutput) {
+    public void setOutput(List<SerializedOutput> expectOutput) {
         this.expectOutput = expectOutput;
     }
 

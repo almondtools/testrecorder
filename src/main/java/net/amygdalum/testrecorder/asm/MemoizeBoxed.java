@@ -1,5 +1,7 @@
 package net.amygdalum.testrecorder.asm;
 
+import static net.amygdalum.testrecorder.asm.ByteCode.boxPrimitives;
+import static net.amygdalum.testrecorder.asm.ByteCode.boxedType;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.DUP2;
 import static org.objectweb.asm.Opcodes.ISTORE;
@@ -9,12 +11,12 @@ import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-public class Memoize implements SequenceInstruction {
+public class MemoizeBoxed implements SequenceInstruction {
 
 	private String variableName;
 	private Type type;
 
-	public Memoize(String variableName, Type type) {
+	public MemoizeBoxed(String variableName, Type type) {
 		this.variableName = variableName;
 		this.type = type;
 	}
@@ -27,7 +29,8 @@ public class Memoize implements SequenceInstruction {
 		} else if (type.getSize() == 2) {
 			insnList.add(new InsnNode(DUP2));
 		}
-		Local local = sequence.newLocal(variableName, type);
+		insnList.add(boxPrimitives(type));
+		Local local = sequence.newLocal(variableName, boxedType(type));
 		insnList.add(new VarInsnNode(local.type.getOpcode(ISTORE), local.index));
 		return insnList;
 	}

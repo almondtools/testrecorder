@@ -5,6 +5,9 @@ import static java.lang.System.identityHashCode;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -22,6 +25,8 @@ import net.amygdalum.testrecorder.values.SerializedOutput;
 
 public class SnapshotProcess {
 
+	private static final StackTraceElement[] UNRESOLVED = new StackTraceElement[] { new StackTraceElement("?", "?", "?", 0) };
+
 	public static final SnapshotProcess PASSIVE = passiveProcess();
 
 	private ExecutorService executor;
@@ -29,8 +34,8 @@ public class SnapshotProcess {
 	private ContextSnapshot snapshot;
 	private SerializerFacade facade;
 	private List<Field> globals;
-	private List<SerializedInput> input;
-	private List<SerializedOutput> output;
+	private Deque<SerializedInput> input;
+	private Deque<SerializedOutput> output;
 
 	private SnapshotProcess() {
 	}
@@ -41,8 +46,8 @@ public class SnapshotProcess {
 		this.snapshot = snapshot;
 		this.facade = new ConfigurableSerializerFacade(profile);
 		this.globals = globals;
-		this.input = new ArrayList<>();
-		this.output = new ArrayList<>();
+		this.input = new LinkedList<>();
+		this.output = new LinkedList<>();
 	}
 
 	public ContextSnapshot getSnapshot() {
@@ -53,46 +58,82 @@ public class SnapshotProcess {
 		return snapshot.matches(key);
 	}
 
-	private StackTraceElement caller() {
-		StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-		for (StackTraceElement caller : stackTrace) {
-			if (!caller.getClassName().startsWith("java.lang.Thread")
-				&& !caller.getClassName().startsWith("net.amygdalum.testrecorder.SnapshotManager")
-				&& !caller.getClassName().startsWith("net.amygdalum.testrecorder.SnapshotProcess")) {
-				return caller;
+	private StackTraceElement[] call(StackTraceElement[] stackTrace, String methodName) {
+		for (int i = 0; i < stackTrace.length; i++) {
+			StackTraceElement caller = stackTrace[i];
+			if (methodName.equals(caller.getMethodName())) {
+				return Arrays.copyOfRange(stackTrace, i, stackTrace.length);
 			}
 		}
-		return null;
+		return UNRESOLVED;
 	}
 
-	public void inputVariables(Object object, String method, Type resultType, Object result, Type[] paramTypes, Object[] args) {
-		StackTraceElement caller = caller();
+	public int inputVariables(StackTraceElement[] stackTrace, Object object, String method, Type resultType, Type[] paramTypes) {
+		if (isNestedIO(stackTrace, method)) {
+			return 0;
+		}
+		StackTraceElement[] call = call(stackTrace, method);
 		Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
 		int id = object instanceof Class<?> ? 0 : identityHashCode(object);
-		input.add(new SerializedInput(id, caller, clazz, method, resultType, facade.serialize(resultType, result), paramTypes, facade.serialize(paramTypes, args)));
+
+		SerializedInput in = new SerializedInput(id, call, clazz, method, resultType, paramTypes);
+		input.add(in);
+		return in.id();
 	}
 
-	public void inputVariables(Object object, String method, Type[] paramTypes, Object[] args) {
-		StackTraceElement caller = caller();
-		Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
-		int id = object instanceof Class<?> ? 0 : identityHashCode(object);
-		input.add(new SerializedInput(id, caller, clazz, method, paramTypes, facade.serialize(paramTypes, args)));
+	public void inputResult(int id, Object result) {
+		input.stream().filter(in -> in.id() == id).forEach(in -> {
+			in.updateResult(facade.serialize(in.getResultType(), result));
+		});
 	}
 
-	public void outputVariables(Object object, String method, Type resultType, Object result, Type[] paramTypes, Object[] args) {
-		StackTraceElement caller = caller();
-		Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
-		int id = object instanceof Class<?> ? 0 : identityHashCode(object);
-		output.add(new SerializedOutput(id, caller, clazz, method, resultType, facade.serialize(resultType, result), paramTypes, facade.serialize(paramTypes, args)));
+	public void inputArguments(int id, Object... arguments) {
+		input.stream().filter(in -> in.id() == id).forEach(in -> {
+			in.updateArguments(facade.serialize(in.getTypes(), arguments));
+		});
 	}
 
-	public void outputVariables(Object object, String method, Type[] paramTypes, Object[] args) {
-		StackTraceElement caller = caller();
+	public int outputVariables(StackTraceElement[] stackTrace, Object object, String method, Type resultType, Type[] paramTypes) {
+		if (isNestedIO(stackTrace, method)) {
+			return 0;
+		}
+		StackTraceElement[] call = call(stackTrace, method);
 		Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
 		int id = object instanceof Class<?> ? 0 : identityHashCode(object);
-		output.add(new SerializedOutput(id, caller, clazz, method, paramTypes, facade.serialize(paramTypes, args)));
+
+		SerializedOutput out = new SerializedOutput(id, call, clazz, method, resultType, paramTypes);
+		output.add(out);
+		return out.id();
 	}
-	
+
+	public void outputResult(int id, Object result) {
+		output.stream().filter(out -> out.id() == id).forEach(out -> {
+			out.updateResult(facade.serialize(out.getResultType(), result));
+		});
+	}
+
+	public void outputArguments(int id, Object... arguments) {
+		output.stream().filter(out -> out.id() == id).forEach(out -> {
+			out.updateArguments(facade.serialize(out.getTypes(), arguments));
+		});
+	}
+
+	private boolean isNestedIO(StackTraceElement[] stackTrace, String methodName) {
+		if (!input.isEmpty()) {
+			SerializedInput in = input.getLast();
+			if (in.prefixesStackTrace(stackTrace)) {
+				return true;
+			}
+		}
+		if (!output.isEmpty()) {
+			SerializedOutput out = output.getLast();
+			if (out.prefixesStackTrace(stackTrace)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public void setupVariables(String signature, Object self, Object... args) {
 		modify(snapshot -> {
 			if (self != null) {
@@ -102,7 +143,6 @@ public class SnapshotProcess {
 			snapshot.setSetupGlobals(globals.stream()
 				.map(field -> facade.serialize(field, null))
 				.toArray(SerializedField[]::new));
-			snapshot.setSetupInput(input);
 		});
 	}
 
@@ -116,7 +156,8 @@ public class SnapshotProcess {
 			snapshot.setExpectGlobals(globals.stream()
 				.map(field -> facade.serialize(field, null))
 				.toArray(SerializedField[]::new));
-			snapshot.setExpectOutput(output);
+			snapshot.setInput(new ArrayList<>(input));
+			snapshot.setOutput(new ArrayList<>(output));
 		});
 	}
 
@@ -129,7 +170,8 @@ public class SnapshotProcess {
 			snapshot.setExpectGlobals(globals.stream()
 				.map(field -> facade.serialize(field, null))
 				.toArray(SerializedField[]::new));
-			snapshot.setExpectOutput(output);
+			snapshot.setInput(new ArrayList<>(input));
+			snapshot.setOutput(new ArrayList<>(output));
 		});
 	}
 
@@ -143,7 +185,8 @@ public class SnapshotProcess {
 			snapshot.setExpectGlobals(globals.stream()
 				.map(field -> facade.serialize(field, null))
 				.toArray(SerializedField[]::new));
-			snapshot.setExpectOutput(output);
+			snapshot.setInput(new ArrayList<>(input));
+			snapshot.setOutput(new ArrayList<>(output));
 		});
 	}
 
@@ -165,15 +208,29 @@ public class SnapshotProcess {
 		return new SnapshotProcess() {
 
 			@Override
-			public void inputVariables(Object object, String method, Type resultType, Object result, Type[] paramTypes, Object[] args) {
+			public int inputVariables(StackTraceElement[] stackTrace, Object object, String method, Type resultType, Type[] paramTypes) {
+				return 0;
 			}
 
 			@Override
-			public void inputVariables(Object object, String method, Type[] paramTypes, Object[] args) {
+			public void inputArguments(int id, Object... arguments) {
 			}
 
 			@Override
-			public void outputVariables(Object object, String method, Type[] paramTypes, Object[] args) {
+			public void inputResult(int id, Object result) {
+			}
+
+			@Override
+			public int outputVariables(StackTraceElement[] stackTrace, Object object, String method, Type resultType, Type[] paramTypes) {
+				return 0;
+			}
+
+			@Override
+			public void outputArguments(int id, Object... arguments) {
+			}
+
+			@Override
+			public void outputResult(int id, Object result) {
 			}
 
 			@Override

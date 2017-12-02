@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.asm;
 
-import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ILOAD;
 
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.VarInsnNode;
@@ -15,8 +15,8 @@ public class Recall implements SequenceInstruction {
 
 	@Override
 	public InsnList build(Sequence sequence) {
-		int local = sequence.local(variableName);
-		return ByteCode.list(new VarInsnNode(ALOAD, local));
+		Local local = sequence.local(variableName);
+		return ByteCode.list(new VarInsnNode(local.type.getOpcode(ILOAD), local.index));
 	}
 
 }

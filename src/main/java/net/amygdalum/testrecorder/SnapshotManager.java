@@ -109,20 +109,28 @@ public class SnapshotManager {
 		process.setupVariables(signature, self, args);
 	}
 
-	public void inputVariables(Object object, String method, Type resultType, Object result, Type[] paramTypes, Object... args) {
-		current().inputVariables(object, method, resultType, result, paramTypes, args);
+	public int inputVariables(StackTraceElement[] stackTrace, Object object, String method, Type resultType, Type[] paramTypes) {
+		return current().inputVariables(stackTrace, object, method, resultType, paramTypes);
 	}
 
-	public void inputVariables(Object object, String method, Type[] paramTypes, Object... args) {
-		current().inputVariables(object, method, paramTypes, args);
+	public void inputArguments(int id, Object... args) {
+		current().inputArguments(id, args);
 	}
 
-	public void outputVariables(Object object, String method, Type resultType, Object result, Type[] paramTypes, Object... args) {
-		current().outputVariables(object, method, resultType, result, paramTypes, args);
+	public void inputResult(int id, Object result) {
+		current().inputResult(id, result);
 	}
 
-	public void outputVariables(Object object, String method, Type[] paramTypes, Object... args) {
-		current().outputVariables(object, method, paramTypes, args);
+	public int outputVariables(StackTraceElement[] stackTrace, Object object, String method, Type resultType, Type[] paramTypes) {
+		return current().outputVariables(stackTrace, object, method, resultType, paramTypes);
+	}
+
+	public void outputArguments(int id, Object... args) {
+		current().outputArguments(id, args);
+	}
+
+	public void outputResult(int id, Object result) {
+		current().outputResult(id, result);
 	}
 
 	public void expectVariables(Object self, String signature, Object result, Object... args) {
