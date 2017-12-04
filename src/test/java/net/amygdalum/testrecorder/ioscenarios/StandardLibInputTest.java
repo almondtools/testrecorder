@@ -2,6 +2,8 @@ package net.amygdalum.testrecorder.ioscenarios;
 
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.Matchers.allOf;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Before;
@@ -27,6 +29,9 @@ public class StandardLibInputTest {
 		time.getTimestamp();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(StandardLibInputOutput.class), allOf(
+			containsString("FakeIO"), 
+			containsString("fakeInput")));
 		assertThat(testGenerator.renderTest(StandardLibInputOutput.class), compiles(StandardLibInputOutput.class));
 	}
 	

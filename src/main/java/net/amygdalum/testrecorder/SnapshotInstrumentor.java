@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder;
 
 import static java.util.stream.Collectors.toList;
+import static net.amygdalum.testrecorder.asm.ByteCode.isNative;
 import static org.objectweb.asm.Opcodes.ACC_ANNOTATION;
 import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
@@ -9,18 +10,22 @@ import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
+import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import net.amygdalum.testrecorder.asm.Assign;
@@ -125,6 +130,29 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		return classNode;
 	}
 
+	private MethodNode fetchMethodNode(ClassNode classNode, String methodName, String methodDesc) throws IOException, NoSuchMethodException {
+		ClassNode currentClassNode = classNode;
+		Set<String> interfaces = new LinkedHashSet<>();
+		while (currentClassNode != null) {
+			for (MethodNode method : currentClassNode.methods) {
+				if (method.name.equals(methodName) && method.desc.equals(methodDesc)) {
+					return method;
+				}
+			}
+			interfaces.addAll(currentClassNode.interfaces);
+			currentClassNode = currentClassNode.superName == null ? null : fetchClassNode(currentClassNode.superName);
+		}
+		for (String interfaceName : interfaces) {
+			currentClassNode = fetchClassNode(interfaceName);
+			for (MethodNode method : currentClassNode.methods) {
+				if (method.name.equals(methodName) && method.desc.equals(methodDesc)) {
+					return method;
+				}
+			}
+		}
+		return null;
+	}
+
 	public byte[] instrument(String className) throws IOException {
 		return instrument(fetchClassNode(className));
 	}
@@ -145,6 +173,10 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 			instrumentInputMethods(classNode);
 
 			instrumentOutputMethods(classNode);
+
+			instrumentInputCalls(classNode);
+
+			instrumentOutputCalls(classNode);
 		}
 
 		ClassWriter out = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
@@ -186,7 +218,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 	}
 
 	private void instrumentInputMethods(ClassNode classNode) {
-		for (MethodNode method : getInputMethods(classNode)) {
+		for (MethodNode method : getJavaInputMethods(classNode)) {
 			instrumentInputMethod(classNode, method);
 		}
 	}
@@ -231,7 +263,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 	}
 
 	private void instrumentOutputMethods(ClassNode classNode) {
-		for (MethodNode method : getOutputMethods(classNode)) {
+		for (MethodNode method : getJavaOutputMethods(classNode)) {
 			instrumentOutputMethod(classNode, method);
 		}
 	}
@@ -272,6 +304,26 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		}
 	}
 
+	private void instrumentInputCalls(ClassNode classNode) {
+		for (MethodNode method : classNode.methods) {
+			if (!isInputMethod(classNode, method)) {
+				for (MethodInsnNode inputCall : getNativeInputCalls(method)) {
+					System.out.println(ByteCode.print(inputCall));
+				}
+			}
+		}
+	}
+
+	private void instrumentOutputCalls(ClassNode classNode) {
+		for (MethodNode method : classNode.methods) {
+			if (!isOutputMethod(classNode, method)) {
+				for (MethodInsnNode outputCall : getNativeOutputCalls(method)) {
+					System.out.println(ByteCode.print(outputCall));
+				}
+			}
+		}
+	}
+
 	private List<MethodNode> getSnapshotMethods(ClassNode classNode) {
 		if (!isVisible(classNode)) {
 			return Collections.emptyList();
@@ -282,22 +334,68 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 			.collect(toList());
 	}
 
-	private List<MethodNode> getInputMethods(ClassNode classNode) {
+	private List<MethodNode> getJavaInputMethods(ClassNode classNode) {
 		if (!isVisible(classNode)) {
 			return Collections.emptyList();
 		}
 		return classNode.methods.stream()
-			.filter(method -> isInputMethod(classNode, method))
+			.filter(method -> isJavaInputMethod(classNode, method))
 			.collect(toList());
 	}
 
-	private List<MethodNode> getOutputMethods(ClassNode classNode) {
+	private List<MethodInsnNode> getNativeInputCalls(MethodNode methodNode) {
+		List<MethodInsnNode> calls = new ArrayList<>();
+		ListIterator<AbstractInsnNode> instructions = methodNode.instructions.iterator();
+		while (instructions.hasNext()) {
+			AbstractInsnNode insn = instructions.next();
+			if (insn instanceof MethodInsnNode) {
+				MethodInsnNode methodinsn = (MethodInsnNode) insn;
+				try {
+					ClassNode calledClassNode = fetchClassNode(methodinsn.owner);
+					MethodNode calledMethodNode = fetchMethodNode(calledClassNode, methodinsn.name, methodinsn.desc);
+					if (isNativeInputMethod(calledClassNode, calledMethodNode)) {
+						calls.add(methodinsn);
+
+					}
+				} catch (IOException | NoSuchMethodException e) {
+					System.err.println("cannot load method " + methodinsn.owner + "." + methodinsn.name + methodinsn.desc);
+					e.printStackTrace(System.err);
+				}
+			}
+		}
+		return calls;
+	}
+
+	private List<MethodNode> getJavaOutputMethods(ClassNode classNode) {
 		if (!isVisible(classNode)) {
 			return Collections.emptyList();
 		}
 		return classNode.methods.stream()
-			.filter(method -> isOutputMethod(classNode, method))
+			.filter(method -> isJavaOutputMethod(classNode, method))
 			.collect(toList());
+	}
+
+	private List<MethodInsnNode> getNativeOutputCalls(MethodNode methodNode) {
+		List<MethodInsnNode> calls = new ArrayList<>();
+		ListIterator<AbstractInsnNode> instructions = methodNode.instructions.iterator();
+		while (instructions.hasNext()) {
+			AbstractInsnNode insn = instructions.next();
+			if (insn instanceof MethodInsnNode) {
+				MethodInsnNode methodinsn = (MethodInsnNode) insn;
+				try {
+					ClassNode calledClassNode = fetchClassNode(methodinsn.owner);
+					MethodNode calledMethodNode = fetchMethodNode(calledClassNode, methodinsn.name, methodinsn.desc);
+					if (isNativeOutputMethod(calledClassNode, calledMethodNode)) {
+						calls.add(methodinsn);
+
+					}
+				} catch (IOException | NoSuchMethodException e) {
+					System.err.println("cannot load method " + methodinsn.owner + "." + methodinsn.name + methodinsn.desc);
+					e.printStackTrace(System.err);
+				}
+			}
+		}
+		return calls;
 	}
 
 	private List<FieldNode> getGlobalFields(ClassNode classNode) {
@@ -351,11 +449,31 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		return (fieldNode.access & ACC_PRIVATE) == 0;
 	}
 
+	protected boolean isJavaInputMethod(ClassNode classNode, MethodNode methodNode) {
+		return !isNative(methodNode)
+			&& isInputMethod(classNode, methodNode);
+	}
+
+	protected boolean isNativeInputMethod(ClassNode classNode, MethodNode methodNode) {
+		return isNative(methodNode)
+			&& isInputMethod(classNode, methodNode);
+	}
+
 	protected boolean isInputMethod(ClassNode classNode, MethodNode methodNode) {
 		return methodNode.visibleAnnotations != null && methodNode.visibleAnnotations.stream()
 			.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Input.class)))
 			|| config.getInputs().stream()
 				.anyMatch(method -> matches(method, classNode.name, methodNode.name, methodNode.desc));
+	}
+
+	protected boolean isJavaOutputMethod(ClassNode classNode, MethodNode methodNode) {
+		return !isNative(methodNode)
+			&& isOutputMethod(classNode, methodNode);
+	}
+
+	protected boolean isNativeOutputMethod(ClassNode classNode, MethodNode methodNode) {
+		return isNative(methodNode)
+			&& isOutputMethod(classNode, methodNode);
 	}
 
 	protected boolean isOutputMethod(ClassNode classNode, MethodNode methodNode) {

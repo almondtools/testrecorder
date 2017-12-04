@@ -16,6 +16,6 @@ public class StandardLibInputOutputTestRecorderAgentConfig extends DefaultTestRe
 	
 	@Override
 	public List<Methods> getOutputs() {
-		return asList(Methods.byDescription("java/io/ByteOutputStream", "write", "([b)V"));
+		return asList(Methods.byDescription("java/io/OutputStream", "write", "([b)V"));
 	}
 }
