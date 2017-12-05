@@ -3,41 +3,24 @@ package net.amygdalum.testrecorder.asm;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
 
 public class Sequence implements SequenceInstruction {
 
 	private List<SequenceInstruction> insns;
-	private Locals locals;
 
-	public Sequence(Locals locals) {
+	public Sequence() {
 		this.insns = new ArrayList<>();
-		this.locals = locals;
+	}
+	
+	public static Sequence start() {
+		return new Sequence();
 	}
 
-	public static Sequence sequence(Locals locals) {
-		return new Sequence(locals);
-	}
-
-	public Local newLocal(String variableName, Type type) {
-		return locals.newLocal(variableName, type);
-	}
-
-	public Local local(String variableName) {
-		return locals.local(variableName);
-	}
-
-	public Type getResultType() {
-		return locals.getResultType();
-	}
-
-	public Type[] getArgumentTypes() {
-		return locals.getArgumentTypes();
-	}
-
-	public int[] getArguments() {
-		return locals.getArguments();
+	public Sequence then(AbstractInsnNode insn) {
+		insns.add(context -> list(insn));
+		return this;
 	}
 
 	public Sequence then(SequenceInstruction insn) {
@@ -45,18 +28,13 @@ public class Sequence implements SequenceInstruction {
 		return this;
 	}
 
-	public InsnList build() {
+	@Override
+	public InsnList build(MethodContext context) {
 		InsnList insnList = new InsnList();
 		for (SequenceInstruction insn : insns) {
-			insnList.add(insn.build(this));
+			insnList.add(insn.build(context));
 		}
 		return insnList;
-	}
-	
-	@Override
-	public InsnList build(Sequence sequence) {
-		this.locals = sequence.locals;
-		return build();
 	}
 
 }

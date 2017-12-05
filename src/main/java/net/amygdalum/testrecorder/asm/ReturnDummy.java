@@ -1,28 +1,25 @@
 package net.amygdalum.testrecorder.asm;
 
 import static net.amygdalum.testrecorder.asm.ByteCode.isPrimitive;
-import static net.amygdalum.testrecorder.asm.ByteCode.primitiveNull;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.IRETURN;
 import static org.objectweb.asm.Opcodes.RETURN;
 
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.MethodNode;
 
 public class ReturnDummy implements SequenceInstruction {
 
-	private MethodNode methodNode;
-
-	public ReturnDummy(MethodNode methodNode) {
-		this.methodNode = methodNode;
+	public ReturnDummy() {
 	}
 
 	@Override
-	public InsnList build(Sequence sequence) {
-		Type returnType = Type.getReturnType(methodNode.desc);
+	public InsnList build(MethodContext context) {
+		Type returnType = context.getResultType();
 		InsnList insnList = new InsnList();
 		if (returnType.getSize() == 0) {
 			insnList.add(new InsnNode(RETURN));
@@ -34,6 +31,26 @@ public class ReturnDummy implements SequenceInstruction {
 			insnList.add(new InsnNode(ARETURN));
 		}
 		return insnList;
+	}
+
+	private AbstractInsnNode primitiveNull(Type type) {
+		char desc = type.getDescriptor().charAt(0);
+		switch (desc) {
+		case 'C':
+		case 'Z':
+		case 'B':
+		case 'S':
+		case 'I':
+			return new InsnNode(Opcodes.ICONST_0);
+		case 'J':
+			return new InsnNode(Opcodes.LCONST_0);
+		case 'F':
+			return new InsnNode(Opcodes.FCONST_0);
+		case 'D':
+			return new InsnNode(Opcodes.DCONST_0);
+		default:
+			return null;
+		}
 	}
 
 }

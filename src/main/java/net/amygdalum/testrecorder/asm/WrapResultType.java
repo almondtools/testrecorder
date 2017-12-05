@@ -1,7 +1,5 @@
 package net.amygdalum.testrecorder.asm;
 
-import static net.amygdalum.testrecorder.asm.ByteCode.pushType;
-
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.InsnList;
 
@@ -11,12 +9,12 @@ public class WrapResultType implements SequenceInstruction {
 	}
 
 	@Override
-	public InsnList build(Sequence sequence) {
-		Type resultType = sequence.getResultType();
+	public InsnList build(MethodContext context) {
+		Type resultType = context.getResultType();
 
 		InsnList insnList = new InsnList();
 
-		insnList.add(pushType(resultType));
+		insnList.add(new PushBoxedType(resultType).build(context));
 		
 		return insnList;
 	}

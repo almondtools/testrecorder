@@ -1,5 +1,8 @@
 package net.amygdalum.testrecorder;
 
+import static net.amygdalum.testrecorder.asm.ByteCode.argumentTypesFrom;
+import static net.amygdalum.testrecorder.asm.ByteCode.classFrom;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -8,7 +11,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import net.amygdalum.testrecorder.asm.ByteCode;
 import net.amygdalum.testrecorder.types.SerializationException;
 import net.amygdalum.testrecorder.util.Types;
 
@@ -44,8 +46,8 @@ public class MethodSignature {
 	public static MethodSignature fromDescriptor(String className, String methodName, String methodDesc) {
 		try {
 			MethodSignature signature = new MethodSignature();
-			signature.declaringClass = ByteCode.classFrom(className);
-			Method method = Types.getDeclaredMethod(signature.declaringClass, methodName, ByteCode.argumentTypesFrom(methodDesc));
+			signature.declaringClass = classFrom(className);
+			Method method = Types.getDeclaredMethod(signature.declaringClass, methodName, argumentTypesFrom(methodDesc));
 			signature.resultAnnotation = method.getAnnotations();
 			signature.resultType = method.getGenericReturnType();
 			signature.methodName = method.getName();

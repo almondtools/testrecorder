@@ -23,10 +23,10 @@ public class Assign implements SequenceInstruction {
 	}
 
 	@Override
-	public InsnList build(Sequence sequence) {
+	public InsnList build(MethodContext context) {
 		InsnList insnList = new InsnList();
-		insnList.add(value.build(sequence));
-		Local local = sequence.newLocal(variableName, type);
+		insnList.add(value.build(context));
+		Local local = context.newLocal(variableName, type);
 		insnList.add(new VarInsnNode(local.type.getOpcode(ISTORE), local.index));
 		return insnList;
 	}

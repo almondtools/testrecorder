@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.asm;
 
-import static net.amygdalum.testrecorder.asm.ByteCode.list;
+
 import static org.objectweb.asm.Opcodes.ALOAD;
 
 import org.objectweb.asm.tree.InsnList;
@@ -12,7 +12,7 @@ public class This implements SequenceInstruction {
 	}
 
 	@Override
-	public InsnList build(Sequence sequence) {
+	public InsnList build(MethodContext context) {
 		return list(new VarInsnNode(ALOAD, 0));
 	}
 

@@ -20,14 +20,14 @@ public class Memoize implements SequenceInstruction {
 	}
 
 	@Override
-	public InsnList build(Sequence sequence) {
+	public InsnList build(MethodContext context) {
 		InsnList insnList = new InsnList();
 		if (type.getSize() == 1) {
 			insnList.add(new InsnNode(DUP));
 		} else if (type.getSize() == 2) {
 			insnList.add(new InsnNode(DUP2));
 		}
-		Local local = sequence.newLocal(variableName, type);
+		Local local = context.newLocal(variableName, type);
 		insnList.add(new VarInsnNode(local.type.getOpcode(ISTORE), local.index));
 		return insnList;
 	}

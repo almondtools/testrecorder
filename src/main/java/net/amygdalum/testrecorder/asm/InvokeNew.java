@@ -30,14 +30,14 @@ public class InvokeNew implements SequenceInstruction {
 	}
 
 	@Override
-	public InsnList build(Sequence sequence) {
+	public InsnList build(MethodContext context) {
 		InsnList insnList = new InsnList();
 
 		insnList.add(new TypeInsnNode(NEW, Type.getInternalName(clazz)));
 		insnList.add(new InsnNode(DUP));
 
 		for (SequenceInstruction argument : arguments) {
-			insnList.add(argument.build(sequence));
+			insnList.add(argument.build(context));
 		}
 		
 		insnList.add(new MethodInsnNode(INVOKESPECIAL, Type.getInternalName(clazz), "<init>", constructorDescriptor(clazz, argumentTypes), false));

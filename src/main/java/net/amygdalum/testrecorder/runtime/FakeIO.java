@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.runtime;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toSet;
+import static net.amygdalum.testrecorder.asm.ByteCode.argumentTypesFrom;
 import static net.amygdalum.testrecorder.runtime.GenericObject.copyArrayValues;
 import static net.amygdalum.testrecorder.runtime.GenericObject.copyField;
 import static net.amygdalum.testrecorder.util.Types.allFields;
@@ -32,7 +33,6 @@ import java.util.jar.Manifest;
 import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
 
-import net.amygdalum.testrecorder.asm.ByteCode;
 import net.amygdalum.testrecorder.bridge.BridgedFakeIO;
 import net.amygdalum.testrecorder.util.Types;
 import net.bytebuddy.agent.ByteBuddyAgent;
@@ -200,7 +200,7 @@ public class FakeIO {
 
 		public Class<?> resolve(Class<?> clazz) {
 			try {
-				Method method = Types.getDeclaredMethod(clazz, methodName, ByteCode.argumentTypesFrom(methodDesc));
+				Method method = Types.getDeclaredMethod(clazz, methodName, argumentTypesFrom(methodDesc));
 				return method.getDeclaringClass();
 			} catch (ReflectiveOperationException e) {
 				throw new RuntimeException("failed to resolve class of virtual call", e);

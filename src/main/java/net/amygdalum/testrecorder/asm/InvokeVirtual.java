@@ -34,13 +34,13 @@ public class InvokeVirtual implements SequenceInstruction {
 	}
 
 	@Override
-	public InsnList build(Sequence sequence) {
+	public InsnList build(MethodContext context) {
 		InsnList insnList = new InsnList();
 
-		insnList.add(base.build(sequence));
+		insnList.add(base.build(context));
 
 		for (SequenceInstruction argument : arguments) {
-			insnList.add(argument.build(sequence));
+			insnList.add(argument.build(context));
 		}
 		
 		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, Type.getInternalName(clazz), method, methodDescriptor(clazz, method, argumentTypes), false));

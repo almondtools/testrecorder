@@ -1,6 +1,5 @@
 package net.amygdalum.testrecorder.asm;
 
-import static net.amygdalum.testrecorder.asm.ByteCode.boxPrimitives;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.ILOAD;
@@ -19,9 +18,9 @@ public class WrapArguments implements SequenceInstruction {
 	}
 
 	@Override
-	public InsnList build(Sequence sequence) {
-		Type[] argumentTypes = sequence.getArgumentTypes();
-		int[] arguments = sequence.getArguments();
+	public InsnList build(MethodContext context) {
+		Type[] argumentTypes = context.getArgumentTypes();
+		int[] arguments = context.getArguments();
 
 		InsnList insnList = new InsnList();
 
@@ -37,7 +36,7 @@ public class WrapArguments implements SequenceInstruction {
 
 			insnList.add(new VarInsnNode(type.getOpcode(ILOAD), index));
 
-			insnList.add(boxPrimitives(type));
+			insnList.add(new BoxPrimitives(type).build(context));
 
 			insnList.add(new InsnNode(AASTORE));
 		}

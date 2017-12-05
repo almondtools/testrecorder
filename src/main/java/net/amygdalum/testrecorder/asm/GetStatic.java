@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder.asm;
 
 import static net.amygdalum.testrecorder.asm.ByteCode.fieldDescriptor;
-import static net.amygdalum.testrecorder.asm.ByteCode.list;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -20,7 +19,7 @@ public class GetStatic implements SequenceInstruction {
 	}
 
 	@Override
-	public InsnList build(Sequence sequence) {
+	public InsnList build(MethodContext context) {
 		return list(new FieldInsnNode(Opcodes.GETSTATIC, Type.getInternalName(clazz), field, fieldDescriptor(clazz, field)));
 	}
 

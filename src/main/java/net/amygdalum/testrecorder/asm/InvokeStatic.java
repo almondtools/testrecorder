@@ -28,11 +28,11 @@ public class InvokeStatic implements SequenceInstruction {
 	}
 
 	@Override
-	public InsnList build(Sequence sequence) {
+	public InsnList build(MethodContext context) {
 		InsnList insnList = new InsnList();
 
 		for (SequenceInstruction argument : arguments) {
-			insnList.add(argument.build(sequence));
+			insnList.add(argument.build(context));
 		}
 
 		insnList.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(clazz), method, methodDescriptor(clazz, method, argumentTypes), false));

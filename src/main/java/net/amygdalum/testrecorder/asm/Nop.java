@@ -10,7 +10,7 @@ public class Nop implements SequenceInstruction {
 	}
 
 	@Override
-	public InsnList build(Sequence sequence) {
+	public InsnList build(MethodContext context) {
 		return new InsnList();
 	}
 

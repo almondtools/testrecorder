@@ -1,23 +1,32 @@
 package net.amygdalum.testrecorder.asm;
 
-import static net.amygdalum.testrecorder.asm.ByteCode.isStatic;
-
 import java.util.HashMap;
 import java.util.Map;
 
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
-public class Locals {
+public class MethodContext {
 
+	private ClassNode classNode;
 	private MethodNode methodNode;
 	private int nextLocal;
 	private Map<String, Local> variables;
 
-	public Locals(MethodNode methodNode) {
+	public MethodContext(ClassNode classNode, MethodNode methodNode) {
+		this.classNode = classNode;
 		this.methodNode = methodNode;
 		this.nextLocal = methodNode.maxLocals;
 		this.variables = new HashMap<>();
+	}
+	
+	public ClassNode getClassNode() {
+		return classNode;
+	}
+		
+	public MethodNode getMethodNode() {
+		return methodNode;
 	}
 
 	public Local newLocal(String variableName, Type type) {
@@ -27,6 +36,22 @@ public class Locals {
 		return newLocal;
 	}
 
+	public boolean isStatic() {
+		return ByteCode.isStatic(methodNode);
+	}
+	
+	public String getClassName() {
+		return classNode.name;
+	}
+
+	public String getMethodName() {
+		return methodNode.name;
+	}
+
+	public String getMethodDescriptor() {
+		return methodNode.desc;
+	}
+	
 	public Local local(String variableName) {
 		return variables.get(variableName);
 	}
@@ -39,7 +64,7 @@ public class Locals {
 
 	public int[] getArguments() {
 		Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
-		int index = isStatic(methodNode) ? 0 : 1;
+		int index = isStatic() ? 0 : 1;
 		int[] arguments = new int[argumentTypes.length];
 		for (int i = 0; i < arguments.length; i++) {
 			arguments[i] = index;
@@ -55,4 +80,5 @@ public class Locals {
 	public Type getResultType() {
 		return Type.getReturnType(methodNode.desc);
 	}
+
 }

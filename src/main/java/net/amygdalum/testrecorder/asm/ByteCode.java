@@ -3,35 +3,17 @@ package net.amygdalum.testrecorder.asm;
 import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
-import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_NATIVE;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
-import static org.objectweb.asm.Opcodes.ALOAD;
-import static org.objectweb.asm.Opcodes.ASTORE;
-import static org.objectweb.asm.Opcodes.CHECKCAST;
-import static org.objectweb.asm.Opcodes.DUP;
-import static org.objectweb.asm.Opcodes.DUP2;
-import static org.objectweb.asm.Opcodes.GETSTATIC;
-import static org.objectweb.asm.Opcodes.ILOAD;
-import static org.objectweb.asm.Opcodes.INVOKESTATIC;
-import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 
 import java.lang.reflect.Array;
 import java.util.List;
-import java.util.stream.IntStream;
 
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.LocalVariableNode;
-import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.TypeInsnNode;
-import org.objectweb.asm.tree.VarInsnNode;
 import org.objectweb.asm.util.Printer;
 import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceMethodVisitor;
@@ -89,129 +71,12 @@ public final class ByteCode {
 		return type.getDescriptor().length() == 1;
 	}
 
-	public static AbstractInsnNode primitiveNull(Type type) {
-		char desc = type.getDescriptor().charAt(0);
-		switch (desc) {
-		case 'C':
-		case 'Z':
-		case 'B':
-		case 'S':
-		case 'I':
-			return new InsnNode(Opcodes.ICONST_0);
-		case 'J':
-			return new InsnNode(Opcodes.LCONST_0);
-		case 'F':
-			return new InsnNode(Opcodes.FCONST_0);
-		case 'D':
-			return new InsnNode(Opcodes.DCONST_0);
-		default:
-			return null;
-		}
-	}
-
 	public static List<LocalVariableNode> range(List<LocalVariableNode> locals, int start, int length) {
 		return locals.stream()
 			.sorted(comparingInt(local -> local.index))
 			.skip(start)
 			.limit(length)
 			.collect(toList());
-	}
-
-	public static InsnList memorizeLocal(Type type, int newLocal) {
-		InsnList insnList = new InsnList();
-		if (type.getSize() == 1) {
-			insnList.add(new InsnNode(DUP));
-			insnList.add(boxPrimitives(type));
-			insnList.add(new VarInsnNode(ASTORE, newLocal));
-		} else if (type.getSize() == 2) {
-			insnList.add(new InsnNode(DUP2));
-			insnList.add(boxPrimitives(type));
-			insnList.add(new VarInsnNode(ASTORE, newLocal));
-		}
-		return insnList;
-	}
-
-	public static AbstractInsnNode recallLocal(int newLocal) {
-		return new VarInsnNode(ALOAD, newLocal);
-	}
-
-	public static InsnList pushTypes(Type... argumentTypes) {
-		int params = argumentTypes.length;
-
-		InsnList insnList = new InsnList();
-
-		insnList.add(new LdcInsnNode(params));
-		insnList.add(new TypeInsnNode(Opcodes.ANEWARRAY, Type.getInternalName(java.lang.reflect.Type.class)));
-
-		for (int i = 0; i < params; i++) {
-			insnList.add(new InsnNode(DUP));
-			insnList.add(new LdcInsnNode(i));
-			insnList.add(pushType(argumentTypes[i]));
-			insnList.add(new InsnNode(AASTORE));
-		}
-		return insnList;
-
-	}
-
-	public static InsnList pushAsArray(int[] locals, Type... argumentTypes) {
-		LocalVar[] localvars = IntStream.range(0, locals.length)
-			.mapToObj(i -> new LocalVar(locals[i], argumentTypes[i]))
-			.toArray(LocalVar[]::new);
-		return pushAsArray(localvars);
-	}
-
-	public static InsnList pushAsArray(List<LocalVariableNode> locals) {
-		LocalVar[] localvars = locals.stream()
-			.map(local -> new LocalVar(local.index, Type.getType(local.desc)))
-			.toArray(LocalVar[]::new);
-		return pushAsArray(localvars);
-	}
-
-	private static InsnList pushAsArray(LocalVar[] locals) {
-		int params = locals.length;
-
-		InsnList insnList = new InsnList();
-
-		insnList.add(new LdcInsnNode(params));
-		insnList.add(new TypeInsnNode(Opcodes.ANEWARRAY, Type.getInternalName(Object.class)));
-
-		for (int i = 0; i < params; i++) {
-			insnList.add(new InsnNode(DUP));
-			insnList.add(new LdcInsnNode(i));
-
-			LocalVar local = locals[i];
-			int index = local.index;
-			Type type = local.type;
-
-			insnList.add(new VarInsnNode(type.getOpcode(ILOAD), index));
-
-			insnList.add(boxPrimitives(type));
-
-			insnList.add(new InsnNode(AASTORE));
-		}
-		return insnList;
-	}
-
-	public static AbstractInsnNode pushType(Type type) {
-		if (isPrimitive(type)) {
-			char desc = type.getDescriptor().charAt(0);
-			String boxedType = primitive(desc).boxedType;
-			return new FieldInsnNode(GETSTATIC, boxedType, "TYPE", Type.getDescriptor(Class.class));
-		} else {
-			return new LdcInsnNode(type);
-		}
-	}
-
-	public static InsnList boxPrimitives(Type type) {
-		InsnList insnList = new InsnList();
-		if (isPrimitive(type)) {
-			char desc = type.getDescriptor().charAt(0);
-			PrimitiveTypeInfo info = primitive(desc);
-
-			String factoryDesc = "(" + info.desc + ")L" + info.boxedType + ";";
-			insnList.add(new MethodInsnNode(INVOKESTATIC, info.boxedType, info.boxingFactory, factoryDesc, false));
-		}
-		return insnList;
 	}
 
 	public static Type boxedType(Type type) {
@@ -223,30 +88,14 @@ public final class ByteCode {
 		return type;
 	}
 
-	public static InsnList unboxPrimitives(Type type) {
+	public static String boxingFactory(Type type) {
 		char desc = type.getDescriptor().charAt(0);
-
-		InsnList insnList = new InsnList();
-
-		String factoryDesc = "()" + desc;
-		String boxedClassName = primitive(desc).boxedType;
-		String factoryName = getUnboxingFactory(desc);
-
-		insnList.add(new TypeInsnNode(CHECKCAST, boxedClassName));
-		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, boxedClassName, factoryName, factoryDesc, false));
-		return insnList;
+		return primitive(desc).boxingFactory;
 	}
 
-	private static String getUnboxingFactory(char desc) {
+	public static String getUnboxingFactory(Type type) {
+		char desc = type.getDescriptor().charAt(0);
 		return primitive(desc).unboxingFactory;
-	}
-
-	public static InsnList list(AbstractInsnNode... insnNodes) {
-		InsnList insnList = new InsnList();
-		for (AbstractInsnNode insnNode : insnNodes) {
-			insnList.add(insnNode);
-		}
-		return insnList;
 	}
 
 	public static String constructorDescriptor(Class<?> clazz, Class<?>... arguments) {
@@ -344,18 +193,6 @@ public final class ByteCode {
 			.map(Object::toString)
 			.collect(joining("\n"));
 		return text;
-	}
-
-	private static class LocalVar {
-
-		public int index;
-		public Type type;
-
-		public LocalVar(int index, Type type) {
-			this.index = index;
-			this.type = type;
-		}
-
 	}
 
 	@SuppressWarnings("unused")

@@ -1,7 +1,9 @@
 package net.amygdalum.testrecorder;
 
 import static java.util.stream.Collectors.toList;
+import static net.amygdalum.testrecorder.asm.ByteCode.classFrom;
 import static net.amygdalum.testrecorder.asm.ByteCode.isNative;
+import static net.amygdalum.testrecorder.asm.ByteCode.returnsResult;
 import static org.objectweb.asm.Opcodes.ACC_ANNOTATION;
 import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
@@ -35,8 +37,8 @@ import net.amygdalum.testrecorder.asm.GetStatic;
 import net.amygdalum.testrecorder.asm.GetThisOrNull;
 import net.amygdalum.testrecorder.asm.InvokeVirtual;
 import net.amygdalum.testrecorder.asm.Ldc;
-import net.amygdalum.testrecorder.asm.Locals;
 import net.amygdalum.testrecorder.asm.MemoizeBoxed;
+import net.amygdalum.testrecorder.asm.MethodContext;
 import net.amygdalum.testrecorder.asm.Nop;
 import net.amygdalum.testrecorder.asm.Recall;
 import net.amygdalum.testrecorder.asm.Sequence;
@@ -75,7 +77,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		classesToRetransform.addAll(instrumentedClasses);
 
 		for (String className : instrumentedClassNames) {
-			classesToRetransform.add(ByteCode.classFrom(className));
+			classesToRetransform.add(classFrom(className));
 		}
 
 		return classesToRetransform.toArray(new Class[0]);
@@ -214,7 +216,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 			.before(setupVariables(classNode, methodNode))
 			.after(expectVariables(classNode, methodNode))
 			.handler(throwVariables(classNode, methodNode))
-			.build(Sequence.sequence(new Locals(methodNode)));
+			.build(new MethodContext(classNode, methodNode));
 	}
 
 	private void instrumentInputMethods(ClassNode classNode) {
@@ -224,10 +226,10 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 	}
 
 	protected void instrumentInputMethod(ClassNode classNode, MethodNode methodNode) {
-		methodNode.instructions = new WrapMethod(methodNode)
+		methodNode.instructions = new WrapMethod()
 			.prepend(inputVariables(classNode, methodNode))
 			.append(inputArgumentsAndResult(classNode, methodNode))
-			.build(Sequence.sequence(new Locals(methodNode)));
+			.build(new MethodContext(classNode, methodNode));
 	}
 
 	protected SequenceInstruction inputVariables(ClassNode classNode, MethodNode methodNode) {
@@ -235,15 +237,15 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 			.value(new InvokeVirtual(SnapshotManager.class, "inputVariables", StackTraceElement[].class, Object.class, String.class, java.lang.reflect.Type.class, java.lang.reflect.Type[].class)
 				.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
 				.withArgument(0, new GetStackTrace())
-				.withArgument(1, new GetThisOrNull(methodNode))
+				.withArgument(1, new GetThisOrNull())
 				.withArgument(2, new Ldc(methodNode.name))
 				.withArgument(3, new WrapResultType())
 				.withArgument(4, new WrapArgumentTypes()));
 	}
 
 	protected SequenceInstruction inputArgumentsAndResult(ClassNode classNode, MethodNode methodNode) {
-		if (ByteCode.returnsResult(methodNode)) {
-			return Sequence.sequence(new Locals(methodNode))
+		if (returnsResult(methodNode)) {
+			return Sequence.start()
 				.then(new MemoizeBoxed("returnValue", Type.getReturnType(methodNode.desc)))
 				.then(new InvokeVirtual(SnapshotManager.class, "inputArguments", int.class, Object[].class)
 					.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
@@ -254,7 +256,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 					.withArgument(0, new Recall("inputId"))
 					.withArgument(1, new Recall("returnValue")));
 		} else {
-			return Sequence.sequence(new Locals(methodNode))
+			return Sequence.start()
 				.then(new InvokeVirtual(SnapshotManager.class, "inputArguments", int.class, Object[].class)
 					.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
 					.withArgument(0, new Recall("inputId"))
@@ -269,19 +271,19 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 	}
 
 	protected void instrumentOutputMethod(ClassNode classNode, MethodNode methodNode) {
-		methodNode.instructions = new WrapMethod(methodNode)
+		methodNode.instructions = new WrapMethod()
 			.prepend(outputVariables(classNode, methodNode))
 			.append(outputResult(classNode, methodNode))
-			.build(Sequence.sequence(new Locals(methodNode)));
+			.build(new MethodContext(classNode, methodNode));
 	}
 
 	protected SequenceInstruction outputVariables(ClassNode classNode, MethodNode methodNode) {
-		return Sequence.sequence(new Locals(methodNode))
+		return Sequence.start()
 			.then(new Assign("outputId", Type.INT_TYPE)
 				.value(new InvokeVirtual(SnapshotManager.class, "outputVariables", StackTraceElement[].class, Object.class, String.class, java.lang.reflect.Type.class, java.lang.reflect.Type[].class)
 					.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
 					.withArgument(0, new GetStackTrace())
-					.withArgument(1, new GetThisOrNull(methodNode))
+					.withArgument(1, new GetThisOrNull())
 					.withArgument(2, new Ldc(methodNode.name))
 					.withArgument(3, new WrapResultType())
 					.withArgument(4, new WrapArgumentTypes())))
@@ -292,8 +294,8 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 	}
 
 	protected SequenceInstruction outputResult(ClassNode classNode, MethodNode methodNode) {
-		if (ByteCode.returnsResult(methodNode)) {
-			return Sequence.sequence(new Locals(methodNode))
+		if (returnsResult(methodNode)) {
+			return Sequence.start()
 				.then(new MemoizeBoxed("returnValue", Type.getReturnType(methodNode.desc)))
 				.then(new InvokeVirtual(SnapshotManager.class, "outputResult", int.class, Object.class)
 					.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
@@ -494,38 +496,38 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 	protected SequenceInstruction setupVariables(ClassNode classNode, MethodNode methodNode) {
 		return new InvokeVirtual(SnapshotManager.class, "setupVariables", Object.class, String.class, Object[].class)
 			.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-			.withArgument(0, new GetThisOrNull(methodNode))
+			.withArgument(0, new GetThisOrNull())
 			.withArgument(1, new Ldc(keySignature(classNode, methodNode)))
 			.withArgument(2, new WrapArguments());
 	}
 
 	protected SequenceInstruction expectVariables(ClassNode classNode, MethodNode methodNode) {
-		if (ByteCode.returnsResult(methodNode)) {
-			return Sequence.sequence(new Locals(methodNode))
+		if (returnsResult(methodNode)) {
+			return Sequence.start()
 				.then(new MemoizeBoxed("returnValue", Type.getReturnType(methodNode.desc)))
 				.then(new InvokeVirtual(SnapshotManager.class, "expectVariables", Object.class, String.class, Object.class, Object[].class)
 					.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-					.withArgument(0, new GetThisOrNull(methodNode))
+					.withArgument(0, new GetThisOrNull())
 					.withArgument(1, new Ldc(keySignature(classNode, methodNode)))
 					.withArgument(2, new Recall("returnValue"))
 					.withArgument(3, new WrapArguments()));
 		} else {
-			return Sequence.sequence(new Locals(methodNode))
+			return Sequence.start()
 				.then(new InvokeVirtual(SnapshotManager.class, "expectVariables", Object.class, String.class, Object[].class)
 					.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-					.withArgument(0, new GetThisOrNull(methodNode))
+					.withArgument(0, new GetThisOrNull())
 					.withArgument(1, new Ldc(keySignature(classNode, methodNode)))
 					.withArgument(2, new WrapArguments()));
 		}
 	}
 
 	protected SequenceInstruction throwVariables(ClassNode classNode, MethodNode methodNode) {
-		return Sequence.sequence(new Locals(methodNode))
+		return Sequence.start()
 			.then(new MemoizeBoxed("throwable", Type.getType(Throwable.class)))
 			.then(new InvokeVirtual(SnapshotManager.class, "throwVariables", Throwable.class, Object.class, String.class, Object[].class)
 				.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
 				.withArgument(0, new Recall("throwable"))
-				.withArgument(1, new GetThisOrNull(methodNode))
+				.withArgument(1, new GetThisOrNull())
 				.withArgument(2, new Ldc(keySignature(classNode, methodNode)))
 				.withArgument(3, new WrapArguments()));
 	}

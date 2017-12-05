@@ -4,24 +4,23 @@ import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.IRETURN;
 import static org.objectweb.asm.Opcodes.RETURN;
 
+import java.util.ListIterator;
+
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.MethodNode;
 
 public class WrapMethod implements SequenceInstruction {
 
-	private MethodNode methodNode;
 	private LabelNode returnLabel;
 
 	private SequenceInstruction prependInstructions;
 	private SequenceInstruction appendInstructions;
 
-	public WrapMethod(MethodNode methodNode) {
-		this.methodNode = methodNode;
+	public WrapMethod() {
 		this.prependInstructions = Nop.NOP;
 		this.appendInstructions = Nop.NOP;
 	}
@@ -40,14 +39,16 @@ public class WrapMethod implements SequenceInstruction {
 	}
 
 	@Override
-	public InsnList build(Sequence sequence) {
-		Type returnType = Type.getReturnType(methodNode.desc);
+	public InsnList build(MethodContext context) {
+		Type returnType = context.getResultType();
 
 		InsnList insnList = new InsnList();
 
-		insnList.add(prependInstructions.build(sequence));
+		insnList.add(prependInstructions.build(context));
 
-		for (AbstractInsnNode insn : methodNode.instructions.toArray()) {
+		ListIterator<AbstractInsnNode> instructions = context.getMethodNode().instructions.iterator();
+		while (instructions.hasNext()) {
+			AbstractInsnNode insn = instructions.next();
 			if (returnLabel != null && isReturn(insn)) {
 				insnList.add(new JumpInsnNode(GOTO, returnLabel));
 			} else {
@@ -58,7 +59,7 @@ public class WrapMethod implements SequenceInstruction {
 		if (returnLabel != null) {
 			insnList.add(returnLabel);
 
-			insnList.add(appendInstructions.build(sequence));
+			insnList.add(appendInstructions.build(context));
 
 			insnList.add(new InsnNode(returnType.getOpcode(IRETURN)));
 		}

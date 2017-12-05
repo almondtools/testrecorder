@@ -28,7 +28,7 @@ import net.amygdalum.testrecorder.asm.GetMethodName;
 import net.amygdalum.testrecorder.asm.GetStackTrace;
 import net.amygdalum.testrecorder.asm.GetThisOrNull;
 import net.amygdalum.testrecorder.asm.InvokeStatic;
-import net.amygdalum.testrecorder.asm.Locals;
+import net.amygdalum.testrecorder.asm.MethodContext;
 import net.amygdalum.testrecorder.asm.ReturnDummy;
 import net.amygdalum.testrecorder.asm.ReturnFakeOrProceed;
 import net.amygdalum.testrecorder.asm.Sequence;
@@ -127,7 +127,7 @@ public class FakeIOTransformer extends AttachableClassFileTransformer implements
 	}
 
 	private void insertIOFakes(ClassNode classNode, MethodNode methodNode, Class<?> clazz) {
-		InsnList insnList = createIOFakes(classNode, methodNode, clazz).build();
+		InsnList insnList = createIOFakes(classNode, methodNode, clazz).build(new MethodContext(classNode, methodNode));
 		methodNode.instructions.insert(insnList);
 	}
 
@@ -143,13 +143,13 @@ public class FakeIOTransformer extends AttachableClassFileTransformer implements
 		nativeClasses.add(clazz);
 		methodNode.access = methodNode.access & ~Opcodes.ACC_NATIVE;
 
-		return Sequence.sequence(new Locals(methodNode))
+		return Sequence.start()
 			.then(createCommonIOFakes(classNode, methodNode, clazz))
-			.then(new ReturnDummy(methodNode));
+			.then(new ReturnDummy());
 	}
 
 	private Sequence createOrdinaryIOFakes(ClassNode classNode, MethodNode methodNode, Class<?> clazz) {
-		return Sequence.sequence(new Locals(methodNode))
+		return Sequence.start()
 			.then(createCommonIOFakes(classNode, methodNode, clazz));
 	}
 
@@ -162,27 +162,27 @@ public class FakeIOTransformer extends AttachableClassFileTransformer implements
 	}
 
 	protected SequenceInstruction createBridgedIOFake(ClassNode classNode, MethodNode methodNode) {
-		return Sequence.sequence(new Locals(methodNode))
+		return Sequence.start()
 			.then(new InvokeStatic(BridgedFakeIO.class, "callFake", String.class, StackTraceElement[].class, Object.class, String.class, String.class, Object[].class)
-				.withArgument(0, new GetClassName(classNode, methodNode))
+				.withArgument(0, new GetClassName())
 				.withArgument(1, new GetStackTrace())
-				.withArgument(2, new GetThisOrNull(methodNode))
-				.withArgument(3, new GetMethodName(methodNode))
-				.withArgument(4, new GetMethodDesc(methodNode))
+				.withArgument(2, new GetThisOrNull())
+				.withArgument(3, new GetMethodName())
+				.withArgument(4, new GetMethodDesc())
 				.withArgument(5, new WrapArguments()))
-			.then(new ReturnFakeOrProceed(methodNode, BridgedFakeIO.class, "NO_RESULT"));
+			.then(new ReturnFakeOrProceed(BridgedFakeIO.class, "NO_RESULT"));
 	}
 
 	protected SequenceInstruction createDirectIOFake(ClassNode classNode, MethodNode methodNode) {
-		return Sequence.sequence(new Locals(methodNode))
+		return Sequence.start()
 			.then(new InvokeStatic(FakeIO.class, "callFake", String.class, StackTraceElement[].class, Object.class, String.class, String.class, Object[].class)
-				.withArgument(0, new GetClassName(classNode, methodNode))
+				.withArgument(0, new GetClassName())
 				.withArgument(1, new GetStackTrace())
-				.withArgument(2, new GetThisOrNull(methodNode))
-				.withArgument(3, new GetMethodName(methodNode))
-				.withArgument(4, new GetMethodDesc(methodNode))
+				.withArgument(2, new GetThisOrNull())
+				.withArgument(3, new GetMethodName())
+				.withArgument(4, new GetMethodDesc())
 				.withArgument(5, new WrapArguments()))
-			.then(new ReturnFakeOrProceed(methodNode, FakeIO.class, "NO_RESULT"));
+			.then(new ReturnFakeOrProceed(FakeIO.class, "NO_RESULT"));
 	}
 
 	private List<MethodNode> fakedMethods(ClassNode classNode) {

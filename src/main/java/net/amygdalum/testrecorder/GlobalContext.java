@@ -1,12 +1,12 @@
 package net.amygdalum.testrecorder;
 
 import static java.util.stream.Collectors.toList;
+import static net.amygdalum.testrecorder.asm.ByteCode.classFrom;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.amygdalum.testrecorder.asm.ByteCode;
 import net.amygdalum.testrecorder.types.SerializationException;
 import net.amygdalum.testrecorder.util.Types;
 
@@ -49,7 +49,7 @@ public class GlobalContext {
 
 		public Field field() {
 			try {
-				Class<?> clazz = ByteCode.classFrom(className);
+				Class<?> clazz = classFrom(className);
 				return Types.getDeclaredField(clazz, fieldName);
 			} catch (RuntimeException | ReflectiveOperationException e) {
 				throw new SerializationException(e);

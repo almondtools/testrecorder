@@ -14,9 +14,9 @@ public class Recall implements SequenceInstruction {
 	}
 
 	@Override
-	public InsnList build(Sequence sequence) {
-		Local local = sequence.local(variableName);
-		return ByteCode.list(new VarInsnNode(local.type.getOpcode(ILOAD), local.index));
+	public InsnList build(MethodContext context) {
+		Local local = context.local(variableName);
+		return list(new VarInsnNode(local.type.getOpcode(ILOAD), local.index));
 	}
 
 }

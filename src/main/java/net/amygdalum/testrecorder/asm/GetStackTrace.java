@@ -8,10 +8,10 @@ public class GetStackTrace implements SequenceInstruction {
 	}
 
 	@Override
-	public InsnList build(Sequence sequence) {
+	public InsnList build(MethodContext context) {
 		return new InvokeVirtual(Throwable.class, "getStackTrace")
 			.withBase(new InvokeNew(Throwable.class))
-			.build(sequence);
+			.build(context);
 	}
 
 }

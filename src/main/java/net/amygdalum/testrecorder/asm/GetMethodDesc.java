@@ -1,22 +1,16 @@
 package net.amygdalum.testrecorder.asm;
 
-import static net.amygdalum.testrecorder.asm.ByteCode.list;
-
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.LdcInsnNode;
-import org.objectweb.asm.tree.MethodNode;
 
 public class GetMethodDesc implements SequenceInstruction {
 
-	private MethodNode methodNode;
-
-	public GetMethodDesc(MethodNode methodNode) {
-		this.methodNode = methodNode;
+	public GetMethodDesc() {
 	}
 
 	@Override
-	public InsnList build(Sequence sequence) {
-		return list(new LdcInsnNode(methodNode.desc));
+	public InsnList build(MethodContext context) {
+		return list(new LdcInsnNode(context.getMethodDescriptor()));
 	}
 
 }
