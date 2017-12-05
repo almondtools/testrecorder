@@ -1,8 +1,13 @@
 package net.amygdalum.testrecorder;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
+
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Spliterator;
@@ -26,13 +31,23 @@ public class AllLambdasSerializableTransformer extends AttachableClassFileTransf
 
 	public AllLambdasSerializableTransformer() {
 	}
+	
+	@Override
+	public Collection<Class<?>> filterClassesToRetransform(Class<?>[] loaded) {
+		for (Class<?> clazz : loaded) {
+			if ("java.lang.invoke.InnerClassLambdaMetafactory".equals(clazz.getName())) {
+				return singleton(clazz);
+			}
+		}
+		return emptyList();
+	}
 
 	@Override
-	public Class<?>[] classesToRetransform() {
+	public Collection<Class<?>> getClassesToRetransform() {
 		try {
-			return new Class[] { Class.forName("java.lang.invoke.InnerClassLambdaMetafactory") };
+			return singletonList(Class.forName("java.lang.invoke.InnerClassLambdaMetafactory"));
 		} catch (ClassNotFoundException e) {
-			return new Class[0];
+			return emptyList();
 		}
 	}
 

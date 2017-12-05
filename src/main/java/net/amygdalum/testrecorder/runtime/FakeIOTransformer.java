@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.runtime;
 
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.asm.ByteCode.isNative;
 
@@ -59,6 +60,16 @@ public class FakeIOTransformer extends AttachableClassFileTransformer implements
 		return attach;
 	}
 
+	@Override
+	public Collection<Class<?>> filterClassesToRetransform(Class<?>[] loaded) {
+		return emptyList();
+	}
+
+	@Override
+	public Collection<Class<?>> getClassesToRetransform() {
+		return emptyList();
+	}
+
 	public void addClasses(Collection<Class<?>> classes) {
 		this.classes.addAll(classes);
 	}
@@ -78,10 +89,6 @@ public class FakeIOTransformer extends AttachableClassFileTransformer implements
 		}
 	}
 
-	public Class<?>[] classesToRetransform() {
-		return classes.toArray(new Class[0]);
-	}
-
 	@Override
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
 		try {
@@ -90,7 +97,16 @@ public class FakeIOTransformer extends AttachableClassFileTransformer implements
 				ClassNode classNode = new ClassNode();
 
 				cr.accept(classNode, 0);
-				insertIOFakes(classNode, classBeingRedefined);
+
+				Task task = needsBridging(classNode, classBeingRedefined)
+					? new BridgedTask(classNode, fakedMethods(classNode))
+					: new DefaultTask(classNode, fakedMethods(classNode));
+
+				task.insertIOFakes();
+				
+				if (classBeingRedefined != null && task.instrumentsNative()) {
+					nativeClasses.add(classBeingRedefined);
+				}
 
 				ClassWriter out = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
 				classNode.accept(out);
@@ -102,6 +118,12 @@ public class FakeIOTransformer extends AttachableClassFileTransformer implements
 			e.printStackTrace(System.err);
 			return null;
 		}
+	}
+
+	private List<MethodNode> fakedMethods(ClassNode classNode) {
+		return classNode.methods.stream()
+			.filter(method -> methods.contains(method.name + method.desc))
+			.collect(toList());
 	}
 
 	private boolean matches(String className) {
@@ -118,77 +140,6 @@ public class FakeIOTransformer extends AttachableClassFileTransformer implements
 			return true;
 		}
 		return false;
-	}
-
-	private void insertIOFakes(ClassNode classNode, Class<?> clazz) {
-		for (MethodNode methodNode : fakedMethods(classNode)) {
-			insertIOFakes(classNode, methodNode, clazz);
-		}
-	}
-
-	private void insertIOFakes(ClassNode classNode, MethodNode methodNode, Class<?> clazz) {
-		InsnList insnList = createIOFakes(classNode, methodNode, clazz).build(new MethodContext(classNode, methodNode));
-		methodNode.instructions.insert(insnList);
-	}
-
-	private Sequence createIOFakes(ClassNode classNode, MethodNode methodNode, Class<?> clazz) {
-		if (isNative(methodNode)) {
-			return createNativeIOFakes(classNode, methodNode, clazz);
-		} else {
-			return createOrdinaryIOFakes(classNode, methodNode, clazz);
-		}
-	}
-
-	private Sequence createNativeIOFakes(ClassNode classNode, MethodNode methodNode, Class<?> clazz) {
-		nativeClasses.add(clazz);
-		methodNode.access = methodNode.access & ~Opcodes.ACC_NATIVE;
-
-		return Sequence.start()
-			.then(createCommonIOFakes(classNode, methodNode, clazz))
-			.then(new ReturnDummy());
-	}
-
-	private Sequence createOrdinaryIOFakes(ClassNode classNode, MethodNode methodNode, Class<?> clazz) {
-		return Sequence.start()
-			.then(createCommonIOFakes(classNode, methodNode, clazz));
-	}
-
-	private SequenceInstruction createCommonIOFakes(ClassNode classNode, MethodNode methodNode, Class<?> clazz) {
-		if (needsBridging(classNode, clazz)) {
-			return createBridgedIOFake(classNode, methodNode);
-		} else {
-			return createDirectIOFake(classNode, methodNode);
-		}
-	}
-
-	protected SequenceInstruction createBridgedIOFake(ClassNode classNode, MethodNode methodNode) {
-		return Sequence.start()
-			.then(new InvokeStatic(BridgedFakeIO.class, "callFake", String.class, StackTraceElement[].class, Object.class, String.class, String.class, Object[].class)
-				.withArgument(0, new GetClassName())
-				.withArgument(1, new GetStackTrace())
-				.withArgument(2, new GetThisOrNull())
-				.withArgument(3, new GetMethodName())
-				.withArgument(4, new GetMethodDesc())
-				.withArgument(5, new WrapArguments()))
-			.then(new ReturnFakeOrProceed(BridgedFakeIO.class, "NO_RESULT"));
-	}
-
-	protected SequenceInstruction createDirectIOFake(ClassNode classNode, MethodNode methodNode) {
-		return Sequence.start()
-			.then(new InvokeStatic(FakeIO.class, "callFake", String.class, StackTraceElement[].class, Object.class, String.class, String.class, Object[].class)
-				.withArgument(0, new GetClassName())
-				.withArgument(1, new GetStackTrace())
-				.withArgument(2, new GetThisOrNull())
-				.withArgument(3, new GetMethodName())
-				.withArgument(4, new GetMethodDesc())
-				.withArgument(5, new WrapArguments()))
-			.then(new ReturnFakeOrProceed(FakeIO.class, "NO_RESULT"));
-	}
-
-	private List<MethodNode> fakedMethods(ClassNode classNode) {
-		return classNode.methods.stream()
-			.filter(method -> methods.contains(method.name + method.desc))
-			.collect(toList());
 	}
 
 	public void reset() {
@@ -234,4 +185,88 @@ public class FakeIOTransformer extends AttachableClassFileTransformer implements
 		return null;
 	}
 
+	public static abstract class Task {
+
+		protected ClassNode classNode;
+		protected List<MethodNode> methods;
+		
+		private boolean nativeInstrumentation;
+
+		public Task(ClassNode classNode, List<MethodNode> methods) {
+			this.classNode = classNode;
+			this.methods = methods;
+			this.nativeInstrumentation = false;
+		}
+
+		public boolean instrumentsNative() {
+			return nativeInstrumentation;
+		}
+
+		public void insertIOFakes() {
+			for (MethodNode methodNode : methods) {
+				insertIOFakes(methodNode);
+			}
+		}
+
+		public void insertIOFakes(MethodNode methodNode) {
+			InsnList insnList = createIOFakes(methodNode).build(new MethodContext(classNode, methodNode));
+			methodNode.instructions.insert(insnList);
+		}
+
+		public Sequence createIOFakes(MethodNode methodNode) {
+			if (isNative(methodNode)) {
+				methodNode.access = methodNode.access & ~Opcodes.ACC_NATIVE;
+				nativeInstrumentation = true;
+
+				return Sequence.start()
+					.then(createIOFake(methodNode))
+					.then(new ReturnDummy());
+			} else {
+				return Sequence.start()
+					.then(createIOFake(methodNode));
+			}
+		}
+
+		public abstract SequenceInstruction createIOFake(MethodNode methodNode);
+	}
+
+	public static class BridgedTask extends Task {
+
+		public BridgedTask(ClassNode classNode, List<MethodNode> methods) {
+			super(classNode, methods);
+		}
+
+		public SequenceInstruction createIOFake(MethodNode methodNode) {
+			return Sequence.start()
+				.then(new InvokeStatic(BridgedFakeIO.class, "callFake", String.class, StackTraceElement[].class, Object.class, String.class, String.class, Object[].class)
+					.withArgument(0, new GetClassName())
+					.withArgument(1, new GetStackTrace())
+					.withArgument(2, new GetThisOrNull())
+					.withArgument(3, new GetMethodName())
+					.withArgument(4, new GetMethodDesc())
+					.withArgument(5, new WrapArguments()))
+				.then(new ReturnFakeOrProceed(BridgedFakeIO.class, "NO_RESULT"));
+		}
+
+	}
+
+	public static class DefaultTask extends Task {
+
+		public DefaultTask(ClassNode classNode, List<MethodNode> methods) {
+			super(classNode, methods);
+		}
+
+		public SequenceInstruction createIOFake(MethodNode methodNode) {
+			return Sequence.start()
+				.then(new InvokeStatic(FakeIO.class, "callFake", String.class, StackTraceElement[].class, Object.class, String.class, String.class, Object[].class)
+					.withArgument(0, new GetClassName())
+					.withArgument(1, new GetStackTrace())
+					.withArgument(2, new GetThisOrNull())
+					.withArgument(3, new GetMethodName())
+					.withArgument(4, new GetMethodDesc())
+					.withArgument(5, new WrapArguments()))
+				.then(new ReturnFakeOrProceed(FakeIO.class, "NO_RESULT"));
+		}
+
+	}
 }

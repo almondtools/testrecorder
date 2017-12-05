@@ -15,7 +15,7 @@ import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.TestrecorderAgentRunner;
 
 @RunWith(TestrecorderAgentRunner.class)
-@Instrumented(classes = { "net.amygdalum.testrecorder.ioscenarios.StandardLibInputOutput" }, config = StandardLibInputOutputTestRecorderAgentConfig.class)
+@Instrumented(classes = { "net.amygdalum.testrecorder.ioscenarios.StandardLibInputOutput", "java.io.OutputStream", "java.io.ByteArrayOutputStream" }, config = StandardLibInputOutputTestRecorderAgentConfig.class)
 public class StandardLibOutputTest {
 
 	@Before
@@ -30,7 +30,7 @@ public class StandardLibOutputTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(StandardLibInputOutput.class), allOf(
-			containsString("FakeIO"), 
+			containsString("FakeIO"),
 			containsString("fakeOutput")));
 		assertThat(testGenerator.renderTest(StandardLibInputOutput.class), compiles(StandardLibInputOutput.class));
 	}

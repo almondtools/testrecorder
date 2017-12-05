@@ -25,8 +25,6 @@ import net.amygdalum.testrecorder.values.SerializedOutput;
 
 public class SnapshotProcess {
 
-	private static final StackTraceElement[] UNRESOLVED = new StackTraceElement[] { new StackTraceElement("?", "?", "?", 0) };
-
 	public static final SnapshotProcess PASSIVE = passiveProcess();
 
 	private ExecutorService executor;
@@ -58,22 +56,25 @@ public class SnapshotProcess {
 		return snapshot.matches(key);
 	}
 
-	private StackTraceElement[] call(StackTraceElement[] stackTrace, String methodName) {
+	private StackTraceElement[] call(StackTraceElement[] stackTrace, Class<?> clazz, String methodName) {
 		for (int i = 0; i < stackTrace.length; i++) {
 			StackTraceElement caller = stackTrace[i];
 			if (methodName.equals(caller.getMethodName())) {
 				return Arrays.copyOfRange(stackTrace, i, stackTrace.length);
 			}
 		}
-		return UNRESOLVED;
+		StackTraceElement[] call = new StackTraceElement[stackTrace.length + 1];
+		System.arraycopy(stackTrace, 0, call, 1, stackTrace.length);
+		call[0] = new StackTraceElement(clazz.getName(), methodName, "?", -1);
+		return call;
 	}
 
 	public int inputVariables(StackTraceElement[] stackTrace, Object object, String method, Type resultType, Type[] paramTypes) {
 		if (isNestedIO(stackTrace, method)) {
 			return 0;
 		}
-		StackTraceElement[] call = call(stackTrace, method);
 		Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
+		StackTraceElement[] call = call(stackTrace, clazz, method);
 		int id = object instanceof Class<?> ? 0 : identityHashCode(object);
 
 		SerializedInput in = new SerializedInput(id, call, clazz, method, resultType, paramTypes);
@@ -97,8 +98,8 @@ public class SnapshotProcess {
 		if (isNestedIO(stackTrace, method)) {
 			return 0;
 		}
-		StackTraceElement[] call = call(stackTrace, method);
 		Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
+		StackTraceElement[] call = call(stackTrace, clazz, method);
 		int id = object instanceof Class<?> ? 0 : identityHashCode(object);
 
 		SerializedOutput out = new SerializedOutput(id, call, clazz, method, resultType, paramTypes);

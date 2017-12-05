@@ -94,7 +94,7 @@ public class FakeIO {
 		}
 	}
 
-	public static JarFile jarfile() throws IOException {
+	private static JarFile jarfile() throws IOException {
 		String bridge = "net/amygdalum/testrecorder/bridge/BridgedFakeIO.class";
 		InputStream resourceStream = FakeIO.class.getResourceAsStream("/" + bridge);
 		if (resourceStream == null) {

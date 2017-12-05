@@ -17,7 +17,6 @@ import net.amygdalum.testrecorder.DefaultTestRecorderAgentConfig;
 import net.amygdalum.testrecorder.TestRecorderAgent;
 import net.amygdalum.testrecorder.TestRecorderAgentConfig;
 import net.amygdalum.testrecorder.profile.Classes;
-import net.amygdalum.testrecorder.runtime.FakeIO;
 import net.bytebuddy.agent.ByteBuddyAgent;
 
 public class TestrecorderAgentRunner extends BlockJUnit4ClassRunner {
@@ -55,7 +54,6 @@ public class TestrecorderAgentRunner extends BlockJUnit4ClassRunner {
 			if (classes.length > 0) {
 				inst.retransformClasses(classes);
 			}
-			FakeIO.reset();
 		} catch (ReflectiveOperationException | UnmodifiableClassException | Error e) {
 			throw new RuntimeException(e);
 		}
@@ -91,7 +89,6 @@ public class TestrecorderAgentRunner extends BlockJUnit4ClassRunner {
 		if (agent != null) {
 			agent.clearInstrumentations();
 		}
-		FakeIO.reset();
 	}
 
 }

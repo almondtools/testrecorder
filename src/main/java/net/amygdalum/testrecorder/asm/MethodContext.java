@@ -36,12 +36,22 @@ public class MethodContext {
 		return newLocal;
 	}
 
+	public Local newLocal(Type type) {
+		Local newLocal = new Local(nextLocal, type);
+		nextLocal += type.getSize();
+		return newLocal;
+	}
+
 	public boolean isStatic() {
 		return ByteCode.isStatic(methodNode);
 	}
 	
 	public String getClassName() {
 		return classNode.name;
+	}
+
+	public Type getClassType() {
+		return Type.getObjectType(classNode.name);
 	}
 
 	public String getMethodName() {
@@ -54,12 +64,6 @@ public class MethodContext {
 	
 	public Local local(String variableName) {
 		return variables.get(variableName);
-	}
-
-	public int newLocalObject() {
-		int newLocal = nextLocal;
-		nextLocal++;
-		return newLocal;
 	}
 
 	public int[] getArguments() {

@@ -13,28 +13,32 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
 import java.util.Set;
 
-import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
+import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import net.amygdalum.testrecorder.asm.Assign;
-import net.amygdalum.testrecorder.asm.ByteCode;
+import net.amygdalum.testrecorder.asm.CaptureCall;
+import net.amygdalum.testrecorder.asm.GetInvokedMethodArgumentTypes;
+import net.amygdalum.testrecorder.asm.GetInvokedMethodName;
+import net.amygdalum.testrecorder.asm.GetInvokedMethodResultType;
 import net.amygdalum.testrecorder.asm.GetStackTrace;
 import net.amygdalum.testrecorder.asm.GetStatic;
+import net.amygdalum.testrecorder.asm.GetThisOrClass;
 import net.amygdalum.testrecorder.asm.GetThisOrNull;
+import net.amygdalum.testrecorder.asm.InvokeStatic;
 import net.amygdalum.testrecorder.asm.InvokeVirtual;
 import net.amygdalum.testrecorder.asm.Ldc;
 import net.amygdalum.testrecorder.asm.MemoizeBoxed;
@@ -48,6 +52,7 @@ import net.amygdalum.testrecorder.asm.WrapArguments;
 import net.amygdalum.testrecorder.asm.WrapMethod;
 import net.amygdalum.testrecorder.asm.WrapResultType;
 import net.amygdalum.testrecorder.asm.WrapWithTryCatch;
+import net.amygdalum.testrecorder.bridge.BridgedSnapshotManager;
 import net.amygdalum.testrecorder.profile.Classes;
 import net.amygdalum.testrecorder.profile.Fields;
 import net.amygdalum.testrecorder.profile.Methods;
@@ -59,20 +64,33 @@ import net.amygdalum.testrecorder.util.AttachableClassFileTransformer;
 public class SnapshotInstrumentor extends AttachableClassFileTransformer implements ClassFileTransformer {
 
 	private TestRecorderAgentConfig config;
-	private Map<String, ClassNode> classCache;
+	private ClassNodeManager classes = new ClassNodeManager();
 	private Set<String> instrumentedClassNames;
 	private Set<Class<?>> instrumentedClasses;
 
 	public SnapshotInstrumentor(TestRecorderAgentConfig config) {
 		this.config = config;
-		this.classCache = new HashMap<>();
+		this.classes = new ClassNodeManager();
 		this.instrumentedClassNames = new LinkedHashSet<>();
 		this.instrumentedClasses = new LinkedHashSet<>();
 		SnapshotManager.init(config);
 	}
 
 	@Override
-	public Class<?>[] classesToRetransform() {
+	public Collection<Class<?>> filterClassesToRetransform(Class<?>[] loaded) {
+		Set<Class<?>> classesToRetransform = new LinkedHashSet<>();
+		for (Class<?> clazz : loaded) {
+			for (Classes classes : config.getClasses()) {
+				if (classes.matches(clazz)) {
+					classesToRetransform.add(clazz);
+				}
+			}
+		}
+		return classesToRetransform;
+	}
+
+	@Override
+	public Collection<Class<?>> getClassesToRetransform() {
 		Set<Class<?>> classesToRetransform = new LinkedHashSet<>();
 		classesToRetransform.addAll(instrumentedClasses);
 
@@ -80,7 +98,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 			classesToRetransform.add(classFrom(className));
 		}
 
-		return classesToRetransform.toArray(new Class[0]);
+		return classesToRetransform;
 	}
 
 	@Override
@@ -92,7 +110,8 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 			for (Classes clazz : config.getClasses()) {
 				if (clazz.matches(className)) {
 					System.out.println("recording snapshots of " + className);
-					byte[] instrument = instrument(classfileBuffer);
+
+					byte[] instrument = instrument(classfileBuffer, classBeingRedefined);
 					if (classBeingRedefined != null) {
 						instrumentedClasses.add(classBeingRedefined);
 					} else {
@@ -111,75 +130,35 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 	}
 
-	private ClassNode fetchClassNode(String className) throws IOException {
-		ClassNode classNode = classCache.get(className);
-		if (classNode == null) {
-			ClassReader cr = new ClassReader(className);
-			classNode = new ClassNode();
+	public byte[] instrument(String className, Class<?> clazz) throws IOException {
+		return instrument(classes.fetch(className), clazz);
+	}
 
-			cr.accept(classNode, 0);
-			classCache.put(className, classNode);
+	public byte[] instrument(byte[] buffer, Class<?> clazz) {
+		return instrument(classes.register(buffer), clazz);
+	}
+
+	public byte[] instrument(ClassNode classNode, Class<?> clazz) {
+		if (!isClass(classNode)) {
+			return null;
 		}
-		return classNode;
-	}
+		Task task = needsBridging(classNode, clazz)
+			? new BridgedTask(config, classes, classNode)
+			: new DefaultTask(config, classes, classNode);
 
-	private ClassNode fetchClassNode(byte[] buffer) {
-		ClassReader cr = new ClassReader(buffer);
-		ClassNode classNode = new ClassNode();
+		task.logSkippedSnapshotMethods();
 
-		cr.accept(classNode, 0);
-		classCache.put(classNode.name, classNode);
-		return classNode;
-	}
+		task.registerCallbacks();
 
-	private MethodNode fetchMethodNode(ClassNode classNode, String methodName, String methodDesc) throws IOException, NoSuchMethodException {
-		ClassNode currentClassNode = classNode;
-		Set<String> interfaces = new LinkedHashSet<>();
-		while (currentClassNode != null) {
-			for (MethodNode method : currentClassNode.methods) {
-				if (method.name.equals(methodName) && method.desc.equals(methodDesc)) {
-					return method;
-				}
-			}
-			interfaces.addAll(currentClassNode.interfaces);
-			currentClassNode = currentClassNode.superName == null ? null : fetchClassNode(currentClassNode.superName);
-		}
-		for (String interfaceName : interfaces) {
-			currentClassNode = fetchClassNode(interfaceName);
-			for (MethodNode method : currentClassNode.methods) {
-				if (method.name.equals(methodName) && method.desc.equals(methodDesc)) {
-					return method;
-				}
-			}
-		}
-		return null;
-	}
+		task.instrumentSnapshotMethods();
 
-	public byte[] instrument(String className) throws IOException {
-		return instrument(fetchClassNode(className));
-	}
+		task.instrumentInputMethods();
 
-	public byte[] instrument(byte[] buffer) {
-		return instrument(fetchClassNode(buffer));
-	}
+		task.instrumentOutputMethods();
 
-	public byte[] instrument(ClassNode classNode) {
-		if (isClass(classNode)) {
+		task.instrumentNativeInputCalls();
 
-			logSkippedSnapshotMethods(classNode);
-
-			instrumentStaticInitializer(classNode);
-
-			instrumentSnapshotMethods(classNode);
-
-			instrumentInputMethods(classNode);
-
-			instrumentOutputMethods(classNode);
-
-			instrumentInputCalls(classNode);
-
-			instrumentOutputCalls(classNode);
-		}
+		task.instrumentNativeOutputCalls();
 
 		ClassWriter out = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
 		classNode.accept(out);
@@ -190,350 +169,535 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		return (classNode.access & (ACC_INTERFACE | ACC_ANNOTATION)) == 0;
 	}
 
-	private void logSkippedSnapshotMethods(ClassNode classNode) {
-		for (MethodNode methodNode : getSkippedSnapshotMethods(classNode)) {
-			System.err.println("method " + Type.getMethodType(methodNode.desc).getDescriptor() + " in " + Type.getType(classNode.name) + " is not accessible, skipping");
+	private boolean needsBridging(ClassNode classNode, Class<?> clazz) {
+		if (clazz != null && clazz.getClassLoader() == null) {
+			return true;
 		}
+		return false;
 	}
 
-	private void instrumentStaticInitializer(ClassNode classNode) {
-		for (MethodNode methodNode : getSnapshotMethods(classNode)) {
-			SnapshotManager.MANAGER.registerRecordedMethod(keySignature(classNode, methodNode), classNode.name, methodNode.name, methodNode.desc);
+	public static abstract class Task {
+
+		private TestRecorderAgentConfig config;
+		private ClassNodeManager classes;
+		
+		protected ClassNode classNode;
+
+
+		public Task(TestRecorderAgentConfig config, ClassNodeManager classes, ClassNode classNode) {
+			this.config = config;
+			this.classes = classes;
+			this.classNode = classNode;
 		}
-		for (FieldNode fieldNode : getGlobalFields(classNode)) {
-			SnapshotManager.MANAGER.registerGlobal(classNode.name, fieldNode.name);
+
+		public void logSkippedSnapshotMethods() {
+			for (MethodNode methodNode : getSkippedSnapshotMethods()) {
+				System.err.println("method " + Type.getMethodType(methodNode.desc).getDescriptor() + " in " + Type.getType(classNode.name) + " is not accessible, skipping");
+			}
 		}
-	}
 
-	private void instrumentSnapshotMethods(ClassNode classNode) {
-		for (MethodNode method : getSnapshotMethods(classNode)) {
-			instrumentSnapshotMethod(classNode, method);
+		public void registerCallbacks() {
+			for (MethodNode methodNode : getSnapshotMethods()) {
+				SnapshotManager.MANAGER.registerRecordedMethod(keySignature(classNode, methodNode), classNode.name, methodNode.name, methodNode.desc);
+			}
+			for (FieldNode fieldNode : getGlobalFields()) {
+				SnapshotManager.MANAGER.registerGlobal(classNode.name, fieldNode.name);
+			}
 		}
-	}
 
-	protected void instrumentSnapshotMethod(ClassNode classNode, MethodNode methodNode) {
-		methodNode.instructions = new WrapWithTryCatch(methodNode)
-			.before(setupVariables(classNode, methodNode))
-			.after(expectVariables(classNode, methodNode))
-			.handler(throwVariables(classNode, methodNode))
-			.build(new MethodContext(classNode, methodNode));
-	}
-
-	private void instrumentInputMethods(ClassNode classNode) {
-		for (MethodNode method : getJavaInputMethods(classNode)) {
-			instrumentInputMethod(classNode, method);
+		private void instrumentSnapshotMethods() {
+			for (MethodNode method : getSnapshotMethods()) {
+				instrumentSnapshotMethod(method);
+			}
 		}
-	}
 
-	protected void instrumentInputMethod(ClassNode classNode, MethodNode methodNode) {
-		methodNode.instructions = new WrapMethod()
-			.prepend(inputVariables(classNode, methodNode))
-			.append(inputArgumentsAndResult(classNode, methodNode))
-			.build(new MethodContext(classNode, methodNode));
-	}
+		protected void instrumentSnapshotMethod(MethodNode methodNode) {
+			methodNode.instructions = new WrapWithTryCatch(methodNode)
+				.before(setupVariables(methodNode))
+				.after(expectVariables(methodNode))
+				.handler(throwVariables(methodNode))
+				.build(new MethodContext(classNode, methodNode));
+		}
 
-	protected SequenceInstruction inputVariables(ClassNode classNode, MethodNode methodNode) {
-		return new Assign("inputId", Type.INT_TYPE)
-			.value(new InvokeVirtual(SnapshotManager.class, "inputVariables", StackTraceElement[].class, Object.class, String.class, java.lang.reflect.Type.class, java.lang.reflect.Type[].class)
+		protected SequenceInstruction setupVariables(MethodNode methodNode) {
+			return new InvokeVirtual(SnapshotManager.class, "setupVariables", Object.class, String.class, Object[].class)
 				.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-				.withArgument(0, new GetStackTrace())
-				.withArgument(1, new GetThisOrNull())
-				.withArgument(2, new Ldc(methodNode.name))
-				.withArgument(3, new WrapResultType())
-				.withArgument(4, new WrapArgumentTypes()));
-	}
-
-	protected SequenceInstruction inputArgumentsAndResult(ClassNode classNode, MethodNode methodNode) {
-		if (returnsResult(methodNode)) {
-			return Sequence.start()
-				.then(new MemoizeBoxed("returnValue", Type.getReturnType(methodNode.desc)))
-				.then(new InvokeVirtual(SnapshotManager.class, "inputArguments", int.class, Object[].class)
-					.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-					.withArgument(0, new Recall("inputId"))
-					.withArgument(1, new WrapArguments()))
-				.then(new InvokeVirtual(SnapshotManager.class, "inputResult", int.class, Object.class)
-					.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-					.withArgument(0, new Recall("inputId"))
-					.withArgument(1, new Recall("returnValue")));
-		} else {
-			return Sequence.start()
-				.then(new InvokeVirtual(SnapshotManager.class, "inputArguments", int.class, Object[].class)
-					.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-					.withArgument(0, new Recall("inputId"))
-					.withArgument(1, new WrapArguments()));
+				.withArgument(0, new GetThisOrNull())
+				.withArgument(1, new Ldc(keySignature(classNode, methodNode)))
+				.withArgument(2, new WrapArguments());
 		}
-	}
 
-	private void instrumentOutputMethods(ClassNode classNode) {
-		for (MethodNode method : getJavaOutputMethods(classNode)) {
-			instrumentOutputMethod(classNode, method);
+		protected SequenceInstruction expectVariables(MethodNode methodNode) {
+			if (returnsResult(methodNode)) {
+				return Sequence.start()
+					.then(new MemoizeBoxed("returnValue", Type.getReturnType(methodNode.desc)))
+					.then(new InvokeVirtual(SnapshotManager.class, "expectVariables", Object.class, String.class, Object.class, Object[].class)
+						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+						.withArgument(0, new GetThisOrNull())
+						.withArgument(1, new Ldc(keySignature(classNode, methodNode)))
+						.withArgument(2, new Recall("returnValue"))
+						.withArgument(3, new WrapArguments()));
+			} else {
+				return Sequence.start()
+					.then(new InvokeVirtual(SnapshotManager.class, "expectVariables", Object.class, String.class, Object[].class)
+						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+						.withArgument(0, new GetThisOrNull())
+						.withArgument(1, new Ldc(keySignature(classNode, methodNode)))
+						.withArgument(2, new WrapArguments()));
+			}
 		}
-	}
 
-	protected void instrumentOutputMethod(ClassNode classNode, MethodNode methodNode) {
-		methodNode.instructions = new WrapMethod()
-			.prepend(outputVariables(classNode, methodNode))
-			.append(outputResult(classNode, methodNode))
-			.build(new MethodContext(classNode, methodNode));
-	}
-
-	protected SequenceInstruction outputVariables(ClassNode classNode, MethodNode methodNode) {
-		return Sequence.start()
-			.then(new Assign("outputId", Type.INT_TYPE)
-				.value(new InvokeVirtual(SnapshotManager.class, "outputVariables", StackTraceElement[].class, Object.class, String.class, java.lang.reflect.Type.class, java.lang.reflect.Type[].class)
+		protected SequenceInstruction throwVariables(MethodNode methodNode) {
+			return Sequence.start()
+				.then(new MemoizeBoxed("throwable", Type.getType(Throwable.class)))
+				.then(new InvokeVirtual(SnapshotManager.class, "throwVariables", Throwable.class, Object.class, String.class, Object[].class)
 					.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-					.withArgument(0, new GetStackTrace())
+					.withArgument(0, new Recall("throwable"))
 					.withArgument(1, new GetThisOrNull())
-					.withArgument(2, new Ldc(methodNode.name))
-					.withArgument(3, new WrapResultType())
-					.withArgument(4, new WrapArgumentTypes())))
-			.then(new InvokeVirtual(SnapshotManager.class, "outputArguments", int.class, Object[].class)
-				.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-				.withArgument(0, new Recall("outputId"))
-				.withArgument(1, new WrapArguments()));
-	}
+					.withArgument(2, new Ldc(keySignature(classNode, methodNode)))
+					.withArgument(3, new WrapArguments()));
+		}
 
-	protected SequenceInstruction outputResult(ClassNode classNode, MethodNode methodNode) {
-		if (returnsResult(methodNode)) {
+		public void instrumentInputMethods() {
+			for (MethodNode method : getJavaInputMethods()) {
+				instrumentInputMethod(method);
+			}
+		}
+
+		protected void instrumentInputMethod(MethodNode methodNode) {
+			methodNode.instructions = new WrapMethod()
+				.prepend(inputVariables(methodNode))
+				.append(inputArgumentsAndResult(methodNode))
+				.build(new MethodContext(classNode, methodNode));
+		}
+
+		protected abstract SequenceInstruction inputArgumentsAndResult(MethodNode methodNode);
+
+		protected abstract SequenceInstruction inputVariables(MethodNode methodNode);
+
+		public void instrumentOutputMethods() {
+			for (MethodNode method : getJavaOutputMethods()) {
+				instrumentOutputMethod(method);
+			}
+		}
+
+		protected void instrumentOutputMethod(MethodNode methodNode) {
+			methodNode.instructions = new WrapMethod()
+				.prepend(outputVariables(methodNode))
+				.append(outputResult(methodNode))
+				.build(new MethodContext(classNode, methodNode));
+		}
+
+		protected abstract SequenceInstruction outputVariables(MethodNode methodNode);
+
+		protected abstract SequenceInstruction outputResult(MethodNode methodNode);
+
+		private void instrumentNativeInputCalls() {
+			for (MethodNode method : classNode.methods) {
+				if (!isInputMethod(classNode, method)) {
+					MethodContext context = new MethodContext(classNode, method);
+					for (MethodInsnNode inputCall : getNativeInputCalls(method)) {
+						method.instructions.insertBefore(inputCall, beforeNativeInputCall(context, inputCall));
+						method.instructions.insert(inputCall, afterNativeInputCall(context, inputCall));
+					}
+				}
+			}
+		}
+
+		protected InsnList beforeNativeInputCall(MethodContext context, MethodInsnNode inputCall) {
 			return Sequence.start()
-				.then(new MemoizeBoxed("returnValue", Type.getReturnType(methodNode.desc)))
-				.then(new InvokeVirtual(SnapshotManager.class, "outputResult", int.class, Object.class)
+				.then(new CaptureCall(inputCall, "base", "arguments"))
+				.then(new Assign("inputId", Type.INT_TYPE)
+					.value(
+						new InvokeVirtual(SnapshotManager.class, "inputVariables", StackTraceElement[].class, Object.class, String.class, java.lang.reflect.Type.class, java.lang.reflect.Type[].class)
+							.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+							.withArgument(0, new GetStackTrace())
+							.withArgument(1, new Recall("base"))
+							.withArgument(2, new GetInvokedMethodName(inputCall))
+							.withArgument(3, new GetInvokedMethodResultType(inputCall))
+							.withArgument(4, new GetInvokedMethodArgumentTypes(inputCall))))
+				.build(context);
+		}
+
+		protected InsnList afterNativeInputCall(MethodContext context, MethodInsnNode inputCall) {
+			if (returnsResult(inputCall)) {
+				return Sequence.start()
+					.then(new MemoizeBoxed("returnValue", Type.getReturnType(inputCall.desc)))
+					.then(new InvokeVirtual(SnapshotManager.class, "inputArguments", int.class, Object[].class)
+						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+						.withArgument(0, new Recall("inputId"))
+						.withArgument(1, new Recall("arguments")))
+					.then(new InvokeVirtual(SnapshotManager.class, "inputResult", int.class, Object.class)
+						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+						.withArgument(0, new Recall("inputId"))
+						.withArgument(1, new Recall("returnValue")))
+					.build(context);
+			} else {
+				return Sequence.start()
+					.then(new InvokeVirtual(SnapshotManager.class, "inputArguments", int.class, Object[].class)
+						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+						.withArgument(0, new Recall("inputId"))
+						.withArgument(1, new WrapArguments()))
+					.build(context);
+			}
+		}
+
+		private void instrumentNativeOutputCalls() {
+			for (MethodNode method : classNode.methods) {
+				if (!isOutputMethod(classNode, method)) {
+					MethodContext context = new MethodContext(classNode, method);
+					for (MethodInsnNode outputCall : getNativeOutputCalls(method)) {
+						method.instructions.insertBefore(outputCall, beforeNativeOutputCall(context, outputCall));
+						method.instructions.insert(outputCall, afterNativeOutputCall(context, outputCall));
+					}
+				}
+			}
+		}
+
+		protected InsnList beforeNativeOutputCall(MethodContext context, MethodInsnNode inputCall) {
+			return Sequence.start()
+				.then(new CaptureCall(inputCall, "base", "arguments"))
+				.then(new Assign("outputId", Type.INT_TYPE)
+					.value(
+						new InvokeVirtual(SnapshotManager.class, "outputVariables", StackTraceElement[].class, Object.class, String.class, java.lang.reflect.Type.class, java.lang.reflect.Type[].class)
+							.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+							.withArgument(0, new GetStackTrace())
+							.withArgument(1, new Recall("base"))
+							.withArgument(2, new GetInvokedMethodName(inputCall))
+							.withArgument(3, new GetInvokedMethodResultType(inputCall))
+							.withArgument(4, new GetInvokedMethodArgumentTypes(inputCall))))
+				.then(new InvokeVirtual(SnapshotManager.class, "outputArguments", int.class, Object[].class)
 					.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
 					.withArgument(0, new Recall("outputId"))
-					.withArgument(1, new Recall("returnValue")));
-		} else {
-			return Nop.NOP;
+					.withArgument(1, new WrapArguments()))
+				.build(context);
 		}
-	}
 
-	private void instrumentInputCalls(ClassNode classNode) {
-		for (MethodNode method : classNode.methods) {
-			if (!isInputMethod(classNode, method)) {
-				for (MethodInsnNode inputCall : getNativeInputCalls(method)) {
-					System.out.println(ByteCode.print(inputCall));
-				}
+		protected InsnList afterNativeOutputCall(MethodContext context, MethodInsnNode inputCall) {
+			if (returnsResult(inputCall)) {
+				return Sequence.start()
+					.then(new MemoizeBoxed("returnValue", Type.getReturnType(inputCall.desc)))
+					.then(new InvokeVirtual(SnapshotManager.class, "outputResult", int.class, Object.class)
+						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+						.withArgument(0, new Recall("outputId"))
+						.withArgument(1, new Recall("returnValue")))
+					.build(context);
+			} else {
+				return new InsnList();
 			}
 		}
-	}
 
-	private void instrumentOutputCalls(ClassNode classNode) {
-		for (MethodNode method : classNode.methods) {
-			if (!isOutputMethod(classNode, method)) {
-				for (MethodInsnNode outputCall : getNativeOutputCalls(method)) {
-					System.out.println(ByteCode.print(outputCall));
-				}
+		private List<MethodNode> getSkippedSnapshotMethods() {
+			return classNode.methods.stream()
+				.filter(method -> isSnapshotMethod(method))
+				.filter(method -> !isVisible(classNode) || !isVisible(method))
+				.collect(toList());
+		}
+
+		private List<FieldNode> getGlobalFields() {
+			if (!isVisible(classNode)) {
+				return Collections.emptyList();
 			}
+			return classNode.fields.stream()
+				.filter(field -> isGlobalField(classNode.name, field))
+				.filter(field -> isVisible(field))
+				.collect(toList());
 		}
-	}
 
-	private List<MethodNode> getSnapshotMethods(ClassNode classNode) {
-		if (!isVisible(classNode)) {
-			return Collections.emptyList();
+		private List<MethodNode> getSnapshotMethods() {
+			if (!isVisible(classNode)) {
+				return Collections.emptyList();
+			}
+			return classNode.methods.stream()
+				.filter(method -> isSnapshotMethod(method))
+				.filter(method -> isVisible(method))
+				.collect(toList());
 		}
-		return classNode.methods.stream()
-			.filter(method -> isSnapshotMethod(method))
-			.filter(method -> isVisible(method))
-			.collect(toList());
-	}
 
-	private List<MethodNode> getJavaInputMethods(ClassNode classNode) {
-		if (!isVisible(classNode)) {
-			return Collections.emptyList();
+		private List<MethodNode> getJavaInputMethods() {
+			if (!isVisible(classNode)) {
+				return Collections.emptyList();
+			}
+			return classNode.methods.stream()
+				.filter(method -> isJavaInputMethod(classNode, method))
+				.collect(toList());
 		}
-		return classNode.methods.stream()
-			.filter(method -> isJavaInputMethod(classNode, method))
-			.collect(toList());
-	}
 
-	private List<MethodInsnNode> getNativeInputCalls(MethodNode methodNode) {
-		List<MethodInsnNode> calls = new ArrayList<>();
-		ListIterator<AbstractInsnNode> instructions = methodNode.instructions.iterator();
-		while (instructions.hasNext()) {
-			AbstractInsnNode insn = instructions.next();
-			if (insn instanceof MethodInsnNode) {
-				MethodInsnNode methodinsn = (MethodInsnNode) insn;
-				try {
-					ClassNode calledClassNode = fetchClassNode(methodinsn.owner);
-					MethodNode calledMethodNode = fetchMethodNode(calledClassNode, methodinsn.name, methodinsn.desc);
-					if (isNativeInputMethod(calledClassNode, calledMethodNode)) {
-						calls.add(methodinsn);
+		private List<MethodNode> getJavaOutputMethods() {
+			if (!isVisible(classNode)) {
+				return Collections.emptyList();
+			}
+			return classNode.methods.stream()
+				.filter(method -> isJavaOutputMethod(classNode, method))
+				.collect(toList());
+		}
 
+		private List<MethodInsnNode> getNativeInputCalls(MethodNode methodNode) {
+			List<MethodInsnNode> calls = new ArrayList<>();
+			ListIterator<AbstractInsnNode> instructions = methodNode.instructions.iterator();
+			while (instructions.hasNext()) {
+				AbstractInsnNode insn = instructions.next();
+				if (insn instanceof MethodInsnNode) {
+					MethodInsnNode methodinsn = (MethodInsnNode) insn;
+					try {
+						ClassNode calledClassNode = classes.fetch(methodinsn.owner);
+						MethodNode calledMethodNode = classes.fetch(calledClassNode, methodinsn.name, methodinsn.desc);
+						if (isNativeInputMethod(calledClassNode, calledMethodNode)) {
+							calls.add(methodinsn);
+
+						}
+					} catch (IOException | NoSuchMethodException e) {
+						System.err.println("cannot load method " + methodinsn.owner + "." + methodinsn.name + methodinsn.desc);
+						e.printStackTrace(System.err);
 					}
-				} catch (IOException | NoSuchMethodException e) {
-					System.err.println("cannot load method " + methodinsn.owner + "." + methodinsn.name + methodinsn.desc);
-					e.printStackTrace(System.err);
 				}
 			}
+			return calls;
 		}
-		return calls;
-	}
 
-	private List<MethodNode> getJavaOutputMethods(ClassNode classNode) {
-		if (!isVisible(classNode)) {
-			return Collections.emptyList();
-		}
-		return classNode.methods.stream()
-			.filter(method -> isJavaOutputMethod(classNode, method))
-			.collect(toList());
-	}
+		private List<MethodInsnNode> getNativeOutputCalls(MethodNode methodNode) {
+			List<MethodInsnNode> calls = new ArrayList<>();
+			ListIterator<AbstractInsnNode> instructions = methodNode.instructions.iterator();
+			while (instructions.hasNext()) {
+				AbstractInsnNode insn = instructions.next();
+				if (insn instanceof MethodInsnNode) {
+					MethodInsnNode methodinsn = (MethodInsnNode) insn;
+					try {
+						ClassNode calledClassNode = classes.fetch(methodinsn.owner);
+						MethodNode calledMethodNode = classes.fetch(calledClassNode, methodinsn.name, methodinsn.desc);
+						if (isNativeOutputMethod(calledClassNode, calledMethodNode)) {
+							calls.add(methodinsn);
 
-	private List<MethodInsnNode> getNativeOutputCalls(MethodNode methodNode) {
-		List<MethodInsnNode> calls = new ArrayList<>();
-		ListIterator<AbstractInsnNode> instructions = methodNode.instructions.iterator();
-		while (instructions.hasNext()) {
-			AbstractInsnNode insn = instructions.next();
-			if (insn instanceof MethodInsnNode) {
-				MethodInsnNode methodinsn = (MethodInsnNode) insn;
-				try {
-					ClassNode calledClassNode = fetchClassNode(methodinsn.owner);
-					MethodNode calledMethodNode = fetchMethodNode(calledClassNode, methodinsn.name, methodinsn.desc);
-					if (isNativeOutputMethod(calledClassNode, calledMethodNode)) {
-						calls.add(methodinsn);
-
+						}
+					} catch (IOException | NoSuchMethodException e) {
+						System.err.println("cannot load method " + methodinsn.owner + "." + methodinsn.name + methodinsn.desc);
+						e.printStackTrace(System.err);
 					}
-				} catch (IOException | NoSuchMethodException e) {
-					System.err.println("cannot load method " + methodinsn.owner + "." + methodinsn.name + methodinsn.desc);
-					e.printStackTrace(System.err);
 				}
 			}
+			return calls;
 		}
-		return calls;
-	}
 
-	private List<FieldNode> getGlobalFields(ClassNode classNode) {
-		if (!isVisible(classNode)) {
-			return Collections.emptyList();
+		private boolean isGlobalField(String className, FieldNode fieldNode) {
+			return fieldNode.visibleAnnotations != null && fieldNode.visibleAnnotations.stream()
+				.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Global.class)))
+				|| config.getGlobalFields().stream()
+					.anyMatch(field -> matches(field, className, fieldNode.name, fieldNode.desc));
 		}
-		return classNode.fields.stream()
-			.filter(field -> isGlobalField(classNode.name, field))
-			.filter(field -> isVisible(field))
-			.collect(toList());
-	}
 
-	private List<MethodNode> getSkippedSnapshotMethods(ClassNode classNode) {
-		return classNode.methods.stream()
-			.filter(method -> isSnapshotMethod(method))
-			.filter(method -> !isVisible(classNode) || !isVisible(method))
-			.collect(toList());
-	}
-
-	private boolean isVisible(ClassNode classNode) {
-		if ((classNode.access & ACC_PRIVATE) != 0) {
-			return false;
+		private boolean isSnapshotMethod(MethodNode methodNode) {
+			if (methodNode.visibleAnnotations == null) {
+				return false;
+			}
+			return methodNode.visibleAnnotations.stream()
+				.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Recorded.class)));
 		}
-		return classNode.innerClasses.stream()
-			.filter(innerClassNode -> innerClassNode.name.equals(classNode.name))
-			.map(innerClassNode -> (innerClassNode.access & ACC_PRIVATE) == 0)
-			.findFirst()
-			.orElse(true);
-	}
 
-	private boolean isSnapshotMethod(MethodNode methodNode) {
-		if (methodNode.visibleAnnotations == null) {
-			return false;
+		protected boolean isJavaInputMethod(ClassNode classNode, MethodNode methodNode) {
+			return !isNative(methodNode)
+				&& isInputMethod(classNode, methodNode);
 		}
-		return methodNode.visibleAnnotations.stream()
-			.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Recorded.class)));
+
+		protected boolean isNativeInputMethod(ClassNode classNode, MethodNode methodNode) {
+			return isNative(methodNode)
+				&& isInputMethod(classNode, methodNode);
+		}
+
+		protected boolean isInputMethod(ClassNode classNode, MethodNode methodNode) {
+			return methodNode.visibleAnnotations != null && methodNode.visibleAnnotations.stream()
+				.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Input.class)))
+				|| config.getInputs().stream()
+					.anyMatch(method -> matches(method, classNode.name, methodNode.name, methodNode.desc));
+		}
+
+		protected boolean isJavaOutputMethod(ClassNode classNode, MethodNode methodNode) {
+			return !isNative(methodNode)
+				&& isOutputMethod(classNode, methodNode);
+		}
+
+		protected boolean isNativeOutputMethod(ClassNode classNode, MethodNode methodNode) {
+			return isNative(methodNode)
+				&& isOutputMethod(classNode, methodNode);
+		}
+
+		protected boolean isOutputMethod(ClassNode classNode, MethodNode methodNode) {
+			return methodNode.visibleAnnotations != null && methodNode.visibleAnnotations.stream()
+				.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Output.class)))
+				|| config.getOutputs().stream()
+					.anyMatch(method -> matches(method, classNode.name, methodNode.name, methodNode.desc));
+		}
+
+		private boolean isVisible(ClassNode classNode) {
+			if ((classNode.access & ACC_PRIVATE) != 0) {
+				return false;
+			}
+			return classNode.innerClasses.stream()
+				.filter(innerClassNode -> innerClassNode.name.equals(classNode.name))
+				.map(innerClassNode -> (innerClassNode.access & ACC_PRIVATE) == 0)
+				.findFirst()
+				.orElse(true);
+		}
+
+		private boolean isVisible(MethodNode methodNode) {
+			return (methodNode.access & ACC_PRIVATE) == 0;
+		}
+
+		private boolean isVisible(FieldNode fieldNode) {
+			return (fieldNode.access & ACC_PRIVATE) == 0;
+		}
+
+		private boolean matches(Fields field, String className, String fieldName, String fieldDescriptor) {
+			return field.matches(className, fieldName, fieldDescriptor);
+		}
+
+		private boolean matches(Methods method, String className, String methodName, String methodDescriptor) {
+			return method.matches(className, methodName, methodDescriptor);
+		}
+
+		private String keySignature(ClassNode classNode, MethodNode methodNode) {
+			return classNode.name + ":" + methodNode.name + methodNode.desc;
+		}
+
 	}
 
-	protected boolean isGlobalField(String className, FieldNode fieldNode) {
-		return fieldNode.visibleAnnotations != null && fieldNode.visibleAnnotations.stream()
-			.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Global.class)))
-			|| config.getGlobalFields().stream()
-				.anyMatch(field -> matches(field, className, fieldNode.name, fieldNode.desc));
-	}
+	public static class BridgedTask extends Task {
 
-	private boolean isVisible(MethodNode methodNode) {
-		return (methodNode.access & ACC_PRIVATE) == 0;
-	}
+		public BridgedTask(TestRecorderAgentConfig config, ClassNodeManager classes, ClassNode classNode) {
+			super(config, classes, classNode);
+		}
 
-	private boolean isVisible(FieldNode fieldNode) {
-		return (fieldNode.access & ACC_PRIVATE) == 0;
-	}
+		@Override
+		protected SequenceInstruction inputVariables(MethodNode methodNode) {
+			return new Assign("inputId", Type.INT_TYPE)
+				.value(new InvokeStatic(BridgedSnapshotManager.class, "inputVariables", StackTraceElement[].class, Object.class, String.class, java.lang.reflect.Type.class, java.lang.reflect.Type[].class)
+					.withArgument(0, new GetStackTrace())
+					.withArgument(1, new GetThisOrClass())
+					.withArgument(2, new Ldc(methodNode.name))
+					.withArgument(3, new WrapResultType())
+					.withArgument(4, new WrapArgumentTypes()));
+		}
 
-	protected boolean isJavaInputMethod(ClassNode classNode, MethodNode methodNode) {
-		return !isNative(methodNode)
-			&& isInputMethod(classNode, methodNode);
-	}
+		@Override
+		protected SequenceInstruction inputArgumentsAndResult(MethodNode methodNode) {
+			if (returnsResult(methodNode)) {
+				return Sequence.start()
+					.then(new MemoizeBoxed("returnValue", Type.getReturnType(methodNode.desc)))
+					.then(new InvokeStatic(BridgedSnapshotManager.class, "inputArguments", int.class, Object[].class)
+						.withArgument(0, new Recall("inputId"))
+						.withArgument(1, new WrapArguments()))
+					.then(new InvokeStatic(BridgedSnapshotManager.class, "inputResult", int.class, Object.class)
+						.withArgument(0, new Recall("inputId"))
+						.withArgument(1, new Recall("returnValue")));
+			} else {
+				return Sequence.start()
+					.then(new InvokeStatic(BridgedSnapshotManager.class, "inputArguments", int.class, Object[].class)
+						.withArgument(0, new Recall("inputId"))
+						.withArgument(1, new WrapArguments()));
+			}
+		}
 
-	protected boolean isNativeInputMethod(ClassNode classNode, MethodNode methodNode) {
-		return isNative(methodNode)
-			&& isInputMethod(classNode, methodNode);
-	}
-
-	protected boolean isInputMethod(ClassNode classNode, MethodNode methodNode) {
-		return methodNode.visibleAnnotations != null && methodNode.visibleAnnotations.stream()
-			.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Input.class)))
-			|| config.getInputs().stream()
-				.anyMatch(method -> matches(method, classNode.name, methodNode.name, methodNode.desc));
-	}
-
-	protected boolean isJavaOutputMethod(ClassNode classNode, MethodNode methodNode) {
-		return !isNative(methodNode)
-			&& isOutputMethod(classNode, methodNode);
-	}
-
-	protected boolean isNativeOutputMethod(ClassNode classNode, MethodNode methodNode) {
-		return isNative(methodNode)
-			&& isOutputMethod(classNode, methodNode);
-	}
-
-	protected boolean isOutputMethod(ClassNode classNode, MethodNode methodNode) {
-		return methodNode.visibleAnnotations != null && methodNode.visibleAnnotations.stream()
-			.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Output.class)))
-			|| config.getOutputs().stream()
-				.anyMatch(method -> matches(method, classNode.name, methodNode.name, methodNode.desc));
-	}
-
-	private boolean matches(Fields field, String className, String fieldName, String fieldDescriptor) {
-		return field.matches(className, fieldName, fieldDescriptor);
-	}
-
-	private boolean matches(Methods method, String className, String methodName, String methodDescriptor) {
-		return method.matches(className, methodName, methodDescriptor);
-	}
-
-	protected SequenceInstruction setupVariables(ClassNode classNode, MethodNode methodNode) {
-		return new InvokeVirtual(SnapshotManager.class, "setupVariables", Object.class, String.class, Object[].class)
-			.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-			.withArgument(0, new GetThisOrNull())
-			.withArgument(1, new Ldc(keySignature(classNode, methodNode)))
-			.withArgument(2, new WrapArguments());
-	}
-
-	protected SequenceInstruction expectVariables(ClassNode classNode, MethodNode methodNode) {
-		if (returnsResult(methodNode)) {
+		@Override
+		protected SequenceInstruction outputVariables(MethodNode methodNode) {
 			return Sequence.start()
-				.then(new MemoizeBoxed("returnValue", Type.getReturnType(methodNode.desc)))
-				.then(new InvokeVirtual(SnapshotManager.class, "expectVariables", Object.class, String.class, Object.class, Object[].class)
-					.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-					.withArgument(0, new GetThisOrNull())
-					.withArgument(1, new Ldc(keySignature(classNode, methodNode)))
-					.withArgument(2, new Recall("returnValue"))
-					.withArgument(3, new WrapArguments()));
-		} else {
-			return Sequence.start()
-				.then(new InvokeVirtual(SnapshotManager.class, "expectVariables", Object.class, String.class, Object[].class)
-					.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-					.withArgument(0, new GetThisOrNull())
-					.withArgument(1, new Ldc(keySignature(classNode, methodNode)))
-					.withArgument(2, new WrapArguments()));
+				.then(new Assign("outputId", Type.INT_TYPE)
+					.value(new InvokeStatic(BridgedSnapshotManager.class, "outputVariables", StackTraceElement[].class, Object.class, String.class, java.lang.reflect.Type.class,
+						java.lang.reflect.Type[].class)
+							.withArgument(0, new GetStackTrace())
+							.withArgument(1, new GetThisOrClass())
+							.withArgument(2, new Ldc(methodNode.name))
+							.withArgument(3, new WrapResultType())
+							.withArgument(4, new WrapArgumentTypes())))
+				.then(new InvokeStatic(BridgedSnapshotManager.class, "outputArguments", int.class, Object[].class)
+					.withArgument(0, new Recall("outputId"))
+					.withArgument(1, new WrapArguments()));
 		}
+
+		@Override
+		protected SequenceInstruction outputResult(MethodNode methodNode) {
+			if (returnsResult(methodNode)) {
+				return Sequence.start()
+					.then(new MemoizeBoxed("returnValue", Type.getReturnType(methodNode.desc)))
+					.then(new InvokeStatic(BridgedSnapshotManager.class, "outputResult", int.class, Object.class)
+						.withArgument(0, new Recall("outputId"))
+						.withArgument(1, new Recall("returnValue")));
+			} else {
+				return Nop.NOP;
+			}
+		}
+
 	}
 
-	protected SequenceInstruction throwVariables(ClassNode classNode, MethodNode methodNode) {
-		return Sequence.start()
-			.then(new MemoizeBoxed("throwable", Type.getType(Throwable.class)))
-			.then(new InvokeVirtual(SnapshotManager.class, "throwVariables", Throwable.class, Object.class, String.class, Object[].class)
-				.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-				.withArgument(0, new Recall("throwable"))
-				.withArgument(1, new GetThisOrNull())
-				.withArgument(2, new Ldc(keySignature(classNode, methodNode)))
-				.withArgument(3, new WrapArguments()));
-	}
+	public static class DefaultTask extends Task {
 
-	private String keySignature(ClassNode classNode, MethodNode methodNode) {
-		return classNode.name + ":" + methodNode.name + methodNode.desc;
-	}
+		public DefaultTask(TestRecorderAgentConfig config, ClassNodeManager classes, ClassNode classNode) {
+			super(config, classes, classNode);
+		}
 
+		@Override
+		protected SequenceInstruction inputVariables(MethodNode methodNode) {
+			return new Assign("inputId", Type.INT_TYPE)
+				.value(new InvokeVirtual(SnapshotManager.class, "inputVariables", StackTraceElement[].class, Object.class, String.class, java.lang.reflect.Type.class, java.lang.reflect.Type[].class)
+					.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+					.withArgument(0, new GetStackTrace())
+					.withArgument(1, new GetThisOrClass())
+					.withArgument(2, new Ldc(methodNode.name))
+					.withArgument(3, new WrapResultType())
+					.withArgument(4, new WrapArgumentTypes()));
+		}
+
+		@Override
+		protected SequenceInstruction inputArgumentsAndResult(MethodNode methodNode) {
+			if (returnsResult(methodNode)) {
+				return Sequence.start()
+					.then(new MemoizeBoxed("returnValue", Type.getReturnType(methodNode.desc)))
+					.then(new InvokeVirtual(SnapshotManager.class, "inputArguments", int.class, Object[].class)
+						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+						.withArgument(0, new Recall("inputId"))
+						.withArgument(1, new WrapArguments()))
+					.then(new InvokeVirtual(SnapshotManager.class, "inputResult", int.class, Object.class)
+						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+						.withArgument(0, new Recall("inputId"))
+						.withArgument(1, new Recall("returnValue")));
+			} else {
+				return Sequence.start()
+					.then(new InvokeVirtual(SnapshotManager.class, "inputArguments", int.class, Object[].class)
+						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+						.withArgument(0, new Recall("inputId"))
+						.withArgument(1, new WrapArguments()));
+			}
+		}
+
+		@Override
+		protected SequenceInstruction outputVariables(MethodNode methodNode) {
+			return Sequence.start()
+				.then(new Assign("outputId", Type.INT_TYPE)
+					.value(
+						new InvokeVirtual(SnapshotManager.class, "outputVariables", StackTraceElement[].class, Object.class, String.class, java.lang.reflect.Type.class, java.lang.reflect.Type[].class)
+							.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+							.withArgument(0, new GetStackTrace())
+							.withArgument(1, new GetThisOrClass())
+							.withArgument(2, new Ldc(methodNode.name))
+							.withArgument(3, new WrapResultType())
+							.withArgument(4, new WrapArgumentTypes())))
+				.then(new InvokeVirtual(SnapshotManager.class, "outputArguments", int.class, Object[].class)
+					.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+					.withArgument(0, new Recall("outputId"))
+					.withArgument(1, new WrapArguments()));
+		}
+
+		@Override
+		protected SequenceInstruction outputResult(MethodNode methodNode) {
+			if (returnsResult(methodNode)) {
+				return Sequence.start()
+					.then(new MemoizeBoxed("returnValue", Type.getReturnType(methodNode.desc)))
+					.then(new InvokeVirtual(SnapshotManager.class, "outputResult", int.class, Object.class)
+						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+						.withArgument(0, new Recall("outputId"))
+						.withArgument(1, new Recall("returnValue")));
+			} else {
+				return Nop.NOP;
+			}
+		}
+
+	}
 }

@@ -48,6 +48,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.stringtemplate.v4.ST;
@@ -58,6 +59,7 @@ import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
 import net.amygdalum.testrecorder.deserializers.MockedInteractions;
+import net.amygdalum.testrecorder.deserializers.Templates;
 import net.amygdalum.testrecorder.deserializers.TreeAnalyzer;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
@@ -65,6 +67,7 @@ import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerators;
 import net.amygdalum.testrecorder.evaluator.SerializedValueEvaluator;
 import net.amygdalum.testrecorder.hints.AnnotateGroupExpression;
 import net.amygdalum.testrecorder.hints.AnnotateTimestamp;
+import net.amygdalum.testrecorder.runtime.FakeIO;
 import net.amygdalum.testrecorder.runtime.Throwables;
 import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.types.SerializedImmutableType;
@@ -90,16 +93,17 @@ public class TestGenerator implements SnapshotConsumer {
 		+ "\n"
 		+ "  <fields; separator=\"\\n\">\n"
 		+ "\n"
-		+ "  <before>\n"
+		+ "  <setup; separator=\"\\n\">\n"
 		+ "\n"
 		+ "  <methods; separator=\"\\n\">"
 		+ "\n}";
 
-	private static final String BEFORE_TEMPLATE = "@Before\n"
-		+ "public void before() throws Exception {\n"
+	private static final String SETUP_TEMPLATE = "<annotations>\n"
+		+ "public void <name>() throws Exception {\n"
 		+ "  <statements;separator=\"\\n\">\n"
 		+ "}\n";
 
+	
 	private static final String TEST_TEMPLATE = "@Test\n"
 		+ "<annotations:{annotation | <annotation>\n}>"
 		+ "public void test<testName>() throws Exception {\n"
@@ -137,8 +141,10 @@ public class TestGenerator implements SnapshotConsumer {
 		executor.shutdown();
 	}
 
-	public String generateBefore(List<String> statements) {
-		ST test = new ST(BEFORE_TEMPLATE);
+	public String generateSetup(List<String> annotations, String name, List<String> statements) {
+		ST test = new ST(SETUP_TEMPLATE);
+		test.add("annotations", annotations);
+		test.add("name", name);
 		test.add("statements", statements);
 		return test.render();
 	}
@@ -159,7 +165,12 @@ public class TestGenerator implements SnapshotConsumer {
 				thisType = thisType.getEnclosingClass();
 			}
 			ClassDescriptor baseType = ClassDescriptor.of(thisType);
-			TestGeneratorContext context = tests.computeIfAbsent(baseType, key -> new TestGeneratorContext(key));
+			TestGeneratorContext context = getContext(baseType);
+			
+			if (!snapshot.getSetupInput().isEmpty() || !snapshot.getExpectOutput().isEmpty()) {
+				context.addSetup(resetFakeIO(context));
+			}
+			
 			MethodGenerator methodGenerator = new MethodGenerator(context.size(), context.getTypes())
 				.analyze(snapshot)
 				.generateArrange()
@@ -172,6 +183,15 @@ public class TestGenerator implements SnapshotConsumer {
 			e.printStackTrace(System.err);
 			return null;
 		});
+	}
+
+	private String resetFakeIO(TestGeneratorContext context) {
+		TypeManager types = context.getTypes();
+		types.registerTypes(Before.class, After.class, FakeIO.class);
+		
+		List<String> statements = new ArrayList<>();
+		statements.add(Templates.callMethodStatement(types.getRawTypeName(FakeIO.class), "reset"));
+		return generateSetup(asList(annotation(types.getRawTypeName(Before.class)), annotation(types.getRawTypeName(After.class))), "resetFakeIO", statements);
 	}
 
 	public void writeResults(Path dir) {
@@ -220,7 +240,13 @@ public class TestGenerator implements SnapshotConsumer {
 	}
 
 	public TestGeneratorContext getContext(ClassDescriptor clazz) {
-		return tests.getOrDefault(clazz, new TestGeneratorContext(clazz));
+		return tests.computeIfAbsent(clazz, this::newContext);
+	}
+
+	public TestGeneratorContext newContext(ClassDescriptor clazz) {
+		TestGeneratorContext context = new TestGeneratorContext(clazz);
+		initializer(context).ifPresent(context::addSetup);
+		return context;
 	}
 
 	public String renderTest(Class<?> clazz) {
@@ -234,14 +260,14 @@ public class TestGenerator implements SnapshotConsumer {
 		file.add("package", context.getPackage());
 		file.add("className", computeClassName(clazz));
 		file.add("fields", fields);
-		file.add("before", computeBefore(context));
+		file.add("setup", context.getSetups());
 		file.add("methods", context.getTests());
 		file.add("imports", context.getImports());
 
 		return file.render();
 	}
 
-	private String computeBefore(TestGeneratorContext context) {
+	private Optional<String> initializer(TestGeneratorContext context) {
 		TypeManager types = context.getTypes();
 		types.registerType(Before.class);
 
@@ -254,7 +280,11 @@ public class TestGenerator implements SnapshotConsumer {
 			String initStmt = callMethodStatement(initObject, "run");
 			statements.add(initStmt);
 		}
-		return generateBefore(statements);
+		if (statements.isEmpty()) {
+			return Optional.empty();
+		} else {
+			return Optional.of(generateSetup(asList(annotation(types.getRawTypeName(Before.class))), "initialize", statements));
+		}
 	}
 
 	public String computeClassName(ClassDescriptor clazz) {

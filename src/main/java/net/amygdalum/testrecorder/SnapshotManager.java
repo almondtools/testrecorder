@@ -4,6 +4,14 @@ import static java.lang.Thread.currentThread;
 import static net.amygdalum.testrecorder.SnapshotProcess.PASSIVE;
 import static net.amygdalum.testrecorder.TestrecorderThreadFactory.RECORDING;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.instrument.Instrumentation;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayDeque;
@@ -13,8 +21,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 
+import net.amygdalum.testrecorder.bridge.BridgedSnapshotManager;
 import net.amygdalum.testrecorder.profile.SerializationProfile;
+import net.amygdalum.testrecorder.runtime.FakeIO;
+import net.bytebuddy.agent.ByteBuddyAgent;
 
 public class SnapshotManager {
 
@@ -29,12 +44,61 @@ public class SnapshotManager {
 
 	private TestRecorderAgentConfig config;
 
+	static {
+		Instrumentation inst = ByteBuddyAgent.install();
+		installBridge(inst);
+	}
+	
 	public SnapshotManager(TestRecorderAgentConfig config) {
 		this.config = new FixedTestRecorderAgentConfig(config);
 
 		this.snapshot = Executors.newSingleThreadExecutor(new TestrecorderThreadFactory("$snapshot"));
 		this.methodSnapshots = new HashMap<>();
 		this.globalContext = new GlobalContext();
+	}
+
+	private static void installBridge(Instrumentation inst) {
+		try {
+			inst.appendToBootstrapClassLoaderSearch(jarfile());
+			BridgedSnapshotManager.inputVariables = MethodHandles.lookup().findVirtual(SnapshotManager.class, "inputVariables",
+				MethodType.methodType(int.class, StackTraceElement[].class, Object.class, String.class, Type.class, Type[].class));
+			BridgedSnapshotManager.inputArguments = MethodHandles.lookup().findVirtual(SnapshotManager.class, "inputArguments",
+				MethodType.methodType(void.class, int.class, Object[].class));
+			BridgedSnapshotManager.inputResult = MethodHandles.lookup().findVirtual(SnapshotManager.class, "inputResult",
+				MethodType.methodType(void.class, int.class, Object.class));
+			BridgedSnapshotManager.outputVariables = MethodHandles.lookup().findVirtual(SnapshotManager.class, "outputVariables",
+				MethodType.methodType(int.class, StackTraceElement[].class, Object.class, String.class, Type.class, Type[].class));
+			BridgedSnapshotManager.outputArguments = MethodHandles.lookup().findVirtual(SnapshotManager.class, "outputArguments",
+				MethodType.methodType(void.class, int.class, Object[].class));
+			BridgedSnapshotManager.outputResult = MethodHandles.lookup().findVirtual(SnapshotManager.class, "outputResult",
+				MethodType.methodType(void.class, int.class, Object.class));
+		} catch (ReflectiveOperationException | IOException e) {
+			throw new RuntimeException("failed installing fake bridge", e);
+		}
+	}
+	
+	private static JarFile jarfile() throws IOException {
+		String bridge = "net/amygdalum/testrecorder/bridge/BridgedSnapshotManager.class";
+		InputStream resourceStream = FakeIO.class.getResourceAsStream("/" + bridge);
+		if (resourceStream == null) {
+			throw new FileNotFoundException(bridge);
+		}
+		try (InputStream inputStream = resourceStream) {
+			File agentJar = File.createTempFile("agent", "jar");
+			agentJar.deleteOnExit();
+			Manifest manifest = new Manifest();
+			try (JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(agentJar), manifest)) {
+
+				jarOutputStream.putNextEntry(new JarEntry(bridge));
+				byte[] buffer = new byte[4096];
+				int index;
+				while ((index = inputStream.read(buffer)) != -1) {
+					jarOutputStream.write(buffer, 0, index);
+				}
+				jarOutputStream.closeEntry();
+			}
+			return new JarFile(agentJar);
+		}
 	}
 
 	public void close() throws Throwable {
@@ -47,6 +111,7 @@ public class SnapshotManager {
 
 	public static SnapshotManager init(TestRecorderAgentConfig config) {
 		MANAGER = new SnapshotManager(config);
+		BridgedSnapshotManager.MANAGER = MANAGER;
 		return MANAGER;
 	}
 

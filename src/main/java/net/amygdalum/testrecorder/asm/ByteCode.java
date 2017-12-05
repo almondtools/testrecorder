@@ -13,6 +13,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.LocalVariableNode;
+import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.util.Printer;
 import org.objectweb.asm.util.Textifier;
@@ -64,6 +65,10 @@ public final class ByteCode {
 	}
 
 	public static boolean returnsResult(MethodNode methodNode) {
+		return Type.getReturnType(methodNode.desc).getSize() > 0;
+	}
+
+	public static boolean returnsResult(MethodInsnNode methodNode) {
 		return Type.getReturnType(methodNode.desc).getSize() > 0;
 	}
 

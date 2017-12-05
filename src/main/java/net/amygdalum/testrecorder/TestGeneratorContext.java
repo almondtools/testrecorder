@@ -11,10 +11,12 @@ import net.amygdalum.testrecorder.deserializers.TypeManager;
 public class TestGeneratorContext {
 
 	private TypeManager types;
+	private Set<String> setups;
 	private Set<String> tests;
 	
 	public TestGeneratorContext(ClassDescriptor key) {
 		this.types = new TypeManager(key.getPackage());
+		this.setups = new LinkedHashSet<>();
 		this.tests = new LinkedHashSet<>();
 
 		types.registerTypes(Test.class);
@@ -27,6 +29,10 @@ public class TestGeneratorContext {
 	public TypeManager getTypes() {
 		return types;
 	}
+	
+	public Set<String> getSetups() {
+		return setups;
+	}
 
 	public synchronized Set<String> getTests() {
 		return tests;
@@ -38,6 +44,10 @@ public class TestGeneratorContext {
 
 	public synchronized int size() {
 		return tests.size();
+	}
+
+	public synchronized void addSetup(String setup) {
+		setups.add(setup);
 	}
 
 	public synchronized void add(String test) {
