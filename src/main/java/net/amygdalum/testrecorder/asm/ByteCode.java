@@ -76,6 +76,10 @@ public final class ByteCode {
 		return type.getDescriptor().length() == 1;
 	}
 
+	public static boolean isArray(Type type) {
+		return type.getSort() == Type.ARRAY;
+	}
+	
 	public static List<LocalVariableNode> range(List<LocalVariableNode> locals, int start, int length) {
 		return locals.stream()
 			.sorted(comparingInt(local -> local.index))
@@ -141,10 +145,8 @@ public final class ByteCode {
 
 	public static Class<?> classFrom(Type type, ClassLoader loader) {
 		try {
-			int arrayDimensions = 0;
-			
-			if (type.getSort() == Type.ARRAY) {
-				arrayDimensions +=type.getDimensions();
+			int arrayDimensions = isArray(type) ? type.getDimensions() : 0;
+			if (isArray(type)) {
 				type = type.getElementType();
 			}
 			PrimitiveTypeInfo primitive = primitive(type.getSort());

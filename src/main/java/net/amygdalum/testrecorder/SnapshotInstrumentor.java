@@ -30,6 +30,7 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import net.amygdalum.testrecorder.asm.Assign;
+import net.amygdalum.testrecorder.asm.ByteCode;
 import net.amygdalum.testrecorder.asm.CaptureCall;
 import net.amygdalum.testrecorder.asm.GetInvokedMethodArgumentTypes;
 import net.amygdalum.testrecorder.asm.GetInvokedMethodName;
@@ -440,6 +441,10 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 				if (insn instanceof MethodInsnNode) {
 					MethodInsnNode methodinsn = (MethodInsnNode) insn;
 					try {
+						Type type = Type.getType(methodinsn.owner);
+						if (ByteCode.isPrimitive(type) || ByteCode.isArray(type)) {
+							continue;
+						}
 						ClassNode calledClassNode = classes.fetch(methodinsn.owner);
 						MethodNode calledMethodNode = classes.fetch(calledClassNode, methodinsn.name, methodinsn.desc);
 						if (isNativeInputMethod(calledClassNode, calledMethodNode)) {
@@ -463,6 +468,10 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 				if (insn instanceof MethodInsnNode) {
 					MethodInsnNode methodinsn = (MethodInsnNode) insn;
 					try {
+						Type type = Type.getType(methodinsn.owner);
+						if (ByteCode.isPrimitive(type) || ByteCode.isArray(type)) {
+							continue;
+						}
 						ClassNode calledClassNode = classes.fetch(methodinsn.owner);
 						MethodNode calledMethodNode = classes.fetch(calledClassNode, methodinsn.name, methodinsn.desc);
 						if (isNativeOutputMethod(calledClassNode, calledMethodNode)) {
