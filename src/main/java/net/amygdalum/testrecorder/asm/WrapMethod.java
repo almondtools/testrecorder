@@ -46,7 +46,7 @@ public class WrapMethod implements SequenceInstruction {
 
 		insnList.add(prependInstructions.build(context));
 
-		ListIterator<AbstractInsnNode> instructions = context.getMethodNode().instructions.iterator();
+		ListIterator<AbstractInsnNode> instructions = context.instructions().iterator();
 		while (instructions.hasNext()) {
 			AbstractInsnNode insn = instructions.next();
 			if (returnLabel != null && isReturn(insn)) {

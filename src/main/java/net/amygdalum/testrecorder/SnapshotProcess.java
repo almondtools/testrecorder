@@ -3,6 +3,7 @@ package net.amygdalum.testrecorder;
 import static java.lang.System.identityHashCode;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +20,7 @@ import java.util.function.Consumer;
 
 import net.amygdalum.testrecorder.profile.SerializationProfile;
 import net.amygdalum.testrecorder.serializers.SerializerFacade;
+import net.amygdalum.testrecorder.util.Types;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedInput;
 import net.amygdalum.testrecorder.values.SerializedOutput;
@@ -59,7 +61,7 @@ public class SnapshotProcess {
 	private StackTraceElement[] call(StackTraceElement[] stackTrace, Class<?> clazz, String methodName) {
 		for (int i = 0; i < stackTrace.length; i++) {
 			StackTraceElement caller = stackTrace[i];
-			if (methodName.equals(caller.getMethodName())) {
+			if (matches(clazz, methodName, caller)) {
 				return Arrays.copyOfRange(stackTrace, i, stackTrace.length);
 			}
 		}
@@ -67,6 +69,14 @@ public class SnapshotProcess {
 		System.arraycopy(stackTrace, 0, call, 1, stackTrace.length);
 		call[0] = new StackTraceElement(clazz.getName(), methodName, "?", -1);
 		return call;
+	}
+
+	private boolean matches(Class<?> clazz, String methodName, StackTraceElement caller) {
+		if (!caller.getMethodName().equals(methodName)) {
+			return false;
+		}
+		List<Method> qualifyingMethods = Types.getDeclaredMethods(clazz, methodName);
+		return qualifyingMethods.stream().anyMatch(method -> method.getName().equals(caller.getMethodName()) && method.getDeclaringClass().getName().equals(caller.getClassName()));
 	}
 
 	public int inputVariables(StackTraceElement[] stackTrace, Object object, String method, Type resultType, Type[] paramTypes) {

@@ -33,6 +33,7 @@ import java.util.jar.Manifest;
 import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
 
+import net.amygdalum.testrecorder.asm.ByteCode;
 import net.amygdalum.testrecorder.bridge.BridgedFakeIO;
 import net.amygdalum.testrecorder.util.Types;
 import net.bytebuddy.agent.ByteBuddyAgent;
@@ -229,8 +230,11 @@ public class FakeIO {
 					return result;
 				}
 			}
-			throw new AssertionError(
-				"missing input for:\n" + invocation.getCallee() + " called from " + invocation.getCaller() + "\n\nIf the input was recorded ensure that all call sites are recorded");
+			if (invocation.getCaller().startsWith("net.amygdalum.testrecorder.runtime")) {
+				Object newValue = DefaultValue.INSTANCE.newValue(ByteCode.resultTypeFrom(methodDesc));
+				return newValue;
+			}
+			throw new AssertionError("missing input for:\n" + invocation.getCallee() + " called from " + invocation.getCaller() + "\n\nIf the input was recorded ensure that all call sites are recorded");
 		}
 
 		public abstract Object call(InvocationData data, Object[] arguments);
@@ -408,7 +412,7 @@ public class FakeIO {
 		public boolean matchesCaller(Invocation invocation) {
 			return this.callerClazz.getName().equals(invocation.callerClassName)
 				&& this.callerName.equals(invocation.callerMethodName)
-				&& this.callerLine == invocation.callerLine;
+				&& (this.callerLine == -1 || invocation.callerLine == -1 || this.callerLine == invocation.callerLine);
 		}
 
 	}

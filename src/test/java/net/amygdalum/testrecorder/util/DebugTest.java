@@ -11,4 +11,6 @@ public class DebugTest {
 	public void testDebug() throws Exception {
 		assertThat(Debug.class, isUtilityClass());
 	}
+	
+	
 }

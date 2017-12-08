@@ -13,6 +13,14 @@ public class Ldc implements SequenceInstruction {
 		this.constant = clazz;
 	}
 
+	public Ldc(Number number) {
+		this.constant = number;
+	}
+
+	public Ldc(Character character) {
+		this.constant = character;
+	}
+
 	public Ldc(String stringLiteral) {
 		this.constant = stringLiteral;
 	}

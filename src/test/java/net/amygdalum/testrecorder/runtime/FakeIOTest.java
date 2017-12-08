@@ -206,7 +206,7 @@ public class FakeIOTest {
 					return 0l;
 				}
 			})
-			.add(StandardLibInputOutput.class, "getTimestamp", 17, 42l)
+			.add(StandardLibInputOutput.class, "getTimestamp", 20, 42l)
 			.setup();
 
 		long result = io.getTimestamp();
@@ -318,7 +318,7 @@ public class FakeIOTest {
 					return;
 				}
 			})
-			.add(StandardLibInputOutput.class, "store", 23, null, "My Output".getBytes())
+			.add(StandardLibInputOutput.class, "store", 38, null, "My Output".getBytes())
 			.setup();
 
 		io.store("My Output");

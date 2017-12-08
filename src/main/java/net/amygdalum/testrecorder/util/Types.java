@@ -566,6 +566,20 @@ public final class Types {
 		return current.getDeclaredMethod(name, parameterTypes);
 	}
 
+	public static List<Method> getDeclaredMethods(Class<?> clazz, String methodName) {
+		List<Method> methods = new ArrayList<>();
+		Class<?> current = clazz;
+		while (current != Object.class) {
+			for (Method method : current.getDeclaredMethods()) {
+				if (method.getName().equals(methodName)) {
+					methods.add(method);
+				}
+			}
+			current = current.getSuperclass();
+		}
+		return methods;
+	}
+
 	public static Field getDeclaredField(Class<?> clazz, String name) throws NoSuchFieldException {
 		Class<?> current = clazz;
 		while (current != Object.class) {

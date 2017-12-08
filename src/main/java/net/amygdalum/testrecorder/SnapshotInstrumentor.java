@@ -338,7 +338,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 					.then(new InvokeVirtual(SnapshotManager.class, "inputArguments", int.class, Object[].class)
 						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
 						.withArgument(0, new Recall("inputId"))
-						.withArgument(1, new WrapArguments()))
+						.withArgument(1, new Recall("arguments")))
 					.build(context);
 			}
 		}
@@ -370,7 +370,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 				.then(new InvokeVirtual(SnapshotManager.class, "outputArguments", int.class, Object[].class)
 					.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
 					.withArgument(0, new Recall("outputId"))
-					.withArgument(1, new WrapArguments()))
+					.withArgument(1, new Recall("arguments")))
 				.build(context);
 		}
 

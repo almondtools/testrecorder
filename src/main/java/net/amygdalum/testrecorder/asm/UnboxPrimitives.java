@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.asm;
 
 import static net.amygdalum.testrecorder.asm.ByteCode.boxedType;
-import static net.amygdalum.testrecorder.asm.ByteCode.getUnboxingFactory;
+import static net.amygdalum.testrecorder.asm.ByteCode.unboxingFactory;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 
@@ -26,7 +26,7 @@ public class UnboxPrimitives implements SequenceInstruction {
 
 		String factoryDesc = "()" + desc;
 		Type boxedType = boxedType(type);
-		String factoryName = getUnboxingFactory(type);
+		String factoryName = unboxingFactory(type);
 
 		insnList.add(new TypeInsnNode(CHECKCAST, boxedType.getInternalName()));
 		insnList.add(new MethodInsnNode(INVOKEVIRTUAL, boxedType.getInternalName(), factoryName, factoryDesc, false));

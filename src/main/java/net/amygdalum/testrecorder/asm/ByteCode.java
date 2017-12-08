@@ -1,6 +1,5 @@
 package net.amygdalum.testrecorder.asm;
 
-import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.objectweb.asm.Opcodes.ACC_NATIVE;
@@ -8,11 +7,11 @@ import static org.objectweb.asm.Opcodes.ACC_STATIC;
 
 import java.lang.reflect.Array;
 import java.util.List;
+import java.util.Optional;
 
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.util.Printer;
@@ -38,22 +37,22 @@ public final class ByteCode {
 	private ByteCode() {
 	}
 
-	private static PrimitiveTypeInfo primitive(char desc) {
-		for (PrimitiveTypeInfo info : PRIMITIVES) {
-			if (info.desc == desc) {
-				return info;
-			}
-		}
-		return null;
-	}
-
-	private static PrimitiveTypeInfo primitive(int sort) {
+	private static Optional<PrimitiveTypeInfo> primitive(int sort) {
 		for (PrimitiveTypeInfo info : PRIMITIVES) {
 			if (info.sort == sort) {
-				return info;
+				return Optional.of(info);
 			}
 		}
-		return null;
+		return Optional.empty();
+	}
+
+	private static Optional<PrimitiveTypeInfo> primitiveWrapper(String name) {
+		for (PrimitiveTypeInfo info : PRIMITIVES) {
+			if (info.boxedType.equals(name)) {
+				return Optional.of(info);
+			}
+		}
+		return Optional.empty();
 	}
 
 	public static boolean isStatic(MethodNode methodNode) {
@@ -73,38 +72,37 @@ public final class ByteCode {
 	}
 
 	public static boolean isPrimitive(Type type) {
-		return type.getDescriptor().length() == 1;
+		return type.getSort() < Type.ARRAY;
 	}
 
 	public static boolean isArray(Type type) {
 		return type.getSort() == Type.ARRAY;
 	}
-	
-	public static List<LocalVariableNode> range(List<LocalVariableNode> locals, int start, int length) {
-		return locals.stream()
-			.sorted(comparingInt(local -> local.index))
-			.skip(start)
-			.limit(length)
-			.collect(toList());
-	}
 
 	public static Type boxedType(Type type) {
-		if (isPrimitive(type)) {
-			char desc = type.getDescriptor().charAt(0);
-			PrimitiveTypeInfo info = primitive(desc);
-			return Type.getType(info.boxedClass);
-		}
-		return type;
+		return primitive(type.getSort())
+			.map(info -> Type.getType(info.boxedClass))
+			.orElse(type);
+	}
+
+	public static Type unboxedType(Type type) {
+		return primitive(type.getSort())
+			.map(info -> Type.getType(info.rawClass))
+			.orElseGet(() -> primitiveWrapper(type.getInternalName())
+				.map(info -> Type.getType(info.rawClass))
+				.orElse(null));
 	}
 
 	public static String boxingFactory(Type type) {
-		char desc = type.getDescriptor().charAt(0);
-		return primitive(desc).boxingFactory;
+		return primitive(type.getSort())
+			.map(info -> info.boxingFactory)
+			.orElse(null);
 	}
 
-	public static String getUnboxingFactory(Type type) {
-		char desc = type.getDescriptor().charAt(0);
-		return primitive(desc).unboxingFactory;
+	public static String unboxingFactory(Type type) {
+		return primitive(type.getSort())
+			.map(info -> info.unboxingFactory)
+			.orElse(null);
 	}
 
 	public static String constructorDescriptor(Class<?> clazz, Class<?>... arguments) {
@@ -144,17 +142,21 @@ public final class ByteCode {
 	}
 
 	public static Class<?> classFrom(Type type, ClassLoader loader) {
+		int arrayDimensions = isArray(type) ? type.getDimensions() : 0;
+		Type baseType = isArray(type) ? type.getElementType() : type;
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		Class<?> clazz = primitive(baseType.getSort())
+			.map(info -> info.rawClass)
+			.orElseGet(() -> (Class) loadClass(baseType.getClassName(), loader));
+		for (int i = 0; i < arrayDimensions; i++) {
+			clazz = Array.newInstance(clazz, 0).getClass();
+		}
+		return clazz;
+	}
+
+	private static Class<?> loadClass(String name, ClassLoader loader) {
 		try {
-			int arrayDimensions = isArray(type) ? type.getDimensions() : 0;
-			if (isArray(type)) {
-				type = type.getElementType();
-			}
-			PrimitiveTypeInfo primitive = primitive(type.getSort());
-			Class<?> clazz = primitive != null ? primitive.rawClass : loader.loadClass(type.getClassName());
-			for (int i = 0; i < arrayDimensions; i++) {
-				clazz = Array.newInstance(clazz, 0).getClass();
-			}
-			return clazz;
+			return loader.loadClass(name);
 		} catch (ClassNotFoundException e) {
 			throw new ByteCodeException(e);
 		}
@@ -181,7 +183,7 @@ public final class ByteCode {
 		Type resultTypeDescription = Type.getMethodType(desc).getReturnType();
 		return classFrom(resultTypeDescription, loader);
 	}
-	
+
 	public static List<String> toString(InsnList instructions) {
 		Printer p = new Textifier();
 		TraceMethodVisitor mp = new TraceMethodVisitor(p);

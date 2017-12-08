@@ -51,13 +51,13 @@ public class WrapWithTryCatch implements SequenceInstruction {
 	public InsnList build(MethodContext context) {
 		Type returnType = context.getResultType();
 
-		context.getMethodNode().tryCatchBlocks.add(new TryCatchBlockNode(tryLabel, catchLabel, catchLabel, null));
+		context.tryCatchBlocks().add(new TryCatchBlockNode(tryLabel, catchLabel, catchLabel, null));
 
 		InsnList insnList = new InsnList();
 		insnList.add(tryLabel);
 		insnList.add(tryInstructions.build(context));
 		
-		ListIterator<AbstractInsnNode> instructions = context.getMethodNode().instructions.iterator();
+		ListIterator<AbstractInsnNode> instructions = context.instructions().iterator();
 		while (instructions.hasNext()) {
 			AbstractInsnNode insn = instructions.next();
 			if (isReturn(insn)) {

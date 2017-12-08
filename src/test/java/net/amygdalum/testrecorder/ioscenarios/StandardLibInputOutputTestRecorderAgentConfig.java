@@ -11,11 +11,12 @@ public class StandardLibInputOutputTestRecorderAgentConfig extends DefaultTestRe
 
 	@Override
 	public List<Methods> getInputs() {
-		return asList(Methods.byDescription("java/lang/System", "currentTimeMillis", "()J"));
+		return asList(Methods.byDescription("java/lang/System", "currentTimeMillis", "()J"), Methods.byDescription("java/io/FileInputStream", "skip", "(J)J"), Methods.byDescription("java/io/FileInputStream", "read", "()I"));
+		
 	}
 	
 	@Override
 	public List<Methods> getOutputs() {
-		return asList(Methods.byDescription("java/io/OutputStream", "write", "([B)V"));
+		return asList(Methods.byDescription("java/io/OutputStream", "write", "([B)V"), Methods.byDescription("java/lang/Thread", "sleep", "(J)V"));
 	}
 }

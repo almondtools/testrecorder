@@ -1,11 +1,14 @@
 package net.amygdalum.testrecorder.asm;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.TryCatchBlockNode;
 
 public class MethodContext {
 
@@ -21,14 +24,6 @@ public class MethodContext {
 		this.variables = new HashMap<>();
 	}
 	
-	public ClassNode getClassNode() {
-		return classNode;
-	}
-		
-	public MethodNode getMethodNode() {
-		return methodNode;
-	}
-
 	public Local newLocal(String variableName, Type type) {
 		Local newLocal = new Local(nextLocal, type);
 		nextLocal += type.getSize();
@@ -83,6 +78,14 @@ public class MethodContext {
 	
 	public Type getResultType() {
 		return Type.getReturnType(methodNode.desc);
+	}
+
+	public List<TryCatchBlockNode> tryCatchBlocks() {
+		return methodNode.tryCatchBlocks;
+	}
+
+	public InsnList instructions() {
+		return methodNode.instructions;
 	}
 
 }

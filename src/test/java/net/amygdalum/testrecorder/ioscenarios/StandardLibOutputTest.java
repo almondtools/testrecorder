@@ -24,9 +24,9 @@ public class StandardLibOutputTest {
 	}
 
 	@Test
-	public void testCompilable() throws Exception {
-		StandardLibInputOutput time = new StandardLibInputOutput();
-		time.store("My Output");
+	public void testJavaMethodCompilable() throws Exception {
+		StandardLibInputOutput io = new StandardLibInputOutput();
+		io.store("My Output");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(StandardLibInputOutput.class), allOf(
@@ -36,9 +36,30 @@ public class StandardLibOutputTest {
 	}
 
 	@Test
-	public void testRunnable() throws Exception {
-		StandardLibInputOutput time = new StandardLibInputOutput();
-		time.store("My Output");
+	public void testJavaMethodRunnable() throws Exception {
+		StandardLibInputOutput io = new StandardLibInputOutput();
+		io.store("My Output");
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(StandardLibInputOutput.class), testsRun(StandardLibInputOutput.class));
+	}
+
+	@Test
+	public void testNativeMethodCompilable() throws Exception {
+		StandardLibInputOutput io = new StandardLibInputOutput();
+		io.sleep();
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(StandardLibInputOutput.class), allOf(
+			containsString("FakeIO"),
+			containsString("fakeOutput")));
+		assertThat(testGenerator.renderTest(StandardLibInputOutput.class), compiles(StandardLibInputOutput.class));
+	}
+
+	@Test
+	public void testNativeMethodRunnable() throws Exception {
+		StandardLibInputOutput io = new StandardLibInputOutput();
+		io.sleep();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(StandardLibInputOutput.class), testsRun(StandardLibInputOutput.class));
