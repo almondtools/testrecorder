@@ -15,8 +15,8 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SerializedOutputTest {
 
@@ -25,7 +25,7 @@ public class SerializedOutputTest {
 	private SerializedOutput output;
 	private SerializedOutput outputNoResult;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		caller = new StackTraceElement("class", "method", "file", 4711);
 		notcaller = new StackTraceElement("class", "method", "file", 815);

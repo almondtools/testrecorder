@@ -5,7 +5,7 @@ import static net.amygdalum.testrecorder.InstrumentationUnit.instrument;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.objectweb.asm.tree.InsnList;
 
 import net.amygdalum.testrecorder.Example;

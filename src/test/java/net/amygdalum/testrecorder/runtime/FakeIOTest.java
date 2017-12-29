@@ -9,7 +9,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.ioscenarios.Inputs;
 import net.amygdalum.testrecorder.ioscenarios.Outputs;

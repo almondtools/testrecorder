@@ -13,8 +13,8 @@ import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.values.SerializedMap;
@@ -23,7 +23,7 @@ public class DefaultMapAdaptorTest {
 
 	private DefaultMapAdaptor adaptor;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		adaptor = new DefaultMapAdaptor();
 	}

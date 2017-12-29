@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.scenarios;
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.CodeSerializer;
 import net.amygdalum.testrecorder.ConfigurableSerializerFacade;

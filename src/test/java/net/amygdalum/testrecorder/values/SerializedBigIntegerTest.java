@@ -6,7 +6,7 @@ import static org.junit.Assert.assertThat;
 
 import java.math.BigInteger;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 

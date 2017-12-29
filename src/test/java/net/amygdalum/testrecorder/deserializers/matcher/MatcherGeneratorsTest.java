@@ -19,8 +19,8 @@ import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.util.ArrayList;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.hints.SkipChecks;
@@ -42,7 +42,7 @@ public class MatcherGeneratorsTest {
 	private SerializedValues values;
 	private MatcherGenerators matcherCode;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		values = new SerializedValues();
 		matcherCode = new MatcherGenerators(getClass());

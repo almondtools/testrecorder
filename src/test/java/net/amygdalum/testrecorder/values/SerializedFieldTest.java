@@ -12,7 +12,7 @@ import static org.junit.Assert.assertThat;
 
 import java.lang.annotation.Annotation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 import net.amygdalum.testrecorder.util.testobjects.Annotated;

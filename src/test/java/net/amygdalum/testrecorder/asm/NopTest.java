@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.asm;
 import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 

@@ -10,14 +10,14 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class LocalVariableNameGeneratorTest {
 
 	private LocalVariableNameGenerator nameGenerator;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		nameGenerator = new LocalVariableNameGenerator();
 	}

@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.LocalVariable;
@@ -33,7 +33,7 @@ public class DefaultListAdaptorTest {
 
 	private DefaultListAdaptor adaptor;
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         adaptor = new DefaultListAdaptor();
     }

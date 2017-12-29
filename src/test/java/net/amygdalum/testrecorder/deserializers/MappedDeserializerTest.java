@@ -10,8 +10,8 @@ import static org.mockito.Mockito.when;
 import java.math.BigInteger;
 import java.util.function.Function;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.types.SerializedImmutableType;
@@ -30,7 +30,7 @@ public class MappedDeserializerTest {
 	private MappedDeserializer<Long, Integer> mappedDeserializer;
 
 	@SuppressWarnings("unchecked")
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		deserializer = mock(Deserializer.class);
 		mapping = x -> (long) x;

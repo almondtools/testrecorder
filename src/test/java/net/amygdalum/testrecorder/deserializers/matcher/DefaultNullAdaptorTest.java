@@ -10,8 +10,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.util.testobjects.Hidden;
@@ -21,7 +21,7 @@ public class DefaultNullAdaptorTest {
 
 	private DefaultNullAdaptor adaptor;
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         adaptor = new DefaultNullAdaptor();
     }

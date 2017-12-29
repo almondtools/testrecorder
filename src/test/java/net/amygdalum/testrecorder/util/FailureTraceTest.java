@@ -8,7 +8,7 @@ import static org.junit.Assert.assertThat;
 
 import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.runtime.GenericMatcher;
 import net.amygdalum.testrecorder.util.testobjects.Complex;

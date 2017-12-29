@@ -6,8 +6,8 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.objectweb.asm.Opcodes.POP;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
@@ -23,7 +23,7 @@ public class SnapshotInstrumentorTest {
 	private DefaultTestRecorderAgentConfig config;
 	private ClassNodeManager classes;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		config = new DefaultTestRecorderAgentConfig();
 		classes = new ClassNodeManager();

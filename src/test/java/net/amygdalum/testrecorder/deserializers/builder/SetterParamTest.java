@@ -6,8 +6,8 @@ import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Method;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.util.testobjects.Bean;
 import net.amygdalum.testrecorder.util.testobjects.Simple;
@@ -18,7 +18,7 @@ public class SetterParamTest {
     private Method method;
     private SetterParam setterParam;
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         method = Bean.class.getDeclaredMethod("setAttribute", String.class);
         setterParam = new SetterParam(method, String.class, new SerializedField(Simple.class, "attribute", String.class, literal("value")), "value");

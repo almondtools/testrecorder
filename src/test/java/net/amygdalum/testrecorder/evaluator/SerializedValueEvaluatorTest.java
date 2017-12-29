@@ -7,8 +7,8 @@ import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.ConfigurableSerializerFacade;
 import net.amygdalum.testrecorder.DefaultTestRecorderAgentConfig;
@@ -20,7 +20,7 @@ public class SerializedValueEvaluatorTest {
 
     private ConfigurableSerializerFacade facade;
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         facade = new ConfigurableSerializerFacade(new DefaultTestRecorderAgentConfig());
     }

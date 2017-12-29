@@ -7,7 +7,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import org.hamcrest.StringDescription;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CompilableMatcherTest {
 
@@ -26,7 +26,7 @@ public class CompilableMatcherTest {
 
         boolean matches = compiles(CompilableMatcherTest.class).matchesSafely(""
             + "package net.amygdalum.testrecorder.dynamiccompile;"
-            + "import org.junit.Test;"
+            + "import org.junit.jupiter.api.Test;"
             + ""
             + "public class SuccessTest {"
             + "  @Test"
@@ -46,7 +46,7 @@ public class CompilableMatcherTest {
         
         boolean matches = matcher.matchesSafely(""
             + "package net.amygdalum.testrecorder.dynamiccompile;"
-            + "import org.junit.Test;"
+            + "import org.junit.jupiter.api.Test;"
             + ""
             + "public class SuccessTest {"
             + "  @Test"
@@ -55,7 +55,7 @@ public class CompilableMatcherTest {
             + "}", description);
         matches = matcher.matchesSafely(""
             + "package net.amygdalum.testrecorder.dynamiccompile;"
-            + "import org.junit.Test;"
+            + "import org.junit.jupiter.api.Test;"
             + ""
             + "public class SuccessTest {"
             + "  @Test"
@@ -73,7 +73,7 @@ public class CompilableMatcherTest {
 
         boolean matches = compiles(CompilableMatcherTest.class).matchesSafely(""
             + "package net.amygdalum.testrecorder.dynamiccompile;"
-            + "import org.junit.Test;"
+            + "import org.junit.jupiter.api.Test;"
             + "import static org.junit.Assert.fail;"
             + ""
             + "public class SuccessTest {"
@@ -92,7 +92,7 @@ public class CompilableMatcherTest {
 
         boolean matches = compiles(CompilableMatcherTest.class).matchesSafely(""
             + "package net.amygdalum.testrecorder.dynamiccompile;"
-            + "import org.junit.Test;"
+            + "import org.junit.jupiter.api.Test;"
             + "import static org.junit.Assert.fail;"
             + ""
             + "public class SuccessTest {"
@@ -113,7 +113,7 @@ public class CompilableMatcherTest {
 
         boolean matches = compiles(CompilableMatcherTest.class).matchesSafely(""
             + "package net.amygdalum.testrecorder.dynamiccompile;"
-            + "import org.junit.Test;"
+            + "import org.junit.jupiter.api.Test;"
             + ""
             + "public class SuccessTest {"
             + "  @Test"

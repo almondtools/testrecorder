@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.types;
 import static com.almondtools.conmatch.exceptions.ExceptionMatcher.matchesException;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DeserializationExceptionTest {
 

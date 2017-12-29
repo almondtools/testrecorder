@@ -5,7 +5,7 @@ import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Method;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MethodsAtRuntimeTest {
 

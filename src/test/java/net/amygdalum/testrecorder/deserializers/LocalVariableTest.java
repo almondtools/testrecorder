@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.deserializers;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class LocalVariableTest {
 

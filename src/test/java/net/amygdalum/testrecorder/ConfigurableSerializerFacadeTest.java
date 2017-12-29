@@ -13,8 +13,8 @@ import static org.mockito.Mockito.when;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import net.amygdalum.testrecorder.types.SerializedValue;
@@ -30,7 +30,7 @@ public class ConfigurableSerializerFacadeTest {
     private ConfigurableSerializerFacade facade;
     private OpenFacade openFacade;
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         facade = new ConfigurableSerializerFacade(new DefaultTestRecorderAgentConfig());
         openFacade = XRayInterface.xray(facade).to(OpenFacade.class);

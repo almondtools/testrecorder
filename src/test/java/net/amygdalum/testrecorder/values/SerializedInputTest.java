@@ -14,8 +14,8 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.lang.reflect.Type;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.types.SerializedValue;
 
@@ -26,7 +26,7 @@ public class SerializedInputTest {
 	private SerializedInput input;
 	private SerializedInput inputNoResult;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		caller = new StackTraceElement("class", "method", "file", 4711);
 		notcaller = new StackTraceElement("class", "method", "file", 815);

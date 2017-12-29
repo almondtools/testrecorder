@@ -12,8 +12,8 @@ import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.values.SerializedList;
@@ -22,7 +22,7 @@ public class ArraysListAdaptorTest {
 
 	private ArraysListAdaptor adaptor;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		adaptor = new ArraysListAdaptor();
 	}

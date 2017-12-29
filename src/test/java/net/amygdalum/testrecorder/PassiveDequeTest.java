@@ -7,14 +7,14 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PassiveDequeTest {
 
     private PassiveDeque<String> deque;
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         deque = new PassiveDeque<>("42");
     }

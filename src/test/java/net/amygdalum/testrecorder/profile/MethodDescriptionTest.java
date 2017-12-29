@@ -3,8 +3,8 @@ package net.amygdalum.testrecorder.profile;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.util.testobjects.Collections;
 import net.amygdalum.testrecorder.util.testobjects.Simple;
@@ -15,7 +15,7 @@ public class MethodDescriptionTest {
 	private Methods methodByDescriptionResult;
 	private Methods methodByDescriptionArguments;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		methodByDescriptionResult = Methods.byDescription("net/amygdalum/testrecorder/util/testobjects/Simple", "getStr", "()Ljava/lang/String;");
 		methodByDescriptionArguments = Methods.byDescription("net/amygdalum/testrecorder/util/testobjects/Collections", "arrayList", "([Ljava/lang/Object;)Ljava/util/ArrayList;");

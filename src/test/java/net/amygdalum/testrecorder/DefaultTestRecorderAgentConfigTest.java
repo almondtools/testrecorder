@@ -6,8 +6,8 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.profile.ExcludeExplicitExcluded;
 import net.amygdalum.testrecorder.profile.ExcludeGenerated;
@@ -17,7 +17,7 @@ public class DefaultTestRecorderAgentConfigTest {
 
     private DefaultTestRecorderAgentConfig config;
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         config = new DefaultTestRecorderAgentConfig();
     }

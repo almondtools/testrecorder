@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import net.amygdalum.testrecorder.types.SerializedImmutableType;
@@ -24,7 +24,7 @@ public class ValuePrinterTest {
 
 	private ValuePrinter printer;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		printer = new ValuePrinter();
 	}

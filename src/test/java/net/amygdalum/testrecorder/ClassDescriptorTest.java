@@ -4,7 +4,7 @@ import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefa
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ClassDescriptorTest {
 

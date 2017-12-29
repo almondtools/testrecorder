@@ -18,8 +18,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.util.Types;
@@ -41,7 +41,7 @@ public class SetupGeneratorsTest {
 	private SerializedValues values;
     private SetupGenerators setupCode;
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         values = new SerializedValues();
         setupCode = new SetupGenerators(getClass());

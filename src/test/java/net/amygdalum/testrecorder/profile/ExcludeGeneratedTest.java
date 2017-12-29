@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.profile;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ExcludeGeneratedTest {
 

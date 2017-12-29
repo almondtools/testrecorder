@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.runtime;
 
 import static org.junit.Assert.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.almondtools.conmatch.conventions.EnumMatcher;
 

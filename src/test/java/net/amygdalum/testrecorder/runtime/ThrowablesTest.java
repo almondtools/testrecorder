@@ -5,7 +5,7 @@ import static com.almondtools.conmatch.exceptions.ExceptionMatcher.matchesExcept
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.almondtools.conmatch.exceptions.ExceptionMatcher;
 

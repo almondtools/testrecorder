@@ -8,8 +8,8 @@ import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Constructor;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.util.testobjects.Simple;
@@ -20,7 +20,7 @@ public class ConstructorParamTest {
 	private Constructor<Simple> constructor;
     private ConstructorParam constructorParam;
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         constructor = Simple.class.getDeclaredConstructor(String.class);
         constructorParam = new ConstructorParam(constructor, 0, new SerializedField(Simple.class, "field", String.class, literal("value")), "value");

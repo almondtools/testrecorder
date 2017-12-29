@@ -11,7 +11,7 @@ import java.lang.invoke.SerializedLambda;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.util.Lambdas;
 

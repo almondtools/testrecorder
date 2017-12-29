@@ -4,7 +4,7 @@ import static com.almondtools.conmatch.conventions.UtilityClassMatcher.isUtility
 import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.byteArrayContaining;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.almondtools.conmatch.strings.WildcardStringMatcher;
 

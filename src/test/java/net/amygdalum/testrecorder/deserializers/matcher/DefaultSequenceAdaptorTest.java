@@ -9,8 +9,8 @@ import static org.junit.Assert.assertThat;
 
 import java.math.BigInteger;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
@@ -20,7 +20,7 @@ public class DefaultSequenceAdaptorTest {
 
 	private DefaultSequenceAdaptor adaptor;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		adaptor = new DefaultSequenceAdaptor();
 	}

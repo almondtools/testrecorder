@@ -17,14 +17,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TypeManagerTest {
 
     private TypeManager types;
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         types = new TypeManager("net.amygdalum.testrecorder.deserializers");
     }

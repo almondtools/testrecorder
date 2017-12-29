@@ -19,8 +19,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.LocalVariable;
@@ -34,7 +34,7 @@ public class DefaultSetAdaptorTest {
 
 	private DefaultSetAdaptor adaptor;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		adaptor = new DefaultSetAdaptor();
 	}

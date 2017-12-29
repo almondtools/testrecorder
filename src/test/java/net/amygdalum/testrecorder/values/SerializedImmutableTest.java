@@ -7,8 +7,8 @@ import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Type;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.types.DeserializerContext;
@@ -17,7 +17,7 @@ public class SerializedImmutableTest {
 
 	private SerializedImmutable<String> value;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		value = new AnImmutable(String.class);
 	}
