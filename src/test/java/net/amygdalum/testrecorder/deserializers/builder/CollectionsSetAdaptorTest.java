@@ -17,8 +17,8 @@ import java.util.Set;
 
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.types.DeserializationException;
@@ -28,7 +28,7 @@ public class CollectionsSetAdaptorTest {
 
 	private CollectionsSetAdaptor adaptor;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		adaptor = new CollectionsSetAdaptor();
 	}
