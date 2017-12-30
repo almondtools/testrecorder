@@ -4,6 +4,7 @@ import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContex
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -16,8 +17,8 @@ import java.util.Map;
 
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.types.DeserializationException;
@@ -27,7 +28,7 @@ public class CollectionsMapAdaptorTest {
 
 	private CollectionsMapAdaptor adaptor;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		adaptor = new CollectionsMapAdaptor();
 	}
@@ -196,12 +197,12 @@ public class CollectionsMapAdaptorTest {
 		assertThat(result.getValue(), equalTo("map1"));
 	}
 
-	@Test(expected = DeserializationException.class)
+	@Test 
 	public void testTryDeserializeOther() throws Exception {
 		SerializedMap value = mapOf("java.lang.Object");
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		adaptor.tryDeserialize(value, generator, NULL);
+		assertThatThrownBy(() ->adaptor.tryDeserialize(value, generator, NULL)).isInstanceOf(DeserializationException.class);
 	}
 
 	private SerializedMap mapOf(String className, int[]... elements) throws ClassNotFoundException {

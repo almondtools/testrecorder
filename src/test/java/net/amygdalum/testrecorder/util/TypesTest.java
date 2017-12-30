@@ -33,6 +33,7 @@ import static net.amygdalum.testrecorder.util.Types.typeArgument;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
 import static net.amygdalum.testrecorder.util.Types.wildcardExtends;
 import static net.amygdalum.testrecorder.util.Types.wildcardSuper;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -304,8 +305,6 @@ public class TypesTest {
 		assertThat(isLiteral(Collection.class), is(false));
 	}
 
-
-
 	@Test
 	public void testTypeArgument() throws Exception {
 		assertThat(typeArgument(parameterized(List.class, null, String.class), 0).get(), equalTo(String.class));
@@ -322,9 +321,9 @@ public class TypesTest {
 		assertThat(innerType(TypesTest.class, "NestedPublic"), equalTo(NestedPublic.class));
 	}
 
-	@Test(expected = TypeNotPresentException.class)
+	@Test
 	public void testInnerTypeNotResolved() throws Exception {
-		innerType(TypesTest.class, "NotExistent");
+		assertThatThrownBy(() -> innerType(TypesTest.class, "NotExistent")).isInstanceOf(TypeNotPresentException.class);
 	}
 
 	@Test
@@ -587,11 +586,14 @@ public class TypesTest {
 		assertThat(Types.resolve(boundType, PartlyBoundBiGeneric.class), equalTo(Sub.class));
 		assertThat(Types.resolve(partlyBoundType, PartlyBoundBiGeneric.class), equalTo(Types.parameterized(BiGeneric.class, null, freeType, Sub.class)));
 		assertThat(Types.resolve(unboundWildcardType, PartlyBoundBiGeneric.class), equalTo(Types.parameterized(BiGeneric.class, null, Types.wildcardExtends(freeType), Sub.class)));
-		assertThat(Types.resolve(unboundSuperWildcardType, PartlyBoundBiGeneric.class), equalTo(Types.parameterized(BiGeneric.class, null, ((ParameterizedType) unboundSuperWildcardType).getActualTypeArguments()[0], Sub.class)));
+		assertThat(Types.resolve(unboundSuperWildcardType, PartlyBoundBiGeneric.class),
+			equalTo(Types.parameterized(BiGeneric.class, null, ((ParameterizedType) unboundSuperWildcardType).getActualTypeArguments()[0], Sub.class)));
 		assertThat(Types.resolve(boundWildcardType, PartlyBoundBiGeneric.class), equalTo(Types.parameterized(BiGeneric.class, null, freeType, Types.wildcardExtends(Sub.class))));
 		assertThat(Types.resolve(boundSuperWildcardType, PartlyBoundBiGeneric.class), equalTo(Types.parameterized(BiGeneric.class, null, freeType, Types.wildcardSuper(Sub.class))));
-		assertThat(Types.resolve(boundAndWildcardType, PartlyBoundBiGeneric.class), equalTo(Types.parameterized(BiGeneric.class, null, ((ParameterizedType) boundAndWildcardType).getActualTypeArguments()[0], Sub.class)));
-		assertThat(Types.resolve(unboundAndWildcardType, PartlyBoundBiGeneric.class), equalTo(Types.parameterized(BiGeneric.class, null, freeType, ((ParameterizedType) unboundAndWildcardType).getActualTypeArguments()[1])));
+		assertThat(Types.resolve(boundAndWildcardType, PartlyBoundBiGeneric.class),
+			equalTo(Types.parameterized(BiGeneric.class, null, ((ParameterizedType) boundAndWildcardType).getActualTypeArguments()[0], Sub.class)));
+		assertThat(Types.resolve(unboundAndWildcardType, PartlyBoundBiGeneric.class),
+			equalTo(Types.parameterized(BiGeneric.class, null, freeType, ((ParameterizedType) unboundAndWildcardType).getActualTypeArguments()[1])));
 	}
 
 	@Test

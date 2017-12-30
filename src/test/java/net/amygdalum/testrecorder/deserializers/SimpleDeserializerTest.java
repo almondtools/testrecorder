@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.deserializers;
 
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.nullValue;
@@ -45,10 +46,10 @@ public class SimpleDeserializerTest {
 		deserializer = new SimpleDeserializer();
 	}
 
-	@Test(expected = DeserializationException.class)
+	@Test
 	public void testVisitField() throws Exception {
 		SerializedField field = new SerializedField(Simple.class, "field", String.class, literal("v"));
-		deserializer.visitField(field, NULL);
+		assertThatThrownBy(() -> deserializer.visitField(field, NULL)).isInstanceOf(DeserializationException.class);
 	}
 
 	@Test
@@ -62,12 +63,12 @@ public class SimpleDeserializerTest {
 		assertThat(((Simple) visitReferenceType).getStr(), equalTo("v"));
 	}
 
-	@Test(expected = DeserializationException.class)
+	@Test
 	public void testVisitObjectNoDeserializable() throws Exception {
 		SerializedObject object = Mockito.mock(SerializedObject.class);
 		when(object.getFields()).thenThrow(new GenericObjectException());
 
-		deserializer.visitReferenceType(object, NULL);
+		assertThatThrownBy(() -> deserializer.visitReferenceType(object, NULL)).isInstanceOf(DeserializationException.class);
 	}
 
 	@Test

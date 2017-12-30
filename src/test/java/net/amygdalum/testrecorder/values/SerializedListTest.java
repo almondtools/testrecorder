@@ -8,6 +8,7 @@ import static net.amygdalum.testrecorder.values.GenericTypes.listOfBounded;
 import static net.amygdalum.testrecorder.values.GenericTypes.listOfString;
 import static net.amygdalum.testrecorder.values.ParameterizedTypeMatcher.parameterizedType;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
@@ -75,7 +76,7 @@ public class SerializedListTest {
 		SerializedList result = new SerializedList(ArrayList.class)
 			.withResult(arrayListOfString())
 			.with(literal("a"), literal("b"));
-		
+
 		assertThat(result, contains(literal("a"), literal("b")));
 	}
 
@@ -96,7 +97,7 @@ public class SerializedListTest {
 	public void testSize1() throws Exception {
 		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
 		list.add(literal("string"));
-		
+
 		assertThat(list.size(), equalTo(1));
 		assertThat(list.referencedValues(), hasSize(1));
 	}
@@ -106,7 +107,7 @@ public class SerializedListTest {
 		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
 		list.add(literal("string"));
 		list.add(literal("second"));
-		
+
 		assertThat(list.size(), equalTo(2));
 		assertThat(list.referencedValues(), hasSize(2));
 	}
@@ -178,10 +179,10 @@ public class SerializedListTest {
 		assertThat(list.remove(literal("string")), is(true));
 	}
 
-	@Test(expected = IndexOutOfBoundsException.class)
+	@Test
 	public void testRemoveInt0() throws Exception {
 		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		list.remove(0);
+		assertThatThrownBy(() -> list.remove(0)).isInstanceOf(IndexOutOfBoundsException.class);
 	}
 
 	@Test

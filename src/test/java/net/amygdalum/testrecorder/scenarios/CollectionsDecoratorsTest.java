@@ -38,8 +38,6 @@ import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 @Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.CollectionsDecorators" })
 public class CollectionsDecoratorsTest {
 
-	
-
 	@Test
 	public void testUnmodifiableListsCompilable() throws Exception {
 		CollectionsDecorators dataTypes = new CollectionsDecorators();

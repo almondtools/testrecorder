@@ -4,6 +4,7 @@ import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefa
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.Test;
 
@@ -32,9 +33,9 @@ public class PairTest {
         assertThat(zipped, arrayContaining(new Pair<>("s1",1), new Pair<>("s2",2)));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void testZipWithUnmatchedArraLength() throws Exception {
-        Pair.zip(new String[]{"s1","s2"}, new Integer[]{1});
+    	assertThrows(IllegalArgumentException.class, () ->Pair.zip(new String[]{"s1","s2"}, new Integer[]{1}));
     }
 
 }
