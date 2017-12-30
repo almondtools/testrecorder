@@ -25,11 +25,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
@@ -42,6 +43,7 @@ import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedObject;
 import net.amygdalum.xrayinterface.XRayInterface;
 
+@EnableRuleMigrationSupport
 public class ScheduledTestGeneratorTest {
 
     private static SnapshotManager saveManager;
@@ -51,12 +53,12 @@ public class ScheduledTestGeneratorTest {
 
     private ScheduledTestGenerator testGenerator;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() throws Exception {
         saveManager = SnapshotManager.MANAGER;
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() throws Exception {
         SnapshotManager.MANAGER = saveManager;
         shutdownHooks().entrySet().stream()
@@ -69,7 +71,7 @@ public class ScheduledTestGeneratorTest {
             });
     }
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         XRayInterface.xray(ScheduledTestGenerator.class).to(OpenScheduledTestGenerator.class).setDumpOnShutDown(null);
         testGenerator = new ScheduledTestGenerator()

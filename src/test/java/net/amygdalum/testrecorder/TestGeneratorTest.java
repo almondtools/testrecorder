@@ -15,11 +15,12 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
@@ -31,6 +32,7 @@ import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
+@EnableRuleMigrationSupport
 public class TestGeneratorTest {
 
 	private static SnapshotManager saveManager;
@@ -40,17 +42,17 @@ public class TestGeneratorTest {
 
 	private TestGenerator testGenerator;
 
-	@BeforeClass
+	@BeforeAll
 	public static void beforeClass() throws Exception {
 		saveManager = SnapshotManager.MANAGER;
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void afterClass() throws Exception {
 		SnapshotManager.MANAGER = saveManager;
 	}
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		testGenerator = new TestGenerator();
 	}
