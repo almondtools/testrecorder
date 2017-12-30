@@ -7,21 +7,19 @@ import static org.mockito.Mockito.mock;
 
 import java.math.BigDecimal;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 
-@RunWith(MockitoJUnitRunner.class)
+
 public class BigDecimalSerializerTest {
 
 	private SerializerFacade facade;
 	private Serializer<SerializedImmutable<BigDecimal>> serializer;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
 		serializer = new BigDecimalSerializer.Factory().newSerializer(facade);

@@ -14,22 +14,20 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.values.SerializedMap;
 
-@RunWith(MockitoJUnitRunner.class)
+
 public class CollectionsMapSerializerTest {
 
 	private SerializerFacade facade;
 	private Serializer<SerializedMap> serializer;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
 		serializer = new CollectionsMapSerializer.Factory().newSerializer(facade);

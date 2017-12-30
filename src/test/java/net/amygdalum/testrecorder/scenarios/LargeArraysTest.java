@@ -5,12 +5,8 @@ import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.tes
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
-import java.util.concurrent.TimeUnit;
-
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.rules.Timeout;
 
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.Instrumented;
@@ -19,11 +15,6 @@ import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 @ExtendWith(TestRecorderAgentExtension.class)
 @Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.LargeIntArrays" })
 public class LargeArraysTest {
-
-    @Rule
-    public Timeout timeout = new Timeout(10, TimeUnit.SECONDS);
-
-    
 
     @Test
     public void testLargeIntArraysResultAndArgumentCompilable() throws Exception {

@@ -15,22 +15,20 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.TreeMap;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.values.SerializedMap;
 
-@RunWith(MockitoJUnitRunner.class)
+
 public class DefaultMapSerializerTest {
 
 	private SerializerFacade facade;
 	private Serializer<SerializedMap> serializer;
 	
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
 		serializer = new DefaultMapSerializer.Factory().newSerializer(facade);

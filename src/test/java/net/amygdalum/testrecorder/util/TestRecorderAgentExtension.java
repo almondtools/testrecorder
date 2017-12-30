@@ -11,7 +11,6 @@ import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 
 import net.amygdalum.testrecorder.ConfigurableTestRecorderAgentConfig;
 import net.amygdalum.testrecorder.DefaultTestRecorderAgentConfig;
@@ -21,20 +20,20 @@ import net.amygdalum.testrecorder.TestRecorderAgentConfig;
 import net.amygdalum.testrecorder.profile.Classes;
 import net.bytebuddy.agent.ByteBuddyAgent;
 
-public class TestRecorderAgentExtension implements BeforeEachCallback, BeforeAllCallback, AfterAllCallback, TestInstancePostProcessor {
+public class TestRecorderAgentExtension implements BeforeEachCallback, BeforeAllCallback, AfterAllCallback {
 
 	public static Instrumentation inst = ByteBuddyAgent.install();
-	
+
 	private TestRecorderAgent agent;
-	
+
 	public TestRecorderAgentExtension() {
 	}
-	
+
 	@Override
 	public void beforeAll(ExtensionContext context) throws Exception {
 		setupTransformer(context.getRequiredTestClass());
 	}
-	
+
 	@Override
 	public void afterAll(ExtensionContext context) throws Exception {
 		resetTransformer();
@@ -43,12 +42,6 @@ public class TestRecorderAgentExtension implements BeforeEachCallback, BeforeAll
 	@Override
 	public void beforeEach(ExtensionContext context) throws Exception {
 		TestGenerator.fromRecorded().clearResults();
-	}
-	
-	@Override
-	public void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
-		// TODO Auto-generated method stub
-		
 	}
 
 	private void setupTransformer(Class<?> testClass) {

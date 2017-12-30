@@ -18,22 +18,20 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.values.SerializedList;
 
-@RunWith(MockitoJUnitRunner.class)
+
 public class DefaultQueueSerializerTest {
 
 	private SerializerFacade facade;
 	private Serializer<SerializedList> serializer;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
 		serializer = new DefaultQueueSerializer.Factory().newSerializer(facade);

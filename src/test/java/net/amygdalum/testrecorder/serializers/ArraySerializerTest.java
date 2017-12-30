@@ -8,22 +8,19 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.values.SerializedArray;
 
-@RunWith(MockitoJUnitRunner.class)
 public class ArraySerializerTest {
 
 	private SerializerFacade facade;
 	private Serializer<SerializedArray> serializer;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
 		serializer = new ArraySerializer(facade);

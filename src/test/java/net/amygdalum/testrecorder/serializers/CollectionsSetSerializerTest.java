@@ -16,22 +16,20 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.values.SerializedSet;
 
-@RunWith(MockitoJUnitRunner.class)
+
 public class CollectionsSetSerializerTest {
 
 	private SerializerFacade facade;
 	private Serializer<SerializedSet> serializer;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
 		serializer = new CollectionsSetSerializer.Factory().newSerializer(facade);
