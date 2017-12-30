@@ -7,27 +7,23 @@ import static org.junit.Assert.assertThat;
 
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.rules.Timeout;
-import org.junit.runner.RunWith;
 
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.Instrumented;
-import net.amygdalum.testrecorder.util.TestrecorderAgentRunner;
+import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 
-@RunWith(TestrecorderAgentRunner.class)
+@ExtendWith(TestRecorderAgentExtension.class)
 @Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.LargeIntArrays" })
 public class LargeArraysTest {
 
     @Rule
     public Timeout timeout = new Timeout(10, TimeUnit.SECONDS);
 
-    @Before
-    public void before() throws Exception {
-        TestGenerator.fromRecorded().clearResults();
-    }
+    
 
     @Test
     public void testLargeIntArraysResultAndArgumentCompilable() throws Exception {

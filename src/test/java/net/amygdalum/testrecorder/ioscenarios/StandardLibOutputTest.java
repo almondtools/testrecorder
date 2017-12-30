@@ -6,22 +6,18 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.allOf;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.Instrumented;
-import net.amygdalum.testrecorder.util.TestrecorderAgentRunner;
+import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 
-@RunWith(TestrecorderAgentRunner.class)
+@ExtendWith(TestRecorderAgentExtension.class)
 @Instrumented(classes = { "net.amygdalum.testrecorder.ioscenarios.StandardLibInputOutput", "java.io.OutputStream", "java.io.ByteArrayOutputStream" }, config = StandardLibInputOutputTestRecorderAgentConfig.class)
 public class StandardLibOutputTest {
 
-	@Before
-	public void before() throws Exception {
-		TestGenerator.fromRecorded().clearResults();
-	}
+	
 
 	@Test
 	public void testJavaMethodCompilable() throws Exception {

@@ -6,15 +6,14 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.Instrumented;
-import net.amygdalum.testrecorder.util.TestrecorderAgentRunner;
+import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 
-@RunWith(TestrecorderAgentRunner.class)
+@ExtendWith(TestRecorderAgentExtension.class)
 @Instrumented(classes = { 
 	"net.amygdalum.testrecorder.scenarios.RejectedCases",
 	"net.amygdalum.testrecorder.scenarios.RejectedCases$ProtectedObject",
@@ -23,10 +22,7 @@ import net.amygdalum.testrecorder.util.TestrecorderAgentRunner;
 	})
 public class RejectedCasesTest {
 
-	@Before
-	public void before() throws Exception {
-		TestGenerator.fromRecorded().clearResults();
-	}
+	
 
 	@Test
 	public void testRejectedEmpty() throws Exception {

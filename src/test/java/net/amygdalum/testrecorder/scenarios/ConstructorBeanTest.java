@@ -10,22 +10,18 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.Instrumented;
-import net.amygdalum.testrecorder.util.TestrecorderAgentRunner;
+import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 
-@RunWith(TestrecorderAgentRunner.class)
+@ExtendWith(TestRecorderAgentExtension.class)
 @Instrumented(classes={"net.amygdalum.testrecorder.scenarios.ConstructorBean"})
 public class ConstructorBeanTest {
 
-	@Before
-	public void before() throws Exception {
-		TestGenerator.fromRecorded().clearResults();
-	}
+	
 	
 	@Test
 	public void testCompilable() throws Exception {

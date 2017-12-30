@@ -7,14 +7,14 @@ import static org.junit.Assert.assertThat;
 import java.io.Serializable;
 import java.security.Permission;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import net.amygdalum.testrecorder.runtime.GenericObject;
 import net.amygdalum.testrecorder.runtime.Throwables;
 
 @SuppressWarnings("unused")
-@RunWith(TestrecorderAgentRunner.class)
+@ExtendWith(TestRecorderAgentExtension.class)
 public class GenericObjectIsolatedTest {
 
     @Test

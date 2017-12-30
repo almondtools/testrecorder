@@ -5,25 +5,21 @@ import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.tes
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.scenarios.ConstructorsWithNestedEnums.ChainedEnum;
 import net.amygdalum.testrecorder.scenarios.ConstructorsWithNestedEnums.InnerEnum;
 import net.amygdalum.testrecorder.scenarios.ConstructorsWithNestedEnums.RecursiveEnum;
 import net.amygdalum.testrecorder.util.Instrumented;
-import net.amygdalum.testrecorder.util.TestrecorderAgentRunner;
+import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 
-@RunWith(TestrecorderAgentRunner.class)
+@ExtendWith(TestRecorderAgentExtension.class)
 @Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.ConstructorsWithNestedEnums" })
 public class ConstructorsWithNestedEnumsTest {
 
-	@Before
-	public void before() throws Exception {
-		TestGenerator.fromRecorded().clearResults();
-	}
+	
 
 	@Test
 	public void testCompilable() throws Exception {

@@ -5,18 +5,17 @@ import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.tes
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.almondtools.conmatch.strings.WildcardStringMatcher;
 
 import net.amygdalum.testrecorder.CodeSerializer;
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.Instrumented;
-import net.amygdalum.testrecorder.util.TestrecorderAgentRunner;
+import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 
-@RunWith(TestrecorderAgentRunner.class)
+@ExtendWith(TestRecorderAgentExtension.class)
 @Instrumented(classes={
 	"net.amygdalum.testrecorder.scenarios.DifferentDeclarationTypes",
 	"net.amygdalum.testrecorder.scenarios.MyEnum",
@@ -27,10 +26,7 @@ import net.amygdalum.testrecorder.util.TestrecorderAgentRunner;
 	"net.amygdalum.testrecorder.scenarios.MySingletonClass"})
 public class DifferentDeclarationTypesTest {
 
-	@Before
-	public void before() throws Exception {
-		TestGenerator.fromRecorded().clearResults();
-	}
+	
 	
 	@Test
 	public void testCompilable() throws Exception {
