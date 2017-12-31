@@ -5,16 +5,12 @@ import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -59,7 +55,7 @@ public class CollectionsSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), setDecoratedBy("unmodifiableSet", 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSequence(setDecoratedBy("unmodifiableSet", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
@@ -70,7 +66,7 @@ public class CollectionsSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), setDecoratedBy("unmodifiableSet", 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSequence(setDecoratedBy("unmodifiableSet", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
@@ -81,7 +77,7 @@ public class CollectionsSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), setDecoratedBy("unmodifiableSet", 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSequence(setDecoratedBy("unmodifiableSet", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
@@ -92,7 +88,7 @@ public class CollectionsSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), setDecoratedBy("synchronizedSet", 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSequence(setDecoratedBy("synchronizedSet", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
@@ -103,7 +99,7 @@ public class CollectionsSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), rawSetDecoratedBy("synchronizedSet", 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSequence(rawSetDecoratedBy("synchronizedSet", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
@@ -114,7 +110,7 @@ public class CollectionsSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), wildcardSetDecoratedBy("synchronizedSet", 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSequence(wildcardSetDecoratedBy("synchronizedSet", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
@@ -125,7 +121,7 @@ public class CollectionsSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), setDecoratedBy("synchronizedSet", 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSequence(setDecoratedBy("synchronizedSet", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
@@ -136,7 +132,7 @@ public class CollectionsSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), setDecoratedBy("synchronizedSet", 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSequence(setDecoratedBy("synchronizedSet", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
@@ -147,7 +143,7 @@ public class CollectionsSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), setDecoratedBy("checkedSet", Integer.class, 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSequence(setDecoratedBy("checkedSet", Integer.class, 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
@@ -158,7 +154,7 @@ public class CollectionsSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), setDecoratedBy("checkedSet", Integer.class, 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSequence(setDecoratedBy("checkedSet", Integer.class, 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
@@ -169,7 +165,7 @@ public class CollectionsSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), setDecoratedBy("checkedSet", Integer.class, 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSequence(setDecoratedBy("checkedSet", Integer.class, 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
@@ -180,7 +176,7 @@ public class CollectionsSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), containsString("Set<Integer> set1 = emptySet()"));
+		assertThat(result.getStatements().toString()).contains("Set<Integer> set1 = emptySet()");
 		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
@@ -191,7 +187,7 @@ public class CollectionsSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), containsString("Set<Integer> set1 = singleton(0)"));
+		assertThat(result.getStatements().toString()).contains("Set<Integer> set1 = singleton(0)");
 		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
@@ -200,7 +196,7 @@ public class CollectionsSetAdaptorTest {
 		SerializedSet value = setOf("java.lang.Object");
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		assertThrows(DeserializationException.class, () -> adaptor.tryDeserialize(value, generator, NULL));
+		assertThatThrownBy(() -> adaptor.tryDeserialize(value, generator, NULL)).isInstanceOf(DeserializationException.class);
 	}
 
 	private SerializedSet setOf(String className, int... elements) throws ClassNotFoundException {
@@ -227,52 +223,48 @@ public class CollectionsSetAdaptorTest {
 		return value;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Matcher<String> setDecoratedBy(String factory, int... elements) {
-		List<Matcher<String>> matchers = new ArrayList<>();
-		matchers.add(containsString("LinkedHashSet<Integer> set2 = new LinkedHashSet<Integer>()"));
+	private List<String> setDecoratedBy(String factory, int... elements) {
+		List<String> matchers = new ArrayList<>();
+		matchers.add("LinkedHashSet<Integer> set2 = new LinkedHashSet<Integer>()");
 		for (int element : elements) {
-			matchers.add(containsString("set2.add(" + element + ")"));
+			matchers.add("set2.add(" + element + "");
 		}
-		matchers.add(containsString("Set<Integer> set1 = " + factory + "(set2)"));
+		matchers.add("Set<Integer> set1 = " + factory + "(set2)");
 
-		return Matchers.<String> allOf((Iterable<Matcher<? super String>>) (Iterable) matchers);
+		return matchers;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Matcher<String> rawSetDecoratedBy(String factory, int... elements) {
-		List<Matcher<String>> matchers = new ArrayList<>();
-		matchers.add(containsString("LinkedHashSet<Object> set2 = new LinkedHashSet<Object>()"));
+	private List<String> rawSetDecoratedBy(String factory, int... elements) {
+		List<String> matchers = new ArrayList<>();
+		matchers.add("LinkedHashSet<Object> set2 = new LinkedHashSet<Object>()");
 		for (int element : elements) {
-			matchers.add(containsString("set2.add(" + element + ")"));
+			matchers.add("set2.add(" + element + "");
 		}
-		matchers.add(containsString("Set<Object> set1 = " + factory + "(set2)"));
+		matchers.add("Set<Object> set1 = " + factory + "(set2)");
 
-		return Matchers.<String> allOf((Iterable<Matcher<? super String>>) (Iterable) matchers);
+		return matchers;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Matcher<String> wildcardSetDecoratedBy(String factory, int... elements) {
-		List<Matcher<String>> matchers = new ArrayList<>();
-		matchers.add(containsString("LinkedHashSet set2 = new LinkedHashSet<>()"));
+	private List<String> wildcardSetDecoratedBy(String factory, int... elements) {
+		List<String> matchers = new ArrayList<>();
+		matchers.add("LinkedHashSet set2 = new LinkedHashSet<>()");
 		for (int element : elements) {
-			matchers.add(containsString("set2.add(" + element + ")"));
+			matchers.add("set2.add(" + element + "");
 		}
-		matchers.add(containsString("Set<?> set1 = " + factory + "(set2)"));
+		matchers.add("Set<?> set1 = " + factory + "(set2)");
 
-		return Matchers.<String> allOf((Iterable<Matcher<? super String>>) (Iterable) matchers);
+		return matchers;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Matcher<String> setDecoratedBy(String factory, Class<?> clazz, int... elements) {
-		List<Matcher<String>> matchers = new ArrayList<>();
-		matchers.add(containsString("LinkedHashSet<Integer> set2 = new LinkedHashSet<Integer>()"));
+	private List<String> setDecoratedBy(String factory, Class<?> clazz, int... elements) {
+		List<String> matchers = new ArrayList<>();
+		matchers.add("LinkedHashSet<Integer> set2 = new LinkedHashSet<Integer>()");
 		for (int element : elements) {
-			matchers.add(containsString("set2.add(" + element + ")"));
+			matchers.add("set2.add(" + element + "");
 		}
-		matchers.add(containsString("Set<Integer> set1 = " + factory + "(set2, " + clazz.getSimpleName() + ".class)"));
+		matchers.add("Set<Integer> set1 = " + factory + "(set2, " + clazz.getSimpleName() + ".class)");
 
-		return Matchers.<String> allOf((Iterable<Matcher<? super String>>) (Iterable) matchers);
+		return matchers;
 	}
 
 }

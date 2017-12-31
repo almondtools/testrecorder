@@ -3,8 +3,6 @@ package net.amygdalum.testrecorder.deserializers.builder;
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,7 +18,7 @@ public class DefaultArrayAdaptorTest {
 	public void before() throws Exception {
 		adaptor = new DefaultArrayAdaptor();
 	}
-	
+
 	@Test
 	public void testParentNull() throws Exception {
 		assertThat(adaptor.parent()).isNull();
@@ -40,12 +38,11 @@ public class DefaultArrayAdaptorTest {
 		value.add(literal(int.class, 8));
 		value.add(literal(int.class, 15));
 		SetupGenerators generator = new SetupGenerators(getClass());
-		
+
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
-		
-		assertThat(result.getStatements().toString(), containsString("int[] intArray1 = new int[]{0, 8, 15}"));
+
+		assertThat(result.getStatements().toString()).contains("int[] intArray1 = new int[]{0, 8, 15}");
 		assertThat(result.getValue()).isEqualTo("intArray1");
 	}
-
 
 }

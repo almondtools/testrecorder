@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
-import static org.junit.Assert.assertThat;
+import static net.amygdalum.assertjconventions.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -16,47 +15,47 @@ public class SubSuperBeanMatcherTest {
 	public void testCodeSerializerSimple() throws Exception {
 		CodeSerializer codeSerializer = matcherSerializer();
 		
-		assertThat(codeSerializer.serialize(createSimpleBean()), containsPattern(""
+		assertThat(codeSerializer.serialize(createSimpleBean())).containsWildcardPattern(""
 			+ "Matcher<SubBean> serializedObject1 = new GenericMatcher() {*"
 			+ "int i = 22;*"
 			+ "Object o = null;*"
-			+ "}.matching(SubBean.class)"));
+			+ "}.matching(SubBean.class)");
 	}
 
 	@Test
 	public void testCodeSerializerString() throws Exception {
 		CodeSerializer codeSerializer = matcherSerializer();
 		
-		assertThat(codeSerializer.serialize(createStringBean()), containsPattern(""
+		assertThat(codeSerializer.serialize(createStringBean())).containsWildcardPattern(""
 			+ "Matcher<SubBean> serializedObject1 = new GenericMatcher() {*"
 			+ "int i = 22;*"
 			+ "Object o = \"33\";*"
-			+ "}.matching(SubBean.class);"));
+			+ "}.matching(SubBean.class);");
 	}
 
 	@Test
 	public void testCodeSerializerNested() throws Exception {
 		CodeSerializer codeSerializer = matcherSerializer();
 		
-		assertThat(codeSerializer.serialize(createNestedBean()), containsPattern(""
+		assertThat(codeSerializer.serialize(createNestedBean())).containsWildcardPattern(""
 			+ "Matcher<SubBean> serializedObject1 = new GenericMatcher() {*"
 			+ "int i = 22;*"
 			+ "Matcher<?> o = new GenericMatcher() {*"
 			+ "int i = 0;*"
 			+ "Object o = null;*"
 			+ "}.matching(SubBean.class, Object.class);*"
-			+ "}.matching(SubBean.class);"));
+			+ "}.matching(SubBean.class);");
 	}
 	
 	@Test
 	public void testCodeSerializerRecursive() throws Exception {
 		CodeSerializer codeSerializer = matcherSerializer();
 		
-		assertThat(codeSerializer.serialize(createRecursiveBean()), containsPattern(""
+		assertThat(codeSerializer.serialize(createRecursiveBean())).containsWildcardPattern(""
 			+ "Matcher<SubBean> serializedObject1 = new GenericMatcher() {*"
 			+ "int i = 22;*"
 			+ "Matcher<?> o = recursive(SubBean.class);*"
-			+ "}.matching(SubBean.class);"));
+			+ "}.matching(SubBean.class);");
 	}
 
 	private static SubBean createSimpleBean() {

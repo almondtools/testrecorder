@@ -1,11 +1,10 @@
 package net.amygdalum.testrecorder.values;
 
-import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefaultEquality;
+import static net.amygdalum.assertjconventions.conventions.DefaultEquality.defaultEquality;
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThat;
 
 import java.lang.annotation.Annotation;
 
@@ -63,16 +62,17 @@ public class SerializedFieldTest {
 		assertThat(valueAnnotated.getAnnotations()).isEmpty();
 		assertThat(valueAnnotated.getAnnotation(MyAnnotation.class).isPresent()).isFalse();
 		assertThat(valueAnnotated.getAnnotation(NoAnnotation.class).isPresent()).isFalse();
-}
+	}
 
 	@Test
 	public void testEquals() throws Exception {
-		assertThat(new SerializedField(Object.class, "f", String.class, literal("sv")), satisfiesDefaultEquality()
+		assertThat(new SerializedField(Object.class, "f", String.class, literal("sv"))).satisfies(defaultEquality()
 			.andEqualTo(new SerializedField(Object.class, "f", String.class, literal("sv")))
 			.andNotEqualTo(new SerializedField(String.class, "f", String.class, literal("sv")))
 			.andNotEqualTo(new SerializedField(Object.class, "nf", String.class, literal("sv")))
 			.andNotEqualTo(new SerializedField(Object.class, "f", Object.class, literal("sv")))
-			.andNotEqualTo(new SerializedField(Object.class, "f", String.class, literal("nsv"))));
+			.andNotEqualTo(new SerializedField(Object.class, "f", String.class, literal("nsv")))
+			.conventions());
 	}
 
 }

@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder.types;
 
-import static com.almondtools.conmatch.exceptions.ExceptionMatcher.matchesException;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -9,13 +8,20 @@ public class DeserializationExceptionTest {
 
 	@Test
 	public void testDeserializationException() throws Exception {
-		assertThat(new DeserializationException("main msg"), matchesException(DeserializationException.class)
-			.withMessage("main msg"));
-		assertThat(new DeserializationException("main msg", new IllegalArgumentException("msg")), matchesException(DeserializationException.class)
-			.withCause(IllegalArgumentException.class)
-			.withMessage("main msg"));
-		assertThat(new DeserializationException(new IllegalArgumentException("msg")),matchesException(DeserializationException.class)
-			.withCause(matchesException(IllegalArgumentException.class).withMessage("msg")));
+		assertThat(new DeserializationException("main msg"))
+			.isInstanceOf(DeserializationException.class)
+			.hasMessage("main msg");
+		assertThat(new DeserializationException("main msg", new IllegalArgumentException("msg")))
+			.isInstanceOf(DeserializationException.class)
+			.hasMessage("main msg")
+			.satisfies(exception -> assertThat(exception.getCause())
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("msg"));
+		assertThat(new DeserializationException(new IllegalArgumentException("msg")))
+			.isInstanceOf(DeserializationException.class)
+			.satisfies(exception -> assertThat(exception.getCause())
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("msg"));
 	}
 
 }

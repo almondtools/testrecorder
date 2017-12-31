@@ -1,9 +1,8 @@
 package net.amygdalum.testrecorder.deserializers;
 
-import static com.almondtools.conmatch.conventions.UtilityClassMatcher.isUtilityClass;
+import static net.amygdalum.assertjconventions.conventions.UtilityClass.utilityClass;
 import static net.amygdalum.testrecorder.util.Literals.asLiteral;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 
@@ -13,7 +12,7 @@ public class TemplatesTest {
 
 	@Test
 	public void testTemplates() throws Exception {
-		assertThat(Templates.class, isUtilityClass());
+		assertThat(Templates.class).satisfies(utilityClass().conventions());
 	}
 
 	@Test

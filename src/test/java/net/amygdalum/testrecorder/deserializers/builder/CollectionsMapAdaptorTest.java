@@ -6,15 +6,11 @@ import static net.amygdalum.testrecorder.util.Types.wildcard;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -59,7 +55,7 @@ public class CollectionsMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), mapDecoratedBy("unmodifiableMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
+		assertThat(result.getStatements().toString()).containsSequence(mapDecoratedBy("unmodifiableMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
@@ -70,7 +66,7 @@ public class CollectionsMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), mapDecoratedBy("unmodifiableMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
+		assertThat(result.getStatements().toString()).containsSequence(mapDecoratedBy("unmodifiableMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
@@ -81,7 +77,7 @@ public class CollectionsMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), mapDecoratedBy("unmodifiableMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
+		assertThat(result.getStatements().toString()).containsSequence(mapDecoratedBy("unmodifiableMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
@@ -92,32 +88,32 @@ public class CollectionsMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), mapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
+		assertThat(result.getStatements().toString()).containsSequence(mapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
 	@Test
 	public void testTryDeserializeSynchronizedRawType() throws Exception {
-	    SerializedMap value = mapOfRaw("java.util.Collections$SynchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 });
-	    SetupGenerators generator = new SetupGenerators(getClass());
-	    
-	    Computation result = adaptor.tryDeserialize(value, generator, NULL);
-	    
-	    assertThat(result.getStatements().toString(), rawMapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
-	    assertThat(result.getValue()).isEqualTo("map1");
+		SerializedMap value = mapOfRaw("java.util.Collections$SynchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 });
+		SetupGenerators generator = new SetupGenerators(getClass());
+
+		Computation result = adaptor.tryDeserialize(value, generator, NULL);
+
+		assertThat(result.getStatements().toString()).containsSequence(rawMapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
+		assertThat(result.getValue()).isEqualTo("map1");
 	}
-	
+
 	@Test
 	public void testTryDeserializeSynchronizedWildcardType() throws Exception {
-	    SerializedMap value = mapOfWildcard("java.util.Collections$SynchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 });
-	    SetupGenerators generator = new SetupGenerators(getClass());
-	    
-	    Computation result = adaptor.tryDeserialize(value, generator, NULL);
-	    
-	    assertThat(result.getStatements().toString(), wildcardMapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
-	    assertThat(result.getValue()).isEqualTo("map1");
+		SerializedMap value = mapOfWildcard("java.util.Collections$SynchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 });
+		SetupGenerators generator = new SetupGenerators(getClass());
+
+		Computation result = adaptor.tryDeserialize(value, generator, NULL);
+
+		assertThat(result.getStatements().toString()).containsSequence(wildcardMapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
+		assertThat(result.getValue()).isEqualTo("map1");
 	}
-	
+
 	@Test
 	public void testTryDeserializeSynchronizedNavigable() throws Exception {
 		SerializedMap value = mapOf("java.util.Collections$SynchronizedNavigableMap", new int[] { 8, 15 }, new int[] { 47, 11 });
@@ -125,7 +121,7 @@ public class CollectionsMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), mapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
+		assertThat(result.getStatements().toString()).containsSequence(mapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
@@ -136,7 +132,7 @@ public class CollectionsMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), mapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
+		assertThat(result.getStatements().toString()).containsSequence(mapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
@@ -147,7 +143,7 @@ public class CollectionsMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), mapDecoratedBy("checkedMap", Integer.class, Integer.class, new int[] { 8, 15 }, new int[] { 47, 11 }));
+		assertThat(result.getStatements().toString()).containsSequence(mapDecoratedBy("checkedMap", Integer.class, Integer.class, new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
@@ -158,7 +154,7 @@ public class CollectionsMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), mapDecoratedBy("checkedMap", Integer.class, Integer.class, new int[] { 8, 15 }, new int[] { 47, 11 }));
+		assertThat(result.getStatements().toString()).containsSequence(mapDecoratedBy("checkedMap", Integer.class, Integer.class, new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
@@ -169,7 +165,7 @@ public class CollectionsMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), mapDecoratedBy("checkedMap", Integer.class, Integer.class, new int[] { 8, 15 }, new int[] { 47, 11 }));
+		assertThat(result.getStatements().toString()).containsSequence(mapDecoratedBy("checkedMap", Integer.class, Integer.class, new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
@@ -180,7 +176,7 @@ public class CollectionsMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), containsString("Map<Integer, Integer> map1 = emptyMap()"));
+		assertThat(result.getStatements().toString()).contains("Map<Integer, Integer> map1 = emptyMap()");
 		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
@@ -191,16 +187,16 @@ public class CollectionsMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), containsString("Map<Integer, Integer> map1 = singletonMap(8, 15)"));
+		assertThat(result.getStatements().toString()).contains("Map<Integer, Integer> map1 = singletonMap(8, 15)");
 		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
-	@Test 
+	@Test
 	public void testTryDeserializeOther() throws Exception {
 		SerializedMap value = mapOf("java.lang.Object");
 		SetupGenerators generator = new SetupGenerators(getClass());
 
-		assertThatThrownBy(() ->adaptor.tryDeserialize(value, generator, NULL)).isInstanceOf(DeserializationException.class);
+		assertThatThrownBy(() -> adaptor.tryDeserialize(value, generator, NULL)).isInstanceOf(DeserializationException.class);
 	}
 
 	private SerializedMap mapOf(String className, int[]... elements) throws ClassNotFoundException {
@@ -212,67 +208,67 @@ public class CollectionsMapAdaptorTest {
 	}
 
 	private SerializedMap mapOfRaw(String className, int[]... elements) throws ClassNotFoundException {
-	    SerializedMap value = new SerializedMap(Class.forName(className)).withResult(Map.class);
-	    for (int[] element : elements) {
-	        value.put(literal(element[0]), literal(Integer.class, element[1]));
-	    }
-	    return value;
-	}
-	
-	private SerializedMap mapOfWildcard(String className, int[]... elements) throws ClassNotFoundException {
-	    SerializedMap value = new SerializedMap(Class.forName(className)).withResult(parameterized(Map.class, null, wildcard(), wildcard()));
-	    for (int[] element : elements) {
-	        value.put(literal(element[0]), literal(Integer.class, element[1]));
-	    }
-	    return value;
-	}
-	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Matcher<String> mapDecoratedBy(String factory, int[]... elements) {
-		List<Matcher<String>> matchers = new ArrayList<>();
-		matchers.add(containsString("LinkedHashMap<Integer, Integer> map2 = new LinkedHashMap<Integer, Integer>()"));
+		SerializedMap value = new SerializedMap(Class.forName(className)).withResult(Map.class);
 		for (int[] element : elements) {
-			matchers.add(containsString("map2.put(" + element[0] + ", " + element[1] + ")"));
+			value.put(literal(element[0]), literal(Integer.class, element[1]));
 		}
-		matchers.add(containsString("Map<Integer, Integer> map1 = " + factory + "(map2)"));
-
-		return Matchers.<String> allOf((Iterable<Matcher<? super String>>) (Iterable) matchers);
+		return value;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Matcher<String> rawMapDecoratedBy(String factory, int[]... elements) {
-	    List<Matcher<String>> matchers = new ArrayList<>();
-	    matchers.add(containsString("LinkedHashMap<Object, Object> map2 = new LinkedHashMap<Object, Object>()"));
-	    for (int[] element : elements) {
-	        matchers.add(containsString("map2.put(" + element[0] + ", " + element[1] + ")"));
-	    }
-	    matchers.add(containsString("Map<Object, Object> map1 = " + factory + "(map2)"));
-	    
-	    return Matchers.<String> allOf((Iterable<Matcher<? super String>>) (Iterable) matchers);
+	private SerializedMap mapOfWildcard(String className, int[]... elements) throws ClassNotFoundException {
+		SerializedMap value = new SerializedMap(Class.forName(className)).withResult(parameterized(Map.class, null, wildcard(), wildcard()));
+		for (int[] element : elements) {
+			value.put(literal(element[0]), literal(Integer.class, element[1]));
+		}
+		return value;
 	}
-	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Matcher<String> wildcardMapDecoratedBy(String factory, int[]... elements) {
-	    List<Matcher<String>> matchers = new ArrayList<>();
-	    matchers.add(containsString("LinkedHashMap map2 = new LinkedHashMap<>()"));
-	    for (int[] element : elements) {
-	        matchers.add(containsString("map2.put(" + element[0] + ", " + element[1] + ")"));
-	    }
-	    matchers.add(containsString("Map<?, ?> map1 = " + factory + "(map2)"));
-	    
-	    return Matchers.<String> allOf((Iterable<Matcher<? super String>>) (Iterable) matchers);
+
+	private List<String> mapDecoratedBy(String factory, int[]... elements) {
+		List<String> matchers = new ArrayList<>();
+
+		matchers.add("LinkedHashMap<Integer, Integer> map2 = new LinkedHashMap<Integer, Integer>()");
+		for (int[] element : elements) {
+			matchers.add("map2.put(" + element[0] + ", " + element[1] + "");
+		}
+		matchers.add("Map<Integer, Integer> map1 = " + factory + "(map2)");
+
+		return matchers;
 	}
-	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Matcher<String> mapDecoratedBy(String factory, Class<?> keyClazz, Class<?> valueClazz, int[]... elements) {
-		List<Matcher<String>> matchers = new ArrayList<>();
-		matchers.add(containsString("LinkedHashMap<Integer, Integer> map2 = new LinkedHashMap<Integer, Integer>()"));
+
+	private List<String> rawMapDecoratedBy(String factory, int[]... elements) {
+		List<String> matchers = new ArrayList<>();
+
+		matchers.add("LinkedHashMap<Object, Object> map2 = new LinkedHashMap<Object, Object>()");
+		for (int[] element : elements) {
+			matchers.add("map2.put(" + element[0] + ", " + element[1] + "");
+		}
+		matchers.add("Map<Object, Object> map1 = " + factory + "(map2)");
+
+		return matchers;
+	}
+
+	private List<String> wildcardMapDecoratedBy(String factory, int[]... elements) {
+		List<String> matchers = new ArrayList<>();
+
+		matchers.add("LinkedHashMap map2 = new LinkedHashMap<>()");
+		for (int[] element : elements) {
+			matchers.add("map2.put(" + element[0] + ", " + element[1] + "");
+		}
+		matchers.add("Map<?, ?> map1 = " + factory + "(map2)");
+
+		return matchers;
+	}
+
+	private List<String> mapDecoratedBy(String factory, Class<?> keyClazz, Class<?> valueClazz, int[]... elements) {
+		List<String> matchers = new ArrayList<>();
+
+		matchers.add("LinkedHashMap<Integer, Integer> map2 = new LinkedHashMap<Integer, Integer>()");
 		for (int element[] : elements) {
-			matchers.add(containsString("map2.put(" + element[0] + ", " + element[1] + ")"));
+			matchers.add("map2.put(" + element[0] + ", " + element[1] + "");
 		}
-		matchers.add(containsString("Map<Integer, Integer> map1 = " + factory + "(map2, " + keyClazz.getSimpleName() + ".class, " + valueClazz.getSimpleName() + ".class)"));
+		matchers.add("Map<Integer, Integer> map1 = " + factory + "(map2, " + keyClazz.getSimpleName() + ".class, " + valueClazz.getSimpleName() + ".class)");
 
-		return Matchers.<String> allOf((Iterable<Matcher<? super String>>) (Iterable) matchers);
+		return matchers;
 	}
 
 }

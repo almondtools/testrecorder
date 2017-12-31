@@ -1,8 +1,6 @@
 package net.amygdalum.testrecorder.runtime;
 
-import static com.almondtools.conmatch.conventions.ReflectiveEqualsMatcher.reflectiveEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThat;
 
 import java.io.Serializable;
 
@@ -137,7 +135,8 @@ public class GenericObjectTest {
 	public void testForwardWrapped() throws Exception {
 		Wrapped obj = GenericObject.forward(Wrapped.clazz(SimplePrivateConstructor.class.getName()));
 
-		assertThat((SimplePrivateConstructor) obj.value(), reflectiveEqualTo(new SimplePrivateConstructor()));
+		assertThat((SimplePrivateConstructor) obj.value())
+			.isEqualToComparingFieldByFieldRecursively(new SimplePrivateConstructor());
 	}
 
 	@Test

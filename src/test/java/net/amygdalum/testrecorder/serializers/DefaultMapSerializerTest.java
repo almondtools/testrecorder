@@ -4,8 +4,7 @@ import static java.util.Collections.singletonMap;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.collection.IsMapContaining.hasEntry;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -61,7 +60,7 @@ public class DefaultMapSerializerTest {
 
 		serializer.populate(value, singletonMap("Foo", 42));
 
-		assertThat(value, hasEntry(foo, i42));
+		assertThat(value).containsExactly(entry(foo, i42));
 	}
 
 }

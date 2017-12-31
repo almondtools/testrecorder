@@ -5,9 +5,6 @@ import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenSet;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Type;
 import java.util.HashSet;
@@ -139,7 +136,7 @@ public class DefaultSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), not(containsString("new net.amygdalum.testrecorder.util.testobjects.Hidden.HiddenSet")));
+		assertThat(result.getStatements().toString()).doesNotContain("new net.amygdalum.testrecorder.util.testobjects.Hidden.HiddenSet");
 		assertThat(result.getStatements().toString()).containsSequence(
 			"LinkedHashSet<Integer> set1 = (LinkedHashSet<Integer>) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenSet\").value();",
 			"set1.add(0)",

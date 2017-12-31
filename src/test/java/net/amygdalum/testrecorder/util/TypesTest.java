@@ -1,12 +1,10 @@
 package net.amygdalum.testrecorder.util;
 
-import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefaultEquality;
-import static com.almondtools.conmatch.conventions.UtilityClassMatcher.isUtilityClass;
-import static com.almondtools.conmatch.exceptions.ExceptionMatcher.matchesException;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
-import static net.amygdalum.testrecorder.runtime.Throwables.capture;
+import static net.amygdalum.assertjconventions.conventions.DefaultEquality.defaultEquality;
+import static net.amygdalum.assertjconventions.conventions.UtilityClass.utilityClass;
 import static net.amygdalum.testrecorder.util.Types.allFields;
 import static net.amygdalum.testrecorder.util.Types.allMethods;
 import static net.amygdalum.testrecorder.util.Types.array;
@@ -35,7 +33,6 @@ import static net.amygdalum.testrecorder.util.Types.wildcardExtends;
 import static net.amygdalum.testrecorder.util.Types.wildcardSuper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
@@ -59,6 +56,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.assertjconventions.conventions.DefaultEquality;
 import net.amygdalum.testrecorder.util.TypesTest.NestedPackagePrivate;
 import net.amygdalum.testrecorder.util.TypesTest.NestedProtected;
 import net.amygdalum.testrecorder.util.TypesTest.NestedPublic;
@@ -82,7 +80,7 @@ public class TypesTest {
 
 	@Test
 	public void testTypes() throws Exception {
-		assertThat(Types.class, isUtilityClass());
+		assertThat(Types.class).satisfies(utilityClass().conventions());
 	}
 
 	@Test
@@ -354,9 +352,12 @@ public class TypesTest {
 		assertThat(getDeclaredMethod(Sub1.class, "getStr")).isEqualTo(Super.class.getDeclaredMethod("getStr"));
 		assertThat(getDeclaredMethod(Sub2.class, "setSubAttr", boolean.class)).isEqualTo(Sub2.class.getDeclaredMethod("setSubAttr", boolean.class));
 		assertThat(getDeclaredMethod(Sub2.class, "getStr")).isEqualTo(Super.class.getDeclaredMethod("getStr"));
-		assertThat(capture(() -> getDeclaredMethod(Sub1.class, "nonExistent")), matchesException(NoSuchMethodException.class));
-		assertThat(capture(() -> getDeclaredMethod(Sub2.class, "nonExistent")), matchesException(NoSuchMethodException.class));
-		assertThat(capture(() -> getDeclaredMethod(Super.class, "nonExistent")), matchesException(NoSuchMethodException.class));
+		assertThatThrownBy(() -> getDeclaredMethod(Sub1.class, "nonExistent"))
+			.isInstanceOf(NoSuchMethodException.class);
+		assertThatThrownBy(() -> getDeclaredMethod(Sub2.class, "nonExistent"))
+			.isInstanceOf(NoSuchMethodException.class);
+		assertThatThrownBy(() -> getDeclaredMethod(Super.class, "nonExistent"))
+			.isInstanceOf(NoSuchMethodException.class);
 	}
 
 	@Test
@@ -365,9 +366,12 @@ public class TypesTest {
 		assertThat(sub1Fields).containsExactly(Sub1.class.getDeclaredField("subAttr"), Super.class.getDeclaredField("str"));
 		List<Field> sub2Fields = allFields(Sub2.class);
 		assertThat(sub2Fields).containsExactly(Sub2.class.getDeclaredField("subAttr"), Super.class.getDeclaredField("str"));
-		assertThat(capture(() -> getDeclaredField(Sub1.class, "nonExistent")), matchesException(NoSuchFieldException.class));
-		assertThat(capture(() -> getDeclaredField(Sub2.class, "nonExistent")), matchesException(NoSuchFieldException.class));
-		assertThat(capture(() -> getDeclaredField(Super.class, "nonExistent")), matchesException(NoSuchFieldException.class));
+		assertThatThrownBy(() -> getDeclaredField(Sub1.class, "nonExistent"))
+			.isInstanceOf(NoSuchFieldException.class);
+		assertThatThrownBy(() -> getDeclaredField(Sub2.class, "nonExistent"))
+			.isInstanceOf(NoSuchFieldException.class);
+		assertThatThrownBy(() -> getDeclaredField(Super.class, "nonExistent"))
+			.isInstanceOf(NoSuchFieldException.class);
 	}
 
 	@Test
@@ -455,9 +459,10 @@ public class TypesTest {
 		assertThat(array(parameterized(List.class, null, String.class)).getTypeName()).isEqualTo("java.util.List<java.lang.String>[]");
 		assertThat(array(parameterized(List.class, null, String.class)).toString()).isEqualTo("java.util.List<java.lang.String>[]");
 		assertThat(((GenericArrayType) array(parameterized(List.class, null, String.class))).getGenericComponentType()).isEqualTo(parameterized(List.class, null, String.class));
-		assertThat(array(parameterized(List.class, null, String.class)), satisfiesDefaultEquality()
+		assertThat(array(parameterized(List.class, null, String.class))).satisfies(defaultEquality()
 			.andEqualTo(array(parameterized(List.class, null, String.class)))
-			.andNotEqualTo(array(String.class)));
+			.andNotEqualTo(array(String.class))
+			.conventions());
 	}
 
 	@Test
@@ -470,10 +475,11 @@ public class TypesTest {
 		assertThat(parameterized(List.class, null, (Type[]) null).getTypeName()).isEqualTo("java.util.List<>");
 		assertThat(parameterized(List.class, null, String.class).toString()).isEqualTo("java.util.List<java.lang.String>");
 
-		assertThat(parameterized(List.class, null, String.class), satisfiesDefaultEquality()
+		assertThat(parameterized(List.class, null, String.class)).satisfies(DefaultEquality.defaultEquality()
 			.andNotEqualTo(parameterized(List.class, List.class, String.class))
 			.andNotEqualTo(parameterized(Set.class, null, String.class))
-			.andNotEqualTo(parameterized(List.class, null, Object.class)));
+			.andNotEqualTo(parameterized(List.class, null, Object.class))
+			.conventions());
 	}
 
 	@Test
@@ -487,10 +493,11 @@ public class TypesTest {
 		assertThat(wildcardSuper(String.class).getTypeName()).isEqualTo("? super java.lang.String");
 		assertThat(wildcardSuper(String.class).toString()).isEqualTo("? super java.lang.String");
 		assertThat(wildcardSuper(String.class).getLowerBounds()).containsExactly(String.class);
-		assertThat(wildcard(), satisfiesDefaultEquality()
+		assertThat(wildcard()).satisfies(DefaultEquality.defaultEquality()
 			.andEqualTo(wildcard())
 			.andNotEqualTo(wildcardExtends(String.class))
-			.andNotEqualTo(wildcardSuper(String.class)));
+			.andNotEqualTo(wildcardSuper(String.class))
+			.conventions());
 	}
 
 	@Test

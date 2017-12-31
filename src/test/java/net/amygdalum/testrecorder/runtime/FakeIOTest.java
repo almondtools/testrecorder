@@ -1,10 +1,9 @@
 package net.amygdalum.testrecorder.runtime;
 
-import static com.almondtools.conmatch.exceptions.ExceptionMatcher.matchesException;
-import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
+import static net.amygdalum.assertjconventions.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -162,18 +161,19 @@ public class FakeIOTest {
 
 		Throwable exception = Throwables.capture(() -> inputs.notrecorded());
 
-		assertThat(exception.getMessage(), containsPattern("missing input for:"
+		assertThat(exception.getMessage()).containsWildcardPattern("missing input for:"
 			+ "\n*called from*"
 			+ "\n"
-			+ "\nIf the input was recorded ensure that all call sites are recorded"));
-		assertThat(Throwables.capture(faked::verify), matchesException(AssertionError.class)
-			.withMessage(containsPattern("expected but not found"
+			+ "\nIf the input was recorded ensure that all call sites are recorded");
+		assertThatThrownBy(faked::verify)
+			.isInstanceOf(AssertionError.class)
+			.satisfies(e -> assertThat(e.getMessage()).containsWildcardPattern("expected but not found"
 				+ "*"
 				+ "read()"
 				+ "*"
 				+ "read()"
 				+ "*"
-				+ "read()")));
+				+ "read()"));
 	}
 
 	@Test
@@ -191,10 +191,10 @@ public class FakeIOTest {
 
 		Throwable exception = Throwables.capture(() -> inputs.recorded());
 
-		assertThat(exception.getMessage(), containsPattern("missing input for:"
+		assertThat(exception.getMessage()).containsWildcardPattern("missing input for:"
 			+ "\n*called from*"
 			+ "\n"
-			+ "\nIf the input was recorded ensure that all call sites are recorded"));
+			+ "\nIf the input was recorded ensure that all call sites are recorded");
 		faked.verify();
 	}
 
@@ -250,16 +250,18 @@ public class FakeIOTest {
 
 		Throwable exception = Throwables.capture(() -> outputs.notrecorded());
 
-		assertThat(exception.getMessage(), containsPattern("missing input for:"
+		assertThat(exception.getMessage()).containsWildcardPattern("missing input for:"
 			+ "\n*called from*"
 			+ "\n"
-			+ "\nIf the input was recorded ensure that all call sites are recorded"));
-		assertThat(Throwables.capture(faked::verify), matchesException(AssertionError.class)
-			.withMessage(containsPattern("expected but not found"
-				+ "*"
-				+ "print(\"Hello \")"
-				+ "*"
-				+ "print(\"World\")")));
+			+ "\nIf the input was recorded ensure that all call sites are recorded");
+		assertThatThrownBy(faked::verify)
+			.isInstanceOf(AssertionError.class)
+			.satisfies(e -> assertThat(e.getMessage())
+				.containsWildcardPattern("expected but not found"
+					+ "*"
+					+ "print(\"Hello \")"
+					+ "*"
+					+ "print(\"World\")"));
 	}
 
 	@Test
@@ -281,9 +283,10 @@ public class FakeIOTest {
 			+ "\nprint(\"Welt\")"
 			+ "\nbut found:"
 			+ "\nprint(\"World\")");
-		assertThat(Throwables.capture(faked::verify), matchesException(AssertionError.class)
-			.withMessage(containsPattern("expected but not found"
-				+ "* " + "print(\"Welt\")")));
+		assertThatThrownBy(faked::verify)
+			.isInstanceOf(AssertionError.class)
+			.satisfies(e -> assertThat(e.getMessage()).containsWildcardPattern("expected but not found"
+				+ "* " + "print(\"Welt\")"));
 	}
 
 	@Test
@@ -300,14 +303,15 @@ public class FakeIOTest {
 			.add(Outputs.class, "recorded", 15, null, equalTo("!"))
 			.setup();
 
-		assertThat(Throwables.capture(faked::verify), matchesException(AssertionError.class)
-			.withMessage(containsPattern("expected but not found"
-				+ "*" 
+		assertThatThrownBy(faked::verify)
+			.isInstanceOf(AssertionError.class)
+			.satisfies(e -> assertThat(e.getMessage()).containsWildcardPattern("expected but not found"
+				+ "*"
 				+ "print(\"Hello \")"
-				+ "*" 
+				+ "*"
 				+ "print(\"World\")"
-				+ "*" 
-				+ "print(\"!\")")));
+				+ "*"
+				+ "print(\"!\")"));
 	}
 
 	@Test

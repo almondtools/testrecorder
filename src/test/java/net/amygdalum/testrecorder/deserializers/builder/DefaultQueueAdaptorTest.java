@@ -5,9 +5,6 @@ import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenQueue;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Type;
 import java.util.Deque;
@@ -137,7 +134,7 @@ public class DefaultQueueAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), not(containsString("new net.amygdalum.testrecorder.util.testobjects.Hidden.HiddenQueue")));
+		assertThat(result.getStatements().toString()).doesNotContain("new net.amygdalum.testrecorder.util.testobjects.Hidden.HiddenQueue");
 		assertThat(result.getStatements().toString()).containsSequence(
 			"LinkedList<Integer> queue1 = (LinkedList<Integer>) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenQueue\").value();",
 			"queue1.add(0)",

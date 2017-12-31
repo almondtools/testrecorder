@@ -1,11 +1,8 @@
 package net.amygdalum.testrecorder.values;
 
-import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
+import static net.amygdalum.assertjconventions.Assertions.assertThat;
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -43,10 +40,10 @@ public class ValuePrinterTest {
 
 		String visitReferenceType = printer.visitReferenceType(object, NULL);
 
-		assertThat(visitReferenceType, containsPattern(""
+		assertThat(visitReferenceType).containsWildcardPattern(""
 			+ "net.amygdalum.testrecorder.util.testobjects.Simple/*{*"
 			+ "java.lang.String str: v*"
-			+ "}"));
+			+ "}");
 	}
 
 	@Test
@@ -57,8 +54,8 @@ public class ValuePrinterTest {
 		String visitReferenceType = printer.visitReferenceType(object, NULL);
 		visitReferenceType = printer.visitReferenceType(object, NULL);
 
-		assertThat(visitReferenceType, containsPattern("net.amygdalum.testrecorder.util.testobjects.Simple/*"));
-		assertThat(visitReferenceType, not(containsPattern("java.lang.String str: v")));
+		assertThat(visitReferenceType).containsWildcardPattern("net.amygdalum.testrecorder.util.testobjects.Simple/*");
+		assertThat(visitReferenceType).doesNotContain("java.lang.String str: v");
 	}
 
 	@Test

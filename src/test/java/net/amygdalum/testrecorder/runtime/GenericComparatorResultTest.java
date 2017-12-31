@@ -1,15 +1,17 @@
 package net.amygdalum.testrecorder.runtime;
 
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-import com.almondtools.conmatch.conventions.EnumMatcher;
+import net.amygdalum.assertjconventions.conventions.DefaultEnum;
 
 public class GenericComparatorResultTest {
 
-    @Test
-    public void testGenericComparatorResult() throws Exception {
-        assertThat(GenericComparatorResult.class, EnumMatcher.isEnum().withElements(3));
-    }
+	@Test
+	public void testGenericComparatorResult() throws Exception {
+		assertThat(GenericComparatorResult.class).satisfies(DefaultEnum.defaultEnum()
+			.withElements(3)
+			.conventions());
+	}
 }

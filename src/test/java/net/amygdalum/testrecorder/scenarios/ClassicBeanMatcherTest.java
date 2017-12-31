@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
-import static org.junit.Assert.assertThat;
+import static net.amygdalum.assertjconventions.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -15,48 +14,48 @@ public class ClassicBeanMatcherTest {
 	@Test
 	public void testCodeSerializerSimple() throws Exception {
 		CodeSerializer codeSerializer = matcherSerializer();
-		
-		assertThat(codeSerializer.serialize(createSimpleBean()), containsPattern(""
+
+		assertThat(codeSerializer.serialize(createSimpleBean())).containsWildcardPattern(""
 			+ "Matcher<ClassicBean> serializedObject1 = new GenericMatcher() {*"
 			+ "int i = 22;*"
 			+ "Object o = null;*"
-			+ "}.matching(ClassicBean.class)"));
+			+ "}.matching(ClassicBean.class)");
 	}
 
 	@Test
 	public void testCodeSerializerString() throws Exception {
 		CodeSerializer codeSerializer = matcherSerializer();
-		
-		assertThat(codeSerializer.serialize(createStringBean()), containsPattern(""
+
+		assertThat(codeSerializer.serialize(createStringBean())).containsWildcardPattern(""
 			+ "Matcher<ClassicBean> serializedObject1 = new GenericMatcher() {*"
 			+ "int i = 22;*"
 			+ "Object o = \"33\";*"
-			+ "}.matching(ClassicBean.class);"));
+			+ "}.matching(ClassicBean.class);");
 	}
 
 	@Test
 	public void testCodeSerializerNested() throws Exception {
 		CodeSerializer codeSerializer = matcherSerializer();
-		
-		assertThat(codeSerializer.serialize(createNestedBean()), containsPattern(""
+
+		assertThat(codeSerializer.serialize(createNestedBean())).containsWildcardPattern(""
 			+ "Matcher<ClassicBean> serializedObject1 = new GenericMatcher() {*"
 			+ "int i = 22;*"
 			+ "Matcher<?> o = new GenericMatcher() {*"
 			+ "int i = 0;*"
 			+ "Object o = null;*"
 			+ "}.matching(ClassicBean.class, Object.class);*"
-			+ "}.matching(ClassicBean.class);"));
+			+ "}.matching(ClassicBean.class);");
 	}
 
 	@Test
 	public void testCodeSerializerRecursive() throws Exception {
 		CodeSerializer codeSerializer = matcherSerializer();
-		
-		assertThat(codeSerializer.serialize(createRecursiveBean()), containsPattern(""
+
+		assertThat(codeSerializer.serialize(createRecursiveBean())).containsWildcardPattern(""
 			+ "Matcher<ClassicBean> serializedObject1 = new GenericMatcher() {*"
 			+ "int i = 22;*"
 			+ "Matcher<?> o = recursive(ClassicBean.class);*"
-			+ "}.matching(ClassicBean.class);"));
+			+ "}.matching(ClassicBean.class);");
 	}
 
 	private static ClassicBean createSimpleBean() {
@@ -88,9 +87,10 @@ public class ClassicBeanMatcherTest {
 	}
 
 	private static CodeSerializer matcherSerializer() {
-		CodeSerializer codeSerializer = new CodeSerializer("net.amygdalum.testrecorder.scenarios", new ConfigurableSerializerFacade(new DefaultTestRecorderAgentConfig()), new MatcherGenerators.Factory());
+		CodeSerializer codeSerializer = new CodeSerializer("net.amygdalum.testrecorder.scenarios", new ConfigurableSerializerFacade(new DefaultTestRecorderAgentConfig()),
+			new MatcherGenerators.Factory());
 		codeSerializer.getTypes().registerTypes(ClassicBean.class);
-        return codeSerializer;
+		return codeSerializer;
 	}
 
 }

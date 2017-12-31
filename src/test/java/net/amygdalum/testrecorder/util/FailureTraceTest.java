@@ -2,9 +2,7 @@ package net.amygdalum.testrecorder.util;
 
 import static java.util.Arrays.asList;
 import static net.amygdalum.testrecorder.runtime.ContainsMatcher.contains;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
@@ -25,8 +23,8 @@ public class FailureTraceTest {
 			public String str = "myStr";
 		}.matching(Simple.class);
 
-		assertThat(describeMismatch(matcher, new Simple("notMyStr")), containsString("str: \"myStr\" != \"notMyStr\""));
-		assertThat(describeMismatch(matcher, new Simple("notMyStr")), not(containsString(".str: \"myStr\" != \"notMyStr\"")));
+		assertThat(describeMismatch(matcher, new Simple("notMyStr"))).contains("str: \"myStr\" != \"notMyStr\"");
+		assertThat(describeMismatch(matcher, new Simple("notMyStr"))).doesNotContain(".str: \"myStr\" != \"notMyStr\"");
 	}
 
 	@Test
@@ -37,7 +35,7 @@ public class FailureTraceTest {
 			}.matching(Simple.class);
 		}.matching(Complex.class);
 
-		assertThat(describeMismatch(matcher, new Complex("notOtherStr")), containsString("simple.str: \"otherStr\" != \"notOtherStr\""));
+		assertThat(describeMismatch(matcher, new Complex("notOtherStr"))).contains("simple.str: \"otherStr\" != \"notOtherStr\"");
 	}
 
 	@Test
@@ -46,7 +44,7 @@ public class FailureTraceTest {
 			public Matcher<?> set = contains(String.class, "first", "second");
 		}.matching(ContainingSet.class);
 
-		assertThat(describeMismatch(matcher, new ContainingSet(asList("first", "notsecond"))), containsString("set: containing [<\"first\">, <\"second\">] != <[first, notsecond]>"));
+		assertThat(describeMismatch(matcher, new ContainingSet(asList("first", "notsecond")))).contains("set: containing [<\"first\">, <\"second\">] != <[first, notsecond]>");
 	}
 
 	@Test
@@ -55,7 +53,7 @@ public class FailureTraceTest {
 			public Matcher<?> list = contains(String.class, "first", "second");
 		}.matching(ContainingList.class);
 
-		assertThat(describeMismatch(matcher, new ContainingList(asList("first", "notsecond"))), containsString("list: containing [<\"first\">, <\"second\">] != <[first, notsecond]>"));
+		assertThat(describeMismatch(matcher, new ContainingList(asList("first", "notsecond")))).contains("list: containing [<\"first\">, <\"second\">] != <[first, notsecond]>");
 	}
 
 	private <T> String describeMismatch(Matcher<T> matcher, T object) {

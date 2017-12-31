@@ -4,8 +4,6 @@ import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContex
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -58,7 +56,7 @@ public class SimpleDeserializerTest {
 
 		Object visitReferenceType = deserializer.visitReferenceType(object, NULL);
 
-		assertThat(visitReferenceType, instanceOf(Simple.class));
+		assertThat(visitReferenceType).isInstanceOf(Simple.class);
 		assertThat(((Simple) visitReferenceType).getStr()).isEqualTo("v");
 	}
 
@@ -88,7 +86,7 @@ public class SimpleDeserializerTest {
 
 		Object visitReferenceType = deserializer.visitReferenceType(object, NULL);
 
-		assertThat(visitReferenceType, instanceOf(ArrayList.class));
+		assertThat(visitReferenceType).isInstanceOf(ArrayList.class);
 		assertThat(((List) visitReferenceType).get(0)).isEqualTo(1);
 	}
 
@@ -100,7 +98,7 @@ public class SimpleDeserializerTest {
 
 		Object visitReferenceType = deserializer.visitReferenceType(object, NULL);
 
-		assertThat(visitReferenceType, instanceOf(HashSet.class));
+		assertThat(visitReferenceType).isInstanceOf(HashSet.class);
 		assertThat(((Set) visitReferenceType).iterator().next()).isEqualTo(true);
 	}
 
@@ -112,7 +110,7 @@ public class SimpleDeserializerTest {
 
 		Object visitReferenceType = deserializer.visitReferenceType(object, NULL);
 
-		assertThat(visitReferenceType, instanceOf(HashMap.class));
+		assertThat(visitReferenceType).isInstanceOf(HashMap.class);
 		assertThat(((Map) visitReferenceType).get(1.0)).isEqualTo("one");
 	}
 

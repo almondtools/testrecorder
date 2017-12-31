@@ -10,7 +10,7 @@ import static net.amygdalum.testrecorder.values.GenericTypes.mapOfStringString;
 import static net.amygdalum.testrecorder.values.ParameterizedTypeMatcher.parameterizedType;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.collection.IsMapContaining.hasEntry;
+import static org.assertj.core.api.Assertions.entry;
 import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.TypeVariable;
@@ -171,8 +171,8 @@ public class SerializedMapTest {
 
 		map.putAll(value);
 
-		assertThat(map, hasEntry(literal("key1"), literal("value1")));
-		assertThat(map, hasEntry(literal("key2"), literal("value2")));
+		assertThat(map).contains(entry(literal("key1"), literal("value1")));
+		assertThat(map).contains(entry(literal("key2"), literal("value2")));
 	}
 
 	@Test

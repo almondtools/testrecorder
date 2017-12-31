@@ -1,11 +1,10 @@
 package net.amygdalum.testrecorder.util;
 
-import static com.almondtools.conmatch.conventions.UtilityClassMatcher.isUtilityClass;
+import static net.amygdalum.assertjconventions.conventions.UtilityClass.utilityClass;
 import static net.amygdalum.testrecorder.util.TypeFilters.endingWith;
 import static net.amygdalum.testrecorder.util.TypeFilters.in;
 import static net.amygdalum.testrecorder.util.TypeFilters.startingWith;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
@@ -15,7 +14,7 @@ public class TypeFiltersTest {
 
     @Test
     public void testTypeFilters() throws Exception {
-        assertThat(TypeFilters.class, isUtilityClass());
+        assertThat(TypeFilters.class).satisfies(utilityClass().conventions());
     }
 
     @Test

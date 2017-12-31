@@ -2,8 +2,6 @@ package net.amygdalum.testrecorder;
 
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertThat;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -176,10 +174,7 @@ public class ContextSnapshotTest {
 	public void testToString() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(Object.class, String.class, "method", Integer.class);
 
-		assertThat(snapshot.toString(), containsString("Object"));
-		assertThat(snapshot.toString(), containsString("String"));
-		assertThat(snapshot.toString(), containsString("method"));
-		assertThat(snapshot.toString(), containsString("Integer"));
+		assertThat(snapshot.toString()).contains("Object", "String", "method", "Integer");
 	}
 
 	private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {

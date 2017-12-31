@@ -1,9 +1,8 @@
 package net.amygdalum.testrecorder.ioscenarios;
 
-import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
+import static net.amygdalum.assertjconventions.Assertions.assertThat;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -17,8 +16,6 @@ import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 @Instrumented(classes = { "net.amygdalum.testrecorder.ioscenarios.HiddenInput", "net.amygdalum.testrecorder.ioscenarios.Inputs" })
 public class HiddenInputTest {
 
-	
-
 	@Test
 	public void testInputImmediate() throws Exception {
 		HiddenInput input = new HiddenInput();
@@ -30,7 +27,7 @@ public class HiddenInputTest {
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(HiddenInput.class), compiles(HiddenInput.class));
 		assertThat(testGenerator.renderTest(HiddenInput.class), testsRun(HiddenInput.class));
-		assertThat(testGenerator.renderTest(HiddenInput.class), containsPattern(".add(HiddenInput.class, \"inputImmediate\", *, \"Hello\")"));
+		assertThat(testGenerator.renderTest(HiddenInput.class)).containsWildcardPattern(".add(HiddenInput.class, \"inputImmediate\", *, \"Hello\")");
 	}
 
 	@Test
@@ -44,7 +41,7 @@ public class HiddenInputTest {
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(HiddenInput.class), compiles(HiddenInput.class));
 		assertThat(testGenerator.renderTest(HiddenInput.class), testsRun(HiddenInput.class));
-		assertThat(testGenerator.renderTest(HiddenInput.class), containsPattern(".add(HiddenInput.class, \"inputFromField\", *, \"Hello\")"));
+		assertThat(testGenerator.renderTest(HiddenInput.class)).containsWildcardPattern(".add(HiddenInput.class, \"inputFromField\", *, \"Hello\")");
 	}
 
 }

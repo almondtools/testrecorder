@@ -1,13 +1,10 @@
 package net.amygdalum.testrecorder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 
-import com.almondtools.conmatch.exceptions.ExceptionMatcher;
-
-import net.amygdalum.testrecorder.runtime.Throwables;
 import net.amygdalum.testrecorder.types.SerializationException;
 import net.amygdalum.testrecorder.util.Types;
 import net.amygdalum.testrecorder.util.testobjects.Static;
@@ -38,6 +35,8 @@ public class GlobalContextTest {
 	public void testGlobalsOnNonexistingField() throws Exception {
 		GlobalContext globalContext = new GlobalContext();
 		globalContext.add("net.amygdalum.testrecorder.util.testobjects.Static", "notexisting");
-		assertThat(Throwables.capture(() -> globalContext.globals()), ExceptionMatcher.matchesException(SerializationException.class).withCause(NoSuchFieldException.class));
+		assertThatThrownBy(() -> globalContext.globals())
+			.isInstanceOf(SerializationException.class)
+			.hasCauseExactlyInstanceOf(NoSuchFieldException.class);
 	}
 }

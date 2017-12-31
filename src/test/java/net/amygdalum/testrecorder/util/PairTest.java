@@ -1,8 +1,7 @@
 package net.amygdalum.testrecorder.util;
 
-import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefaultEquality;
+import static net.amygdalum.assertjconventions.conventions.DefaultEquality.defaultEquality;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
@@ -17,12 +16,13 @@ public class PairTest {
 
 	@Test
 	public void testEqualsHashCode() throws Exception {
-		assertThat(new Pair<String, Integer>("string", 11), satisfiesDefaultEquality()
+		assertThat(new Pair<String, Integer>("string", 11)).satisfies(defaultEquality()
 			.andEqualTo(new Pair<String, Integer>("string", 11))
 			.andNotEqualTo(new Pair<String, Integer>("s", 11))
 			.andNotEqualTo(new Pair<String, Integer>("string", 12))
 			.andNotEqualTo(new Pair<String, String>("string", "string"))
-			.andNotEqualTo(new Pair<Integer, Integer>(11, 11)));
+			.andNotEqualTo(new Pair<Integer, Integer>(11, 11))
+			.conventions());
 	}
 
 	@SuppressWarnings("unchecked")

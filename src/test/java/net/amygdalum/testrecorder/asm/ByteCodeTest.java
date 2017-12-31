@@ -1,8 +1,8 @@
 package net.amygdalum.testrecorder.asm;
 
-import static com.almondtools.conmatch.exceptions.ExceptionMatcher.matchesException;
+import static net.amygdalum.assertjconventions.conventions.UtilityClass.utilityClass;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.Opcodes;
@@ -10,9 +10,6 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
-import com.almondtools.conmatch.conventions.UtilityClassMatcher;
-
-import net.amygdalum.testrecorder.runtime.Throwables;
 import net.amygdalum.testrecorder.util.testobjects.Complex;
 import net.amygdalum.testrecorder.util.testobjects.PublicEnum;
 import net.amygdalum.testrecorder.util.testobjects.Simple;
@@ -21,29 +18,35 @@ public class ByteCodeTest {
 
 	@Test
 	public void testByteCode() throws Exception {
-		assertThat(ByteCode.class, UtilityClassMatcher.isUtilityClass());
+		assertThat(ByteCode.class).satisfies(utilityClass().conventions());
 	}
 
 	@Test
 	public void testConstructorDescriptor() throws Exception {
 		assertThat(ByteCode.constructorDescriptor(String.class)).isEqualTo("()V");
 		assertThat(ByteCode.constructorDescriptor(String.class, char[].class)).isEqualTo("([C)V");
-		assertThat(Throwables.capture(() -> ByteCode.constructorDescriptor(String.class, int.class)), matchesException(ByteCodeException.class).withCause(NoSuchMethodException.class));
+		assertThatThrownBy(() -> ByteCode.constructorDescriptor(String.class, int.class))
+			.isInstanceOf(ByteCodeException.class)
+			.hasCauseExactlyInstanceOf(NoSuchMethodException.class);
 	}
 
 	@Test
 	public void testMethodDescriptor() throws Exception {
 		assertThat(ByteCode.methodDescriptor(String.class, "getBytes")).isEqualTo("()[B");
 		assertThat(ByteCode.methodDescriptor(String.class, "valueOf", char[].class)).isEqualTo("([C)Ljava/lang/String;");
-		assertThat(Throwables.capture(() -> ByteCode.methodDescriptor(String.class, "valueOf", String.class)), matchesException(ByteCodeException.class).withCause(NoSuchMethodException.class));
+		assertThatThrownBy(() -> ByteCode.methodDescriptor(String.class, "valueOf", String.class))
+			.isInstanceOf(ByteCodeException.class)
+			.hasCauseExactlyInstanceOf(NoSuchMethodException.class);
 	}
 
 	@Test
 	public void testFieldDescriptor() throws Exception {
 		assertThat(ByteCode.fieldDescriptor(System.class, "out")).isEqualTo("Ljava/io/PrintStream;");
-		assertThat(Throwables.capture(() -> ByteCode.fieldDescriptor(System.class, "inout")), matchesException(ByteCodeException.class).withCause(NoSuchFieldException.class));
+		assertThatThrownBy(() -> ByteCode.fieldDescriptor(System.class, "inout"))
+			.isInstanceOf(ByteCodeException.class)
+			.hasCauseExactlyInstanceOf(NoSuchFieldException.class);
 	}
-	
+
 	@Test
 	public void testBoxedType() throws Exception {
 		assertThat(ByteCode.boxedType(Type.BOOLEAN_TYPE)).isEqualTo(Type.getType(Boolean.class));
@@ -118,7 +121,7 @@ public class ByteCodeTest {
 		assertThat(ByteCode.isNative(methodWithModifiers(Opcodes.ACC_NATIVE))).isTrue();
 		assertThat(ByteCode.isNative(methodWithModifiers(~Opcodes.ACC_NATIVE))).isFalse();
 	}
-	
+
 	@Test
 	public void testReturnsResult() throws Exception {
 		assertThat(ByteCode.returnsResult(methodWithDesc("()I"))).isTrue();
@@ -126,7 +129,7 @@ public class ByteCodeTest {
 		assertThat(ByteCode.returnsResult(methodInsnWithDesc("()I"))).isTrue();
 		assertThat(ByteCode.returnsResult(methodInsnWithDesc("()V"))).isFalse();
 	}
-	
+
 	private MethodNode methodWithModifiers(int modifiers) {
 		return new MethodNode(modifiers, null, null, null, null);
 	}
@@ -134,7 +137,7 @@ public class ByteCodeTest {
 	private MethodNode methodWithDesc(String desc) {
 		return new MethodNode(0, null, desc, null, null);
 	}
-	
+
 	private MethodInsnNode methodInsnWithDesc(String desc) {
 		return new MethodInsnNode(0, null, null, desc, false);
 	}
@@ -146,7 +149,7 @@ public class ByteCodeTest {
 		assertThat(ByteCode.isPrimitive(Type.getType(Integer.class))).isFalse();
 		assertThat(ByteCode.isPrimitive(Type.getType(Object.class))).isFalse();
 	}
-	
+
 	@Test
 	public void testIsArray() throws Exception {
 		assertThat(ByteCode.isArray(Type.getType(int[].class))).isTrue();
@@ -163,7 +166,9 @@ public class ByteCodeTest {
 		assertThat(ByteCode.classFrom("net/amygdalum/testrecorder/util/testobjects/Simple", ByteCodeTest.class.getClassLoader())).isEqualTo(Simple.class);
 		assertThat(ByteCode.classFrom(Type.getType(Complex[].class))).isEqualTo(Complex[].class);
 		assertThat(ByteCode.classFrom(Type.getType(int.class))).isEqualTo(int.class);
-		assertThat(Throwables.capture(() -> ByteCode.classFrom("net/amygdalum/testrecorder/util/testobjects/NotExisting")), matchesException(ByteCodeException.class).withCause(ClassNotFoundException.class));
+		assertThatThrownBy(() -> ByteCode.classFrom("net/amygdalum/testrecorder/util/testobjects/NotExisting"))
+			.isInstanceOf(ByteCodeException.class)
+			.hasCauseExactlyInstanceOf(ClassNotFoundException.class);
 	}
 
 	@Test
@@ -172,12 +177,12 @@ public class ByteCodeTest {
 		assertThat(ByteCode.argumentTypesFrom("(Ljava/lang/Object;)I")).containsExactly(Object.class);
 		assertThat(ByteCode.argumentTypesFrom("(IC)V")).containsExactly(int.class, char.class);
 	}
-	
+
 	@Test
 	public void testResultType() throws Exception {
 		assertThat(ByteCode.resultTypeFrom("()V")).isEqualTo(void.class);
 		assertThat(ByteCode.resultTypeFrom("(Ljava/lang/Object;)I")).isEqualTo(int.class);
 		assertThat(ByteCode.resultTypeFrom("(IC)Ljava/lang/String;")).isEqualTo(String.class);
 	}
-	
+
 }

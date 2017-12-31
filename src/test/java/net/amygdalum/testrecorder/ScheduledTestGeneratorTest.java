@@ -1,12 +1,10 @@
 package net.amygdalum.testrecorder;
 
-import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
+import static net.amygdalum.assertjconventions.Assertions.assertThat;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -256,7 +254,7 @@ public class ScheduledTestGeneratorTest {
 	public void testComputeClassNameWithTemplate() throws Exception {
 		assertThat(testGenerator.withClassName("${class}Suffix").computeClassName(ClassDescriptor.of(MyClass.class))).isEqualTo("MyClassSuffix");
 		assertThat(testGenerator.withClassName("${counter}Suffix").computeClassName(ClassDescriptor.of(MyClass.class))).isEqualTo("0Suffix");
-		assertThat(testGenerator.withClassName("Prefix${millis}Suffix").computeClassName(ClassDescriptor.of(MyClass.class)), containsPattern("Prefix*Suffix"));
+		assertThat(testGenerator.withClassName("Prefix${millis}Suffix").computeClassName(ClassDescriptor.of(MyClass.class))).containsWildcardPattern("Prefix*Suffix");
 	}
 
 	@Test
@@ -372,13 +370,13 @@ public class ScheduledTestGeneratorTest {
 		assertThat(files()).containsExactly("2Test.java");
 		testGenerator.accept(newSnapshot());
 		testGenerator.await();
-		assertThat(files(), containsInAnyOrder("2Test.java", "4Test.java"));
+		assertThat(files()).contains("2Test.java", "4Test.java");
 		testGenerator.accept(newSnapshot());
 		testGenerator.await();
-		assertThat(files(), containsInAnyOrder("2Test.java", "4Test.java"));
+		assertThat(files()).contains("2Test.java", "4Test.java");
 		testGenerator.accept(newSnapshot());
 		testGenerator.await();
-		assertThat(files(), containsInAnyOrder("2Test.java", "4Test.java"));
+		assertThat(files()).contains("2Test.java", "4Test.java");
 	}
 
 	@Test
@@ -407,7 +405,7 @@ public class ScheduledTestGeneratorTest {
 
 		shutdown.run();
 
-		assertThat(files(), containsInAnyOrder("5Test.java"));
+		assertThat(files()).contains("5Test.java");
 	}
 
 	@Test
@@ -439,7 +437,7 @@ public class ScheduledTestGeneratorTest {
 
 		shutdown.run();
 
-		assertThat(files(), containsInAnyOrder("2Test.java", "2SecondTest.java"));
+		assertThat(files()).contains("2Test.java", "2SecondTest.java");
 	}
 
 	private List<String> files() {

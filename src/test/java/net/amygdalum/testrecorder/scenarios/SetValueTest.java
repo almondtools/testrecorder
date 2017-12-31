@@ -1,9 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
+import static net.amygdalum.assertjconventions.Assertions.assertThat;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThat;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -37,11 +35,11 @@ public class SetValueTest {
 		m.add("foo");
 		m.add("bar");
 
-		assertThat(codeSerializer.serialize(parameterized(Set.class, null, String.class), m), containsPattern(""
+		assertThat(codeSerializer.serialize(parameterized(Set.class, null, String.class), m)).containsWildcardPattern(""
 			+ "LinkedHashSet temp1 = new LinkedHashSet<>();*"
 			+ "temp1.add(\"foo\");*"
 			+ "temp1.add(\"bar\");*"
-			+ "Set<String> set1 = temp1;"));
+			+ "Set<String> set1 = temp1;");
 	}
 
 }

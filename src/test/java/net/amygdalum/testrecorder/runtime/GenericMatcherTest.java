@@ -1,14 +1,10 @@
 package net.amygdalum.testrecorder.runtime;
 
-import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
+import static net.amygdalum.assertjconventions.Assertions.assertThat;
 import static net.amygdalum.testrecorder.runtime.GenericMatcher.recursive;
-import static net.amygdalum.xrayinterface.IsEquivalent.equivalentTo;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 
 import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
@@ -34,18 +30,18 @@ public class GenericMatcherTest {
 
 	@Test
 	public void testMatchingSimple() throws Exception {
-		assertThat(new Simple("myStr"), new GenericMatcher() {
+		assertThat(new GenericMatcher() {
 			public String str = "myStr";
 
-		}.matching(Simple.class));
+		}.matching(Simple.class).matches(new Simple("myStr"))).isTrue();
 	}
 
 	@Test
 	public void testNotMatchingSimple() throws Exception {
-		assertThat(new Simple("myStr"), not(new GenericMatcher() {
+		assertThat(new GenericMatcher() {
 			public String str = "myOtherStr";
 
-		}.matching(Simple.class)));
+		}.matching(Simple.class).matches(new Simple("myStr"))).isFalse();
 	}
 
 	@Test
@@ -73,29 +69,30 @@ public class GenericMatcherTest {
 
 	@Test
 	public void testMatchingComplex() throws Exception {
-		assertThat(new Complex(), new GenericMatcher() {
+		assertThat(new GenericMatcher() {
 			public Matcher<Simple> simple = new GenericMatcher() {
 				public String str = "otherStr";
 			}.matching(Simple.class);
-		}.matching(Complex.class));
+		}.matching(Complex.class).matches(new Complex())).isTrue();
 	}
 
 	@Test
 	public void testNotMatchingComplex() throws Exception {
-		assertThat(new Complex(), not(new GenericMatcher() {
+		assertThat(new GenericMatcher() {
 			public Matcher<Simple> simple = new GenericMatcher() {
 				public String str = "myStr";
 			}.matching(Simple.class);
-		}.matching(Complex.class)));
+		}.matching(Complex.class).matches(new Complex())).isFalse();
 	}
 
 	@Test
 	public void testMismatchesSimple() throws Exception {
 		assertThat(new GenericMatcher() {
 			public String str = "myStr";
-		}.mismatchesWith(null, new Simple("notMyStr")), contains(equivalentTo(GenericComparisonMatcher.class)
-			.withLeft("myStr")
-			.withRight("notMyStr")));
+		}.mismatchesWith(null, new Simple("notMyStr"))).anySatisfy(mismatch -> {
+			assertThat(mismatch.getLeft()).isEqualTo("myStr");
+			assertThat(mismatch.getRight()).isEqualTo("notMyStr");
+		});
 	}
 
 	@Test
@@ -121,18 +118,18 @@ public class GenericMatcherTest {
 		Wrapped expected = Wrapped.clazz(Simple.class.getName());
 		expected.setField("str", "myStr");
 
-		assertThat(new Simple("myStr"), new GenericMatcher() {
+		assertThat(new GenericMatcher() {
 			public String str = "myStr";
 
-		}.matching(expected));
+		}.matching(expected).matches(new Simple("myStr"))).isTrue();
 	}
 
 	@Test
 	public void testMatchingCasting() throws Exception {
-		assertThat((Super) new Sub("myStr"), new GenericMatcher() {
+		assertThat(new GenericMatcher() {
 			public String str = "myStr";
 
-		}.matching(Sub.class, Super.class));
+		}.matching(Sub.class, Super.class).matches((Super) new Sub("myStr"))).isTrue();
 	}
 
 	@Test
@@ -140,10 +137,10 @@ public class GenericMatcherTest {
 		Wrapped expected = Wrapped.clazz(Sub.class.getName());
 		expected.setField("str", "myStr");
 
-		assertThat((Super) new Sub("myStr"), new GenericMatcher() {
+		assertThat(new GenericMatcher() {
 			public String str = "myStr";
 
-		}.matching(expected, Super.class));
+		}.matching(expected, Super.class).matches((Super) new Sub("myStr"))).isTrue();
 	}
 
 	@Test
@@ -290,39 +287,40 @@ public class GenericMatcherTest {
 
 	@Test
 	public void testMismatchesNull() throws Exception {
-		assertThat((Simple) null, not(new GenericMatcher() {
+		assertThat(new GenericMatcher() {
 			public String str = "myStr";
 
-		}.matching(Simple.class)));
-		assertThat(new Simple(null), not(new GenericMatcher() {
+		}.matching(Simple.class).matches((Simple) null)).isFalse();
+
+		assertThat(new GenericMatcher() {
 			public String str = "myStr";
 
-		}.matching(Simple.class)));
-		assertThat(new GenericObject() {
-			public Simple simple = null;
-		}.as(Complex.class), not(new GenericMatcher() {
+		}.matching(Simple.class).matches(new Simple(null))).isFalse();
+
+		assertThat(new GenericMatcher() {
 			public Matcher<?> simple = new GenericMatcher() {
 				public String str = "myStr";
 			}.matching(Simple.class);
-
-		}.matching(Complex.class)));
+		}.matching(Complex.class).matches(new GenericObject() {
+			public Simple simple = null;
+		}.as(Complex.class))).isFalse();
 	}
 
 	@Test
 	public void testMatchesNull() throws Exception {
-		assertThat((Simple) new Simple(null), new GenericMatcher() {
+		assertThat(new GenericMatcher() {
 			public String str = null;
 
-		}.matching(Simple.class));
+		}.matching(Simple.class).matches((Simple) new Simple(null))).isTrue();
 	}
 
 	@Test
 	public void testMatchesSyntheticClasses() throws Exception {
 		Functional f = x -> x * x;
-		assertThat(f, not(new GenericMatcher() {
-		}.matching(String.class, Object.class)));
-		assertThat(f, new GenericMatcher() {
-		}.matching(Functional.class));
+		assertThat(new GenericMatcher() {
+		}.matching(String.class, Object.class).matches(f)).isFalse();
+		assertThat(new GenericMatcher() {
+		}.matching(Functional.class).matches(f)).isTrue();
 
 	}
 
@@ -335,7 +333,7 @@ public class GenericMatcherTest {
 		}.matching(Simple.class);
 		matching.describeTo(description);
 
-		assertThat(description.toString(), containsPattern("net.amygdalum.testrecorder.util.testobjects.Simple {*String str: \"str\";*}"));
+		assertThat(description.toString()).containsWildcardPattern("net.amygdalum.testrecorder.util.testobjects.Simple {*String str: \"str\";*}");
 	}
 
 	@Test
@@ -347,7 +345,7 @@ public class GenericMatcherTest {
 		}.matching(Simple.class);
 		matching.describeTo(description);
 
-		assertThat(description.toString(), containsPattern("net.amygdalum.testrecorder.util.testobjects.Simple {*String str: a string containing \"st\";*}"));
+		assertThat(description.toString()).containsWildcardPattern("net.amygdalum.testrecorder.util.testobjects.Simple {*String str: a string containing \"st\";*}");
 	}
 
 	interface GenericComparisonMatcher extends Matcher<GenericComparison> {

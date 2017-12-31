@@ -14,8 +14,6 @@ import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 @ExtendWith(TestRecorderAgentExtension.class)
 @Instrumented(classes={"net.amygdalum.testrecorder.ioscenarios.DelegatedInput", "net.amygdalum.testrecorder.ioscenarios.DelegatedInput$SingleInput"})
 public class DelegatedInputTest {
-
-	
 	
 	@Test
 	public void testCompilable() throws Exception {

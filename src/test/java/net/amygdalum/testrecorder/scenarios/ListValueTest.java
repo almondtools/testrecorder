@@ -1,8 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
+import static net.amygdalum.assertjconventions.Assertions.assertThat;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
-import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +20,10 @@ public class ListValueTest {
 		m.add("foo");
 		m.add("bar");
 
-		assertThat(codeSerializer.serialize(m), containsPattern(""
+		assertThat(codeSerializer.serialize(m)).containsWildcardPattern(""
 			+ "ArrayList list1 = new ArrayList<>();*"
 			+ "list1.add(\"foo\");*"
-			+ "list1.add(\"bar\");"));
+			+ "list1.add(\"bar\");");
 	}
 
 	@Test
@@ -35,11 +34,11 @@ public class ListValueTest {
 		m.add("foo");
 		m.add("bar");
 
-		assertThat(codeSerializer.serialize(parameterized(List.class, null, String.class), m), containsPattern(""
+		assertThat(codeSerializer.serialize(parameterized(List.class, null, String.class), m)).containsWildcardPattern(""
 			+ "ArrayList temp1 = new ArrayList<>();*"
 			+ "temp1.add(\"foo\");*"
 			+ "temp1.add(\"bar\");*"
-			+ "List<String> list1 = temp1;"));
+			+ "List<String> list1 = temp1;");
 	}
 
 }

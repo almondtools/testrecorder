@@ -1,8 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
+import static net.amygdalum.assertjconventions.Assertions.assertThat;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
-import static org.junit.Assert.assertThat;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -21,9 +20,9 @@ public class MapValueTest {
 		Map<String, Integer> m = new HashMap<String, Integer>();
 		m.put("bar", new Integer(21));
 
-		assertThat(codeSerializer.serialize(m), containsPattern(""
+		assertThat(codeSerializer.serialize(m)).containsWildcardPattern(""
 			+ "HashMap map1 = new HashMap<>();*"
-			+ "map1.put(\"bar\", 21);"));
+			+ "map1.put(\"bar\", 21);");
 	}
 
 	@Test
@@ -33,10 +32,10 @@ public class MapValueTest {
 		Map<String, Integer> m = new LinkedHashMap<String, Integer>();
 		m.put("bar", new Integer(21));
 
-		assertThat(codeSerializer.serialize(parameterized(Map.class, null, String.class, Integer.class), m), containsPattern(""
+		assertThat(codeSerializer.serialize(parameterized(Map.class, null, String.class, Integer.class), m)).containsWildcardPattern(""
 			+ "LinkedHashMap temp1 = new LinkedHashMap<>();*"
 			+ "temp1.put(\"bar\", 21);*"
-			+ "Map<String, Integer> map1 = temp1;"));
+			+ "Map<String, Integer> map1 = temp1;");
 	}
 
 }

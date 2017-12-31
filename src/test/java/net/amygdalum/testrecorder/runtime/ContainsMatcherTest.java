@@ -1,15 +1,14 @@
 package net.amygdalum.testrecorder.runtime;
 
-import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
+import static net.amygdalum.assertjconventions.Assertions.assertThat;
 import static net.amygdalum.testrecorder.runtime.ContainsMatcher.contains;
 import static net.amygdalum.testrecorder.runtime.ContainsMatcher.empty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
 
 import org.hamcrest.StringDescription;
 import org.junit.jupiter.api.Test;
@@ -57,12 +56,12 @@ public class ContainsMatcherTest {
 
         contains(String.class, "A", "b").describeMismatchSafely(asList("a", "b"), description);
 
-        assertThat(description.toString(), containsPattern(""
+        assertThat(description.toString()).containsWildcardPattern(""
             + "mismatching elements <[*"
             + ".,*"
             + "found 1 elements surplus [was \"a\"],*"
             + "missing 1 elements*"
-            + "]>"));
+            + "]>");
     }
 
     @Test
@@ -71,12 +70,12 @@ public class ContainsMatcherTest {
 
         contains(String.class, "A", null).describeMismatchSafely(asList("A", "b"), description);
 
-        assertThat(description.toString(), containsPattern(""
+        assertThat(description.toString()).containsWildcardPattern(""
             + "mismatching elements <[*"
             + ".,*"
             + "found 1 elements surplus [was \"b\"],*"
             + "missing 1 elements*"
-            + "]>"));
+            + "]>");
     }
 
     @Test
@@ -85,11 +84,11 @@ public class ContainsMatcherTest {
 
         contains(String.class, "A", "b").describeMismatchSafely(asList("A", "b", "c"), description);
 
-        assertThat(description.toString(), containsPattern(""
+        assertThat(description.toString()).containsWildcardPattern(""
             + "mismatching elements <[*"
             + ".,*"
             + "found 1 elements surplus [was \"c\"]*"
-            + "]>"));
+            + "]>");
     }
 
     @Test
@@ -98,11 +97,11 @@ public class ContainsMatcherTest {
 
         contains(String.class, "A", "b").describeMismatchSafely(asList("A"), description);
 
-        assertThat(description.toString(), containsPattern(""
+        assertThat(description.toString()).containsWildcardPattern(""
             + "mismatching elements <[*"
             + ".,*"
             + "missing 1 elements*"
-            + "]>"));
+            + "]>");
     }
 
     @Test
@@ -111,11 +110,11 @@ public class ContainsMatcherTest {
 
         contains(String.class, nullValue()).describeMismatchSafely(asList("A"), description);
 
-        assertThat(description.toString(), containsPattern(""
+        assertThat(description.toString()).containsWildcardPattern(""
             + "mismatching elements <["
             + "found 1 elements surplus [was \"A\"]*"
             + "missing 1 elements"
-            + "]>"));
+            + "]>");
     }
 
 }

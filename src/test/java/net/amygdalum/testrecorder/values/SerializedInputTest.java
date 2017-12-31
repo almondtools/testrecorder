@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.values;
 
-import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefaultEquality;
+import static net.amygdalum.assertjconventions.conventions.DefaultEquality.defaultEquality;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -80,7 +80,7 @@ public class SerializedInputTest {
 	public void testEquals() throws Exception {
 		inputNoResult.equals(new SerializedInput(43, call(caller, InputStream.class, "read"), InputStream.class, "read", void.class, new Type[] { byte[].class, int.class, int.class })
 			.updateArguments(new SerializedArray(byte.class), literal(int.class, 0), literal(int.class, 0)));
-		assertThat(input, satisfiesDefaultEquality()
+		assertThat(input).satisfies(defaultEquality()
 			.andEqualTo(new SerializedInput(42, call(caller, BufferedReader.class, "readLine"), BufferedReader.class, "readLine", String.class, new Type[0])
 				.updateResult(literal("Hello"))
 				.updateArguments(new SerializedValue[0]))
@@ -108,12 +108,14 @@ public class SerializedInputTest {
 				.updateArguments(new SerializedValue[0]))
 			.andNotEqualTo(new SerializedInput(42, call(caller, BufferedReader.class, "readLine"), BufferedReader.class, "readLine", String.class, new Type[0])
 				.updateResult(literal("Hello"))
-				.updateArguments(literal("value"))));
+				.updateArguments(literal("value")))
+			.conventions());
 
-		assertThat(inputNoResult, satisfiesDefaultEquality()
+		assertThat(inputNoResult).satisfies(defaultEquality()
 			.andEqualTo(new SerializedInput(43, call(caller, InputStream.class, "read"), InputStream.class, "read", void.class, new Type[] { byte[].class, int.class, int.class })
 				.updateArguments(inputNoResult.getArguments()))
-			.andNotEqualTo(input));
+			.andNotEqualTo(input)
+			.conventions());
 	}
 
 	@Test

@@ -1,12 +1,10 @@
 package net.amygdalum.testrecorder.util;
 
-import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefaultEquality;
+import static net.amygdalum.assertjconventions.conventions.DefaultEquality.defaultEquality;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
-
 
 public class TripleTest {
 
@@ -19,13 +17,14 @@ public class TripleTest {
 
 	@Test
 	public void testEqualsHashCode() throws Exception {
-		assertThat(new Triple<String, Integer, Float>("string", 11, 0.1f), satisfiesDefaultEquality()
+		assertThat(new Triple<String, Integer, Float>("string", 11, 0.1f)).satisfies(defaultEquality()
 			.andEqualTo(new Triple<String, Integer, Float>("string", 11, 0.1f))
 			.andNotEqualTo(new Triple<String, Integer, Float>("s", 11, 0.1f))
 			.andNotEqualTo(new Triple<String, Integer, Float>("string", 12, 0.1f))
 			.andNotEqualTo(new Triple<String, Integer, Float>("string", 11, 0.2f))
 			.andNotEqualTo(new Triple<String, String, String>("string", "string", "string"))
-			.andNotEqualTo(new Triple<Integer, Integer, Integer>(11, 11, 11)));
+			.andNotEqualTo(new Triple<Integer, Integer, Integer>(11, 11, 11))
+			.conventions());
 	}
 
 	@SuppressWarnings("unchecked")

@@ -1,10 +1,8 @@
 package net.amygdalum.testrecorder.values;
 
-import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefaultEquality;
+import static net.amygdalum.assertjconventions.conventions.DefaultEquality.defaultEquality;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -74,7 +72,7 @@ public class SerializedOutputTest {
 
 	@Test
 	public void testEquals() throws Exception {
-		assertThat(outputNoResult, satisfiesDefaultEquality()
+		assertThat(outputNoResult).satisfies(defaultEquality()
 			.andEqualTo(new SerializedOutput(41, call(caller, PrintStream.class, "println"), PrintStream.class, "println", void.class, new Type[] { String.class })
 				.updateArguments(literal("Hello")))
 			.andNotEqualTo(output)
@@ -89,9 +87,10 @@ public class SerializedOutputTest {
 			.andNotEqualTo(new SerializedOutput(41, call(caller, PrintStream.class, "println"), PrintStream.class, "println", void.class, new Type[] { Object.class })
 				.updateArguments(literal("Hello")))
 			.andNotEqualTo(new SerializedOutput(41, call(caller, PrintStream.class, "println"), PrintStream.class, "println", void.class, new Type[] { String.class })
-				.updateArguments(literal("Hello World"))));
+				.updateArguments(literal("Hello World")))
+			.conventions());
 
-		assertThat(output, satisfiesDefaultEquality()
+		assertThat(output).satisfies(defaultEquality()
 			.andEqualTo(new SerializedOutput(41, call(caller, PrintStream.class, "append"), PrintStream.class, "append", PrintStream.class, new Type[] { CharSequence.class })
 				.updateArguments(literal("Hello"))
 				.updateResult(output.getResult()))
@@ -104,18 +103,15 @@ public class SerializedOutputTest {
 				.updateResult(null))
 			.andNotEqualTo(new SerializedOutput(41, call(caller, PrintStream.class, "append"), PrintStream.class, "append", OutputStream.class, new Type[] { CharSequence.class })
 				.updateArguments(literal("Hello"))
-				.updateResult(output.getResult())));
+				.updateResult(output.getResult()))
+			.conventions());
 	}
 
 	@Test
 	public void testToString() throws Exception {
-		assertThat(output.toString(), containsString("PrintStream"));
-		assertThat(output.toString(), containsString("append"));
-		assertThat(output.toString(), containsString("Hello"));
+		assertThat(output.toString()).contains("PrintStream", "append", "Hello");
 
-		assertThat(outputNoResult.toString(), containsString("PrintStream"));
-		assertThat(outputNoResult.toString(), containsString("println"));
-		assertThat(outputNoResult.toString(), containsString("Hello"));
+		assertThat(outputNoResult.toString()).contains("PrintStream", "println", "Hello");
 	}
 
 	private StackTraceElement[] call(StackTraceElement caller, Class<?> clazz, String method) {
