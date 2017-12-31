@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder.asm;
 
-import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.Type;
@@ -14,23 +13,23 @@ public class ReturnDummyTest {
 	public void testReturnObjectDummy() throws Exception {
 		ReturnDummy invokeNew = new ReturnDummy();
 
-		assertThat(ByteCode.toString(invokeNew.build(methodContext(Type.getType(Object.class)))), contains("ACONST_NULL", "ARETURN"));
-		assertThat(ByteCode.toString(invokeNew.build(methodContext(Type.getType(String.class)))), contains("ACONST_NULL", "ARETURN"));
+		assertThat(ByteCode.toString(invokeNew.build(methodContext(Type.getType(Object.class))))).containsExactly("ACONST_NULL", "ARETURN");
+		assertThat(ByteCode.toString(invokeNew.build(methodContext(Type.getType(String.class))))).containsExactly("ACONST_NULL", "ARETURN");
 	}
 
 	@Test
 	public void testReturnPrimitiveDummy() throws Exception {
 		ReturnDummy invokeNew = new ReturnDummy();
 
-		assertThat(ByteCode.toString(invokeNew.build(methodContext(Type.getType(byte.class)))), contains("ICONST_0", "IRETURN"));
-		assertThat(ByteCode.toString(invokeNew.build(methodContext(Type.getType(short.class)))), contains("ICONST_0", "IRETURN"));
-		assertThat(ByteCode.toString(invokeNew.build(methodContext(Type.getType(int.class)))), contains("ICONST_0", "IRETURN"));
-		assertThat(ByteCode.toString(invokeNew.build(methodContext(Type.getType(long.class)))), contains("LCONST_0", "LRETURN"));
-		assertThat(ByteCode.toString(invokeNew.build(methodContext(Type.getType(float.class)))), contains("FCONST_0", "FRETURN"));
-		assertThat(ByteCode.toString(invokeNew.build(methodContext(Type.getType(double.class)))), contains("DCONST_0", "DRETURN"));
-		assertThat(ByteCode.toString(invokeNew.build(methodContext(Type.getType(boolean.class)))), contains("ICONST_0", "IRETURN"));
-		assertThat(ByteCode.toString(invokeNew.build(methodContext(Type.getType(char.class)))), contains("ICONST_0", "IRETURN"));
-		assertThat(ByteCode.toString(invokeNew.build(methodContext(Type.getType(void.class)))), contains("RETURN"));
+		assertThat(ByteCode.toString(invokeNew.build(methodContext(Type.getType(byte.class))))).containsExactly("ICONST_0", "IRETURN");
+		assertThat(ByteCode.toString(invokeNew.build(methodContext(Type.getType(short.class))))).containsExactly("ICONST_0", "IRETURN");
+		assertThat(ByteCode.toString(invokeNew.build(methodContext(Type.getType(int.class))))).containsExactly("ICONST_0", "IRETURN");
+		assertThat(ByteCode.toString(invokeNew.build(methodContext(Type.getType(long.class))))).containsExactly("LCONST_0", "LRETURN");
+		assertThat(ByteCode.toString(invokeNew.build(methodContext(Type.getType(float.class))))).containsExactly("FCONST_0", "FRETURN");
+		assertThat(ByteCode.toString(invokeNew.build(methodContext(Type.getType(double.class))))).containsExactly("DCONST_0", "DRETURN");
+		assertThat(ByteCode.toString(invokeNew.build(methodContext(Type.getType(boolean.class))))).containsExactly("ICONST_0", "IRETURN");
+		assertThat(ByteCode.toString(invokeNew.build(methodContext(Type.getType(char.class))))).containsExactly("ICONST_0", "IRETURN");
+		assertThat(ByteCode.toString(invokeNew.build(methodContext(Type.getType(void.class))))).containsExactly("RETURN");
 	}
 
 	private MethodContext methodContext(Type resultType) {

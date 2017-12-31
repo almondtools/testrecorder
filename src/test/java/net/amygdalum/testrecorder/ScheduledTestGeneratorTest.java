@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
@@ -262,8 +261,8 @@ public class ScheduledTestGeneratorTest {
                 return null;
             }
         });
-        assertThat(TestGenerator.fromRecorded(), nullValue());
-        assertThat(TestGenerator.fromRecorded(), nullValue());
+        assertThat(TestGenerator.fromRecorded()).isNull();
+        assertThat(TestGenerator.fromRecorded()).isNull();
     }
 
     @Test
@@ -298,7 +297,7 @@ public class ScheduledTestGeneratorTest {
                 };
             }
         });
-        assertThat(TestGenerator.fromRecorded(), nullValue());
+        assertThat(TestGenerator.fromRecorded()).isNull();
     }
 
     @Test
@@ -335,16 +334,16 @@ public class ScheduledTestGeneratorTest {
         testGenerator.accept(newSnapshot());
         testGenerator.await();
 
-        assertThat(files(), contains("2Test.java"));
+        assertThat(files()).containsExactly("2Test.java");
 
         testGenerator.accept(newSnapshot());
         testGenerator.accept(newSnapshot());
         testGenerator.await();
-        assertThat(files(), contains("2Test.java"));
+        assertThat(files()).containsExactly("2Test.java");
         Thread.sleep(1000);
         testGenerator.accept(newSnapshot());
         testGenerator.await();
-        assertThat(files(), contains("2Test.java", "5Test.java"));
+        assertThat(files()).containsExactly("2Test.java", "5Test.java");
     }
 
     @Test
@@ -360,10 +359,10 @@ public class ScheduledTestGeneratorTest {
         assertThat(files(), empty());
         testGenerator.accept(newSnapshot());
         testGenerator.await();
-        assertThat(files(), contains("2Test.java"));
+        assertThat(files()).containsExactly("2Test.java");
         testGenerator.accept(newSnapshot());
         testGenerator.await();
-        assertThat(files(), contains("2Test.java"));
+        assertThat(files()).containsExactly("2Test.java");
         testGenerator.accept(newSnapshot());
         testGenerator.await();
         assertThat(files(), containsInAnyOrder("2Test.java", "4Test.java"));

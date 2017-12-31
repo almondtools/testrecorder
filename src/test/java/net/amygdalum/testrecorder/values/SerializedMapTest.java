@@ -10,7 +10,6 @@ import static net.amygdalum.testrecorder.values.GenericTypes.mapOfStringString;
 import static net.amygdalum.testrecorder.values.ParameterizedTypeMatcher.parameterizedType;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
@@ -156,14 +155,14 @@ public class SerializedMapTest {
 	@Test
 	public void testRemoveObject0() throws Exception {
 		SerializedMap map = new SerializedMap(HashMap.class).withResult(Map.class);
-		assertThat(map.remove(literal("string")), nullValue());
+		assertThat(map.remove(literal("string"))).isNull();
 	}
 
 	@Test
 	public void testRemoveObject1() throws Exception {
 		SerializedMap map = new SerializedMap(HashMap.class).withResult(Map.class);
 		map.put(literal("key"), literal("value"));
-		assertThat(map.remove(literal("string")), nullValue());
+		assertThat(map.remove(literal("string"))).isNull();
 		assertThat(map.remove(literal("key"))).isEqualTo(literal("value"));
 	}
 

@@ -4,7 +4,6 @@ import static java.util.Arrays.asList;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -65,7 +64,7 @@ public class DefaultQueueSerializerTest {
 
 		serializer.populate(value, new LinkedBlockingQueue<>(asList("Foo", "Bar")));
 
-		assertThat(value, contains(foo, bar));
+		assertThat(value).containsExactly(foo, bar);
 	}
 
 }

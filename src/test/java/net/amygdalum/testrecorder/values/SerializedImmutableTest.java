@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder.values;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
 
@@ -48,7 +47,7 @@ public class SerializedImmutableTest {
 
 	@Test
 	public void testToString() throws Exception {
-		assertThat(value.toString(), nullValue());
+		assertThat(value.toString()).isNull();
 	}
 
 	private static class AnImmutable extends SerializedImmutable<String> {

@@ -35,9 +35,7 @@ import static net.amygdalum.testrecorder.util.Types.wildcardExtends;
 import static net.amygdalum.testrecorder.util.Types.wildcardSuper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.arrayWithSize;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasItems;
 import static org.junit.Assert.assertThat;
@@ -367,9 +365,9 @@ public class TypesTest {
 	@Test
 	public void testAllFields() throws Exception {
 		List<Field> sub1Fields = allFields(Sub1.class);
-		assertThat(sub1Fields, contains(Sub1.class.getDeclaredField("subAttr"), Super.class.getDeclaredField("str")));
+		assertThat(sub1Fields).containsExactly(Sub1.class.getDeclaredField("subAttr"), Super.class.getDeclaredField("str"));
 		List<Field> sub2Fields = allFields(Sub2.class);
-		assertThat(sub2Fields, contains(Sub2.class.getDeclaredField("subAttr"), Super.class.getDeclaredField("str")));
+		assertThat(sub2Fields).containsExactly(Sub2.class.getDeclaredField("subAttr"), Super.class.getDeclaredField("str"));
 		assertThat(capture(() -> getDeclaredField(Sub1.class, "nonExistent")), matchesException(NoSuchFieldException.class));
 		assertThat(capture(() -> getDeclaredField(Sub2.class, "nonExistent")), matchesException(NoSuchFieldException.class));
 		assertThat(capture(() -> getDeclaredField(Super.class, "nonExistent")), matchesException(NoSuchFieldException.class));
@@ -378,9 +376,9 @@ public class TypesTest {
 	@Test
 	public void testAllMethods() throws Exception {
 		List<Method> sub1Methods = allMethods(Sub1.class);
-		assertThat(sub1Methods, contains(Sub1.class.getDeclaredMethod("getSubAttr"), Super.class.getDeclaredMethod("getStr")));
+		assertThat(sub1Methods).containsExactly(Sub1.class.getDeclaredMethod("getSubAttr"), Super.class.getDeclaredMethod("getStr"));
 		List<Method> sub2Methods = allMethods(Sub2.class);
-		assertThat(sub2Methods, contains(Sub2.class.getDeclaredMethod("setSubAttr", boolean.class), Super.class.getDeclaredMethod("getStr")));
+		assertThat(sub2Methods).containsExactly(Sub2.class.getDeclaredMethod("setSubAttr", boolean.class), Super.class.getDeclaredMethod("getStr"));
 	}
 
 	@Test
@@ -468,7 +466,7 @@ public class TypesTest {
 	@Test
 	public void testParameterized() throws Exception {
 		assertThat(parameterized(List.class, null, String.class).getRawType()).isEqualTo(List.class);
-		assertThat(parameterized(List.class, null, String.class).getOwnerType(), nullValue());
+		assertThat(parameterized(List.class, null, String.class).getOwnerType()).isNull();
 		assertThat(parameterized(List.class, null, String.class).getActualTypeArguments()).containsExactly(String.class);
 		assertThat(parameterized(List.class, null, String.class).getTypeName()).isEqualTo("java.util.List<java.lang.String>");
 		assertThat(parameterized(List.class, null).getTypeName()).isEqualTo("java.util.List<>");
@@ -503,11 +501,10 @@ public class TypesTest {
 		assertThat(Types.innerClasses(getClass()), hasItems(NestedPublic.class, NestedPrivate.class, NestedPackagePrivate.class));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testSortByMostConcreteSubBeforeSuper() throws Exception {
-		assertThat(Stream.of(Super.class, Sub.class).sorted(Types::byMostConcrete).collect(toList()), contains(Sub.class, Super.class));
-		assertThat(Stream.of(Sub.class, Super.class).sorted(Types::byMostConcrete).collect(toList()), contains(Sub.class, Super.class));
+		assertThat(Stream.of(Super.class, Sub.class).sorted(Types::byMostConcrete).collect(toList())).containsExactly(Sub.class, Super.class);
+		assertThat(Stream.of(Sub.class, Super.class).sorted(Types::byMostConcrete).collect(toList())).containsExactly(Sub.class, Super.class);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -520,8 +517,8 @@ public class TypesTest {
 	public void testSortByMostConcreteClassesBeforeGenericTypes() throws Exception {
 		WildcardType wildcard = Types.wildcard();
 
-		assertThat(Stream.of(Simple.class, wildcard).sorted(Types::byMostConcrete).collect(toList()), contains(Simple.class, wildcard));
-		assertThat(Stream.of(wildcard, Simple.class).sorted(Types::byMostConcrete).collect(toList()), contains(Simple.class, wildcard));
+		assertThat(Stream.of(Simple.class, wildcard).sorted(Types::byMostConcrete).collect(toList())).containsExactly(Simple.class, wildcard);
+		assertThat(Stream.of(wildcard, Simple.class).sorted(Types::byMostConcrete).collect(toList())).containsExactly(Simple.class, wildcard);
 	}
 
 	@Test
@@ -529,8 +526,8 @@ public class TypesTest {
 		ParameterizedType generic = Types.parameterized(Generic.class, null, Sub.class);
 		ParameterizedType subGeneric = Types.parameterized(SubGeneric.class, null, Super.class);
 
-		assertThat(Stream.of(generic, subGeneric).sorted(Types::byMostConcrete).collect(toList()), contains(subGeneric, generic));
-		assertThat(Stream.of(subGeneric, generic).sorted(Types::byMostConcrete).collect(toList()), contains(subGeneric, generic));
+		assertThat(Stream.of(generic, subGeneric).sorted(Types::byMostConcrete).collect(toList())).containsExactly(subGeneric, generic);
+		assertThat(Stream.of(subGeneric, generic).sorted(Types::byMostConcrete).collect(toList())).containsExactly(subGeneric, generic);
 	}
 
 	@Test

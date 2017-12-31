@@ -1,8 +1,6 @@
 package net.amygdalum.testrecorder.runtime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -22,11 +20,11 @@ public class DefaultValueTest {
         assertThat(DefaultValue.of(double.class)).isEqualTo(Double.valueOf(0));
         assertThat(DefaultValue.of(boolean.class)).isEqualTo(Boolean.valueOf("false"));
         assertThat(DefaultValue.of(char.class)).isEqualTo(Character.valueOf((char) 0));
-        assertThat(DefaultValue.of(String.class), nullValue());
-        assertThat(DefaultValue.of(PublicEnum.class), nullValue());
-        assertThat(DefaultValue.of(OrthogonalInterface.class), nullValue());
-        assertThat(DefaultValue.of(Object.class), nullValue());
-        assertThat(DefaultValue.of(Simple.class), nullValue());
+        assertThat(DefaultValue.of(String.class)).isNull();
+        assertThat(DefaultValue.of(PublicEnum.class)).isNull();
+        assertThat(DefaultValue.of(OrthogonalInterface.class)).isNull();
+        assertThat(DefaultValue.of(Object.class)).isNull();
+        assertThat(DefaultValue.of(Simple.class)).isNull();
     }
 
     @Test

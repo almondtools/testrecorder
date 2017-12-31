@@ -5,7 +5,6 @@ import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -120,13 +119,13 @@ public class SimpleDeserializerTest {
 	@Test
 	public void testVisitNull() throws Exception {
 		SerializedReferenceType object = SerializedNull.nullInstance(Object.class);
-		assertThat(deserializer.visitReferenceType(object, NULL), nullValue());
+		assertThat(deserializer.visitReferenceType(object, NULL)).isNull();
 	}
 
 	@Test
 	public void testVisitOtherReferenceType() throws Exception {
 		SerializedReferenceType object = Mockito.mock(SerializedReferenceType.class);
-		assertThat(deserializer.visitReferenceType(object, NULL), nullValue());
+		assertThat(deserializer.visitReferenceType(object, NULL)).isNull();
 	}
 
 	@Test
@@ -155,7 +154,7 @@ public class SimpleDeserializerTest {
 
 		Object visitImmutableType = deserializer.visitImmutableType(serializedImmutable, NULL);
 
-		assertThat(visitImmutableType, nullValue());
+		assertThat(visitImmutableType).isNull();
 	}
 
 	@Test

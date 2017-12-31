@@ -8,7 +8,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Type;
@@ -39,7 +38,7 @@ public class DefaultQueueAdaptorTest {
 	
 	@Test
 	public void testParentNull() throws Exception {
-		assertThat(adaptor.parent(), nullValue());
+		assertThat(adaptor.parent()).isNull();
 	}
 
 	@Test

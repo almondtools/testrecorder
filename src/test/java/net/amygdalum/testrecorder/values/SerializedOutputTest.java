@@ -5,7 +5,6 @@ import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.io.OutputStream;
@@ -71,7 +70,7 @@ public class SerializedOutputTest {
 	@Test
 	public void testGetResult() throws Exception {
 		assertThat(output.getResult(), instanceOf(SerializedObject.class));
-		assertThat(outputNoResult.getResult(), nullValue());
+		assertThat(outputNoResult.getResult()).isNull();
 	}
 
 	@Test

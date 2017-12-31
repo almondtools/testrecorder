@@ -5,8 +5,6 @@ import static net.amygdalum.testrecorder.util.Types.innerType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -32,10 +30,9 @@ public class ArraysListSerializerTest {
 		serializer = new ArraysListSerializer.Factory().newSerializer(facade);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetMatchingClasses() throws Exception {
-		assertThat(serializer.getMatchingClasses(), contains(innerType(Arrays.class, "ArrayList")));
+		assertThat(serializer.getMatchingClasses()).containsExactly(innerType(Arrays.class, "ArrayList"));
 	}
 
 	@Test
@@ -62,7 +59,7 @@ public class ArraysListSerializerTest {
 
 		serializer.populate(value, asList("Foo", "Bar"));
 
-		assertThat(value, contains(foo, bar));
+		assertThat(value).containsExactly(foo, bar);
 	}
 
 }

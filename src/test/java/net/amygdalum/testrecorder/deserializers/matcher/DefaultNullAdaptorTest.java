@@ -6,7 +6,6 @@ import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfPartiall
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +26,7 @@ public class DefaultNullAdaptorTest {
 
     @Test
     public void testParentNull() throws Exception {
-        assertThat(adaptor.parent(), nullValue());
+        assertThat(adaptor.parent()).isNull();
     }
 
     @Test

@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.runtime;
 
 import static com.almondtools.conmatch.conventions.UtilityClassMatcher.isUtilityClass;
 import static com.almondtools.conmatch.exceptions.ExceptionMatcher.matchesException;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,7 @@ public class ThrowablesTest {
     public void testCaptureWithoutResultUnexpected() throws Exception {
         Throwable capture = Throwables.capture(() -> {
         });
-        assertThat(capture, nullValue());
+        assertThat(capture).isNull();
     }
 
     @Test
@@ -56,7 +56,7 @@ public class ThrowablesTest {
                 return;
             }
         }, IllegalArgumentException.class);
-        assertThat(capture, nullValue());
+        assertThat(capture).isNull();
     }
 
     @Test
@@ -76,7 +76,7 @@ public class ThrowablesTest {
         Throwable capture = Throwables.capture(() -> {
             return "success";
         });
-        assertThat(capture, nullValue());
+        assertThat(capture).isNull();
     }
 
     @Test
@@ -100,7 +100,7 @@ public class ThrowablesTest {
                 return "success";
             }
         }, IllegalArgumentException.class);
-        assertThat(capture, nullValue());
+        assertThat(capture).isNull();
     }
 
 }

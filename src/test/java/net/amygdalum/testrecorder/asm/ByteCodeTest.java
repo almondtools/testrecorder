@@ -2,7 +2,6 @@ package net.amygdalum.testrecorder.asm;
 
 import static com.almondtools.conmatch.exceptions.ExceptionMatcher.matchesException;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -79,7 +78,7 @@ public class ByteCodeTest {
 		assertThat(ByteCode.unboxedType(Type.getType(Double.class))).isSameAs(Type.DOUBLE_TYPE);
 		assertThat(ByteCode.unboxedType(Type.getType(Character.class))).isSameAs(Type.CHAR_TYPE);
 		assertThat(ByteCode.unboxedType(Type.getType(Void.class))).isSameAs(Type.VOID_TYPE);
-		assertThat(ByteCode.unboxedType(Type.getType(Object.class)), nullValue());
+		assertThat(ByteCode.unboxedType(Type.getType(Object.class))).isNull();
 	}
 
 	@Test
@@ -92,7 +91,7 @@ public class ByteCodeTest {
 		assertThat(ByteCode.unboxingFactory(Type.FLOAT_TYPE)).isEqualTo("floatValue");
 		assertThat(ByteCode.unboxingFactory(Type.DOUBLE_TYPE)).isEqualTo("doubleValue");
 		assertThat(ByteCode.unboxingFactory(Type.CHAR_TYPE)).isEqualTo("charValue");
-		assertThat(ByteCode.unboxingFactory(Type.VOID_TYPE), nullValue());
+		assertThat(ByteCode.unboxingFactory(Type.VOID_TYPE)).isNull();
 	}
 
 	@Test
@@ -105,7 +104,7 @@ public class ByteCodeTest {
 		assertThat(ByteCode.boxingFactory(Type.FLOAT_TYPE)).isEqualTo("valueOf");
 		assertThat(ByteCode.boxingFactory(Type.DOUBLE_TYPE)).isEqualTo("valueOf");
 		assertThat(ByteCode.boxingFactory(Type.CHAR_TYPE)).isEqualTo("valueOf");
-		assertThat(ByteCode.boxingFactory(Type.VOID_TYPE), nullValue());
+		assertThat(ByteCode.boxingFactory(Type.VOID_TYPE)).isNull();
 	}
 
 	@Test

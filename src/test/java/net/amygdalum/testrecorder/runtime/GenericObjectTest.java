@@ -2,7 +2,6 @@ package net.amygdalum.testrecorder.runtime;
 
 import static com.almondtools.conmatch.conventions.ReflectiveEqualsMatcher.reflectiveEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.junit.Assert.assertThat;
 
@@ -132,7 +131,7 @@ public class GenericObjectTest {
 	public void testForward() throws Exception {
 		Simple obj = GenericObject.forward(Simple.class);
 
-		assertThat(obj.str, nullValue());
+		assertThat(obj.str).isNull();
 	}
 
 	@Test
@@ -168,7 +167,7 @@ public class GenericObjectTest {
 	public void testNewInstanceWithNullParams() throws Exception {
 		NullParamConstructor instance = GenericObject.newInstance(NullParamConstructor.class);
 
-		assertThat(instance.getStr(), nullValue());
+		assertThat(instance.getStr()).isNull();
 	}
 
 	@Test
@@ -189,7 +188,7 @@ public class GenericObjectTest {
 	public void testNewInstanceBruteForceReflection() throws Exception {
 		ExceptionConstructor instance = GenericObject.newInstance(ExceptionConstructor.class);
 
-		assertThat(instance.getStr(), nullValue());
+		assertThat(instance.getStr()).isNull();
 	}
 
 	@Test

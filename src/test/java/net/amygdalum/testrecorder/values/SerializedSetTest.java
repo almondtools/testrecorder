@@ -10,7 +10,6 @@ import static net.amygdalum.testrecorder.values.GenericTypes.setOfString;
 import static net.amygdalum.testrecorder.values.ParameterizedTypeMatcher.parameterizedType;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
@@ -79,7 +78,7 @@ public class SerializedSetTest {
 			.withResult(hashSetOfString())
 			.with(literal("a"), literal("b"));
 		
-		assertThat(result, contains(literal("a"), literal("b")));
+		assertThat(result).containsExactly(literal("a"), literal("b"));
 	}
 
 	@Test
@@ -197,7 +196,7 @@ public class SerializedSetTest {
 
 		set.addAll(asList(literal("string"), literal("other")));
 
-		assertThat(set, contains(literal("string"), literal("other")));
+		assertThat(set).containsExactly(literal("string"), literal("other"));
 	}
 
 	@Test
@@ -210,9 +209,9 @@ public class SerializedSetTest {
 			literal("last")));
 		set.removeAll(asList(literal("middle"), literal("other")));
 
-		assertThat(set, contains(
+		assertThat(set).containsExactly(
 			literal("first"),
-			literal("last")));
+			literal("last"));
 	}
 
 	@Test
@@ -225,9 +224,9 @@ public class SerializedSetTest {
 			literal("last")));
 		set.retainAll(asList(literal("middle"), literal("other")));
 
-		assertThat(set, contains(
+		assertThat(set).containsExactly(
 			literal("middle"),
-			literal("other")));
+			literal("other"));
 	}
 
 	@Test

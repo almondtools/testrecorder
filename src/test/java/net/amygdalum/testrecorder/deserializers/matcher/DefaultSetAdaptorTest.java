@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder.deserializers.matcher;
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.math.BigInteger;
@@ -26,7 +25,7 @@ public class DefaultSetAdaptorTest {
 	
 	@Test
 	public void testParentNull() throws Exception {
-		assertThat(adaptor.parent(), nullValue());
+		assertThat(adaptor.parent()).isNull();
 	}
 
 	@Test

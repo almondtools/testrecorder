@@ -6,7 +6,6 @@ import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.ParameterizedTypeMatcher.parameterizedType;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
@@ -108,7 +107,7 @@ public class SerializedArrayTest {
 		SerializedArray array = new SerializedArray(String[].class);
 		array.add(literal("s"));
 
-		assertThat(array.getArrayAsList(), contains(literal("s")));
+		assertThat(array.getArrayAsList()).containsExactly(literal("s"));
 	}
 
 }

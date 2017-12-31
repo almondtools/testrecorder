@@ -2,8 +2,7 @@ package net.amygdalum.testrecorder.runtime;
 
 import static java.util.Collections.emptyList;
 import static net.amygdalum.testrecorder.InstrumentationUnit.instrument;
-import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.tree.InsnList;
@@ -20,7 +19,7 @@ public class FakeIOTransformerTest {
 		InstrumentationUnit unit = instrument(Example.class, "primitiveResultNoArgs");
 		InsnList insnlist = new FakeIOTransformer.DefaultTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"ALOAD 0",
 			"INVOKEVIRTUAL java/lang/Object.getClass ()Ljava/lang/Class;",
 			"INVOKEVIRTUAL java/lang/Class.getName ()Ljava/lang/String;",
@@ -41,7 +40,7 @@ public class FakeIOTransformerTest {
 			"INVOKEVIRTUAL java/lang/Boolean.booleanValue ()Z",
 			"IRETURN",
 			"L0",
-			"POP"));
+			"POP");
 	}
 
 	@Test
@@ -49,7 +48,7 @@ public class FakeIOTransformerTest {
 		InstrumentationUnit unit = instrument(Example.class, "objectResultNoArgs");
 		InsnList insnlist = new FakeIOTransformer.DefaultTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"ALOAD 0",
 			"INVOKEVIRTUAL java/lang/Object.getClass ()Ljava/lang/Class;",
 			"INVOKEVIRTUAL java/lang/Class.getName ()Ljava/lang/String;",
@@ -69,7 +68,7 @@ public class FakeIOTransformerTest {
 			"CHECKCAST net/amygdalum/testrecorder/ResultObject",
 			"ARETURN",
 			"L0",
-			"POP"));
+			"POP");
 	}
 
 	@Test
@@ -77,7 +76,7 @@ public class FakeIOTransformerTest {
 		InstrumentationUnit unit = instrument(Example.class, "noResultPrimitiveArg");
 		InsnList insnlist = new FakeIOTransformer.DefaultTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"ALOAD 0",
 			"INVOKEVIRTUAL java/lang/Object.getClass ()Ljava/lang/Class;",
 			"INVOKEVIRTUAL java/lang/Class.getName ()Ljava/lang/String;",
@@ -102,7 +101,7 @@ public class FakeIOTransformerTest {
 			"POP",
 			"RETURN",
 			"L0",
-			"POP"));
+			"POP");
 	}
 
 	@Test
@@ -110,7 +109,7 @@ public class FakeIOTransformerTest {
 		InstrumentationUnit unit = instrument(Example.class, "noResultArrayArg");
 		InsnList insnlist = new FakeIOTransformer.DefaultTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"ALOAD 0",
 			"INVOKEVIRTUAL java/lang/Object.getClass ()Ljava/lang/Class;",
 			"INVOKEVIRTUAL java/lang/Class.getName ()Ljava/lang/String;",
@@ -134,7 +133,7 @@ public class FakeIOTransformerTest {
 			"POP",
 			"RETURN",
 			"L0",
-			"POP"));
+			"POP");
 	}
 
 	@Test
@@ -142,7 +141,7 @@ public class FakeIOTransformerTest {
 		InstrumentationUnit unit = instrument(Example.class, "noResultObjectArrayArg");
 		InsnList insnlist = new FakeIOTransformer.DefaultTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"ALOAD 0",
 			"INVOKEVIRTUAL java/lang/Object.getClass ()Ljava/lang/Class;",
 			"INVOKEVIRTUAL java/lang/Class.getName ()Ljava/lang/String;",
@@ -166,7 +165,7 @@ public class FakeIOTransformerTest {
 			"POP",
 			"RETURN",
 			"L0",
-			"POP"));
+			"POP");
 	}
 
 	@Test
@@ -174,7 +173,7 @@ public class FakeIOTransformerTest {
 		InstrumentationUnit unit = instrument(Example.class, "noResultObjectArg");
 		InsnList insnlist = new FakeIOTransformer.DefaultTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"ALOAD 0",
 			"INVOKEVIRTUAL java/lang/Object.getClass ()Ljava/lang/Class;",
 			"INVOKEVIRTUAL java/lang/Class.getName ()Ljava/lang/String;",
@@ -198,7 +197,7 @@ public class FakeIOTransformerTest {
 			"POP",
 			"RETURN",
 			"L0",
-			"POP"));
+			"POP");
 	}
 
 	@Test
@@ -206,7 +205,7 @@ public class FakeIOTransformerTest {
 		InstrumentationUnit unit = instrument(Example.class, "objectResultMixedArgs");
 		InsnList insnlist = new FakeIOTransformer.DefaultTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"ALOAD 0",
 			"INVOKEVIRTUAL java/lang/Object.getClass ()Ljava/lang/Class;",
 			"INVOKEVIRTUAL java/lang/Class.getName ()Ljava/lang/String;",
@@ -235,7 +234,7 @@ public class FakeIOTransformerTest {
 			"CHECKCAST net/amygdalum/testrecorder/ResultObject",
 			"ARETURN",
 			"L0",
-			"POP"));
+			"POP");
 	}
 
 	@Test
@@ -243,7 +242,7 @@ public class FakeIOTransformerTest {
 		InstrumentationUnit unit = instrument(Example.class, "staticPrimitiveResultMixedArgs");
 		InsnList insnlist = new FakeIOTransformer.DefaultTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"LDC \"net.amygdalum.testrecorder.Example\"",
 			"NEW java/lang/Throwable",
 			"DUP",
@@ -271,7 +270,7 @@ public class FakeIOTransformerTest {
 			"INVOKEVIRTUAL java/lang/Long.longValue ()J",
 			"LRETURN",
 			"L0",
-			"POP"));
+			"POP");
 	}
 
 	@Test
@@ -279,7 +278,7 @@ public class FakeIOTransformerTest {
 		InstrumentationUnit unit = instrument(Example.class, "primitiveResultNoArgs");
 		InsnList insnlist = new FakeIOTransformer.BridgedTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 		
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"ALOAD 0",
 			"INVOKEVIRTUAL java/lang/Object.getClass ()Ljava/lang/Class;",
 			"INVOKEVIRTUAL java/lang/Class.getName ()Ljava/lang/String;",
@@ -300,7 +299,7 @@ public class FakeIOTransformerTest {
 			"INVOKEVIRTUAL java/lang/Boolean.booleanValue ()Z",
 			"IRETURN",
 			"L0",
-			"POP"));
+			"POP");
 	}
 	
 	@Test
@@ -308,7 +307,7 @@ public class FakeIOTransformerTest {
 		InstrumentationUnit unit = instrument(Example.class, "objectResultNoArgs");
 		InsnList insnlist = new FakeIOTransformer.BridgedTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 		
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"ALOAD 0",
 			"INVOKEVIRTUAL java/lang/Object.getClass ()Ljava/lang/Class;",
 			"INVOKEVIRTUAL java/lang/Class.getName ()Ljava/lang/String;",
@@ -328,7 +327,7 @@ public class FakeIOTransformerTest {
 			"CHECKCAST net/amygdalum/testrecorder/ResultObject",
 			"ARETURN",
 			"L0",
-			"POP"));
+			"POP");
 	}
 	
 	@Test
@@ -336,7 +335,7 @@ public class FakeIOTransformerTest {
 		InstrumentationUnit unit = instrument(Example.class, "noResultPrimitiveArg");
 		InsnList insnlist = new FakeIOTransformer.BridgedTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 		
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"ALOAD 0",
 			"INVOKEVIRTUAL java/lang/Object.getClass ()Ljava/lang/Class;",
 			"INVOKEVIRTUAL java/lang/Class.getName ()Ljava/lang/String;",
@@ -361,7 +360,7 @@ public class FakeIOTransformerTest {
 			"POP",
 			"RETURN",
 			"L0",
-			"POP"));
+			"POP");
 	}
 	
 	@Test
@@ -369,7 +368,7 @@ public class FakeIOTransformerTest {
 		InstrumentationUnit unit = instrument(Example.class, "noResultArrayArg");
 		InsnList insnlist = new FakeIOTransformer.BridgedTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 		
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"ALOAD 0",
 			"INVOKEVIRTUAL java/lang/Object.getClass ()Ljava/lang/Class;",
 			"INVOKEVIRTUAL java/lang/Class.getName ()Ljava/lang/String;",
@@ -393,7 +392,7 @@ public class FakeIOTransformerTest {
 			"POP",
 			"RETURN",
 			"L0",
-			"POP"));
+			"POP");
 	}
 	
 	@Test
@@ -401,7 +400,7 @@ public class FakeIOTransformerTest {
 		InstrumentationUnit unit = instrument(Example.class, "noResultObjectArrayArg");
 		InsnList insnlist = new FakeIOTransformer.BridgedTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 		
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"ALOAD 0",
 			"INVOKEVIRTUAL java/lang/Object.getClass ()Ljava/lang/Class;",
 			"INVOKEVIRTUAL java/lang/Class.getName ()Ljava/lang/String;",
@@ -425,7 +424,7 @@ public class FakeIOTransformerTest {
 			"POP",
 			"RETURN",
 			"L0",
-			"POP"));
+			"POP");
 	}
 	
 	@Test
@@ -433,7 +432,7 @@ public class FakeIOTransformerTest {
 		InstrumentationUnit unit = instrument(Example.class, "noResultObjectArg");
 		InsnList insnlist = new FakeIOTransformer.BridgedTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 		
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"ALOAD 0",
 			"INVOKEVIRTUAL java/lang/Object.getClass ()Ljava/lang/Class;",
 			"INVOKEVIRTUAL java/lang/Class.getName ()Ljava/lang/String;",
@@ -457,7 +456,7 @@ public class FakeIOTransformerTest {
 			"POP",
 			"RETURN",
 			"L0",
-			"POP"));
+			"POP");
 	}
 	
 	@Test
@@ -465,7 +464,7 @@ public class FakeIOTransformerTest {
 		InstrumentationUnit unit = instrument(Example.class, "objectResultMixedArgs");
 		InsnList insnlist = new FakeIOTransformer.BridgedTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 		
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"ALOAD 0",
 			"INVOKEVIRTUAL java/lang/Object.getClass ()Ljava/lang/Class;",
 			"INVOKEVIRTUAL java/lang/Class.getName ()Ljava/lang/String;",
@@ -494,7 +493,7 @@ public class FakeIOTransformerTest {
 			"CHECKCAST net/amygdalum/testrecorder/ResultObject",
 			"ARETURN",
 			"L0",
-			"POP"));
+			"POP");
 	}
 
 	
@@ -503,7 +502,7 @@ public class FakeIOTransformerTest {
 		InstrumentationUnit unit = instrument(Example.class, "staticPrimitiveResultMixedArgs");
 		InsnList insnlist = new FakeIOTransformer.BridgedTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 		
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"LDC \"net.amygdalum.testrecorder.Example\"",
 			"NEW java/lang/Throwable",
 			"DUP",
@@ -531,7 +530,7 @@ public class FakeIOTransformerTest {
 			"INVOKEVIRTUAL java/lang/Long.longValue ()J",
 			"LRETURN",
 			"L0",
-			"POP"));
+			"POP");
 	}
 	
 }

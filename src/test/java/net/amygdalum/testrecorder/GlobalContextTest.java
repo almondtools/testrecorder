@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder;
 
-import static org.hamcrest.Matchers.contains;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -18,10 +18,10 @@ public class GlobalContextTest {
 	public void testGlobals() throws Exception {
 		GlobalContext globalContext = new GlobalContext();
 		globalContext.add("net.amygdalum.testrecorder.util.testobjects.Static", "global");
-		assertThat(globalContext.globals(), contains(Types.getDeclaredField(Static.class, "global")));
+		assertThat(globalContext.globals()).containsExactly(Types.getDeclaredField(Static.class, "global"));
 
 		globalContext.add("net.amygdalum.testrecorder.util.testobjects.Static", "CONSTANT");
-		assertThat(globalContext.globals(), contains(Types.getDeclaredField(Static.class, "global")));
+		assertThat(globalContext.globals()).containsExactly(Types.getDeclaredField(Static.class, "global"));
 	}
 
 	@Test
@@ -31,7 +31,7 @@ public class GlobalContextTest {
 		globalContext.globals();
 		globalContext.add("net.amygdalum.testrecorder.util.testobjects.Static", "CONSTANT");
 
-		assertThat(globalContext.globals(), contains(Types.getDeclaredField(Static.class, "global")));
+		assertThat(globalContext.globals()).containsExactly(Types.getDeclaredField(Static.class, "global"));
 	}
 
 	@Test

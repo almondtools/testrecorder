@@ -6,8 +6,6 @@ import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.MATCH;
 import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.MISMATCH;
 import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.NOT_APPLYING;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -64,8 +62,8 @@ public class GenericComparisonTest {
         Node node2 = new Node("node", subnodes);
         GenericComparison comparison = GenericComparison.from(null, "child", node1, node2);
         assertThat(comparison.getRoot()).isEqualTo("<error>");
-        assertThat(comparison.getLeft(), nullValue());
-        assertThat(comparison.getRight(), nullValue());
+        assertThat(comparison.getLeft()).isNull();
+        assertThat(comparison.getRight()).isNull();
         assertThat(comparison.isMismatch()).isTrue();
     }
 
@@ -100,8 +98,8 @@ public class GenericComparisonTest {
 
         GenericComparison comparison = GenericComparison.from(null, 1, nodes1, nodes2);
         assertThat(comparison.getRoot()).isEqualTo("<error>");
-        assertThat(comparison.getLeft(), nullValue());
-        assertThat(comparison.getRight(), nullValue());
+        assertThat(comparison.getLeft()).isNull();
+        assertThat(comparison.getRight()).isNull();
         assertThat(comparison.isMismatch()).isTrue();
     }
 
@@ -178,9 +176,9 @@ public class GenericComparisonTest {
 
         WorkSet<GenericComparison> todo = new WorkSet<>();
         new GenericComparison(null, node1, node2).eval(todo);
-        assertThat(todo, contains(
+        assertThat(todo).containsExactly(
             new GenericComparison("name", node1.name, node2.name),
-            new GenericComparison("children", node1.children, node2.children)));
+            new GenericComparison("children", node1.children, node2.children));
     }
 
     @Test
@@ -190,8 +188,8 @@ public class GenericComparisonTest {
 
         WorkSet<GenericComparison> todo = new WorkSet<>();
         new GenericComparison(null, nodes1, nodes2).eval(todo);
-        assertThat(todo, contains(
-            new GenericComparison("[0]", nodes1[0], nodes2[0])));
+        assertThat(todo).containsExactly(
+            new GenericComparison("[0]", nodes1[0], nodes2[0]));
     }
 
     @Test
@@ -272,9 +270,9 @@ public class GenericComparisonTest {
 
         new GenericComparison(null, node1, node2).eval(c, todo);
 
-        assertThat(todo, contains(
+        assertThat(todo).containsExactly(
             new GenericComparison("name", node1.name, node2.name),
-            new GenericComparison("children", node1.children, node2.children)));
+            new GenericComparison("children", node1.children, node2.children));
     }
 
     @Test
@@ -288,8 +286,8 @@ public class GenericComparisonTest {
 
         new GenericComparison(null, node1, node2, asList("name")).eval(c, todo);
 
-        assertThat(todo, contains(
-            new GenericComparison("name", node1.name, node2.name)));
+        assertThat(todo).containsExactly(
+            new GenericComparison("name", node1.name, node2.name));
     }
 
     @Test
@@ -301,7 +299,7 @@ public class GenericComparisonTest {
 
         new GenericComparison(null, new String[] { "s" }, new String[] { "s" }).eval(c, todo);
 
-        assertThat(todo, contains(new GenericComparison("[0]", "s", "s")));
+        assertThat(todo).containsExactly(new GenericComparison("[0]", "s", "s"));
     }
 
     @Test
@@ -312,10 +310,10 @@ public class GenericComparisonTest {
         todo.add(new GenericComparison(null, node1, node2));
         GenericComparison.compare(todo, (comparison, rem) -> comparison.eval(rem) ? GenericComparatorResult.NOT_APPLYING : GenericComparatorResult.MISMATCH);
 
-        assertThat(todo.getDone(), contains(
+        assertThat(todo.getDone()).containsExactly(
             new GenericComparison(null, node1, node2, null, null),
             new GenericComparison("name", node1.name, node2.name, null, true),
-            new GenericComparison("children", node1.children, node2.children, null, null)));
+            new GenericComparison("children", node1.children, node2.children, null, null));
 
     }
 
@@ -330,13 +328,13 @@ public class GenericComparisonTest {
         todo.add(new GenericComparison(null, node1, node2));
         GenericComparison.compare(todo, (comparison, rem) -> comparison.eval(rem) ? GenericComparatorResult.NOT_APPLYING : GenericComparatorResult.MISMATCH);
 
-        assertThat(todo.getDone(), contains(
+        assertThat(todo.getDone()).containsExactly(
             new GenericComparison(null, node1, node2, null, null),
             new GenericComparison("name", node1.name, node2.name, null, true),
             new GenericComparison("children", node1.children, node2.children, null, false),
             new GenericComparison("children[0]", node1.children[0], node2.children[0], null, false),
             new GenericComparison("children[0].name", node1.children[0].name, node2.children[0].name, null, true),
-            new GenericComparison("children[0].children", node1.children[0].children, node2.children[0].children, null, false)));
+            new GenericComparison("children[0].children", node1.children[0].children, node2.children[0].children, null, false));
     }
 
     @Test

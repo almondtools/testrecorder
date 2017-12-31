@@ -4,7 +4,6 @@ import static net.amygdalum.testrecorder.util.Types.array;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
@@ -45,7 +44,7 @@ public class TypeManagerTest {
     public void testStaticImport() throws Exception {
         types.staticImport(Collections.class, "sort");
 
-        assertThat(types.getImports(), contains("static java.util.Collections.sort"));
+        assertThat(types.getImports()).containsExactly("static java.util.Collections.sort");
     }
 
     @Test
@@ -66,7 +65,7 @@ public class TypeManagerTest {
     public void testRegisterImport() throws Exception {
         types.registerImport(String.class);
 
-        assertThat(types.getImports(), contains("java.lang.String"));
+        assertThat(types.getImports()).containsExactly("java.lang.String");
     }
 
     @Test
@@ -80,7 +79,7 @@ public class TypeManagerTest {
     public void testRegisterImportArray() throws Exception {
         types.registerImport(Integer[].class);
 
-        assertThat(types.getImports(), contains("java.lang.Integer"));
+        assertThat(types.getImports()).containsExactly("java.lang.Integer");
     }
 
     @Test
@@ -88,7 +87,7 @@ public class TypeManagerTest {
         types.registerImport(String.class);
         types.registerImport(String.class);
 
-        assertThat(types.getImports(), contains("java.lang.String"));
+        assertThat(types.getImports()).containsExactly("java.lang.String");
     }
 
     @Test
@@ -96,7 +95,7 @@ public class TypeManagerTest {
         types.registerImport(StringTokenizer.class);
         types.registerImport(java.util.StringTokenizer.class);
 
-        assertThat(types.getImports(), contains("net.amygdalum.testrecorder.deserializers.StringTokenizer"));
+        assertThat(types.getImports()).containsExactly("net.amygdalum.testrecorder.deserializers.StringTokenizer");
     }
 
     @Test

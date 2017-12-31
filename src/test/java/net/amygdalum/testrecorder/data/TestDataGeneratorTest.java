@@ -1,8 +1,6 @@
 package net.amygdalum.testrecorder.data;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -96,7 +94,7 @@ public class TestDataGeneratorTest {
 		assertThat(gen.create(long.class)).isEqualTo(0l);
 		assertThat(gen.create(float.class)).isEqualTo(0f);
 		assertThat(gen.create(double.class)).isEqualTo(0d);
-		assertThat(gen.create(Object.class), nullValue());
+		assertThat(gen.create(Object.class)).isNull();
 	}
 
 	@Test

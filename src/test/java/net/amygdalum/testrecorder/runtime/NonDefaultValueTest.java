@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder.runtime;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -30,7 +29,7 @@ public class NonDefaultValueTest {
         assertThat(NonDefaultValue.of(Object.class), notNullValue());
         assertThat(NonDefaultValue.of(OrthogonalInterface.class), instanceOf(OrthogonalInterface.class));
         assertThat(NonDefaultValue.of(PublicEnum.class), instanceOf(PublicEnum.class));
-        assertThat(NonDefaultValue.of(EmptyEnum.class), nullValue());
+        assertThat(NonDefaultValue.of(EmptyEnum.class)).isNull();
         assertThat(NonDefaultValue.of(Simple.class), instanceOf(Simple.class));
     }
 

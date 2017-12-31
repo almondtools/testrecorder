@@ -10,7 +10,6 @@ import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.lang.annotation.Annotation;
@@ -150,7 +149,7 @@ public class MatcherGeneratorsTest {
 
 		Computation result = matcherCode.visitReferenceType(value, NULL.newWithHints(skipChecks()));
 
-		assertThat(result, nullValue());
+		assertThat(result).isNull();
 	}
 
 	@Test
@@ -180,7 +179,7 @@ public class MatcherGeneratorsTest {
 
 		Computation result = matcherCode.visitImmutableType(value, NULL.newWithHints(skipChecks()));
 
-		assertThat(result, nullValue());
+		assertThat(result).isNull();
 	}
 
 	@Test
@@ -199,7 +198,7 @@ public class MatcherGeneratorsTest {
 
 		Computation result = matcherCode.visitValueType(value, NULL.newWithHints(skipChecks()));
 
-		assertThat(result, nullValue());
+		assertThat(result).isNull();
 	}
 
 	@Test

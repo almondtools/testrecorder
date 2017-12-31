@@ -6,7 +6,6 @@ import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -73,7 +72,7 @@ public class CollectionsListSerializerTest {
 
 		serializer.populate(value, asList("Foo", "Bar"));
 
-		assertThat(value, contains(foo, bar));
+		assertThat(value).containsExactly(foo, bar);
 	}
 
 	@Test
@@ -87,7 +86,7 @@ public class CollectionsListSerializerTest {
 	    
 	    serializer.populate(value, asList("Foo", null));
 	    
-	    assertThat(value, contains(foo, nullInstance(String.class)));
+	    assertThat(value).containsExactly(foo, nullInstance(String.class));
 	}
 	
 }

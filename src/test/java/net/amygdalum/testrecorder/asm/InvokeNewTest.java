@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder.asm;
 
-import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.tree.ClassNode;
@@ -17,11 +16,11 @@ public class InvokeNewTest {
 			.withArgument(0, new GetThisOrNull());
 
 		String simpleType = Simple.class.getName().replace(".", "/");
-		assertThat(ByteCode.toString(invokeNew.build(methodContext())), contains(
+		assertThat(ByteCode.toString(invokeNew.build(methodContext()))).containsExactly(
 			"NEW " + simpleType,
 			"DUP",
 			"ALOAD 0",
-			"INVOKESPECIAL " + simpleType + ".<init> (Ljava/lang/String;)V"));
+			"INVOKESPECIAL " + simpleType + ".<init> (Ljava/lang/String;)V");
 	}
 
 	private MethodContext methodContext() {

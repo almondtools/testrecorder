@@ -1,8 +1,6 @@
 package net.amygdalum.testrecorder.runtime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -10,7 +8,7 @@ public class ValueFactoryTest {
 
     @Test
     public void testNONE() throws Exception {
-        assertThat(ValueFactory.NONE.newValue(Object.class), nullValue());
+        assertThat(ValueFactory.NONE.newValue(Object.class)).isNull();
     }
 
     @Test

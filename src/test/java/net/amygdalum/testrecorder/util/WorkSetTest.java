@@ -3,9 +3,7 @@ package net.amygdalum.testrecorder.util;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.util.Iterator;
@@ -146,8 +144,8 @@ public class WorkSetTest {
 
 		assertThat(changed).isFalse();
 		assertThat(ws.isEmpty()).isTrue();
-		assertThat(ws.getDone(), contains("A"));
-		assertThat(ws.peek(), nullValue());
+		assertThat(ws.getDone()).containsExactly("A");
+		assertThat(ws.peek()).isNull();
 		assertThat(ws.size()).isEqualTo(0);
 	}
 
@@ -188,8 +186,8 @@ public class WorkSetTest {
 
 		assertThat(changed).isFalse();
 		assertThat(ws.isEmpty()).isTrue();
-		assertThat(ws.getDone(), contains("A"));
-		assertThat(ws.peek(), nullValue());
+		assertThat(ws.getDone()).containsExactly("A");
+		assertThat(ws.peek()).isNull();
 		assertThat(ws.size()).isEqualTo(0);
 	}
 
@@ -247,7 +245,7 @@ public class WorkSetTest {
 
 		assertThat(changed).isTrue();
 		assertThat(ws.isEmpty()).isFalse();
-		assertThat(ws.getDone(), contains("A"));
+		assertThat(ws.getDone()).containsExactly("A");
 		assertThat(ws.peek()).isEqualTo("B");
 		assertThat(ws.toArray(new String[0])).containsExactly("B", "C");
 		assertThat(ws.size()).isEqualTo(2);
@@ -269,8 +267,8 @@ public class WorkSetTest {
 
 		assertThat(r).isEqualTo("A");
 		assertThat(ws.isEmpty()).isTrue();
-		assertThat(ws.getDone(), contains("A"));
-		assertThat(ws.peek(), nullValue());
+		assertThat(ws.getDone()).containsExactly("A");
+		assertThat(ws.peek()).isNull();
 	}
 
 	@Test
@@ -282,7 +280,7 @@ public class WorkSetTest {
 
 		assertThat(r).isEqualTo("A");
 		assertThat(ws.isEmpty()).isFalse();
-		assertThat(ws.getDone(), contains("A"));
+		assertThat(ws.getDone()).containsExactly("A");
 		assertThat(ws.peek()).isEqualTo("B");
 	}
 
@@ -292,7 +290,7 @@ public class WorkSetTest {
 
 		String r = ws.poll();
 
-		assertThat(r, nullValue());
+		assertThat(r).isNull();
 		assertThat(ws.isEmpty()).isTrue();
 	}
 
@@ -305,8 +303,8 @@ public class WorkSetTest {
 
 		assertThat(r).isEqualTo("A");
 		assertThat(ws.isEmpty()).isTrue();
-		assertThat(ws.getDone(), contains("A"));
-		assertThat(ws.peek(), nullValue());
+		assertThat(ws.getDone()).containsExactly("A");
+		assertThat(ws.peek()).isNull();
 	}
 
 	@Test
@@ -318,7 +316,7 @@ public class WorkSetTest {
 
 		assertThat(r).isEqualTo("A");
 		assertThat(ws.isEmpty()).isFalse();
-		assertThat(ws.getDone(), contains("A"));
+		assertThat(ws.getDone()).containsExactly("A");
 		assertThat(ws.peek()).isEqualTo("B");
 	}
 
@@ -386,7 +384,7 @@ public class WorkSetTest {
 		ws.remove("A");
 
 		assertThat(ws.isEmpty()).isFalse();
-		assertThat(ws.getDone(), contains("0"));
+		assertThat(ws.getDone()).containsExactly("0");
 		assertThat(ws.peek()).isEqualTo("B");
 	}
 
@@ -399,7 +397,7 @@ public class WorkSetTest {
 
 		assertThat(ws.isEmpty()).isTrue();
 		assertThat(ws.getDone(), empty());
-		assertThat(ws.peek(), nullValue());
+		assertThat(ws.peek()).isNull();
 	}
 
 	@Test
@@ -412,8 +410,8 @@ public class WorkSetTest {
 		ws.removeAll(asList("A", "B"));
 
 		assertThat(ws.isEmpty()).isTrue();
-		assertThat(ws.getDone(), contains("0"));
-		assertThat(ws.peek(), nullValue());
+		assertThat(ws.getDone()).containsExactly("0");
+		assertThat(ws.peek()).isNull();
 	}
 
 	@Test
@@ -465,7 +463,7 @@ public class WorkSetTest {
 
 		assertThat(ws.isEmpty()).isTrue();
 		assertThat(ws.getDone(), empty());
-		assertThat(ws.peek(), nullValue());
+		assertThat(ws.peek()).isNull();
 	}
 
 	@Test
@@ -478,7 +476,7 @@ public class WorkSetTest {
 
 		assertThat(ws.isEmpty()).isTrue();
 		assertThat(ws.getDone(), empty());
-		assertThat(ws.peek(), nullValue());
+		assertThat(ws.peek()).isNull();
 	}
 
 	@Test
@@ -500,7 +498,7 @@ public class WorkSetTest {
 	public void testPeekOnEmpty() throws Exception {
 		WorkSet<String> ws = new WorkSet<>();
 
-		assertThat(ws.peek(), nullValue());
+		assertThat(ws.peek()).isNull();
 	}
 
 	@Test

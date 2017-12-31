@@ -1,8 +1,7 @@
 package net.amygdalum.testrecorder;
 
 import static net.amygdalum.testrecorder.InstrumentationUnit.instrument;
-import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.objectweb.asm.Opcodes.POP;
 
@@ -36,13 +35,13 @@ public class SnapshotInstrumentorTest {
 			.setupVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 0",
 			"LDC \"net/amygdalum/testrecorder/Example:noResultNoArgs()V\"",
 			"LDC 0",
 			"ANEWARRAY java/lang/Object",
-			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.setupVariables (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
+			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.setupVariables (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V");
 	}
 
 	@Test
@@ -52,13 +51,13 @@ public class SnapshotInstrumentorTest {
 			.setupVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 0",
 			"LDC \"net/amygdalum/testrecorder/Example:primitiveResultNoArgs()Z\"",
 			"LDC 0",
 			"ANEWARRAY java/lang/Object",
-			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.setupVariables (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
+			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.setupVariables (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V");
 	}
 
 	@Test
@@ -68,13 +67,13 @@ public class SnapshotInstrumentorTest {
 			.setupVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 0",
 			"LDC \"net/amygdalum/testrecorder/Example:objectResultNoArgs()Lnet/amygdalum/testrecorder/ResultObject;\"",
 			"LDC 0",
 			"ANEWARRAY java/lang/Object",
-			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.setupVariables (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
+			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.setupVariables (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V");
 	}
 
 	@Test
@@ -84,7 +83,7 @@ public class SnapshotInstrumentorTest {
 			.setupVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 0",
 			"LDC \"net/amygdalum/testrecorder/Example:noResultPrimitiveArg(I)V\"",
@@ -95,7 +94,7 @@ public class SnapshotInstrumentorTest {
 			"ILOAD 1",
 			"INVOKESTATIC java/lang/Integer.valueOf (I)Ljava/lang/Integer;",
 			"AASTORE",
-			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.setupVariables (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
+			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.setupVariables (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V");
 	}
 
 	@Test
@@ -105,7 +104,7 @@ public class SnapshotInstrumentorTest {
 			.setupVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 0",
 			"LDC \"net/amygdalum/testrecorder/Example:noResultObjectArg(Lnet/amygdalum/testrecorder/ArgumentObject;)V\"",
@@ -115,7 +114,7 @@ public class SnapshotInstrumentorTest {
 			"LDC 0",
 			"ALOAD 1",
 			"AASTORE",
-			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.setupVariables (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
+			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.setupVariables (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V");
 	}
 
 	@Test
@@ -125,7 +124,7 @@ public class SnapshotInstrumentorTest {
 			.setupVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 0",
 			"LDC \"net/amygdalum/testrecorder/Example:objectResultMixedArgs(DLnet/amygdalum/testrecorder/ArgumentObject;)Lnet/amygdalum/testrecorder/ResultObject;\"",
@@ -140,7 +139,7 @@ public class SnapshotInstrumentorTest {
 			"LDC 1",
 			"ALOAD 3",
 			"AASTORE",
-			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.setupVariables (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
+			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.setupVariables (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V");
 	}
 
 	@Test
@@ -150,7 +149,7 @@ public class SnapshotInstrumentorTest {
 			.setupVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ACONST_NULL",
 			"LDC \"net/amygdalum/testrecorder/Example:staticPrimitiveResultMixedArgs(Lnet/amygdalum/testrecorder/ArgumentObject;C)J\"",
@@ -165,7 +164,7 @@ public class SnapshotInstrumentorTest {
 			"ILOAD 1",
 			"INVOKESTATIC java/lang/Character.valueOf (C)Ljava/lang/Character;",
 			"AASTORE",
-			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.setupVariables (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
+			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.setupVariables (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V");
 	}
 
 	@Test
@@ -175,13 +174,13 @@ public class SnapshotInstrumentorTest {
 			.expectVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 0",
 			"LDC \"net/amygdalum/testrecorder/Example:noResultNoArgs()V\"",
 			"LDC 0",
 			"ANEWARRAY java/lang/Object",
-			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.expectVariables (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
+			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.expectVariables (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V");
 	}
 
 	@Test
@@ -191,7 +190,7 @@ public class SnapshotInstrumentorTest {
 			.expectVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"DUP",
 			"INVOKESTATIC java/lang/Boolean.valueOf (Z)Ljava/lang/Boolean;",
 			"ASTORE 1",
@@ -201,7 +200,7 @@ public class SnapshotInstrumentorTest {
 			"ALOAD 1",
 			"LDC 0",
 			"ANEWARRAY java/lang/Object",
-			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.expectVariables (Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)V"));
+			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.expectVariables (Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)V");
 	}
 
 	@Test
@@ -211,7 +210,7 @@ public class SnapshotInstrumentorTest {
 			.expectVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"DUP",
 			"ASTORE 1",
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
@@ -220,7 +219,7 @@ public class SnapshotInstrumentorTest {
 			"ALOAD 1",
 			"LDC 0",
 			"ANEWARRAY java/lang/Object",
-			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.expectVariables (Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)V"));
+			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.expectVariables (Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)V");
 	}
 
 	@Test
@@ -230,7 +229,7 @@ public class SnapshotInstrumentorTest {
 			.expectVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 0",
 			"LDC \"net/amygdalum/testrecorder/Example:noResultPrimitiveArg(I)V\"",
@@ -241,7 +240,7 @@ public class SnapshotInstrumentorTest {
 			"ILOAD 1",
 			"INVOKESTATIC java/lang/Integer.valueOf (I)Ljava/lang/Integer;",
 			"AASTORE",
-			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.expectVariables (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
+			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.expectVariables (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V");
 	}
 
 	@Test
@@ -251,7 +250,7 @@ public class SnapshotInstrumentorTest {
 			.expectVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
 			"ALOAD 0",
 			"LDC \"net/amygdalum/testrecorder/Example:noResultObjectArg(Lnet/amygdalum/testrecorder/ArgumentObject;)V\"",
@@ -261,7 +260,7 @@ public class SnapshotInstrumentorTest {
 			"LDC 0",
 			"ALOAD 1",
 			"AASTORE",
-			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.expectVariables (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
+			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.expectVariables (Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V");
 	}
 
 	@Test
@@ -271,7 +270,7 @@ public class SnapshotInstrumentorTest {
 			.expectVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"DUP",
 			"ASTORE 4",
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
@@ -289,7 +288,7 @@ public class SnapshotInstrumentorTest {
 			"LDC 1",
 			"ALOAD 3",
 			"AASTORE",
-			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.expectVariables (Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)V"));
+			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.expectVariables (Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)V");
 	}
 
 	@Test
@@ -299,7 +298,7 @@ public class SnapshotInstrumentorTest {
 			.expectVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"DUP2",
 			"INVOKESTATIC java/lang/Long.valueOf (J)Ljava/lang/Long;",
 			"ASTORE 2",
@@ -318,7 +317,7 @@ public class SnapshotInstrumentorTest {
 			"ILOAD 1",
 			"INVOKESTATIC java/lang/Character.valueOf (C)Ljava/lang/Character;",
 			"AASTORE",
-			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.expectVariables (Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)V"));
+			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.expectVariables (Ljava/lang/Object;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)V");
 	}
 
 	@Test
@@ -328,7 +327,7 @@ public class SnapshotInstrumentorTest {
 			.throwVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"DUP",
 			"ASTORE 1",
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
@@ -337,7 +336,7 @@ public class SnapshotInstrumentorTest {
 			"LDC \"net/amygdalum/testrecorder/Example:noResultNoArgs()V\"",
 			"LDC 0",
 			"ANEWARRAY java/lang/Object",
-			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.throwVariables (Ljava/lang/Throwable;Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
+			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.throwVariables (Ljava/lang/Throwable;Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V");
 	}
 
 	@Test
@@ -347,7 +346,7 @@ public class SnapshotInstrumentorTest {
 			.throwVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"DUP",
 			"ASTORE 1",
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
@@ -356,7 +355,7 @@ public class SnapshotInstrumentorTest {
 			"LDC \"net/amygdalum/testrecorder/Example:primitiveResultNoArgs()Z\"",
 			"LDC 0",
 			"ANEWARRAY java/lang/Object",
-			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.throwVariables (Ljava/lang/Throwable;Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
+			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.throwVariables (Ljava/lang/Throwable;Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V");
 	}
 
 	@Test
@@ -366,7 +365,7 @@ public class SnapshotInstrumentorTest {
 			.throwVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"DUP",
 			"ASTORE 1",
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
@@ -375,7 +374,7 @@ public class SnapshotInstrumentorTest {
 			"LDC \"net/amygdalum/testrecorder/Example:objectResultNoArgs()Lnet/amygdalum/testrecorder/ResultObject;\"",
 			"LDC 0",
 			"ANEWARRAY java/lang/Object",
-			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.throwVariables (Ljava/lang/Throwable;Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
+			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.throwVariables (Ljava/lang/Throwable;Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V");
 	}
 
 	@Test
@@ -385,7 +384,7 @@ public class SnapshotInstrumentorTest {
 			.throwVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"DUP",
 			"ASTORE 2",
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
@@ -399,7 +398,7 @@ public class SnapshotInstrumentorTest {
 			"ILOAD 1",
 			"INVOKESTATIC java/lang/Integer.valueOf (I)Ljava/lang/Integer;",
 			"AASTORE",
-			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.throwVariables (Ljava/lang/Throwable;Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
+			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.throwVariables (Ljava/lang/Throwable;Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V");
 	}
 
 	@Test
@@ -409,7 +408,7 @@ public class SnapshotInstrumentorTest {
 			.throwVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"DUP",
 			"ASTORE 2",
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
@@ -422,7 +421,7 @@ public class SnapshotInstrumentorTest {
 			"LDC 0",
 			"ALOAD 1",
 			"AASTORE",
-			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.throwVariables (Ljava/lang/Throwable;Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
+			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.throwVariables (Ljava/lang/Throwable;Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V");
 	}
 
 	@Test
@@ -432,7 +431,7 @@ public class SnapshotInstrumentorTest {
 			.throwVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"DUP",
 			"ASTORE 4",
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
@@ -450,7 +449,7 @@ public class SnapshotInstrumentorTest {
 			"LDC 1",
 			"ALOAD 3",
 			"AASTORE",
-			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.throwVariables (Ljava/lang/Throwable;Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
+			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.throwVariables (Ljava/lang/Throwable;Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V");
 	}
 
 	@Test
@@ -460,7 +459,7 @@ public class SnapshotInstrumentorTest {
 			.throwVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
 
-		assertThat(ByteCode.toString(insnlist), contains(
+		assertThat(ByteCode.toString(insnlist)).containsExactly(
 			"DUP",
 			"ASTORE 2",
 			"GETSTATIC net/amygdalum/testrecorder/SnapshotManager.MANAGER : Lnet/amygdalum/testrecorder/SnapshotManager;",
@@ -478,7 +477,7 @@ public class SnapshotInstrumentorTest {
 			"ILOAD 1",
 			"INVOKESTATIC java/lang/Character.valueOf (C)Ljava/lang/Character;",
 			"AASTORE",
-			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.throwVariables (Ljava/lang/Throwable;Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"));
+			"INVOKEVIRTUAL net/amygdalum/testrecorder/SnapshotManager.throwVariables (Ljava/lang/Throwable;Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V");
 	}
 
 	@Test
@@ -488,7 +487,7 @@ public class SnapshotInstrumentorTest {
 		stubbedSnapshotInstrumentor(new SnapshotInstrumentor.DefaultTask(config, classes, unit.classNode))
 			.instrumentSnapshotMethod(unit.methodNode);
 
-		assertThat(ByteCode.toString(unit.methodNode.instructions), contains(
+		assertThat(ByteCode.toString(unit.methodNode.instructions)).containsExactly(
 			"L0",
 			"LDC \"setupVariables\"",
 			"POP",
@@ -503,7 +502,7 @@ public class SnapshotInstrumentorTest {
 			"L4",
 			"LDC \"throwVariables\"",
 			"POP",
-			"ATHROW"));
+			"ATHROW");
 	}
 
 	@Test
@@ -513,7 +512,7 @@ public class SnapshotInstrumentorTest {
 		stubbedSnapshotInstrumentor(new SnapshotInstrumentor.DefaultTask(config, classes, unit.classNode))
 			.instrumentSnapshotMethod(unit.methodNode);
 
-		assertThat(ByteCode.toString(unit.methodNode.instructions), contains(
+		assertThat(ByteCode.toString(unit.methodNode.instructions)).containsExactly(
 			"L0",
 			"LDC \"setupVariables\"",
 			"POP",
@@ -529,7 +528,7 @@ public class SnapshotInstrumentorTest {
 			"L4",
 			"LDC \"throwVariables\"",
 			"POP",
-			"ATHROW"));
+			"ATHROW");
 	}
 
 	@Test
@@ -539,7 +538,7 @@ public class SnapshotInstrumentorTest {
 		stubbedSnapshotInstrumentor(new SnapshotInstrumentor.DefaultTask(config, classes, unit.classNode))
 			.instrumentSnapshotMethod(unit.methodNode);
 
-		assertThat(ByteCode.toString(unit.methodNode.instructions), contains(
+		assertThat(ByteCode.toString(unit.methodNode.instructions)).containsExactly(
 			"L0",
 			"LDC \"setupVariables\"",
 			"POP",
@@ -555,7 +554,7 @@ public class SnapshotInstrumentorTest {
 			"L4",
 			"LDC \"throwVariables\"",
 			"POP",
-			"ATHROW"));
+			"ATHROW");
 	}
 
 	@Test
@@ -565,7 +564,7 @@ public class SnapshotInstrumentorTest {
 		stubbedSnapshotInstrumentor(new SnapshotInstrumentor.DefaultTask(config, classes, unit.classNode))
 			.instrumentSnapshotMethod(unit.methodNode);
 
-		assertThat(ByteCode.toString(unit.methodNode.instructions), contains(
+		assertThat(ByteCode.toString(unit.methodNode.instructions)).containsExactly(
 			"L0",
 			"LDC \"setupVariables\"",
 			"POP",
@@ -580,7 +579,7 @@ public class SnapshotInstrumentorTest {
 			"L4",
 			"LDC \"throwVariables\"",
 			"POP",
-			"ATHROW"));
+			"ATHROW");
 	}
 
 	@Test
@@ -590,7 +589,7 @@ public class SnapshotInstrumentorTest {
 		stubbedSnapshotInstrumentor(new SnapshotInstrumentor.DefaultTask(config, classes, unit.classNode))
 			.instrumentSnapshotMethod(unit.methodNode);
 
-		assertThat(ByteCode.toString(unit.methodNode.instructions), contains(
+		assertThat(ByteCode.toString(unit.methodNode.instructions)).containsExactly(
 			"L0",
 			"LDC \"setupVariables\"",
 			"POP",
@@ -605,7 +604,7 @@ public class SnapshotInstrumentorTest {
 			"L4",
 			"LDC \"throwVariables\"",
 			"POP",
-			"ATHROW"));
+			"ATHROW");
 	}
 
 	@Test
@@ -615,7 +614,7 @@ public class SnapshotInstrumentorTest {
 		stubbedSnapshotInstrumentor(new SnapshotInstrumentor.DefaultTask(config, classes, unit.classNode))
 			.instrumentSnapshotMethod(unit.methodNode);
 
-		assertThat(ByteCode.toString(unit.methodNode.instructions), contains(
+		assertThat(ByteCode.toString(unit.methodNode.instructions)).containsExactly(
 			"L0",
 			"LDC \"setupVariables\"",
 			"POP",
@@ -631,7 +630,7 @@ public class SnapshotInstrumentorTest {
 			"L4",
 			"LDC \"throwVariables\"",
 			"POP",
-			"ATHROW"));
+			"ATHROW");
 	}
 
 	@Test
@@ -641,7 +640,7 @@ public class SnapshotInstrumentorTest {
 		stubbedSnapshotInstrumentor(new SnapshotInstrumentor.DefaultTask(config, classes, unit.classNode))
 			.instrumentSnapshotMethod(unit.methodNode);
 
-		assertThat(ByteCode.toString(unit.methodNode.instructions), contains(
+		assertThat(ByteCode.toString(unit.methodNode.instructions)).containsExactly(
 			"L0",
 			"LDC \"setupVariables\"",
 			"POP",
@@ -657,7 +656,7 @@ public class SnapshotInstrumentorTest {
 			"L4",
 			"LDC \"throwVariables\"",
 			"POP",
-			"ATHROW"));
+			"ATHROW");
 	}
 
 	private SnapshotInstrumentor.Task stubbedSnapshotInstrumentor(SnapshotInstrumentor.Task task) {

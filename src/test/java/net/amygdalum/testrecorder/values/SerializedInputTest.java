@@ -5,7 +5,6 @@ import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.io.BufferedReader;
@@ -75,7 +74,7 @@ public class SerializedInputTest {
 	@Test
 	public void testGetResult() throws Exception {
 		assertThat(input.getResult()).isEqualTo(literal("Hello"));
-		assertThat(inputNoResult.getResult(), nullValue());
+		assertThat(inputNoResult.getResult()).isNull();
 	}
 
 	@Test

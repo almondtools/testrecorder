@@ -3,8 +3,6 @@ package net.amygdalum.testrecorder.values;
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -30,9 +28,9 @@ public class SerializedObjectTest {
 			new SerializedField(Object.class, "f1", Object.class, literal("str")),
 			new SerializedField(Object.class, "f2", Integer.class, literal(2)));
 
-		assertThat(serializedObject.getFields(), contains(
+		assertThat(serializedObject.getFields()).containsExactly(
 			new SerializedField(Object.class, "f1", Object.class, literal("str")),
-			new SerializedField(Object.class, "f2", Integer.class, literal(2))));
+			new SerializedField(Object.class, "f2", Integer.class, literal(2)));
 	}
 
 	@Test
@@ -42,9 +40,9 @@ public class SerializedObjectTest {
 		serializedObject.addField(new SerializedField(Object.class, "f1", Object.class, literal("str")));
 		serializedObject.addField(new SerializedField(Object.class, "f2", Integer.class, literal(2)));
 
-		assertThat(serializedObject.getFields(), contains(
+		assertThat(serializedObject.getFields()).containsExactly(
 			new SerializedField(Object.class, "f1", Object.class, literal("str")),
-			new SerializedField(Object.class, "f2", Integer.class, literal(2))));
+			new SerializedField(Object.class, "f2", Integer.class, literal(2)));
 	}
 
 	@Test

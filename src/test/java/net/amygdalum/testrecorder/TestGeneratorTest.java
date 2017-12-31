@@ -6,7 +6,6 @@ import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.lang.annotation.Annotation;
@@ -233,8 +232,8 @@ public class TestGeneratorTest {
 				return null;
 			}
 		});
-		assertThat(TestGenerator.fromRecorded(), nullValue());
-		assertThat(TestGenerator.fromRecorded(), nullValue());
+		assertThat(TestGenerator.fromRecorded()).isNull();
+		assertThat(TestGenerator.fromRecorded()).isNull();
 	}
 
 	@Test
@@ -269,7 +268,7 @@ public class TestGeneratorTest {
 				};
 			}
 		});
-		assertThat(TestGenerator.fromRecorded(), nullValue());
+		assertThat(TestGenerator.fromRecorded()).isNull();
 	}
 
 	@Test

@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.data;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -54,7 +54,7 @@ public class GenericObjectGeneratorTest {
     @Test
     public void testCreateOnlyExceptionConstructorClass() throws Exception {
         SimpleOnlyExceptionConstructor object = new GenericObjectGenerator<>(SimpleOnlyExceptionConstructor.class).create(new TestDataGenerator());
-        assertThat(object, nullValue());
+        assertThat(object).isNull();
     }
 
     @Test

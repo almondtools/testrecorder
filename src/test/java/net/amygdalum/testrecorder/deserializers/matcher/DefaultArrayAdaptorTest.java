@@ -4,7 +4,6 @@ import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContex
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.math.BigInteger;
@@ -27,7 +26,7 @@ public class DefaultArrayAdaptorTest {
 
     @Test
     public void testParentNull() throws Exception {
-        assertThat(adaptor.parent(), nullValue());
+        assertThat(adaptor.parent()).isNull();
     }
 
     @Test

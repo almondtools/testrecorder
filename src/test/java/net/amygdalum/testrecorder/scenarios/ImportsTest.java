@@ -22,8 +22,6 @@ import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 @Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.Imports", "net.amygdalum.testrecorder.scenarios.Imports$List" })
 public class ImportsTest {
 
-	
-
 	@Test
 	public void testCompilable() throws Exception {
 		Imports object = new Imports("name");

@@ -1,8 +1,6 @@
 package net.amygdalum.testrecorder.serializers;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.math.BigDecimal;
@@ -25,10 +23,9 @@ public class BigDecimalSerializerTest {
 		serializer = new BigDecimalSerializer.Factory().newSerializer(facade);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetMatchingClasses() throws Exception {
-		assertThat(serializer.getMatchingClasses(), contains(BigDecimal.class));
+		assertThat(serializer.getMatchingClasses()).containsExactly(BigDecimal.class);
 	}
 
 	@Test
