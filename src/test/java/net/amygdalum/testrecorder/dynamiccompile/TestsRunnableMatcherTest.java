@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder.dynamiccompile;
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import org.hamcrest.StringDescription;
@@ -34,7 +33,7 @@ public class TestsRunnableMatcherTest {
             + "  }"
             + "}", description);
 
-        assertThat(matches, is(true));
+        assertThat(matches).isTrue();
         assertThat(description.toString()).isEqualTo("");
     }
 
@@ -54,7 +53,7 @@ public class TestsRunnableMatcherTest {
             + "  }"
             + "}", description);
 
-        assertThat(matches, is(false));
+        assertThat(matches).isFalse();
         assertThat(description.toString(), containsPattern(""
             + "compiled successfully but got test failures : 1*"
             + "-\tnull\n\tAssertionError: null"));
@@ -76,7 +75,7 @@ public class TestsRunnableMatcherTest {
             + "  }"
             + "}", description);
 
-        assertThat(matches, is(false));
+        assertThat(matches).isFalse();
         assertThat(description.toString(), containsPattern(""
             + "compile failed with messages"));
     }
@@ -96,7 +95,7 @@ public class TestsRunnableMatcherTest {
             + "  }"
             + "}", description);
         
-        assertThat(matches, is(false));
+        assertThat(matches).isFalse();
         assertThat(description.toString(), containsPattern(""
             + "compiled successfully but got test failures : 1*"
             + "-\tnull\n\tRuntimeException: null"));

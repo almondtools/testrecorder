@@ -4,8 +4,8 @@ import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPat
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static net.amygdalum.testrecorder.runtime.ContainsInOrderMatcher.containsInOrder;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 
@@ -25,22 +25,22 @@ public class ContainsInOrderMatcherTest {
 
     @Test
     public void testMatchesSafelyMatchers() throws Exception {
-        assertThat(containsInOrder(String.class, equalTo("A")).matchesSafely(asList("A")), is(true));
-        assertThat(containsInOrder(String.class, equalTo("A")).matchesSafely(asList("b")), is(false));
-        assertThat(containsInOrder(String.class, equalTo("A")).matchesSafely(emptyList()), is(false));
+        assertThat(containsInOrder(String.class, equalTo("A")).matchesSafely(asList("A"))).isTrue();
+        assertThat(containsInOrder(String.class, equalTo("A")).matchesSafely(asList("b"))).isFalse();
+        assertThat(containsInOrder(String.class, equalTo("A")).matchesSafely(emptyList())).isFalse();
     }
 
     @Test
     public void testMatchesSafelyWithSuccess() throws Exception {
-        assertThat(containsInOrder(String.class, "A", "b").matchesSafely(asList("A", "b")), is(true));
-        assertThat(containsInOrder(String.class, "A", null).matchesSafely(asList("A", null)), is(true));
+        assertThat(containsInOrder(String.class, "A", "b").matchesSafely(asList("A", "b"))).isTrue();
+        assertThat(containsInOrder(String.class, "A", null).matchesSafely(asList("A", null))).isTrue();
     }
 
     @Test
     public void testMatchesSafelyWithFailure() throws Exception {
-        assertThat(containsInOrder(String.class, "A", "b").matchesSafely(asList("A")), is(false));
-        assertThat(containsInOrder(String.class, "A", "b").matchesSafely(asList("a", "b")), is(false));
-        assertThat(containsInOrder(String.class, "A", "b").matchesSafely(asList("A", "b", "C")), is(false));
+        assertThat(containsInOrder(String.class, "A", "b").matchesSafely(asList("A"))).isFalse();
+        assertThat(containsInOrder(String.class, "A", "b").matchesSafely(asList("a", "b"))).isFalse();
+        assertThat(containsInOrder(String.class, "A", "b").matchesSafely(asList("A", "b", "C"))).isFalse();
     }
 
     @Test

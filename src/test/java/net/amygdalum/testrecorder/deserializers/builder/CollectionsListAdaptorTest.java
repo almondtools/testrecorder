@@ -6,7 +6,6 @@ import static net.amygdalum.testrecorder.util.Types.wildcard;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -39,15 +38,15 @@ public class CollectionsListAdaptorTest {
 
 	@Test
 	public void testMatchesDecoratorClassesInCollections() throws Exception {
-		assertThat(adaptor.matches(Object.class), is(false));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$UnmodifiableList")), is(true));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$UnmodifiableRandomAccessList")), is(true));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$SynchronizedList")), is(true));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$SynchronizedRandomAccessList")), is(true));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$CheckedList")), is(true));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$CheckedRandomAccessList")), is(true));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$EmptyList")), is(true));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$SingletonList")), is(true));
+		assertThat(adaptor.matches(Object.class)).isFalse();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$UnmodifiableList"))).isTrue();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$UnmodifiableRandomAccessList"))).isTrue();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$SynchronizedList"))).isTrue();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$SynchronizedRandomAccessList"))).isTrue();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$CheckedList"))).isTrue();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$CheckedRandomAccessList"))).isTrue();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$EmptyList"))).isTrue();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$SingletonList"))).isTrue();
 	}
 
 	@Test

@@ -4,7 +4,6 @@ import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContex
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenEnum;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
@@ -31,10 +30,10 @@ public class DefaultEnumAdaptorTest {
 
 	@Test
 	public void testMatchesOnlyEnums() throws Exception {
-		assertThat(adaptor.matches(PublicEnum.class), is(true));
-		assertThat(adaptor.matches(classOfHiddenEnum()), is(true));
-		assertThat(adaptor.matches(Enum.class), is(false));
-		assertThat(adaptor.matches(Object.class), is(false));
+		assertThat(adaptor.matches(PublicEnum.class)).isTrue();
+		assertThat(adaptor.matches(classOfHiddenEnum())).isTrue();
+		assertThat(adaptor.matches(Enum.class)).isFalse();
+		assertThat(adaptor.matches(Object.class)).isFalse();
 	}
 
 	@Test

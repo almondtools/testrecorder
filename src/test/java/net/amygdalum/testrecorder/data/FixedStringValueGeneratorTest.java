@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder.data;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,8 +16,8 @@ public class FixedStringValueGeneratorTest {
 	
 	@Test
 	public void testCreate() throws Exception {
-		assertThat(new FixedStringValueGenerator("Foo").create(generator), is("Foo"));
-		assertThat(new FixedStringValueGenerator("Bar").create(generator), is("Bar"));
+		assertThat(new FixedStringValueGenerator("Foo").create(generator)).isEqualTo("Foo");
+		assertThat(new FixedStringValueGenerator("Bar").create(generator)).isEqualTo("Bar");
 	}
 
 }

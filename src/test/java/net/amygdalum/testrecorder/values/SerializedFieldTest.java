@@ -6,7 +6,6 @@ import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.emptyArray;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.lang.annotation.Annotation;
@@ -58,13 +57,13 @@ public class SerializedFieldTest {
 
 		assertThat(fieldAnnotated.getAnnotations()).containsExactly((Annotation) Annotated.class.getAnnotation(MyAnnotation.class));
 		assertThat(fieldAnnotated.getAnnotation(MyAnnotation.class).get()).isEqualTo(Annotated.class.getAnnotation(MyAnnotation.class));
-		assertThat(fieldAnnotated.getAnnotation(NoAnnotation.class).isPresent(), is(false));
+		assertThat(fieldAnnotated.getAnnotation(NoAnnotation.class).isPresent()).isFalse();
 
 		SerializedField valueAnnotated = new SerializedField(AnnotatedField.class, "annotatedValue", Annotated.class, nullInstance(Annotated.class));
 
 		assertThat(valueAnnotated.getAnnotations(), emptyArray());
-		assertThat(valueAnnotated.getAnnotation(MyAnnotation.class).isPresent(), is(false));
-		assertThat(valueAnnotated.getAnnotation(NoAnnotation.class).isPresent(), is(false));
+		assertThat(valueAnnotated.getAnnotation(MyAnnotation.class).isPresent()).isFalse();
+		assertThat(valueAnnotated.getAnnotation(NoAnnotation.class).isPresent()).isFalse();
 }
 
 	@Test

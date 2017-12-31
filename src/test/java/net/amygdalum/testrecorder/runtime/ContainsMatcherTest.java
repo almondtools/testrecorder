@@ -6,8 +6,8 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static net.amygdalum.testrecorder.runtime.ContainsMatcher.contains;
 import static net.amygdalum.testrecorder.runtime.ContainsMatcher.empty;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 
@@ -27,28 +27,28 @@ public class ContainsMatcherTest {
 
     @Test
     public void testMatchesSafelyEmpty() throws Exception {
-        assertThat(empty(String.class).matchesSafely(asList("A", "b")), is(false));
-        assertThat(empty(String.class).matchesSafely(emptySet()), is(true));
+        assertThat(empty(String.class).matchesSafely(asList("A", "b"))).isFalse();
+        assertThat(empty(String.class).matchesSafely(emptySet())).isTrue();
     }
 
     @Test
     public void testMatchesSafelyMatchers() throws Exception {
-        assertThat(contains(String.class, equalTo("A")).matchesSafely(asList("A")), is(true));
-        assertThat(contains(String.class, equalTo("A")).matchesSafely(asList("b")), is(false));
-        assertThat(contains(String.class, equalTo("A")).matchesSafely(emptyList()), is(false));
+        assertThat(contains(String.class, equalTo("A")).matchesSafely(asList("A"))).isTrue();
+        assertThat(contains(String.class, equalTo("A")).matchesSafely(asList("b"))).isFalse();
+        assertThat(contains(String.class, equalTo("A")).matchesSafely(emptyList())).isFalse();
     }
 
     @Test
     public void testMatchesSafelyWithSuccess() throws Exception {
-        assertThat(contains(String.class, "A", "b").matchesSafely(asList("A", "b")), is(true));
-        assertThat(contains(String.class, "A", null).matchesSafely(asList("A", null)), is(true));
+        assertThat(contains(String.class, "A", "b").matchesSafely(asList("A", "b"))).isTrue();
+        assertThat(contains(String.class, "A", null).matchesSafely(asList("A", null))).isTrue();
     }
 
     @Test
     public void testMatchesSafelyWithFailure() throws Exception {
         boolean matches = contains(String.class, "A", "b").matchesSafely(asList("a", "b"));
 
-        assertThat(matches, is(false));
+        assertThat(matches).isFalse();
     }
 
     @Test

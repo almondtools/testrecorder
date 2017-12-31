@@ -4,7 +4,6 @@ import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContex
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
@@ -33,8 +32,8 @@ public class DefaultObjectAdaptorTest {
 
 	@Test
 	public void testMatchesAnyObject() throws Exception {
-		assertThat(adaptor.matches(Object.class),is(true));
-		assertThat(adaptor.matches(new Object(){}.getClass()),is(true));
+		assertThat(adaptor.matches(Object.class)).isTrue();
+		assertThat(adaptor.matches(new Object(){}.getClass())).isTrue();
 	}
 
 	@Test

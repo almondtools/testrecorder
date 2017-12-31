@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder.data;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,8 +16,8 @@ public class FixedFloatValueGeneratorTest {
 	
 	@Test
 	public void testCreate() throws Exception {
-		assertThat(new FixedFloatValueGenerator(0.134e-5f).create(generator), is(0.134e-5f));
-		assertThat(new FixedFloatValueGenerator(12.434e2f).create(generator), is(12.434e2f));
+		assertThat(new FixedFloatValueGenerator(0.134e-5f).create(generator)).isEqualTo(0.134e-5f);
+		assertThat(new FixedFloatValueGenerator(12.434e2f).create(generator)).isEqualTo(12.434e2f);
 	}
 
 }

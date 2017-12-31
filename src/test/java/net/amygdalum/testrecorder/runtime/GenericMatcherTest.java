@@ -10,7 +10,6 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import org.hamcrest.Matcher;
@@ -103,20 +102,20 @@ public class GenericMatcherTest {
 
 	@Test
 	public void testRecursive() throws Exception {
-		assertThat(recursive(Super.class).matches(new Super()), is(true));
-		assertThat(recursive(Super.class).matches(new Sub()), is(true));
-		assertThat(recursive(Super.class).matches(new Simple()), is(false));
-		assertThat(recursive(Super.class).matches(new Complex()), is(false));
+		assertThat(recursive(Super.class).matches(new Super())).isTrue();
+		assertThat(recursive(Super.class).matches(new Sub())).isTrue();
+		assertThat(recursive(Super.class).matches(new Simple())).isFalse();
+		assertThat(recursive(Super.class).matches(new Complex())).isFalse();
 	}
 
 	@Test
 	public void testRecursiveWrapped() throws Exception {
 		Wrapped wrapped = Wrapped.clazz(Super.class.getName());
 
-		assertThat(recursive(wrapped).matches(new Super()), is(true));
-		assertThat(recursive(wrapped).matches(new Sub()), is(true));
-		assertThat(recursive(wrapped).matches(new Simple()), is(false));
-		assertThat(recursive(wrapped).matches(new Complex()), is(false));
+		assertThat(recursive(wrapped).matches(new Super())).isTrue();
+		assertThat(recursive(wrapped).matches(new Sub())).isTrue();
+		assertThat(recursive(wrapped).matches(new Simple())).isFalse();
+		assertThat(recursive(wrapped).matches(new Complex())).isFalse();
 	}
 
 	@Test
@@ -155,7 +154,7 @@ public class GenericMatcherTest {
 			String str = "str";
 		}.matching(Super.class);
 
-		assertThat(matcher.matches(new Sub("str")), is(false));
+		assertThat(matcher.matches(new Sub("str"))).isFalse();
 	}
 
 	@Test
@@ -235,8 +234,8 @@ public class GenericMatcherTest {
 			String str = "myStr";
 		}.matching(Sub.class, Super.class);
 
-		assertThat(matcher.matches(new Sub("myStr")), is(true));
-		assertThat(matcher.matches(new Super("myStr")), is(false));
+		assertThat(matcher.matches(new Sub("myStr"))).isTrue();
+		assertThat(matcher.matches(new Super("myStr"))).isFalse();
 	}
 
 	@Test
@@ -245,8 +244,8 @@ public class GenericMatcherTest {
 			String str = "myStr";
 		}.matching(Sub.class, Super.class);
 
-		assertThat(matcher.matches(new Sub("myStr")), is(true));
-		assertThat(matcher.matches(new Simple("myStr")), is(false));
+		assertThat(matcher.matches(new Sub("myStr"))).isTrue();
+		assertThat(matcher.matches(new Simple("myStr"))).isFalse();
 	}
 
 	@Test
@@ -278,7 +277,7 @@ public class GenericMatcherTest {
 			int ShadowedObject$field = 42;
 			String ShadowingObject$field = "field";
 		}.matching(ShadowingObject.class);
-		assertThat(matcher.matches(new ShadowingObject("field", 42)), is(true));
+		assertThat(matcher.matches(new ShadowingObject("field", 42))).isTrue();
 	}
 
 	@Test
@@ -288,7 +287,7 @@ public class GenericMatcherTest {
 			String ShadowingObject$field = "field";
 			String DoubleShadowingObject$field = "fieldshadowing";
 		}.matching(DoubleShadowingObject.class);
-		assertThat(matcher.matches(new DoubleShadowingObject("fieldshadowing", "field", 42)), is(true));
+		assertThat(matcher.matches(new DoubleShadowingObject("fieldshadowing", "field", 42))).isTrue();
 	}
 
 	@Test

@@ -2,7 +2,6 @@ package net.amygdalum.testrecorder.data;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -21,14 +20,14 @@ public class TestDataGeneratorTest {
 	public void testCreateTrue() throws Exception {
 		gen.withValues(boolean.class, new FixedBooleanValueGenerator(true));
 
-		assertThat(gen.create(boolean.class), is(true));
+		assertThat(gen.create(boolean.class)).isTrue();
 	}
 
 	@Test
 	public void testCreateFalse() throws Exception {
 		gen.withValues(boolean.class, new FixedBooleanValueGenerator(false));
 
-		assertThat(gen.create(boolean.class), is(false));
+		assertThat(gen.create(boolean.class)).isFalse();
 	}
 
 	@Test
@@ -56,7 +55,7 @@ public class TestDataGeneratorTest {
 	public void testCreateInt() throws Exception {
 		gen.withValues(int.class, new FixedIntValueGenerator(67777));
 
-		assertThat(gen.create(int.class), is(67777));
+		assertThat(gen.create(int.class)).isEqualTo(67777);
 	}
 
 	@Test
@@ -89,11 +88,11 @@ public class TestDataGeneratorTest {
 
 	@Test
 	public void testCreateDefault() throws Exception {
-		assertThat(gen.create(boolean.class), is(false));
+		assertThat(gen.create(boolean.class)).isFalse();
 		assertThat(gen.create(char.class)).isEqualTo((char) 0);
 		assertThat(gen.create(byte.class)).isEqualTo((byte) 0);
 		assertThat(gen.create(short.class)).isEqualTo((short) 0);
-		assertThat(gen.create(int.class), is(0));
+		assertThat(gen.create(int.class)).isEqualTo(0);
 		assertThat(gen.create(long.class)).isEqualTo(0l);
 		assertThat(gen.create(float.class)).isEqualTo(0f);
 		assertThat(gen.create(double.class)).isEqualTo(0d);

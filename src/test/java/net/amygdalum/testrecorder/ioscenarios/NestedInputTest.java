@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.ioscenarios;
 
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
-import static org.hamcrest.CoreMatchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,7 @@ public class NestedInputTest {
 		NestedInput input = new NestedInput();
 		String time = input.getTime();
 
-		assertThat(time.matches("\\d+:\\d+"), is(true));
+		assertThat(time.matches("\\d+:\\d+")).isTrue();
 		
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(NestedInput.class), compiles(NestedInput.class));
@@ -34,7 +34,7 @@ public class NestedInputTest {
 		NestedInput input = new NestedInput();
 		String time = input.getTime();
 
-		assertThat(time.matches("\\d+:\\d+"), is(true));
+		assertThat(time.matches("\\d+:\\d+")).isTrue();
 		
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(NestedInput.class), testsRun(NestedInput.class));

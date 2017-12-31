@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder.profile;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Field;
 
@@ -18,8 +17,8 @@ public class FieldsAtRuntimeTest {
 				return true;
 			}
 		};
-		assertThat(fieldsAtRuntime.matches(anyField()), is(true));
-		assertThat(fieldsAtRuntime.matches(anyString(), anyString(), anyString()), is(false));
+		assertThat(fieldsAtRuntime.matches(anyField())).isTrue();
+		assertThat(fieldsAtRuntime.matches(anyString(), anyString(), anyString())).isFalse();
 	}
 
 	private String anyString() {

@@ -15,7 +15,6 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.junit.Assert.assertThat;
 
@@ -121,37 +120,37 @@ public class SerializedMapTest {
 	@Test
 	public void testIsEmpty0() throws Exception {
 		SerializedMap map = new SerializedMap(HashMap.class).withResult(Map.class);
-		assertThat(map.isEmpty(), is(true));
+		assertThat(map.isEmpty()).isTrue();
 	}
 
 	@Test
 	public void testIsEmpty1() throws Exception {
 		SerializedMap map = new SerializedMap(HashMap.class).withResult(Map.class);
 		map.put(literal("key"), literal("value"));
-		assertThat(map.isEmpty(), is(false));
+		assertThat(map.isEmpty()).isFalse();
 	}
 
 	@Test
 	public void testContains0() throws Exception {
 		SerializedMap map = new SerializedMap(HashMap.class).withResult(Map.class);
-		assertThat(map.containsKey(literal("key")), is(false));
-		assertThat(map.containsValue(literal("value")), is(false));
+		assertThat(map.containsKey(literal("key"))).isFalse();
+		assertThat(map.containsValue(literal("value"))).isFalse();
 	}
 
 	@Test
 	public void testContainsKey1() throws Exception {
 		SerializedMap map = new SerializedMap(HashMap.class).withResult(Map.class);
 		map.put(literal("key"), literal("value"));
-		assertThat(map.containsKey(literal("key")), is(true));
-		assertThat(map.containsKey(literal("string")), is(false));
+		assertThat(map.containsKey(literal("key"))).isTrue();
+		assertThat(map.containsKey(literal("string"))).isFalse();
 	}
 
 	@Test
 	public void testContainsValue1() throws Exception {
 		SerializedMap map = new SerializedMap(HashMap.class).withResult(Map.class);
 		map.put(literal("key"), literal("value"));
-		assertThat(map.containsValue(literal("value")), is(true));
-		assertThat(map.containsValue(literal("string")), is(false));
+		assertThat(map.containsValue(literal("value"))).isTrue();
+		assertThat(map.containsValue(literal("string"))).isFalse();
 	}
 
 	@Test

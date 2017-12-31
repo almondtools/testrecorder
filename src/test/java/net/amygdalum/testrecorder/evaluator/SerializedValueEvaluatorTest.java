@@ -2,8 +2,6 @@ package net.amygdalum.testrecorder.evaluator;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
@@ -29,8 +27,8 @@ public class SerializedValueEvaluatorTest {
     public void testEvaluateLiteralFails() throws Exception {
         SerializedValue value = facade.serialize(String.class, "str");
 
-        assertThat(new SerializedValueEvaluator(".str").applyTo(value).isPresent(), is(false));
-        assertThat(new SerializedValueEvaluator("[0]").applyTo(value).isPresent(), is(false));
+        assertThat(new SerializedValueEvaluator(".str").applyTo(value).isPresent()).isFalse();
+        assertThat(new SerializedValueEvaluator("[0]").applyTo(value).isPresent()).isFalse();
     }
 
     @Test
@@ -46,8 +44,8 @@ public class SerializedValueEvaluatorTest {
         SerializedValue nullValue = facade.serialize(Simple.class, null);
         
 
-        assertThat(new SerializedValueEvaluator(".s").applyTo(value).isPresent(), is(false));
-        assertThat(new SerializedValueEvaluator(".str").applyTo(nullValue).isPresent(), is(false));
+        assertThat(new SerializedValueEvaluator(".s").applyTo(value).isPresent()).isFalse();
+        assertThat(new SerializedValueEvaluator(".str").applyTo(nullValue).isPresent()).isFalse();
     }
 
     @Test
@@ -62,9 +60,9 @@ public class SerializedValueEvaluatorTest {
     public void testEvaluateArrayFails() throws Exception {
         SerializedValue value = facade.serialize(String[].class, new String[]{"foo", "bar"});
         
-        assertThat(new SerializedValueEvaluator("[2]").applyTo(value).isPresent(), is(false));
-        assertThat(new SerializedValueEvaluator("[-1]").applyTo(value).isPresent(), is(false));
-        assertThat(new SerializedValueEvaluator("[str]").applyTo(value).isPresent(), is(false));
+        assertThat(new SerializedValueEvaluator("[2]").applyTo(value).isPresent()).isFalse();
+        assertThat(new SerializedValueEvaluator("[-1]").applyTo(value).isPresent()).isFalse();
+        assertThat(new SerializedValueEvaluator("[str]").applyTo(value).isPresent()).isFalse();
     }
     
     @Test
@@ -79,9 +77,9 @@ public class SerializedValueEvaluatorTest {
     public void testEvaluateListFails() throws Exception {
         SerializedValue value = facade.serialize(List.class, asList("bar","foo"));
         
-        assertThat(new SerializedValueEvaluator("[2]").applyTo(value).isPresent(), is(false));
-        assertThat(new SerializedValueEvaluator("[-1]").applyTo(value).isPresent(), is(false));
-        assertThat(new SerializedValueEvaluator("[str]").applyTo(value).isPresent(), is(false));
+        assertThat(new SerializedValueEvaluator("[2]").applyTo(value).isPresent()).isFalse();
+        assertThat(new SerializedValueEvaluator("[-1]").applyTo(value).isPresent()).isFalse();
+        assertThat(new SerializedValueEvaluator("[str]").applyTo(value).isPresent()).isFalse();
     }
     
     @Test

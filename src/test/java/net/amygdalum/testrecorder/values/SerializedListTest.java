@@ -15,7 +15,6 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.TypeVariable;
@@ -114,33 +113,33 @@ public class SerializedListTest {
 	@Test
 	public void testIsEmpty0() throws Exception {
 		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		assertThat(list.isEmpty(), is(true));
+		assertThat(list.isEmpty()).isTrue();
 	}
 
 	@Test
 	public void testIsEmpty1() throws Exception {
 		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
 		list.add(literal("string"));
-		assertThat(list.isEmpty(), is(false));
+		assertThat(list.isEmpty()).isFalse();
 	}
 
 	@Test
 	public void testContains0() throws Exception {
 		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		assertThat(list.contains(literal("string")), is(false));
+		assertThat(list.contains(literal("string"))).isFalse();
 	}
 
 	@Test
 	public void testContains1() throws Exception {
 		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
 		list.add(literal("string"));
-		assertThat(list.contains(literal("string")), is(true));
+		assertThat(list.contains(literal("string"))).isTrue();
 	}
 
 	@Test
 	public void testIterator0() throws Exception {
 		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		assertThat(list.iterator().hasNext(), is(false));
+		assertThat(list.iterator().hasNext()).isFalse();
 	}
 
 	@Test
@@ -168,14 +167,14 @@ public class SerializedListTest {
 	@Test
 	public void testRemoveObject0() throws Exception {
 		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		assertThat(list.remove(literal("string")), is(false));
+		assertThat(list.remove(literal("string"))).isFalse();
 	}
 
 	@Test
 	public void testRemoveObject1() throws Exception {
 		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
 		list.add(literal("string"));
-		assertThat(list.remove(literal("string")), is(true));
+		assertThat(list.remove(literal("string"))).isTrue();
 	}
 
 	@Test
@@ -194,16 +193,16 @@ public class SerializedListTest {
 	@Test
 	public void testContainsAll0() throws Exception {
 		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		assertThat(list.containsAll(asList(literal("string"))), is(false));
-		assertThat(list.containsAll(asList(literal("string"), literal("other"))), is(false));
+		assertThat(list.containsAll(asList(literal("string")))).isFalse();
+		assertThat(list.containsAll(asList(literal("string"), literal("other")))).isFalse();
 	}
 
 	@Test
 	public void testContainsAll1() throws Exception {
 		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
 		list.add(literal("string"));
-		assertThat(list.containsAll(asList(literal("string"))), is(true));
-		assertThat(list.containsAll(asList(literal("string"), literal("other"))), is(false));
+		assertThat(list.containsAll(asList(literal("string")))).isTrue();
+		assertThat(list.containsAll(asList(literal("string"), literal("other")))).isFalse();
 	}
 
 	@Test
@@ -343,7 +342,7 @@ public class SerializedListTest {
 	@Test
 	public void testListIterator0() throws Exception {
 		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		assertThat(list.listIterator().hasNext(), is(false));
+		assertThat(list.listIterator().hasNext()).isFalse();
 	}
 
 	@Test

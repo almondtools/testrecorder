@@ -4,7 +4,6 @@ import static net.amygdalum.testrecorder.util.Types.array;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
@@ -117,12 +116,12 @@ public class TypeManagerTest {
 
     @Test
     public void testIsHiddenType() throws Exception {
-        assertThat(types.isHidden(Hidden.class), is(true));
+        assertThat(types.isHidden(Hidden.class)).isTrue();
     }
 
     @Test
     public void testIsHiddenConstructor() throws Exception {
-        assertThat(types.isHidden(Hidden.class.getDeclaredConstructor()), is(true));
+        assertThat(types.isHidden(Hidden.class.getDeclaredConstructor())).isTrue();
     }
 
     @Test

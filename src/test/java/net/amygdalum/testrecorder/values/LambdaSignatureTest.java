@@ -1,8 +1,6 @@
 package net.amygdalum.testrecorder.values;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 
 import java.io.Serializable;
 import java.lang.invoke.MethodHandleInfo;
@@ -38,10 +36,10 @@ public class LambdaSignatureTest {
 
 	@Test
 	public void testIsSerializableLambda() throws Exception {
-		assertThat(Lambdas.isSerializableLambda(plus.getClass()), is(false));
-		assertThat(Lambdas.isSerializableLambda(lplus.getClass()), is(false));
-		assertThat(Lambdas.isSerializableLambda(splus.getClass()), is(true));
-		assertThat(Lambdas.isSerializableLambda(splusCapturing(2).getClass()), is(true));
+		assertThat(Lambdas.isSerializableLambda(plus.getClass())).isFalse();
+		assertThat(Lambdas.isSerializableLambda(lplus.getClass())).isFalse();
+		assertThat(Lambdas.isSerializableLambda(splus.getClass())).isTrue();
+		assertThat(Lambdas.isSerializableLambda(splusCapturing(2).getClass())).isTrue();
 	}
 
 	@Test

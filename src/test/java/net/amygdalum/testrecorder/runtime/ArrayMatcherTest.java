@@ -2,8 +2,8 @@ package net.amygdalum.testrecorder.runtime;
 
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.runtime.ArrayMatcher.arrayContaining;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 
@@ -23,26 +23,26 @@ public class ArrayMatcherTest {
 
     @Test
     public void testMatchesSafelyEmpty() throws Exception {
-        assertThat(arrayContaining(String.class).matchesSafely(new String[] { "A", "b" }), is(false));
-        assertThat(arrayContaining(String.class).matchesSafely(new String[0]), is(true));
+        assertThat(arrayContaining(String.class).matchesSafely(new String[] { "A", "b" })).isFalse();
+        assertThat(arrayContaining(String.class).matchesSafely(new String[0])).isTrue();
     }
 
     @Test
     public void testMatchesSafelyMatchers() throws Exception {
-        assertThat(arrayContaining(String.class, equalTo("A")).matchesSafely(new String[] { "A" }), is(true));
-        assertThat(arrayContaining(String.class, equalTo("A")).matchesSafely(new String[] { "b" }), is(false));
-        assertThat(arrayContaining(String.class, equalTo("A")).matchesSafely(new String[0]), is(false));
+        assertThat(arrayContaining(String.class, equalTo("A")).matchesSafely(new String[] { "A" })).isTrue();
+        assertThat(arrayContaining(String.class, equalTo("A")).matchesSafely(new String[] { "b" })).isFalse();
+        assertThat(arrayContaining(String.class, equalTo("A")).matchesSafely(new String[0])).isFalse();
     }
 
     @Test
     public void testMatchesSafelyWithSuccess() throws Exception {
-        assertThat(arrayContaining(String.class, "A", "b").matchesSafely(new String[] { "A", "b" }), is(true));
-        assertThat(arrayContaining(String.class, "A", null).matchesSafely(new String[] { "A", null }), is(true));
+        assertThat(arrayContaining(String.class, "A", "b").matchesSafely(new String[] { "A", "b" })).isTrue();
+        assertThat(arrayContaining(String.class, "A", null).matchesSafely(new String[] { "A", null })).isTrue();
     }
 
     @Test
     public void testMatchesSafelyWithFailure() throws Exception {
-        assertThat(arrayContaining(String.class, "A", "b").matchesSafely(new String[] { "a", "b" }), is(false));
+        assertThat(arrayContaining(String.class, "A", "b").matchesSafely(new String[] { "a", "b" })).isFalse();
     }
 
     @Test

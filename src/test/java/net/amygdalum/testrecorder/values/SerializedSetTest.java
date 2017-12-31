@@ -15,7 +15,6 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.TypeVariable;
@@ -114,33 +113,33 @@ public class SerializedSetTest {
 	@Test
 	public void testIsEmpty0() throws Exception {
 		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		assertThat(set.isEmpty(), is(true));
+		assertThat(set.isEmpty()).isTrue();
 	}
 
 	@Test
 	public void testIsEmpty1() throws Exception {
 		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
 		set.add(literal("string"));
-		assertThat(set.isEmpty(), is(false));
+		assertThat(set.isEmpty()).isFalse();
 	}
 
 	@Test
 	public void testContains0() throws Exception {
 		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		assertThat(set.contains(literal("string")), is(false));
+		assertThat(set.contains(literal("string"))).isFalse();
 	}
 
 	@Test
 	public void testContains1() throws Exception {
 		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
 		set.add(literal("string"));
-		assertThat(set.contains(literal("string")), is(true));
+		assertThat(set.contains(literal("string"))).isTrue();
 	}
 
 	@Test
 	public void testIterator0() throws Exception {
 		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		assertThat(set.iterator().hasNext(), is(false));
+		assertThat(set.iterator().hasNext()).isFalse();
 	}
 
 	@Test
@@ -168,29 +167,29 @@ public class SerializedSetTest {
 	@Test
 	public void testRemoveObject0() throws Exception {
 		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		assertThat(set.remove(literal("string")), is(false));
+		assertThat(set.remove(literal("string"))).isFalse();
 	}
 
 	@Test
 	public void testRemoveObject1() throws Exception {
 		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
 		set.add(literal("string"));
-		assertThat(set.remove(literal("string")), is(true));
+		assertThat(set.remove(literal("string"))).isTrue();
 	}
 
 	@Test
 	public void testContainsAll0() throws Exception {
 		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		assertThat(set.containsAll(asList(literal("string"))), is(false));
-		assertThat(set.containsAll(asList(literal("string"), literal("other"))), is(false));
+		assertThat(set.containsAll(asList(literal("string")))).isFalse();
+		assertThat(set.containsAll(asList(literal("string"), literal("other")))).isFalse();
 	}
 
 	@Test
 	public void testContainsAll1() throws Exception {
 		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
 		set.add(literal("string"));
-		assertThat(set.containsAll(asList(literal("string"))), is(true));
-		assertThat(set.containsAll(asList(literal("string"), literal("other"))), is(false));
+		assertThat(set.containsAll(asList(literal("string")))).isTrue();
+		assertThat(set.containsAll(asList(literal("string"), literal("other")))).isFalse();
 	}
 
 	@Test

@@ -4,7 +4,6 @@ import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.arrayWithSize;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.collection.IsArrayContaining.hasItemInArray;
 import static org.junit.Assert.assertThat;
@@ -25,7 +24,7 @@ public class ContextSnapshotTest {
 	public void testMethodSnapshot() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
-		assertThat(snapshot.isValid(), is(true));
+		assertThat(snapshot.isValid()).isTrue();
 		assertThat(snapshot.getDeclaringClass()).isEqualTo(ArrayList.class);
 		assertThat(snapshot.getResultType()).isEqualTo(boolean.class);
 		assertThat(snapshot.getMethodName()).isEqualTo("add");
@@ -38,7 +37,7 @@ public class ContextSnapshotTest {
 
 		snapshot.invalidate();
 
-		assertThat(snapshot.isValid(), is(false));
+		assertThat(snapshot.isValid()).isFalse();
 	}
 
 	@Test
@@ -131,7 +130,7 @@ public class ContextSnapshotTest {
 			.hasSize(1)
 			.hasOnlyElementsOfTypes(Anno.class);
 		assertThat(snapshot.getMethodAnnotation(Anno.class).get().value()).isEqualTo("result");
-		assertThat(snapshot.getMethodAnnotation(NoAnno.class).isPresent(), is(false));
+		assertThat(snapshot.getMethodAnnotation(NoAnno.class).isPresent()).isFalse();
 		assertThat(((Anno) snapshot.getResultAnnotation()[0]).value()).isEqualTo("result");
 		assertThat(snapshot.getArgumentAnnotations()).hasSize(1);
 		assertThat(snapshot.getArgumentAnnotations()[0])
@@ -154,7 +153,7 @@ public class ContextSnapshotTest {
 
 		assertThat(snapshot.getAnnotatedSetupArgs(), arrayWithSize(1));
 		assertThat(snapshot.getAnnotatedSetupArgs()[0].getAnnotation(Anno.class).get().value()).isEqualTo("arg");
-		assertThat(snapshot.getAnnotatedSetupArgs()[0].getAnnotation(NoAnno.class).isPresent(), is(false));
+		assertThat(snapshot.getAnnotatedSetupArgs()[0].getAnnotation(NoAnno.class).isPresent()).isFalse();
 		assertThat(snapshot.getAnnotatedSetupArgs()[0].value).isEqualTo(literal(int.class, 42));
 	}
 
@@ -172,7 +171,7 @@ public class ContextSnapshotTest {
 
 		assertThat(snapshot.getAnnotatedExpectArgs(), arrayWithSize(1));
 		assertThat(snapshot.getAnnotatedExpectArgs()[0].getAnnotation(Anno.class).get().value()).isEqualTo("arg");
-		assertThat(snapshot.getAnnotatedExpectArgs()[0].getAnnotation(NoAnno.class).isPresent(), is(false));
+		assertThat(snapshot.getAnnotatedExpectArgs()[0].getAnnotation(NoAnno.class).isPresent()).isFalse();
 		assertThat(snapshot.getAnnotatedExpectArgs()[0].value).isEqualTo(literal(int.class, 42));
 	}
 

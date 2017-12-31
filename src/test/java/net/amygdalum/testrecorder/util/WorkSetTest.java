@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
@@ -107,7 +106,7 @@ public class WorkSetTest {
 
 	@Test
 	public void testWorkset() throws Exception {
-		assertThat(new WorkSet<>().isEmpty(), is(true));
+		assertThat(new WorkSet<>().isEmpty()).isTrue();
 	}
 
 	@Test
@@ -116,8 +115,8 @@ public class WorkSetTest {
 
 		boolean changed = ws.add("A");
 
-		assertThat(changed, is(true));
-		assertThat(ws.isEmpty(), is(false));
+		assertThat(changed).isTrue();
+		assertThat(ws.isEmpty()).isFalse();
 		assertThat(ws.getDone(), empty());
 		assertThat(ws.peek()).isEqualTo("A");
 		assertThat(ws.size()).isEqualTo(1);
@@ -130,8 +129,8 @@ public class WorkSetTest {
 
 		boolean changed = ws.add("A");
 
-		assertThat(changed, is(false));
-		assertThat(ws.isEmpty(), is(false));
+		assertThat(changed).isFalse();
+		assertThat(ws.isEmpty()).isFalse();
 		assertThat(ws.getDone(), empty());
 		assertThat(ws.peek()).isEqualTo("A");
 		assertThat(ws.size()).isEqualTo(1);
@@ -145,8 +144,8 @@ public class WorkSetTest {
 
 		boolean changed = ws.add("A");
 
-		assertThat(changed, is(false));
-		assertThat(ws.isEmpty(), is(true));
+		assertThat(changed).isFalse();
+		assertThat(ws.isEmpty()).isTrue();
 		assertThat(ws.getDone(), contains("A"));
 		assertThat(ws.peek(), nullValue());
 		assertThat(ws.size()).isEqualTo(0);
@@ -158,8 +157,8 @@ public class WorkSetTest {
 
 		boolean changed = ws.offer("A");
 
-		assertThat(changed, is(true));
-		assertThat(ws.isEmpty(), is(false));
+		assertThat(changed).isTrue();
+		assertThat(ws.isEmpty()).isFalse();
 		assertThat(ws.getDone(), empty());
 		assertThat(ws.peek()).isEqualTo("A");
 		assertThat(ws.size()).isEqualTo(1);
@@ -172,8 +171,8 @@ public class WorkSetTest {
 
 		boolean changed = ws.offer("A");
 
-		assertThat(changed, is(false));
-		assertThat(ws.isEmpty(), is(false));
+		assertThat(changed).isFalse();
+		assertThat(ws.isEmpty()).isFalse();
 		assertThat(ws.getDone(), empty());
 		assertThat(ws.peek()).isEqualTo("A");
 		assertThat(ws.size()).isEqualTo(1);
@@ -187,8 +186,8 @@ public class WorkSetTest {
 
 		boolean changed = ws.offer("A");
 
-		assertThat(changed, is(false));
-		assertThat(ws.isEmpty(), is(true));
+		assertThat(changed).isFalse();
+		assertThat(ws.isEmpty()).isTrue();
 		assertThat(ws.getDone(), contains("A"));
 		assertThat(ws.peek(), nullValue());
 		assertThat(ws.size()).isEqualTo(0);
@@ -200,8 +199,8 @@ public class WorkSetTest {
 
 		boolean changed = ws.addAll(asList("A", "B"));
 
-		assertThat(changed, is(true));
-		assertThat(ws.isEmpty(), is(false));
+		assertThat(changed).isTrue();
+		assertThat(ws.isEmpty()).isFalse();
 		assertThat(ws.getDone(), empty());
 		assertThat(ws.peek()).isEqualTo("A");
 		assertThat(ws.toArray(new String[0])).containsExactly("A", "B");
@@ -215,8 +214,8 @@ public class WorkSetTest {
 
 		boolean changed = ws.addAll(asList("A", "B"));
 
-		assertThat(changed, is(false));
-		assertThat(ws.isEmpty(), is(false));
+		assertThat(changed).isFalse();
+		assertThat(ws.isEmpty()).isFalse();
 		assertThat(ws.getDone(), empty());
 		assertThat(ws.peek()).isEqualTo("A");
 		assertThat(ws.toArray(new String[0])).containsExactly("A", "B");
@@ -230,8 +229,8 @@ public class WorkSetTest {
 
 		boolean changed = ws.addAll(asList("B", "C"));
 
-		assertThat(changed, is(true));
-		assertThat(ws.isEmpty(), is(false));
+		assertThat(changed).isTrue();
+		assertThat(ws.isEmpty()).isFalse();
 		assertThat(ws.getDone(), empty());
 		assertThat(ws.peek()).isEqualTo("A");
 		assertThat(ws.toArray(new String[0])).containsExactly("A", "B", "C");
@@ -246,8 +245,8 @@ public class WorkSetTest {
 
 		boolean changed = ws.addAll(asList("A", "C"));
 
-		assertThat(changed, is(true));
-		assertThat(ws.isEmpty(), is(false));
+		assertThat(changed).isTrue();
+		assertThat(ws.isEmpty()).isFalse();
 		assertThat(ws.getDone(), contains("A"));
 		assertThat(ws.peek()).isEqualTo("B");
 		assertThat(ws.toArray(new String[0])).containsExactly("B", "C");
@@ -269,7 +268,7 @@ public class WorkSetTest {
 		String r = ws.remove();
 
 		assertThat(r).isEqualTo("A");
-		assertThat(ws.isEmpty(), is(true));
+		assertThat(ws.isEmpty()).isTrue();
 		assertThat(ws.getDone(), contains("A"));
 		assertThat(ws.peek(), nullValue());
 	}
@@ -282,7 +281,7 @@ public class WorkSetTest {
 		String r = ws.remove();
 
 		assertThat(r).isEqualTo("A");
-		assertThat(ws.isEmpty(), is(false));
+		assertThat(ws.isEmpty()).isFalse();
 		assertThat(ws.getDone(), contains("A"));
 		assertThat(ws.peek()).isEqualTo("B");
 	}
@@ -294,7 +293,7 @@ public class WorkSetTest {
 		String r = ws.poll();
 
 		assertThat(r, nullValue());
-		assertThat(ws.isEmpty(), is(true));
+		assertThat(ws.isEmpty()).isTrue();
 	}
 
 	@Test
@@ -305,7 +304,7 @@ public class WorkSetTest {
 		String r = ws.poll();
 
 		assertThat(r).isEqualTo("A");
-		assertThat(ws.isEmpty(), is(true));
+		assertThat(ws.isEmpty()).isTrue();
 		assertThat(ws.getDone(), contains("A"));
 		assertThat(ws.peek(), nullValue());
 	}
@@ -318,7 +317,7 @@ public class WorkSetTest {
 		String r = ws.poll();
 
 		assertThat(r).isEqualTo("A");
-		assertThat(ws.isEmpty(), is(false));
+		assertThat(ws.isEmpty()).isFalse();
 		assertThat(ws.getDone(), contains("A"));
 		assertThat(ws.peek()).isEqualTo("B");
 	}
@@ -328,9 +327,9 @@ public class WorkSetTest {
 		WorkSet<String> ws = new WorkSet<>();
 		ws.addAll(asList("A", "B"));
 
-		assertThat(ws.contains("A"), is(true));
-		assertThat(ws.contains("B"), is(true));
-		assertThat(ws.contains("C"), is(false));
+		assertThat(ws.contains("A")).isTrue();
+		assertThat(ws.contains("B")).isTrue();
+		assertThat(ws.contains("C")).isFalse();
 	}
 
 	@Test
@@ -340,9 +339,9 @@ public class WorkSetTest {
 
 		ws.remove();
 
-		assertThat(ws.contains("A"), is(true));
-		assertThat(ws.contains("B"), is(true));
-		assertThat(ws.contains("C"), is(false));
+		assertThat(ws.contains("A")).isTrue();
+		assertThat(ws.contains("B")).isTrue();
+		assertThat(ws.contains("C")).isFalse();
 	}
 
 	@Test
@@ -372,7 +371,7 @@ public class WorkSetTest {
 
 		ws.remove("A");
 
-		assertThat(ws.isEmpty(), is(false));
+		assertThat(ws.isEmpty()).isFalse();
 		assertThat(ws.getDone(), empty());
 		assertThat(ws.peek()).isEqualTo("B");
 	}
@@ -386,7 +385,7 @@ public class WorkSetTest {
 
 		ws.remove("A");
 
-		assertThat(ws.isEmpty(), is(false));
+		assertThat(ws.isEmpty()).isFalse();
 		assertThat(ws.getDone(), contains("0"));
 		assertThat(ws.peek()).isEqualTo("B");
 	}
@@ -398,7 +397,7 @@ public class WorkSetTest {
 
 		ws.removeAll(asList("A", "B"));
 
-		assertThat(ws.isEmpty(), is(true));
+		assertThat(ws.isEmpty()).isTrue();
 		assertThat(ws.getDone(), empty());
 		assertThat(ws.peek(), nullValue());
 	}
@@ -412,7 +411,7 @@ public class WorkSetTest {
 
 		ws.removeAll(asList("A", "B"));
 
-		assertThat(ws.isEmpty(), is(true));
+		assertThat(ws.isEmpty()).isTrue();
 		assertThat(ws.getDone(), contains("0"));
 		assertThat(ws.peek(), nullValue());
 	}
@@ -424,7 +423,7 @@ public class WorkSetTest {
 
 		ws.retainAll(asList("B"));
 
-		assertThat(ws.isEmpty(), is(false));
+		assertThat(ws.isEmpty()).isFalse();
 		assertThat(ws.getDone(), empty());
 		assertThat(ws.peek()).isEqualTo("B");
 	}
@@ -434,12 +433,12 @@ public class WorkSetTest {
 		WorkSet<String> ws = new WorkSet<>();
 		ws.addAll(asList("A", "B"));
 
-		assertThat(ws.containsAll(asList("B")), is(true));
-		assertThat(ws.containsAll(asList("A")), is(true));
-		assertThat(ws.containsAll(asList("A", "B")), is(true));
-		assertThat(ws.containsAll(asList("B", "A")), is(true));
-		assertThat(ws.containsAll(asList("C")), is(false));
-		assertThat(ws.containsAll(asList("A", "B", "C")), is(false));
+		assertThat(ws.containsAll(asList("B"))).isTrue();
+		assertThat(ws.containsAll(asList("A"))).isTrue();
+		assertThat(ws.containsAll(asList("A", "B"))).isTrue();
+		assertThat(ws.containsAll(asList("B", "A"))).isTrue();
+		assertThat(ws.containsAll(asList("C"))).isFalse();
+		assertThat(ws.containsAll(asList("A", "B", "C"))).isFalse();
 	}
 
 	@Test
@@ -449,12 +448,12 @@ public class WorkSetTest {
 
 		ws.remove();
 
-		assertThat(ws.containsAll(asList("B")), is(true));
-		assertThat(ws.containsAll(asList("A")), is(true));
-		assertThat(ws.containsAll(asList("A", "B")), is(true));
-		assertThat(ws.containsAll(asList("B", "A")), is(true));
-		assertThat(ws.containsAll(asList("C")), is(false));
-		assertThat(ws.containsAll(asList("A", "B", "C")), is(false));
+		assertThat(ws.containsAll(asList("B"))).isTrue();
+		assertThat(ws.containsAll(asList("A"))).isTrue();
+		assertThat(ws.containsAll(asList("A", "B"))).isTrue();
+		assertThat(ws.containsAll(asList("B", "A"))).isTrue();
+		assertThat(ws.containsAll(asList("C"))).isFalse();
+		assertThat(ws.containsAll(asList("A", "B", "C"))).isFalse();
 	}
 
 	@Test
@@ -464,7 +463,7 @@ public class WorkSetTest {
 
 		ws.clear();
 
-		assertThat(ws.isEmpty(), is(true));
+		assertThat(ws.isEmpty()).isTrue();
 		assertThat(ws.getDone(), empty());
 		assertThat(ws.peek(), nullValue());
 	}
@@ -477,7 +476,7 @@ public class WorkSetTest {
 
 		ws.clear();
 
-		assertThat(ws.isEmpty(), is(true));
+		assertThat(ws.isEmpty()).isTrue();
 		assertThat(ws.getDone(), empty());
 		assertThat(ws.peek(), nullValue());
 	}

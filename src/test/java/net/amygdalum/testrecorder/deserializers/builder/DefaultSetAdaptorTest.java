@@ -7,7 +7,6 @@ import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -46,12 +45,12 @@ public class DefaultSetAdaptorTest {
 
 	@Test
 	public void testMatchesSets() throws Exception {
-        assertThat(adaptor.matches(Object.class),is(false));
-        assertThat(adaptor.matches(HashSet.class),is(true));
-        assertThat(adaptor.matches(TreeSet.class),is(true));
-        assertThat(adaptor.matches(Set.class),is(true));
-        assertThat(adaptor.matches(SortedSet.class),is(true));
-        assertThat(adaptor.matches(new HashSet<Object>() {}.getClass()),is(true));
+        assertThat(adaptor.matches(Object.class)).isFalse();
+        assertThat(adaptor.matches(HashSet.class)).isTrue();
+        assertThat(adaptor.matches(TreeSet.class)).isTrue();
+        assertThat(adaptor.matches(Set.class)).isTrue();
+        assertThat(adaptor.matches(SortedSet.class)).isTrue();
+        assertThat(adaptor.matches(new HashSet<Object>() {}.getClass())).isTrue();
 	}
 
 	@Test

@@ -7,7 +7,6 @@ import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -44,11 +43,11 @@ public class DefaultMapAdaptorTest {
 
     @Test
     public void testMatchesAnyArray() throws Exception {
-        assertThat(adaptor.matches(Object.class),is(false));
-        assertThat(adaptor.matches(HashMap.class),is(true));
-        assertThat(adaptor.matches(LinkedHashMap.class),is(true));
-        assertThat(adaptor.matches(Map.class),is(true));
-        assertThat(adaptor.matches(new LinkedHashMap<Object, Object>(){}.getClass()),is(true));
+        assertThat(adaptor.matches(Object.class)).isFalse();
+        assertThat(adaptor.matches(HashMap.class)).isTrue();
+        assertThat(adaptor.matches(LinkedHashMap.class)).isTrue();
+        assertThat(adaptor.matches(Map.class)).isTrue();
+        assertThat(adaptor.matches(new LinkedHashMap<Object, Object>(){}.getClass())).isTrue();
     }
 
     @Test

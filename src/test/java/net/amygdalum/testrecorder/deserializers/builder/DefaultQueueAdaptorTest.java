@@ -7,7 +7,6 @@ import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -45,11 +44,11 @@ public class DefaultQueueAdaptorTest {
 
 	@Test
 	public void testMatchesLists() throws Exception {
-		assertThat(adaptor.matches(Object.class),is(false));
-        assertThat(adaptor.matches(LinkedList.class),is(true));
-        assertThat(adaptor.matches(Queue.class),is(true));
-        assertThat(adaptor.matches(Deque.class),is(true));
-        assertThat(adaptor.matches(new LinkedList<Object>(){}.getClass()),is(true));
+		assertThat(adaptor.matches(Object.class)).isFalse();
+        assertThat(adaptor.matches(LinkedList.class)).isTrue();
+        assertThat(adaptor.matches(Queue.class)).isTrue();
+        assertThat(adaptor.matches(Deque.class)).isTrue();
+        assertThat(adaptor.matches(new LinkedList<Object>(){}.getClass())).isTrue();
 	}
 
 	@Test

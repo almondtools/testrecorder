@@ -3,8 +3,6 @@ package net.amygdalum.testrecorder;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,7 +18,7 @@ public class PassiveDequeTest {
 
     @Test
     public void testIsEmpty() throws Exception {
-        assertThat(deque.isEmpty(), is(false));
+        assertThat(deque.isEmpty()).isFalse();
     }
 
     @Test
@@ -32,29 +30,29 @@ public class PassiveDequeTest {
 
     @Test
     public void testContainsAll() throws Exception {
-        assertThat(deque.containsAll(emptyList()), is(false));
-        assertThat(deque.containsAll(asList("41")), is(false));
-        assertThat(deque.containsAll(asList("42")), is(false));
+        assertThat(deque.containsAll(emptyList())).isFalse();
+        assertThat(deque.containsAll(asList("41"))).isFalse();
+        assertThat(deque.containsAll(asList("42"))).isFalse();
     }
 
     @Test
     public void testAddAll() throws Exception {
-        assertThat(deque.addAll(emptyList()), is(false));
-        assertThat(deque.addAll(asList("41")), is(false));
+        assertThat(deque.addAll(emptyList())).isFalse();
+        assertThat(deque.addAll(asList("41"))).isFalse();
     }
 
     @Test
     public void testRemoveAll() throws Exception {
-        assertThat(deque.removeAll(emptyList()), is(false));
-        assertThat(deque.removeAll(asList("41")), is(false));
-        assertThat(deque.removeAll(asList("42")), is(false));
+        assertThat(deque.removeAll(emptyList())).isFalse();
+        assertThat(deque.removeAll(asList("41"))).isFalse();
+        assertThat(deque.removeAll(asList("42"))).isFalse();
     }
 
     @Test
     public void testRetainAll() throws Exception {
-        assertThat(deque.retainAll(emptyList()), is(false));
-        assertThat(deque.retainAll(asList("41")), is(false));
-        assertThat(deque.retainAll(asList("42")), is(false));
+        assertThat(deque.retainAll(emptyList())).isFalse();
+        assertThat(deque.retainAll(asList("41"))).isFalse();
+        assertThat(deque.retainAll(asList("42"))).isFalse();
     }
 
     @Test
@@ -85,7 +83,7 @@ public class PassiveDequeTest {
     public void testOfferFirst() throws Exception {
         boolean state = deque.offerFirst("41");
 
-        assertThat(state, is(false));
+        assertThat(state).isFalse();
         assertThat(deque.getLast()).isEqualTo("42");
         assertThat(deque.getFirst()).isEqualTo("42");
     }
@@ -94,7 +92,7 @@ public class PassiveDequeTest {
     public void testOfferLast() throws Exception {
         boolean state = deque.offerLast("41");
 
-        assertThat(state, is(false));
+        assertThat(state).isFalse();
         assertThat(deque.getLast()).isEqualTo("42");
         assertThat(deque.getFirst()).isEqualTo("42");
     }
@@ -157,7 +155,7 @@ public class PassiveDequeTest {
     public void testRemoveFirstOccurrence() throws Exception {
         boolean state = deque.removeFirstOccurrence("42");
 
-        assertThat(state, is(false));
+        assertThat(state).isFalse();
         assertThat(deque.getLast()).isEqualTo("42");
         assertThat(deque.getFirst()).isEqualTo("42");
     }
@@ -166,7 +164,7 @@ public class PassiveDequeTest {
     public void testRemoveLastOccurrence() throws Exception {
         boolean state = deque.removeLastOccurrence("42");
 
-        assertThat(state, is(false));
+        assertThat(state).isFalse();
         assertThat(deque.getLast()).isEqualTo("42");
         assertThat(deque.getFirst()).isEqualTo("42");
     }
@@ -175,7 +173,7 @@ public class PassiveDequeTest {
     public void testAdd() throws Exception {
         boolean state = deque.add("41");
 
-        assertThat(state, is(false));
+        assertThat(state).isFalse();
         assertThat(deque.getLast()).isEqualTo("42");
         assertThat(deque.getFirst()).isEqualTo("42");
     }
@@ -184,7 +182,7 @@ public class PassiveDequeTest {
     public void testOffer() throws Exception {
         boolean state = deque.offer("41");
 
-        assertThat(state, is(false));
+        assertThat(state).isFalse();
         assertThat(deque.getLast()).isEqualTo("42");
         assertThat(deque.getFirst()).isEqualTo("42");
     }
@@ -245,15 +243,15 @@ public class PassiveDequeTest {
     public void testRemoveObject() throws Exception {
         boolean state = deque.remove("42");
 
-        assertThat(state, is(false));
+        assertThat(state).isFalse();
         assertThat(deque.getLast()).isEqualTo("42");
         assertThat(deque.getFirst()).isEqualTo("42");
     }
 
     @Test
     public void testContains() throws Exception {
-        assertThat(deque.contains("41"), is(false));
-        assertThat(deque.contains("42"), is(false));
+        assertThat(deque.contains("41")).isFalse();
+        assertThat(deque.contains("42")).isFalse();
     }
 
     @Test

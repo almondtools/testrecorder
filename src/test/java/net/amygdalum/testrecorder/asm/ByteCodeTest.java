@@ -2,7 +2,6 @@ package net.amygdalum.testrecorder.asm;
 
 import static com.almondtools.conmatch.exceptions.ExceptionMatcher.matchesException;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.nullValue;
@@ -113,22 +112,22 @@ public class ByteCodeTest {
 
 	@Test
 	public void testIsStatic() throws Exception {
-		assertThat(ByteCode.isStatic(methodWithModifiers(Opcodes.ACC_STATIC)), is(true));
-		assertThat(ByteCode.isStatic(methodWithModifiers(~Opcodes.ACC_STATIC)), is(false));
+		assertThat(ByteCode.isStatic(methodWithModifiers(Opcodes.ACC_STATIC))).isTrue();
+		assertThat(ByteCode.isStatic(methodWithModifiers(~Opcodes.ACC_STATIC))).isFalse();
 	}
 
 	@Test
 	public void testIsNative() throws Exception {
-		assertThat(ByteCode.isNative(methodWithModifiers(Opcodes.ACC_NATIVE)), is(true));
-		assertThat(ByteCode.isNative(methodWithModifiers(~Opcodes.ACC_NATIVE)), is(false));
+		assertThat(ByteCode.isNative(methodWithModifiers(Opcodes.ACC_NATIVE))).isTrue();
+		assertThat(ByteCode.isNative(methodWithModifiers(~Opcodes.ACC_NATIVE))).isFalse();
 	}
 	
 	@Test
 	public void testReturnsResult() throws Exception {
-		assertThat(ByteCode.returnsResult(methodWithDesc("()I")), is(true));
-		assertThat(ByteCode.returnsResult(methodWithDesc("()V")), is(false));
-		assertThat(ByteCode.returnsResult(methodInsnWithDesc("()I")), is(true));
-		assertThat(ByteCode.returnsResult(methodInsnWithDesc("()V")), is(false));
+		assertThat(ByteCode.returnsResult(methodWithDesc("()I"))).isTrue();
+		assertThat(ByteCode.returnsResult(methodWithDesc("()V"))).isFalse();
+		assertThat(ByteCode.returnsResult(methodInsnWithDesc("()I"))).isTrue();
+		assertThat(ByteCode.returnsResult(methodInsnWithDesc("()V"))).isFalse();
 	}
 	
 	private MethodNode methodWithModifiers(int modifiers) {
@@ -145,20 +144,20 @@ public class ByteCodeTest {
 
 	@Test
 	public void testIsPrimitive() throws Exception {
-		assertThat(ByteCode.isPrimitive(Type.INT_TYPE), is(true));
-		assertThat(ByteCode.isPrimitive(Type.getType(int[].class)), is(false));
-		assertThat(ByteCode.isPrimitive(Type.getType(Integer.class)), is(false));
-		assertThat(ByteCode.isPrimitive(Type.getType(Object.class)), is(false));
+		assertThat(ByteCode.isPrimitive(Type.INT_TYPE)).isTrue();
+		assertThat(ByteCode.isPrimitive(Type.getType(int[].class))).isFalse();
+		assertThat(ByteCode.isPrimitive(Type.getType(Integer.class))).isFalse();
+		assertThat(ByteCode.isPrimitive(Type.getType(Object.class))).isFalse();
 	}
 	
 	@Test
 	public void testIsArray() throws Exception {
-		assertThat(ByteCode.isArray(Type.getType(int[].class)), is(true));
-		assertThat(ByteCode.isArray(Type.getType(int[][].class)), is(true));
-		assertThat(ByteCode.isArray(Type.getType(Object[].class)), is(true));
-		assertThat(ByteCode.isArray(Type.INT_TYPE), is(false));
-		assertThat(ByteCode.isArray(Type.getType(Integer.class)), is(false));
-		assertThat(ByteCode.isArray(Type.getType(Object.class)), is(false));
+		assertThat(ByteCode.isArray(Type.getType(int[].class))).isTrue();
+		assertThat(ByteCode.isArray(Type.getType(int[][].class))).isTrue();
+		assertThat(ByteCode.isArray(Type.getType(Object[].class))).isTrue();
+		assertThat(ByteCode.isArray(Type.INT_TYPE)).isFalse();
+		assertThat(ByteCode.isArray(Type.getType(Integer.class))).isFalse();
+		assertThat(ByteCode.isArray(Type.getType(Object.class))).isFalse();
 	}
 
 	@Test

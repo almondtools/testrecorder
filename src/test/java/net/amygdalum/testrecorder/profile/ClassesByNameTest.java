@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder.profile;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,16 +20,16 @@ public class ClassesByNameTest {
 	
 	@Test
 	public void testMatchesReflectiveClass() throws Exception {
-		assertThat(classByName.matches(Simple.class), is(true)); 
-		assertThat(classByName.matches(SimpleMisleadingFieldName.class), is(false)); 
-		assertThat(classByName.matches(Complex.class), is(false)); 
+		assertThat(classByName.matches(Simple.class)).isTrue(); 
+		assertThat(classByName.matches(SimpleMisleadingFieldName.class)).isFalse(); 
+		assertThat(classByName.matches(Complex.class)).isFalse(); 
 	}
 
 	@Test
 	public void testMatchesClassDescriptor() throws Exception {
-		assertThat(classByName.matches("net/amygdalum/testrecorder/util/testobjects/Simple"), is(true)); 
-		assertThat(classByName.matches("net/amygdalum/testrecorder/util/testobjects/SimpleMisleadingFieldName"), is(false)); 
-		assertThat(classByName.matches("net/amygdalum/testrecorder/util/testobjects/Complex"), is(false)); 
+		assertThat(classByName.matches("net/amygdalum/testrecorder/util/testobjects/Simple")).isTrue(); 
+		assertThat(classByName.matches("net/amygdalum/testrecorder/util/testobjects/SimpleMisleadingFieldName")).isFalse(); 
+		assertThat(classByName.matches("net/amygdalum/testrecorder/util/testobjects/Complex")).isFalse(); 
 	}
 
 }

@@ -1,8 +1,8 @@
 package net.amygdalum.testrecorder.runtime;
 
 import static net.amygdalum.testrecorder.runtime.MapMatcher.containsEntries;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertThat;
 
@@ -71,7 +71,7 @@ public class MapMatcherTest {
         Map<String, Integer> map = new HashMap<>();
         map.put("A", 3);
         map.put("b", 4);
-        assertThat(matcher.matchesSafely(map), is(true));
+        assertThat(matcher.matchesSafely(map)).isTrue();
     }
 
     @Test
@@ -83,7 +83,7 @@ public class MapMatcherTest {
         Map<String, Integer> map = new HashMap<>();
         map.put("A", 3);
         map.put("b", 4);
-        assertThat(matcher.matchesSafely(map), is(true));
+        assertThat(matcher.matchesSafely(map)).isTrue();
     }
 
     @Test
@@ -92,11 +92,11 @@ public class MapMatcherTest {
             .entry("A", 3);
         Map<String, Integer> keyMismatch = new HashMap<>();
         keyMismatch.put("B", 3);
-        assertThat(matcher.matchesSafely(keyMismatch), is(false));
+        assertThat(matcher.matchesSafely(keyMismatch)).isFalse();
 
         Map<String, Integer> valueMismatch = new HashMap<>();
         valueMismatch.put("A", 4);
-        assertThat(matcher.matchesSafely(valueMismatch), is(false));
+        assertThat(matcher.matchesSafely(valueMismatch)).isFalse();
     }
 
     @Test
@@ -108,22 +108,22 @@ public class MapMatcherTest {
         Map<String, Integer> keyMismatch = new HashMap<>();
         keyMismatch.put("A", 3);
         keyMismatch.put("c", 4);
-        assertThat(matcher.matchesSafely(keyMismatch), is(false));
+        assertThat(matcher.matchesSafely(keyMismatch)).isFalse();
 
         Map<String, Integer> valueMismatch = new HashMap<>();
         valueMismatch.put("A", 3);
         valueMismatch.put("c", 4);
-        assertThat(matcher.matchesSafely(valueMismatch), is(false));
+        assertThat(matcher.matchesSafely(valueMismatch)).isFalse();
 
         Map<String, Integer> entryMissing = new HashMap<>();
         entryMissing.put("A", 3);
-        assertThat(matcher.matchesSafely(entryMissing), is(false));
+        assertThat(matcher.matchesSafely(entryMissing)).isFalse();
 
         Map<String, Integer> entrySurplus = new HashMap<>();
         entrySurplus.put("A", 3);
         entrySurplus.put("b", 4);
         entrySurplus.put("c", 2);
-        assertThat(matcher.matchesSafely(entrySurplus), is(false));
+        assertThat(matcher.matchesSafely(entrySurplus)).isFalse();
     }
 
     @Test
@@ -131,11 +131,11 @@ public class MapMatcherTest {
         MapMatcher<String, Integer> matcher = MapMatcher.noEntries(String.class, Integer.class);
 
         Map<String, Integer> emptyMap = new HashMap<>();
-        assertThat(matcher.matchesSafely(emptyMap), is(true));
+        assertThat(matcher.matchesSafely(emptyMap)).isTrue();
 
         Map<String, Integer> filledMap = new HashMap<>();
         filledMap.put("key", 66);
-        assertThat(matcher.matchesSafely(filledMap), is(false));
+        assertThat(matcher.matchesSafely(filledMap)).isFalse();
     }
 
     @Test

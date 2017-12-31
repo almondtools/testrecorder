@@ -6,7 +6,6 @@ import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.MATCH;
 import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.MISMATCH;
 import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.NOT_APPLYING;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
@@ -31,7 +30,7 @@ public class GenericComparisonTest {
         assertThat(comparison.getRoot()).isEqualTo("root");
         assertThat(comparison.getLeft()).isEqualTo(node1);
         assertThat(comparison.getRight()).isEqualTo(node2);
-        assertThat(comparison.isMismatch(), is(false));
+        assertThat(comparison.isMismatch()).isFalse();
     }
 
     @Test
@@ -43,7 +42,7 @@ public class GenericComparisonTest {
         assertThat(comparison.getRoot()).isEqualTo("root.children");
         assertThat(comparison.getLeft()).isEqualTo(subnodes);
         assertThat(comparison.getRight()).isEqualTo(subnodes);
-        assertThat(comparison.isMismatch(), is(false));
+        assertThat(comparison.isMismatch()).isFalse();
     }
 
     @Test
@@ -55,7 +54,7 @@ public class GenericComparisonTest {
         assertThat(comparison.getRoot()).isEqualTo("children");
         assertThat(comparison.getLeft()).isEqualTo(subnodes);
         assertThat(comparison.getRight()).isEqualTo(subnodes);
-        assertThat(comparison.isMismatch(), is(false));
+        assertThat(comparison.isMismatch()).isFalse();
     }
 
     @Test
@@ -67,7 +66,7 @@ public class GenericComparisonTest {
         assertThat(comparison.getRoot()).isEqualTo("<error>");
         assertThat(comparison.getLeft(), nullValue());
         assertThat(comparison.getRight(), nullValue());
-        assertThat(comparison.isMismatch(), is(true));
+        assertThat(comparison.isMismatch()).isTrue();
     }
 
     @Test
@@ -79,7 +78,7 @@ public class GenericComparisonTest {
         assertThat(comparison.getRoot()).isEqualTo("root[0]");
         assertThat(comparison.getLeft()).isEqualTo(nodes1[0]);
         assertThat(comparison.getRight()).isEqualTo(nodes2[0]);
-        assertThat(comparison.isMismatch(), is(false));
+        assertThat(comparison.isMismatch()).isFalse();
     }
 
     @Test
@@ -91,7 +90,7 @@ public class GenericComparisonTest {
         assertThat(comparison.getRoot()).isEqualTo("[0]");
         assertThat(comparison.getLeft()).isEqualTo(nodes1[0]);
         assertThat(comparison.getRight()).isEqualTo(nodes2[0]);
-        assertThat(comparison.isMismatch(), is(false));
+        assertThat(comparison.isMismatch()).isFalse();
     }
 
     @Test
@@ -103,7 +102,7 @@ public class GenericComparisonTest {
         assertThat(comparison.getRoot()).isEqualTo("<error>");
         assertThat(comparison.getLeft(), nullValue());
         assertThat(comparison.getRight(), nullValue());
-        assertThat(comparison.isMismatch(), is(true));
+        assertThat(comparison.isMismatch()).isTrue();
     }
 
     @Test
@@ -111,7 +110,7 @@ public class GenericComparisonTest {
         GenericComparison comparison = new GenericComparison("root", new Node("name1"), new Node("name2"));
         comparison.setMismatch(true);
 
-        assertThat(comparison.isMismatch(), is(true));
+        assertThat(comparison.isMismatch()).isTrue();
     }
 
     @Test
@@ -119,7 +118,7 @@ public class GenericComparisonTest {
         GenericComparison comparison = new GenericComparison("root", new Node("name1"), new Node("name2"));
         comparison.setMismatch(false);
 
-        assertThat(comparison.isMismatch(), is(false));
+        assertThat(comparison.isMismatch()).isFalse();
     }
 
     @Test
@@ -131,12 +130,12 @@ public class GenericComparisonTest {
         Node node21 = new Node("name2", new Node[] { node1 });
         Node node22 = new Node("name2", new Node[] { node2 });
 
-        assertThat(GenericComparison.equals("root", node1, node1), is(true));
-        assertThat(GenericComparison.equals("root", node1, node2), is(false));
-        assertThat(GenericComparison.equals("root", node11, node11), is(true));
-        assertThat(GenericComparison.equals("root", node11, node12), is(false));
-        assertThat(GenericComparison.equals("root", node11, node21), is(false));
-        assertThat(GenericComparison.equals("root", node11, node22), is(false));
+        assertThat(GenericComparison.equals("root", node1, node1)).isTrue();
+        assertThat(GenericComparison.equals("root", node1, node2)).isFalse();
+        assertThat(GenericComparison.equals("root", node11, node11)).isTrue();
+        assertThat(GenericComparison.equals("root", node11, node12)).isFalse();
+        assertThat(GenericComparison.equals("root", node11, node21)).isFalse();
+        assertThat(GenericComparison.equals("root", node11, node22)).isFalse();
     }
 
     @Test
@@ -148,28 +147,28 @@ public class GenericComparisonTest {
         Node node21 = new Node("name2", new Node[] { node1 });
         Node node22 = new Node("name2", new Node[] { node2 });
 
-        assertThat(GenericComparison.equals("root", node1, node1, asList("name")), is(true));
-        assertThat(GenericComparison.equals("root", node1, node2, asList("name")), is(false));
-        assertThat(GenericComparison.equals("root", node11, node11, asList("name")), is(true));
-        assertThat(GenericComparison.equals("root", node11, node12, asList("name")), is(true));
-        assertThat(GenericComparison.equals("root", node11, node21, asList("name")), is(false));
-        assertThat(GenericComparison.equals("root", node11, node22, asList("name")), is(false));
+        assertThat(GenericComparison.equals("root", node1, node1, asList("name"))).isTrue();
+        assertThat(GenericComparison.equals("root", node1, node2, asList("name"))).isFalse();
+        assertThat(GenericComparison.equals("root", node11, node11, asList("name"))).isTrue();
+        assertThat(GenericComparison.equals("root", node11, node12, asList("name"))).isTrue();
+        assertThat(GenericComparison.equals("root", node11, node21, asList("name"))).isFalse();
+        assertThat(GenericComparison.equals("root", node11, node22, asList("name"))).isFalse();
     }
 
     @Test
     public void testEvalWorkSet() throws Exception {
         Node node = new Node("node");
 
-        assertThat(new GenericComparison(null, node, node).eval(new WorkSet<>()), is(true));
-        assertThat(new GenericComparison(null, "name1", "name1").eval(new WorkSet<>()), is(true));
-        assertThat(new GenericComparison(null, node, null).eval(new WorkSet<>()), is(false));
-        assertThat(new GenericComparison(null, null, node).eval(new WorkSet<>()), is(false));
-        assertThat(new GenericComparison(null, node, "name1").eval(new WorkSet<>()), is(false));
-        assertThat(new GenericComparison(null, "name1", node).eval(new WorkSet<>()), is(false));
-        assertThat(new GenericComparison(null, "name1", "name2").eval(new WorkSet<>()), is(false));
-        assertThat(new GenericComparison(null, "name2", "name1").eval(new WorkSet<>()), is(false));
-        assertThat(new GenericComparison(null, new Node[0], new Node[] { node }).eval(new WorkSet<>()), is(false));
-        assertThat(new GenericComparison(null, new Node[] { node }, new Node[0]).eval(new WorkSet<>()), is(false));
+        assertThat(new GenericComparison(null, node, node).eval(new WorkSet<>())).isTrue();
+        assertThat(new GenericComparison(null, "name1", "name1").eval(new WorkSet<>())).isTrue();
+        assertThat(new GenericComparison(null, node, null).eval(new WorkSet<>())).isFalse();
+        assertThat(new GenericComparison(null, null, node).eval(new WorkSet<>())).isFalse();
+        assertThat(new GenericComparison(null, node, "name1").eval(new WorkSet<>())).isFalse();
+        assertThat(new GenericComparison(null, "name1", node).eval(new WorkSet<>())).isFalse();
+        assertThat(new GenericComparison(null, "name1", "name2").eval(new WorkSet<>())).isFalse();
+        assertThat(new GenericComparison(null, "name2", "name1").eval(new WorkSet<>())).isFalse();
+        assertThat(new GenericComparison(null, new Node[0], new Node[] { node }).eval(new WorkSet<>())).isFalse();
+        assertThat(new GenericComparison(null, new Node[] { node }, new Node[0]).eval(new WorkSet<>())).isFalse();
     }
 
     @Test
@@ -200,8 +199,8 @@ public class GenericComparisonTest {
         Node node = new Node("node");
         GenericComparator c = Mockito.mock(GenericComparator.class);
 
-        assertThat(new GenericComparison(null, node, node).eval(c, new WorkSet<>()), is(true));
-        assertThat(new GenericComparison(null, "name1", "name1").eval(c, new WorkSet<>()), is(true));
+        assertThat(new GenericComparison(null, node, node).eval(c, new WorkSet<>())).isTrue();
+        assertThat(new GenericComparison(null, "name1", "name1").eval(c, new WorkSet<>())).isTrue();
 
     }
 
@@ -212,8 +211,8 @@ public class GenericComparisonTest {
         GenericComparator c = Mockito.mock(GenericComparator.class);
 
         when(c.compare(any(GenericComparison.class), eq(todo))).thenReturn(MATCH);
-        assertThat(new GenericComparison(null, node, null).eval(c, todo), is(true));
-        assertThat(new GenericComparison(null, null, node).eval(c, todo), is(true));
+        assertThat(new GenericComparison(null, node, null).eval(c, todo)).isTrue();
+        assertThat(new GenericComparison(null, null, node).eval(c, todo)).isTrue();
     }
 
     @Test
@@ -224,9 +223,9 @@ public class GenericComparisonTest {
         GenericComparator c = Mockito.mock(GenericComparator.class);
 
         when(c.compare(any(GenericComparison.class), eq(todo))).thenReturn(MISMATCH);
-        assertThat(new GenericComparison(null, node1, node2).eval(c, todo), is(false));
-        assertThat(new GenericComparison(null, node1, null).eval(c, todo), is(false));
-        assertThat(new GenericComparison(null, null, node2).eval(c, todo), is(false));
+        assertThat(new GenericComparison(null, node1, node2).eval(c, todo)).isFalse();
+        assertThat(new GenericComparison(null, node1, null).eval(c, todo)).isFalse();
+        assertThat(new GenericComparison(null, null, node2).eval(c, todo)).isFalse();
     }
 
     @Test
@@ -236,8 +235,8 @@ public class GenericComparisonTest {
         GenericComparator c = Mockito.mock(GenericComparator.class);
 
         when(c.compare(any(GenericComparison.class), eq(todo))).thenReturn(NOT_APPLYING);
-        assertThat(new GenericComparison(null, node, null).eval(c, todo), is(false));
-        assertThat(new GenericComparison(null, null, node).eval(c, todo), is(false));
+        assertThat(new GenericComparison(null, node, null).eval(c, todo)).isFalse();
+        assertThat(new GenericComparison(null, null, node).eval(c, todo)).isFalse();
     }
 
     @Test
@@ -246,8 +245,8 @@ public class GenericComparisonTest {
         GenericComparator c = Mockito.mock(GenericComparator.class);
 
         when(c.compare(any(GenericComparison.class), eq(todo))).thenReturn(NOT_APPLYING);
-        assertThat(new GenericComparison(null, new String("s"), new String("s")).eval(c, todo), is(true));
-        assertThat(new GenericComparison(null, new String("s1"), new String("s2")).eval(c, todo), is(false));
+        assertThat(new GenericComparison(null, new String("s"), new String("s")).eval(c, todo)).isTrue();
+        assertThat(new GenericComparison(null, new String("s1"), new String("s2")).eval(c, todo)).isFalse();
     }
 
     @Test
@@ -256,10 +255,10 @@ public class GenericComparisonTest {
         GenericComparator c = Mockito.mock(GenericComparator.class);
 
         when(c.compare(any(GenericComparison.class), eq(todo))).thenReturn(NOT_APPLYING);
-        assertThat(new GenericComparison(null, new String[0], new String[0]).eval(c, todo), is(true));
-        assertThat(new GenericComparison(null, new String[] { "s" }, new String[] { "s" }).eval(c, todo), is(true));
-        assertThat(new GenericComparison(null, new String[0], new String[] { "s" }).eval(c, todo), is(false));
-        assertThat(new GenericComparison(null, new String[] { "s" }, new String[0]).eval(c, todo), is(false));
+        assertThat(new GenericComparison(null, new String[0], new String[0]).eval(c, todo)).isTrue();
+        assertThat(new GenericComparison(null, new String[] { "s" }, new String[] { "s" }).eval(c, todo)).isTrue();
+        assertThat(new GenericComparison(null, new String[0], new String[] { "s" }).eval(c, todo)).isFalse();
+        assertThat(new GenericComparison(null, new String[] { "s" }, new String[0]).eval(c, todo)).isFalse();
     }
 
     @Test

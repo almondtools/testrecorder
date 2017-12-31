@@ -6,7 +6,6 @@ import static net.amygdalum.testrecorder.util.Types.wildcard;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -40,18 +39,18 @@ public class CollectionsSetAdaptorTest {
 
 	@Test
 	public void testMatchesDecoratorClassesInCollections() throws Exception {
-		assertThat(adaptor.matches(Object.class), is(false));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$UnmodifiableSet")), is(true));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$UnmodifiableNavigableSet")), is(true));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$UnmodifiableSortedSet")), is(true));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$SynchronizedSet")), is(true));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$SynchronizedNavigableSet")), is(true));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$SynchronizedSortedSet")), is(true));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$CheckedSet")), is(true));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$CheckedNavigableSet")), is(true));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$CheckedSortedSet")), is(true));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$EmptySet")), is(true));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$SingletonSet")), is(true));
+		assertThat(adaptor.matches(Object.class)).isFalse();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$UnmodifiableSet"))).isTrue();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$UnmodifiableNavigableSet"))).isTrue();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$UnmodifiableSortedSet"))).isTrue();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$SynchronizedSet"))).isTrue();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$SynchronizedNavigableSet"))).isTrue();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$SynchronizedSortedSet"))).isTrue();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$CheckedSet"))).isTrue();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$CheckedNavigableSet"))).isTrue();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$CheckedSortedSet"))).isTrue();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$EmptySet"))).isTrue();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$SingletonSet"))).isTrue();
 	}
 
 	@Test

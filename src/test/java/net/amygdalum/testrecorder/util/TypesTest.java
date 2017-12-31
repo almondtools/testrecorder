@@ -35,7 +35,6 @@ import static net.amygdalum.testrecorder.util.Types.wildcardExtends;
 import static net.amygdalum.testrecorder.util.Types.wildcardSuper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.contains;
@@ -94,45 +93,45 @@ public class TypesTest {
 
 	@Test
 	public void testIsHiddenTrueForPrivate() throws Exception {
-		assertThat(Types.isHidden(NestedPrivate.class, "any"), is(true));
+		assertThat(Types.isHidden(NestedPrivate.class, "any")).isTrue();
 	}
 
 	@Test
 	public void testIsHiddenFalseForNestedPackagePrivate() throws Exception {
-		assertThat(Types.isHidden(NestedPackagePrivate.class, "net.amygdalum.testrecorder.util"), is(false));
+		assertThat(Types.isHidden(NestedPackagePrivate.class, "net.amygdalum.testrecorder.util")).isFalse();
 	}
 
 	@Test
 	public void testIsHiddenFalseForNestedProtected() throws Exception {
-		assertThat(Types.isHidden(NestedProtected.class, "net.amygdalum.testrecorder.util"), is(false));
-		assertThat(Types.isHidden(NestedProtected.class, "other"), is(true));
+		assertThat(Types.isHidden(NestedProtected.class, "net.amygdalum.testrecorder.util")).isFalse();
+		assertThat(Types.isHidden(NestedProtected.class, "other")).isTrue();
 	}
 
 	@Test
 	public void testIsHiddenFalseForPackagePrivateInSamePackage() throws Exception {
-		assertThat(Types.isHidden(TypesPackagePrivate.class, "net.amygdalum.testrecorder.util"), is(false));
-		assertThat(Types.isHidden(TypesPackagePrivate.class, "other"), is(true));
+		assertThat(Types.isHidden(TypesPackagePrivate.class, "net.amygdalum.testrecorder.util")).isFalse();
+		assertThat(Types.isHidden(TypesPackagePrivate.class, "other")).isTrue();
 	}
 
 	@Test
 	public void testIsHiddenFalseForNestedPublic() throws Exception {
-		assertThat(Types.isHidden(NestedPublic.class, "any"), is(false));
+		assertThat(Types.isHidden(NestedPublic.class, "any")).isFalse();
 	}
 
 	@Test
 	public void testIsHiddenFalseForPublic() throws Exception {
-		assertThat(Types.isHidden(TypesPublic.class, "net.amygdalum.testrecorder.util"), is(false));
-		assertThat(Types.isHidden(TypesPublic.class, "other"), is(false));
+		assertThat(Types.isHidden(TypesPublic.class, "net.amygdalum.testrecorder.util")).isFalse();
+		assertThat(Types.isHidden(TypesPublic.class, "other")).isFalse();
 	}
 
 	@Test
 	public void testIsHiddenForArrays() throws Exception {
-		assertThat(Types.isHidden(TypesPublic[].class, "any"), is(false));
-		assertThat(Types.isHidden(TypesPackagePrivate[].class, "net.amygdalum.testrecorder.util"), is(false));
-		assertThat(Types.isHidden(TypesPackagePrivate[].class, "other"), is(true));
-		assertThat(Types.isHidden(NestedProtected[].class, "net.amygdalum.testrecorder.util"), is(false));
-		assertThat(Types.isHidden(NestedProtected[].class, "other"), is(true));
-		assertThat(Types.isHidden(NestedPrivate[].class, "any"), is(true));
+		assertThat(Types.isHidden(TypesPublic[].class, "any")).isFalse();
+		assertThat(Types.isHidden(TypesPackagePrivate[].class, "net.amygdalum.testrecorder.util")).isFalse();
+		assertThat(Types.isHidden(TypesPackagePrivate[].class, "other")).isTrue();
+		assertThat(Types.isHidden(NestedProtected[].class, "net.amygdalum.testrecorder.util")).isFalse();
+		assertThat(Types.isHidden(NestedProtected[].class, "other")).isTrue();
+		assertThat(Types.isHidden(NestedPrivate[].class, "any")).isTrue();
 	}
 
 	@Test
@@ -198,25 +197,25 @@ public class TypesTest {
 
 	@Test
 	public void testAssignableTypes() throws Exception {
-		assertThat(assignableTypes(String.class, String.class), is(true));
-		assertThat(assignableTypes(Object.class, String.class), is(true));
-		assertThat(assignableTypes(String.class, Object.class), is(false));
-		assertThat(assignableTypes(Integer.class, String.class), is(false));
+		assertThat(assignableTypes(String.class, String.class)).isTrue();
+		assertThat(assignableTypes(Object.class, String.class)).isTrue();
+		assertThat(assignableTypes(String.class, Object.class)).isFalse();
+		assertThat(assignableTypes(Integer.class, String.class)).isFalse();
 	}
 
 	@Test
 	public void testEqualTypes() throws Exception {
-		assertThat(equalTypes(parameterized(List.class, List.class, String.class), List.class), is(true));
-		assertThat(equalTypes(parameterized(Set.class, Set.class, String.class), List.class), is(false));
-		assertThat(equalTypes(parameterized(Set.class, Set.class, String.class), parameterized(Set.class, Set.class, Object.class)), is(true));
+		assertThat(equalTypes(parameterized(List.class, List.class, String.class), List.class)).isTrue();
+		assertThat(equalTypes(parameterized(Set.class, Set.class, String.class), List.class)).isFalse();
+		assertThat(equalTypes(parameterized(Set.class, Set.class, String.class), parameterized(Set.class, Set.class, Object.class))).isTrue();
 	}
 
 	@Test
 	public void testBoxingEquivalentTypes() throws Exception {
-		assertThat(boxingEquivalentTypes(byte.class, Byte.class), is(true));
-		assertThat(boxingEquivalentTypes(short.class, Short.class), is(true));
-		assertThat(boxingEquivalentTypes(int.class, Integer.class), is(true));
-		assertThat(boxingEquivalentTypes(long.class, Long.class), is(true));
+		assertThat(boxingEquivalentTypes(byte.class, Byte.class)).isTrue();
+		assertThat(boxingEquivalentTypes(short.class, Short.class)).isTrue();
+		assertThat(boxingEquivalentTypes(int.class, Integer.class)).isTrue();
+		assertThat(boxingEquivalentTypes(long.class, Long.class)).isTrue();
 	}
 
 	@Test
@@ -234,74 +233,74 @@ public class TypesTest {
 
 	@Test
 	public void testIsBoxedPrimitive() throws Exception {
-		assertThat(isBoxedPrimitive(Byte.class), is(true));
-		assertThat(isBoxedPrimitive(Short.class), is(true));
-		assertThat(isBoxedPrimitive(Integer.class), is(true));
-		assertThat(isBoxedPrimitive(Long.class), is(true));
-		assertThat(isBoxedPrimitive(Float.class), is(true));
-		assertThat(isBoxedPrimitive(Double.class), is(true));
-		assertThat(isBoxedPrimitive(Boolean.class), is(true));
-		assertThat(isBoxedPrimitive(Character.class), is(true));
+		assertThat(isBoxedPrimitive(Byte.class)).isTrue();
+		assertThat(isBoxedPrimitive(Short.class)).isTrue();
+		assertThat(isBoxedPrimitive(Integer.class)).isTrue();
+		assertThat(isBoxedPrimitive(Long.class)).isTrue();
+		assertThat(isBoxedPrimitive(Float.class)).isTrue();
+		assertThat(isBoxedPrimitive(Double.class)).isTrue();
+		assertThat(isBoxedPrimitive(Boolean.class)).isTrue();
+		assertThat(isBoxedPrimitive(Character.class)).isTrue();
 
-		assertThat(isBoxedPrimitive(String.class), is(false));
-		assertThat(isBoxedPrimitive(Object.class), is(false));
-		assertThat(isBoxedPrimitive(List.class), is(false));
-		assertThat(isBoxedPrimitive(parameterized(List.class, List.class, String.class)), is(false));
-		assertThat(isBoxedPrimitive(Super.class), is(false));
+		assertThat(isBoxedPrimitive(String.class)).isFalse();
+		assertThat(isBoxedPrimitive(Object.class)).isFalse();
+		assertThat(isBoxedPrimitive(List.class)).isFalse();
+		assertThat(isBoxedPrimitive(parameterized(List.class, List.class, String.class))).isFalse();
+		assertThat(isBoxedPrimitive(Super.class)).isFalse();
 	}
 
 	@Test
 	public void testIsPrimitive() throws Exception {
-		assertThat(isPrimitive(byte.class), is(true));
-		assertThat(isPrimitive(short.class), is(true));
-		assertThat(isPrimitive(int.class), is(true));
-		assertThat(isPrimitive(long.class), is(true));
-		assertThat(isPrimitive(float.class), is(true));
-		assertThat(isPrimitive(double.class), is(true));
-		assertThat(isPrimitive(boolean.class), is(true));
-		assertThat(isPrimitive(char.class), is(true));
+		assertThat(isPrimitive(byte.class)).isTrue();
+		assertThat(isPrimitive(short.class)).isTrue();
+		assertThat(isPrimitive(int.class)).isTrue();
+		assertThat(isPrimitive(long.class)).isTrue();
+		assertThat(isPrimitive(float.class)).isTrue();
+		assertThat(isPrimitive(double.class)).isTrue();
+		assertThat(isPrimitive(boolean.class)).isTrue();
+		assertThat(isPrimitive(char.class)).isTrue();
 
-		assertThat(isPrimitive(Byte.class), is(false));
-		assertThat(isPrimitive(Short.class), is(false));
-		assertThat(isPrimitive(Integer.class), is(false));
-		assertThat(isPrimitive(Long.class), is(false));
-		assertThat(isPrimitive(Float.class), is(false));
-		assertThat(isPrimitive(Double.class), is(false));
-		assertThat(isPrimitive(Boolean.class), is(false));
-		assertThat(isPrimitive(Character.class), is(false));
-		assertThat(isPrimitive(String.class), is(false));
-		assertThat(isPrimitive(Object.class), is(false));
-		assertThat(isPrimitive(List.class), is(false));
-		assertThat(isPrimitive(Super.class), is(false));
-		assertThat(isPrimitive(wildcard()), is(false));
+		assertThat(isPrimitive(Byte.class)).isFalse();
+		assertThat(isPrimitive(Short.class)).isFalse();
+		assertThat(isPrimitive(Integer.class)).isFalse();
+		assertThat(isPrimitive(Long.class)).isFalse();
+		assertThat(isPrimitive(Float.class)).isFalse();
+		assertThat(isPrimitive(Double.class)).isFalse();
+		assertThat(isPrimitive(Boolean.class)).isFalse();
+		assertThat(isPrimitive(Character.class)).isFalse();
+		assertThat(isPrimitive(String.class)).isFalse();
+		assertThat(isPrimitive(Object.class)).isFalse();
+		assertThat(isPrimitive(List.class)).isFalse();
+		assertThat(isPrimitive(Super.class)).isFalse();
+		assertThat(isPrimitive(wildcard())).isFalse();
 	}
 
 	@Test
 	public void testIsLiteral() throws Exception {
-		assertThat(isLiteral(byte.class), is(true));
-		assertThat(isLiteral(short.class), is(true));
-		assertThat(isLiteral(int.class), is(true));
-		assertThat(isLiteral(long.class), is(true));
-		assertThat(isLiteral(float.class), is(true));
-		assertThat(isLiteral(double.class), is(true));
-		assertThat(isLiteral(boolean.class), is(true));
-		assertThat(isLiteral(char.class), is(true));
+		assertThat(isLiteral(byte.class)).isTrue();
+		assertThat(isLiteral(short.class)).isTrue();
+		assertThat(isLiteral(int.class)).isTrue();
+		assertThat(isLiteral(long.class)).isTrue();
+		assertThat(isLiteral(float.class)).isTrue();
+		assertThat(isLiteral(double.class)).isTrue();
+		assertThat(isLiteral(boolean.class)).isTrue();
+		assertThat(isLiteral(char.class)).isTrue();
 
-		assertThat(isLiteral(Byte.class), is(true));
-		assertThat(isLiteral(Short.class), is(true));
-		assertThat(isLiteral(Integer.class), is(true));
-		assertThat(isLiteral(Long.class), is(true));
-		assertThat(isLiteral(Float.class), is(true));
-		assertThat(isLiteral(Double.class), is(true));
-		assertThat(isLiteral(Boolean.class), is(true));
-		assertThat(isLiteral(Character.class), is(true));
+		assertThat(isLiteral(Byte.class)).isTrue();
+		assertThat(isLiteral(Short.class)).isTrue();
+		assertThat(isLiteral(Integer.class)).isTrue();
+		assertThat(isLiteral(Long.class)).isTrue();
+		assertThat(isLiteral(Float.class)).isTrue();
+		assertThat(isLiteral(Double.class)).isTrue();
+		assertThat(isLiteral(Boolean.class)).isTrue();
+		assertThat(isLiteral(Character.class)).isTrue();
 
-		assertThat(isLiteral(String.class), is(true));
-		assertThat(isLiteral(Object.class), is(false));
-		assertThat(isLiteral(List.class), is(false));
-		assertThat(isLiteral(Super.class), is(false));
-		assertThat(isLiteral(BigDecimal.class), is(false));
-		assertThat(isLiteral(Collection.class), is(false));
+		assertThat(isLiteral(String.class)).isTrue();
+		assertThat(isLiteral(Object.class)).isFalse();
+		assertThat(isLiteral(List.class)).isFalse();
+		assertThat(isLiteral(Super.class)).isFalse();
+		assertThat(isLiteral(BigDecimal.class)).isFalse();
+		assertThat(isLiteral(Collection.class)).isFalse();
 	}
 
 	@Test
@@ -309,10 +308,10 @@ public class TypesTest {
 		assertThat(typeArgument(parameterized(List.class, null, String.class), 0).get()).isEqualTo(String.class);
 		assertThat(typeArgument(parameterized(Map.class, null, String.class, Object.class), 0).get()).isEqualTo(String.class);
 		assertThat(typeArgument(parameterized(Map.class, null, String.class, Object.class), 1).get()).isEqualTo(Object.class);
-		assertThat(typeArgument(parameterized(Map.class, null), 1).isPresent(), is(false));
-		assertThat(typeArgument(parameterized(Map.class, null, (Type[]) null), 1).isPresent(), is(false));
-		assertThat(typeArgument(Map.class, 0).isPresent(), is(false));
-		assertThat(typeArgument(String.class, 0).isPresent(), is(false));
+		assertThat(typeArgument(parameterized(Map.class, null), 1).isPresent()).isFalse();
+		assertThat(typeArgument(parameterized(Map.class, null, (Type[]) null), 1).isPresent()).isFalse();
+		assertThat(typeArgument(Map.class, 0).isPresent()).isFalse();
+		assertThat(typeArgument(String.class, 0).isPresent()).isFalse();
 	}
 
 	@Test
@@ -327,24 +326,24 @@ public class TypesTest {
 
 	@Test
 	public void testIsHiddenType() throws Exception {
-		assertThat(isHidden(TypesTest.class, "any"), is(false));
+		assertThat(isHidden(TypesTest.class, "any")).isFalse();
 		assertThat(isHidden(new NestedPrivate() {
-		}.getClass(), "any"), is(true));
-		assertThat(isHidden(NestedPrivate.class, "any"), is(true));
-		assertThat(isHidden(NestedPackagePrivate.class, "any"), is(true));
-		assertThat(isHidden(NestedPackagePrivate.class, "net.amygdalum.testrecorder.util"), is(false));
-		assertThat(isHidden(TypesPackagePrivate.class, "any"), is(true));
-		assertThat(isHidden(TypesPackagePrivate.class, "net.amygdalum.testrecorder.util"), is(false));
+		}.getClass(), "any")).isTrue();
+		assertThat(isHidden(NestedPrivate.class, "any")).isTrue();
+		assertThat(isHidden(NestedPackagePrivate.class, "any")).isTrue();
+		assertThat(isHidden(NestedPackagePrivate.class, "net.amygdalum.testrecorder.util")).isFalse();
+		assertThat(isHidden(TypesPackagePrivate.class, "any")).isTrue();
+		assertThat(isHidden(TypesPackagePrivate.class, "net.amygdalum.testrecorder.util")).isFalse();
 	}
 
 	@Test
 	public void testIsHiddenConstructor() throws Exception {
-		assertThat(isHidden(TypesTest.class.getDeclaredConstructor(), "any"), is(false));
-		assertThat(isHidden(NestedPrivate.class.getDeclaredConstructor(), "any"), is(true));
-		assertThat(isHidden(NestedPackagePrivate.class.getDeclaredConstructor(), "any"), is(true));
-		assertThat(isHidden(NestedPackagePrivate.class.getDeclaredConstructor(), "net.amygdalum.testrecorder.util"), is(false));
-		assertThat(isHidden(TypesPackagePrivate.class.getDeclaredConstructor(), "any"), is(true));
-		assertThat(isHidden(TypesPackagePrivate.class.getDeclaredConstructor(), "net.amygdalum.testrecorder.util"), is(false));
+		assertThat(isHidden(TypesTest.class.getDeclaredConstructor(), "any")).isFalse();
+		assertThat(isHidden(NestedPrivate.class.getDeclaredConstructor(), "any")).isTrue();
+		assertThat(isHidden(NestedPackagePrivate.class.getDeclaredConstructor(), "any")).isTrue();
+		assertThat(isHidden(NestedPackagePrivate.class.getDeclaredConstructor(), "net.amygdalum.testrecorder.util")).isFalse();
+		assertThat(isHidden(TypesPackagePrivate.class.getDeclaredConstructor(), "any")).isTrue();
+		assertThat(isHidden(TypesPackagePrivate.class.getDeclaredConstructor(), "net.amygdalum.testrecorder.util")).isFalse();
 	}
 
 	@Test
@@ -387,15 +386,15 @@ public class TypesTest {
 
 	@Test
 	public void testNeedsCast() throws Exception {
-		assertThat(needsCast(Object.class, String.class), is(false));
-		assertThat(needsCast(List.class, parameterized(List.class, null, String.class)), is(false));
-		assertThat(needsCast(int.class, int.class), is(false));
-		assertThat(needsCast(Integer.class, int.class), is(false));
-		assertThat(needsCast(int.class, Integer.class), is(false));
+		assertThat(needsCast(Object.class, String.class)).isFalse();
+		assertThat(needsCast(List.class, parameterized(List.class, null, String.class))).isFalse();
+		assertThat(needsCast(int.class, int.class)).isFalse();
+		assertThat(needsCast(Integer.class, int.class)).isFalse();
+		assertThat(needsCast(int.class, Integer.class)).isFalse();
 
-		assertThat(needsCast(int.class, long.class), is(true));
-		assertThat(needsCast(long.class, int.class), is(true));
-		assertThat(needsCast(String.class, Object.class), is(true));
+		assertThat(needsCast(int.class, long.class)).isTrue();
+		assertThat(needsCast(long.class, int.class)).isTrue();
+		assertThat(needsCast(String.class, Object.class)).isTrue();
 	}
 
 	public static Matcher<Type> matchParameterized(Class<?> base, String... var) {
@@ -437,23 +436,23 @@ public class TypesTest {
 
 	@Test
 	public void testIsFinal() throws Exception {
-		assertThat(isFinal(Super.class.getDeclaredField("str")), is(false));
-		assertThat(isFinal(Final.class.getDeclaredField("attr")), is(true));
-		assertThat(isFinal(Static.class.getDeclaredField("CONSTANT")), is(true));
+		assertThat(isFinal(Super.class.getDeclaredField("str"))).isFalse();
+		assertThat(isFinal(Final.class.getDeclaredField("attr"))).isTrue();
+		assertThat(isFinal(Static.class.getDeclaredField("CONSTANT"))).isTrue();
 	}
 
 	@Test
 	public void testIsStatic() throws Exception {
-		assertThat(isStatic(Super.class.getDeclaredField("str")), is(false));
-		assertThat(isStatic(Static.class.getDeclaredField("global")), is(true));
-		assertThat(isStatic(Static.class.getDeclaredField("CONSTANT")), is(true));
+		assertThat(isStatic(Super.class.getDeclaredField("str"))).isFalse();
+		assertThat(isStatic(Static.class.getDeclaredField("global"))).isTrue();
+		assertThat(isStatic(Static.class.getDeclaredField("CONSTANT"))).isTrue();
 	}
 
 	@Test
 	public void testIsUnhandledSynthetic() throws Exception {
-		assertThat(isUnhandledSynthetic(Super.class.getDeclaredField("str")), is(false));
-		assertThat(isUnhandledSynthetic(NestedTypeField.class.getDeclaredField("this$0")), is(false));
-		assertThat(isUnhandledSynthetic(PseudoSynthetic.class.getDeclaredField("$attr")), is(true));
+		assertThat(isUnhandledSynthetic(Super.class.getDeclaredField("str"))).isFalse();
+		assertThat(isUnhandledSynthetic(NestedTypeField.class.getDeclaredField("this$0"))).isFalse();
+		assertThat(isUnhandledSynthetic(PseudoSynthetic.class.getDeclaredField("$attr"))).isTrue();
 	}
 
 	@Test

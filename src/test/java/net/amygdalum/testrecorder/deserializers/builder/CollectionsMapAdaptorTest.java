@@ -7,7 +7,6 @@ import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
@@ -40,18 +39,18 @@ public class CollectionsMapAdaptorTest {
 
 	@Test
 	public void testMatchesDecoratorClassesInCollections() throws Exception {
-		assertThat(adaptor.matches(Object.class), is(false));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$UnmodifiableMap")), is(true));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$UnmodifiableNavigableMap")), is(true));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$UnmodifiableSortedMap")), is(true));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$SynchronizedMap")), is(true));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$SynchronizedNavigableMap")), is(true));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$SynchronizedSortedMap")), is(true));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$CheckedMap")), is(true));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$CheckedNavigableMap")), is(true));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$CheckedSortedMap")), is(true));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$EmptyMap")), is(true));
-		assertThat(adaptor.matches(Class.forName("java.util.Collections$SingletonMap")), is(true));
+		assertThat(adaptor.matches(Object.class)).isFalse();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$UnmodifiableMap"))).isTrue();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$UnmodifiableNavigableMap"))).isTrue();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$UnmodifiableSortedMap"))).isTrue();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$SynchronizedMap"))).isTrue();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$SynchronizedNavigableMap"))).isTrue();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$SynchronizedSortedMap"))).isTrue();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$CheckedMap"))).isTrue();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$CheckedNavigableMap"))).isTrue();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$CheckedSortedMap"))).isTrue();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$EmptyMap"))).isTrue();
+		assertThat(adaptor.matches(Class.forName("java.util.Collections$SingletonMap"))).isTrue();
 	}
 
 	@Test

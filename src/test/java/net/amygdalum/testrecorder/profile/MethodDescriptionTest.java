@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder.profile;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,20 +22,20 @@ public class MethodDescriptionTest {
 	
 	@Test
 	public void testMatchesReflectiveMethod() throws Exception {
-		assertThat(methodByDescriptionResult.matches(Simple.class.getDeclaredMethod("getStr")), is(true)); 
-		assertThat(methodByDescriptionResult.matches(SimpleMisleadingFieldName.class.getDeclaredMethod("getStr")), is(false)); 
+		assertThat(methodByDescriptionResult.matches(Simple.class.getDeclaredMethod("getStr"))).isTrue(); 
+		assertThat(methodByDescriptionResult.matches(SimpleMisleadingFieldName.class.getDeclaredMethod("getStr"))).isFalse(); 
 
-		assertThat(methodByDescriptionArguments.matches(Collections.class.getDeclaredMethod("arrayList", Object[].class)), is(true)); 
-		assertThat(methodByDescriptionArguments.matches(Simple.class.getDeclaredMethod("getStr")), is(false)); 
+		assertThat(methodByDescriptionArguments.matches(Collections.class.getDeclaredMethod("arrayList", Object[].class))).isTrue(); 
+		assertThat(methodByDescriptionArguments.matches(Simple.class.getDeclaredMethod("getStr"))).isFalse(); 
 	}
 
 	@Test
 	public void testMatchesMethodDescriptor() throws Exception {
-		assertThat(methodByDescriptionResult.matches("net/amygdalum/testrecorder/util/testobjects/Simple", "getStr", "()Ljava/lang/String;"), is(true)); 
-		assertThat(methodByDescriptionResult.matches("net/amygdalum/testrecorder/util/testobjects/SimpleMisleadingFieldName", "getStr", "()Ljava/lang/String;"), is(false)); 
+		assertThat(methodByDescriptionResult.matches("net/amygdalum/testrecorder/util/testobjects/Simple", "getStr", "()Ljava/lang/String;")).isTrue(); 
+		assertThat(methodByDescriptionResult.matches("net/amygdalum/testrecorder/util/testobjects/SimpleMisleadingFieldName", "getStr", "()Ljava/lang/String;")).isFalse(); 
 
-		assertThat(methodByDescriptionArguments.matches("net/amygdalum/testrecorder/util/testobjects/Collections", "arrayList", "([Ljava/lang/Object;)Ljava/util/ArrayList;"), is(true)); 
-		assertThat(methodByDescriptionArguments.matches("net/amygdalum/testrecorder/util/testobjects/Simple", "getStr", "()Ljava/lang/String;"), is(false)); 
+		assertThat(methodByDescriptionArguments.matches("net/amygdalum/testrecorder/util/testobjects/Collections", "arrayList", "([Ljava/lang/Object;)Ljava/util/ArrayList;")).isTrue(); 
+		assertThat(methodByDescriptionArguments.matches("net/amygdalum/testrecorder/util/testobjects/Simple", "getStr", "()Ljava/lang/String;")).isFalse(); 
 	}
 
 }

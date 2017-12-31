@@ -6,7 +6,6 @@ import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
@@ -319,7 +318,7 @@ public class ScheduledTestGeneratorTest {
         testGenerator.await();
         testGenerator.writeResults(folder.getRoot().toPath());
 
-        assertThat(Files.exists(folder.getRoot().toPath().resolve("net/amygdalum/testrecorder/ScheduledTestGeneratorTestRecordedTest.java")), is(true));
+        assertThat(Files.exists(folder.getRoot().toPath().resolve("net/amygdalum/testrecorder/ScheduledTestGeneratorTestRecordedTest.java"))).isTrue();
     }
 
     @Test

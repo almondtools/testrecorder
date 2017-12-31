@@ -6,7 +6,6 @@ import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
@@ -34,8 +33,8 @@ public class ArraysListAdaptorTest {
 
 	@Test
 	public void testMatchesDecoratorClassesInCollections() throws Exception {
-		assertThat(adaptor.matches(Object.class), is(false));
-		assertThat(adaptor.matches(Class.forName("java.util.Arrays$ArrayList")), is(true));
+		assertThat(adaptor.matches(Object.class)).isFalse();
+		assertThat(adaptor.matches(Class.forName("java.util.Arrays$ArrayList"))).isTrue();
 	}
 
 	@Test

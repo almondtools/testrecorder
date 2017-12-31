@@ -7,7 +7,6 @@ import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -45,12 +44,12 @@ public class DefaultListAdaptorTest {
 
     @Test
     public void testMatchesLists() throws Exception {
-        assertThat(adaptor.matches(Object.class), is(false));
-        assertThat(adaptor.matches(ArrayList.class), is(true));
-        assertThat(adaptor.matches(LinkedList.class), is(true));
-        assertThat(adaptor.matches(List.class), is(true));
+        assertThat(adaptor.matches(Object.class)).isFalse();
+        assertThat(adaptor.matches(ArrayList.class)).isTrue();
+        assertThat(adaptor.matches(LinkedList.class)).isTrue();
+        assertThat(adaptor.matches(List.class)).isTrue();
         assertThat(adaptor.matches(new ArrayList<Object>() {
-        }.getClass()), is(true));
+        }.getClass())).isTrue();
     }
 
     @Test

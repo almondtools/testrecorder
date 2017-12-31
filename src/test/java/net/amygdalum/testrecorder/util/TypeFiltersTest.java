@@ -4,7 +4,7 @@ import static com.almondtools.conmatch.conventions.UtilityClassMatcher.isUtility
 import static net.amygdalum.testrecorder.util.TypeFilters.endingWith;
 import static net.amygdalum.testrecorder.util.TypeFilters.in;
 import static net.amygdalum.testrecorder.util.TypeFilters.startingWith;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThat;
 
 import java.util.List;
@@ -20,26 +20,26 @@ public class TypeFiltersTest {
 
     @Test
     public void testStartingWith() throws Exception {
-        assertThat(startingWith("S").test(String.class), is(true));
-        assertThat(startingWith("L").test(List.class), is(true));
-        assertThat(startingWith("L").test(String.class), is(false));
-        assertThat(startingWith("S").test(List.class), is(false));
+        assertThat(startingWith("S").test(String.class)).isTrue();
+        assertThat(startingWith("L").test(List.class)).isTrue();
+        assertThat(startingWith("L").test(String.class)).isFalse();
+        assertThat(startingWith("S").test(List.class)).isFalse();
     }
 
     @Test
     public void testEndingWith() throws Exception {
-        assertThat(endingWith("g").test(String.class), is(true));
-        assertThat(endingWith("t").test(List.class), is(true));
-        assertThat(endingWith("t").test(String.class), is(false));
-        assertThat(endingWith("g").test(List.class), is(false));
+        assertThat(endingWith("g").test(String.class)).isTrue();
+        assertThat(endingWith("t").test(List.class)).isTrue();
+        assertThat(endingWith("t").test(String.class)).isFalse();
+        assertThat(endingWith("g").test(List.class)).isFalse();
     }
     
     @Test
     public void testIn() throws Exception {
-        assertThat(in("String").test(String.class), is(true));
-        assertThat(in("List").test(List.class), is(true));
-        assertThat(in("List").test(String.class), is(false));
-        assertThat(in("String").test(List.class), is(false));
+        assertThat(in("String").test(String.class)).isTrue();
+        assertThat(in("List").test(List.class)).isTrue();
+        assertThat(in("List").test(String.class)).isFalse();
+        assertThat(in("String").test(List.class)).isFalse();
     }
     
 }

@@ -5,7 +5,6 @@ import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -39,9 +38,9 @@ public class BeanObjectAdaptorTest {
 
 	@Test
 	public void testMatchesAnyObject() throws Exception {
-		assertThat(adaptor.matches(Object.class), is(true));
+		assertThat(adaptor.matches(Object.class)).isTrue();
 		assertThat(adaptor.matches(new Object() {
-		}.getClass()), is(true));
+		}.getClass())).isTrue();
 	}
 
 	@Test

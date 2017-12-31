@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder.deserializers.builder;
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
@@ -31,8 +30,8 @@ public class DefaultClassAdaptorTest {
 
     @Test
     public void testMatchesOnlyBigInteger() throws Exception {
-        assertThat(adaptor.matches(Class.class), is(true));
-        assertThat(adaptor.matches(Object.class), is(false));
+        assertThat(adaptor.matches(Class.class)).isTrue();
+        assertThat(adaptor.matches(Object.class)).isFalse();
     }
 
     @Test

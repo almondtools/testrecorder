@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder.dynamiccompile;
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import org.hamcrest.StringDescription;
@@ -34,7 +33,7 @@ public class CompilableMatcherTest {
             + "  }"
             + "}", description);
 
-        assertThat(matches, is(true));
+        assertThat(matches).isTrue();
         assertThat(description.toString()).isEqualTo("");
     }
 
@@ -63,7 +62,7 @@ public class CompilableMatcherTest {
             + "  }"
             + "}", description);
         
-        assertThat(matches, is(true));
+        assertThat(matches).isTrue();
         assertThat(description.toString()).isEqualTo("");
     }
     
@@ -83,7 +82,7 @@ public class CompilableMatcherTest {
             + "  }"
             + "}", description);
 
-        assertThat(matches, is(true));
+        assertThat(matches).isTrue();
     }
 
     @Test
@@ -102,7 +101,7 @@ public class CompilableMatcherTest {
             + "  }"
             + "}", description);
 
-        assertThat(matches, is(false));
+        assertThat(matches).isFalse();
         assertThat(description.toString(), containsPattern(""
             + "compile failed with messages"));
     }
@@ -122,7 +121,7 @@ public class CompilableMatcherTest {
             + "  }"
             + "}", description);
         
-        assertThat(matches, is(true));
+        assertThat(matches).isTrue();
     }
 
 }

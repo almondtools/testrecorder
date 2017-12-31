@@ -9,7 +9,6 @@ import static net.amygdalum.testrecorder.util.testobjects.Hidden.createPartially
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -50,21 +49,21 @@ public class MatcherGeneratorsTest {
 
 	@Test
 	public void testNullIsSimpleValue() throws Exception {
-		assertThat(matcherCode.isSimpleValue(nullInstance(Object.class)), is(true));
+		assertThat(matcherCode.isSimpleValue(nullInstance(Object.class))).isTrue();
 		assertThat(matcherCode.simpleMatcher(nullInstance(Object.class), NULL).getStatements(), empty());
 		assertThat(matcherCode.simpleMatcher(nullInstance(Object.class), NULL).getValue()).isEqualTo("null");
 	}
 
 	@Test
 	public void testLiteralIsSimpleValue() throws Exception {
-		assertThat(matcherCode.isSimpleValue(literal("str")), is(true));
+		assertThat(matcherCode.isSimpleValue(literal("str"))).isTrue();
 		assertThat(matcherCode.simpleMatcher(literal("str"), NULL).getStatements(), empty());
 		assertThat(matcherCode.simpleMatcher(literal("str"), NULL).getValue()).isEqualTo("\"str\"");
 	}
 
 	@Test
 	public void testOtherIsNotSimpleValue() throws Exception {
-		assertThat(matcherCode.isSimpleValue(values.object(Dubble.class, new Dubble("Foo", "Bar"))), is(false));
+		assertThat(matcherCode.isSimpleValue(values.object(Dubble.class, new Dubble("Foo", "Bar")))).isFalse();
 		assertThat(matcherCode.simpleMatcher(values.object(Dubble.class, new Dubble("Foo", "Bar")), NULL).getStatements(), empty());
 		assertThat(matcherCode.simpleMatcher(values.object(Dubble.class, new Dubble("Foo", "Bar")), NULL).getValue(), containsPattern("new GenericMatcher() {*"
 			+ "a = \"Foo\"*"

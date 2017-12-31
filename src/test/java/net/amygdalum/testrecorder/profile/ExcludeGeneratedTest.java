@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder.profile;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -9,12 +8,12 @@ public class ExcludeGeneratedTest {
 
 	@Test
 	public void testTestTrueIfContainingDollar() throws Exception {
-		assertThat(new ExcludeGenerated().matches(AnObject.class.getDeclaredField("$generated")), is(true));
+		assertThat(new ExcludeGenerated().matches(AnObject.class.getDeclaredField("$generated"))).isTrue();
 	}
 
 	@Test
 	public void testTestFalseIfNotContainingDollar() throws Exception {
-		assertThat(new ExcludeGenerated().matches(AnObject.class.getDeclaredField("notgenerated")), is(false));
+		assertThat(new ExcludeGenerated().matches(AnObject.class.getDeclaredField("notgenerated"))).isFalse();
 	}
 
 	@SuppressWarnings("unused")

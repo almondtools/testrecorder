@@ -4,7 +4,6 @@ import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContex
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
@@ -33,9 +32,9 @@ public class DefaultArrayAdaptorTest {
 
     @Test
     public void testMatchesAnyArray() throws Exception {
-        assertThat(adaptor.matches(int[].class), is(true));
-        assertThat(adaptor.matches(Object[].class), is(true));
-        assertThat(adaptor.matches(Integer[].class), is(true));
+        assertThat(adaptor.matches(int[].class)).isTrue();
+        assertThat(adaptor.matches(Object[].class)).isTrue();
+        assertThat(adaptor.matches(Integer[].class)).isTrue();
     }
 
     @Test

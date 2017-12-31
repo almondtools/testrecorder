@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Method;
 
@@ -18,8 +17,8 @@ public class MethodsAtRuntimeTest {
 				return true;
 			}
 		};
-		assertThat(methodsAtRuntime.matches(anyMethod()), is(true));
-		assertThat(methodsAtRuntime.matches(anyString(), anyString(), anyString()), is(false));
+		assertThat(methodsAtRuntime.matches(anyMethod())).isTrue();
+		assertThat(methodsAtRuntime.matches(anyString(), anyString(), anyString())).isFalse();
 	}
 
 	private String anyString() {
