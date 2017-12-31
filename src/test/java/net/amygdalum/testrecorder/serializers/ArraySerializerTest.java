@@ -2,8 +2,6 @@ package net.amygdalum.testrecorder.serializers;
 
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -27,7 +25,7 @@ public class ArraySerializerTest {
 
 	@Test
 	public void testGetMatchingClasses() throws Exception {
-		assertThat(serializer.getMatchingClasses(), empty());
+		assertThat(serializer.getMatchingClasses()).isEmpty();
 	}
 
 	@Test

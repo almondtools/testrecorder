@@ -4,7 +4,6 @@ import static java.util.Collections.singleton;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -41,7 +40,7 @@ public class GenericSerializerTest {
 
 	@Test
 	public void testGetMatchingClasses() throws Exception {
-		assertThat(serializer.getMatchingClasses(), empty());
+		assertThat(serializer.getMatchingClasses()).isEmpty();
 	}
 
 	@Test
@@ -91,7 +90,7 @@ public class GenericSerializerTest {
 
 		serializer.populate(set, singleton("Element"));
 
-		assertThat(set, empty());
+		assertThat(set).isEmpty();
 	}
 
 	@SuppressWarnings("unused")

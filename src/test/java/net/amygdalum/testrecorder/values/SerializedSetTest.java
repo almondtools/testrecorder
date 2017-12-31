@@ -10,7 +10,6 @@ import static net.amygdalum.testrecorder.values.GenericTypes.setOfString;
 import static net.amygdalum.testrecorder.values.ParameterizedTypeMatcher.parameterizedType;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
@@ -86,7 +85,7 @@ public class SerializedSetTest {
 		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
 
 		assertThat(set.size()).isEqualTo(0);
-		assertThat(set.referencedValues(), empty());
+		assertThat(set.referencedValues()).isEmpty();
 	}
 
 	@Test
@@ -239,7 +238,7 @@ public class SerializedSetTest {
 			literal("last")));
 		set.clear();
 
-		assertThat(set, empty());
+		assertThat(set).isEmpty();
 	}
 
 	@Test

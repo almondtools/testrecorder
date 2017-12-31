@@ -2,8 +2,6 @@ package net.amygdalum.testrecorder.deserializers.builder;
 
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.junit.Assert.assertThat;
 
 import java.math.BigDecimal;
 
@@ -41,7 +39,7 @@ public class DefaultBigDecimalAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements(), empty());
+		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("new BigDecimal(\"0.815\")");
 	}
 

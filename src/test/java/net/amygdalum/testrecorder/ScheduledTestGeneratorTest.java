@@ -9,7 +9,6 @@ import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
@@ -184,7 +183,7 @@ public class ScheduledTestGeneratorTest {
 
     @Test
     public void testTestsForEmpty() throws Exception {
-        assertThat(testGenerator.testsFor(MyClass.class), empty());
+        assertThat(testGenerator.testsFor(MyClass.class)).isEmpty();
     }
 
     @Test
@@ -201,7 +200,7 @@ public class ScheduledTestGeneratorTest {
 
         testGenerator.clearResults();
 
-        assertThat(testGenerator.testsFor(MyClass.class), empty());
+        assertThat(testGenerator.testsFor(MyClass.class)).isEmpty();
     }
 
     @SuppressWarnings("unchecked")
@@ -329,7 +328,7 @@ public class ScheduledTestGeneratorTest {
 
         testGenerator.accept(newSnapshot());
         testGenerator.await();
-        assertThat(files(), empty());
+        assertThat(files()).isEmpty();
         Thread.sleep(1000);
         testGenerator.accept(newSnapshot());
         testGenerator.await();
@@ -356,7 +355,7 @@ public class ScheduledTestGeneratorTest {
 
         testGenerator.accept(newSnapshot());
         testGenerator.await();
-        assertThat(files(), empty());
+        assertThat(files()).isEmpty();
         testGenerator.accept(newSnapshot());
         testGenerator.await();
         assertThat(files()).containsExactly("2Test.java");
@@ -391,7 +390,7 @@ public class ScheduledTestGeneratorTest {
         testGenerator.accept(newSnapshot());
         testGenerator.accept(newSnapshot());
         testGenerator.await();
-        assertThat(files(), empty());
+        assertThat(files()).isEmpty();
 
         Thread shutdown = shutdownHooks().entrySet().stream()
             .filter(e -> e.getKey().getName().equals("$generate-shutdown"))
@@ -423,7 +422,7 @@ public class ScheduledTestGeneratorTest {
         second.accept(newSnapshot());
         second.accept(newSnapshot());
         second.accept(newSnapshot());
-        assertThat(files(), empty());
+        assertThat(files()).isEmpty();
 
         Thread shutdown = shutdownHooks().entrySet().stream()
             .filter(e -> e.getKey().getName().equals("$generate-shutdown"))

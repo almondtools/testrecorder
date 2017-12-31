@@ -5,8 +5,6 @@ import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfComplete
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfPartiallyHidden;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,7 +41,7 @@ public class DefaultNullAdaptorTest {
 
         Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-        assertThat(result.getStatements(), empty());
+        assertThat(result.getStatements()).isEmpty();
         assertThat(result.getValue()).isEqualTo("nullValue(String.class)");
     }
 
@@ -56,7 +54,7 @@ public class DefaultNullAdaptorTest {
 
         Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-        assertThat(result.getStatements(), empty());
+        assertThat(result.getStatements()).isEmpty();
         assertThat(result.getValue()).isEqualTo("nullValue(net.amygdalum.testrecorder.util.testobjects.Hidden.VisibleInterface.class)");
     }
 
@@ -69,7 +67,7 @@ public class DefaultNullAdaptorTest {
 
         Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-        assertThat(result.getStatements(), empty());
+        assertThat(result.getStatements()).isEmpty();
         assertThat(result.getValue()).isEqualTo("nullValue()");
     }
 

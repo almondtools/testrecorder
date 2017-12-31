@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
 
 import java.lang.annotation.Annotation;
@@ -163,7 +162,7 @@ public class TestGeneratorTest {
 
 	@Test
 	public void testTestsForEmpty() throws Exception {
-		assertThat(testGenerator.testsFor(MyClass.class), empty());
+		assertThat(testGenerator.testsFor(MyClass.class)).isEmpty();
 	}
 
 	@Test
@@ -180,7 +179,7 @@ public class TestGeneratorTest {
 
 		testGenerator.clearResults();
 
-		assertThat(testGenerator.testsFor(MyClass.class), empty());
+		assertThat(testGenerator.testsFor(MyClass.class)).isEmpty();
 	}
 
 	@SuppressWarnings("unchecked")

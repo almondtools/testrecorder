@@ -11,7 +11,6 @@ import static net.amygdalum.testrecorder.values.ParameterizedTypeMatcher.paramet
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
@@ -94,7 +93,7 @@ public class SerializedMapTest {
 		SerializedMap map = new SerializedMap(HashMap.class).withResult(Map.class);
 		
 		assertThat(map.size()).isEqualTo(0);
-		assertThat(map.referencedValues(), empty());
+		assertThat(map.referencedValues()).isEmpty();
 	}
 
 	@Test
@@ -187,7 +186,7 @@ public class SerializedMapTest {
 
 		map.clear();
 
-		assertThat(map.keySet(), empty());
+		assertThat(map.keySet()).isEmpty();
 	}
 
 	@Test

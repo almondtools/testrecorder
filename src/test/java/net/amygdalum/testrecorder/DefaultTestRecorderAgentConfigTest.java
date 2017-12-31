@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -34,12 +33,12 @@ public class DefaultTestRecorderAgentConfigTest {
 
     @Test
     public void testGetClassExclusions() throws Exception {
-        assertThat(config.getClassExclusions(), empty());
+        assertThat(config.getClassExclusions()).isEmpty();
     }
 
     @Test
     public void testGetGlobalFields() throws Exception {
-        assertThat(config.getGlobalFields(), empty());
+        assertThat(config.getGlobalFields()).isEmpty();
     }
 
     @Test
@@ -49,7 +48,7 @@ public class DefaultTestRecorderAgentConfigTest {
 
     @Test
     public void testGetPackages() throws Exception {
-        assertThat(config.getClasses(), empty());
+        assertThat(config.getClasses()).isEmpty();
     }
 
     @Test

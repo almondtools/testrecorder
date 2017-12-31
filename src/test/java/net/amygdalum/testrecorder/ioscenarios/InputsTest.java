@@ -3,8 +3,8 @@ package net.amygdalum.testrecorder.ioscenarios;
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ public class InputsTest {
 		in.notrecorded();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(Inputs.class), empty());
+		assertThat(testGenerator.testsFor(Inputs.class)).isEmpty();
 	}
 	
 	@Test

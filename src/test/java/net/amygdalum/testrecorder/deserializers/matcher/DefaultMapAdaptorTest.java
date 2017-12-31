@@ -4,8 +4,6 @@ import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContex
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.junit.Assert.assertThat;
 
 import java.math.BigInteger;
 import java.util.LinkedHashMap;
@@ -45,7 +43,7 @@ public class DefaultMapAdaptorTest {
 		MatcherGenerators generator = new MatcherGenerators(getClass());
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 		
-		assertThat(result.getStatements(), empty());
+		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("containsEntries(Integer.class, Integer.class).entry(8, 15).entry(47, 11)");
 	}
 
@@ -56,7 +54,7 @@ public class DefaultMapAdaptorTest {
 		
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 		
-		assertThat(result.getStatements(), empty());
+		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("noEntries(Object.class, Object.class)");
 	}
 

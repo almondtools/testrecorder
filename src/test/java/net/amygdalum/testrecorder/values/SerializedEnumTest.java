@@ -2,8 +2,6 @@ package net.amygdalum.testrecorder.values;
 
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -41,7 +39,7 @@ public class SerializedEnumTest {
 		
 		value.setName("VALUE2");
 
-		assertThat(value.referencedValues(), empty());
+		assertThat(value.referencedValues()).isEmpty();
 	}
 
 	@Test

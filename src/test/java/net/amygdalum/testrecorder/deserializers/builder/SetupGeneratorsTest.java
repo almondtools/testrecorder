@@ -10,7 +10,6 @@ import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Type;
@@ -103,7 +102,7 @@ public class SetupGeneratorsTest {
 
         Computation result = setupCode.visitReferenceType(value, NULL);
 
-        assertThat(result.getStatements(), empty());
+        assertThat(result.getStatements()).isEmpty();
         assertThat(result.getValue()).isEqualTo("dubble1");
     }
 
@@ -135,7 +134,7 @@ public class SetupGeneratorsTest {
 
         Computation result = setupCode.visitImmutableType(value, NULL);
 
-        assertThat(result.getStatements(), empty());
+        assertThat(result.getStatements()).isEmpty();
         assertThat(result.getValue()).isEqualTo("new BigInteger(\"42\")");
     }
 
@@ -145,7 +144,7 @@ public class SetupGeneratorsTest {
 
         Computation result = setupCode.visitValueType(value, NULL);
 
-        assertThat(result.getStatements(), empty());
+        assertThat(result.getStatements()).isEmpty();
         assertThat(result.getValue()).isEqualTo("42");
     }
 

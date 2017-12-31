@@ -10,7 +10,6 @@ import static net.amygdalum.testrecorder.values.ParameterizedTypeMatcher.paramet
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
@@ -86,7 +85,7 @@ public class SerializedListTest {
 		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
 
 		assertThat(list.size()).isEqualTo(0);
-		assertThat(list.referencedValues(), empty());
+		assertThat(list.referencedValues()).isEmpty();
 	}
 
 	@Test
@@ -266,7 +265,7 @@ public class SerializedListTest {
 			literal("last")));
 		list.clear();
 
-		assertThat(list, empty());
+		assertThat(list).isEmpty();
 	}
 
 	@Test

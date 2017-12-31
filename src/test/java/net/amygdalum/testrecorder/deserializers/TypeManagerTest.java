@@ -5,7 +5,6 @@ import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -58,7 +57,7 @@ public class TypeManagerTest {
     public void testRegisterTypeOther() throws Exception {
         types.registerType(mock(Type.class));
 
-        assertThat(types.getImports(), empty());
+        assertThat(types.getImports()).isEmpty();
     }
 
     @Test
@@ -72,7 +71,7 @@ public class TypeManagerTest {
     public void testRegisterImportPrimitive() throws Exception {
         types.registerImport(int.class);
 
-        assertThat(types.getImports(), empty());
+        assertThat(types.getImports()).isEmpty();
     }
 
     @Test

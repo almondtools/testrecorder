@@ -8,7 +8,6 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -31,7 +30,7 @@ public class GenericMatcherTest {
 		assertThat(new GenericMatcher() {
 			public String str = "myStr";
 
-		}.mismatchesWith(null, new Simple("myStr")), empty());
+		}.mismatchesWith(null, new Simple("myStr"))).isEmpty();
 	}
 
 	@Test
@@ -56,21 +55,21 @@ public class GenericMatcherTest {
 			public Matcher<Simple> simple = new GenericMatcher() {
 				public String str = "otherStr";
 			}.matching(Simple.class);
-		}.mismatchesWith(null, new Complex()), empty());
+		}.mismatchesWith(null, new Complex())).isEmpty();
 	}
 
 	@Test
 	public void testMatchingNullMatcher() throws Exception {
 		assertThat(new GenericMatcher() {
 			Matcher<?> str = nullValue();
-		}.mismatchesWith(null, new Simple()), empty());
+		}.mismatchesWith(null, new Simple())).isEmpty();
 	}
 
 	@Test
 	public void testMatchingNullValue() throws Exception {
 		assertThat(new GenericMatcher() {
 			String str = null;
-		}.mismatchesWith(null, new Simple()), empty());
+		}.mismatchesWith(null, new Simple())).isEmpty();
 	}
 
 	@Test
@@ -268,7 +267,7 @@ public class GenericMatcherTest {
 			String str = "myStr";
 		}.matching(Sub.class, Super.class);
 
-		assertThat(matcher.mismatchesWith(null, new Sub("myStr")), empty());
+		assertThat(matcher.mismatchesWith(null, new Sub("myStr"))).isEmpty();
 	}
 
 	@Test

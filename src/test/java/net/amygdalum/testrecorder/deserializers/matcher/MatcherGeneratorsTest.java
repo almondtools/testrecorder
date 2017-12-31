@@ -9,7 +9,6 @@ import static net.amygdalum.testrecorder.util.testobjects.Hidden.createPartially
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
 
 import java.lang.annotation.Annotation;
@@ -49,21 +48,21 @@ public class MatcherGeneratorsTest {
 	@Test
 	public void testNullIsSimpleValue() throws Exception {
 		assertThat(matcherCode.isSimpleValue(nullInstance(Object.class))).isTrue();
-		assertThat(matcherCode.simpleMatcher(nullInstance(Object.class), NULL).getStatements(), empty());
+		assertThat(matcherCode.simpleMatcher(nullInstance(Object.class), NULL).getStatements()).isEmpty();
 		assertThat(matcherCode.simpleMatcher(nullInstance(Object.class), NULL).getValue()).isEqualTo("null");
 	}
 
 	@Test
 	public void testLiteralIsSimpleValue() throws Exception {
 		assertThat(matcherCode.isSimpleValue(literal("str"))).isTrue();
-		assertThat(matcherCode.simpleMatcher(literal("str"), NULL).getStatements(), empty());
+		assertThat(matcherCode.simpleMatcher(literal("str"), NULL).getStatements()).isEmpty();
 		assertThat(matcherCode.simpleMatcher(literal("str"), NULL).getValue()).isEqualTo("\"str\"");
 	}
 
 	@Test
 	public void testOtherIsNotSimpleValue() throws Exception {
 		assertThat(matcherCode.isSimpleValue(values.object(Dubble.class, new Dubble("Foo", "Bar")))).isFalse();
-		assertThat(matcherCode.simpleMatcher(values.object(Dubble.class, new Dubble("Foo", "Bar")), NULL).getStatements(), empty());
+		assertThat(matcherCode.simpleMatcher(values.object(Dubble.class, new Dubble("Foo", "Bar")), NULL).getStatements()).isEmpty();
 		assertThat(matcherCode.simpleMatcher(values.object(Dubble.class, new Dubble("Foo", "Bar")), NULL).getValue(), containsPattern("new GenericMatcher() {*"
 			+ "a = \"Foo\"*"
 			+ "b = \"Bar\"*"
@@ -78,7 +77,7 @@ public class MatcherGeneratorsTest {
 
 		Computation result = matcherCode.visitField(new SerializedField(ContainingList.class, "list", type, value), NULL);
 
-		assertThat(result.getStatements(), empty());
+		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("Matcher<?> list = containsInOrder(String.class, \"Foo\", \"Bar\");");
 	}
 
@@ -88,7 +87,7 @@ public class MatcherGeneratorsTest {
 
 		Computation result = matcherCode.visitReferenceType(value, NULL);
 
-		assertThat(result.getStatements(), empty());
+		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue(), containsPattern("new GenericMatcher() {*"
 			+ "a = \"Foo\"*"
 			+ "b = \"Bar\"*"
@@ -102,7 +101,7 @@ public class MatcherGeneratorsTest {
 
 		Computation result = matcherCode.visitReferenceType(value, NULL);
 
-		assertThat(result.getStatements(), empty());
+		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue(), containsPattern("new GenericMatcher() {*"
 			+ "}.matching(clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$PartiallyHidden\"), VisibleInterface.class)"));
 	}
@@ -114,7 +113,7 @@ public class MatcherGeneratorsTest {
 
 		Computation result = matcherCode.visitReferenceType(value, NULL);
 
-		assertThat(result.getStatements(), empty());
+		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue(), containsPattern("new GenericMatcher() {*}"
 			+ ".matching(clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$CompletelyHidden\"))"));
 	}
@@ -127,7 +126,7 @@ public class MatcherGeneratorsTest {
 
 		result = matcherCode.visitReferenceType(value, NULL);
 
-		assertThat(result.getStatements(), empty());
+		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue(), containsPattern("recursive(VisibleInterface.class)"));
 	}
 
@@ -139,7 +138,7 @@ public class MatcherGeneratorsTest {
 
 		result = matcherCode.visitReferenceType(value, NULL);
 
-		assertThat(result.getStatements(), empty());
+		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue(), containsPattern("recursive(Object.class)"));
 	}
 
@@ -159,7 +158,7 @@ public class MatcherGeneratorsTest {
 
 		Computation result = matcherCode.visitReferenceType(value, NULL);
 
-		assertThat(result.getStatements(), empty());
+		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("recursive(Dubble.class)");
 	}
 
@@ -169,7 +168,7 @@ public class MatcherGeneratorsTest {
 
 		Computation result = matcherCode.visitImmutableType(value, NULL);
 
-		assertThat(result.getStatements(), empty());
+		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("equalTo(new BigInteger(\"42\"))");
 	}
 
@@ -188,7 +187,7 @@ public class MatcherGeneratorsTest {
 
 		Computation result = matcherCode.visitValueType(value, NULL);
 
-		assertThat(result.getStatements(), empty());
+		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("equalTo(42)");
 	}
 
@@ -205,7 +204,7 @@ public class MatcherGeneratorsTest {
 	public void testSimpleMatcherSerializedValueNull() throws Exception {
 		Computation result = matcherCode.simpleMatcher(SerializedNull.nullInstance(String.class), NULL);
 
-		assertThat(result.getStatements(), empty());
+		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).as("generic matchers can match nulls and do not need matchers here").isEqualTo("null");
 	}
 
@@ -213,7 +212,7 @@ public class MatcherGeneratorsTest {
 	public void testSimpleMatcherSerializedValueLiteral() throws Exception {
 		Computation result = matcherCode.simpleMatcher(SerializedLiteral.literal("string"), NULL);
 
-		assertThat(result.getStatements(), empty());
+		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).as("generic matchers can match literals and do not need matchers here").isEqualTo("\"string\"");
 	}
 
@@ -221,7 +220,7 @@ public class MatcherGeneratorsTest {
 	public void testSimpleMatcherSerializedValueObject() throws Exception {
 		Computation result = matcherCode.simpleMatcher(values.object(Simple.class, new Simple()), NULL);
 
-		assertThat(result.getStatements(), empty());
+		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue(), containsPattern("new GenericMatcher() {*String str = null;*}.matching(Simple.class)"));
 	}
 

@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder.asm;
 
-import static org.hamcrest.Matchers.empty;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.tree.ClassNode;
@@ -13,7 +12,7 @@ public class NopTest {
 	public void testBuild() throws Exception {
 		Nop nop = Nop.NOP;
 		
-		assertThat(ByteCode.toString(nop.build(methodContext())), empty());
+		assertThat(ByteCode.toString(nop.build(methodContext()))).isEmpty();
 	}
 
 	private MethodContext methodContext() {

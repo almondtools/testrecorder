@@ -2,8 +2,6 @@ package net.amygdalum.testrecorder.dynamiccompile;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +11,7 @@ public class DynamicClassCompilerExceptionTest {
 	public void testDynamicClassCompilerExceptionWithoutMessages() throws Exception {
 		DynamicClassCompilerException exception = new DynamicClassCompilerException("message");
 		assertThat(exception.getMessage()).isEqualTo("message");
-		assertThat(exception.getDetailMessages(), empty());
+		assertThat(exception.getDetailMessages()).isEmpty();
 	}
 
 	@Test

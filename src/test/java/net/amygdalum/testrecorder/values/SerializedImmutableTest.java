@@ -1,8 +1,6 @@
 package net.amygdalum.testrecorder.values;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Type;
 
@@ -28,7 +26,7 @@ public class SerializedImmutableTest {
 
 	@Test
 	public void testReferencedValues() throws Exception {
-		assertThat(value.referencedValues(), empty());
+		assertThat(value.referencedValues()).isEmpty();
 	}
 
 	@Test

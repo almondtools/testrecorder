@@ -1,8 +1,6 @@
 package net.amygdalum.testrecorder.serializers;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +23,7 @@ public class EnumSerializerTest {
 
 	@Test
 	public void testGetMatchingClasses() throws Exception {
-		assertThat(serializer.getMatchingClasses(), empty());
+		assertThat(serializer.getMatchingClasses()).isEmpty();
 	}
 
 	@Test

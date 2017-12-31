@@ -4,7 +4,6 @@ import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContex
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenEnum;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +43,7 @@ public class DefaultEnumAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements(), empty());
+		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("PublicEnum.VALUE1");
 	}
 
@@ -56,7 +55,7 @@ public class DefaultEnumAdaptorTest {
 		
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 		
-		assertThat(result.getStatements(), empty());
+		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue(), containsString("Wrapped.enumType(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenEnum\", \"VALUE2\").value()"));
 	}
 	
