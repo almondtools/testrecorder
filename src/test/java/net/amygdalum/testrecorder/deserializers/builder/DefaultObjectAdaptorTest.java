@@ -2,9 +2,6 @@ package net.amygdalum.testrecorder.deserializers.builder;
 
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +20,7 @@ public class DefaultObjectAdaptorTest {
 	public void before() throws Exception {
 		adaptor = new DefaultObjectAdaptor();
 	}
-	
+
 	@Test
 	public void testParentNull() throws Exception {
 		assertThat(adaptor.parent()).isNull();
@@ -32,7 +29,8 @@ public class DefaultObjectAdaptorTest {
 	@Test
 	public void testMatchesAnyObject() throws Exception {
 		assertThat(adaptor.matches(Object.class)).isTrue();
-		assertThat(adaptor.matches(new Object(){}.getClass())).isTrue();
+		assertThat(adaptor.matches(new Object() {
+		}.getClass())).isTrue();
 	}
 
 	@Test
@@ -40,14 +38,14 @@ public class DefaultObjectAdaptorTest {
 		SerializedObject value = new SerializedObject(Simple.class);
 		value.addField(new SerializedField(String.class, "str", String.class, SerializedLiteral.literal("Hello World")));
 		SetupGenerators generator = new SetupGenerators(getClass());
-		
+
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
-		
-		assertThat(result.getStatements().toString(), allOf(
-			containsString("Simple simple1 = new GenericObject"),
-			containsString("String str = \"Hello World\""),
-			containsString("as(Simple.class)")));
+
+		assertThat(result.getStatements().toString()).containsSequence(
+			"Simple simple1 = new GenericObject",
+			"String str = \"Hello World\"",
+			"as(Simple.class)");
 		assertThat(result.getValue()).isEqualTo("simple1");
 	}
-	
+
 }

@@ -8,7 +8,6 @@ import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -47,7 +46,7 @@ public class ClassicBeanTest {
 		assertThat(bean.hashCode()).isEqualTo(191);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(ClassicBean.class), hasSize(2));
+		assertThat(testGenerator.testsFor(ClassicBean.class)).hasSize(2);
 		assertThat(testGenerator.testsFor(ClassicBean.class), containsInAnyOrder(
 			allOf(containsString("new ClassicBean()"), not(containsPattern("classicBean?.set")), containsString("equalTo(13)")), 
 			allOf(containsPattern("classicBean?.setI(22)"), containsPattern("classicBean?.setO(classicBean?)"), containsString("equalTo(191)"))));

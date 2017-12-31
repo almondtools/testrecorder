@@ -22,7 +22,7 @@ public class ContainsMatcherTest {
 
         contains(String.class, "A", "b").describeTo(description);
 
-        assertThat(description.toString(), equalTo("containing [<\"A\">, <\"b\">]"));
+        assertThat(description.toString()).isEqualTo("containing [<\"A\">, <\"b\">]");
     }
 
     @Test

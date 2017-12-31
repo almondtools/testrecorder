@@ -2,7 +2,6 @@ package net.amygdalum.testrecorder.runtime;
 
 import static com.almondtools.conmatch.conventions.ReflectiveEqualsMatcher.reflectiveEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.isEmptyString;
 import static org.junit.Assert.assertThat;
 
 import java.io.Serializable;
@@ -174,7 +173,7 @@ public class GenericObjectTest {
 	public void testNewInstanceWithDefaultParams() throws Exception {
 		DefaultParamConstructor instance = GenericObject.newInstance(DefaultParamConstructor.class);
 
-		assertThat(instance.getStr(), isEmptyString());
+		assertThat(instance.getStr()).isEmpty();
 	}
 
 	@Test

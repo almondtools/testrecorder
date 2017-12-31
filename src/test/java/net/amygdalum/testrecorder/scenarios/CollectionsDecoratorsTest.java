@@ -17,7 +17,7 @@ import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
-import static org.hamcrest.Matchers.hasSize;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.unmodifiableList(base);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -63,7 +63,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.synchronizedList(base);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -78,7 +78,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.checkedList(base);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -90,7 +90,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.emptyList();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -102,7 +102,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.singletonList("FooBar");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -117,7 +117,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.unmodifiableSet(base);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -132,7 +132,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.synchronizedSet(base);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -147,7 +147,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.checkedSet(base);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -159,7 +159,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.emptySet();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -171,7 +171,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.singletonSet("FooBar");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -186,7 +186,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.unmodifiableMap(base);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -201,7 +201,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.synchronizedMap(base);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -216,7 +216,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.checkedMap(base);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -228,7 +228,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.emptyMap();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -240,7 +240,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.singletonMap("Foo", "Bar");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -255,7 +255,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.consume(unmodifiableList(base));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -270,7 +270,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.consume(synchronizedList(base));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -285,7 +285,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.consume(checkedList(base, String.class));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -297,7 +297,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.consume(emptyList());
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -309,7 +309,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.consume(singletonList("FooBar"));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -324,7 +324,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.consume(unmodifiableSet(base));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -339,7 +339,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.consume(synchronizedSet(base));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -354,7 +354,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.consume(checkedSet(base, String.class));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -366,7 +366,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.consume(emptySet());
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -378,7 +378,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.consume(singleton("FooBar"));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -393,7 +393,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.consume(unmodifiableMap(base));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -408,7 +408,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.consume(synchronizedMap(base));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -423,7 +423,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.consume(checkedMap(base, String.class, String.class));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -435,7 +435,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.consume(emptyMap());
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}
@@ -447,7 +447,7 @@ public class CollectionsDecoratorsTest {
 		dataTypes.consume(singletonMap("Foo", "Bar"));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CollectionsDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(CollectionsDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), compiles(CollectionsDecorators.class));
 		assertThat(testGenerator.renderTest(CollectionsDecorators.class), testsRun(CollectionsDecorators.class));
 	}

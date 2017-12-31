@@ -8,7 +8,6 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 import org.hamcrest.Matcher;
@@ -164,9 +163,9 @@ public class GenericMatcherTest {
 
 		StringDescription desc = new StringDescription();
 		matcher.describeTo(desc);
-		assertThat(desc.toString(), equalTo("net.amygdalum.testrecorder.util.testobjects.Simple {"
+		assertThat(desc.toString()).isEqualTo("net.amygdalum.testrecorder.util.testobjects.Simple {"
 			+ "\n\tString str: \"myStr\";"
-			+ "\n}"));
+			+ "\n}");
 	}
 
 	@Test
@@ -178,11 +177,11 @@ public class GenericMatcherTest {
 		StringDescription desc = new StringDescription();
 		matcher.describeMismatch(new Simple("str"), desc);
 
-		assertThat(desc.toString(), equalTo("net.amygdalum.testrecorder.util.testobjects.Simple {"
+		assertThat(desc.toString()).isEqualTo("net.amygdalum.testrecorder.util.testobjects.Simple {"
 			+ "\n\tString str: \"str\";"
 			+ "\n}"
 			+ "\nfound mismatches at:"
-			+ "\n\tstr: \"myStr\" != \"str\""));
+			+ "\n\tstr: \"myStr\" != \"str\"");
 	}
 
 	@Test
@@ -220,11 +219,11 @@ public class GenericMatcherTest {
 		StringDescription desc = new StringDescription();
 		matcher.describeMismatch(new Complex(), desc);
 
-		assertThat(desc.toString(), equalTo("net.amygdalum.testrecorder.util.testobjects.Complex {"
+		assertThat(desc.toString()).isEqualTo("net.amygdalum.testrecorder.util.testobjects.Complex {"
 			+ "\n\tSimple simple: <Simple>;"
 			+ "\n}"
 			+ "\nfound mismatches at:"
-			+ "\n\tsimple.str: \"str\" != \"otherStr\""));
+			+ "\n\tsimple.str: \"str\" != \"otherStr\"");
 	}
 
 	@Test
@@ -256,9 +255,9 @@ public class GenericMatcherTest {
 		StringDescription desc = new StringDescription();
 		matcher.describeTo(desc);
 
-		assertThat(desc.toString(), equalTo("net.amygdalum.testrecorder.util.testobjects.Sub {"
+		assertThat(desc.toString()).isEqualTo("net.amygdalum.testrecorder.util.testobjects.Sub {"
 			+ "\n\tString str: \"myStr\";"
-			+ "\n}"));
+			+ "\n}");
 	}
 
 	@Test

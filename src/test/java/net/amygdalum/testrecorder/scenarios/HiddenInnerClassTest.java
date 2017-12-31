@@ -5,7 +5,6 @@ import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compil
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -39,7 +38,7 @@ public class HiddenInnerClassTest {
 		assertThat(object.toString()).isEqualTo("hidden name");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(HiddenInnerClass.class), hasSize(1));
+		assertThat(testGenerator.testsFor(HiddenInnerClass.class)).hasSize(1);
 		assertThat(testGenerator.testsFor(HiddenInnerClass.class), hasItem(
 			containsPattern("Object hidden? = *new GenericObject() {*String name = \"hidden name\";*}.as(clazz(\"net.amygdalum.testrecorder.scenarios.HiddenInnerClass$Hidden\")).value();")));
         assertThat(testGenerator.testsFor(HiddenInnerClass.class), hasItem(

@@ -6,8 +6,6 @@ import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -34,10 +32,9 @@ public class CollectionsListSerializerTest {
 		serializer = new CollectionsListSerializer.Factory().newSerializer(facade);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetMatchingClasses() throws Exception {
-		assertThat(serializer.getMatchingClasses(), containsInAnyOrder(
+		assertThat(serializer.getMatchingClasses()).containsExactlyInAnyOrder(
 			innerType(Collections.class, "UnmodifiableList"),
 			innerType(Collections.class, "UnmodifiableRandomAccessList"),
 			innerType(Collections.class, "SynchronizedList"),
@@ -45,7 +42,7 @@ public class CollectionsListSerializerTest {
 			innerType(Collections.class, "EmptyList"),
 			innerType(Collections.class, "SingletonList"),
 			innerType(Collections.class, "CheckedList"),
-			innerType(Collections.class, "CheckedRandomAccessList")));
+			innerType(Collections.class, "CheckedRandomAccessList"));
 	}
 
 	@Test

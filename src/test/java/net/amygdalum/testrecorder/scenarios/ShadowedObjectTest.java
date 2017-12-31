@@ -6,7 +6,6 @@ import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.tes
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -44,7 +43,7 @@ public class ShadowedObjectTest {
         assertThat(object.toString()).isEqualTo("field > 42");
 
         TestGenerator testGenerator = TestGenerator.fromRecorded();
-        assertThat(testGenerator.testsFor(ShadowingObject.class), hasSize(1));
+        assertThat(testGenerator.testsFor(ShadowingObject.class)).hasSize(1);
         assertThat(testGenerator.testsFor(ShadowingObject.class), contains(containsPattern(""
             + "new GenericObject() {*"
             + "ShadowedObject$field*42*"
@@ -59,7 +58,7 @@ public class ShadowedObjectTest {
         assertThat(object.toString()).isEqualTo("42 > field > 42");
 
         TestGenerator testGenerator = TestGenerator.fromRecorded();
-        assertThat(testGenerator.testsFor(Other.class), hasSize(2));
+        assertThat(testGenerator.testsFor(Other.class)).hasSize(2);
         assertThat(testGenerator.testsFor(Other.class), hasItem(containsPattern(""
             + "new GenericObject() {*"
             + "int net$amygdalum$testrecorder$scenarios$Other$ShadowingObject$field = 42;*"

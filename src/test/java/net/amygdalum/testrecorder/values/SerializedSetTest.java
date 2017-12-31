@@ -10,8 +10,6 @@ import static net.amygdalum.testrecorder.values.GenericTypes.setOfString;
 import static net.amygdalum.testrecorder.values.ParameterizedTypeMatcher.parameterizedType;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.TypeVariable;
@@ -43,7 +41,7 @@ public class SerializedSetTest {
 
 	@Test
 	public void testGetResultTypeBounded() throws Exception {
-		assertThat(new SerializedSet(HashSet.class).withResult(setOfBounded()).getResultType(), instanceOf(TypeVariable.class));
+		assertThat(new SerializedSet(HashSet.class).withResult(setOfBounded()).getResultType()).isInstanceOf(TypeVariable.class);
 	}
 
 	@Test
@@ -94,7 +92,7 @@ public class SerializedSetTest {
 		set.add(literal("string"));
 		
 		assertThat(set.size()).isEqualTo(1);
-		assertThat(set.referencedValues(), hasSize(1));
+		assertThat(set.referencedValues()).hasSize(1);
 	}
 
 	@Test
@@ -104,7 +102,7 @@ public class SerializedSetTest {
 		set.add(literal("second"));
 		
 		assertThat(set.size()).isEqualTo(2);
-		assertThat(set.referencedValues(), hasSize(2));
+		assertThat(set.referencedValues()).hasSize(2);
 	}
 
 	@Test

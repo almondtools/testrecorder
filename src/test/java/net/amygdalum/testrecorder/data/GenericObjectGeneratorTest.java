@@ -1,8 +1,6 @@
 package net.amygdalum.testrecorder.data;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
@@ -23,32 +21,32 @@ public class GenericObjectGeneratorTest {
     public void testCreateSimpleClass() throws Exception {
         Simple object = new GenericObjectGenerator<>(Simple.class).create(new TestDataGenerator());
 
-        assertThat(object, notNullValue());
+        assertThat(object).isNotNull();
     }
 
     @Test
     public void testCreateNoDefaultConstructorClass() throws Exception {
         SimpleNoDefaultConstructor object = new GenericObjectGenerator<>(SimpleNoDefaultConstructor.class).create(new TestDataGenerator());
 
-        assertThat(object, notNullValue());
+        assertThat(object).isNotNull();
     }
 
     @Test
     public void testCreatePrivateConstructorClass() throws Exception {
         SimplePrivateConstructor object = new GenericObjectGenerator<>(SimplePrivateConstructor.class).create(new TestDataGenerator());
-        assertThat(object, notNullValue());
+        assertThat(object).isNotNull();
     }
 
     @Test
     public void testCreateExceptionConstructorClass() throws Exception {
         SimpleExceptionConstructor object = new GenericObjectGenerator<>(SimpleExceptionConstructor.class).create(new TestDataGenerator());
-        assertThat(object, notNullValue());
+        assertThat(object).isNotNull();
     }
 
     @Test
     public void testCreateExceptionStandardConstructorClass() throws Exception {
         SimpleExceptionStandardConstructor object = new GenericObjectGenerator<>(SimpleExceptionStandardConstructor.class).create(new TestDataGenerator());
-        assertThat(object, notNullValue());
+        assertThat(object).isNotNull();
     }
 
     @Test

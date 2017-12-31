@@ -7,7 +7,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 import java.util.HashSet;
@@ -57,7 +56,7 @@ public class GenericFieldsTest {
 		assertThat(bean.hashCode()).isEqualTo(0);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(GenericFields.class), hasSize(1));
+		assertThat(testGenerator.testsFor(GenericFields.class)).hasSize(1);
 		assertThat(testGenerator.testsFor(GenericFields.class), contains(allOf(
 			containsPattern("genericFields?.setSet(set?)"),
 			containsString("equalTo(0)"),
@@ -72,7 +71,7 @@ public class GenericFieldsTest {
 		assertThat(bean.hashCode()).isEqualTo(1);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(GenericFields.class), hasSize(1));
+		assertThat(testGenerator.testsFor(GenericFields.class)).hasSize(1);
 		assertThat(testGenerator.testsFor(GenericFields.class), contains(allOf(
 			containsString("equalTo(1)"),
 			containsString("set = null"))));

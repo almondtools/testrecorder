@@ -2,7 +2,6 @@ package net.amygdalum.testrecorder.scenarios;
 
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -30,7 +29,7 @@ public class ArgumentsTest {
 		assertThat(result).isEqualTo("1234.056789.0");
 		
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(Arguments.class), hasSize(5));
+		assertThat(testGenerator.testsFor(Arguments.class)).hasSize(5);
 		assertThat(testGenerator.renderTest(Arguments.class), compiles(Arguments.class));
 	}
 

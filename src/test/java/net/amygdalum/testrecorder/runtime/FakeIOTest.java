@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.runtime;
 
 import static com.almondtools.conmatch.exceptions.ExceptionMatcher.matchesException;
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -34,7 +35,7 @@ public class FakeIOTest {
 
 		String result = inputs.recorded();
 
-		assertThat(result, equalTo("Hello World"));
+		assertThat(result).isEqualTo("Hello World");
 		faked.verify();
 	}
 
@@ -94,7 +95,7 @@ public class FakeIOTest {
 
 		String result = inputs.primitivesRecorded();
 
-		assertThat(result, equalTo(""
+		assertThat(result).isEqualTo(""
 			+ "boolean:true"
 			+ "byte:2"
 			+ "short:3"
@@ -102,7 +103,7 @@ public class FakeIOTest {
 			+ "long:5"
 			+ "float:6.0"
 			+ "double:7.0"
-			+ "char:x"));
+			+ "char:x");
 		faked.verify();
 	}
 
@@ -120,7 +121,7 @@ public class FakeIOTest {
 
 		String result = inputs.sideEffectsRecorded();
 
-		assertThat(result, equalTo("Hello World"));
+		assertThat(result).isEqualTo("Hello World");
 		faked.verify();
 	}
 
@@ -141,7 +142,7 @@ public class FakeIOTest {
 
 		String result = inputs.objectSideEffectsRecorded();
 
-		assertThat(result, equalTo("[Hello, World]"));
+		assertThat(result).isEqualTo("[Hello, World]");
 		faked.verify();
 	}
 
@@ -211,7 +212,7 @@ public class FakeIOTest {
 
 		long result = io.getTimestamp();
 
-		assertThat(result, equalTo(42l));
+		assertThat(result).isEqualTo(42l);
 
 		faked.verify();
 	}
@@ -276,10 +277,10 @@ public class FakeIOTest {
 
 		Throwable exception = Throwables.capture(() -> outputs.recorded());
 
-		assertThat(exception.getMessage(), equalTo("expected output:"
+		assertThat(exception.getMessage()).isEqualTo("expected output:"
 			+ "\nprint(\"Welt\")"
 			+ "\nbut found:"
-			+ "\nprint(\"World\")"));
+			+ "\nprint(\"World\")");
 		assertThat(Throwables.capture(faked::verify), matchesException(AssertionError.class)
 			.withMessage(containsPattern("expected but not found"
 				+ "* " + "print(\"Welt\")")));

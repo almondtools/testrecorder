@@ -3,9 +3,6 @@ package net.amygdalum.testrecorder.deserializers.builder;
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -60,9 +57,9 @@ public class BeanObjectAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), allOf(
-			containsString("Bean bean1 = new Bean()"),
-			containsString("bean1.setAttribute(\"Hello World\")")));
+		assertThat(result.getStatements().toString()).containsSequence(
+			"Bean bean1 = new Bean()",
+			"bean1.setAttribute(\"Hello World\")");
 		assertThat(result.getValue()).isEqualTo("bean1");
 	}
 

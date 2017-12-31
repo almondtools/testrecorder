@@ -1,9 +1,6 @@
 package net.amygdalum.testrecorder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,14 +18,12 @@ public class DefaultTestRecorderAgentConfigTest {
         config = new DefaultTestRecorderAgentConfig();
     }
     
-    @SuppressWarnings("unchecked")
     @Test
     public void testGetFieldExclusions() throws Exception {
-        assertThat(config.getFieldExclusions(), containsInAnyOrder(
-            instanceOf(ExcludeExplicitExcluded.class),
-            instanceOf(ExcludeGenerated.class),
-            instanceOf(ExcludeStatic.class)
-            ));
+        assertThat(config.getFieldExclusions()).hasOnlyElementsOfTypes(
+        	ExcludeExplicitExcluded.class, 
+        	ExcludeGenerated.class,
+            ExcludeStatic.class);
     }
 
     @Test
@@ -43,7 +38,7 @@ public class DefaultTestRecorderAgentConfigTest {
 
     @Test
     public void testGetSnapshotConsumer() throws Exception {
-        assertThat(config.getSnapshotConsumer(), instanceOf(TestGenerator.class));
+        assertThat(config.getSnapshotConsumer()).isInstanceOf(TestGenerator.class);
     }
 
     @Test

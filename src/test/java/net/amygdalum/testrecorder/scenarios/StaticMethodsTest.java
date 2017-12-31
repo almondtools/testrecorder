@@ -6,7 +6,6 @@ import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.tes
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -41,7 +40,7 @@ public class StaticMethodsTest {
 		assertThat(object.getValue()).isEqualTo("str2");
 		
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(StaticMethods.class), hasSize(1));
+		assertThat(testGenerator.testsFor(StaticMethods.class)).hasSize(1);
 		assertThat(testGenerator.testsFor(StaticMethods.class), contains(
 			allOf(containsPattern("StaticMethods.from(\"str2\")"))));
 	}

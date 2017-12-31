@@ -1,9 +1,6 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -14,41 +11,42 @@ public class SubSuperBeanValueTest {
 	@Test
 	public void testCodeSerializerSimple() throws Exception {
 		CodeSerializer codeSerializer = new CodeSerializer();
-		
-		assertThat(codeSerializer.serialize(createSimpleBean()), allOf(
-			containsString("subBean1 = new SubBean()"), 
-			containsString("subBean1.setI(53)"), 
-			not(containsString("subBean1.setO"))));
+
+		assertThat(codeSerializer.serialize(createSimpleBean()))
+			.containsSequence(
+				"subBean1 = new SubBean()",
+				"subBean1.setI(53)")
+			.doesNotContain("subBean1.setO");
 	}
 
 	@Test
 	public void testCodeSerializerString() throws Exception {
 		CodeSerializer codeSerializer = new CodeSerializer();
-		
-		assertThat(codeSerializer.serialize(createStringBean()), allOf(
-			containsString("subBean1 = new SubBean()"), 
-			containsString("subBean1.setI(53)"), 
-			containsString("subBean1.setO(\"84\")")));
+
+		assertThat(codeSerializer.serialize(createStringBean())).contains(
+			"subBean1 = new SubBean()",
+			"subBean1.setI(53)",
+			"subBean1.setO(\"84\")");
 	}
 
 	@Test
 	public void testCodeSerializerNested() throws Exception {
 		CodeSerializer codeSerializer = new CodeSerializer();
-		
-		assertThat(codeSerializer.serialize(createNestedBean()), allOf(
-			containsString("subBean1 = new SubBean()"), 
-			containsString("subBean1.setI(53)"), 
-			containsString("subBean1.setO(subBean2)")));
+
+		assertThat(codeSerializer.serialize(createNestedBean())).contains(
+			"subBean1 = new SubBean()",
+			"subBean1.setI(53)",
+			"subBean1.setO(subBean2)");
 	}
 
 	@Test
 	public void testCodeSerializerRecursive() throws Exception {
 		CodeSerializer codeSerializer = new CodeSerializer();
-		
-		assertThat(codeSerializer.serialize(createRecursiveBean()), allOf(
-			containsString("subBean1 = new SubBean()"), 
-			containsString("subBean1.setI(53)"), 
-			containsString("subBean1.setO(subBean1)")));
+
+		assertThat(codeSerializer.serialize(createRecursiveBean())).contains(
+			"subBean1 = new SubBean()",
+			"subBean1.setI(53)",
+			"subBean1.setO(subBean1)");
 	}
 
 	private static SubBean createSimpleBean() {

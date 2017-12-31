@@ -5,7 +5,6 @@ import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenList;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
@@ -61,12 +60,12 @@ public class DefaultListAdaptorTest {
 
         Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-        assertThat(result.getStatements().toString(), allOf(
-            containsString("ArrayList<Integer> temp1 = new ArrayList<Integer>()"),
-            containsString("temp1.add(0)"),
-            containsString("temp1.add(8)"),
-            containsString("temp1.add(15)"),
-            containsString("List<Integer> list1 = temp1;")));
+        assertThat(result.getStatements().toString()).containsSequence(
+"ArrayList<Integer> temp1 = new ArrayList<Integer>()",
+"temp1.add(0)",
+"temp1.add(8)",
+"temp1.add(15)",
+"List<Integer> list1 = temp1;");
         assertThat(result.getValue()).isEqualTo("list1");
     }
 
@@ -80,11 +79,11 @@ public class DefaultListAdaptorTest {
 
         Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-        assertThat(result.getStatements().toString(), allOf(
-            containsString("ArrayList<Integer> list1 = new ArrayList<Integer>()"),
-            containsString("list1.add(0)"),
-            containsString("list1.add(8)"),
-            containsString("list1.add(15)")));
+        assertThat(result.getStatements().toString()).containsSequence(
+"ArrayList<Integer> list1 = new ArrayList<Integer>()",
+"list1.add(0)",
+"list1.add(8)",
+"list1.add(15)");
         assertThat(result.getValue()).isEqualTo("list1");
     }
 
@@ -99,12 +98,12 @@ public class DefaultListAdaptorTest {
 
         Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-        assertThat(result.getStatements().toString(), allOf(
-            containsString("PublicList<Integer> temp1 = new PublicList<Integer>()"),
-            containsString("temp1.add(0)"),
-            containsString("temp1.add(8)"),
-            containsString("temp1.add(15)"),
-            containsString("OrthogonalInterface list1 = temp1;")));
+        assertThat(result.getStatements().toString()).containsSequence(
+"PublicList<Integer> temp1 = new PublicList<Integer>()",
+"temp1.add(0)",
+"temp1.add(8)",
+"temp1.add(15)",
+"OrthogonalInterface list1 = temp1;");
         assertThat(result.getValue()).isEqualTo("list1");
     }
 
@@ -119,12 +118,12 @@ public class DefaultListAdaptorTest {
 
         Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-        assertThat(result.getStatements().toString(), allOf(
-            containsString("java.util.List temp1 = (java.util.List<?>) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenList\").value();"),
-            containsString("temp1.add(0)"),
-            containsString("temp1.add(8)"),
-            containsString("temp1.add(15)"),
-            containsString("OrthogonalInterface list1 = (OrthogonalInterface) temp1;")));
+        assertThat(result.getStatements().toString()).containsSequence(
+"java.util.List temp1 = (java.util.List<?>) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenList\").value();",
+"temp1.add(0)",
+"temp1.add(8)",
+"temp1.add(15)",
+"OrthogonalInterface list1 = (OrthogonalInterface) temp1;");
         assertThat(result.getValue()).isEqualTo("list1");
     }
 
@@ -139,11 +138,11 @@ public class DefaultListAdaptorTest {
         Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements().toString(), not(containsString("new net.amygdalum.testrecorder.util.testobjects.Hidden.HiddenList")));
-        assertThat(result.getStatements().toString(), allOf(
-            containsString("ArrayList<Integer> list1 = (ArrayList<Integer>) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenList\").value();"),
-            containsString("list1.add(0)"),
-            containsString("list1.add(8)"),
-            containsString("list1.add(15)")));
+        assertThat(result.getStatements().toString()).containsSequence(
+"ArrayList<Integer> list1 = (ArrayList<Integer>) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenList\").value();",
+"list1.add(0)",
+"list1.add(8)",
+"list1.add(15)");
         assertThat(result.getValue()).isEqualTo("list1");
     }
 
@@ -164,12 +163,12 @@ public class DefaultListAdaptorTest {
 
         Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-        assertThat(result.getStatements().toString(), allOf(
-            containsString("ArrayList<Integer> temp1 = new ArrayList<Integer>()"),
-            containsString("temp1.add(0)"),
-            containsString("temp1.add(8)"),
-            containsString("temp1.add(15)"),
-            containsString("forwarded.addAll(temp1);")));
+        assertThat(result.getStatements().toString()).containsSequence(
+"ArrayList<Integer> temp1 = new ArrayList<Integer>()",
+"temp1.add(0)",
+"temp1.add(8)",
+"temp1.add(15)",
+"forwarded.addAll(temp1);");
         assertThat(result.getValue()).isEqualTo("forwarded");
     }
 

@@ -4,8 +4,6 @@ import static net.amygdalum.testrecorder.util.Types.array;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.lang.reflect.Type;
@@ -36,7 +34,7 @@ public class TypeManagerTest {
     public void testRegisterTypes() throws Exception {
         types.registerTypes(Integer.class, List.class);
 
-        assertThat(types.getImports(), containsInAnyOrder("java.util.List", "java.lang.Integer"));
+        assertThat(types.getImports()).containsExactlyInAnyOrder("java.util.List", "java.lang.Integer");
     }
 
     @Test
@@ -50,7 +48,7 @@ public class TypeManagerTest {
     public void testRegisterTypeArray() throws Exception {
         types.registerType(array(parameterized(List.class, null, String.class)));
 
-        assertThat(types.getImports(), containsInAnyOrder("java.lang.String", "java.util.List"));
+        assertThat(types.getImports()).containsExactlyInAnyOrder("java.lang.String", "java.util.List");
     }
 
     @Test
@@ -101,7 +99,7 @@ public class TypeManagerTest {
     public void testRegisterImportHidden() throws Exception {
         types.registerImport(Hidden.class);
 
-        assertThat(types.getImports(), containsInAnyOrder("net.amygdalum.testrecorder.runtime.Wrapped", "static net.amygdalum.testrecorder.runtime.Wrapped.clazz"));
+        assertThat(types.getImports()).containsExactlyInAnyOrder("net.amygdalum.testrecorder.runtime.Wrapped", "static net.amygdalum.testrecorder.runtime.Wrapped.clazz");
     }
 
     @Test
@@ -109,7 +107,7 @@ public class TypeManagerTest {
         types.registerImport(Hidden.class);
         types.registerImport(Hidden.class);
 
-        assertThat(types.getImports(), containsInAnyOrder("net.amygdalum.testrecorder.runtime.Wrapped", "static net.amygdalum.testrecorder.runtime.Wrapped.clazz"));
+        assertThat(types.getImports()).containsExactlyInAnyOrder("net.amygdalum.testrecorder.runtime.Wrapped", "static net.amygdalum.testrecorder.runtime.Wrapped.clazz");
     }
 
     @Test

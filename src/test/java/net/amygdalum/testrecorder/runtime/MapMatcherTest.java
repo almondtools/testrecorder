@@ -4,7 +4,6 @@ import static net.amygdalum.testrecorder.runtime.MapMatcher.containsEntries;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.lessThan;
-import static org.junit.Assert.assertThat;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +22,7 @@ public class MapMatcherTest {
             .entry("b", 4)
             .describeTo(description);
 
-        assertThat(description.toString(), equalTo("containing {<\"A\"=<3>>, <\"b\"=<4>>}"));
+        assertThat(description.toString()).isEqualTo("containing {<\"A\"=<3>>, <\"b\"=<4>>}");
     }
 
     @Test
@@ -35,7 +34,7 @@ public class MapMatcherTest {
             .entry("b", lessThan(4))
             .describeTo(description);
 
-        assertThat(description.toString(), equalTo("containing {<\"A\"=<3>>, <\"b\"=a value less than <4>>}"));
+        assertThat(description.toString()).isEqualTo("containing {<\"A\"=<3>>, <\"b\"=a value less than <4>>}");
     }
 
     @Test
@@ -47,7 +46,7 @@ public class MapMatcherTest {
             .entry("b", (Object) lessThan(4))
             .describeTo(description);
 
-        assertThat(description.toString(), equalTo("containing {<\"A\"=<3>>, <\"b\"=a value less than <4>>}"));
+        assertThat(description.toString()).isEqualTo("containing {<\"A\"=<3>>, <\"b\"=a value less than <4>>}");
     }
 
     @Test
@@ -59,7 +58,7 @@ public class MapMatcherTest {
             .entry("b", (Integer) null)
             .describeTo(description);
 
-        assertThat(description.toString(), equalTo("containing {<null=<3>>, <\"b\"=null>}"));
+        assertThat(description.toString()).isEqualTo("containing {<null=<3>>, <\"b\"=null>}");
     }
 
     @Test
@@ -152,7 +151,7 @@ public class MapMatcherTest {
 
         matcher.describeMismatch(mismatch, description);
 
-        assertThat(description.toString(), equalTo("missing entries {<\"b\"=a value less than <5>>}, unmatched entries {<was \"c\"=was <4>>}"));
+        assertThat(description.toString()).isEqualTo("missing entries {<\"b\"=a value less than <5>>}, unmatched entries {<was \"c\"=was <4>>}");
     }
 
     @Test
@@ -169,7 +168,7 @@ public class MapMatcherTest {
 
         matcher.describeMismatch(mismatch, description);
 
-        assertThat(description.toString(), equalTo("missing entries {<\"b\"=a value less than <5>>}, unmatched entries {<was \"c\"=was <4>>}"));
+        assertThat(description.toString()).isEqualTo("missing entries {<\"b\"=a value less than <5>>}, unmatched entries {<was \"c\"=was <4>>}");
     }
 
     @Test
@@ -185,7 +184,7 @@ public class MapMatcherTest {
 
         matcher.describeMismatch(mismatch, description);
 
-        assertThat(description.toString(), equalTo("missing entries {<\"b\"=a value less than <5>>}"));
+        assertThat(description.toString()).isEqualTo("missing entries {<\"b\"=a value less than <5>>}");
     }
 
     @Test
@@ -203,7 +202,7 @@ public class MapMatcherTest {
 
         matcher.describeMismatch(mismatch, description);
 
-        assertThat(description.toString(), equalTo("unmatched entries {<was \"c\"=was <2>>}"));
+        assertThat(description.toString()).isEqualTo("unmatched entries {<was \"c\"=was <2>>}");
     }
 
     @Test
@@ -218,7 +217,7 @@ public class MapMatcherTest {
 
         matcher.describeMismatch(mismatch, description);
 
-        assertThat(description.toString(), equalTo("missing entries {<null=null>}, unmatched entries {<was \"A\"=was <3>>}"));
+        assertThat(description.toString()).isEqualTo("missing entries {<null=null>}, unmatched entries {<was \"A\"=was <3>>}");
     }
         
     @Test
@@ -235,7 +234,7 @@ public class MapMatcherTest {
 
         matcher.describeMismatch(mismatch, description);
 
-        assertThat(description.toString(), equalTo("missing entries {<\"b\"=null>, <null=<5>>}"));
+        assertThat(description.toString()).isEqualTo("missing entries {<\"b\"=null>, <null=<5>>}");
     }
     
     @Test
@@ -252,7 +251,7 @@ public class MapMatcherTest {
 
         matcher.describeMismatch(mismatch, description);
 
-        assertThat(description.toString(), equalTo("unmatched entries {<was null=was <4>>, <was \"c\"=was null>}"));
+        assertThat(description.toString()).isEqualTo("unmatched entries {<was null=was <4>>, <was \"c\"=was null>}");
     }
 
 }

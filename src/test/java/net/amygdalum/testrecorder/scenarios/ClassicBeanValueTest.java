@@ -1,9 +1,6 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -14,41 +11,42 @@ public class ClassicBeanValueTest {
 	@Test
 	public void testCodeSerializerSimple() throws Exception {
 		CodeSerializer codeSerializer = new CodeSerializer();
-		
-		assertThat(codeSerializer.serialize(createSimpleBean()), allOf(
-			containsString("classicBean1 = new ClassicBean()"), 
-			containsString("classicBean1.setI(22)"), 
-			not(containsString("classicBean1.setO"))));
+
+		assertThat(codeSerializer.serialize(createSimpleBean()))
+			.containsSequence(
+				"classicBean1 = new ClassicBean()",
+				"classicBean1.setI(22)")
+			.doesNotContain("classicBean1.setO");
 	}
 
 	@Test
 	public void testCodeSerializerString() throws Exception {
 		CodeSerializer codeSerializer = new CodeSerializer();
-		
-		assertThat(codeSerializer.serialize(createStringBean()), allOf(
-			containsString("classicBean1 = new ClassicBean()"), 
-			containsString("classicBean1.setI(22)"), 
-			containsString("classicBean1.setO(\"33\")")));
+
+		assertThat(codeSerializer.serialize(createStringBean())).containsSequence(
+			"classicBean1 = new ClassicBean()",
+			"classicBean1.setI(22)",
+			"classicBean1.setO(\"33\")");
 	}
 
 	@Test
 	public void testCodeSerializerNested() throws Exception {
 		CodeSerializer codeSerializer = new CodeSerializer();
-		
-		assertThat(codeSerializer.serialize(createNestedBean()), allOf(
-			containsString("classicBean1 = new ClassicBean()"), 
-			containsString("classicBean1.setI(22)"), 
-			containsString("classicBean1.setO(classicBean2)")));
+
+		assertThat(codeSerializer.serialize(createNestedBean())).containsSequence(
+			"classicBean1 = new ClassicBean()",
+			"classicBean1.setI(22)",
+			"classicBean1.setO(classicBean2)");
 	}
 
 	@Test
 	public void testCodeSerializerRecursive() throws Exception {
 		CodeSerializer codeSerializer = new CodeSerializer();
-		
-		assertThat(codeSerializer.serialize(createRecursiveBean()), allOf(
-			containsString("classicBean1 = new ClassicBean()"), 
-			containsString("classicBean1.setI(22)"), 
-			containsString("classicBean1.setO(classicBean1)")));
+
+		assertThat(codeSerializer.serialize(createRecursiveBean())).containsSequence(
+			"classicBean1 = new ClassicBean()",
+			"classicBean1.setI(22)",
+			"classicBean1.setO(classicBean1)");
 	}
 
 	private static ClassicBean createSimpleBean() {

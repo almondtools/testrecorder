@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.scenarios;
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
-import static org.hamcrest.Matchers.hasSize;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -39,7 +39,7 @@ public class LeafMethodsTest {
 		assertThat(leafMethods.method(), containsPattern("'net.amygdalum.testrecorder.scenarios.LeafMethods@*'"));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(LeafType.class), hasSize(1));
+		assertThat(testGenerator.testsFor(LeafType.class)).hasSize(1);
 	}
 
 }

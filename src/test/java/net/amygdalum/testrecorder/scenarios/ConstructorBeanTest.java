@@ -7,7 +7,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -42,7 +41,7 @@ public class ConstructorBeanTest {
 		assertThat(bean.hashCode()).isEqualTo(191);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(ConstructorBean.class), hasSize(2));
+		assertThat(testGenerator.testsFor(ConstructorBean.class)).hasSize(2);
 		assertThat(testGenerator.testsFor(ConstructorBean.class), containsInAnyOrder(
 			allOf(containsPattern("new ConstructorBean(0, null)"), containsString("equalTo(13)")), 
 			allOf(containsPattern("new ConstructorBean(22, constructorBean?)"), containsString("equalTo(191)"))));

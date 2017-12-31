@@ -3,10 +3,10 @@ package net.amygdalum.testrecorder.scenarios;
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,7 @@ public class ExcludedFromCheckingTest {
         arrays.next();
 
         TestGenerator testGenerator = TestGenerator.fromRecorded();
-        assertThat(testGenerator.testsFor(ExcludedFromChecking.class), hasSize(1));
+        assertThat(testGenerator.testsFor(ExcludedFromChecking.class)).hasSize(1);
         assertThat(testGenerator.renderTest(ExcludedFromChecking.class), compiles(LargeIntArrays.class));
         assertThat(testGenerator.renderTest(ExcludedFromChecking.class), testsRun(LargeIntArrays.class));
         assertThat(testGenerator.renderTest(ExcludedFromChecking.class), allOf(
@@ -45,7 +45,7 @@ public class ExcludedFromCheckingTest {
         arrays.getIntVar();
 
         TestGenerator testGenerator = TestGenerator.fromRecorded();
-        assertThat(testGenerator.testsFor(ExcludedFromChecking.class), hasSize(1));
+        assertThat(testGenerator.testsFor(ExcludedFromChecking.class)).hasSize(1);
         assertThat(testGenerator.renderTest(ExcludedFromChecking.class), compiles(LargeIntArrays.class));
         assertThat(testGenerator.renderTest(ExcludedFromChecking.class), testsRun(LargeIntArrays.class));
         assertThat(testGenerator.renderTest(ExcludedFromChecking.class), not(containsPattern("assertThat(int*, equalTo(1764))")));
@@ -58,7 +58,7 @@ public class ExcludedFromCheckingTest {
         arrays.reinit(12,45,78);
 
         TestGenerator testGenerator = TestGenerator.fromRecorded();
-        assertThat(testGenerator.testsFor(ExcludedFromChecking.class), hasSize(1));
+        assertThat(testGenerator.testsFor(ExcludedFromChecking.class)).hasSize(1);
         assertThat(testGenerator.renderTest(ExcludedFromChecking.class), compiles(LargeIntArrays.class));
         assertThat(testGenerator.renderTest(ExcludedFromChecking.class), testsRun(LargeIntArrays.class));
         assertThat(testGenerator.renderTest(ExcludedFromChecking.class), not(containsPattern("assertThat(intArray*, intArrayContaining(12, 45, 78))")));

@@ -8,7 +8,6 @@ import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -47,7 +46,7 @@ public class SubSuperBeanTest {
 		assertThat(bean.hashCode()).isEqualTo(191);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(SubBean.class), hasSize(2));
+		assertThat(testGenerator.testsFor(SubBean.class)).hasSize(2);
 		assertThat(testGenerator.testsFor(SubBean.class), containsInAnyOrder(
 			allOf(containsString("new SubBean()"), not(containsPattern("subBean?.set")), containsString("equalTo(13)")),
 			allOf(containsPattern("subBean?.setI(22)"), containsPattern("subBean?.setO(subBean?)"), containsString("equalTo(191)"))));

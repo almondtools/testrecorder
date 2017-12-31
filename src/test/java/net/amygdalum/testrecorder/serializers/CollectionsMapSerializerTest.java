@@ -5,8 +5,6 @@ import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -33,10 +31,9 @@ public class CollectionsMapSerializerTest {
 		serializer = new CollectionsMapSerializer.Factory().newSerializer(facade);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetMatchingClasses() throws Exception {
-		assertThat(serializer.getMatchingClasses(), containsInAnyOrder(
+		assertThat(serializer.getMatchingClasses()).containsExactlyInAnyOrder(
 			innerType(Collections.class, "UnmodifiableMap"),
 			innerType(Collections.class, "UnmodifiableSortedMap"),
 			innerType(Collections.class, "UnmodifiableNavigableMap"),
@@ -47,7 +44,7 @@ public class CollectionsMapSerializerTest {
 			innerType(Collections.class, "SingletonMap"),
 			innerType(Collections.class, "CheckedMap"),
 			innerType(Collections.class, "CheckedSortedMap"),
-			innerType(Collections.class, "CheckedNavigableMap")));
+			innerType(Collections.class, "CheckedNavigableMap"));
 	}
 
 	@Test
@@ -74,8 +71,8 @@ public class CollectionsMapSerializerTest {
 
 		serializer.populate(value, Collections.singletonMap("Foo", 47));
 
-		assertThat(value.keySet(), containsInAnyOrder(foo));
-		assertThat(value.values(), containsInAnyOrder(literal(47)));
+		assertThat(value.keySet()).containsExactlyInAnyOrder(foo);
+		assertThat(value.values()).containsExactlyInAnyOrder(literal(47));
 	}
 
     @Test
@@ -88,8 +85,8 @@ public class CollectionsMapSerializerTest {
 
         serializer.populate(value, Collections.singletonMap(null, 47));
 
-        assertThat(value.keySet(), containsInAnyOrder(nullInstance(String.class)));
-        assertThat(value.values(), containsInAnyOrder(literal(47)));
+        assertThat(value.keySet()).containsExactlyInAnyOrder(nullInstance(String.class));
+        assertThat(value.values()).containsExactlyInAnyOrder(literal(47));
     }
 
     @Test
@@ -103,8 +100,8 @@ public class CollectionsMapSerializerTest {
 
         serializer.populate(value, Collections.singletonMap("Foo", null));
 
-        assertThat(value.keySet(), containsInAnyOrder(foo));
-        assertThat(value.values(), containsInAnyOrder(nullInstance(Integer.class)));
+        assertThat(value.keySet()).containsExactlyInAnyOrder(foo);
+        assertThat(value.values()).containsExactlyInAnyOrder(nullInstance(Integer.class));
     }
     
 }

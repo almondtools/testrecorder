@@ -4,8 +4,6 @@ import static java.util.Arrays.asList;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -33,10 +31,9 @@ public class DefaultSetSerializerTest {
 		serializer = new DefaultSetSerializer.Factory().newSerializer(facade);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetMatchingClasses() throws Exception {
-		assertThat(serializer.getMatchingClasses(), containsInAnyOrder(HashSet.class, TreeSet.class, LinkedHashSet.class));
+		assertThat(serializer.getMatchingClasses()).containsExactlyInAnyOrder(HashSet.class, TreeSet.class, LinkedHashSet.class);
 	}
 
 	@Test
@@ -61,7 +58,7 @@ public class DefaultSetSerializerTest {
 
 		serializer.populate(value, new HashSet<>(asList("Foo", "Bar")));
 
-		assertThat(value, containsInAnyOrder(foo, bar));
+		assertThat(value).containsExactlyInAnyOrder(foo, bar);
 	}
 
 }

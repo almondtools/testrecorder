@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.scenarios;
 import static java.util.Arrays.asList;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
-import static org.hamcrest.Matchers.hasSize;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ public class GenericConstructorTest {
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(GenericConstructor.class), hasSize(2));
+		assertThat(testGenerator.testsFor(GenericConstructor.class)).hasSize(2);
 		assertThat(testGenerator.renderTest(GenericConstructor.class), compiles(CollectionDataTypes.class));
 		assertThat(testGenerator.renderTest(GenericConstructor.class), testsRun(CollectionDataTypes.class));
 	}

@@ -2,10 +2,6 @@ package net.amygdalum.testrecorder;
 
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -67,11 +63,14 @@ public class TestGeneratorTest {
 		testGenerator.accept(snapshot);
 
 		testGenerator.await();
-		assertThat(testGenerator.testsFor(TestGeneratorTest.class), contains(allOf(
-			containsString("int field = 12;"),
-			containsString("intMethod(16);"),
-			containsString("equalTo(22)"),
-			containsString("int field = 8;"))));
+		assertThat(testGenerator.testsFor(TestGeneratorTest.class))
+			.hasSize(1)
+			.anySatisfy(test -> {
+				assertThat(test).containsSequence("int field = 12;",
+					"intMethod(16);",
+					"equalTo(22)",
+					"int field = 8;");
+			});
 	}
 
 	@Test
@@ -88,7 +87,7 @@ public class TestGeneratorTest {
 		testGenerator.accept(snapshot);
 
 		testGenerator.await();
-		assertThat(testGenerator.renderTest(MyClass.class), containsString("@SuppressWarnings(\"unused\")" + System.lineSeparator() + "public class"));
+		assertThat(testGenerator.renderTest(MyClass.class)).containsSequence("@SuppressWarnings(\"unused\")" + System.lineSeparator() + "public class");
 	}
 
 	@Test
@@ -99,7 +98,7 @@ public class TestGeneratorTest {
 			public Deserializer<Computation> create(LocalVariableNameGenerator locals, TypeManager types) {
 				return new TestComputationValueVisitor();
 			}
-			
+
 			@Override
 			public Type resultType(Type value) {
 				return value;
@@ -117,13 +116,15 @@ public class TestGeneratorTest {
 		testGenerator.accept(snapshot);
 
 		testGenerator.await();
-		assertThat(testGenerator.testsFor(TestGeneratorTest.class), contains(allOf(
-			containsString("(net.amygdalum.testrecorder.TestGeneratorTest$MyClass/"),
-			containsString("int field: 12"),
-			containsString("intMethod((16))"),
-			containsString("equalTo(22)"),
-			containsString("int field = 8;"))));
-
+		assertThat(testGenerator.testsFor(TestGeneratorTest.class))
+			.hasSize(1)
+			.anySatisfy(test -> {
+				assertThat(test).containsSequence("(net.amygdalum.testrecorder.TestGeneratorTest$MyClass/",
+					"int field: 12",
+					"intMethod((16))",
+					"equalTo(22)",
+					"int field = 8;");
+			});
 	}
 
 	@Test
@@ -134,7 +135,7 @@ public class TestGeneratorTest {
 			public Deserializer<Computation> create(LocalVariableNameGenerator locals, TypeManager types) {
 				return new TestComputationValueVisitor();
 			}
-			
+
 			@Override
 			public Type resultType(Type value) {
 				return value;
@@ -152,12 +153,16 @@ public class TestGeneratorTest {
 		testGenerator.accept(snapshot);
 
 		testGenerator.await();
-		assertThat(testGenerator.testsFor(TestGeneratorTest.class), contains(allOf(
-			containsString("int field = 12;"),
-			containsString("intMethod(16);"),
-			containsString("(22)"),
-			containsString("(net.amygdalum.testrecorder.TestGeneratorTest$MyClass/"),
-			containsString("int field: 8"))));
+		assertThat(testGenerator.testsFor(TestGeneratorTest.class))
+			.hasSize(1)
+			.anySatisfy(test -> {
+				assertThat(test).containsSequence(
+					"int field = 12;",
+					"intMethod(16);",
+					"(22)",
+					"(net.amygdalum.testrecorder.TestGeneratorTest$MyClass/",
+					"int field: 8");
+			});
 	}
 
 	@Test
@@ -182,7 +187,6 @@ public class TestGeneratorTest {
 		assertThat(testGenerator.testsFor(MyClass.class)).isEmpty();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testRenderCode() throws Exception {
 		ContextSnapshot snapshot1 = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
@@ -206,15 +210,15 @@ public class TestGeneratorTest {
 		testGenerator.accept(snapshot2);
 
 		testGenerator.await();
-		assertThat(testGenerator.renderTest(TestGeneratorTest.class), allOf(
-			containsString("int field = 12;"),
-			containsString("intMethod(16);"),
-			containsString("equalTo(22)"),
-			containsString("int field = 8;"),
-			containsString("int field = 13;"),
-			containsString("intMethod(17);"),
-			containsString("equalTo(23)"),
-			containsString("int field = 9;")));
+		assertThat(testGenerator.renderTest(TestGeneratorTest.class)).containsSequence(
+			"int field = 12;",
+			"intMethod(16);",
+			"equalTo(22)",
+			"int field = 8;",
+			"int field = 13;",
+			"intMethod(17);",
+			"equalTo(23)",
+			"int field = 9;");
 	}
 
 	@Test
@@ -289,9 +293,9 @@ public class TestGeneratorTest {
 		assertThat(Files.exists(folder.getRoot().toPath().resolve("net/amygdalum/testrecorder/TestGeneratorTestRecordedTest.java"))).isTrue();
 	}
 
-    private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
-        return new ContextSnapshot(0, "key", new MethodSignature(declaringClass, new Annotation[0], resultType, methodName, new Annotation[0][0], argumentTypes));
-    }
+	private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
+		return new ContextSnapshot(0, "key", new MethodSignature(declaringClass, new Annotation[0], resultType, methodName, new Annotation[0][0], argumentTypes));
+	}
 
 	private SerializedObject objectOf(Class<MyClass> type, SerializedField... fields) {
 		SerializedObject setupThis = new SerializedObject(type);

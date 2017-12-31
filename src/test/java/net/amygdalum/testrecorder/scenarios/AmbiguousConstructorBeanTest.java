@@ -7,7 +7,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -40,7 +39,7 @@ public class AmbiguousConstructorBeanTest {
 		assertThat(bean.hashCode()).isEqualTo(217);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(AmbiguousConstructorBean.class), hasSize(2));
+		assertThat(testGenerator.testsFor(AmbiguousConstructorBean.class)).hasSize(2);
 		assertThat(testGenerator.testsFor(AmbiguousConstructorBean.class), containsInAnyOrder(
 			allOf(containsPattern("new AmbiguousConstructorBean(2, 4, null)"), containsString("equalTo(15)")),
 			allOf(containsPattern("new AmbiguousConstructorBean(22, 0, ambiguousConstructorBean?)"), containsString("equalTo(217)"))));

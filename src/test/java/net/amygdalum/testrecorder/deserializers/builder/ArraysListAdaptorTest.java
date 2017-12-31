@@ -4,9 +4,6 @@ import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContex
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
@@ -43,9 +40,9 @@ public class ArraysListAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
-		assertThat(result.getStatements().toString(), allOf(
-			containsString("Integer[] integerArray1 = new Integer[]{0, 8, 15}"),
-			containsString("List<Integer> list1 = asList(integerArray1)")));
+		assertThat(result.getStatements().toString()).containsSequence(
+			"Integer[] integerArray1 = new Integer[]{0, 8, 15}",
+			"List<Integer> list1 = asList(integerArray1)");
 		assertThat(result.getValue()).isEqualTo("list1");
 	}
 

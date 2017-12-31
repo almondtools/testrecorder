@@ -35,9 +35,6 @@ import static net.amygdalum.testrecorder.util.Types.wildcardExtends;
 import static net.amygdalum.testrecorder.util.Types.wildcardSuper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.Matchers.arrayWithSize;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasItems;
 import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Field;
@@ -482,8 +479,8 @@ public class TypesTest {
 	@Test
 	public void testWildcard() throws Exception {
 		assertThat(wildcard().getTypeName()).isEqualTo("?");
-		assertThat(wildcard().getLowerBounds(), arrayWithSize(0));
-		assertThat(wildcard().getUpperBounds(), arrayWithSize(0));
+		assertThat(wildcard().getLowerBounds()).hasSize(0);
+		assertThat(wildcard().getUpperBounds()).hasSize(0);
 		assertThat(wildcardExtends(String.class).getTypeName()).isEqualTo("? extends java.lang.String");
 		assertThat(wildcardExtends(String.class).toString()).isEqualTo("? extends java.lang.String");
 		assertThat(wildcardExtends(String.class).getUpperBounds()).containsExactly(String.class);
@@ -498,7 +495,7 @@ public class TypesTest {
 
 	@Test
 	public void testInnerClasses() throws Exception {
-		assertThat(Types.innerClasses(getClass()), hasItems(NestedPublic.class, NestedPrivate.class, NestedPackagePrivate.class));
+		assertThat(Types.innerClasses(getClass())).contains(NestedPublic.class, NestedPrivate.class, NestedPackagePrivate.class);
 	}
 
 	@Test
@@ -507,10 +504,9 @@ public class TypesTest {
 		assertThat(Stream.of(Sub.class, Super.class).sorted(Types::byMostConcrete).collect(toList())).containsExactly(Sub.class, Super.class);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testSortByMostConcreteUnrelatedTypes() throws Exception {
-		assertThat(Stream.of(Simple.class, Complex.class).sorted(Types::byMostConcrete).collect(toList()), containsInAnyOrder(Simple.class, Complex.class));
+		assertThat(Stream.of(Simple.class, Complex.class).sorted(Types::byMostConcrete).collect(toList())).containsExactlyInAnyOrder(Simple.class, Complex.class);
 	}
 
 	@Test
@@ -535,7 +531,7 @@ public class TypesTest {
 		ParameterizedType generic = Types.parameterized(Generic.class, null, Sub.class);
 		ParameterizedType otherGeneric = Types.parameterized(GenericCycle.class, null, Super.class);
 
-		assertThat(Stream.of(generic, otherGeneric).sorted(Types::byMostConcrete).collect(toList()), containsInAnyOrder(generic, otherGeneric));
+		assertThat(Stream.of(generic, otherGeneric).sorted(Types::byMostConcrete).collect(toList())).containsExactlyInAnyOrder(generic, otherGeneric);
 	}
 
 	@Test

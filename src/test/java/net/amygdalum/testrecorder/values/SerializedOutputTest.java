@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder.values;
 import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefaultEquality;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 
@@ -69,7 +68,7 @@ public class SerializedOutputTest {
 
 	@Test
 	public void testGetResult() throws Exception {
-		assertThat(output.getResult(), instanceOf(SerializedObject.class));
+		assertThat(output.getResult()).isInstanceOf(SerializedObject.class);
 		assertThat(outputNoResult.getResult()).isNull();
 	}
 

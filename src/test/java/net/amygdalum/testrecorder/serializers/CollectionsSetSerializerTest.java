@@ -6,8 +6,6 @@ import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -35,10 +33,9 @@ public class CollectionsSetSerializerTest {
 		serializer = new CollectionsSetSerializer.Factory().newSerializer(facade);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetMatchingClasses() throws Exception {
-		assertThat(serializer.getMatchingClasses(), containsInAnyOrder(
+		assertThat(serializer.getMatchingClasses()).containsExactlyInAnyOrder(
 			innerType(Collections.class, "UnmodifiableSet"),
 			innerType(Collections.class, "UnmodifiableSortedSet"),
 			innerType(Collections.class, "UnmodifiableNavigableSet"),
@@ -49,7 +46,7 @@ public class CollectionsSetSerializerTest {
 			innerType(Collections.class, "SingletonSet"),
 			innerType(Collections.class, "CheckedSet"),
 			innerType(Collections.class, "CheckedSortedSet"),
-			innerType(Collections.class, "CheckedNavigableSet")));
+			innerType(Collections.class, "CheckedNavigableSet"));
 	}
 
 	@Test
@@ -76,7 +73,7 @@ public class CollectionsSetSerializerTest {
 
 		serializer.populate(value, new HashSet<>(asList("Foo", "Bar")));
 
-		assertThat(value, containsInAnyOrder(foo, bar));
+		assertThat(value).containsExactlyInAnyOrder(foo, bar);
 	}
 
 	@Test
@@ -90,7 +87,7 @@ public class CollectionsSetSerializerTest {
 	    
 	    serializer.populate(value, new HashSet<>(asList("Foo", null)));
 	    
-	    assertThat(value, containsInAnyOrder(foo, nullInstance(String.class)));
+	    assertThat(value).containsExactlyInAnyOrder(foo, nullInstance(String.class));
 	}
 	
 }

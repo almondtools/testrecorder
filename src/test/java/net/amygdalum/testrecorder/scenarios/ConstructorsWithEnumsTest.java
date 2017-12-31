@@ -6,7 +6,6 @@ import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.tes
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -64,7 +63,7 @@ public class ConstructorsWithEnumsTest {
 		assertThat(string).isEqualTo("SECOND:SECOND");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(ConstructorsWithEnums.class), hasSize(1));
+		assertThat(testGenerator.testsFor(ConstructorsWithEnums.class)).hasSize(1);
 		assertThat(testGenerator.testsFor(ConstructorsWithEnums.class), contains(
 			allOf(
 				containsPattern("new ConstructorsWithEnums(ChainedEnum.SECOND)"),

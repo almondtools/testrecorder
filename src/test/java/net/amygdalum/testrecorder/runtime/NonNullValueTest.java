@@ -1,9 +1,6 @@
 package net.amygdalum.testrecorder.runtime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -26,11 +23,11 @@ public class NonNullValueTest {
         assertThat(NonNullValue.of(char.class)).isEqualTo(Character.valueOf((char) 0));
         assertThat(NonNullValue.of(String.class)).isEqualTo("");
         assertThat(NonNullValue.of(int[].class)).isEqualTo(new int[0]);
-        assertThat(NonNullValue.of(OrthogonalInterface.class), instanceOf(OrthogonalInterface.class));
-        assertThat(NonNullValue.of(PublicEnum.class), instanceOf(PublicEnum.class));
+        assertThat(NonNullValue.of(OrthogonalInterface.class)).isInstanceOf(OrthogonalInterface.class);
+        assertThat(NonNullValue.of(PublicEnum.class)).isInstanceOf(PublicEnum.class);
         assertThat(NonNullValue.of(EmptyEnum.class)).isNull();
-        assertThat(NonNullValue.of(Object.class), notNullValue());
-        assertThat(NonNullValue.of(Simple.class), instanceOf(Simple.class));
+        assertThat(NonNullValue.of(Object.class)).isNotNull();
+        assertThat(NonNullValue.of(Simple.class)).isInstanceOf(Simple.class);
     }
 
     @Test

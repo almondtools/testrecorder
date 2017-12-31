@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder.scenarios;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -42,7 +41,7 @@ public class RejectedCasesTest {
 		object.recorded();
 		
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(RejectedCases.class), hasSize(4));
+		assertThat(testGenerator.testsFor(RejectedCases.class)).hasSize(4);
 		assertThat(testGenerator.renderTest(RejectedCases.class), compiles(RejectedCases.class));
 		assertThat(testGenerator.renderTest(RejectedCases.class), testsRun(RejectedCases.class));
 	}

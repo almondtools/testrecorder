@@ -5,7 +5,6 @@ import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compil
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -63,7 +62,7 @@ public class OutputsTest {
 		out.recorded();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(Outputs.class), hasSize(1));
+		assertThat(testGenerator.testsFor(Outputs.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(Outputs.class), containsPattern(".fakeOutput(new Aspect() {*print(String*)*})"
 			+ ".add(Outputs.class, \"recorded\", *, null, equalTo(\"Hello \"))"
 			+ ".add(Outputs.class, \"recorded\", *, null, equalTo(\"World\")"));
@@ -77,7 +76,7 @@ public class OutputsTest {
 		out.recordedWithConditionalReturn();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(Outputs.class), hasSize(1));
+		assertThat(testGenerator.testsFor(Outputs.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(Outputs.class), containsPattern(".fakeOutput(new Aspect() {*conditionalReturnOutput(char*)*})"
 			+ ".add(Outputs.class, \"recordedWithConditionalReturn\", *, true, equalTo('a'))"
 			+ ".add(Outputs.class, \"recordedWithConditionalReturn\", *, true, equalTo(','))"

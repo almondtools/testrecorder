@@ -2,8 +2,8 @@ package net.amygdalum.testrecorder.scenarios;
 
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Every.everyItem;
 import static org.junit.Assert.assertThat;
 
@@ -28,7 +28,7 @@ public class SideEffectsTest {
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(SideEffects.class), hasSize(7));
+		assertThat(testGenerator.testsFor(SideEffects.class)).hasSize(7);
 		assertThat(testGenerator.testsFor(SideEffects.class), everyItem(containsString("assert")));
 	}
 
@@ -41,7 +41,7 @@ public class SideEffectsTest {
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(SideEffects.class), hasSize(10));
+		assertThat(testGenerator.testsFor(SideEffects.class)).hasSize(10);
 		assertThat(testGenerator.testsFor(SideEffects.class), everyItem(containsString("assert")));
 	}
 

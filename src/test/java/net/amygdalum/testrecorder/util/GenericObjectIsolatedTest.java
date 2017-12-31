@@ -1,8 +1,6 @@
 package net.amygdalum.testrecorder.util;
 
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
 import java.security.Permission;
@@ -33,10 +31,10 @@ public class GenericObjectIsolatedTest {
         }).execute(() -> {
             Throwable captured = Throwables.capture(() -> GenericObject.newInstance(NonSerializableConstructor.class));
 
-            assertThat(captured.getMessage(), allOf(
-                containsString("NonSerializableConstructor(null)"),
-                containsString("NonSerializableConstructor(\"\")"),
-                containsString("NonSerializableConstructor(\"String\")")));
+            assertThat(captured.getMessage()).containsSequence(
+"NonSerializableConstructor(null)",
+"NonSerializableConstructor(\"\")",
+"NonSerializableConstructor(\"String\")");
         });
     }
 

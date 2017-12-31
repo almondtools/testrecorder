@@ -6,7 +6,6 @@ import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.ParameterizedTypeMatcher.parameterizedType;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 import java.util.List;
@@ -99,7 +98,7 @@ public class SerializedArrayTest {
 	public void testReferencedValues() throws Exception {
 		SerializedArray array = new SerializedArray(String[].class).with(literal("s1"), literal("s2"));
 		
-		assertThat(array.referencedValues(), hasSize(2));
+		assertThat(array.referencedValues()).hasSize(2);
 	}
 
 	@Test

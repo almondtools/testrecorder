@@ -18,7 +18,7 @@ public class ArrayMatcherTest {
 
         arrayContaining(String.class, "A", "b").describeTo(description);
 
-        assertThat(description.toString(), equalTo("containing [<\"A\">, <\"b\">]"));
+        assertThat(description.toString()).isEqualTo("containing [<\"A\">, <\"b\">]");
     }
 
     @Test
@@ -63,7 +63,7 @@ public class ArrayMatcherTest {
 
         arrayContaining(String.class, "A", "b").describeMismatchSafely(new String[] { "A", "b" }, description);
 
-        assertThat(description.toString(), equalTo(""));
+        assertThat(description.toString()).isEqualTo("");
     }
 
     @Test

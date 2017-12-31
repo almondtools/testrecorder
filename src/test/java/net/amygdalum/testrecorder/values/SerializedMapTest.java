@@ -10,9 +10,6 @@ import static net.amygdalum.testrecorder.values.GenericTypes.mapOfStringString;
 import static net.amygdalum.testrecorder.values.ParameterizedTypeMatcher.parameterizedType;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.junit.Assert.assertThat;
 
@@ -46,7 +43,7 @@ public class SerializedMapTest {
 
 	@Test
 	public void testGetResultTypeBounded() throws Exception {
-		assertThat(new SerializedMap(HashMap.class).withResult(mapOfBounded()).getResultType(), instanceOf(TypeVariable.class));
+		assertThat(new SerializedMap(HashMap.class).withResult(mapOfBounded()).getResultType()).isInstanceOf(TypeVariable.class);
 	}
 
 	@Test
@@ -54,7 +51,7 @@ public class SerializedMapTest {
 		SerializedMap result = new SerializedMap(HashMap.class)
 			.withResult(hashMapOfStringString())
 			.with(Collections.singletonMap(literal("a"), literal("b")));
-		
+
 		assertThat(result, containsEntries(SerializedValue.class, SerializedValue.class).entry(literal("a"), literal("b")));
 	}
 
@@ -91,7 +88,7 @@ public class SerializedMapTest {
 	@Test
 	public void testSize0() throws Exception {
 		SerializedMap map = new SerializedMap(HashMap.class).withResult(Map.class);
-		
+
 		assertThat(map.size()).isEqualTo(0);
 		assertThat(map.referencedValues()).isEmpty();
 	}
@@ -102,7 +99,7 @@ public class SerializedMapTest {
 		map.put(literal("key"), literal("value"));
 
 		assertThat(map.size()).isEqualTo(1);
-		assertThat(map.referencedValues(), hasSize(2));
+		assertThat(map.referencedValues()).hasSize(2);
 	}
 
 	@Test
@@ -110,9 +107,9 @@ public class SerializedMapTest {
 		SerializedMap map = new SerializedMap(HashMap.class).withResult(Map.class);
 		map.put(literal("key1"), literal("value1"));
 		map.put(literal("key2"), literal("value2"));
-		
+
 		assertThat(map.size()).isEqualTo(2);
-		assertThat(map.referencedValues(), hasSize(4));
+		assertThat(map.referencedValues()).hasSize(4);
 	}
 
 	@Test
@@ -195,7 +192,7 @@ public class SerializedMapTest {
 		map.put(literal("key1"), literal("value1"));
 		map.put(literal("key2"), literal("value2"));
 
-		assertThat(map.keySet(), containsInAnyOrder(literal("key1"), literal("key2")));
+		assertThat(map.keySet()).containsExactlyInAnyOrder(literal("key1"), literal("key2"));
 	}
 
 	@Test
@@ -204,7 +201,7 @@ public class SerializedMapTest {
 		map.put(literal("key1"), literal("value1"));
 		map.put(literal("key2"), literal("value2"));
 
-		assertThat(map.values(), containsInAnyOrder(literal("value1"), literal("value2")));
+		assertThat(map.values()).containsExactlyInAnyOrder(literal("value1"), literal("value2"));
 	}
 
 	@Test

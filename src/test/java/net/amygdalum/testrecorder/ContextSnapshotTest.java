@@ -3,8 +3,6 @@ package net.amygdalum.testrecorder;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.Matchers.arrayWithSize;
-import static org.hamcrest.collection.IsArrayContaining.hasItemInArray;
 import static org.junit.Assert.assertThat;
 
 import java.lang.annotation.Annotation;
@@ -27,7 +25,7 @@ public class ContextSnapshotTest {
 		assertThat(snapshot.getDeclaringClass()).isEqualTo(ArrayList.class);
 		assertThat(snapshot.getResultType()).isEqualTo(boolean.class);
 		assertThat(snapshot.getMethodName()).isEqualTo("add");
-		assertThat(snapshot.getArgumentTypes(), hasItemInArray(Object.class));
+		assertThat(snapshot.getArgumentTypes()).contains(Object.class);
 	}
 
 	@Test
@@ -150,7 +148,7 @@ public class ContextSnapshotTest {
 
 		snapshot.setSetupArgs(literal(int.class, 42));
 
-		assertThat(snapshot.getAnnotatedSetupArgs(), arrayWithSize(1));
+		assertThat(snapshot.getAnnotatedSetupArgs()).hasSize(1);
 		assertThat(snapshot.getAnnotatedSetupArgs()[0].getAnnotation(Anno.class).get().value()).isEqualTo("arg");
 		assertThat(snapshot.getAnnotatedSetupArgs()[0].getAnnotation(NoAnno.class).isPresent()).isFalse();
 		assertThat(snapshot.getAnnotatedSetupArgs()[0].value).isEqualTo(literal(int.class, 42));
@@ -168,7 +166,7 @@ public class ContextSnapshotTest {
 
 		snapshot.setExpectArgs(literal(int.class, 42));
 
-		assertThat(snapshot.getAnnotatedExpectArgs(), arrayWithSize(1));
+		assertThat(snapshot.getAnnotatedExpectArgs()).hasSize(1);
 		assertThat(snapshot.getAnnotatedExpectArgs()[0].getAnnotation(Anno.class).get().value()).isEqualTo("arg");
 		assertThat(snapshot.getAnnotatedExpectArgs()[0].getAnnotation(NoAnno.class).isPresent()).isFalse();
 		assertThat(snapshot.getAnnotatedExpectArgs()[0].value).isEqualTo(literal(int.class, 42));

@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.scenarios;
 
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
-import static org.hamcrest.Matchers.hasSize;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ public class NestedEnumsTest {
 		dataTypes.inc(new NestedEnum("FIRST"));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(NestedEnums.class), hasSize(1));
+		assertThat(testGenerator.testsFor(NestedEnums.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(NestedEnums.class), compiles(NestedEnums.class));
 		assertThat(testGenerator.renderTest(NestedEnums.class), testsRun(NestedEnums.class));
 	}
@@ -37,7 +37,7 @@ public class NestedEnumsTest {
 		dataTypes.name(new NestedEnum("FIRST").unwrap());
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(NestedEnums.class), hasSize(1));
+		assertThat(testGenerator.testsFor(NestedEnums.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(NestedEnums.class), compiles(NestedEnums.class));
 		assertThat(testGenerator.renderTest(NestedEnums.class), testsRun(NestedEnums.class));
 	}
@@ -49,7 +49,7 @@ public class NestedEnumsTest {
 		dataTypes.toString(new NestedEnum("FIRST").unwrap());
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(NestedEnums.class), hasSize(1));
+		assertThat(testGenerator.testsFor(NestedEnums.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(NestedEnums.class), compiles(NestedEnums.class));
 		assertThat(testGenerator.renderTest(NestedEnums.class), testsRun(NestedEnums.class));
 	}

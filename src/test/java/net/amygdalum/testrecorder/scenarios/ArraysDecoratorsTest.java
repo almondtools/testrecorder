@@ -1,8 +1,9 @@
 package net.amygdalum.testrecorder.scenarios;
 
+
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
-import static org.hamcrest.Matchers.hasSize;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
@@ -27,7 +28,7 @@ public class ArraysDecoratorsTest {
 		dataTypes.consume(Arrays.asList("Hello", "World"));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(ArraysDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(ArraysDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(ArraysDecorators.class), compiles(ArraysDecorators.class));
 		assertThat(testGenerator.renderTest(ArraysDecorators.class), testsRun(ArraysDecorators.class));
 	}
@@ -39,7 +40,7 @@ public class ArraysDecoratorsTest {
 		dataTypes.asList("Hello", "World");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(ArraysDecorators.class), hasSize(1));
+		assertThat(testGenerator.testsFor(ArraysDecorators.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(ArraysDecorators.class), compiles(ArraysDecorators.class));
 		assertThat(testGenerator.renderTest(ArraysDecorators.class), testsRun(ArraysDecorators.class));
 	}

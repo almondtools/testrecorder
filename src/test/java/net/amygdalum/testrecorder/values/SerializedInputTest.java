@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder.values;
 import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefaultEquality;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 
@@ -55,13 +54,13 @@ public class SerializedInputTest {
 
 	@Test
 	public void testGetTypes() throws Exception {
-		assertThat(input.getTypes(), arrayWithSize(0));
+		assertThat(input.getTypes()).hasSize(0);
 		assertThat(inputNoResult.getTypes()).containsExactly(byte[].class, int.class, int.class);
 	}
 
 	@Test
 		public void testGetArguments() throws Exception {
-			assertThat(input.getArguments(), arrayWithSize(0));
+			assertThat(input.getArguments()).hasSize(0);
 			assertThat(inputNoResult.getArguments()).containsExactly(inputNoResult.getArguments()[0], literal(int.class, 0), literal(int.class, 0));
 		}
 

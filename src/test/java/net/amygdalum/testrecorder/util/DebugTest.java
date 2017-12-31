@@ -12,5 +12,4 @@ public class DebugTest {
 		assertThat(Debug.class, isUtilityClass());
 	}
 	
-	
 }

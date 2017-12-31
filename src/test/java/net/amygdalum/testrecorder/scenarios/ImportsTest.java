@@ -5,10 +5,7 @@ import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compil
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -40,7 +37,7 @@ public class ImportsTest {
 		assertThat(object.toString()).isEqualTo("[name]:name");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(Imports.class), hasSize(1));
+		assertThat(testGenerator.testsFor(Imports.class)).hasSize(1);
 		assertThat(testGenerator.testsFor(Imports.class), contains(allOf(
 			containsPattern("Imports imports? = new GenericObject() {*"
 				+ "List<String> list = *"
@@ -52,8 +49,9 @@ public class ImportsTest {
 				+ "String name = \"name\";*"
 				+ "}.matching(net.amygdalum.testrecorder.scenarios.Imports.List.class);*"
 				+ "}.matching(Imports.class)"))));
-		assertThat(testGenerator.renderTest(Imports.class), allOf(
-			containsString("import java.util.List;"),
-			not(containsPattern("import net.amygdalum.testrecorder.scenarios.Imports.List;"))));
+		assertThat(testGenerator.renderTest(Imports.class))
+			.containsSequence(
+				"import java.util.List;")
+			.doesNotContain("import net.amygdalum.testrecorder.scenarios.Imports.List;");
 	}
 }
