@@ -2,7 +2,6 @@ package net.amygdalum.testrecorder.util;
 
 import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefaultEquality;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.arrayContaining;
 import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -30,7 +29,7 @@ public class PairTest {
 	@Test
 	public void testZip() throws Exception {
 		Pair<String, Integer>[] zipped = Pair.zip(new String[] { "s1", "s2" }, new Integer[] { 1, 2 });
-		assertThat(zipped, arrayContaining(new Pair<>("s1", 1), new Pair<>("s2", 2)));
+		assertThat(zipped).containsExactly(new Pair<>("s1", 1), new Pair<>("s2", 2));
 	}
 
 	@Test

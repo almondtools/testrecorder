@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder.util;
 import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefaultEquality;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.Matchers.arrayContaining;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -33,7 +32,7 @@ public class TripleTest {
 	@Test
 	public void testZip() throws Exception {
 		Triple<String, Integer, Float>[] zipped = Triple.zip(new String[] { "s1", "s2" }, new Integer[] { 1, 2 }, new Float[] { 0.1f, 0.2f });
-		assertThat(zipped, arrayContaining(new Triple<>("s1", 1, 0.1f), new Triple<>("s2", 2, 0.2f)));
+		assertThat(zipped).containsExactly(new Triple<>("s1", 1, 0.1f), new Triple<>("s2", 2, 0.2f));
 	}
 
 	@Test

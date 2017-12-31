@@ -2,7 +2,6 @@ package net.amygdalum.testrecorder.serializers;
 
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -50,7 +49,7 @@ public class ArraySerializerTest {
 
 		serializer.populate(value, new String[] { "Foo", "Bar" });
 
-		assertThat(value.getArray(), arrayContaining(foo, bar));
+		assertThat(value.getArray()).containsExactly(foo, bar);
 	}
 
 }

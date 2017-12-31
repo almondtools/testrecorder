@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -26,9 +25,9 @@ public class PassiveDequeTest {
 
     @Test
     public void testToArray() throws Exception {
-        assertThat(deque.toArray(), arrayContaining("42"));
-        assertThat(deque.toArray(new String[0]), arrayContaining("42"));
-        assertThat(deque.toArray(null), arrayContaining("42"));
+        assertThat(deque.toArray()).containsExactly("42");
+        assertThat(deque.toArray(new String[0])).containsExactly("42");
+        assertThat(deque.toArray(null)).containsExactly("42");
     }
 
     @Test

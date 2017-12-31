@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder;
 import static net.amygdalum.testrecorder.util.Types.getDeclaredField;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
@@ -75,7 +74,7 @@ public class ConfigurableSerializerFacadeTest {
     public void testSerializeTypeArrayObjectArray() throws Exception {
         SerializedValue[] serialize = facade.serialize(new Type[] { String.class }, new Object[] { "str" });
 
-        assertThat(serialize, arrayContaining(SerializedLiteral.literal(String.class, "str")));
+        assertThat(serialize).containsExactly(SerializedLiteral.literal(String.class, "str"));
     }
 
     @Test

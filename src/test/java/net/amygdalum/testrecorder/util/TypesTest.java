@@ -37,7 +37,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -472,7 +471,7 @@ public class TypesTest {
 	public void testParameterized() throws Exception {
 		assertThat(parameterized(List.class, null, String.class).getRawType()).isEqualTo(List.class);
 		assertThat(parameterized(List.class, null, String.class).getOwnerType(), nullValue());
-		assertThat(parameterized(List.class, null, String.class).getActualTypeArguments(), arrayContaining(String.class));
+		assertThat(parameterized(List.class, null, String.class).getActualTypeArguments()).containsExactly(String.class);
 		assertThat(parameterized(List.class, null, String.class).getTypeName()).isEqualTo("java.util.List<java.lang.String>");
 		assertThat(parameterized(List.class, null).getTypeName()).isEqualTo("java.util.List<>");
 		assertThat(parameterized(List.class, null, (Type[]) null).getTypeName()).isEqualTo("java.util.List<>");
@@ -491,10 +490,10 @@ public class TypesTest {
 		assertThat(wildcard().getUpperBounds(), arrayWithSize(0));
 		assertThat(wildcardExtends(String.class).getTypeName()).isEqualTo("? extends java.lang.String");
 		assertThat(wildcardExtends(String.class).toString()).isEqualTo("? extends java.lang.String");
-		assertThat(wildcardExtends(String.class).getUpperBounds(), arrayContaining(String.class));
+		assertThat(wildcardExtends(String.class).getUpperBounds()).containsExactly(String.class);
 		assertThat(wildcardSuper(String.class).getTypeName()).isEqualTo("? super java.lang.String");
 		assertThat(wildcardSuper(String.class).toString()).isEqualTo("? super java.lang.String");
-		assertThat(wildcardSuper(String.class).getLowerBounds(), arrayContaining(String.class));
+		assertThat(wildcardSuper(String.class).getLowerBounds()).containsExactly(String.class);
 		assertThat(wildcard(), satisfiesDefaultEquality()
 			.andEqualTo(wildcard())
 			.andNotEqualTo(wildcardExtends(String.class))

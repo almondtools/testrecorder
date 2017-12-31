@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder.util;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
@@ -205,7 +204,7 @@ public class WorkSetTest {
 		assertThat(ws.isEmpty(), is(false));
 		assertThat(ws.getDone(), empty());
 		assertThat(ws.peek()).isEqualTo("A");
-		assertThat(ws.toArray(new String[0]), arrayContaining("A", "B"));
+		assertThat(ws.toArray(new String[0])).containsExactly("A", "B");
 		assertThat(ws.size()).isEqualTo(2);
 	}
 
@@ -220,7 +219,7 @@ public class WorkSetTest {
 		assertThat(ws.isEmpty(), is(false));
 		assertThat(ws.getDone(), empty());
 		assertThat(ws.peek()).isEqualTo("A");
-		assertThat(ws.toArray(new String[0]), arrayContaining("A", "B"));
+		assertThat(ws.toArray(new String[0])).containsExactly("A", "B");
 		assertThat(ws.size()).isEqualTo(2);
 	}
 
@@ -235,7 +234,7 @@ public class WorkSetTest {
 		assertThat(ws.isEmpty(), is(false));
 		assertThat(ws.getDone(), empty());
 		assertThat(ws.peek()).isEqualTo("A");
-		assertThat(ws.toArray(new String[0]), arrayContaining("A", "B", "C"));
+		assertThat(ws.toArray(new String[0])).containsExactly("A", "B", "C");
 		assertThat(ws.size()).isEqualTo(3);
 	}
 
@@ -251,7 +250,7 @@ public class WorkSetTest {
 		assertThat(ws.isEmpty(), is(false));
 		assertThat(ws.getDone(), contains("A"));
 		assertThat(ws.peek()).isEqualTo("B");
-		assertThat(ws.toArray(new String[0]), arrayContaining("B", "C"));
+		assertThat(ws.toArray(new String[0])).containsExactly("B", "C");
 		assertThat(ws.size()).isEqualTo(2);
 	}
 
@@ -362,8 +361,8 @@ public class WorkSetTest {
 		WorkSet<String> ws = new WorkSet<>();
 		ws.addAll(asList("A", "B"));
 
-		assertThat(ws.toArray(), arrayContaining((Object) "A", "B"));
-		assertThat(ws.toArray(new String[0]), arrayContaining("A", "B"));
+		assertThat(ws.toArray()).containsExactly((Object) "A", "B");
+		assertThat(ws.toArray(new String[0])).containsExactly("A", "B");
 	}
 
 	@Test

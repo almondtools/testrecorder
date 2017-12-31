@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder.values;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
@@ -38,7 +37,7 @@ public class AbstractSerializedValueTest {
 	public void testGetAnnotations() throws Exception {
 		ASerializedValue value = new ASerializedValue(Annotated.class);
 
-		assertThat(value.getAnnotations(), arrayContaining((Annotation) Annotated.class.getAnnotation(MyAnnotation.class)));
+		assertThat(value.getAnnotations()).containsExactly((Annotation) Annotated.class.getAnnotation(MyAnnotation.class));
 		assertThat(value.getAnnotation(MyAnnotation.class).get()).isEqualTo(Annotated.class.getAnnotation(MyAnnotation.class));
 		assertThat(value.getAnnotation(NoAnnotation.class).isPresent(), is(false));
 	}

@@ -10,7 +10,6 @@ import static net.amygdalum.testrecorder.values.GenericTypes.setOfString;
 import static net.amygdalum.testrecorder.values.ParameterizedTypeMatcher.parameterizedType;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.emptyArray;
@@ -162,8 +161,8 @@ public class SerializedSetTest {
 	public void testToArray1() throws Exception {
 		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
 		set.add(literal("string"));
-		assertThat(set.toArray(), arrayContaining(literal("string")));
-		assertThat(set.toArray(new SerializedValue[0]), arrayContaining(literal("string")));
+		assertThat(set.toArray()).containsExactly(literal("string"));
+		assertThat(set.toArray(new SerializedValue[0])).containsExactly(literal("string"));
 	}
 
 	@Test

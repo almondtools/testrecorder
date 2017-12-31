@@ -4,7 +4,6 @@ import static com.almondtools.conmatch.exceptions.ExceptionMatcher.matchesExcept
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
-import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -171,12 +170,11 @@ public class ByteCodeTest {
 		assertThat(Throwables.capture(() -> ByteCode.classFrom("net/amygdalum/testrecorder/util/testobjects/NotExisting")), matchesException(ByteCodeException.class).withCause(ClassNotFoundException.class));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testArgumentTypes() throws Exception {
 		assertThat(ByteCode.argumentTypesFrom("()V"), emptyArray());
-		assertThat(ByteCode.argumentTypesFrom("(Ljava/lang/Object;)I"), arrayContaining(Object.class));
-		assertThat(ByteCode.argumentTypesFrom("(IC)V"), arrayContaining(int.class, char.class));
+		assertThat(ByteCode.argumentTypesFrom("(Ljava/lang/Object;)I")).containsExactly(Object.class);
+		assertThat(ByteCode.argumentTypesFrom("(IC)V")).containsExactly(int.class, char.class);
 	}
 	
 	@Test

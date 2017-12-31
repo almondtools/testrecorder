@@ -10,7 +10,6 @@ import static net.amygdalum.testrecorder.values.ParameterizedTypeMatcher.paramet
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.emptyArray;
@@ -162,8 +161,8 @@ public class SerializedListTest {
 	public void testToArray1() throws Exception {
 		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
 		list.add(literal("string"));
-		assertThat(list.toArray(), arrayContaining(literal("string")));
-		assertThat(list.toArray(new SerializedValue[0]), arrayContaining(literal("string")));
+		assertThat(list.toArray()).containsExactly(literal("string"));
+		assertThat(list.toArray(new SerializedValue[0])).containsExactly(literal("string"));
 	}
 
 	@Test

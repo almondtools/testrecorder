@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
-import static org.hamcrest.Matchers.arrayContaining;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -32,7 +31,7 @@ public class ConstructionPlanTest {
         
         Arrays.sort(plans);
         
-        assertThat(plans, arrayContaining(plan_1_1, plan_1_2, plan_2_2, plan_3_2, plan_2_3));
+        assertThat(plans).containsExactly(plan_1_1, plan_1_2, plan_2_2, plan_3_2, plan_2_3);
     }
 
     private LocalVariable var() throws Exception {

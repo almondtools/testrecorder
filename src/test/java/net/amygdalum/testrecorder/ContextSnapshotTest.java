@@ -3,9 +3,7 @@ package net.amygdalum.testrecorder;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.arrayWithSize;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.collection.IsArrayContaining.hasItemInArray;
@@ -82,7 +80,7 @@ public class ContextSnapshotTest {
 
 		snapshot.setSetupArgs(literal("a"), literal("b"));
 
-		assertThat(snapshot.getSetupArgs(), arrayContaining(literal("a"), literal("b")));
+		assertThat(snapshot.getSetupArgs()).containsExactly(literal("a"), literal("b"));
 	}
 
 	@Test
@@ -91,7 +89,7 @@ public class ContextSnapshotTest {
 
 		snapshot.setExpectArgs(literal("c"), literal("d"));
 
-		assertThat(snapshot.getExpectArgs(), arrayContaining(literal("c"), literal("d")));
+		assertThat(snapshot.getExpectArgs()).containsExactly(literal("c"), literal("d"));
 	}
 
 	@Test
@@ -119,7 +117,6 @@ public class ContextSnapshotTest {
 		assertThat(new ContextSnapshot(1l, "key", new MethodSignature(Object.class, new Annotation[0], Object.class, "method", new Annotation[0][0], new Type[0])).getTime()).isEqualTo(1l);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetAnnotation() throws Exception {
 		ContextSnapshot snapshot = new ContextSnapshot(0l, "key", new MethodSignature(
@@ -130,12 +127,16 @@ public class ContextSnapshotTest {
 			new Annotation[][] { new Annotation[] { anno("arg") } },
 			new Type[] { Integer.class }));
 
-		assertThat(snapshot.getResultAnnotation(), arrayContaining(instanceOf(Anno.class)));
+		assertThat(snapshot.getResultAnnotation())
+			.hasSize(1)
+			.hasOnlyElementsOfTypes(Anno.class);
 		assertThat(snapshot.getMethodAnnotation(Anno.class).get().value()).isEqualTo("result");
 		assertThat(snapshot.getMethodAnnotation(NoAnno.class).isPresent(), is(false));
 		assertThat(((Anno) snapshot.getResultAnnotation()[0]).value()).isEqualTo("result");
-		assertThat(snapshot.getArgumentAnnotations(), arrayWithSize(1));
-		assertThat(snapshot.getArgumentAnnotations()[0], arrayContaining(instanceOf(Anno.class)));
+		assertThat(snapshot.getArgumentAnnotations()).hasSize(1);
+		assertThat(snapshot.getArgumentAnnotations()[0])
+			.hasSize(1)
+			.hasOnlyElementsOfTypes(Anno.class);
 		assertThat(((Anno) snapshot.getArgumentAnnotations()[0][0]).value()).isEqualTo("arg");
 	}
 

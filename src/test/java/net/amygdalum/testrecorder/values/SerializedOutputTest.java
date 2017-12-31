@@ -4,7 +4,6 @@ import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefa
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
@@ -55,13 +54,13 @@ public class SerializedOutputTest {
 
 	@Test
 	public void testGetTypes() throws Exception {
-		assertThat(output.getTypes(), arrayContaining(CharSequence.class));
-		assertThat(outputNoResult.getTypes(), arrayContaining(String.class));
+		assertThat(output.getTypes()).containsExactly(CharSequence.class);
+		assertThat(outputNoResult.getTypes()).containsExactly(String.class);
 	}
 
 	@Test
 	public void testGetArguments() throws Exception {
-		assertThat(output.getArguments(), arrayContaining(literal("Hello")));
+		assertThat(output.getArguments()).containsExactly(literal("Hello"));
 	}
 
 	@Test
