@@ -4,7 +4,6 @@ import static com.almondtools.conmatch.conventions.ReflectiveEqualsMatcher.refle
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.isEmptyString;
-import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
 import java.io.Serializable;
@@ -76,7 +75,7 @@ public class GenericObjectTest {
 		Complex object = new Complex();
 
 		GenericObject.setField(object, "simple", value);
-		assertThat(object.simple, sameInstance(value));
+		assertThat(object.simple).isSameAs(value);
 	}
 
 	@Test
@@ -85,7 +84,7 @@ public class GenericObjectTest {
 		Complex object = new Complex();
 
 		GenericObject.setField(object, "simple", value);
-		assertThat(object.simple, sameInstance(value.value()));
+		assertThat(object.simple).isSameAs(value.value());
 	}
 
 	@Test
@@ -103,7 +102,7 @@ public class GenericObjectTest {
 		Complex object = new Complex();
 
 		GenericObject.setField(object, Complex.class.getDeclaredField("simple"), value);
-		assertThat(object.simple, sameInstance(value));
+		assertThat(object.simple).isSameAs(value);
 	}
 
 	@Test

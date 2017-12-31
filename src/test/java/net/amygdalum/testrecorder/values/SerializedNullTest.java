@@ -3,8 +3,6 @@ package net.amygdalum.testrecorder.values;
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +15,7 @@ public class SerializedNullTest {
 		SerializedNull value = nullInstance(String.class);
 		SerializedNull testvalue = nullInstance(String.class);
 
-		assertThat(testvalue, sameInstance(value));
+		assertThat(testvalue).isSameAs(value);
 	}
 
 	@Test

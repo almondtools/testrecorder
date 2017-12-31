@@ -5,7 +5,6 @@ import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContex
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.emptyArray;
 import static org.junit.Assert.assertThat;
 
 import java.lang.annotation.Annotation;
@@ -61,7 +60,7 @@ public class SerializedFieldTest {
 
 		SerializedField valueAnnotated = new SerializedField(AnnotatedField.class, "annotatedValue", Annotated.class, nullInstance(Annotated.class));
 
-		assertThat(valueAnnotated.getAnnotations(), emptyArray());
+		assertThat(valueAnnotated.getAnnotations()).isEmpty();
 		assertThat(valueAnnotated.getAnnotation(MyAnnotation.class).isPresent()).isFalse();
 		assertThat(valueAnnotated.getAnnotation(NoAnnotation.class).isPresent()).isFalse();
 }

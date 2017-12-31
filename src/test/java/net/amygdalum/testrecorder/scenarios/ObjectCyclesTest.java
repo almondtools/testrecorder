@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.scenarios;
 
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
-import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -25,10 +25,10 @@ public class ObjectCyclesTest {
 		a.next(b);
 		b.next(a);
 
-		assertThat(a.getNext(), sameInstance(b));
-		assertThat(a.getPrev(), sameInstance(b));
-		assertThat(b.getNext(), sameInstance(a));
-		assertThat(b.getPrev(), sameInstance(a));
+		assertThat(a.getNext()).isSameAs(b);
+		assertThat(a.getPrev()).isSameAs(b);
+		assertThat(b.getNext()).isSameAs(a);
+		assertThat(b.getPrev()).isSameAs(a);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(ObjectCycles.class), compiles(ObjectCycles.class));

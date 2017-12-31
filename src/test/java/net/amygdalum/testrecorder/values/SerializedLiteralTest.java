@@ -3,8 +3,6 @@ package net.amygdalum.testrecorder.values;
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +15,7 @@ public class SerializedLiteralTest {
 		SerializedLiteral value = literal("string");
 		SerializedLiteral testvalue = literal("string");
 
-		assertThat(testvalue, sameInstance(value));
+		assertThat(testvalue).isSameAs(value);
 	}
 
 	@Test

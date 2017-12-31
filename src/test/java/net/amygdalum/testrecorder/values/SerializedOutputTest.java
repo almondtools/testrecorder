@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
 import java.io.OutputStream;
@@ -43,13 +42,13 @@ public class SerializedOutputTest {
 
 	@Test
 	public void testGetDeclaringClass() throws Exception {
-		assertThat(output.getDeclaringClass(), sameInstance(PrintStream.class));
+		assertThat(output.getDeclaringClass()).isSameAs(PrintStream.class);
 	}
 
 	@Test
 	public void testGetName() throws Exception {
-		assertThat(output.getName(), sameInstance("append"));
-		assertThat(outputNoResult.getName(), sameInstance("println"));
+		assertThat(output.getName()).isSameAs("append");
+		assertThat(outputNoResult.getName()).isSameAs("println");
 	}
 
 	@Test
@@ -65,8 +64,8 @@ public class SerializedOutputTest {
 
 	@Test
 	public void testGetResultType() throws Exception {
-		assertThat(output.getResultType(), sameInstance(PrintStream.class));
-		assertThat(outputNoResult.getResultType(), sameInstance(void.class));
+		assertThat(output.getResultType()).isSameAs(PrintStream.class);
+		assertThat(outputNoResult.getResultType()).isSameAs(void.class);
 	}
 
 	@Test

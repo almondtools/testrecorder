@@ -1,8 +1,6 @@
 package net.amygdalum.testrecorder.values;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThat;
 
 import java.lang.annotation.Annotation;
 
@@ -19,8 +17,8 @@ public class AbstractSerializedValueTest {
 	public void testASerializedValue() throws Exception {
 		ASerializedValue value = new ASerializedValue(String.class);
 
-		assertThat(value.getType(), sameInstance(String.class));
-		assertThat(value.getResultType(), sameInstance(String.class));
+		assertThat(value.getType()).isSameAs(String.class);
+		assertThat(value.getResultType()).isSameAs(String.class);
 	}
 
 	@Test
@@ -28,8 +26,8 @@ public class AbstractSerializedValueTest {
 		ASerializedValue value = new ASerializedValue(String.class);
 		value.setType(Object.class);
 
-		assertThat(value.getType(), sameInstance(Object.class));
-		assertThat(value.getResultType(), sameInstance(Object.class));
+		assertThat(value.getType()).isSameAs(Object.class);
+		assertThat(value.getResultType()).isSameAs(Object.class);
 	}
 
 	@Test

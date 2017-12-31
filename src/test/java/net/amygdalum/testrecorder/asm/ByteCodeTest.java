@@ -2,8 +2,6 @@ package net.amygdalum.testrecorder.asm;
 
 import static com.almondtools.conmatch.exceptions.ExceptionMatcher.matchesException;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.sameInstance;
-import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
@@ -63,24 +61,24 @@ public class ByteCodeTest {
 
 	@Test
 	public void testUnboxedType() throws Exception {
-		assertThat(ByteCode.unboxedType(Type.BOOLEAN_TYPE), sameInstance(Type.BOOLEAN_TYPE));
-		assertThat(ByteCode.unboxedType(Type.BYTE_TYPE), sameInstance(Type.BYTE_TYPE));
-		assertThat(ByteCode.unboxedType(Type.SHORT_TYPE), sameInstance(Type.SHORT_TYPE));
-		assertThat(ByteCode.unboxedType(Type.INT_TYPE), sameInstance(Type.INT_TYPE));
-		assertThat(ByteCode.unboxedType(Type.LONG_TYPE), sameInstance(Type.LONG_TYPE));
-		assertThat(ByteCode.unboxedType(Type.FLOAT_TYPE), sameInstance(Type.FLOAT_TYPE));
-		assertThat(ByteCode.unboxedType(Type.DOUBLE_TYPE), sameInstance(Type.DOUBLE_TYPE));
-		assertThat(ByteCode.unboxedType(Type.CHAR_TYPE), sameInstance(Type.CHAR_TYPE));
-		assertThat(ByteCode.unboxedType(Type.VOID_TYPE), sameInstance(Type.VOID_TYPE));
-		assertThat(ByteCode.unboxedType(Type.getType(Boolean.class)), sameInstance(Type.BOOLEAN_TYPE));
-		assertThat(ByteCode.unboxedType(Type.getType(Byte.class)), sameInstance(Type.BYTE_TYPE));
-		assertThat(ByteCode.unboxedType(Type.getType(Short.class)), sameInstance(Type.SHORT_TYPE));
-		assertThat(ByteCode.unboxedType(Type.getType(Integer.class)), sameInstance(Type.INT_TYPE));
-		assertThat(ByteCode.unboxedType(Type.getType(Long.class)), sameInstance(Type.LONG_TYPE));
-		assertThat(ByteCode.unboxedType(Type.getType(Float.class)), sameInstance(Type.FLOAT_TYPE));
-		assertThat(ByteCode.unboxedType(Type.getType(Double.class)), sameInstance(Type.DOUBLE_TYPE));
-		assertThat(ByteCode.unboxedType(Type.getType(Character.class)), sameInstance(Type.CHAR_TYPE));
-		assertThat(ByteCode.unboxedType(Type.getType(Void.class)), sameInstance(Type.VOID_TYPE));
+		assertThat(ByteCode.unboxedType(Type.BOOLEAN_TYPE)).isSameAs(Type.BOOLEAN_TYPE);
+		assertThat(ByteCode.unboxedType(Type.BYTE_TYPE)).isSameAs(Type.BYTE_TYPE);
+		assertThat(ByteCode.unboxedType(Type.SHORT_TYPE)).isSameAs(Type.SHORT_TYPE);
+		assertThat(ByteCode.unboxedType(Type.INT_TYPE)).isSameAs(Type.INT_TYPE);
+		assertThat(ByteCode.unboxedType(Type.LONG_TYPE)).isSameAs(Type.LONG_TYPE);
+		assertThat(ByteCode.unboxedType(Type.FLOAT_TYPE)).isSameAs(Type.FLOAT_TYPE);
+		assertThat(ByteCode.unboxedType(Type.DOUBLE_TYPE)).isSameAs(Type.DOUBLE_TYPE);
+		assertThat(ByteCode.unboxedType(Type.CHAR_TYPE)).isSameAs(Type.CHAR_TYPE);
+		assertThat(ByteCode.unboxedType(Type.VOID_TYPE)).isSameAs(Type.VOID_TYPE);
+		assertThat(ByteCode.unboxedType(Type.getType(Boolean.class))).isSameAs(Type.BOOLEAN_TYPE);
+		assertThat(ByteCode.unboxedType(Type.getType(Byte.class))).isSameAs(Type.BYTE_TYPE);
+		assertThat(ByteCode.unboxedType(Type.getType(Short.class))).isSameAs(Type.SHORT_TYPE);
+		assertThat(ByteCode.unboxedType(Type.getType(Integer.class))).isSameAs(Type.INT_TYPE);
+		assertThat(ByteCode.unboxedType(Type.getType(Long.class))).isSameAs(Type.LONG_TYPE);
+		assertThat(ByteCode.unboxedType(Type.getType(Float.class))).isSameAs(Type.FLOAT_TYPE);
+		assertThat(ByteCode.unboxedType(Type.getType(Double.class))).isSameAs(Type.DOUBLE_TYPE);
+		assertThat(ByteCode.unboxedType(Type.getType(Character.class))).isSameAs(Type.CHAR_TYPE);
+		assertThat(ByteCode.unboxedType(Type.getType(Void.class))).isSameAs(Type.VOID_TYPE);
 		assertThat(ByteCode.unboxedType(Type.getType(Object.class)), nullValue());
 	}
 
@@ -171,7 +169,7 @@ public class ByteCodeTest {
 
 	@Test
 	public void testArgumentTypes() throws Exception {
-		assertThat(ByteCode.argumentTypesFrom("()V"), emptyArray());
+		assertThat(ByteCode.argumentTypesFrom("()V")).isEmpty();
 		assertThat(ByteCode.argumentTypesFrom("(Ljava/lang/Object;)I")).containsExactly(Object.class);
 		assertThat(ByteCode.argumentTypesFrom("(IC)V")).containsExactly(int.class, char.class);
 	}

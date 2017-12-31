@@ -3,9 +3,6 @@ package net.amygdalum.testrecorder;
 import static net.amygdalum.testrecorder.util.Types.getDeclaredField;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.emptyArray;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -59,7 +56,7 @@ public class ConfigurableSerializerFacadeTest {
         TestClass value = new TestClass();
         SerializedValue result = facade.serialize(TestClass.class, value);
 
-        assertThat(result, sameInstance(expectedResult));
+        assertThat(result).isSameAs(expectedResult);
         verify(serializer).populate(expectedResult, value);
     }
 
@@ -67,7 +64,7 @@ public class ConfigurableSerializerFacadeTest {
     public void testSerializeTypeArrayObjectArrayOnEmpty() throws Exception {
         SerializedValue[] serialize = facade.serialize(new Type[0], new Object[0]);
 
-        assertThat(serialize, emptyArray());
+        assertThat(serialize).isEmpty();
     }
 
     @Test

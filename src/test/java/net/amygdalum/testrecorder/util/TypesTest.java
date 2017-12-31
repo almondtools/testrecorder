@@ -40,7 +40,6 @@ import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Field;
@@ -457,7 +456,7 @@ public class TypesTest {
 
 	@Test
 	public void testArray() throws Exception {
-		assertThat(array(String.class), sameInstance(String[].class));
+		assertThat(array(String.class)).isSameAs(String[].class);
 		assertThat(array(parameterized(List.class, null, String.class)).getTypeName()).isEqualTo("java.util.List<java.lang.String>[]");
 		assertThat(array(parameterized(List.class, null, String.class)).toString()).isEqualTo("java.util.List<java.lang.String>[]");
 		assertThat(((GenericArrayType) array(parameterized(List.class, null, String.class))).getGenericComponentType()).isEqualTo(parameterized(List.class, null, String.class));

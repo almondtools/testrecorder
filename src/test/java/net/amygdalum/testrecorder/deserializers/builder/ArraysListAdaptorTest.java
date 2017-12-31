@@ -6,7 +6,6 @@ import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
 import java.util.List;
@@ -28,7 +27,7 @@ public class ArraysListAdaptorTest {
 
 	@Test
 	public void testParentNull() throws Exception {
-		assertThat(adaptor.parent(), sameInstance(DefaultListAdaptor.class));
+		assertThat(adaptor.parent()).isSameAs(DefaultListAdaptor.class);
 	}
 
 	@Test

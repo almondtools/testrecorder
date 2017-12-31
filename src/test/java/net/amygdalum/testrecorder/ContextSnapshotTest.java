@@ -4,7 +4,6 @@ import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.arrayWithSize;
-import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.collection.IsArrayContaining.hasItemInArray;
 import static org.junit.Assert.assertThat;
 
@@ -107,7 +106,7 @@ public class ContextSnapshotTest {
 
 		snapshot.setExpectException(expectException);
 
-		assertThat(snapshot.getExpectException(), sameInstance(expectException));
+		assertThat(snapshot.getExpectException()).isSameAs(expectException);
 	}
 
 	@Test

@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
 import java.io.BufferedReader;
@@ -45,8 +44,8 @@ public class SerializedInputTest {
 
 	@Test
 	public void testGetDeclaringClass() throws Exception {
-		assertThat(input.getDeclaringClass(), sameInstance(BufferedReader.class));
-		assertThat(inputNoResult.getDeclaringClass(), sameInstance(InputStream.class));
+		assertThat(input.getDeclaringClass()).isSameAs(BufferedReader.class);
+		assertThat(inputNoResult.getDeclaringClass()).isSameAs(InputStream.class);
 	}
 
 	@Test
@@ -69,8 +68,8 @@ public class SerializedInputTest {
 
 	@Test
 	public void testGetResultType() throws Exception {
-		assertThat(input.getResultType(), sameInstance(String.class));
-		assertThat(inputNoResult.getResultType(), sameInstance(void.class));
+		assertThat(input.getResultType()).isSameAs(String.class);
+		assertThat(inputNoResult.getResultType()).isSameAs(void.class);
 	}
 
 	@Test

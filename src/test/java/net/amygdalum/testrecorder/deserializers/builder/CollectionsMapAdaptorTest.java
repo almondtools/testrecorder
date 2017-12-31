@@ -7,7 +7,6 @@ import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
@@ -34,7 +33,7 @@ public class CollectionsMapAdaptorTest {
 
 	@Test
 	public void testParentNull() throws Exception {
-		assertThat(adaptor.parent(), sameInstance(DefaultMapAdaptor.class));
+		assertThat(adaptor.parent()).isSameAs(DefaultMapAdaptor.class);
 	}
 
 	@Test

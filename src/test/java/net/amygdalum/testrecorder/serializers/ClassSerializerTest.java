@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder.serializers;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -43,7 +42,7 @@ public class ClassSerializerTest {
 
 		serializer.populate(value, String.class);
 
-		assertThat(value.getValue(), sameInstance(String.class));
+		assertThat(value.getValue()).isSameAs(String.class);
 	}
 
 }

@@ -7,7 +7,6 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
 import java.lang.annotation.Annotation;
@@ -248,8 +247,8 @@ public class TestGeneratorTest {
 				return tg;
 			}
 		});
-		assertThat(TestGenerator.fromRecorded(), sameInstance(tg));
-		assertThat(TestGenerator.fromRecorded(), sameInstance(tg));
+		assertThat(TestGenerator.fromRecorded()).isSameAs(tg);
+		assertThat(TestGenerator.fromRecorded()).isSameAs(tg);
 	}
 
 	@Test

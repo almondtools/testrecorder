@@ -12,7 +12,6 @@ import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
@@ -152,8 +151,8 @@ public class SerializedSetTest {
 	@Test
 	public void testToArray0() throws Exception {
 		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		assertThat(set.toArray(), emptyArray());
-		assertThat(set.toArray(new SerializedValue[0]), emptyArray());
+		assertThat(set.toArray()).isEmpty();
+		assertThat(set.toArray(new SerializedValue[0])).isEmpty();
 	}
 
 	@Test

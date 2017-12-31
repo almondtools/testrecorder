@@ -11,7 +11,6 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
@@ -277,8 +276,8 @@ public class ScheduledTestGeneratorTest {
                 return tg;
             }
         });
-        assertThat(TestGenerator.fromRecorded(), sameInstance(tg));
-        assertThat(TestGenerator.fromRecorded(), sameInstance(tg));
+        assertThat(TestGenerator.fromRecorded()).isSameAs(tg);
+        assertThat(TestGenerator.fromRecorded()).isSameAs(tg);
     }
 
     @Test

@@ -12,7 +12,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
@@ -152,8 +151,8 @@ public class SerializedListTest {
 	@Test
 	public void testToArray0() throws Exception {
 		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		assertThat(list.toArray(), emptyArray());
-		assertThat(list.toArray(new SerializedValue[0]), emptyArray());
+		assertThat(list.toArray()).isEmpty();
+		assertThat(list.toArray(new SerializedValue[0])).isEmpty();
 	}
 
 	@Test
