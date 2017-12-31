@@ -4,7 +4,7 @@ import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContex
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
@@ -58,7 +58,7 @@ public class CollectionsListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), listDecoratedBy("unmodifiableList", 0, 8, 15));
-		assertThat(result.getValue(), equalTo("list1"));
+		assertThat(result.getValue()).isEqualTo("list1");
 	}
 
 	@Test
@@ -69,7 +69,7 @@ public class CollectionsListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), listDecoratedBy("unmodifiableList", 0, 8, 15));
-		assertThat(result.getValue(), equalTo("list1"));
+		assertThat(result.getValue()).isEqualTo("list1");
 	}
 
 	@Test
@@ -80,7 +80,7 @@ public class CollectionsListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), listDecoratedBy("synchronizedList", 0, 8, 15));
-		assertThat(result.getValue(), equalTo("list1"));
+		assertThat(result.getValue()).isEqualTo("list1");
 	}
 
 	@Test
@@ -91,7 +91,7 @@ public class CollectionsListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), rawListDecoratedBy("synchronizedList", 0, 8, 15));
-		assertThat(result.getValue(), equalTo("list1"));
+		assertThat(result.getValue()).isEqualTo("list1");
 	}
 
 	@Test
@@ -102,7 +102,7 @@ public class CollectionsListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), wildcardListDecoratedBy("synchronizedList", 0, 8, 15));
-		assertThat(result.getValue(), equalTo("list1"));
+		assertThat(result.getValue()).isEqualTo("list1");
 	}
 
 	@Test
@@ -113,7 +113,7 @@ public class CollectionsListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), listDecoratedBy("synchronizedList", 0, 8, 15));
-		assertThat(result.getValue(), equalTo("list1"));
+		assertThat(result.getValue()).isEqualTo("list1");
 	}
 
 	@Test
@@ -124,7 +124,7 @@ public class CollectionsListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), listDecoratedBy("checkedList", Integer.class, 0, 8, 15));
-		assertThat(result.getValue(), equalTo("list1"));
+		assertThat(result.getValue()).isEqualTo("list1");
 	}
 
 	@Test
@@ -135,7 +135,7 @@ public class CollectionsListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), listDecoratedBy("checkedList", Integer.class, 0, 8, 15));
-		assertThat(result.getValue(), equalTo("list1"));
+		assertThat(result.getValue()).isEqualTo("list1");
 	}
 
 	@Test
@@ -146,7 +146,7 @@ public class CollectionsListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), containsString("List<Integer> list1 = emptyList()"));
-		assertThat(result.getValue(), equalTo("list1"));
+		assertThat(result.getValue()).isEqualTo("list1");
 	}
 
 	@Test
@@ -157,7 +157,7 @@ public class CollectionsListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), containsString("List<Integer> list1 = singletonList(0)"));
-		assertThat(result.getValue(), equalTo("list1"));
+		assertThat(result.getValue()).isEqualTo("list1");
 	}
 
 	@Test

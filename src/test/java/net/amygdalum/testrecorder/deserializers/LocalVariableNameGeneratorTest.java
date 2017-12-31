@@ -3,8 +3,7 @@ package net.amygdalum.testrecorder.deserializers;
 import static net.amygdalum.testrecorder.util.Types.array;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.wildcardExtends;
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -27,7 +26,7 @@ public class LocalVariableNameGeneratorTest {
 		
 		String testName = nameGenerator.fetchName(ClassicEnum.class);
 		
-		assertThat(testName, equalTo("classicEnum1"));
+		assertThat(testName).isEqualTo("classicEnum1");
 	}
 
 	@Test
@@ -35,7 +34,7 @@ public class LocalVariableNameGeneratorTest {
 		
 		String testName = nameGenerator.fetchName(int.class);
 		
-		assertThat(testName, equalTo("int1"));
+		assertThat(testName).isEqualTo("int1");
 	}
 
 	@Test
@@ -43,7 +42,7 @@ public class LocalVariableNameGeneratorTest {
 		
 		String testName = nameGenerator.fetchName(ClassicEnum[].class);
 		
-		assertThat(testName, equalTo("classicEnumArray1"));
+		assertThat(testName).isEqualTo("classicEnumArray1");
 	}
 
 	@Test
@@ -51,7 +50,7 @@ public class LocalVariableNameGeneratorTest {
 		
 		String testName = nameGenerator.fetchName(int[].class);
 		
-		assertThat(testName, equalTo("intArray1"));
+		assertThat(testName).isEqualTo("intArray1");
 	}
 
 	@Test
@@ -60,7 +59,7 @@ public class LocalVariableNameGeneratorTest {
 		
 		String testName = nameGenerator.fetchName(ClassicEnum.class);
 		
-		assertThat(testName, equalTo("classicEnum2"));
+		assertThat(testName).isEqualTo("classicEnum2");
 	}
 
 	@Test
@@ -68,7 +67,7 @@ public class LocalVariableNameGeneratorTest {
 		
 		String testName = nameGenerator.fetchName(NestedEnum.ENUM_VALUE.getClass());
 		
-		assertThat(testName, equalTo("nestedEnum1"));
+		assertThat(testName).isEqualTo("nestedEnum1");
 	}
 
 	@Test
@@ -76,7 +75,7 @@ public class LocalVariableNameGeneratorTest {
 		
 		String testName = nameGenerator.fetchName(SmartEnum.ENUM_VALUE.getClass());
 		
-		assertThat(testName, equalTo("smartEnum$1_1"));
+		assertThat(testName).isEqualTo("smartEnum$1_1");
 	}
 
 	@Test
@@ -84,7 +83,7 @@ public class LocalVariableNameGeneratorTest {
 		
 		String testName = nameGenerator.fetchName(array(parameterized(List.class,null, String.class)));
 		
-		assertThat(testName, equalTo("listArray1"));
+		assertThat(testName).isEqualTo("listArray1");
 	}
 
 	@Test
@@ -92,7 +91,7 @@ public class LocalVariableNameGeneratorTest {
 		
 		String testName = nameGenerator.fetchName(parameterized(List.class,null, Integer.class));
 		
-		assertThat(testName, equalTo("list1"));
+		assertThat(testName).isEqualTo("list1");
 	}
 	
 	@Test
@@ -100,7 +99,7 @@ public class LocalVariableNameGeneratorTest {
 		
 		String testName = nameGenerator.fetchName(wildcardExtends(Collection.class));
 		
-		assertThat(testName, equalTo("extends_java_util_Collection1"));
+		assertThat(testName).isEqualTo("extends_java_util_Collection1");
 	}
 	
 	@Test
@@ -113,7 +112,7 @@ public class LocalVariableNameGeneratorTest {
 			}
 		});
 		
-		assertThat(testName, equalTo("_1"));
+		assertThat(testName).isEqualTo("_1");
 	}
 	
 	enum NestedEnum {

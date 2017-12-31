@@ -135,6 +135,11 @@
 			<version>0.1.12</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>net.amygdalum</groupId>
+			<artifactId>assertj-conventions</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

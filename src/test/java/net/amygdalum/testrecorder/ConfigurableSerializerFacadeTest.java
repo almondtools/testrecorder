@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder;
 
 import static net.amygdalum.testrecorder.util.Types.getDeclaredField;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.sameInstance;
@@ -38,14 +38,14 @@ public class ConfigurableSerializerFacadeTest {
 
     @Test
     public void testSerializeTypeObjectOnNull() throws Exception {
-        assertThat(facade.serialize(String.class, null), equalTo(SerializedNull.nullInstance(String.class)));
+        assertThat(facade.serialize(String.class, null)).isEqualTo(SerializedNull.nullInstance(String.class));
     }
 
     @Test
     public void testSerializeTypeObjectOnLiteral() throws Exception {
-        assertThat(facade.serialize(String.class, "strliteral"), equalTo(SerializedLiteral.literal("strliteral")));
-        assertThat(facade.serialize(int.class, 22), equalTo(SerializedLiteral.literal(int.class, 22)));
-        assertThat(facade.serialize(Integer.class, 22), equalTo(SerializedLiteral.literal(Integer.class, 22)));
+        assertThat(facade.serialize(String.class, "strliteral")).isEqualTo(SerializedLiteral.literal("strliteral"));
+        assertThat(facade.serialize(int.class, 22)).isEqualTo(SerializedLiteral.literal(int.class, 22));
+        assertThat(facade.serialize(Integer.class, 22)).isEqualTo(SerializedLiteral.literal(Integer.class, 22));
     }
 
     @SuppressWarnings("unchecked")
@@ -82,10 +82,10 @@ public class ConfigurableSerializerFacadeTest {
     public void testSerializeFieldObject() throws Exception {
         SerializedField serialized = facade.serialize(getDeclaredField(TestClass.class, "testField"), new TestClass());
 
-        assertThat(serialized.getName(), equalTo("testField"));
-        assertThat(serialized.getDeclaringClass(), equalTo(TestClass.class));
-        assertThat(serialized.getType(), equalTo(int.class));
-        assertThat(serialized.getValue(), equalTo(literal(int.class, 42)));
+        assertThat(serialized.getName()).isEqualTo("testField");
+        assertThat(serialized.getDeclaringClass()).isEqualTo(TestClass.class);
+        assertThat(serialized.getType()).isEqualTo(int.class);
+        assertThat(serialized.getValue()).isEqualTo(literal(int.class, 42));
     }
 
     interface OpenFacade {

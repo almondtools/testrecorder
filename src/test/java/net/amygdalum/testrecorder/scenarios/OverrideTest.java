@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ public class OverrideTest {
 		Overriding o = new Overriding();
 		int result = o.methodForReplacement(0l);
 
-		assertThat(result, equalTo(1));
+		assertThat(result).isEqualTo(1);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(Overridden.class), empty());
@@ -33,7 +33,7 @@ public class OverrideTest {
 		Overriding o = new Overriding();
 		int result = o.methodForExtension(0l);
 
-		assertThat(result, equalTo(1));
+		assertThat(result).isEqualTo(1);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(Overridden.class), empty());

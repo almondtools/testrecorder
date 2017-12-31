@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.serializers;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -35,8 +35,8 @@ public class BigDecimalSerializerTest {
 	public void testGenerate() throws Exception {
 		SerializedImmutable<BigDecimal> value = serializer.generate(BigDecimal.class, BigDecimal.class);
 
-		assertThat(value.getResultType(), equalTo(BigDecimal.class));
-		assertThat(value.getType(), equalTo(BigDecimal.class));
+		assertThat(value.getResultType()).isEqualTo(BigDecimal.class);
+		assertThat(value.getType()).isEqualTo(BigDecimal.class);
 	}
 
 	@Test
@@ -45,7 +45,7 @@ public class BigDecimalSerializerTest {
 
 		serializer.populate(value, BigDecimal.valueOf(2222, 2));
 
-		assertThat(value.getValue(), equalTo(BigDecimal.valueOf(2222, 2)));
+		assertThat(value.getValue()).isEqualTo(BigDecimal.valueOf(2222, 2));
 	}
 
 }

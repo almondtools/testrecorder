@@ -3,8 +3,8 @@ package net.amygdalum.testrecorder.scenarios;
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
@@ -28,7 +28,7 @@ public class ConstructorsWithEnumsTest {
 	public void testCompilable() throws Exception {
 		String string = ConstructorsWithEnums.toString(new ConstructorsWithEnums("FIRST"));
 
-		assertThat(string, equalTo("FIRST:FIRST"));
+		assertThat(string).isEqualTo("FIRST:FIRST");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(ConstructorsWithEnums.class), compiles(ConstructorsWithEnums.class));
@@ -39,7 +39,7 @@ public class ConstructorsWithEnumsTest {
 	public void testEnumCompilable() throws Exception {
 		String string = ConstructorsWithEnums.toString(new ConstructorsWithEnums(InnerEnum.FIRST));
 
-		assertThat(string, equalTo("FIRST:null"));
+		assertThat(string).isEqualTo("FIRST:null");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(ConstructorsWithEnums.class), compiles(ConstructorsWithEnums.class));
@@ -50,7 +50,7 @@ public class ConstructorsWithEnumsTest {
 	public void testChainedEnumCompilable() throws Exception {
 		String string = ConstructorsWithEnums.toString(new ConstructorsWithEnums(ChainedEnum.FIRST));
 
-		assertThat(string, equalTo("FIRST:FIRST"));
+		assertThat(string).isEqualTo("FIRST:FIRST");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(ConstructorsWithEnums.class), compiles(ConstructorsWithEnums.class));
@@ -61,7 +61,7 @@ public class ConstructorsWithEnumsTest {
 	public void testCode() throws Exception {
 		String string = ConstructorsWithEnums.toString(new ConstructorsWithEnums(ChainedEnum.SECOND));
 
-		assertThat(string, equalTo("SECOND:SECOND"));
+		assertThat(string).isEqualTo("SECOND:SECOND");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(ConstructorsWithEnums.class), hasSize(1));

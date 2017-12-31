@@ -1,8 +1,8 @@
 package net.amygdalum.testrecorder;
 
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
@@ -223,7 +223,7 @@ public class TestGeneratorTest {
 
 	@Test
 	public void testComputeClassName() throws Exception {
-		assertThat(testGenerator.computeClassName(ClassDescriptor.of(MyClass.class)), equalTo("MyClassRecordedTest"));
+		assertThat(testGenerator.computeClassName(ClassDescriptor.of(MyClass.class))).isEqualTo("MyClassRecordedTest");
 	}
 
 	@Test

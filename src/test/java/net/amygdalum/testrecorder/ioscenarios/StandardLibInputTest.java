@@ -2,8 +2,8 @@ package net.amygdalum.testrecorder.ioscenarios;
 
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.allOf;
 import static org.junit.Assert.assertThat;
 
@@ -47,7 +47,7 @@ public class StandardLibInputTest {
 
 		int result = io.readFile(new byte[] { 41, 42 }, 1);
 		
-		assertThat(result, equalTo(42));
+		assertThat(result).isEqualTo(42);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(StandardLibInputOutput.class), allOf(
@@ -62,7 +62,7 @@ public class StandardLibInputTest {
 
 		int result = io.readFile(new byte[] { 41, 42 }, 1);
 		
-		assertThat(result, equalTo(42));
+		assertThat(result).isEqualTo(42);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(StandardLibInputOutput.class), testsRun(StandardLibInputOutput.class));

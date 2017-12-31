@@ -4,7 +4,7 @@ import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContex
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenSet;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -70,7 +70,7 @@ public class DefaultSetAdaptorTest {
 			containsString("temp1.add(8)"),
 			containsString("temp1.add(15)"),
 			containsString("Set<Integer> set1 = temp1;")));
-		assertThat(result.getValue(), equalTo("set1"));
+		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
 	@Test
@@ -88,7 +88,7 @@ public class DefaultSetAdaptorTest {
 			containsString("set1.add(0)"),
 			containsString("set1.add(8)"),
 			containsString("set1.add(15)")));
-		assertThat(result.getValue(), equalTo("set1"));
+		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
     @Test
@@ -108,7 +108,7 @@ public class DefaultSetAdaptorTest {
             containsString("temp1.add(8)"),
             containsString("temp1.add(15)"),
             containsString("OrthogonalInterface set1 = temp1;")));
-        assertThat(result.getValue(), equalTo("set1"));
+        assertThat(result.getValue()).isEqualTo("set1");
     }
 
     @Test
@@ -128,7 +128,7 @@ public class DefaultSetAdaptorTest {
             containsString("temp1.add(8)"),
             containsString("temp1.add(15)"),
             containsString("OrthogonalInterface set1 = (OrthogonalInterface) temp1;")));
-        assertThat(result.getValue(), equalTo("set1"));
+        assertThat(result.getValue()).isEqualTo("set1");
     }
 
     @Test
@@ -147,7 +147,7 @@ public class DefaultSetAdaptorTest {
             containsString("set1.add(0)"),
             containsString("set1.add(8)"),
             containsString("set1.add(15)")));
-        assertThat(result.getValue(), equalTo("set1"));
+        assertThat(result.getValue()).isEqualTo("set1");
     }
 
     @Test
@@ -173,7 +173,7 @@ public class DefaultSetAdaptorTest {
             containsString("temp1.add(8)"),
             containsString("temp1.add(15)"),
             containsString("forwarded.addAll(temp1);")));
-        assertThat(result.getValue(), equalTo("forwarded"));
+        assertThat(result.getValue()).isEqualTo("forwarded");
     }
 
 }

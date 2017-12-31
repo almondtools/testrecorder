@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.runtime;
 
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -17,16 +17,16 @@ public class NonNullValueTest {
 
     @Test
     public void testGetNonNullValue() throws Exception {
-        assertThat(NonNullValue.of(byte.class), equalTo(Byte.valueOf((byte) 0)));
-        assertThat(NonNullValue.of(short.class), equalTo(Short.valueOf((short) 0)));
-        assertThat(NonNullValue.of(int.class), equalTo(Integer.valueOf(0)));
-        assertThat(NonNullValue.of(long.class), equalTo(Long.valueOf(0)));
-        assertThat(NonNullValue.of(float.class), equalTo(Float.valueOf(0)));
-        assertThat(NonNullValue.of(double.class), equalTo(Double.valueOf(0)));
-        assertThat(NonNullValue.of(boolean.class), equalTo(Boolean.valueOf("false")));
-        assertThat(NonNullValue.of(char.class), equalTo(Character.valueOf((char) 0)));
-        assertThat(NonNullValue.of(String.class), equalTo(""));
-        assertThat(NonNullValue.of(int[].class), equalTo(new int[0]));
+        assertThat(NonNullValue.of(byte.class)).isEqualTo(Byte.valueOf((byte) 0));
+        assertThat(NonNullValue.of(short.class)).isEqualTo(Short.valueOf((short) 0));
+        assertThat(NonNullValue.of(int.class)).isEqualTo(Integer.valueOf(0));
+        assertThat(NonNullValue.of(long.class)).isEqualTo(Long.valueOf(0));
+        assertThat(NonNullValue.of(float.class)).isEqualTo(Float.valueOf(0));
+        assertThat(NonNullValue.of(double.class)).isEqualTo(Double.valueOf(0));
+        assertThat(NonNullValue.of(boolean.class)).isEqualTo(Boolean.valueOf("false"));
+        assertThat(NonNullValue.of(char.class)).isEqualTo(Character.valueOf((char) 0));
+        assertThat(NonNullValue.of(String.class)).isEqualTo("");
+        assertThat(NonNullValue.of(int[].class)).isEqualTo(new int[0]);
         assertThat(NonNullValue.of(OrthogonalInterface.class), instanceOf(OrthogonalInterface.class));
         assertThat(NonNullValue.of(PublicEnum.class), instanceOf(PublicEnum.class));
         assertThat(NonNullValue.of(EmptyEnum.class), nullValue());
@@ -36,20 +36,20 @@ public class NonNullValueTest {
 
     @Test
     public void testGetDescription() throws Exception {
-        assertThat(NonNullValue.INSTANCE.getDescription(boolean.class), equalTo("false"));
-        assertThat(NonNullValue.INSTANCE.getDescription(char.class), equalTo("'\\u0000'"));
-        assertThat(NonNullValue.INSTANCE.getDescription(byte.class), equalTo("(byte) 0"));
-        assertThat(NonNullValue.INSTANCE.getDescription(short.class), equalTo("(short) 0"));
-        assertThat(NonNullValue.INSTANCE.getDescription(int.class), equalTo("0"));
-        assertThat(NonNullValue.INSTANCE.getDescription(float.class), equalTo("0.0f"));
-        assertThat(NonNullValue.INSTANCE.getDescription(long.class), equalTo("0l"));
-        assertThat(NonNullValue.INSTANCE.getDescription(double.class), equalTo("0.0"));
-        assertThat(NonNullValue.INSTANCE.getDescription(int[].class), equalTo("new int[0]"));
-        assertThat(NonNullValue.INSTANCE.getDescription(String.class), equalTo("\"\""));
-        assertThat(NonNullValue.INSTANCE.getDescription(Object.class), equalTo("new Object()"));
-        assertThat(NonNullValue.INSTANCE.getDescription(OrthogonalInterface.class), equalTo("proxy OrthogonalInterface()"));
-        assertThat(NonNullValue.INSTANCE.getDescription(PublicEnum.class), equalTo("VALUE1"));
-        assertThat(NonNullValue.INSTANCE.getDescription(Simple.class), equalTo("new Simple()"));
+        assertThat(NonNullValue.INSTANCE.getDescription(boolean.class)).isEqualTo("false");
+        assertThat(NonNullValue.INSTANCE.getDescription(char.class)).isEqualTo("'\\u0000'");
+        assertThat(NonNullValue.INSTANCE.getDescription(byte.class)).isEqualTo("(byte) 0");
+        assertThat(NonNullValue.INSTANCE.getDescription(short.class)).isEqualTo("(short) 0");
+        assertThat(NonNullValue.INSTANCE.getDescription(int.class)).isEqualTo("0");
+        assertThat(NonNullValue.INSTANCE.getDescription(float.class)).isEqualTo("0.0f");
+        assertThat(NonNullValue.INSTANCE.getDescription(long.class)).isEqualTo("0l");
+        assertThat(NonNullValue.INSTANCE.getDescription(double.class)).isEqualTo("0.0");
+        assertThat(NonNullValue.INSTANCE.getDescription(int[].class)).isEqualTo("new int[0]");
+        assertThat(NonNullValue.INSTANCE.getDescription(String.class)).isEqualTo("\"\"");
+        assertThat(NonNullValue.INSTANCE.getDescription(Object.class)).isEqualTo("new Object()");
+        assertThat(NonNullValue.INSTANCE.getDescription(OrthogonalInterface.class)).isEqualTo("proxy OrthogonalInterface()");
+        assertThat(NonNullValue.INSTANCE.getDescription(PublicEnum.class)).isEqualTo("VALUE1");
+        assertThat(NonNullValue.INSTANCE.getDescription(Simple.class)).isEqualTo("new Simple()");
     }
     
 }

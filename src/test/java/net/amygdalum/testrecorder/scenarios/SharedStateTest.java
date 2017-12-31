@@ -3,8 +3,8 @@ package net.amygdalum.testrecorder.scenarios;
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
@@ -29,7 +29,7 @@ public class SharedStateTest {
 		
 		String result = shared1.combine(shared2);
 		
-		assertThat(result, equalTo(":."));
+		assertThat(result).isEqualTo(":.");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(SharedState.class), compiles(SharedState.class));
@@ -44,7 +44,7 @@ public class SharedStateTest {
 		
 		String result = shared1.combine(shared2);
 		
-		assertThat(result, equalTo(":."));
+		assertThat(result).isEqualTo(":.");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(SharedState.class), compiles(SharedState.class));
@@ -58,7 +58,7 @@ public class SharedStateTest {
 		
 		String result = notShared1.combine(notShared2);
 		
-		assertThat(result, equalTo(":"));
+		assertThat(result).isEqualTo(":");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(SharedState.class), compiles(SharedState.class));

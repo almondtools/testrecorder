@@ -2,10 +2,10 @@ package net.amygdalum.testrecorder.values;
 
 import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefaultEquality;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
@@ -39,7 +39,7 @@ public class SerializedOutputTest {
 
 	@Test
 	public void testGetId() throws Exception {
-		assertThat(output.getId(), equalTo(41));
+		assertThat(output.getId()).isEqualTo(41);
 	}
 
 	@Test

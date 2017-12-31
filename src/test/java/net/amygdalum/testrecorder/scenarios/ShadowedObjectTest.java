@@ -3,8 +3,8 @@ package net.amygdalum.testrecorder.scenarios;
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
@@ -30,7 +30,7 @@ public class ShadowedObjectTest {
     public void testCompilable() throws Exception {
         ShadowingObject object = new ShadowingObject("field");
 
-        assertThat(object.toString(), equalTo("field > 42"));
+        assertThat(object.toString()).isEqualTo("field > 42");
 
         TestGenerator testGenerator = TestGenerator.fromRecorded();
         assertThat(testGenerator.renderTest(ShadowingObject.class), compiles(ShadowingObject.class));
@@ -41,7 +41,7 @@ public class ShadowedObjectTest {
     public void testCode() throws Exception {
         ShadowingObject object = new ShadowingObject("field");
 
-        assertThat(object.toString(), equalTo("field > 42"));
+        assertThat(object.toString()).isEqualTo("field > 42");
 
         TestGenerator testGenerator = TestGenerator.fromRecorded();
         assertThat(testGenerator.testsFor(ShadowingObject.class), hasSize(1));
@@ -56,7 +56,7 @@ public class ShadowedObjectTest {
     public void testCodeDoubleHidden() throws Exception {
         Other.ShadowingObject object = new Other.ShadowingObject(42);
 
-        assertThat(object.toString(), equalTo("42 > field > 42"));
+        assertThat(object.toString()).isEqualTo("42 > field > 42");
 
         TestGenerator testGenerator = TestGenerator.fromRecorded();
         assertThat(testGenerator.testsFor(Other.class), hasSize(2));

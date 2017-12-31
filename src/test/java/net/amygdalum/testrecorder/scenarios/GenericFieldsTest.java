@@ -3,10 +3,10 @@ package net.amygdalum.testrecorder.scenarios;
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
@@ -30,7 +30,7 @@ public class GenericFieldsTest {
 		GenericFields bean = new GenericFields();
 		bean.setSet(new HashSet<>());
 
-		assertThat(bean.hashCode(), equalTo(0));
+		assertThat(bean.hashCode()).isEqualTo(0);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(GenericFields.class), compiles(GenericFields.class));
@@ -42,7 +42,7 @@ public class GenericFieldsTest {
 		GenericFields bean = new GenericFields();
 		bean.setSet(null);
 
-		assertThat(bean.hashCode(), equalTo(1));
+		assertThat(bean.hashCode()).isEqualTo(1);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(GenericFields.class), compiles(GenericFields.class));
@@ -54,7 +54,7 @@ public class GenericFieldsTest {
 		GenericFields bean = new GenericFields();
 		bean.setSet(new HashSet<>());
 
-		assertThat(bean.hashCode(), equalTo(0));
+		assertThat(bean.hashCode()).isEqualTo(0);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(GenericFields.class), hasSize(1));
@@ -69,7 +69,7 @@ public class GenericFieldsTest {
 		GenericFields bean = new GenericFields();
 		bean.setSet(null);
 
-		assertThat(bean.hashCode(), equalTo(1));
+		assertThat(bean.hashCode()).isEqualTo(1);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(GenericFields.class), hasSize(1));

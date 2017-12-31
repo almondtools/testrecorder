@@ -5,10 +5,10 @@ import static java.util.Arrays.asList;
 import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.MATCH;
 import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.MISMATCH;
 import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.NOT_APPLYING;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -28,9 +28,9 @@ public class GenericComparisonTest {
         Node node1 = new Node("name1");
         Node node2 = new Node("name2");
         GenericComparison comparison = new GenericComparison("root", node1, node2);
-        assertThat(comparison.getRoot(), equalTo("root"));
-        assertThat(comparison.getLeft(), equalTo(node1));
-        assertThat(comparison.getRight(), equalTo(node2));
+        assertThat(comparison.getRoot()).isEqualTo("root");
+        assertThat(comparison.getLeft()).isEqualTo(node1);
+        assertThat(comparison.getRight()).isEqualTo(node2);
         assertThat(comparison.isMismatch(), is(false));
     }
 
@@ -40,9 +40,9 @@ public class GenericComparisonTest {
         Node node1 = new Node("node", subnodes);
         Node node2 = new Node("node", subnodes);
         GenericComparison comparison = GenericComparison.from("root", "children", node1, node2);
-        assertThat(comparison.getRoot(), equalTo("root.children"));
-        assertThat(comparison.getLeft(), equalTo(subnodes));
-        assertThat(comparison.getRight(), equalTo(subnodes));
+        assertThat(comparison.getRoot()).isEqualTo("root.children");
+        assertThat(comparison.getLeft()).isEqualTo(subnodes);
+        assertThat(comparison.getRight()).isEqualTo(subnodes);
         assertThat(comparison.isMismatch(), is(false));
     }
 
@@ -52,9 +52,9 @@ public class GenericComparisonTest {
         Node node1 = new Node("node", subnodes);
         Node node2 = new Node("node", subnodes);
         GenericComparison comparison = GenericComparison.from(null, "children", node1, node2);
-        assertThat(comparison.getRoot(), equalTo("children"));
-        assertThat(comparison.getLeft(), equalTo(subnodes));
-        assertThat(comparison.getRight(), equalTo(subnodes));
+        assertThat(comparison.getRoot()).isEqualTo("children");
+        assertThat(comparison.getLeft()).isEqualTo(subnodes);
+        assertThat(comparison.getRight()).isEqualTo(subnodes);
         assertThat(comparison.isMismatch(), is(false));
     }
 
@@ -64,7 +64,7 @@ public class GenericComparisonTest {
         Node node1 = new Node("node", subnodes);
         Node node2 = new Node("node", subnodes);
         GenericComparison comparison = GenericComparison.from(null, "child", node1, node2);
-        assertThat(comparison.getRoot(), equalTo("<error>"));
+        assertThat(comparison.getRoot()).isEqualTo("<error>");
         assertThat(comparison.getLeft(), nullValue());
         assertThat(comparison.getRight(), nullValue());
         assertThat(comparison.isMismatch(), is(true));
@@ -76,9 +76,9 @@ public class GenericComparisonTest {
         Node[] nodes2 = new Node[] { new Node("node2") };
 
         GenericComparison comparison = GenericComparison.from("root", 0, nodes1, nodes2);
-        assertThat(comparison.getRoot(), equalTo("root[0]"));
-        assertThat(comparison.getLeft(), equalTo(nodes1[0]));
-        assertThat(comparison.getRight(), equalTo(nodes2[0]));
+        assertThat(comparison.getRoot()).isEqualTo("root[0]");
+        assertThat(comparison.getLeft()).isEqualTo(nodes1[0]);
+        assertThat(comparison.getRight()).isEqualTo(nodes2[0]);
         assertThat(comparison.isMismatch(), is(false));
     }
 
@@ -88,9 +88,9 @@ public class GenericComparisonTest {
         Node[] nodes2 = new Node[] { new Node("node2") };
 
         GenericComparison comparison = GenericComparison.from(null, 0, nodes1, nodes2);
-        assertThat(comparison.getRoot(), equalTo("[0]"));
-        assertThat(comparison.getLeft(), equalTo(nodes1[0]));
-        assertThat(comparison.getRight(), equalTo(nodes2[0]));
+        assertThat(comparison.getRoot()).isEqualTo("[0]");
+        assertThat(comparison.getLeft()).isEqualTo(nodes1[0]);
+        assertThat(comparison.getRight()).isEqualTo(nodes2[0]);
         assertThat(comparison.isMismatch(), is(false));
     }
 
@@ -100,7 +100,7 @@ public class GenericComparisonTest {
         Node[] nodes2 = new Node[] { new Node("node2") };
 
         GenericComparison comparison = GenericComparison.from(null, 1, nodes1, nodes2);
-        assertThat(comparison.getRoot(), equalTo("<error>"));
+        assertThat(comparison.getRoot()).isEqualTo("<error>");
         assertThat(comparison.getLeft(), nullValue());
         assertThat(comparison.getRight(), nullValue());
         assertThat(comparison.isMismatch(), is(true));

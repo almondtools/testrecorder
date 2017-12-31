@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -44,7 +44,7 @@ public class DefaultClassAdaptorTest {
         Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements(), empty());
-        assertThat(result.getValue(), equalTo("java.math.BigInteger.class"));
+        assertThat(result.getValue()).isEqualTo("java.math.BigInteger.class");
     }
 
 }

@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.values;
 
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.junit.Assert.assertThat;
@@ -50,30 +50,30 @@ public class LambdaSignatureTest {
 	public void testSerializeStaticNonCapturing() throws Exception {
 		SerializedLambda serializedLambda = Lambdas.serializeLambda(splus);
 
-		assertThat(serializedLambda.getCapturedArgCount(), equalTo(0));
+		assertThat(serializedLambda.getCapturedArgCount()).isEqualTo(0);
 		
 		LambdaSignature lambda = new LambdaSignature()
 			.withCapturingClass(serializedLambda.getCapturingClass())
 			.withInstantiatedMethodType(serializedLambda.getInstantiatedMethodType())
 			.withFunctionalInterface(serializedLambda.getFunctionalInterfaceClass(), serializedLambda.getFunctionalInterfaceMethodName(), serializedLambda.getFunctionalInterfaceMethodSignature())
 			.withImplMethod(serializedLambda.getImplClass(), serializedLambda.getImplMethodKind(), serializedLambda.getImplMethodName(), serializedLambda.getImplMethodSignature());
-		assertThat(lambda.getCapturingClass(), equalTo("net/amygdalum/testrecorder/values/LambdaSignatureTest"));
+		assertThat(lambda.getCapturingClass()).isEqualTo("net/amygdalum/testrecorder/values/LambdaSignatureTest");
 
-		assertThat(lambda.getFunctionalInterfaceClass(), equalTo("java/util/function/BiFunction"));
-		assertThat(lambda.getFunctionalInterfaceMethod().getDeclaringClass(), equalTo(BiFunction.class));
-		assertThat(lambda.getFunctionalInterfaceMethodName(), equalTo("apply"));
-		assertThat(lambda.getFunctionalInterfaceMethodSignature(), equalTo("(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"));
-		assertThat(lambda.getFunctionalInterfaceMethod().getName(), equalTo("apply"));
+		assertThat(lambda.getFunctionalInterfaceClass()).isEqualTo("java/util/function/BiFunction");
+		assertThat(lambda.getFunctionalInterfaceMethod().getDeclaringClass()).isEqualTo(BiFunction.class);
+		assertThat(lambda.getFunctionalInterfaceMethodName()).isEqualTo("apply");
+		assertThat(lambda.getFunctionalInterfaceMethodSignature()).isEqualTo("(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+		assertThat(lambda.getFunctionalInterfaceMethod().getName()).isEqualTo("apply");
 		assertThat(lambda.getFunctionalInterfaceMethod().getParameterTypes(), arrayContaining(Object.class, Object.class));
 		
 
-		assertThat(lambda.getImplClass(), equalTo("net/amygdalum/testrecorder/values/LambdaSignatureTest"));
-		assertThat(lambda.getImplMethod().getDeclaringClass(), equalTo(LambdaSignatureTest.class));
-		assertThat(lambda.getImplMethodKind(), equalTo(MethodHandleInfo.REF_invokeStatic));
-		assertThat(lambda.getImplMethodSignature(), equalTo("(Ljava/lang/Integer;Ljava/lang/Integer;)Ljava/lang/Integer;"));
+		assertThat(lambda.getImplClass()).isEqualTo("net/amygdalum/testrecorder/values/LambdaSignatureTest");
+		assertThat(lambda.getImplMethod().getDeclaringClass()).isEqualTo(LambdaSignatureTest.class);
+		assertThat(lambda.getImplMethodKind()).isEqualTo(MethodHandleInfo.REF_invokeStatic);
+		assertThat(lambda.getImplMethodSignature()).isEqualTo("(Ljava/lang/Integer;Ljava/lang/Integer;)Ljava/lang/Integer;");
 		assertThat(lambda.getImplMethod().getParameterTypes(), arrayContaining(Integer.class, Integer.class));
 		
-		assertThat(lambda.getInstantiatedMethodType(), equalTo("(Ljava/lang/Integer;Ljava/lang/Integer;)Ljava/lang/Integer;"));
+		assertThat(lambda.getInstantiatedMethodType()).isEqualTo("(Ljava/lang/Integer;Ljava/lang/Integer;)Ljava/lang/Integer;");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -81,8 +81,8 @@ public class LambdaSignatureTest {
 	public void testSerializeStaticCapturing() throws Exception {
 		SerializedLambda serializedLambda = Lambdas.serializeLambda(splusCapturing(42));
 
-		assertThat(serializedLambda.getCapturedArgCount(), equalTo(1));
-		assertThat(serializedLambda.getCapturedArg(0), equalTo(42));
+		assertThat(serializedLambda.getCapturedArgCount()).isEqualTo(1);
+		assertThat(serializedLambda.getCapturedArg(0)).isEqualTo(42);
 
 		LambdaSignature lambda = new LambdaSignature()
 			.withCapturingClass(serializedLambda.getCapturingClass())
@@ -90,21 +90,21 @@ public class LambdaSignatureTest {
 			.withFunctionalInterface(serializedLambda.getFunctionalInterfaceClass(), serializedLambda.getFunctionalInterfaceMethodName(), serializedLambda.getFunctionalInterfaceMethodSignature())
 			.withImplMethod(serializedLambda.getImplClass(), serializedLambda.getImplMethodKind(), serializedLambda.getImplMethodName(), serializedLambda.getImplMethodSignature());
 
-		assertThat(lambda.getCapturingClass(), equalTo("net/amygdalum/testrecorder/values/LambdaSignatureTest"));
+		assertThat(lambda.getCapturingClass()).isEqualTo("net/amygdalum/testrecorder/values/LambdaSignatureTest");
 
-		assertThat(lambda.getFunctionalInterfaceClass(), equalTo("java/util/function/Function"));
-		assertThat(lambda.getFunctionalInterfaceMethod().getDeclaringClass(), equalTo(Function.class));
-		assertThat(lambda.getFunctionalInterfaceMethodName(), equalTo("apply"));
-		assertThat(lambda.getFunctionalInterfaceMethodSignature(), equalTo("(Ljava/lang/Object;)Ljava/lang/Object;"));
-		assertThat(lambda.getFunctionalInterfaceMethod().getName(), equalTo("apply"));
+		assertThat(lambda.getFunctionalInterfaceClass()).isEqualTo("java/util/function/Function");
+		assertThat(lambda.getFunctionalInterfaceMethod().getDeclaringClass()).isEqualTo(Function.class);
+		assertThat(lambda.getFunctionalInterfaceMethodName()).isEqualTo("apply");
+		assertThat(lambda.getFunctionalInterfaceMethodSignature()).isEqualTo("(Ljava/lang/Object;)Ljava/lang/Object;");
+		assertThat(lambda.getFunctionalInterfaceMethod().getName()).isEqualTo("apply");
 		assertThat(lambda.getFunctionalInterfaceMethod().getParameterTypes(), arrayContaining(Object.class));
 
-		assertThat(lambda.getImplClass(), equalTo("net/amygdalum/testrecorder/values/LambdaSignatureTest"));
-		assertThat(lambda.getImplMethodKind(), equalTo(MethodHandleInfo.REF_invokeStatic));
-		assertThat(lambda.getImplMethodSignature(), equalTo("(ILjava/lang/Integer;)Ljava/lang/Integer;"));
+		assertThat(lambda.getImplClass()).isEqualTo("net/amygdalum/testrecorder/values/LambdaSignatureTest");
+		assertThat(lambda.getImplMethodKind()).isEqualTo(MethodHandleInfo.REF_invokeStatic);
+		assertThat(lambda.getImplMethodSignature()).isEqualTo("(ILjava/lang/Integer;)Ljava/lang/Integer;");
 		assertThat(lambda.getImplMethod().getParameterTypes(), arrayContaining(int.class, Integer.class));
 
-		assertThat(lambda.getInstantiatedMethodType(), equalTo("(Ljava/lang/Integer;)Ljava/lang/Integer;"));
+		assertThat(lambda.getInstantiatedMethodType()).isEqualTo("(Ljava/lang/Integer;)Ljava/lang/Integer;");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -112,8 +112,8 @@ public class LambdaSignatureTest {
 	public void testSerializeInstanceCapturing() throws Exception {
 		SerializedLambda serializedLambda = Lambdas.serializeLambda(this.splusInstanceCapturing());
 
-		assertThat(serializedLambda.getCapturedArgCount(), equalTo(1));
-		assertThat(serializedLambda.getCapturedArg(0), equalTo(this));
+		assertThat(serializedLambda.getCapturedArgCount()).isEqualTo(1);
+		assertThat(serializedLambda.getCapturedArg(0)).isEqualTo(this);
 
 		LambdaSignature lambda = new LambdaSignature()
 			.withCapturingClass(serializedLambda.getCapturingClass())
@@ -121,21 +121,21 @@ public class LambdaSignatureTest {
 			.withFunctionalInterface(serializedLambda.getFunctionalInterfaceClass(), serializedLambda.getFunctionalInterfaceMethodName(), serializedLambda.getFunctionalInterfaceMethodSignature())
 			.withImplMethod(serializedLambda.getImplClass(), serializedLambda.getImplMethodKind(), serializedLambda.getImplMethodName(), serializedLambda.getImplMethodSignature());
 
-		assertThat(lambda.getCapturingClass(), equalTo("net/amygdalum/testrecorder/values/LambdaSignatureTest"));
+		assertThat(lambda.getCapturingClass()).isEqualTo("net/amygdalum/testrecorder/values/LambdaSignatureTest");
 
-		assertThat(lambda.getFunctionalInterfaceClass(), equalTo("java/util/function/Function"));
-		assertThat(lambda.getFunctionalInterfaceMethod().getDeclaringClass(), equalTo(Function.class));
-		assertThat(lambda.getFunctionalInterfaceMethodName(), equalTo("apply"));
-		assertThat(lambda.getFunctionalInterfaceMethodSignature(), equalTo("(Ljava/lang/Object;)Ljava/lang/Object;"));
-		assertThat(lambda.getFunctionalInterfaceMethod().getName(), equalTo("apply"));
+		assertThat(lambda.getFunctionalInterfaceClass()).isEqualTo("java/util/function/Function");
+		assertThat(lambda.getFunctionalInterfaceMethod().getDeclaringClass()).isEqualTo(Function.class);
+		assertThat(lambda.getFunctionalInterfaceMethodName()).isEqualTo("apply");
+		assertThat(lambda.getFunctionalInterfaceMethodSignature()).isEqualTo("(Ljava/lang/Object;)Ljava/lang/Object;");
+		assertThat(lambda.getFunctionalInterfaceMethod().getName()).isEqualTo("apply");
 		assertThat(lambda.getFunctionalInterfaceMethod().getParameterTypes(), arrayContaining(Object.class));
 
-		assertThat(lambda.getImplClass(), equalTo("net/amygdalum/testrecorder/values/LambdaSignatureTest"));
-		assertThat(lambda.getImplMethodKind(), equalTo(MethodHandleInfo.REF_invokeSpecial));
-		assertThat(lambda.getImplMethodSignature(), equalTo("(Ljava/lang/Integer;)Ljava/lang/Integer;"));
+		assertThat(lambda.getImplClass()).isEqualTo("net/amygdalum/testrecorder/values/LambdaSignatureTest");
+		assertThat(lambda.getImplMethodKind()).isEqualTo(MethodHandleInfo.REF_invokeSpecial);
+		assertThat(lambda.getImplMethodSignature()).isEqualTo("(Ljava/lang/Integer;)Ljava/lang/Integer;");
 		assertThat(lambda.getImplMethod().getParameterTypes(), arrayContaining(Integer.class));
 
-		assertThat(lambda.getInstantiatedMethodType(), equalTo("(Ljava/lang/Integer;)Ljava/lang/Integer;"));
+		assertThat(lambda.getInstantiatedMethodType()).isEqualTo("(Ljava/lang/Integer;)Ljava/lang/Integer;");
 	}
 
 }

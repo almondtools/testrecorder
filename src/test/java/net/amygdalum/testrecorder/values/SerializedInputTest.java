@@ -2,10 +2,10 @@ package net.amygdalum.testrecorder.values;
 
 import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefaultEquality;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
@@ -40,8 +40,8 @@ public class SerializedInputTest {
 
 	@Test
 	public void testGetId() throws Exception {
-		assertThat(input.getId(), equalTo(42));
-		assertThat(inputNoResult.getId(), equalTo(43));
+		assertThat(input.getId()).isEqualTo(42);
+		assertThat(inputNoResult.getId()).isEqualTo(43);
 	}
 
 	@Test
@@ -52,8 +52,8 @@ public class SerializedInputTest {
 
 	@Test
 	public void testGetName() throws Exception {
-		assertThat(input.getName(), equalTo("readLine"));
-		assertThat(inputNoResult.getName(), equalTo("read"));
+		assertThat(input.getName()).isEqualTo("readLine");
+		assertThat(inputNoResult.getName()).isEqualTo("read");
 	}
 
 	@Test
@@ -76,7 +76,7 @@ public class SerializedInputTest {
 
 	@Test
 	public void testGetResult() throws Exception {
-		assertThat(input.getResult(), equalTo(literal("Hello")));
+		assertThat(input.getResult()).isEqualTo(literal("Hello"));
 		assertThat(inputNoResult.getResult(), nullValue());
 	}
 

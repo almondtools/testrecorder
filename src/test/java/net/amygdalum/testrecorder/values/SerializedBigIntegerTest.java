@@ -1,8 +1,7 @@
 package net.amygdalum.testrecorder.values;
 
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigInteger;
 
@@ -16,14 +15,14 @@ public class SerializedBigIntegerTest {
 	public void testGetType() throws Exception {
 		SerializedImmutable<BigInteger> value = new SerializedImmutable<BigInteger>(BigInteger.class);
 
-		assertThat(value.getResultType(), equalTo(BigInteger.class));
+		assertThat(value.getResultType()).isEqualTo(BigInteger.class);
 	}
 
 	@Test
 	public void testAccept() throws Exception {
 		SerializedImmutable<BigInteger> value = new SerializedImmutable<BigInteger>(BigInteger.class);
 
-		assertThat(value.accept(new TestValueVisitor(), NULL), equalTo("SerializedImmutable"));
+		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("SerializedImmutable");
 	}
 
 }

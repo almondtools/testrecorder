@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.ioscenarios;
 
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
-import static org.hamcrest.Matchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ public class NestedOutputTest {
 		int time = input.getTime();
 		time = input.getTime();
 
-		assertThat(time, equalTo(2));
+		assertThat(time).isEqualTo(2);
 		
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(NestedOutput.class), compiles(NestedOutput.class));
@@ -36,7 +36,7 @@ public class NestedOutputTest {
 		int time = input.getTime();
 		time = input.getTime();
 
-		assertThat(time, equalTo(2));
+		assertThat(time).isEqualTo(2);
 		
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(NestedOutput.class), testsRun(NestedOutput.class));

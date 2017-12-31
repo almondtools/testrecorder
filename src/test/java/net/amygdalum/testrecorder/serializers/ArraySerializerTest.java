@@ -1,9 +1,9 @@
 package net.amygdalum.testrecorder.serializers;
 
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -35,9 +35,9 @@ public class ArraySerializerTest {
 	public void testGenerate() throws Exception {
 		SerializedArray value = serializer.generate(String[].class, String[].class);
 
-		assertThat(value.getResultType(), equalTo(String[].class));
-		assertThat(value.getType(), equalTo(String[].class));
-		assertThat(value.getComponentType(), equalTo(String.class));
+		assertThat(value.getResultType()).isEqualTo(String[].class);
+		assertThat(value.getType()).isEqualTo(String[].class);
+		assertThat(value.getComponentType()).isEqualTo(String.class);
 	}
 
 	@Test

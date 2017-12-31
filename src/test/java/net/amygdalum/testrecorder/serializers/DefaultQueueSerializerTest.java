@@ -3,9 +3,9 @@ package net.amygdalum.testrecorder.serializers;
 import static java.util.Arrays.asList;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -49,9 +49,9 @@ public class DefaultQueueSerializerTest {
 
 		SerializedList value = serializer.generate(priorityBlockingQueueOfString, PriorityBlockingQueue.class);
 
-		assertThat(value.getResultType(), equalTo(priorityBlockingQueueOfString));
-		assertThat(value.getType(), equalTo(PriorityBlockingQueue.class));
-		assertThat(value.getComponentType(), equalTo(String.class));
+		assertThat(value.getResultType()).isEqualTo(priorityBlockingQueueOfString);
+		assertThat(value.getType()).isEqualTo(PriorityBlockingQueue.class);
+		assertThat(value.getComponentType()).isEqualTo(String.class);
 	}
 
 	@Test

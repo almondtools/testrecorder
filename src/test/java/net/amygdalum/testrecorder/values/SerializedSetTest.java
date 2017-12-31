@@ -9,11 +9,11 @@ import static net.amygdalum.testrecorder.values.GenericTypes.setOfListOfString;
 import static net.amygdalum.testrecorder.values.GenericTypes.setOfString;
 import static net.amygdalum.testrecorder.values.ParameterizedTypeMatcher.parameterizedType;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.emptyArray;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -33,7 +33,7 @@ public class SerializedSetTest {
 
 	@Test
 	public void testGetResultTypeRaw() throws Exception {
-		assertThat(new SerializedSet(HashSet.class).withResult(Set.class).getResultType(), equalTo(Set.class));
+		assertThat(new SerializedSet(HashSet.class).withResult(Set.class).getResultType()).isEqualTo(Set.class);
 	}
 
 	@Test
@@ -53,12 +53,12 @@ public class SerializedSetTest {
 
 	@Test
 	public void testGetComponentTypeRaw() throws Exception {
-		assertThat(new SerializedSet(HashSet.class).withResult(Set.class).getComponentType(), equalTo(Object.class));
+		assertThat(new SerializedSet(HashSet.class).withResult(Set.class).getComponentType()).isEqualTo(Object.class);
 	}
 
 	@Test
 	public void testGetComponentTypeParameterized() throws Exception {
-		assertThat(new SerializedSet(hashSetOfString()).withResult(setOfString()).getComponentType(), equalTo(String.class));
+		assertThat(new SerializedSet(hashSetOfString()).withResult(setOfString()).getComponentType()).isEqualTo(String.class);
 	}
 
 	@Test
@@ -68,12 +68,12 @@ public class SerializedSetTest {
 
 	@Test
 	public void testGetComponentTypeIndirectParameterized() throws Exception {
-		assertThat(new SerializedSet(hashSetOfString()).getComponentType(), equalTo(String.class));
+		assertThat(new SerializedSet(hashSetOfString()).getComponentType()).isEqualTo(String.class);
 	}
 
 	@Test
 	public void testGetComponentTypeBounded() throws Exception {
-		assertThat(new SerializedSet(HashSet.class).withResult(hashSetOfString()).getComponentType(), equalTo(String.class));
+		assertThat(new SerializedSet(HashSet.class).withResult(hashSetOfString()).getComponentType()).isEqualTo(String.class);
 	}
 
 	@Test
@@ -89,7 +89,7 @@ public class SerializedSetTest {
 	public void testSize0() throws Exception {
 		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
 
-		assertThat(set.size(), equalTo(0));
+		assertThat(set.size()).isEqualTo(0);
 		assertThat(set.referencedValues(), empty());
 	}
 
@@ -98,7 +98,7 @@ public class SerializedSetTest {
 		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
 		set.add(literal("string"));
 		
-		assertThat(set.size(), equalTo(1));
+		assertThat(set.size()).isEqualTo(1);
 		assertThat(set.referencedValues(), hasSize(1));
 	}
 
@@ -108,7 +108,7 @@ public class SerializedSetTest {
 		set.add(literal("string"));
 		set.add(literal("second"));
 		
-		assertThat(set.size(), equalTo(2));
+		assertThat(set.size()).isEqualTo(2);
 		assertThat(set.referencedValues(), hasSize(2));
 	}
 
@@ -148,7 +148,7 @@ public class SerializedSetTest {
 	public void testIterator1() throws Exception {
 		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
 		set.add(literal("string"));
-		assertThat(set.iterator().next(), equalTo(literal("string")));
+		assertThat(set.iterator().next()).isEqualTo(literal("string"));
 	}
 
 	@Test
@@ -249,20 +249,20 @@ public class SerializedSetTest {
 	@Test
 	public void testToString0() throws Exception {
 		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		assertThat(set.toString(), equalTo("{}"));
+		assertThat(set.toString()).isEqualTo("{}");
 	}
 
 	@Test
 	public void testToString1() throws Exception {
 		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
 		set.add(literal("string"));
-		assertThat(set.toString(), equalTo("{string}"));
+		assertThat(set.toString()).isEqualTo("{string}");
 	}
 
 	@Test
 	public void testAccept() throws Exception {
 		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		assertThat(set.accept(new TestValueVisitor(), NULL), equalTo("SerializedSet"));
+		assertThat(set.accept(new TestValueVisitor(), NULL)).isEqualTo("SerializedSet");
 	}
 
 }

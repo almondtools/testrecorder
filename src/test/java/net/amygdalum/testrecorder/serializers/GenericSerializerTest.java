@@ -2,9 +2,9 @@ package net.amygdalum.testrecorder.serializers;
 
 import static java.util.Collections.singleton;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -48,8 +48,8 @@ public class GenericSerializerTest {
 	public void testGenerate() throws Exception {
 		SerializedObject value = (SerializedObject) serializer.generate(GenericObject.class, GenericObject.class);
 
-		assertThat(value.getResultType(), equalTo(GenericObject.class));
-		assertThat(value.getType(), equalTo(GenericObject.class));
+		assertThat(value.getResultType()).isEqualTo(GenericObject.class);
+		assertThat(value.getType()).isEqualTo(GenericObject.class);
 	}
 
 	@Test
@@ -82,7 +82,7 @@ public class GenericSerializerTest {
 
 		serializer.populate(nullValue, "Element" );
 
-		assertThat(nullValue.getType(), equalTo(String.class));
+		assertThat(nullValue.getType()).isEqualTo(String.class);
 	}
 
 	@Test

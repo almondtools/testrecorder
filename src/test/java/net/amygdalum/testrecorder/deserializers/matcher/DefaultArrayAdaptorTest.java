@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -49,7 +49,7 @@ public class DefaultArrayAdaptorTest {
         Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements(), empty());
-        assertThat(result.getValue(), equalTo("intArrayContaining(0, 8, 15)"));
+        assertThat(result.getValue()).isEqualTo("intArrayContaining(0, 8, 15)");
     }
 
     @Test
@@ -64,7 +64,7 @@ public class DefaultArrayAdaptorTest {
         Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements(), empty());
-        assertThat(result.getValue(), equalTo("arrayContaining(BigInteger.class, equalTo(new BigInteger(\"0\")), equalTo(new BigInteger(\"8\")), equalTo(new BigInteger(\"15\")))"));
+        assertThat(result.getValue()).isEqualTo("arrayContaining(BigInteger.class, equalTo(new BigInteger(\"0\")), equalTo(new BigInteger(\"8\")), equalTo(new BigInteger(\"15\")))");
     }
 
     @Test
@@ -75,7 +75,7 @@ public class DefaultArrayAdaptorTest {
         Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements(), empty());
-        assertThat(result.getValue(), equalTo("emptyArray()"));
+        assertThat(result.getValue()).isEqualTo("emptyArray()");
     }
 
 }

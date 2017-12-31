@@ -1,9 +1,9 @@
 package net.amygdalum.testrecorder;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -54,7 +54,7 @@ public class DefaultTestRecorderAgentConfigTest {
 
     @Test
     public void testGetTimeoutInMillis() throws Exception {
-        assertThat(config.getTimeoutInMillis(), equalTo(100_000l));
+        assertThat(config.getTimeoutInMillis()).isEqualTo(100_000l);
     }
 
 }

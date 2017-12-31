@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.values;
 
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
-import static org.hamcrest.Matchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
@@ -24,28 +24,28 @@ public class SerializedLiteralTest {
 	public void testGetResultType() throws Exception {
 		SerializedLiteral value = literal("string");
 
-		assertThat(value.getResultType(), equalTo(String.class));
+		assertThat(value.getResultType()).isEqualTo(String.class);
 	}
 
 	@Test
 	public void testGetValue() throws Exception {
 		SerializedLiteral value = literal("string");
 
-		assertThat(value.getValue(), equalTo("string"));
+		assertThat(value.getValue()).isEqualTo("string");
 	}
 
 	@Test
 	public void testAccept() throws Exception {
 		SerializedLiteral value = literal("string");
 
-		assertThat(value.accept(new TestValueVisitor(), NULL), equalTo("SerializedLiteral"));
+		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("SerializedLiteral");
 	}
 
 	@Test
 	public void testToString() throws Exception {
 		SerializedLiteral value = literal("string");
 
-		assertThat(value.toString(), equalTo("string"));
+		assertThat(value.toString()).isEqualTo("string");
 	}
 
 }

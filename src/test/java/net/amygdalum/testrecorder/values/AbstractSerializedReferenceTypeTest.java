@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.values;
 
-import static org.hamcrest.Matchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
@@ -32,7 +32,7 @@ public class AbstractSerializedReferenceTypeTest {
 		ASerializedReferenceType value = new ASerializedReferenceType(String.class);
 		value.setId(33);
 		
-		assertThat(value.getId(), equalTo(33));
+		assertThat(value.getId()).isEqualTo(33);
 	}
 
 }

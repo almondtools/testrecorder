@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
@@ -27,7 +27,7 @@ public class ArgumentsTest {
 			+ args.towordprimitiveAndObject(4d, "5")
 			+ args.mixed("6", 7l, 8, 9d);
 
-		assertThat(result, equalTo("1234.056789.0"));
+		assertThat(result).isEqualTo("1234.056789.0");
 		
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(Arguments.class), hasSize(5));
@@ -44,7 +44,7 @@ public class ArgumentsTest {
 			+ args.towordprimitiveAndObject(4d, "5")
 			+ args.mixed("6", 7l, 8, 9d);
 
-		assertThat(result, equalTo("1234.056789.0"));
+		assertThat(result).isEqualTo("1234.056789.0");
 		
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Arguments.class), compiles(Arguments.class));

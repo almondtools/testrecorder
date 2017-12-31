@@ -3,8 +3,7 @@ package net.amygdalum.testrecorder.deserializers.builder;
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Constructor;
 
@@ -28,24 +27,24 @@ public class ConstructorParamTest {
 
     @Test
     public void testConstructorParam() throws Exception {
-        assertThat(constructorParam.getField().getName(), equalTo("field"));
-        assertThat(constructorParam.getParamNumber(), equalTo(0));
+        assertThat(constructorParam.getField().getName()).isEqualTo("field");
+        assertThat(constructorParam.getParamNumber()).isEqualTo(0);
         
-        assertThat(constructorParam.computeSerializedValue(), equalTo(literal("value")));
-        assertThat(constructorParam.getValue(), equalTo("value"));
+        assertThat(constructorParam.computeSerializedValue()).isEqualTo(literal("value"));
+        assertThat(constructorParam.getValue()).isEqualTo("value");
     }
 
     @Test
     public void testConstructorParamWithoutField() throws Exception {
-        assertThat(new ConstructorParam(constructor, 0).computeSerializedValue(), equalTo(nullInstance(null)));
-        assertThat(new ConstructorParam(constructor, 0).assertType(String.class).computeSerializedValue(), equalTo(nullInstance(String.class)));
-        assertThat(new ConstructorParam(constructor, 0).assertType(Object.class).computeSerializedValue(), equalTo(nullInstance(Object.class)));
-        assertThat(new ConstructorParam(constructor, 0).assertType(int.class).computeSerializedValue(), equalTo(literal(int.class, 0)));
+        assertThat(new ConstructorParam(constructor, 0).computeSerializedValue()).isEqualTo(nullInstance(null));
+        assertThat(new ConstructorParam(constructor, 0).assertType(String.class).computeSerializedValue()).isEqualTo(nullInstance(String.class));
+        assertThat(new ConstructorParam(constructor, 0).assertType(Object.class).computeSerializedValue()).isEqualTo(nullInstance(Object.class));
+        assertThat(new ConstructorParam(constructor, 0).assertType(int.class).computeSerializedValue()).isEqualTo(literal(int.class, 0));
     }
 
     @Test
     public void testToString() throws Exception {
-        assertThat(constructorParam.toString(), equalTo("public net.amygdalum.testrecorder.util.testobjects.Simple(java.lang.String):0=value=> field"));
+        assertThat(constructorParam.toString()).isEqualTo("public net.amygdalum.testrecorder.util.testobjects.Simple(java.lang.String):0=value=> field");
     }
 
     @Test
@@ -54,23 +53,23 @@ public class ConstructorParamTest {
         TypeManager types = new TypeManager();
         
         assertThat(new ConstructorParam(constructor, 0, new SerializedField(Simple.class, "field", String.class, literal("value")), "value")
-            .compile(types , compiler, NULL).getValue(), equalTo("(Object) \"value\""));
+            .compile(types , compiler, NULL).getValue()).isEqualTo("(Object) \"value\"");
         assertThat(new ConstructorParam(constructor, 0)
             .assertType(String.class)
-            .compile(types , compiler, NULL).getValue(), equalTo("null"));
+            .compile(types , compiler, NULL).getValue()).isEqualTo("null");
         assertThat(new ConstructorParam(constructor, 0)
             .insertTypeCasts()
             .assertType(String.class)
-            .compile(types , compiler, NULL).getValue(), equalTo("(String) null"));
+            .compile(types , compiler, NULL).getValue()).isEqualTo("(String) null");
         assertThat(new ConstructorParam(constructor, 0, new SerializedField(Simple.class, "field", String.class, literal("value")), "value")
             .assertType(Integer.class)
-            .compile(types , compiler, NULL).getValue(), equalTo("(Integer) \"value\""));
+            .compile(types , compiler, NULL).getValue()).isEqualTo("(Integer) \"value\"");
         assertThat(new ConstructorParam(constructor, 0, new SerializedField(Simple.class, "field", String.class, literal("value")), "value")
             .assertType(String.class)
-            .compile(types , compiler, NULL).getValue(), equalTo("\"value\""));
+            .compile(types , compiler, NULL).getValue()).isEqualTo("\"value\"");
         assertThat(new ConstructorParam(constructor, 0, new SerializedField(Simple.class, "field", String.class, nullInstance(String.class)), null)
             .assertType(String.class)
-            .compile(types , compiler, NULL).getValue(), equalTo("null"));
+            .compile(types , compiler, NULL).getValue()).isEqualTo("null");
     }
 
 }

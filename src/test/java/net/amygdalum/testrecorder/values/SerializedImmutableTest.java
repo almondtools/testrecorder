@@ -1,8 +1,8 @@
 package net.amygdalum.testrecorder.values;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Type;
@@ -24,7 +24,7 @@ public class SerializedImmutableTest {
 
 	@Test
 	public void testGetResultType() throws Exception {
-		assertThat(value.getResultType(), equalTo(String.class));
+		assertThat(value.getResultType()).isEqualTo(String.class);
 	}
 
 	@Test
@@ -36,14 +36,14 @@ public class SerializedImmutableTest {
 	public void testWithValue() throws Exception {
 		value = value.withValue("newvalue");
 
-		assertThat(value.getValue(), equalTo("newvalue"));
+		assertThat(value.getValue()).isEqualTo("newvalue");
 	}
 
 	@Test
 	public void testSetGetValue() throws Exception {
 		value.setValue("value");
 
-		assertThat(value.getValue(), equalTo("value"));
+		assertThat(value.getValue()).isEqualTo("value");
 	}
 
 	@Test

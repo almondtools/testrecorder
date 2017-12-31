@@ -33,8 +33,8 @@ import static net.amygdalum.testrecorder.util.Types.typeArgument;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
 import static net.amygdalum.testrecorder.util.Types.wildcardExtends;
 import static net.amygdalum.testrecorder.util.Types.wildcardSuper;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.arrayContaining;
@@ -138,63 +138,63 @@ public class TypesTest {
 
 	@Test
 	public void testBaseTypeOnSimpleTypes() throws Exception {
-		assertThat(baseType(Object.class), equalTo(Object.class));
-		assertThat(baseType(String.class), equalTo(String.class));
-		assertThat(baseType(StringTokenizer.class), equalTo(StringTokenizer.class));
+		assertThat(baseType(Object.class)).isEqualTo(Object.class);
+		assertThat(baseType(String.class)).isEqualTo(String.class);
+		assertThat(baseType(StringTokenizer.class)).isEqualTo(StringTokenizer.class);
 	}
 
 	@Test
 	public void testBaseTypeOnPrimitiveTypes() throws Exception {
-		assertThat(baseType(int.class), equalTo(int.class));
-		assertThat(baseType(void.class), equalTo(void.class));
+		assertThat(baseType(int.class)).isEqualTo(int.class);
+		assertThat(baseType(void.class)).isEqualTo(void.class);
 	}
 
 	@Test
 	public void testBaseTypeOnParameterizedTypes() throws Exception {
-		assertThat(baseType(parameterized(List.class, List.class, String.class)), equalTo(List.class));
-		assertThat(baseType(parameterized(Map.class, Map.class, String.class, Object.class)), equalTo(Map.class));
+		assertThat(baseType(parameterized(List.class, List.class, String.class))).isEqualTo(List.class);
+		assertThat(baseType(parameterized(Map.class, Map.class, String.class, Object.class))).isEqualTo(Map.class);
 	}
 
 	@Test
 	public void testBaseTypeOnGenericArrayTypes() throws Exception {
-		assertThat(baseType(array(parameterized(List.class, List.class, String.class))), equalTo(List[].class));
-		assertThat(baseType(array(parameterized(Map.class, Map.class, String.class, Object.class))), equalTo(Map[].class));
+		assertThat(baseType(array(parameterized(List.class, List.class, String.class)))).isEqualTo(List[].class);
+		assertThat(baseType(array(parameterized(Map.class, Map.class, String.class, Object.class)))).isEqualTo(Map[].class);
 	}
 
 	@Test
 	public void testBaseTypeOnOtherTypes() throws Exception {
-		assertThat(baseType(wildcard()), equalTo(Object.class));
-		assertThat(baseType(wildcardExtends(String.class)), equalTo(Object.class));
-		assertThat(baseType(wildcardSuper(String.class)), equalTo(Object.class));
+		assertThat(baseType(wildcard())).isEqualTo(Object.class);
+		assertThat(baseType(wildcardExtends(String.class))).isEqualTo(Object.class);
+		assertThat(baseType(wildcardSuper(String.class))).isEqualTo(Object.class);
 	}
 
 	@Test
 	public void testBoxedType() throws Exception {
-		assertThat(boxedType(byte.class), equalTo(Byte.class));
-		assertThat(boxedType(short.class), equalTo(Short.class));
-		assertThat(boxedType(int.class), equalTo(Integer.class));
-		assertThat(boxedType(long.class), equalTo(Long.class));
-		assertThat(boxedType(float.class), equalTo(Float.class));
-		assertThat(boxedType(double.class), equalTo(Double.class));
-		assertThat(boxedType(char.class), equalTo(Character.class));
-		assertThat(boxedType(boolean.class), equalTo(Boolean.class));
+		assertThat(boxedType(byte.class)).isEqualTo(Byte.class);
+		assertThat(boxedType(short.class)).isEqualTo(Short.class);
+		assertThat(boxedType(int.class)).isEqualTo(Integer.class);
+		assertThat(boxedType(long.class)).isEqualTo(Long.class);
+		assertThat(boxedType(float.class)).isEqualTo(Float.class);
+		assertThat(boxedType(double.class)).isEqualTo(Double.class);
+		assertThat(boxedType(char.class)).isEqualTo(Character.class);
+		assertThat(boxedType(boolean.class)).isEqualTo(Boolean.class);
 
-		assertThat(boxedType(void.class), equalTo(Void.class));
+		assertThat(boxedType(void.class)).isEqualTo(Void.class);
 
-		assertThat(boxedType(Integer.class), equalTo(Integer.class));
+		assertThat(boxedType(Integer.class)).isEqualTo(Integer.class);
 
-		assertThat(boxedType(parameterized(List.class, List.class, String.class)), equalTo(List.class));
+		assertThat(boxedType(parameterized(List.class, List.class, String.class))).isEqualTo(List.class);
 	}
 
 	@Test
 	public void testComponent() throws Exception {
-		assertThat(component(int[].class), equalTo(int.class));
-		assertThat(component(Integer[].class), equalTo(Integer.class));
+		assertThat(component(int[].class)).isEqualTo(int.class);
+		assertThat(component(Integer[].class)).isEqualTo(Integer.class);
 
 		Type parameterized = parameterized(List.class, List.class, Integer.class);
-		assertThat(component(array(parameterized)), equalTo(parameterized));
+		assertThat(component(array(parameterized))).isEqualTo(parameterized);
 
-		assertThat(component(Object.class), equalTo(Object.class));
+		assertThat(component(Object.class)).isEqualTo(Object.class);
 	}
 
 	@Test
@@ -222,15 +222,15 @@ public class TypesTest {
 
 	@Test
 	public void testInferType() throws Exception {
-		assertThat(inferType(asList(ArrayList.class)), equalTo(List.class));
-		assertThat(inferType(asList(ArrayList.class, Collection.class)), equalTo(Collection.class));
-		assertThat(inferType(asList(List.class, Set.class)), equalTo(Collection.class));
-		assertThat(inferType(asList(HashSet.class, ArrayList.class)), equalTo(Collection.class));
-		assertThat(inferType(asList(parameterized(HashSet.class, String.class), parameterized(ArrayList.class, Object.class))), equalTo(Collection.class));
-		assertThat(inferType(asList(String.class, List.class)), equalTo(Object.class));
-		assertThat(inferType(asList(Sub1.class, Sub2.class)), equalTo(Super.class));
-		assertThat(inferType(asList(Integer.class, Integer.class)), equalTo(Integer.class));
-		assertThat(inferType(asList(String.class, String.class)), equalTo(String.class));
+		assertThat(inferType(asList(ArrayList.class))).isEqualTo(List.class);
+		assertThat(inferType(asList(ArrayList.class, Collection.class))).isEqualTo(Collection.class);
+		assertThat(inferType(asList(List.class, Set.class))).isEqualTo(Collection.class);
+		assertThat(inferType(asList(HashSet.class, ArrayList.class))).isEqualTo(Collection.class);
+		assertThat(inferType(asList(parameterized(HashSet.class, String.class), parameterized(ArrayList.class, Object.class)))).isEqualTo(Collection.class);
+		assertThat(inferType(asList(String.class, List.class))).isEqualTo(Object.class);
+		assertThat(inferType(asList(Sub1.class, Sub2.class))).isEqualTo(Super.class);
+		assertThat(inferType(asList(Integer.class, Integer.class))).isEqualTo(Integer.class);
+		assertThat(inferType(asList(String.class, String.class))).isEqualTo(String.class);
 	}
 
 	@Test
@@ -307,9 +307,9 @@ public class TypesTest {
 
 	@Test
 	public void testTypeArgument() throws Exception {
-		assertThat(typeArgument(parameterized(List.class, null, String.class), 0).get(), equalTo(String.class));
-		assertThat(typeArgument(parameterized(Map.class, null, String.class, Object.class), 0).get(), equalTo(String.class));
-		assertThat(typeArgument(parameterized(Map.class, null, String.class, Object.class), 1).get(), equalTo(Object.class));
+		assertThat(typeArgument(parameterized(List.class, null, String.class), 0).get()).isEqualTo(String.class);
+		assertThat(typeArgument(parameterized(Map.class, null, String.class, Object.class), 0).get()).isEqualTo(String.class);
+		assertThat(typeArgument(parameterized(Map.class, null, String.class, Object.class), 1).get()).isEqualTo(Object.class);
 		assertThat(typeArgument(parameterized(Map.class, null), 1).isPresent(), is(false));
 		assertThat(typeArgument(parameterized(Map.class, null, (Type[]) null), 1).isPresent(), is(false));
 		assertThat(typeArgument(Map.class, 0).isPresent(), is(false));
@@ -318,7 +318,7 @@ public class TypesTest {
 
 	@Test
 	public void testInnerType() throws Exception {
-		assertThat(innerType(TypesTest.class, "NestedPublic"), equalTo(NestedPublic.class));
+		assertThat(innerType(TypesTest.class, "NestedPublic")).isEqualTo(NestedPublic.class);
 	}
 
 	@Test
@@ -350,18 +350,18 @@ public class TypesTest {
 
 	@Test
 	public void testGetDeclaredField() throws Exception {
-		assertThat(getDeclaredField(Sub1.class, "subAttr"), equalTo(Sub1.class.getDeclaredField("subAttr")));
-		assertThat(getDeclaredField(Sub1.class, "str"), equalTo(Super.class.getDeclaredField("str")));
-		assertThat(getDeclaredField(Sub2.class, "subAttr"), equalTo(Sub2.class.getDeclaredField("subAttr")));
-		assertThat(getDeclaredField(Sub2.class, "str"), equalTo(Super.class.getDeclaredField("str")));
+		assertThat(getDeclaredField(Sub1.class, "subAttr")).isEqualTo(Sub1.class.getDeclaredField("subAttr"));
+		assertThat(getDeclaredField(Sub1.class, "str")).isEqualTo(Super.class.getDeclaredField("str"));
+		assertThat(getDeclaredField(Sub2.class, "subAttr")).isEqualTo(Sub2.class.getDeclaredField("subAttr"));
+		assertThat(getDeclaredField(Sub2.class, "str")).isEqualTo(Super.class.getDeclaredField("str"));
 	}
 
 	@Test
 	public void testGetDeclaredMethod() throws Exception {
-		assertThat(getDeclaredMethod(Sub1.class, "getSubAttr"), equalTo(Sub1.class.getDeclaredMethod("getSubAttr")));
-		assertThat(getDeclaredMethod(Sub1.class, "getStr"), equalTo(Super.class.getDeclaredMethod("getStr")));
-		assertThat(getDeclaredMethod(Sub2.class, "setSubAttr", boolean.class), equalTo(Sub2.class.getDeclaredMethod("setSubAttr", boolean.class)));
-		assertThat(getDeclaredMethod(Sub2.class, "getStr"), equalTo(Super.class.getDeclaredMethod("getStr")));
+		assertThat(getDeclaredMethod(Sub1.class, "getSubAttr")).isEqualTo(Sub1.class.getDeclaredMethod("getSubAttr"));
+		assertThat(getDeclaredMethod(Sub1.class, "getStr")).isEqualTo(Super.class.getDeclaredMethod("getStr"));
+		assertThat(getDeclaredMethod(Sub2.class, "setSubAttr", boolean.class)).isEqualTo(Sub2.class.getDeclaredMethod("setSubAttr", boolean.class));
+		assertThat(getDeclaredMethod(Sub2.class, "getStr")).isEqualTo(Super.class.getDeclaredMethod("getStr"));
 		assertThat(capture(() -> getDeclaredMethod(Sub1.class, "nonExistent")), matchesException(NoSuchMethodException.class));
 		assertThat(capture(() -> getDeclaredMethod(Sub2.class, "nonExistent")), matchesException(NoSuchMethodException.class));
 		assertThat(capture(() -> getDeclaredMethod(Super.class, "nonExistent")), matchesException(NoSuchMethodException.class));
@@ -460,9 +460,9 @@ public class TypesTest {
 	@Test
 	public void testArray() throws Exception {
 		assertThat(array(String.class), sameInstance(String[].class));
-		assertThat(array(parameterized(List.class, null, String.class)).getTypeName(), equalTo("java.util.List<java.lang.String>[]"));
-		assertThat(array(parameterized(List.class, null, String.class)).toString(), equalTo("java.util.List<java.lang.String>[]"));
-		assertThat(((GenericArrayType) array(parameterized(List.class, null, String.class))).getGenericComponentType(), equalTo(parameterized(List.class, null, String.class)));
+		assertThat(array(parameterized(List.class, null, String.class)).getTypeName()).isEqualTo("java.util.List<java.lang.String>[]");
+		assertThat(array(parameterized(List.class, null, String.class)).toString()).isEqualTo("java.util.List<java.lang.String>[]");
+		assertThat(((GenericArrayType) array(parameterized(List.class, null, String.class))).getGenericComponentType()).isEqualTo(parameterized(List.class, null, String.class));
 		assertThat(array(parameterized(List.class, null, String.class)), satisfiesDefaultEquality()
 			.andEqualTo(array(parameterized(List.class, null, String.class)))
 			.andNotEqualTo(array(String.class)));
@@ -470,13 +470,13 @@ public class TypesTest {
 
 	@Test
 	public void testParameterized() throws Exception {
-		assertThat(parameterized(List.class, null, String.class).getRawType(), equalTo(List.class));
+		assertThat(parameterized(List.class, null, String.class).getRawType()).isEqualTo(List.class);
 		assertThat(parameterized(List.class, null, String.class).getOwnerType(), nullValue());
 		assertThat(parameterized(List.class, null, String.class).getActualTypeArguments(), arrayContaining(String.class));
-		assertThat(parameterized(List.class, null, String.class).getTypeName(), equalTo("java.util.List<java.lang.String>"));
-		assertThat(parameterized(List.class, null).getTypeName(), equalTo("java.util.List<>"));
-		assertThat(parameterized(List.class, null, (Type[]) null).getTypeName(), equalTo("java.util.List<>"));
-		assertThat(parameterized(List.class, null, String.class).toString(), equalTo("java.util.List<java.lang.String>"));
+		assertThat(parameterized(List.class, null, String.class).getTypeName()).isEqualTo("java.util.List<java.lang.String>");
+		assertThat(parameterized(List.class, null).getTypeName()).isEqualTo("java.util.List<>");
+		assertThat(parameterized(List.class, null, (Type[]) null).getTypeName()).isEqualTo("java.util.List<>");
+		assertThat(parameterized(List.class, null, String.class).toString()).isEqualTo("java.util.List<java.lang.String>");
 
 		assertThat(parameterized(List.class, null, String.class), satisfiesDefaultEquality()
 			.andNotEqualTo(parameterized(List.class, List.class, String.class))
@@ -486,14 +486,14 @@ public class TypesTest {
 
 	@Test
 	public void testWildcard() throws Exception {
-		assertThat(wildcard().getTypeName(), equalTo("?"));
+		assertThat(wildcard().getTypeName()).isEqualTo("?");
 		assertThat(wildcard().getLowerBounds(), arrayWithSize(0));
 		assertThat(wildcard().getUpperBounds(), arrayWithSize(0));
-		assertThat(wildcardExtends(String.class).getTypeName(), equalTo("? extends java.lang.String"));
-		assertThat(wildcardExtends(String.class).toString(), equalTo("? extends java.lang.String"));
+		assertThat(wildcardExtends(String.class).getTypeName()).isEqualTo("? extends java.lang.String");
+		assertThat(wildcardExtends(String.class).toString()).isEqualTo("? extends java.lang.String");
 		assertThat(wildcardExtends(String.class).getUpperBounds(), arrayContaining(String.class));
-		assertThat(wildcardSuper(String.class).getTypeName(), equalTo("? super java.lang.String"));
-		assertThat(wildcardSuper(String.class).toString(), equalTo("? super java.lang.String"));
+		assertThat(wildcardSuper(String.class).getTypeName()).isEqualTo("? super java.lang.String");
+		assertThat(wildcardSuper(String.class).toString()).isEqualTo("? super java.lang.String");
 		assertThat(wildcardSuper(String.class).getLowerBounds(), arrayContaining(String.class));
 		assertThat(wildcard(), satisfiesDefaultEquality()
 			.andEqualTo(wildcard())
@@ -546,28 +546,28 @@ public class TypesTest {
 
 	@Test
 	public void testResolveOnNonGenericType() throws Exception {
-		assertThat(Types.resolve(Simple.class, Generic.class), equalTo(Simple.class));
+		assertThat(Types.resolve(Simple.class, Generic.class)).isEqualTo(Simple.class);
 	}
 
 	@Test
 	public void testResolveOnUnboundWildcard() throws Exception {
 		Type unboundWildcard = Types.getDeclaredField(Generic.class, "starx").getGenericType();
 
-		assertThat(Types.resolve(unboundWildcard, Generic.class), equalTo(unboundWildcard));
+		assertThat(Types.resolve(unboundWildcard, Generic.class)).isEqualTo(unboundWildcard);
 	}
 
 	@Test
 	public void testResolveOnFreeGenericArray() throws Exception {
 		Type genericArrayType = Types.getDeclaredField(Generic.class, "vs").getGenericType();
 
-		assertThat(Types.resolve(genericArrayType, Generic.class), equalTo(genericArrayType));
+		assertThat(Types.resolve(genericArrayType, Generic.class)).isEqualTo(genericArrayType);
 	}
 
 	@Test
 	public void testResolveOnBoundGenericArray() throws Exception {
 		Type genericArrayType = Types.getDeclaredField(Generic.class, "vs").getGenericType();
 
-		assertThat(Types.resolve(genericArrayType, BoundGeneric.class), equalTo(Sub[].class));
+		assertThat(Types.resolve(genericArrayType, BoundGeneric.class)).isEqualTo(Sub[].class);
 	}
 
 	@Test
@@ -582,18 +582,18 @@ public class TypesTest {
 		Type unboundAndWildcardType = Types.getDeclaredField(BiGeneric.class, "kstar").getGenericType();
 		Type boundAndWildcardType = Types.getDeclaredField(BiGeneric.class, "starv").getGenericType();
 
-		assertThat(Types.resolve(freeType, PartlyBoundBiGeneric.class), equalTo(freeType));
-		assertThat(Types.resolve(boundType, PartlyBoundBiGeneric.class), equalTo(Sub.class));
-		assertThat(Types.resolve(partlyBoundType, PartlyBoundBiGeneric.class), equalTo(Types.parameterized(BiGeneric.class, null, freeType, Sub.class)));
-		assertThat(Types.resolve(unboundWildcardType, PartlyBoundBiGeneric.class), equalTo(Types.parameterized(BiGeneric.class, null, Types.wildcardExtends(freeType), Sub.class)));
-		assertThat(Types.resolve(unboundSuperWildcardType, PartlyBoundBiGeneric.class),
-			equalTo(Types.parameterized(BiGeneric.class, null, ((ParameterizedType) unboundSuperWildcardType).getActualTypeArguments()[0], Sub.class)));
-		assertThat(Types.resolve(boundWildcardType, PartlyBoundBiGeneric.class), equalTo(Types.parameterized(BiGeneric.class, null, freeType, Types.wildcardExtends(Sub.class))));
-		assertThat(Types.resolve(boundSuperWildcardType, PartlyBoundBiGeneric.class), equalTo(Types.parameterized(BiGeneric.class, null, freeType, Types.wildcardSuper(Sub.class))));
-		assertThat(Types.resolve(boundAndWildcardType, PartlyBoundBiGeneric.class),
-			equalTo(Types.parameterized(BiGeneric.class, null, ((ParameterizedType) boundAndWildcardType).getActualTypeArguments()[0], Sub.class)));
-		assertThat(Types.resolve(unboundAndWildcardType, PartlyBoundBiGeneric.class),
-			equalTo(Types.parameterized(BiGeneric.class, null, freeType, ((ParameterizedType) unboundAndWildcardType).getActualTypeArguments()[1])));
+		assertThat(Types.resolve(freeType, PartlyBoundBiGeneric.class)).isEqualTo(freeType);
+		assertThat(Types.resolve(boundType, PartlyBoundBiGeneric.class)).isEqualTo(Sub.class);
+		assertThat(Types.resolve(partlyBoundType, PartlyBoundBiGeneric.class)).isEqualTo(Types.parameterized(BiGeneric.class, null, freeType, Sub.class));
+		assertThat(Types.resolve(unboundWildcardType, PartlyBoundBiGeneric.class)).isEqualTo(Types.parameterized(BiGeneric.class, null, Types.wildcardExtends(freeType), Sub.class));
+		assertThat(Types.resolve(unboundSuperWildcardType, PartlyBoundBiGeneric.class))
+			.isEqualTo(Types.parameterized(BiGeneric.class, null, ((ParameterizedType) unboundSuperWildcardType).getActualTypeArguments()[0], Sub.class));
+		assertThat(Types.resolve(boundWildcardType, PartlyBoundBiGeneric.class)).isEqualTo(Types.parameterized(BiGeneric.class, null, freeType, Types.wildcardExtends(Sub.class)));
+		assertThat(Types.resolve(boundSuperWildcardType, PartlyBoundBiGeneric.class)).isEqualTo(Types.parameterized(BiGeneric.class, null, freeType, Types.wildcardSuper(Sub.class)));
+		assertThat(Types.resolve(boundAndWildcardType, PartlyBoundBiGeneric.class))
+			.isEqualTo(Types.parameterized(BiGeneric.class, null, ((ParameterizedType) boundAndWildcardType).getActualTypeArguments()[0], Sub.class));
+		assertThat(Types.resolve(unboundAndWildcardType, PartlyBoundBiGeneric.class))
+			.isEqualTo(Types.parameterized(BiGeneric.class, null, freeType, ((ParameterizedType) unboundAndWildcardType).getActualTypeArguments()[1]));
 	}
 
 	@Test
@@ -601,8 +601,8 @@ public class TypesTest {
 		Type freeType = Types.getDeclaredField(BiGeneric.class, "ks").getGenericType();
 		Type boundType = Types.getDeclaredField(BiGeneric.class, "vs").getGenericType();
 
-		assertThat(Types.resolve(freeType, PartlyBoundBiGeneric.class), equalTo(freeType));
-		assertThat(Types.resolve(boundType, PartlyBoundBiGeneric.class), equalTo(Sub[].class));
+		assertThat(Types.resolve(freeType, PartlyBoundBiGeneric.class)).isEqualTo(freeType);
+		assertThat(Types.resolve(boundType, PartlyBoundBiGeneric.class)).isEqualTo(Sub[].class);
 	}
 
 	public class NestedTypeField {

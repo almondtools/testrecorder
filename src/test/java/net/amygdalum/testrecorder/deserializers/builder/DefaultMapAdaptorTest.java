@@ -4,7 +4,7 @@ import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContex
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenMap;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -65,7 +65,7 @@ public class DefaultMapAdaptorTest {
             containsString("temp1.put(8, 15)"),
             containsString("temp1.put(47, 11)"),
             containsString("Map<Integer, Integer> map1 = temp1;")));
-        assertThat(result.getValue(), equalTo("map1"));
+        assertThat(result.getValue()).isEqualTo("map1");
     }
 
     @Test
@@ -82,7 +82,7 @@ public class DefaultMapAdaptorTest {
             containsString("LinkedHashMap<Integer, Integer> map1 = new LinkedHashMap<Integer, Integer>()"),
             containsString("map1.put(8, 15)"),
             containsString("map1.put(47, 11)")));
-        assertThat(result.getValue(), equalTo("map1"));
+        assertThat(result.getValue()).isEqualTo("map1");
     }
 
     @Test
@@ -100,7 +100,7 @@ public class DefaultMapAdaptorTest {
             containsString("temp1.put(8, 15)"),
             containsString("temp1.put(47, 11)"),
             containsString("OrthogonalInterface map1 = temp1;")));
-        assertThat(result.getValue(), equalTo("map1"));
+        assertThat(result.getValue()).isEqualTo("map1");
     }
 
     @Test
@@ -118,7 +118,7 @@ public class DefaultMapAdaptorTest {
             containsString("temp1.put(8, 15)"),
             containsString("temp1.put(47, 11)"),
             containsString("OrthogonalInterface map1 = (OrthogonalInterface) temp1;")));
-        assertThat(result.getValue(), equalTo("map1"));
+        assertThat(result.getValue()).isEqualTo("map1");
     }
     
     @Test
@@ -135,7 +135,7 @@ public class DefaultMapAdaptorTest {
             containsString("LinkedHashMap<Integer, Integer> map1 = (LinkedHashMap<Integer, Integer>) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenMap\").value();"),
             containsString("map1.put(8, 15)"),
             containsString("map1.put(47, 11)")));
-        assertThat(result.getValue(), equalTo("map1"));
+        assertThat(result.getValue()).isEqualTo("map1");
     }
     
     @Test
@@ -159,7 +159,7 @@ public class DefaultMapAdaptorTest {
             containsString("temp1.put(8, 15)"),
             containsString("temp1.put(47, 11)"),
             containsString("forwarded.putAll(temp1);")));
-        assertThat(result.getValue(), equalTo("forwarded"));
+        assertThat(result.getValue()).isEqualTo("forwarded");
     }
 
 }

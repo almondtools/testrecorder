@@ -3,11 +3,11 @@ package net.amygdalum.testrecorder.scenarios;
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
@@ -30,7 +30,7 @@ public class ClassicBeanTest {
 		bean.setI(22);
 		bean.setO(new ClassicBean());
 		
-		assertThat(bean.hashCode(), equalTo(191));
+		assertThat(bean.hashCode()).isEqualTo(191);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(ClassicBean.class), compiles(ClassicBean.class));
@@ -44,7 +44,7 @@ public class ClassicBeanTest {
 		bean.setI(22);
 		bean.setO(new ClassicBean());
 		
-		assertThat(bean.hashCode(), equalTo(191));
+		assertThat(bean.hashCode()).isEqualTo(191);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(ClassicBean.class), hasSize(2));

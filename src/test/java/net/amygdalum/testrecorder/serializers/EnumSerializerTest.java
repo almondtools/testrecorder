@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.serializers;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -32,16 +32,16 @@ public class EnumSerializerTest {
 	public void testGenerate() throws Exception {
 		SerializedEnum value = serializer.generate(MyInterface.class, MyEnum.class);
 
-		assertThat(value.getResultType(), equalTo(MyInterface.class));
-		assertThat(value.getType(), equalTo(MyEnum.class));
+		assertThat(value.getResultType()).isEqualTo(MyInterface.class);
+		assertThat(value.getType()).isEqualTo(MyEnum.class);
 	}
 
 	@Test
 	public void testGenerateWithExtendedEnum() throws Exception {
 		SerializedEnum value = serializer.generate(MyInterface.class, ExtendedEnum.VALUE1.getClass());
 
-		assertThat(value.getResultType(), equalTo(MyInterface.class));
-		assertThat(value.getType(), equalTo(ExtendedEnum.class));
+		assertThat(value.getResultType()).isEqualTo(MyInterface.class);
+		assertThat(value.getType()).isEqualTo(ExtendedEnum.class);
 	}
 
 	@Test
@@ -50,7 +50,7 @@ public class EnumSerializerTest {
 
 		serializer.populate(value, MyEnum.VALUE1);
 
-		assertThat(value.getName(), equalTo("VALUE1"));
+		assertThat(value.getName()).isEqualTo("VALUE1");
 	}
 
 	interface MyInterface {

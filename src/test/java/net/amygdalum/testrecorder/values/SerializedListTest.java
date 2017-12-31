@@ -8,12 +8,12 @@ import static net.amygdalum.testrecorder.values.GenericTypes.listOfBounded;
 import static net.amygdalum.testrecorder.values.GenericTypes.listOfString;
 import static net.amygdalum.testrecorder.values.ParameterizedTypeMatcher.parameterizedType;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.emptyArray;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -33,7 +33,7 @@ public class SerializedListTest {
 
 	@Test
 	public void testGetResultTypeRaw() throws Exception {
-		assertThat(new SerializedList(ArrayList.class).withResult(List.class).getResultType(), equalTo(List.class));
+		assertThat(new SerializedList(ArrayList.class).withResult(List.class).getResultType()).isEqualTo(List.class);
 	}
 
 	@Test
@@ -53,12 +53,12 @@ public class SerializedListTest {
 
 	@Test
 	public void testGetComponentTypeRaw() throws Exception {
-		assertThat(new SerializedList(ArrayList.class).withResult(listOfBounded()).getComponentType(), equalTo(Object.class));
+		assertThat(new SerializedList(ArrayList.class).withResult(listOfBounded()).getComponentType()).isEqualTo(Object.class);
 	}
 
 	@Test
 	public void testGetComponentTypeParameterized() throws Exception {
-		assertThat(new SerializedList(arrayListOfString()).withResult(listOfString()).getComponentType(), equalTo(String.class));
+		assertThat(new SerializedList(arrayListOfString()).withResult(listOfString()).getComponentType()).isEqualTo(String.class);
 	}
 
 	@Test
@@ -68,7 +68,7 @@ public class SerializedListTest {
 
 	@Test
 	public void testGetComponentTypeIndirectParameterized() throws Exception {
-		assertThat(new SerializedList(arrayListOfString()).getComponentType(), equalTo(String.class));
+		assertThat(new SerializedList(arrayListOfString()).getComponentType()).isEqualTo(String.class);
 	}
 
 	@Test
@@ -82,14 +82,14 @@ public class SerializedListTest {
 
 	@Test
 	public void testGetComponentTypeBounded() throws Exception {
-		assertThat(new SerializedList(ArrayList.class).withResult(listOfBounded()).getComponentType(), equalTo(Object.class));
+		assertThat(new SerializedList(ArrayList.class).withResult(listOfBounded()).getComponentType()).isEqualTo(Object.class);
 	}
 
 	@Test
 	public void testSize0() throws Exception {
 		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
 
-		assertThat(list.size(), equalTo(0));
+		assertThat(list.size()).isEqualTo(0);
 		assertThat(list.referencedValues(), empty());
 	}
 
@@ -98,7 +98,7 @@ public class SerializedListTest {
 		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
 		list.add(literal("string"));
 
-		assertThat(list.size(), equalTo(1));
+		assertThat(list.size()).isEqualTo(1);
 		assertThat(list.referencedValues(), hasSize(1));
 	}
 
@@ -108,7 +108,7 @@ public class SerializedListTest {
 		list.add(literal("string"));
 		list.add(literal("second"));
 
-		assertThat(list.size(), equalTo(2));
+		assertThat(list.size()).isEqualTo(2);
 		assertThat(list.referencedValues(), hasSize(2));
 	}
 
@@ -148,7 +148,7 @@ public class SerializedListTest {
 	public void testIterator1() throws Exception {
 		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
 		list.add(literal("string"));
-		assertThat(list.iterator().next(), equalTo(literal("string")));
+		assertThat(list.iterator().next()).isEqualTo(literal("string"));
 	}
 
 	@Test
@@ -189,7 +189,7 @@ public class SerializedListTest {
 	public void testRemoveInt1() throws Exception {
 		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
 		list.add(literal("string"));
-		assertThat(list.remove(0), equalTo(literal("string")));
+		assertThat(list.remove(0)).isEqualTo(literal("string"));
 	}
 
 	@Test
@@ -282,8 +282,8 @@ public class SerializedListTest {
 			literal("other"),
 			literal("last")));
 
-		assertThat(list.get(0), equalTo(literal("first")));
-		assertThat(list.get(2), equalTo(literal("other")));
+		assertThat(list.get(0)).isEqualTo(literal("first"));
+		assertThat(list.get(2)).isEqualTo(literal("other"));
 	}
 
 	@Test
@@ -297,8 +297,8 @@ public class SerializedListTest {
 
 		list.set(2, literal("changed"));
 
-		assertThat(list.get(0), equalTo(literal("first")));
-		assertThat(list.get(2), equalTo(literal("changed")));
+		assertThat(list.get(0)).isEqualTo(literal("first"));
+		assertThat(list.get(2)).isEqualTo(literal("changed"));
 	}
 
 	@Test
@@ -312,9 +312,9 @@ public class SerializedListTest {
 
 		list.add(1, literal("changed"));
 
-		assertThat(list.get(0), equalTo(literal("first")));
-		assertThat(list.get(1), equalTo(literal("changed")));
-		assertThat(list.get(2), equalTo(literal("middle")));
+		assertThat(list.get(0)).isEqualTo(literal("first"));
+		assertThat(list.get(1)).isEqualTo(literal("changed"));
+		assertThat(list.get(2)).isEqualTo(literal("middle"));
 	}
 
 	@Test
@@ -326,7 +326,7 @@ public class SerializedListTest {
 			literal("middle"),
 			literal("last")));
 
-		assertThat(list.indexOf(literal("middle")), equalTo(1));
+		assertThat(list.indexOf(literal("middle"))).isEqualTo(1);
 	}
 
 	@Test
@@ -338,7 +338,7 @@ public class SerializedListTest {
 			literal("middle"),
 			literal("last")));
 
-		assertThat(list.lastIndexOf(literal("middle")), equalTo(2));
+		assertThat(list.lastIndexOf(literal("middle"))).isEqualTo(2);
 	}
 
 	@Test
@@ -351,8 +351,8 @@ public class SerializedListTest {
 	public void testListIterator1() throws Exception {
 		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
 		list.add(literal("string"));
-		assertThat(list.listIterator().next(), equalTo(literal("string")));
-		assertThat(list.listIterator(1).previous(), equalTo(literal("string")));
+		assertThat(list.listIterator().next()).isEqualTo(literal("string"));
+		assertThat(list.listIterator(1).previous()).isEqualTo(literal("string"));
 	}
 
 	@Test
@@ -364,28 +364,28 @@ public class SerializedListTest {
 			literal("other"),
 			literal("last")));
 
-		assertThat(list.subList(0, 2), equalTo(asList(literal("first"), literal("middle"))));
-		assertThat(list.subList(1, 3), equalTo(asList(literal("middle"), literal("other"))));
-		assertThat(list.subList(2, 4), equalTo(asList(literal("other"), literal("last"))));
+		assertThat(list.subList(0, 2)).isEqualTo(asList(literal("first"), literal("middle")));
+		assertThat(list.subList(1, 3)).isEqualTo(asList(literal("middle"), literal("other")));
+		assertThat(list.subList(2, 4)).isEqualTo(asList(literal("other"), literal("last")));
 	}
 
 	@Test
 	public void testToString0() throws Exception {
 		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		assertThat(list.toString(), equalTo("[]"));
+		assertThat(list.toString()).isEqualTo("[]");
 	}
 
 	@Test
 	public void testToString1() throws Exception {
 		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
 		list.add(literal("string"));
-		assertThat(list.toString(), equalTo("[string]"));
+		assertThat(list.toString()).isEqualTo("[string]");
 	}
 
 	@Test
 	public void testAccept() throws Exception {
 		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		assertThat(list.accept(new TestValueVisitor(), NULL), equalTo("SerializedList"));
+		assertThat(list.accept(new TestValueVisitor(), NULL)).isEqualTo("SerializedList");
 	}
 
 }

@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -49,7 +49,7 @@ public class DefaultObjectAdaptorTest {
 			containsString("Simple simple1 = new GenericObject"),
 			containsString("String str = \"Hello World\""),
 			containsString("as(Simple.class)")));
-		assertThat(result.getValue(), equalTo("simple1"));
+		assertThat(result.getValue()).isEqualTo("simple1");
 	}
 	
 }

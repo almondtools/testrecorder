@@ -4,7 +4,7 @@ import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContex
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenList;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -69,7 +69,7 @@ public class DefaultListAdaptorTest {
             containsString("temp1.add(8)"),
             containsString("temp1.add(15)"),
             containsString("List<Integer> list1 = temp1;")));
-        assertThat(result.getValue(), equalTo("list1"));
+        assertThat(result.getValue()).isEqualTo("list1");
     }
 
     @Test
@@ -87,7 +87,7 @@ public class DefaultListAdaptorTest {
             containsString("list1.add(0)"),
             containsString("list1.add(8)"),
             containsString("list1.add(15)")));
-        assertThat(result.getValue(), equalTo("list1"));
+        assertThat(result.getValue()).isEqualTo("list1");
     }
 
     @Test
@@ -107,7 +107,7 @@ public class DefaultListAdaptorTest {
             containsString("temp1.add(8)"),
             containsString("temp1.add(15)"),
             containsString("OrthogonalInterface list1 = temp1;")));
-        assertThat(result.getValue(), equalTo("list1"));
+        assertThat(result.getValue()).isEqualTo("list1");
     }
 
     @Test
@@ -127,7 +127,7 @@ public class DefaultListAdaptorTest {
             containsString("temp1.add(8)"),
             containsString("temp1.add(15)"),
             containsString("OrthogonalInterface list1 = (OrthogonalInterface) temp1;")));
-        assertThat(result.getValue(), equalTo("list1"));
+        assertThat(result.getValue()).isEqualTo("list1");
     }
 
     @Test
@@ -146,7 +146,7 @@ public class DefaultListAdaptorTest {
             containsString("list1.add(0)"),
             containsString("list1.add(8)"),
             containsString("list1.add(15)")));
-        assertThat(result.getValue(), equalTo("list1"));
+        assertThat(result.getValue()).isEqualTo("list1");
     }
 
     @Test
@@ -172,7 +172,7 @@ public class DefaultListAdaptorTest {
             containsString("temp1.add(8)"),
             containsString("temp1.add(15)"),
             containsString("forwarded.addAll(temp1);")));
-        assertThat(result.getValue(), equalTo("forwarded"));
+        assertThat(result.getValue()).isEqualTo("forwarded");
     }
 
 }

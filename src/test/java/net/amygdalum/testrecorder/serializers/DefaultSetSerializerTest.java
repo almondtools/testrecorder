@@ -3,8 +3,8 @@ package net.amygdalum.testrecorder.serializers;
 import static java.util.Arrays.asList;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -45,9 +45,9 @@ public class DefaultSetSerializerTest {
 		
 		SerializedSet value = serializer.generate(hashSetOfString, HashSet.class);
 		
-		assertThat(value.getResultType(), equalTo(hashSetOfString));
-		assertThat(value.getType(), equalTo(HashSet.class));
-		assertThat(value.getComponentType(), equalTo(String.class));
+		assertThat(value.getResultType()).isEqualTo(hashSetOfString);
+		assertThat(value.getType()).isEqualTo(HashSet.class);
+		assertThat(value.getComponentType()).isEqualTo(String.class);
 	}
 
 	@Test

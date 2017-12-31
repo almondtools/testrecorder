@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.deserializers.builder;
 
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -65,7 +65,7 @@ public class BeanObjectAdaptorTest {
 		assertThat(result.getStatements().toString(), allOf(
 			containsString("Bean bean1 = new Bean()"),
 			containsString("bean1.setAttribute(\"Hello World\")")));
-		assertThat(result.getValue(), equalTo("bean1"));
+		assertThat(result.getValue()).isEqualTo("bean1");
 	}
 
 }

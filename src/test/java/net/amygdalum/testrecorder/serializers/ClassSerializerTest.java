@@ -1,8 +1,8 @@
 package net.amygdalum.testrecorder.serializers;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -33,8 +33,8 @@ public class ClassSerializerTest {
 	public void testGenerate() throws Exception {
 		SerializedImmutable<Class<?>> value = serializer.generate(Class.class, Class.class);
 
-		assertThat(value.getResultType(), equalTo(Class.class));
-		assertThat(value.getType(), equalTo(Class.class));
+		assertThat(value.getResultType()).isEqualTo(Class.class);
+		assertThat(value.getType()).isEqualTo(Class.class);
 	}
 
 	@Test

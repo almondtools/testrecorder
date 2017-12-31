@@ -3,6 +3,7 @@ package net.amygdalum.testrecorder.runtime;
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.runtime.GenericMatcher.recursive;
 import static net.amygdalum.xrayinterface.IsEquivalent.equivalentTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -195,7 +196,7 @@ public class GenericMatcherTest {
 		StringDescription desc = new StringDescription();
 		matcher.describeMismatch(new Simple("myStr"), desc);
 
-		assertThat(desc.toString(), equalTo(""));
+		assertThat(desc.toString()).isEqualTo("");
 	}
 
 	@Test
@@ -207,7 +208,7 @@ public class GenericMatcherTest {
 		StringDescription desc = new StringDescription();
 		matcher.describeMismatch(null, desc);
 
-		assertThat(desc.toString(), equalTo("was null"));
+		assertThat(desc.toString()).isEqualTo("was null");
 	}
 
 	@Test

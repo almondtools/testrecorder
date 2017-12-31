@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.ioscenarios;
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
-import static org.hamcrest.Matchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ public class HiddenInputTest {
 
 		String result = input.inputImmediate();
 
-		assertThat(result, equalTo("Hello"));
+		assertThat(result).isEqualTo("Hello");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(HiddenInput.class), compiles(HiddenInput.class));
@@ -39,7 +39,7 @@ public class HiddenInputTest {
 
 		String result = input.inputFromField();
 
-		assertThat(result, equalTo("Hello"));
+		assertThat(result).isEqualTo("Hello");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(HiddenInput.class), compiles(HiddenInput.class));

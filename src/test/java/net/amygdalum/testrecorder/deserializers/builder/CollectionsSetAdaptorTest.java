@@ -4,7 +4,7 @@ import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContex
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
@@ -62,7 +62,7 @@ public class CollectionsSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), setDecoratedBy("unmodifiableSet", 0, 8, 15));
-		assertThat(result.getValue(), equalTo("set1"));
+		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
 	@Test
@@ -73,7 +73,7 @@ public class CollectionsSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), setDecoratedBy("unmodifiableSet", 0, 8, 15));
-		assertThat(result.getValue(), equalTo("set1"));
+		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
 	@Test
@@ -84,7 +84,7 @@ public class CollectionsSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), setDecoratedBy("unmodifiableSet", 0, 8, 15));
-		assertThat(result.getValue(), equalTo("set1"));
+		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
 	@Test
@@ -95,7 +95,7 @@ public class CollectionsSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), setDecoratedBy("synchronizedSet", 0, 8, 15));
-		assertThat(result.getValue(), equalTo("set1"));
+		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
 	@Test
@@ -106,7 +106,7 @@ public class CollectionsSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), rawSetDecoratedBy("synchronizedSet", 0, 8, 15));
-		assertThat(result.getValue(), equalTo("set1"));
+		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
 	@Test
@@ -117,7 +117,7 @@ public class CollectionsSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), wildcardSetDecoratedBy("synchronizedSet", 0, 8, 15));
-		assertThat(result.getValue(), equalTo("set1"));
+		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
 	@Test
@@ -128,7 +128,7 @@ public class CollectionsSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), setDecoratedBy("synchronizedSet", 0, 8, 15));
-		assertThat(result.getValue(), equalTo("set1"));
+		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
 	@Test
@@ -139,7 +139,7 @@ public class CollectionsSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), setDecoratedBy("synchronizedSet", 0, 8, 15));
-		assertThat(result.getValue(), equalTo("set1"));
+		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
 	@Test
@@ -150,7 +150,7 @@ public class CollectionsSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), setDecoratedBy("checkedSet", Integer.class, 0, 8, 15));
-		assertThat(result.getValue(), equalTo("set1"));
+		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
 	@Test
@@ -161,7 +161,7 @@ public class CollectionsSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), setDecoratedBy("checkedSet", Integer.class, 0, 8, 15));
-		assertThat(result.getValue(), equalTo("set1"));
+		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
 	@Test
@@ -172,7 +172,7 @@ public class CollectionsSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), setDecoratedBy("checkedSet", Integer.class, 0, 8, 15));
-		assertThat(result.getValue(), equalTo("set1"));
+		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
 	@Test
@@ -183,7 +183,7 @@ public class CollectionsSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), containsString("Set<Integer> set1 = emptySet()"));
-		assertThat(result.getValue(), equalTo("set1"));
+		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
 	@Test
@@ -194,7 +194,7 @@ public class CollectionsSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), containsString("Set<Integer> set1 = singleton(0)"));
-		assertThat(result.getValue(), equalTo("set1"));
+		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
 	@Test

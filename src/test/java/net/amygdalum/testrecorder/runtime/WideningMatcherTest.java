@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.runtime;
 
 import static net.amygdalum.testrecorder.runtime.WideningMatcher.widening;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -16,7 +17,7 @@ public class WideningMatcherTest {
         
         widening(equalTo("x")).describeTo(description);
         
-        assertThat(description.toString(), equalTo("\"x\""));
+        assertThat(description.toString()).isEqualTo("\"x\"");
     }
 
     @Test

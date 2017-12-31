@@ -1,8 +1,8 @@
 package net.amygdalum.testrecorder.util;
 
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
@@ -22,41 +22,41 @@ public class WorkSetTest {
 
 	@Test
 	public void testConstructor() throws Exception {
-		assertThat(new WorkSet<>().hasMoreElements(), equalTo(false));
-		assertThat(new WorkSet<>(new LinkedList<>(asList("A"))).hasMoreElements(), equalTo(true));
+		assertThat(new WorkSet<>().hasMoreElements()).isEqualTo(false);
+		assertThat(new WorkSet<>(new LinkedList<>(asList("A"))).hasMoreElements()).isEqualTo(true);
 	}
 
 	@Test
 	public void testEnqueueDequeueSingle() throws Exception {
 		WorkSet<String> workSet = new WorkSet<>();
 		workSet.add("A");
-		assertThat(workSet.hasMoreElements(), equalTo(true));
+		assertThat(workSet.hasMoreElements()).isEqualTo(true);
 		String element = workSet.remove();
-		assertThat(workSet.hasMoreElements(), equalTo(false));
-		assertThat(element, equalTo("A"));
+		assertThat(workSet.hasMoreElements()).isEqualTo(false);
+		assertThat(element).isEqualTo("A");
 	}
 
 	@Test
 	public void testEnqueueDequeueOneElementList() throws Exception {
 		WorkSet<String> workSet = new WorkSet<>();
 		workSet.addAll(asList("A"));
-		assertThat(workSet.hasMoreElements(), equalTo(true));
+		assertThat(workSet.hasMoreElements()).isEqualTo(true);
 		String element = workSet.remove();
-		assertThat(workSet.hasMoreElements(), equalTo(false));
-		assertThat(element, equalTo("A"));
+		assertThat(workSet.hasMoreElements()).isEqualTo(false);
+		assertThat(element).isEqualTo("A");
 	}
 
 	@Test
 	public void testEnqueueDequeueTwice() throws Exception {
 		WorkSet<String> workSet = new WorkSet<>();
 		workSet.addAll(asList("A", "B"));
-		assertThat(workSet.hasMoreElements(), equalTo(true));
+		assertThat(workSet.hasMoreElements()).isEqualTo(true);
 		String a = workSet.remove();
-		assertThat(workSet.hasMoreElements(), equalTo(true));
-		assertThat(a, equalTo("A"));
+		assertThat(workSet.hasMoreElements()).isEqualTo(true);
+		assertThat(a).isEqualTo("A");
 		String b = workSet.remove();
-		assertThat(workSet.hasMoreElements(), equalTo(false));
-		assertThat(b, equalTo("B"));
+		assertThat(workSet.hasMoreElements()).isEqualTo(false);
+		assertThat(b).isEqualTo("B");
 	}
 
 	@Test
@@ -64,13 +64,13 @@ public class WorkSetTest {
 		WorkSet<String> workSet = new WorkSet<>();
 		workSet.addAll(asList("A"));
 		workSet.addAll(asList("B"));
-		assertThat(workSet.hasMoreElements(), equalTo(true));
+		assertThat(workSet.hasMoreElements()).isEqualTo(true);
 		String a = workSet.remove();
-		assertThat(workSet.hasMoreElements(), equalTo(true));
-		assertThat(a, equalTo("A"));
+		assertThat(workSet.hasMoreElements()).isEqualTo(true);
+		assertThat(a).isEqualTo("A");
 		String b = workSet.remove();
-		assertThat(workSet.hasMoreElements(), equalTo(false));
-		assertThat(b, equalTo("B"));
+		assertThat(workSet.hasMoreElements()).isEqualTo(false);
+		assertThat(b).isEqualTo("B");
 	}
 
 	@Test
@@ -78,11 +78,11 @@ public class WorkSetTest {
 		WorkSet<String> workSet = new WorkSet<>();
 		workSet.addAll(asList("A", "B"));
 		String a = workSet.remove();
-		assertThat(a, equalTo("A"));
+		assertThat(a).isEqualTo("A");
 		workSet.add("A");
 		String b = workSet.remove();
-		assertThat(b, equalTo("B"));
-		assertThat(workSet.hasMoreElements(), equalTo(false));
+		assertThat(b).isEqualTo("B");
+		assertThat(workSet.hasMoreElements()).isEqualTo(false);
 	}
 
 	@Test
@@ -95,7 +95,7 @@ public class WorkSetTest {
 	public void testToStringFresh() throws Exception {
 		WorkSet<String> workSet = new WorkSet<>();
 		workSet.addAll(asList("A", "B"));
-		assertThat(workSet.toString(), equalTo("{A, B}"));
+		assertThat(workSet.toString()).isEqualTo("{A, B}");
 	}
 
 	@Test
@@ -103,7 +103,7 @@ public class WorkSetTest {
 		WorkSet<String> workSet = new WorkSet<>();
 		workSet.addAll(asList("A", "B", "C"));
 		workSet.remove();
-		assertThat(workSet.toString(), equalTo("{B, C | A}"));
+		assertThat(workSet.toString()).isEqualTo("{B, C | A}");
 	}
 
 	@Test
@@ -120,8 +120,8 @@ public class WorkSetTest {
 		assertThat(changed, is(true));
 		assertThat(ws.isEmpty(), is(false));
 		assertThat(ws.getDone(), empty());
-		assertThat(ws.peek(), equalTo("A"));
-		assertThat(ws.size(), equalTo(1));
+		assertThat(ws.peek()).isEqualTo("A");
+		assertThat(ws.size()).isEqualTo(1);
 	}
 
 	@Test
@@ -134,8 +134,8 @@ public class WorkSetTest {
 		assertThat(changed, is(false));
 		assertThat(ws.isEmpty(), is(false));
 		assertThat(ws.getDone(), empty());
-		assertThat(ws.peek(), equalTo("A"));
-		assertThat(ws.size(), equalTo(1));
+		assertThat(ws.peek()).isEqualTo("A");
+		assertThat(ws.size()).isEqualTo(1);
 	}
 
 	@Test
@@ -150,7 +150,7 @@ public class WorkSetTest {
 		assertThat(ws.isEmpty(), is(true));
 		assertThat(ws.getDone(), contains("A"));
 		assertThat(ws.peek(), nullValue());
-		assertThat(ws.size(), equalTo(0));
+		assertThat(ws.size()).isEqualTo(0);
 	}
 
 	@Test
@@ -162,8 +162,8 @@ public class WorkSetTest {
 		assertThat(changed, is(true));
 		assertThat(ws.isEmpty(), is(false));
 		assertThat(ws.getDone(), empty());
-		assertThat(ws.peek(), equalTo("A"));
-		assertThat(ws.size(), equalTo(1));
+		assertThat(ws.peek()).isEqualTo("A");
+		assertThat(ws.size()).isEqualTo(1);
 	}
 
 	@Test
@@ -176,8 +176,8 @@ public class WorkSetTest {
 		assertThat(changed, is(false));
 		assertThat(ws.isEmpty(), is(false));
 		assertThat(ws.getDone(), empty());
-		assertThat(ws.peek(), equalTo("A"));
-		assertThat(ws.size(), equalTo(1));
+		assertThat(ws.peek()).isEqualTo("A");
+		assertThat(ws.size()).isEqualTo(1);
 	}
 
 	@Test
@@ -192,7 +192,7 @@ public class WorkSetTest {
 		assertThat(ws.isEmpty(), is(true));
 		assertThat(ws.getDone(), contains("A"));
 		assertThat(ws.peek(), nullValue());
-		assertThat(ws.size(), equalTo(0));
+		assertThat(ws.size()).isEqualTo(0);
 	}
 
 	@Test
@@ -204,9 +204,9 @@ public class WorkSetTest {
 		assertThat(changed, is(true));
 		assertThat(ws.isEmpty(), is(false));
 		assertThat(ws.getDone(), empty());
-		assertThat(ws.peek(), equalTo("A"));
+		assertThat(ws.peek()).isEqualTo("A");
 		assertThat(ws.toArray(new String[0]), arrayContaining("A", "B"));
-		assertThat(ws.size(), equalTo(2));
+		assertThat(ws.size()).isEqualTo(2);
 	}
 
 	@Test
@@ -219,9 +219,9 @@ public class WorkSetTest {
 		assertThat(changed, is(false));
 		assertThat(ws.isEmpty(), is(false));
 		assertThat(ws.getDone(), empty());
-		assertThat(ws.peek(), equalTo("A"));
+		assertThat(ws.peek()).isEqualTo("A");
 		assertThat(ws.toArray(new String[0]), arrayContaining("A", "B"));
-		assertThat(ws.size(), equalTo(2));
+		assertThat(ws.size()).isEqualTo(2);
 	}
 
 	@Test
@@ -234,9 +234,9 @@ public class WorkSetTest {
 		assertThat(changed, is(true));
 		assertThat(ws.isEmpty(), is(false));
 		assertThat(ws.getDone(), empty());
-		assertThat(ws.peek(), equalTo("A"));
+		assertThat(ws.peek()).isEqualTo("A");
 		assertThat(ws.toArray(new String[0]), arrayContaining("A", "B", "C"));
-		assertThat(ws.size(), equalTo(3));
+		assertThat(ws.size()).isEqualTo(3);
 	}
 
 	@Test
@@ -250,9 +250,9 @@ public class WorkSetTest {
 		assertThat(changed, is(true));
 		assertThat(ws.isEmpty(), is(false));
 		assertThat(ws.getDone(), contains("A"));
-		assertThat(ws.peek(), equalTo("B"));
+		assertThat(ws.peek()).isEqualTo("B");
 		assertThat(ws.toArray(new String[0]), arrayContaining("B", "C"));
-		assertThat(ws.size(), equalTo(2));
+		assertThat(ws.size()).isEqualTo(2);
 	}
 
 	@Test
@@ -269,7 +269,7 @@ public class WorkSetTest {
 
 		String r = ws.remove();
 
-		assertThat(r, equalTo("A"));
+		assertThat(r).isEqualTo("A");
 		assertThat(ws.isEmpty(), is(true));
 		assertThat(ws.getDone(), contains("A"));
 		assertThat(ws.peek(), nullValue());
@@ -282,10 +282,10 @@ public class WorkSetTest {
 
 		String r = ws.remove();
 
-		assertThat(r, equalTo("A"));
+		assertThat(r).isEqualTo("A");
 		assertThat(ws.isEmpty(), is(false));
 		assertThat(ws.getDone(), contains("A"));
-		assertThat(ws.peek(), equalTo("B"));
+		assertThat(ws.peek()).isEqualTo("B");
 	}
 
 	@Test
@@ -305,7 +305,7 @@ public class WorkSetTest {
 
 		String r = ws.poll();
 
-		assertThat(r, equalTo("A"));
+		assertThat(r).isEqualTo("A");
 		assertThat(ws.isEmpty(), is(true));
 		assertThat(ws.getDone(), contains("A"));
 		assertThat(ws.peek(), nullValue());
@@ -318,10 +318,10 @@ public class WorkSetTest {
 
 		String r = ws.poll();
 
-		assertThat(r, equalTo("A"));
+		assertThat(r).isEqualTo("A");
 		assertThat(ws.isEmpty(), is(false));
 		assertThat(ws.getDone(), contains("A"));
-		assertThat(ws.peek(), equalTo("B"));
+		assertThat(ws.peek()).isEqualTo("B");
 	}
 
 	@Test
@@ -353,8 +353,8 @@ public class WorkSetTest {
 
 		Iterator<String> iterator = ws.iterator();
 
-		assertThat(iterator.next(), equalTo("A"));
-		assertThat(iterator.next(), equalTo("B"));
+		assertThat(iterator.next()).isEqualTo("A");
+		assertThat(iterator.next()).isEqualTo("B");
 	}
 
 	@Test
@@ -375,7 +375,7 @@ public class WorkSetTest {
 
 		assertThat(ws.isEmpty(), is(false));
 		assertThat(ws.getDone(), empty());
-		assertThat(ws.peek(), equalTo("B"));
+		assertThat(ws.peek()).isEqualTo("B");
 	}
 
 	@Test
@@ -389,7 +389,7 @@ public class WorkSetTest {
 
 		assertThat(ws.isEmpty(), is(false));
 		assertThat(ws.getDone(), contains("0"));
-		assertThat(ws.peek(), equalTo("B"));
+		assertThat(ws.peek()).isEqualTo("B");
 	}
 
 	@Test
@@ -427,7 +427,7 @@ public class WorkSetTest {
 
 		assertThat(ws.isEmpty(), is(false));
 		assertThat(ws.getDone(), empty());
-		assertThat(ws.peek(), equalTo("B"));
+		assertThat(ws.peek()).isEqualTo("B");
 	}
 
 	@Test
@@ -495,7 +495,7 @@ public class WorkSetTest {
 		WorkSet<String> ws = new WorkSet<>();
 		ws.addAll(asList("A", "B"));
 
-		assertThat(ws.element(), equalTo("A"));
+		assertThat(ws.element()).isEqualTo("A");
 	}
 
 	@Test
@@ -510,7 +510,7 @@ public class WorkSetTest {
 		WorkSet<String> ws = new WorkSet<>();
 		ws.addAll(asList("A", "B"));
 
-		assertThat(ws.peek(), equalTo("A"));
+		assertThat(ws.peek()).isEqualTo("A");
 	}
 
 }

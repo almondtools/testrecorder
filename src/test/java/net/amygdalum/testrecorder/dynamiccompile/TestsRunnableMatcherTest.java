@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.dynamiccompile;
 
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -17,7 +17,7 @@ public class TestsRunnableMatcherTest {
 
         testsRun(TestsRunnableMatcherTest.class).describeTo(description);
 
-        assertThat(description.toString(), equalTo("should compile and run with success"));
+        assertThat(description.toString()).isEqualTo("should compile and run with success");
     }
 
     @Test
@@ -35,7 +35,7 @@ public class TestsRunnableMatcherTest {
             + "}", description);
 
         assertThat(matches, is(true));
-        assertThat(description.toString(), equalTo(""));
+        assertThat(description.toString()).isEqualTo("");
     }
 
     @Test

@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder.data;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,14 +18,14 @@ public class RandomShortValueGeneratorTest {
 	public void testCreateMax() throws Exception {
 		gen.random.setSeed(Long.MAX_VALUE);
 
-		assertThat(gen.create(null), equalTo((short) 27827));
+		assertThat(gen.create(null)).isEqualTo((short) 27827);
 	}
 
 	@Test
 	public void testCreateMin() throws Exception {
 		gen.random.setSeed(Long.MIN_VALUE);
 
-		assertThat(gen.create(null), equalTo((short) -19360));
+		assertThat(gen.create(null)).isEqualTo((short) -19360);
 	}
 
 }

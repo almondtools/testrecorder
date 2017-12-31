@@ -4,7 +4,7 @@ import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContex
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfCompletelyHidden;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfPartiallyHidden;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -46,7 +46,7 @@ public class DefaultNullAdaptorTest {
         Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements(), empty());
-        assertThat(result.getValue(), equalTo("nullValue(String.class)"));
+        assertThat(result.getValue()).isEqualTo("nullValue(String.class)");
     }
 
     @Test
@@ -59,7 +59,7 @@ public class DefaultNullAdaptorTest {
         Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements(), empty());
-        assertThat(result.getValue(), equalTo("nullValue(net.amygdalum.testrecorder.util.testobjects.Hidden.VisibleInterface.class)"));
+        assertThat(result.getValue()).isEqualTo("nullValue(net.amygdalum.testrecorder.util.testobjects.Hidden.VisibleInterface.class)");
     }
 
     @Test
@@ -72,7 +72,7 @@ public class DefaultNullAdaptorTest {
         Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
         assertThat(result.getStatements(), empty());
-        assertThat(result.getValue(), equalTo("nullValue()"));
+        assertThat(result.getValue()).isEqualTo("nullValue()");
     }
 
 }

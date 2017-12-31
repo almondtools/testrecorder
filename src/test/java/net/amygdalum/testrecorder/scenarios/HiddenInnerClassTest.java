@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.scenarios;
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
-import static org.hamcrest.Matchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
@@ -25,7 +25,7 @@ public class HiddenInnerClassTest {
 	public void testCompilable() throws Exception {
 		HiddenInnerClass object = new HiddenInnerClass("hidden name");
 
-		assertThat(object.toString(), equalTo("hidden name"));
+		assertThat(object.toString()).isEqualTo("hidden name");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(HiddenInnerClass.class), compiles(HiddenInnerClass.class));
@@ -36,7 +36,7 @@ public class HiddenInnerClassTest {
 	public void testCode() throws Exception {
 		HiddenInnerClass object = new HiddenInnerClass("hidden name");
 
-		assertThat(object.toString(), equalTo("hidden name"));
+		assertThat(object.toString()).isEqualTo("hidden name");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(HiddenInnerClass.class), hasSize(1));

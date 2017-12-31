@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenEnum;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -46,7 +46,7 @@ public class DefaultEnumAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements(), empty());
-		assertThat(result.getValue(), equalTo("sameInstance(PublicEnum.VALUE1)"));
+		assertThat(result.getValue()).isEqualTo("sameInstance(PublicEnum.VALUE1)");
 	}
 
 	@Test
@@ -58,7 +58,7 @@ public class DefaultEnumAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements(), empty());
-		assertThat(result.getValue(), equalTo("matchingEnum(\"VALUE2\")"));
+		assertThat(result.getValue()).isEqualTo("matchingEnum(\"VALUE2\")");
 	}
 
 	@Test
@@ -70,7 +70,7 @@ public class DefaultEnumAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements(), empty());
-		assertThat(result.getValue(), equalTo("widening(matchingEnum(\"VALUE2\"))"));
+		assertThat(result.getValue()).isEqualTo("widening(matchingEnum(\"VALUE2\"))");
 	}
 
 }

@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.values;
 
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
-import static org.hamcrest.Matchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
@@ -24,21 +24,21 @@ public class SerializedNullTest {
 	public void testGetResultType() throws Exception {
 		SerializedNull value = nullInstance(String.class);
 
-		assertThat(value.getResultType(), equalTo(String.class));
+		assertThat(value.getResultType()).isEqualTo(String.class);
 	}
 
 	@Test
 	public void testAccept() throws Exception {
 		SerializedNull value = nullInstance(String.class);
 
-		assertThat(value.accept(new TestValueVisitor(), NULL), equalTo("SerializedNull"));
+		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("SerializedNull");
 	}
 
 	@Test
 	public void testToString() throws Exception {
 		SerializedNull value = nullInstance(String.class);
 
-		assertThat(value.toString(), equalTo("null"));
+		assertThat(value.toString()).isEqualTo("null");
 	}
 
 }

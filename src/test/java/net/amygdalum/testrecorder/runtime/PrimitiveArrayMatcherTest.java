@@ -8,7 +8,7 @@ import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.floatArra
 import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.intArrayContaining;
 import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.longArrayContaining;
 import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.shortArrayContaining;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -87,7 +87,7 @@ public class PrimitiveArrayMatcherTest {
         
         booleanArrayContaining(true, false).describeTo(description);
         
-        assertThat(description.toString(), equalTo("an array containing values of type <boolean>: [<true>, <false>]"));
+        assertThat(description.toString()).isEqualTo("an array containing values of type <boolean>: [<true>, <false>]");
     }
 
     @Test
@@ -96,7 +96,7 @@ public class PrimitiveArrayMatcherTest {
         
         booleanArrayContaining().describeMismatch(new Object(), description);
         
-        assertThat(description.toString(), equalTo("not an array"));
+        assertThat(description.toString()).isEqualTo("not an array");
     }
 
     @Test
@@ -105,7 +105,7 @@ public class PrimitiveArrayMatcherTest {
         
         booleanArrayContaining().describeMismatch(new Object[0], description);
         
-        assertThat(description.toString(), equalTo("not a primitive array"));
+        assertThat(description.toString()).isEqualTo("not a primitive array");
     }
 
     @Test
@@ -114,7 +114,7 @@ public class PrimitiveArrayMatcherTest {
         
         booleanArrayContaining().describeMismatch(new int[0], description);
         
-        assertThat(description.toString(), equalTo("of type <int[]>"));
+        assertThat(description.toString()).isEqualTo("of type <int[]>");
     }
 
     @Test
@@ -123,7 +123,7 @@ public class PrimitiveArrayMatcherTest {
 
         doubleArrayContaining(0.3e-33, -46232.83345435234235234235235235).describeMismatch(new double[] { 3e-33 }, description);
         
-        assertThat(description.toString(), equalTo("with items [<3.0E-33>]"));
+        assertThat(description.toString()).isEqualTo("with items [<3.0E-33>]");
     }
 
     private byte b(int i) {

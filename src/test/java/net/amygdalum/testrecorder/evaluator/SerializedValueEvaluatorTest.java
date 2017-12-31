@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.evaluator;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -37,7 +37,7 @@ public class SerializedValueEvaluatorTest {
     public void testEvaluateField() throws Exception {
         SerializedValue value = facade.serialize(Simple.class, new Simple("strValue"));
 
-        assertThat(new SerializedValueEvaluator(".str").applyTo(value).get().toString(), equalTo("strValue"));
+        assertThat(new SerializedValueEvaluator(".str").applyTo(value).get().toString()).isEqualTo("strValue");
     }
 
     @Test
@@ -54,8 +54,8 @@ public class SerializedValueEvaluatorTest {
     public void testEvaluateArray() throws Exception {
         SerializedValue value = facade.serialize(String[].class, new String[]{"foo", "bar"});
 
-        assertThat(new SerializedValueEvaluator("[0]").applyTo(value).get().toString(), equalTo("foo"));
-        assertThat(new SerializedValueEvaluator("[1]").applyTo(value).get().toString(), equalTo("bar"));
+        assertThat(new SerializedValueEvaluator("[0]").applyTo(value).get().toString()).isEqualTo("foo");
+        assertThat(new SerializedValueEvaluator("[1]").applyTo(value).get().toString()).isEqualTo("bar");
     }
 
     @Test
@@ -71,8 +71,8 @@ public class SerializedValueEvaluatorTest {
     public void testEvaluateList() throws Exception {
         SerializedValue value = facade.serialize(List.class, asList("bar","foo"));
         
-        assertThat(new SerializedValueEvaluator("[0]").applyTo(value).get().toString(), equalTo("bar"));
-        assertThat(new SerializedValueEvaluator("[1]").applyTo(value).get().toString(), equalTo("foo"));
+        assertThat(new SerializedValueEvaluator("[0]").applyTo(value).get().toString()).isEqualTo("bar");
+        assertThat(new SerializedValueEvaluator("[1]").applyTo(value).get().toString()).isEqualTo("foo");
     }
 
     @Test
@@ -88,7 +88,7 @@ public class SerializedValueEvaluatorTest {
     public void testEvaluateNestedField() throws Exception {
         SerializedValue value = facade.serialize(Complex.class, new Complex("sstr"));
         
-        assertThat(new SerializedValueEvaluator(".simple.str").applyTo(value).get().toString(), equalTo("sstr"));
+        assertThat(new SerializedValueEvaluator(".simple.str").applyTo(value).get().toString()).isEqualTo("sstr");
     }
 
 }

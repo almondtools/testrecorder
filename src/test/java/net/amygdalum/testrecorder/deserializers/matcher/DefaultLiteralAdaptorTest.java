@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -44,7 +44,7 @@ public class DefaultLiteralAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements(), empty());
-		assertThat(result.getValue(), equalTo("equalTo(\"string\")"));
+		assertThat(result.getValue()).isEqualTo("equalTo(\"string\")");
 	}
 
 }

@@ -2,8 +2,7 @@ package net.amygdalum.testrecorder.deserializers;
 
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,7 +41,7 @@ public class MappedDeserializerTest {
 		SerializedField field = new SerializedField(Simple.class, "str", String.class, literal("v"));
 		when(deserializer.visitField(field, NULL)).thenReturn(2);
 
-		assertThat(mappedDeserializer.visitField(field, NULL), equalTo(2l));
+		assertThat(mappedDeserializer.visitField(field, NULL)).isEqualTo(2l);
 	}
 
 	@Test
@@ -50,7 +49,7 @@ public class MappedDeserializerTest {
 		SerializedReferenceType object = new SerializedObject(Simple.class);
 		when(deserializer.visitReferenceType(object, NULL)).thenReturn(3);
 
-		assertThat(mappedDeserializer.visitReferenceType(object, NULL), equalTo(3l));
+		assertThat(mappedDeserializer.visitReferenceType(object, NULL)).isEqualTo(3l);
 	}
 
 	@Test
@@ -58,7 +57,7 @@ public class MappedDeserializerTest {
 		SerializedImmutableType object = new SerializedImmutable<>(BigInteger.class);
 		when(deserializer.visitImmutableType(object, NULL)).thenReturn(4);
 
-		assertThat(mappedDeserializer.visitImmutableType(object, NULL), equalTo(4l));
+		assertThat(mappedDeserializer.visitImmutableType(object, NULL)).isEqualTo(4l);
 	}
 
 	@Test
@@ -66,7 +65,7 @@ public class MappedDeserializerTest {
 		SerializedValueType object = SerializedLiteral.literal("lit");
 		when(deserializer.visitValueType(object, NULL)).thenReturn(5);
 
-		assertThat(mappedDeserializer.visitValueType(object, NULL), equalTo(5l));
+		assertThat(mappedDeserializer.visitValueType(object, NULL)).isEqualTo(5l);
 	}
 
 }

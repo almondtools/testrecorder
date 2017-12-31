@@ -1,9 +1,9 @@
 package net.amygdalum.testrecorder.util;
 
 import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefaultEquality;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.arrayContaining;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -13,9 +13,9 @@ public class TripleTest {
 
 	@Test
 	public void testTriple() throws Exception {
-		assertThat(new Triple<String, Integer, Float>("string", 11, 0.1f).getElement1(), equalTo("string"));
-		assertThat(new Triple<String, Integer, Float>("string", 11, 0.1f).getElement2(), equalTo(11));
-		assertThat(new Triple<String, Integer, Float>("string", 11, 0.1f).getElement3(), equalTo(0.1f));
+		assertThat(new Triple<String, Integer, Float>("string", 11, 0.1f).getElement1()).isEqualTo("string");
+		assertThat(new Triple<String, Integer, Float>("string", 11, 0.1f).getElement2()).isEqualTo(11);
+		assertThat(new Triple<String, Integer, Float>("string", 11, 0.1f).getElement3()).isEqualTo(0.1f);
 	}
 
 	@Test

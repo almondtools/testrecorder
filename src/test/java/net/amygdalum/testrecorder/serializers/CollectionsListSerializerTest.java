@@ -5,9 +5,9 @@ import static net.amygdalum.testrecorder.util.Types.innerType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -56,9 +56,9 @@ public class CollectionsListSerializerTest {
 
 		SerializedList value = serializer.generate(listOfString, unmodifiableListOfString);
 
-		assertThat(value.getResultType(), equalTo(listOfString));
-		assertThat(value.getType(), equalTo(unmodifiableListOfString));
-		assertThat(value.getComponentType(), equalTo(String.class));
+		assertThat(value.getResultType()).isEqualTo(listOfString);
+		assertThat(value.getType()).isEqualTo(unmodifiableListOfString);
+		assertThat(value.getComponentType()).isEqualTo(String.class);
 	}
 
 	@Test

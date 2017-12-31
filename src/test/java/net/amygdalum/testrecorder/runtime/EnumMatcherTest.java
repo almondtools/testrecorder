@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.runtime;
 
 import static net.amygdalum.testrecorder.runtime.EnumMatcher.matchingEnum;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -16,7 +16,7 @@ public class EnumMatcherTest {
 
         matchingEnum("VALUE").describeTo(description);
 
-        assertThat(description.toString(), equalTo("with name \"VALUE\""));
+        assertThat(description.toString()).isEqualTo("with name \"VALUE\"");
     }
 
     @Test

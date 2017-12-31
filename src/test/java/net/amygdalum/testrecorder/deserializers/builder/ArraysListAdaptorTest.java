@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.deserializers.builder;
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -48,7 +48,7 @@ public class ArraysListAdaptorTest {
 		assertThat(result.getStatements().toString(), allOf(
 			containsString("Integer[] integerArray1 = new Integer[]{0, 8, 15}"),
 			containsString("List<Integer> list1 = asList(integerArray1)")));
-		assertThat(result.getValue(), equalTo("list1"));
+		assertThat(result.getValue()).isEqualTo("list1");
 	}
 
 	private SerializedList listOf(String className, int... elements) throws ClassNotFoundException {

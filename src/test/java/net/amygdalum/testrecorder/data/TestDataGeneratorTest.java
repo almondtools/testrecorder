@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.data;
 
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -35,21 +35,21 @@ public class TestDataGeneratorTest {
 	public void testCreateChar() throws Exception {
 		gen.withValues(char.class, new FixedCharValueGenerator('j'));
 
-		assertThat(gen.create(char.class), equalTo('j'));
+		assertThat(gen.create(char.class)).isEqualTo('j');
 	}
 
 	@Test
 	public void testCreateByte() throws Exception {
 		gen.withValues(byte.class, new FixedByteValueGenerator((byte) 123));
 
-		assertThat(gen.create(byte.class), equalTo((byte) 123));
+		assertThat(gen.create(byte.class)).isEqualTo((byte) 123);
 	}
 
 	@Test
 	public void testCreateShort() throws Exception {
 		gen.withValues(short.class, new FixedShortValueGenerator((short) 244));
 
-		assertThat(gen.create(short.class), equalTo((short) 244));
+		assertThat(gen.create(short.class)).isEqualTo((short) 244);
 	}
 
 	@Test
@@ -63,40 +63,40 @@ public class TestDataGeneratorTest {
 	public void testCreateLong() throws Exception {
 		gen.withValues(long.class, new FixedLongValueGenerator(900000000l));
 
-		assertThat(gen.create(long.class), equalTo(900000000l));
+		assertThat(gen.create(long.class)).isEqualTo(900000000l);
 	}
 
 	@Test
 	public void testCreateFloat() throws Exception {
 		gen.withValues(float.class, new FixedFloatValueGenerator(1.23e-4f));
 
-		assertThat(gen.create(float.class), equalTo(1.23e-4f));
+		assertThat(gen.create(float.class)).isEqualTo(1.23e-4f);
 	}
 
 	@Test
 	public void testCreateDouble() throws Exception {
 		gen.withValues(double.class, new FixedDoubleValueGenerator(0.2134234e-22d));
 
-		assertThat(gen.create(double.class), equalTo(0.2134234e-22d));
+		assertThat(gen.create(double.class)).isEqualTo(0.2134234e-22d);
 	}
 
 	@Test
 	public void testCreateString() throws Exception {
 		gen.withValues(String.class, new FixedStringValueGenerator("string"));
 
-		assertThat(gen.create(String.class), equalTo("string"));
+		assertThat(gen.create(String.class)).isEqualTo("string");
 	}
 
 	@Test
 	public void testCreateDefault() throws Exception {
 		assertThat(gen.create(boolean.class), is(false));
-		assertThat(gen.create(char.class), equalTo((char) 0));
-		assertThat(gen.create(byte.class), equalTo((byte) 0));
-		assertThat(gen.create(short.class), equalTo((short) 0));
+		assertThat(gen.create(char.class)).isEqualTo((char) 0);
+		assertThat(gen.create(byte.class)).isEqualTo((byte) 0);
+		assertThat(gen.create(short.class)).isEqualTo((short) 0);
 		assertThat(gen.create(int.class), is(0));
-		assertThat(gen.create(long.class), equalTo(0l));
-		assertThat(gen.create(float.class), equalTo(0f));
-		assertThat(gen.create(double.class), equalTo(0d));
+		assertThat(gen.create(long.class)).isEqualTo(0l);
+		assertThat(gen.create(float.class)).isEqualTo(0f);
+		assertThat(gen.create(double.class)).isEqualTo(0d);
 		assertThat(gen.create(Object.class), nullValue());
 	}
 
@@ -107,7 +107,7 @@ public class TestDataGeneratorTest {
 			.withValues(int.class, new FixedIntValueGenerator(42))
 			.withValues(String.class, new RandomStringValueGenerator(" is the solution"));
 
-		assertThat(gen.create(MyObject.class).toString(), equalTo("42 is the solution"));
+		assertThat(gen.create(MyObject.class).toString()).isEqualTo("42 is the solution");
 	}
 
 	private static class MyObject {

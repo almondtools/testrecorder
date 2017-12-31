@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.deserializers.builder;
 
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -46,7 +46,7 @@ public class DefaultArrayAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 		
 		assertThat(result.getStatements().toString(), containsString("int[] intArray1 = new int[]{0, 8, 15}"));
-		assertThat(result.getValue(), equalTo("intArray1"));
+		assertThat(result.getValue()).isEqualTo("intArray1");
 	}
 
 

@@ -7,10 +7,10 @@ import static net.amygdalum.testrecorder.util.testobjects.Collections.arrayList;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenList;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.hiddenList;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Type;
@@ -55,7 +55,7 @@ public class SetupGeneratorsTest {
         Computation result = setupCode.visitField(new SerializedField(ContainingList.class, "list", type, value), NULL);
 
         assertThat(result.getStatements().toString(), containsPattern("ArrayList<String> list1 = new ArrayList*"));
-        assertThat(result.getValue(), equalTo("ArrayList<String> list = list1;"));
+        assertThat(result.getValue()).isEqualTo("ArrayList<String> list = list1;");
     }
 
     @Test
@@ -63,7 +63,7 @@ public class SetupGeneratorsTest {
         Computation result = setupCode.visitField(new SerializedField(Complex.class, "simple", Simple.class, values.object(Object.class, new Complex())), NULL);
 
         assertThat(result.getStatements().toString(), containsPattern("Complex complex1 = new Complex*"));
-        assertThat(result.getValue(), equalTo("Simple simple = (Simple) complex1;"));
+        assertThat(result.getValue()).isEqualTo("Simple simple = (Simple) complex1;");
     }
 
     @Test
@@ -73,7 +73,7 @@ public class SetupGeneratorsTest {
         Computation result = setupCode.visitField(new SerializedField(ContainingList.class, "list", parameterized(List.class, null, String.class), value), NULL);
 
         assertThat(result.getStatements().toString(), containsPattern("List hiddenList2 = (List<String>) new GenericObject*.as(clazz(*HiddenList*)*.value()"));
-        assertThat(result.getValue(), equalTo("List<String> list = hiddenList2;"));
+        assertThat(result.getValue()).isEqualTo("List<String> list = hiddenList2;");
     }
 
     @Test
@@ -83,7 +83,7 @@ public class SetupGeneratorsTest {
         Computation result = setupCode.visitField(new SerializedField(ContainingList.class, "list", parameterized(classOfHiddenList(), null, String.class), value), NULL);
 
         assertThat(result.getStatements().toString(), containsPattern("ArrayList hiddenList2 = *(ArrayList<?>) new GenericObject*value()"));
-        assertThat(result.getValue(), equalTo("ArrayList<?> list = hiddenList2;"));
+        assertThat(result.getValue()).isEqualTo("ArrayList<?> list = hiddenList2;");
     }
 
     @Test
@@ -93,7 +93,7 @@ public class SetupGeneratorsTest {
         Computation result = setupCode.visitReferenceType(value, NULL);
 
         assertThat(result.getStatements().toString(), containsString("Dubble dubble1 = new Dubble(\"Foo\", \"Bar\");"));
-        assertThat(result.getValue(), equalTo("dubble1"));
+        assertThat(result.getValue()).isEqualTo("dubble1");
     }
 
     @Test
@@ -104,7 +104,7 @@ public class SetupGeneratorsTest {
         Computation result = setupCode.visitReferenceType(value, NULL);
 
         assertThat(result.getStatements(), empty());
-        assertThat(result.getValue(), equalTo("dubble1"));
+        assertThat(result.getValue()).isEqualTo("dubble1");
     }
 
     @SuppressWarnings("unchecked")
@@ -115,7 +115,7 @@ public class SetupGeneratorsTest {
         Computation result = setupCode.visitReferenceType(value, NULL);
 
         assertThat(result.getStatements(), contains(containsPattern("Cycle cycle2 = GenericObject.forward(Cycle.class)*"), containsPattern("GenericObject.define*")));
-        assertThat(result.getValue(), equalTo("cycle2"));
+        assertThat(result.getValue()).isEqualTo("cycle2");
     }
 
     @SuppressWarnings("unchecked")
@@ -126,7 +126,7 @@ public class SetupGeneratorsTest {
         Computation result = setupCode.visitReferenceType(value, NULL);
 
         assertThat(result.getStatements(), contains(containsPattern("GenericCycle genericCycle2 = GenericObject.forward(GenericCycle.class)*"), containsPattern("GenericObject.define*")));
-        assertThat(result.getValue(), equalTo("genericCycle2"));
+        assertThat(result.getValue()).isEqualTo("genericCycle2");
     }
 
     @Test
@@ -136,7 +136,7 @@ public class SetupGeneratorsTest {
         Computation result = setupCode.visitImmutableType(value, NULL);
 
         assertThat(result.getStatements(), empty());
-        assertThat(result.getValue(), equalTo("new BigInteger(\"42\")"));
+        assertThat(result.getValue()).isEqualTo("new BigInteger(\"42\")");
     }
 
     @Test
@@ -146,19 +146,19 @@ public class SetupGeneratorsTest {
         Computation result = setupCode.visitValueType(value, NULL);
 
         assertThat(result.getStatements(), empty());
-        assertThat(result.getValue(), equalTo("42"));
+        assertThat(result.getValue()).isEqualTo("42");
     }
 
     @Test
     public void testTemporaryLocal() throws Exception {
-        assertThat(setupCode.temporaryLocal(), equalTo("temp1"));
-        assertThat(setupCode.temporaryLocal(), equalTo("temp2"));
+        assertThat(setupCode.temporaryLocal()).isEqualTo("temp1");
+        assertThat(setupCode.temporaryLocal()).isEqualTo("temp2");
     }
 
     @Test
     public void testNewLocal() throws Exception {
-        assertThat(setupCode.newLocal("var"), equalTo("var1"));
-        assertThat(setupCode.newLocal("var"), equalTo("var2"));
+        assertThat(setupCode.newLocal("var")).isEqualTo("var1");
+        assertThat(setupCode.newLocal("var")).isEqualTo("var2");
     }
 
 }

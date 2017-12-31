@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.deserializers.builder;
 
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenEnum;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
@@ -47,7 +47,7 @@ public class DefaultEnumAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements(), empty());
-		assertThat(result.getValue(), equalTo("PublicEnum.VALUE1"));
+		assertThat(result.getValue()).isEqualTo("PublicEnum.VALUE1");
 	}
 
 	@Test

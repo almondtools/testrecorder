@@ -4,8 +4,8 @@ import static net.amygdalum.testrecorder.util.Types.innerType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -57,10 +57,10 @@ public class CollectionsMapSerializerTest {
 
 		SerializedMap value = serializer.generate(setOfString, unmodifiableMapOfString);
 
-		assertThat(value.getResultType(), equalTo(setOfString));
-		assertThat(value.getType(), equalTo(unmodifiableMapOfString));
-		assertThat(value.getMapKeyType(), equalTo(String.class));
-		assertThat(value.getMapValueType(), equalTo(Integer.class));
+		assertThat(value.getResultType()).isEqualTo(setOfString);
+		assertThat(value.getType()).isEqualTo(unmodifiableMapOfString);
+		assertThat(value.getMapKeyType()).isEqualTo(String.class);
+		assertThat(value.getMapValueType()).isEqualTo(Integer.class);
 	}
 
 	@Test

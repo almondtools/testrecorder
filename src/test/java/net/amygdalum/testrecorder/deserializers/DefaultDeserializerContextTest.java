@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.deserializers;
 
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.emptyArray;
@@ -20,7 +20,7 @@ public class DefaultDeserializerContextTest {
 	@Test
 	public void testGetHint() throws Exception {
 		assertThat(NULL.newWithHints(new String[] { "1" }).getHint(Integer.class).isPresent(), is(false));
-		assertThat(NULL.newWithHints(new Integer[] { 1 }).getHint(Integer.class).get(), equalTo(1));
+		assertThat(NULL.newWithHints(new Integer[] { 1 }).getHint(Integer.class).get()).isEqualTo(1);
 	}
 
 }

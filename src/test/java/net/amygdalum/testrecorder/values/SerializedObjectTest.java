@@ -2,8 +2,8 @@ package net.amygdalum.testrecorder.values;
 
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -14,14 +14,14 @@ public class SerializedObjectTest {
 
 	@Test
 	public void testGetResultType() throws Exception {
-		assertThat(new SerializedObject(String.class).getResultType(), equalTo(String.class));
+		assertThat(new SerializedObject(String.class).getResultType()).isEqualTo(String.class);
 	}
 
 	@Test
 	public void testSetGetObjectType() throws Exception {
 		SerializedObject serializedObject = new SerializedObject(String.class).withResult(Object.class);
 
-		assertThat(serializedObject.getType(), equalTo(String.class));
+		assertThat(serializedObject.getType()).isEqualTo(String.class);
 	}
 
 	@Test
@@ -51,7 +51,7 @@ public class SerializedObjectTest {
 	public void testAccept() throws Exception {
 		SerializedObject serializedObject = new SerializedObject(Object.class);
 
-		assertThat(serializedObject.accept(new TestValueVisitor(), NULL), equalTo("SerializedObject"));
+		assertThat(serializedObject.accept(new TestValueVisitor(), NULL)).isEqualTo("SerializedObject");
 	}
 
 	@Test
@@ -61,7 +61,7 @@ public class SerializedObjectTest {
 		serializedObject.addField(new SerializedField(Object.class, "f1", Object.class, literal("str")));
 		serializedObject.addField(new SerializedField(Object.class, "f2", Integer.class, literal(2)));
 
-		assertThat(serializedObject.toString(), equalTo("java.lang.String/" + System.identityHashCode(serializedObject) + " {\njava.lang.Object f1: str,\njava.lang.Integer f2: 2\n}"));
+		assertThat(serializedObject.toString()).isEqualTo("java.lang.String/" + System.identityHashCode(serializedObject) + " {\njava.lang.Object f1: str,\njava.lang.Integer f2: 2\n}");
 	}
 
 }

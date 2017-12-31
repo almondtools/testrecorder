@@ -4,8 +4,8 @@ import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPat
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -245,13 +245,13 @@ public class ScheduledTestGeneratorTest {
 
     @Test
     public void testComputeClassName() throws Exception {
-        assertThat(testGenerator.computeClassName(ClassDescriptor.of(MyClass.class)), equalTo("MyClassRecordedTest"));
+        assertThat(testGenerator.computeClassName(ClassDescriptor.of(MyClass.class))).isEqualTo("MyClassRecordedTest");
     }
 
     @Test
     public void testComputeClassNameWithTemplate() throws Exception {
-        assertThat(testGenerator.withClassName("${class}Suffix").computeClassName(ClassDescriptor.of(MyClass.class)), equalTo("MyClassSuffix"));
-        assertThat(testGenerator.withClassName("${counter}Suffix").computeClassName(ClassDescriptor.of(MyClass.class)), equalTo("0Suffix"));
+        assertThat(testGenerator.withClassName("${class}Suffix").computeClassName(ClassDescriptor.of(MyClass.class))).isEqualTo("MyClassSuffix");
+        assertThat(testGenerator.withClassName("${counter}Suffix").computeClassName(ClassDescriptor.of(MyClass.class))).isEqualTo("0Suffix");
         assertThat(testGenerator.withClassName("Prefix${millis}Suffix").computeClassName(ClassDescriptor.of(MyClass.class)), containsPattern("Prefix*Suffix"));
     }
 

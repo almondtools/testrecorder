@@ -2,8 +2,8 @@ package net.amygdalum.testrecorder.deserializers;
 
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -60,7 +60,7 @@ public class SimpleDeserializerTest {
 		Object visitReferenceType = deserializer.visitReferenceType(object, NULL);
 
 		assertThat(visitReferenceType, instanceOf(Simple.class));
-		assertThat(((Simple) visitReferenceType).getStr(), equalTo("v"));
+		assertThat(((Simple) visitReferenceType).getStr()).isEqualTo("v");
 	}
 
 	@Test
@@ -78,7 +78,7 @@ public class SimpleDeserializerTest {
 
 		Object visitReferenceType = deserializer.visitReferenceType(object, NULL);
 
-		assertThat(visitReferenceType, equalTo(new int[] { 22 }));
+		assertThat(visitReferenceType).isEqualTo(new int[] { 22 });
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -90,7 +90,7 @@ public class SimpleDeserializerTest {
 		Object visitReferenceType = deserializer.visitReferenceType(object, NULL);
 
 		assertThat(visitReferenceType, instanceOf(ArrayList.class));
-		assertThat(((List) visitReferenceType).get(0), equalTo(1));
+		assertThat(((List) visitReferenceType).get(0)).isEqualTo(1);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -102,7 +102,7 @@ public class SimpleDeserializerTest {
 		Object visitReferenceType = deserializer.visitReferenceType(object, NULL);
 
 		assertThat(visitReferenceType, instanceOf(HashSet.class));
-		assertThat(((Set) visitReferenceType).iterator().next(), equalTo(true));
+		assertThat(((Set) visitReferenceType).iterator().next()).isEqualTo(true);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -114,7 +114,7 @@ public class SimpleDeserializerTest {
 		Object visitReferenceType = deserializer.visitReferenceType(object, NULL);
 
 		assertThat(visitReferenceType, instanceOf(HashMap.class));
-		assertThat(((Map) visitReferenceType).get(1.0), equalTo("one"));
+		assertThat(((Map) visitReferenceType).get(1.0)).isEqualTo("one");
 	}
 
 	@Test
@@ -136,7 +136,7 @@ public class SimpleDeserializerTest {
 
 		Object visitImmutableType = deserializer.visitImmutableType(serializedImmutable, NULL);
 
-		assertThat(visitImmutableType, equalTo(new BigDecimal("2.0")));
+		assertThat(visitImmutableType).isEqualTo(new BigDecimal("2.0"));
 	}
 
 	@Test
@@ -146,7 +146,7 @@ public class SimpleDeserializerTest {
 
 		Object visitImmutableType = deserializer.visitImmutableType(serializedEnum, NULL);
 
-		assertThat(visitImmutableType, equalTo(TestEnum.ENUM));
+		assertThat(visitImmutableType).isEqualTo(TestEnum.ENUM);
 	}
 
 	@Test
@@ -164,7 +164,7 @@ public class SimpleDeserializerTest {
 
 		Object visitImmutableType = deserializer.visitValueType(serializedLiteral, NULL);
 
-		assertThat(visitImmutableType, equalTo('a'));
+		assertThat(visitImmutableType).isEqualTo('a');
 	}
 
 	@Test
@@ -174,7 +174,7 @@ public class SimpleDeserializerTest {
 		Object visitImmutableType = deserializer.visitValueType(serializedLiteral, NULL);
 		visitImmutableType = deserializer.visitValueType(serializedLiteral, NULL);
 
-		assertThat(visitImmutableType, equalTo('a'));
+		assertThat(visitImmutableType).isEqualTo('a');
 	}
 
 	public static enum TestEnum {

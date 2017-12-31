@@ -4,7 +4,7 @@ import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefa
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.is;
@@ -24,33 +24,33 @@ public class SerializedFieldTest {
 
 	@Test
 	public void testGetName() throws Exception {
-		assertThat(new SerializedField(null, "field", String.class, literal("stringvalue")).getName(), equalTo("field"));
+		assertThat(new SerializedField(null, "field", String.class, literal("stringvalue")).getName()).isEqualTo("field");
 	}
 
 	@Test
 	public void testGetType() throws Exception {
-		assertThat(new SerializedField(null, "field", String.class, literal("stringvalue")).getType(), equalTo(String.class));
+		assertThat(new SerializedField(null, "field", String.class, literal("stringvalue")).getType()).isEqualTo(String.class);
 	}
 
 	@Test
 	public void testGetValue() throws Exception {
-		assertThat(new SerializedField(null, "field", String.class, literal("stringvalue")).getValue(), equalTo(literal("stringvalue")));
+		assertThat(new SerializedField(null, "field", String.class, literal("stringvalue")).getValue()).isEqualTo(literal("stringvalue"));
 	}
 
 	@Test
 	public void testAccept() throws Exception {
 		assertThat(new SerializedField(null, "f", String.class, literal("sv"))
-			.accept(new TestValueVisitor(), NULL), equalTo("field"));
+			.accept(new TestValueVisitor(), NULL)).isEqualTo("field");
 	}
 
 	@Test
 	public void testToString() throws Exception {
-		assertThat(new SerializedField(Object.class, "f", String.class, literal("sv")).toString(), equalTo("java.lang.String f: sv"));
+		assertThat(new SerializedField(Object.class, "f", String.class, literal("sv")).toString()).isEqualTo("java.lang.String f: sv");
 	}
 
 	@Test
 	public void testGetDeclaringClass() throws Exception {
-		assertThat(new SerializedField(Object.class, "f", String.class, literal("sv")).getDeclaringClass(), equalTo(Object.class));
+		assertThat(new SerializedField(Object.class, "f", String.class, literal("sv")).getDeclaringClass()).isEqualTo(Object.class);
 	}
 
 	@Test
@@ -58,7 +58,7 @@ public class SerializedFieldTest {
 		SerializedField fieldAnnotated = new SerializedField(AnnotatedField.class, "annotated", String.class, nullInstance(String.class));
 
 		assertThat(fieldAnnotated.getAnnotations(), arrayContaining((Annotation) Annotated.class.getAnnotation(MyAnnotation.class)));
-		assertThat(fieldAnnotated.getAnnotation(MyAnnotation.class).get(), equalTo(Annotated.class.getAnnotation(MyAnnotation.class)));
+		assertThat(fieldAnnotated.getAnnotation(MyAnnotation.class).get()).isEqualTo(Annotated.class.getAnnotation(MyAnnotation.class));
 		assertThat(fieldAnnotated.getAnnotation(NoAnnotation.class).isPresent(), is(false));
 
 		SerializedField valueAnnotated = new SerializedField(AnnotatedField.class, "annotatedValue", Annotated.class, nullInstance(Annotated.class));

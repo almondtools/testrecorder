@@ -3,11 +3,11 @@ package net.amygdalum.testrecorder.scenarios;
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
@@ -28,7 +28,7 @@ public class ImportsTest {
 	public void testCompilable() throws Exception {
 		Imports object = new Imports("name");
 
-		assertThat(object.toString(), equalTo("[name]:name"));
+		assertThat(object.toString()).isEqualTo("[name]:name");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Imports.class), compiles(Imports.class));
@@ -39,7 +39,7 @@ public class ImportsTest {
 	public void testCode() throws Exception {
 		Imports object = new Imports("name");
 
-		assertThat(object.toString(), equalTo("[name]:name"));
+		assertThat(object.toString()).isEqualTo("[name]:name");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(Imports.class), hasSize(1));

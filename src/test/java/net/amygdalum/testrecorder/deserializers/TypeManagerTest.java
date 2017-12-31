@@ -3,11 +3,11 @@ package net.amygdalum.testrecorder.deserializers;
 import static net.amygdalum.testrecorder.util.Types.array;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -31,8 +31,8 @@ public class TypeManagerTest {
 
     @Test
     public void testGetPackage() throws Exception {
-        assertThat(types.getPackage(), equalTo("net.amygdalum.testrecorder.deserializers"));
-        assertThat(new TypeManager().getPackage(), equalTo(""));
+        assertThat(types.getPackage()).isEqualTo("net.amygdalum.testrecorder.deserializers");
+        assertThat(new TypeManager().getPackage()).isEqualTo("");
     }
 
     @Test
@@ -127,21 +127,21 @@ public class TypeManagerTest {
 
     @Test
     public void testGetVariableTypeNameWithoutImport() throws Exception {
-        assertThat(types.getVariableTypeName(List.class), equalTo("java.util.List<?>"));
+        assertThat(types.getVariableTypeName(List.class)).isEqualTo("java.util.List<?>");
     }
 
     @Test
     public void testGetVariableTypeNameWithImport() throws Exception {
         types.registerType(String.class);
 
-        assertThat(types.getVariableTypeName(String.class), equalTo("String"));
+        assertThat(types.getVariableTypeName(String.class)).isEqualTo("String");
     }
 
     @Test
     public void testGetVariableTypeNameOfArray() throws Exception {
         types.registerType(String.class);
 
-        assertThat(types.getVariableTypeName(String[].class), equalTo("String[]"));
+        assertThat(types.getVariableTypeName(String[].class)).isEqualTo("String[]");
     }
 
     @Test
@@ -149,9 +149,9 @@ public class TypeManagerTest {
         types.registerType(List.class);
         types.registerType(String.class);
 
-        assertThat(types.getVariableTypeName(array(parameterized(List.class, null, String.class))), equalTo("List<String>[]"));
-        assertThat(types.getVariableTypeName(array(parameterized(List.class, null, Date.class))), equalTo("List<java.util.Date>[]"));
-        assertThat(types.getVariableTypeName(array(List.class)), equalTo("List<?>[]"));
+        assertThat(types.getVariableTypeName(array(parameterized(List.class, null, String.class)))).isEqualTo("List<String>[]");
+        assertThat(types.getVariableTypeName(array(parameterized(List.class, null, Date.class)))).isEqualTo("List<java.util.Date>[]");
+        assertThat(types.getVariableTypeName(array(List.class))).isEqualTo("List<?>[]");
     }
 
     @Test
@@ -159,40 +159,40 @@ public class TypeManagerTest {
         types.registerType(List.class);
         types.registerType(Map.class);
 
-        assertThat(types.getVariableTypeName(List.class), equalTo("List<?>"));
-        assertThat(types.getVariableTypeName(Map.class), equalTo("Map<?, ?>"));
-        assertThat(types.getConstructorTypeName(parameterized(List.class, null, parameterized(List.class, null, wildcard()))), equalTo("List<List<?>>"));
-        assertThat(types.getVariableTypeName(parameterized(List.class, null, String.class)), equalTo("List<String>"));
-        assertThat(types.getVariableTypeName(parameterized(List.class, null, Date.class)), equalTo("List<java.util.Date>"));
+        assertThat(types.getVariableTypeName(List.class)).isEqualTo("List<?>");
+        assertThat(types.getVariableTypeName(Map.class)).isEqualTo("Map<?, ?>");
+        assertThat(types.getConstructorTypeName(parameterized(List.class, null, parameterized(List.class, null, wildcard())))).isEqualTo("List<List<?>>");
+        assertThat(types.getVariableTypeName(parameterized(List.class, null, String.class))).isEqualTo("List<String>");
+        assertThat(types.getVariableTypeName(parameterized(List.class, null, Date.class))).isEqualTo("List<java.util.Date>");
     }
 
     @Test
     public void testGetVariableTypeNameNestedType() throws Exception {
-        assertThat(types.getVariableTypeName(net.amygdalum.testrecorder.util.testobjects.Hidden.VisibleInterface.class), equalTo("net.amygdalum.testrecorder.util.testobjects.Hidden.VisibleInterface"));
+        assertThat(types.getVariableTypeName(net.amygdalum.testrecorder.util.testobjects.Hidden.VisibleInterface.class)).isEqualTo("net.amygdalum.testrecorder.util.testobjects.Hidden.VisibleInterface");
     }
 
     @Test
     public void testGetVariableTypeNameOther() throws Exception {
-        assertThat(types.getVariableTypeName(mock(Type.class)), equalTo("Object"));
+        assertThat(types.getVariableTypeName(mock(Type.class))).isEqualTo("Object");
     }
 
     @Test
     public void testGetConstructorTypeNameWithoutImport() throws Exception {
-        assertThat(types.getConstructorTypeName(List.class), equalTo("java.util.List<>"));
+        assertThat(types.getConstructorTypeName(List.class)).isEqualTo("java.util.List<>");
     }
     
     @Test
     public void testGetConstructorTypeNameWithImport() throws Exception {
         types.registerType(String.class);
         
-        assertThat(types.getConstructorTypeName(String.class), equalTo("String"));
+        assertThat(types.getConstructorTypeName(String.class)).isEqualTo("String");
     }
     
     @Test
     public void testGetConstructorTypeNameOfArray() throws Exception {
         types.registerType(String.class);
         
-        assertThat(types.getConstructorTypeName(String[].class), equalTo("String[]"));
+        assertThat(types.getConstructorTypeName(String[].class)).isEqualTo("String[]");
     }
     
     @Test
@@ -200,9 +200,9 @@ public class TypeManagerTest {
         types.registerType(List.class);
         types.registerType(String.class);
         
-        assertThat(types.getConstructorTypeName(array(parameterized(List.class, null, String.class))), equalTo("List<String>[]"));
-        assertThat(types.getConstructorTypeName(array(parameterized(List.class, null, Date.class))), equalTo("List<java.util.Date>[]"));
-        assertThat(types.getConstructorTypeName(array(List.class)), equalTo("List[]"));
+        assertThat(types.getConstructorTypeName(array(parameterized(List.class, null, String.class)))).isEqualTo("List<String>[]");
+        assertThat(types.getConstructorTypeName(array(parameterized(List.class, null, Date.class)))).isEqualTo("List<java.util.Date>[]");
+        assertThat(types.getConstructorTypeName(array(List.class))).isEqualTo("List[]");
     }
     
     @Test
@@ -210,26 +210,26 @@ public class TypeManagerTest {
         types.registerType(List.class);
         types.registerType(Map.class);
 
-        assertThat(types.getConstructorTypeName(List.class), equalTo("List<>"));
-        assertThat(types.getConstructorTypeName(Map.class), equalTo("Map<>"));
-        assertThat(types.getConstructorTypeName(parameterized(List.class, null, parameterized(List.class, null, wildcard()))), equalTo("List<List<?>>"));
-        assertThat(types.getConstructorTypeName(parameterized(List.class, null, String.class)), equalTo("List<String>"));
-        assertThat(types.getConstructorTypeName(parameterized(List.class, null, Date.class)), equalTo("List<java.util.Date>"));
+        assertThat(types.getConstructorTypeName(List.class)).isEqualTo("List<>");
+        assertThat(types.getConstructorTypeName(Map.class)).isEqualTo("Map<>");
+        assertThat(types.getConstructorTypeName(parameterized(List.class, null, parameterized(List.class, null, wildcard())))).isEqualTo("List<List<?>>");
+        assertThat(types.getConstructorTypeName(parameterized(List.class, null, String.class))).isEqualTo("List<String>");
+        assertThat(types.getConstructorTypeName(parameterized(List.class, null, Date.class))).isEqualTo("List<java.util.Date>");
     }
     
     @Test
     public void testGetConstructorTypeNameOther() throws Exception {
-        assertThat(types.getConstructorTypeName(mock(Type.class)), equalTo("Object"));
+        assertThat(types.getConstructorTypeName(mock(Type.class))).isEqualTo("Object");
     }
    
     @Test
     public void testGetConstructorTypeNameNestedType() throws Exception {
-        assertThat(types.getConstructorTypeName(net.amygdalum.testrecorder.util.testobjects.Hidden.VisibleInterface.class), equalTo("net.amygdalum.testrecorder.util.testobjects.Hidden.VisibleInterface"));
+        assertThat(types.getConstructorTypeName(net.amygdalum.testrecorder.util.testobjects.Hidden.VisibleInterface.class)).isEqualTo("net.amygdalum.testrecorder.util.testobjects.Hidden.VisibleInterface");
     }
 
     @Test
     public void testGetRawTypeNameNestedType() throws Exception {
-        assertThat(types.getRawTypeName(net.amygdalum.testrecorder.util.testobjects.Hidden.VisibleInterface.class), equalTo("net.amygdalum.testrecorder.util.testobjects.Hidden.VisibleInterface"));
+        assertThat(types.getRawTypeName(net.amygdalum.testrecorder.util.testobjects.Hidden.VisibleInterface.class)).isEqualTo("net.amygdalum.testrecorder.util.testobjects.Hidden.VisibleInterface");
     }
 
     private static class Hidden {

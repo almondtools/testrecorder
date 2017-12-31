@@ -3,10 +3,10 @@ package net.amygdalum.testrecorder.scenarios;
 import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
@@ -25,7 +25,7 @@ public class AmbiguousConstructorBeanTest {
 	public void testCompilable() throws Exception {
 		AmbiguousConstructorBean bean = new AmbiguousConstructorBean(22, 0, new AmbiguousConstructorBean(2, 4, null));
 
-		assertThat(bean.hashCode(), equalTo(217));
+		assertThat(bean.hashCode()).isEqualTo(217);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(AmbiguousConstructorBean.class), compiles(AmbiguousConstructorBean.class));
@@ -37,7 +37,7 @@ public class AmbiguousConstructorBeanTest {
 	public void testCode() throws Exception {
 		AmbiguousConstructorBean bean = new AmbiguousConstructorBean(22, 0, new AmbiguousConstructorBean(2, 4, null));
 
-		assertThat(bean.hashCode(), equalTo(217));
+		assertThat(bean.hashCode()).isEqualTo(217);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(AmbiguousConstructorBean.class), hasSize(2));

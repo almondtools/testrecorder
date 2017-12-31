@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.scenarios;
 
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
-import static org.hamcrest.Matchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThat;
 
 import java.util.function.Supplier;
@@ -26,7 +26,7 @@ public class LambdasTest {
 
 		Object result = lambdas.id(42);
 
-		assertThat(result, equalTo(42));
+		assertThat(result).isEqualTo(42);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Lambdas.class), compiles(Lambdas.class));
@@ -39,7 +39,7 @@ public class LambdasTest {
 
 		Object result = lambdas.serializedId(42);
 
-		assertThat(result, equalTo(42));
+		assertThat(result).isEqualTo(42);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Lambdas.class), compiles(Lambdas.class));
@@ -52,7 +52,7 @@ public class LambdasTest {
 
 		Object result = lambdas.exec(() -> 43);
 
-		assertThat(result, equalTo(43));
+		assertThat(result).isEqualTo(43);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Lambdas.class), compiles(Lambdas.class));
@@ -65,7 +65,7 @@ public class LambdasTest {
 
 		Supplier<Object> result = lambdas.defer(44);
 
-		assertThat(result.get(), equalTo(44));
+		assertThat(result.get()).isEqualTo(44);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Lambdas.class), compiles(Lambdas.class));

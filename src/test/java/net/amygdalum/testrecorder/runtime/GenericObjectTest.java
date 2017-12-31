@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.runtime;
 
 import static com.almondtools.conmatch.conventions.ReflectiveEqualsMatcher.reflectiveEqualTo;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.isEmptyString;
@@ -22,7 +22,7 @@ public class GenericObjectTest {
     public void testAsSimple() throws Exception {
         assertThat(new GenericObject() {
             public String str = "myStr";
-        }.as(Simple.class).getStr(), equalTo("myStr"));
+        }.as(Simple.class).getStr()).isEqualTo("myStr");
     }
 
     @Test
@@ -31,35 +31,35 @@ public class GenericObjectTest {
             public Simple simple = new GenericObject() {
                 public String str = "nestedStr";
             }.as(Simple.class);
-        }.as(Complex.class).getSimple().getStr(), equalTo("nestedStr"));
+        }.as(Complex.class).getSimple().getStr()).isEqualTo("nestedStr");
     }
 
     @Test
     public void testAsSimplePrivateConstructor() throws Exception {
         assertThat(new GenericObject() {
             public String str = "myStr";
-        }.as(SimplePrivateConstructor.class).getStr(), equalTo("myStr"));
+        }.as(SimplePrivateConstructor.class).getStr()).isEqualTo("myStr");
     }
 
     @Test
     public void testAsSimpleImplicitConstructor() throws Exception {
         assertThat(new GenericObject() {
             public String str = "myStr";
-        }.as(SimpleImplicitConstructor.class).getStr(), equalTo("myStr"));
+        }.as(SimpleImplicitConstructor.class).getStr()).isEqualTo("myStr");
     }
 
     @Test
     public void testAsSimpleNoDefaultConstructor() throws Exception {
         assertThat(new GenericObject() {
             public String str = "myStr";
-        }.as(SimpleNoDefaultConstructor.class).getStr(), equalTo("myStr"));
+        }.as(SimpleNoDefaultConstructor.class).getStr()).isEqualTo("myStr");
     }
 
     @Test
     public void testAsConstructorSupplied() throws Exception {
         assertThat(new GenericObject() {
             public String str = "myStr";
-        }.as(Simple::new).getStr(), equalTo("myStr"));
+        }.as(Simple::new).getStr()).isEqualTo("myStr");
     }
 
     @Test
@@ -68,7 +68,7 @@ public class GenericObjectTest {
 
         assertThat(((SimplePrivateConstructor) new GenericObject() {
             public String str = "myStr";
-        }.as(obj).value()).getStr(), equalTo("myStr"));
+        }.as(obj).value()).getStr()).isEqualTo("myStr");
     }
 
     @Test
@@ -115,8 +115,8 @@ public class GenericObjectTest {
 
         GenericObject.copyField(Simple.class.getDeclaredField("str"), from, to);
 
-        assertThat(from.str, equalTo("stringToCopy"));
-        assertThat(to.str, equalTo("stringToCopy"));
+        assertThat(from.str).isEqualTo("stringToCopy");
+        assertThat(to.str).isEqualTo("stringToCopy");
     }
 
     @Test
@@ -152,7 +152,7 @@ public class GenericObjectTest {
             String str = "definition";
         });
 
-        assertThat(obj.str, equalTo("definition"));
+        assertThat(obj.str).isEqualTo("definition");
     }
 
     @Test
@@ -163,7 +163,7 @@ public class GenericObjectTest {
             String str = "definition";
         });
 
-        assertThat(((SimplePrivateConstructor) obj.value()).str, equalTo("definition"));
+        assertThat(((SimplePrivateConstructor) obj.value()).str).isEqualTo("definition");
     }
 
     @Test
@@ -184,7 +184,7 @@ public class GenericObjectTest {
     public void testNewInstanceWithNonDefaultParams() throws Exception {
         NonDefaultParamConstructor instance = GenericObject.newInstance(NonDefaultParamConstructor.class);
 
-        assertThat(instance.getStr(), equalTo("String"));
+        assertThat(instance.getStr()).isEqualTo("String");
     }
 
     @Test
@@ -200,8 +200,8 @@ public class GenericObjectTest {
             int ShadowedObject$field = 42;
             String ShadowingObject$field = "field";
         }.as(ShadowingObject.class);
-        assertThat(shadowingObject.getField(), equalTo(42));
-        assertThat(shadowingObject.getShadowingField(), equalTo("field"));
+        assertThat(shadowingObject.getField()).isEqualTo(42);
+        assertThat(shadowingObject.getShadowingField()).isEqualTo("field");
     }
 
     @Test
@@ -211,9 +211,9 @@ public class GenericObjectTest {
             String ShadowingObject$field = "field";
             String DoubleShadowingObject$field = "fieldshadowing";
         }.as(DoubleShadowingObject.class);
-        assertThat(shadowingObject.getField(), equalTo(42));
-        assertThat(shadowingObject.getShadowingField(), equalTo("field"));
-        assertThat(shadowingObject.getDoubleShadowingField(), equalTo("fieldshadowing"));
+        assertThat(shadowingObject.getField()).isEqualTo(42);
+        assertThat(shadowingObject.getShadowingField()).isEqualTo("field");
+        assertThat(shadowingObject.getDoubleShadowingField()).isEqualTo("fieldshadowing");
     }
 
     private interface AnInterface {

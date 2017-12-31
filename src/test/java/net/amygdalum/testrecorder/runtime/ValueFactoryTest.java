@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.runtime;
 
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
@@ -15,7 +15,7 @@ public class ValueFactoryTest {
 
     @Test
     public void testGetDescriptionNull() throws Exception {
-        assertThat(ValueFactory.NONE.getDescription(Object.class), equalTo("null"));
+        assertThat(ValueFactory.NONE.getDescription(Object.class)).isEqualTo("null");
         assertThat(new ValueFactory() {
 
             @Override
@@ -27,6 +27,6 @@ public class ValueFactoryTest {
                     }
                 };
             }
-        }.getDescription(Object.class), equalTo("<undescribable>"));
+        }.getDescription(Object.class)).isEqualTo("<undescribable>");
     }
 }

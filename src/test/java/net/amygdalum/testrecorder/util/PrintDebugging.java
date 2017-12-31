@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.util;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.POP;
@@ -23,7 +23,7 @@ public class PrintDebugging {
 	public void testDebugPrint() throws Exception {
 		String result = Debug.print("text");
 
-		assertThat(result, equalTo("text"));
+		assertThat(result).isEqualTo("text");
 		assertThat(systemOutRule.getLog(), containsString("text"));
 	}
 
@@ -33,7 +33,7 @@ public class PrintDebugging {
 
 		InsnNode result = ByteCode.print(insn);
 
-		assertThat(result, equalTo(insn));
+		assertThat(result).isEqualTo(insn);
 		assertThat(systemOutRule.getLog(), containsString("POP"));
 	}
 
@@ -44,7 +44,7 @@ public class PrintDebugging {
 		
 		InsnList result = ByteCode.print(list);
 		
-		assertThat(result, equalTo(list));
+		assertThat(result).isEqualTo(list);
 		assertThat(systemOutRule.getLog(), containsString("[DUP]"));
 	}
 	

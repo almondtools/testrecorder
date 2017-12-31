@@ -9,10 +9,10 @@ import static net.amygdalum.testrecorder.values.GenericTypes.mapOfStringListOfSt
 import static net.amygdalum.testrecorder.values.GenericTypes.mapOfStringString;
 import static net.amygdalum.testrecorder.values.ParameterizedTypeMatcher.parameterizedType;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -34,7 +34,7 @@ public class SerializedMapTest {
 
 	@Test
 	public void testGetResultTypeRaw() throws Exception {
-		assertThat(new SerializedMap(HashMap.class).withResult(Map.class).getResultType(), equalTo(Map.class));
+		assertThat(new SerializedMap(HashMap.class).withResult(Map.class).getResultType()).isEqualTo(Map.class);
 	}
 
 	@Test
@@ -63,39 +63,39 @@ public class SerializedMapTest {
 
 	@Test
 	public void testGetKeyValueTypeRaw() throws Exception {
-		assertThat(new SerializedMap(HashMap.class).withResult(Map.class).getMapKeyType(), equalTo(Object.class));
-		assertThat(new SerializedMap(HashMap.class).withResult(Map.class).getMapValueType(), equalTo(Object.class));
+		assertThat(new SerializedMap(HashMap.class).withResult(Map.class).getMapKeyType()).isEqualTo(Object.class);
+		assertThat(new SerializedMap(HashMap.class).withResult(Map.class).getMapValueType()).isEqualTo(Object.class);
 	}
 
 	@Test
 	public void testGetKeyValueTypeParameterized() throws Exception {
-		assertThat(new SerializedMap(hashMapOfStringString()).withResult(mapOfStringString()).getMapKeyType(), equalTo(String.class));
-		assertThat(new SerializedMap(hashMapOfStringString()).withResult(mapOfStringString()).getMapValueType(), equalTo(String.class));
+		assertThat(new SerializedMap(hashMapOfStringString()).withResult(mapOfStringString()).getMapKeyType()).isEqualTo(String.class);
+		assertThat(new SerializedMap(hashMapOfStringString()).withResult(mapOfStringString()).getMapValueType()).isEqualTo(String.class);
 	}
 
 	@Test
 	public void testGetKeyValueTypeNestedParameterized() throws Exception {
-		assertThat(new SerializedMap(hashMapOfStringListOfString()).withResult(mapOfStringListOfString()).getMapKeyType(), equalTo(String.class));
+		assertThat(new SerializedMap(hashMapOfStringListOfString()).withResult(mapOfStringListOfString()).getMapKeyType()).isEqualTo(String.class);
 		assertThat(new SerializedMap(hashMapOfStringListOfString()).withResult(mapOfStringListOfString()).getMapValueType(), parameterizedType(List.class, String.class));
 	}
 
 	@Test
 	public void testGetKeyValueTypeIndirectParameterized() throws Exception {
-		assertThat(new SerializedMap(hashMapOfStringString()).getMapKeyType(), equalTo(String.class));
-		assertThat(new SerializedMap(hashMapOfStringString()).getMapValueType(), equalTo(String.class));
+		assertThat(new SerializedMap(hashMapOfStringString()).getMapKeyType()).isEqualTo(String.class);
+		assertThat(new SerializedMap(hashMapOfStringString()).getMapValueType()).isEqualTo(String.class);
 	}
 
 	@Test
 	public void testGetKeyValueTypeBounded() throws Exception {
-		assertThat(new SerializedMap(HashMap.class).withResult(mapOfBounded()).getMapKeyType(), equalTo(Object.class));
-		assertThat(new SerializedMap(HashMap.class).withResult(mapOfBounded()).getMapValueType(), equalTo(Object.class));
+		assertThat(new SerializedMap(HashMap.class).withResult(mapOfBounded()).getMapKeyType()).isEqualTo(Object.class);
+		assertThat(new SerializedMap(HashMap.class).withResult(mapOfBounded()).getMapValueType()).isEqualTo(Object.class);
 	}
 
 	@Test
 	public void testSize0() throws Exception {
 		SerializedMap map = new SerializedMap(HashMap.class).withResult(Map.class);
 		
-		assertThat(map.size(), equalTo(0));
+		assertThat(map.size()).isEqualTo(0);
 		assertThat(map.referencedValues(), empty());
 	}
 
@@ -104,7 +104,7 @@ public class SerializedMapTest {
 		SerializedMap map = new SerializedMap(HashMap.class).withResult(Map.class);
 		map.put(literal("key"), literal("value"));
 
-		assertThat(map.size(), equalTo(1));
+		assertThat(map.size()).isEqualTo(1);
 		assertThat(map.referencedValues(), hasSize(2));
 	}
 
@@ -114,7 +114,7 @@ public class SerializedMapTest {
 		map.put(literal("key1"), literal("value1"));
 		map.put(literal("key2"), literal("value2"));
 		
-		assertThat(map.size(), equalTo(2));
+		assertThat(map.size()).isEqualTo(2);
 		assertThat(map.referencedValues(), hasSize(4));
 	}
 
@@ -165,7 +165,7 @@ public class SerializedMapTest {
 		SerializedMap map = new SerializedMap(HashMap.class).withResult(Map.class);
 		map.put(literal("key"), literal("value"));
 		assertThat(map.remove(literal("string")), nullValue());
-		assertThat(map.remove(literal("key")), equalTo(literal("value")));
+		assertThat(map.remove(literal("key"))).isEqualTo(literal("value"));
 	}
 
 	@Test
@@ -215,14 +215,14 @@ public class SerializedMapTest {
 		SerializedMap map = new SerializedMap(HashMap.class).withResult(Map.class);
 		map.put(literal("key"), literal("value"));
 
-		assertThat(map.get(literal("key")), equalTo(literal("value")));
+		assertThat(map.get(literal("key"))).isEqualTo(literal("value"));
 	}
 
 	@Test
 	public void testToString0() throws Exception {
 		SerializedMap map = new SerializedMap(HashMap.class).withResult(Map.class);
 
-		assertThat(map.toString(), equalTo("{}"));
+		assertThat(map.toString()).isEqualTo("{}");
 	}
 
 	@Test
@@ -230,13 +230,13 @@ public class SerializedMapTest {
 		SerializedMap map = new SerializedMap(HashMap.class).withResult(Map.class);
 		map.put(literal("key"), literal("value"));
 
-		assertThat(map.toString(), equalTo("{key:value}"));
+		assertThat(map.toString()).isEqualTo("{key:value}");
 	}
 
 	@Test
 	public void testAccept() throws Exception {
 		SerializedMap map = new SerializedMap(HashMap.class).withResult(Map.class);
-		assertThat(map.accept(new TestValueVisitor(), NULL), equalTo("SerializedMap"));
+		assertThat(map.accept(new TestValueVisitor(), NULL)).isEqualTo("SerializedMap");
 	}
 
 }

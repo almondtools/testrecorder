@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.scenarios;
 
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ public class ConstructorsWithNestedEnumsTest {
 	public void testCompilable() throws Exception {
 		String string = ConstructorsWithNestedEnums.toString(ConstructorsWithNestedEnums.of("FIRST"));
 
-		assertThat(string, equalTo("FIRST:FIRST"));
+		assertThat(string).isEqualTo("FIRST:FIRST");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(ConstructorsWithNestedEnums.class), compiles(ConstructorsWithNestedEnums.class));
@@ -36,7 +36,7 @@ public class ConstructorsWithNestedEnumsTest {
 	public void testEnumCompilable() throws Exception {
 		String string = ConstructorsWithNestedEnums.toString(ConstructorsWithNestedEnums.of(InnerEnum.FIRST));
 
-		assertThat(string, equalTo("FIRST:null"));
+		assertThat(string).isEqualTo("FIRST:null");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(ConstructorsWithNestedEnums.class), compiles(ConstructorsWithNestedEnums.class));
@@ -47,7 +47,7 @@ public class ConstructorsWithNestedEnumsTest {
 	public void testChainedEnumCompilable() throws Exception {
 		String string = ConstructorsWithNestedEnums.toString(ConstructorsWithNestedEnums.of(ChainedEnum.FIRST));
 		
-		assertThat(string, equalTo("FIRST:FIRST"));
+		assertThat(string).isEqualTo("FIRST:FIRST");
 		
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(ConstructorsWithNestedEnums.class), compiles(ConstructorsWithNestedEnums.class));
@@ -58,7 +58,7 @@ public class ConstructorsWithNestedEnumsTest {
 	public void testRecursiveEnumCompilable() throws Exception {
 		String string = ConstructorsWithNestedEnums.toString(ConstructorsWithNestedEnums.of(RecursiveEnum.THIRD));
 		
-		assertThat(string, equalTo("null:null:THIRD"));
+		assertThat(string).isEqualTo("null:null:THIRD");
 		
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(ConstructorsWithNestedEnums.class), compiles(ConstructorsWithNestedEnums.class));

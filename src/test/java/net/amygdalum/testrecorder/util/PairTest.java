@@ -1,8 +1,8 @@
 package net.amygdalum.testrecorder.util;
 
 import static com.almondtools.conmatch.conventions.EqualityMatcher.satisfiesDefaultEquality;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -12,8 +12,8 @@ public class PairTest {
 
 	@Test
 	public void testPair() throws Exception {
-		assertThat(new Pair<String, Integer>("string", 11).getElement1(), equalTo("string"));
-		assertThat(new Pair<String, Integer>("string", 11).getElement2(), equalTo(11));
+		assertThat(new Pair<String, Integer>("string", 11).getElement1()).isEqualTo("string");
+		assertThat(new Pair<String, Integer>("string", 11).getElement2()).isEqualTo(11);
 	}
 
 	@Test

@@ -1,8 +1,8 @@
 package net.amygdalum.testrecorder;
 
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.instanceOf;
@@ -28,9 +28,9 @@ public class ContextSnapshotTest {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
 		assertThat(snapshot.isValid(), is(true));
-		assertThat(snapshot.getDeclaringClass(), equalTo(ArrayList.class));
-		assertThat(snapshot.getResultType(), equalTo(boolean.class));
-		assertThat(snapshot.getMethodName(), equalTo("add"));
+		assertThat(snapshot.getDeclaringClass()).isEqualTo(ArrayList.class);
+		assertThat(snapshot.getResultType()).isEqualTo(boolean.class);
+		assertThat(snapshot.getMethodName()).isEqualTo("add");
 		assertThat(snapshot.getArgumentTypes(), hasItemInArray(Object.class));
 	}
 
@@ -51,7 +51,7 @@ public class ContextSnapshotTest {
 
 		snapshot.setSetupThis(setupThis);
 
-		assertThat(snapshot.getThisType(), equalTo(ArrayList.class));
+		assertThat(snapshot.getThisType()).isEqualTo(ArrayList.class);
 	}
 
 	@Test
@@ -62,7 +62,7 @@ public class ContextSnapshotTest {
 
 		snapshot.setSetupThis(setupThis);
 
-		assertThat(snapshot.getSetupThis(), equalTo(setupThis));
+		assertThat(snapshot.getSetupThis()).isEqualTo(setupThis);
 	}
 
 	@Test
@@ -73,7 +73,7 @@ public class ContextSnapshotTest {
 
 		snapshot.setExpectThis(expectedThis);
 
-		assertThat(snapshot.getExpectThis(), equalTo(expectedThis));
+		assertThat(snapshot.getExpectThis()).isEqualTo(expectedThis);
 	}
 
 	@Test
@@ -100,7 +100,7 @@ public class ContextSnapshotTest {
 
 		snapshot.setExpectResult(literal(boolean.class, true));
 
-		assertThat(snapshot.getExpectResult(), equalTo(literal(boolean.class, true)));
+		assertThat(snapshot.getExpectResult()).isEqualTo(literal(boolean.class, true));
 	}
 
 	@Test
@@ -115,8 +115,8 @@ public class ContextSnapshotTest {
 
 	@Test
 	public void testGetTime() throws Exception {
-		assertThat(new ContextSnapshot(0l, "key", new MethodSignature(Object.class, new Annotation[0], Object.class, "method", new Annotation[0][0], new Type[0])).getTime(), equalTo(0l));
-		assertThat(new ContextSnapshot(1l, "key", new MethodSignature(Object.class, new Annotation[0], Object.class, "method", new Annotation[0][0], new Type[0])).getTime(), equalTo(1l));
+		assertThat(new ContextSnapshot(0l, "key", new MethodSignature(Object.class, new Annotation[0], Object.class, "method", new Annotation[0][0], new Type[0])).getTime()).isEqualTo(0l);
+		assertThat(new ContextSnapshot(1l, "key", new MethodSignature(Object.class, new Annotation[0], Object.class, "method", new Annotation[0][0], new Type[0])).getTime()).isEqualTo(1l);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -131,12 +131,12 @@ public class ContextSnapshotTest {
 			new Type[] { Integer.class }));
 
 		assertThat(snapshot.getResultAnnotation(), arrayContaining(instanceOf(Anno.class)));
-		assertThat(snapshot.getMethodAnnotation(Anno.class).get().value(), equalTo("result"));
+		assertThat(snapshot.getMethodAnnotation(Anno.class).get().value()).isEqualTo("result");
 		assertThat(snapshot.getMethodAnnotation(NoAnno.class).isPresent(), is(false));
-		assertThat(((Anno) snapshot.getResultAnnotation()[0]).value(), equalTo("result"));
+		assertThat(((Anno) snapshot.getResultAnnotation()[0]).value()).isEqualTo("result");
 		assertThat(snapshot.getArgumentAnnotations(), arrayWithSize(1));
 		assertThat(snapshot.getArgumentAnnotations()[0], arrayContaining(instanceOf(Anno.class)));
-		assertThat(((Anno) snapshot.getArgumentAnnotations()[0][0]).value(), equalTo("arg"));
+		assertThat(((Anno) snapshot.getArgumentAnnotations()[0][0]).value()).isEqualTo("arg");
 	}
 
 	@Test
@@ -152,9 +152,9 @@ public class ContextSnapshotTest {
 		snapshot.setSetupArgs(literal(int.class, 42));
 
 		assertThat(snapshot.getAnnotatedSetupArgs(), arrayWithSize(1));
-		assertThat(snapshot.getAnnotatedSetupArgs()[0].getAnnotation(Anno.class).get().value(), equalTo("arg"));
+		assertThat(snapshot.getAnnotatedSetupArgs()[0].getAnnotation(Anno.class).get().value()).isEqualTo("arg");
 		assertThat(snapshot.getAnnotatedSetupArgs()[0].getAnnotation(NoAnno.class).isPresent(), is(false));
-		assertThat(snapshot.getAnnotatedSetupArgs()[0].value, equalTo(literal(int.class, 42)));
+		assertThat(snapshot.getAnnotatedSetupArgs()[0].value).isEqualTo(literal(int.class, 42));
 	}
 
 	@Test
@@ -170,9 +170,9 @@ public class ContextSnapshotTest {
 		snapshot.setExpectArgs(literal(int.class, 42));
 
 		assertThat(snapshot.getAnnotatedExpectArgs(), arrayWithSize(1));
-		assertThat(snapshot.getAnnotatedExpectArgs()[0].getAnnotation(Anno.class).get().value(), equalTo("arg"));
+		assertThat(snapshot.getAnnotatedExpectArgs()[0].getAnnotation(Anno.class).get().value()).isEqualTo("arg");
 		assertThat(snapshot.getAnnotatedExpectArgs()[0].getAnnotation(NoAnno.class).isPresent(), is(false));
-		assertThat(snapshot.getAnnotatedExpectArgs()[0].value, equalTo(literal(int.class, 42)));
+		assertThat(snapshot.getAnnotatedExpectArgs()[0].value).isEqualTo(literal(int.class, 42));
 	}
 
 	@Test

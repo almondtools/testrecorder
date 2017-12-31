@@ -3,8 +3,8 @@ package net.amygdalum.testrecorder.serializers;
 import static java.util.Collections.singletonMap;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -46,10 +46,10 @@ public class DefaultMapSerializerTest {
 		
 		SerializedMap value = serializer.generate(hashMapOfStringInteger, HashMap.class);
 		
-		assertThat(value.getResultType(), equalTo(hashMapOfStringInteger));
-		assertThat(value.getType(), equalTo(HashMap.class));
-		assertThat(value.getMapKeyType(), equalTo(String.class));
-		assertThat(value.getMapValueType(), equalTo(Integer.class));
+		assertThat(value.getResultType()).isEqualTo(hashMapOfStringInteger);
+		assertThat(value.getType()).isEqualTo(HashMap.class);
+		assertThat(value.getMapKeyType()).isEqualTo(String.class);
+		assertThat(value.getMapValueType()).isEqualTo(Integer.class);
 	}
 
 	@Test

@@ -8,9 +8,9 @@ import static net.amygdalum.testrecorder.util.testobjects.Hidden.createCompletel
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.createPartiallyHidden;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
@@ -52,14 +52,14 @@ public class MatcherGeneratorsTest {
 	public void testNullIsSimpleValue() throws Exception {
 		assertThat(matcherCode.isSimpleValue(nullInstance(Object.class)), is(true));
 		assertThat(matcherCode.simpleMatcher(nullInstance(Object.class), NULL).getStatements(), empty());
-		assertThat(matcherCode.simpleMatcher(nullInstance(Object.class), NULL).getValue(), equalTo("null"));
+		assertThat(matcherCode.simpleMatcher(nullInstance(Object.class), NULL).getValue()).isEqualTo("null");
 	}
 
 	@Test
 	public void testLiteralIsSimpleValue() throws Exception {
 		assertThat(matcherCode.isSimpleValue(literal("str")), is(true));
 		assertThat(matcherCode.simpleMatcher(literal("str"), NULL).getStatements(), empty());
-		assertThat(matcherCode.simpleMatcher(literal("str"), NULL).getValue(), equalTo("\"str\""));
+		assertThat(matcherCode.simpleMatcher(literal("str"), NULL).getValue()).isEqualTo("\"str\"");
 	}
 
 	@Test
@@ -81,7 +81,7 @@ public class MatcherGeneratorsTest {
 		Computation result = matcherCode.visitField(new SerializedField(ContainingList.class, "list", type, value), NULL);
 
 		assertThat(result.getStatements(), empty());
-		assertThat(result.getValue(), equalTo("Matcher<?> list = containsInOrder(String.class, \"Foo\", \"Bar\");"));
+		assertThat(result.getValue()).isEqualTo("Matcher<?> list = containsInOrder(String.class, \"Foo\", \"Bar\");");
 	}
 
 	@Test
@@ -162,7 +162,7 @@ public class MatcherGeneratorsTest {
 		Computation result = matcherCode.visitReferenceType(value, NULL);
 
 		assertThat(result.getStatements(), empty());
-		assertThat(result.getValue(), equalTo("recursive(Dubble.class)"));
+		assertThat(result.getValue()).isEqualTo("recursive(Dubble.class)");
 	}
 
 	@Test
@@ -172,7 +172,7 @@ public class MatcherGeneratorsTest {
 		Computation result = matcherCode.visitImmutableType(value, NULL);
 
 		assertThat(result.getStatements(), empty());
-		assertThat(result.getValue(), equalTo("equalTo(new BigInteger(\"42\"))"));
+		assertThat(result.getValue()).isEqualTo("equalTo(new BigInteger(\"42\"))");
 	}
 
 	@Test
@@ -191,7 +191,7 @@ public class MatcherGeneratorsTest {
 		Computation result = matcherCode.visitValueType(value, NULL);
 
 		assertThat(result.getStatements(), empty());
-		assertThat(result.getValue(), equalTo("equalTo(42)"));
+		assertThat(result.getValue()).isEqualTo("equalTo(42)");
 	}
 
 	@Test
@@ -208,7 +208,7 @@ public class MatcherGeneratorsTest {
 		Computation result = matcherCode.simpleMatcher(SerializedNull.nullInstance(String.class), NULL);
 
 		assertThat(result.getStatements(), empty());
-		assertThat("generic matchers can match nulls and do not need matchers here", result.getValue(), equalTo("null"));
+		assertThat(result.getValue()).as("generic matchers can match nulls and do not need matchers here").isEqualTo("null");
 	}
 
 	@Test
@@ -216,7 +216,7 @@ public class MatcherGeneratorsTest {
 		Computation result = matcherCode.simpleMatcher(SerializedLiteral.literal("string"), NULL);
 
 		assertThat(result.getStatements(), empty());
-		assertThat("generic matchers can match literals and do not need matchers here", result.getValue(), equalTo("\"string\""));
+		assertThat(result.getValue()).as("generic matchers can match literals and do not need matchers here").isEqualTo("\"string\"");
 	}
 
 	@Test
@@ -229,14 +229,14 @@ public class MatcherGeneratorsTest {
 
 	@Test
 	public void testTemporaryLocal() throws Exception {
-		assertThat(matcherCode.temporaryLocal(), equalTo("temp1"));
-		assertThat(matcherCode.temporaryLocal(), equalTo("temp2"));
+		assertThat(matcherCode.temporaryLocal()).isEqualTo("temp1");
+		assertThat(matcherCode.temporaryLocal()).isEqualTo("temp2");
 	}
 
 	@Test
 	public void testNewLocal() throws Exception {
-		assertThat(matcherCode.newLocal("var"), equalTo("var1"));
-		assertThat(matcherCode.newLocal("var"), equalTo("var2"));
+		assertThat(matcherCode.newLocal("var")).isEqualTo("var1");
+		assertThat(matcherCode.newLocal("var")).isEqualTo("var2");
 	}
 
 	private Object[] skipChecks() {

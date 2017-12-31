@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.deserializers.matcher;
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -48,7 +48,7 @@ public class DefaultMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 		
 		assertThat(result.getStatements(), empty());
-		assertThat(result.getValue(), equalTo("containsEntries(Integer.class, Integer.class).entry(8, 15).entry(47, 11)"));
+		assertThat(result.getValue()).isEqualTo("containsEntries(Integer.class, Integer.class).entry(8, 15).entry(47, 11)");
 	}
 
 	@Test
@@ -59,7 +59,7 @@ public class DefaultMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 		
 		assertThat(result.getStatements(), empty());
-		assertThat(result.getValue(), equalTo("noEntries(Object.class, Object.class)"));
+		assertThat(result.getValue()).isEqualTo("noEntries(Object.class, Object.class)");
 	}
 
 

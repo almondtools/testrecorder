@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.asm;
 
 import static com.almondtools.conmatch.exceptions.ExceptionMatcher.matchesException;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.Matchers.arrayContaining;
@@ -31,36 +31,36 @@ public class ByteCodeTest {
 
 	@Test
 	public void testConstructorDescriptor() throws Exception {
-		assertThat(ByteCode.constructorDescriptor(String.class), equalTo("()V"));
-		assertThat(ByteCode.constructorDescriptor(String.class, char[].class), equalTo("([C)V"));
+		assertThat(ByteCode.constructorDescriptor(String.class)).isEqualTo("()V");
+		assertThat(ByteCode.constructorDescriptor(String.class, char[].class)).isEqualTo("([C)V");
 		assertThat(Throwables.capture(() -> ByteCode.constructorDescriptor(String.class, int.class)), matchesException(ByteCodeException.class).withCause(NoSuchMethodException.class));
 	}
 
 	@Test
 	public void testMethodDescriptor() throws Exception {
-		assertThat(ByteCode.methodDescriptor(String.class, "getBytes"), equalTo("()[B"));
-		assertThat(ByteCode.methodDescriptor(String.class, "valueOf", char[].class), equalTo("([C)Ljava/lang/String;"));
+		assertThat(ByteCode.methodDescriptor(String.class, "getBytes")).isEqualTo("()[B");
+		assertThat(ByteCode.methodDescriptor(String.class, "valueOf", char[].class)).isEqualTo("([C)Ljava/lang/String;");
 		assertThat(Throwables.capture(() -> ByteCode.methodDescriptor(String.class, "valueOf", String.class)), matchesException(ByteCodeException.class).withCause(NoSuchMethodException.class));
 	}
 
 	@Test
 	public void testFieldDescriptor() throws Exception {
-		assertThat(ByteCode.fieldDescriptor(System.class, "out"), equalTo("Ljava/io/PrintStream;"));
+		assertThat(ByteCode.fieldDescriptor(System.class, "out")).isEqualTo("Ljava/io/PrintStream;");
 		assertThat(Throwables.capture(() -> ByteCode.fieldDescriptor(System.class, "inout")), matchesException(ByteCodeException.class).withCause(NoSuchFieldException.class));
 	}
 	
 	@Test
 	public void testBoxedType() throws Exception {
-		assertThat(ByteCode.boxedType(Type.BOOLEAN_TYPE), equalTo(Type.getType(Boolean.class)));
-		assertThat(ByteCode.boxedType(Type.BYTE_TYPE), equalTo(Type.getType(Byte.class)));
-		assertThat(ByteCode.boxedType(Type.SHORT_TYPE), equalTo(Type.getType(Short.class)));
-		assertThat(ByteCode.boxedType(Type.INT_TYPE), equalTo(Type.getType(Integer.class)));
-		assertThat(ByteCode.boxedType(Type.LONG_TYPE), equalTo(Type.getType(Long.class)));
-		assertThat(ByteCode.boxedType(Type.FLOAT_TYPE), equalTo(Type.getType(Float.class)));
-		assertThat(ByteCode.boxedType(Type.DOUBLE_TYPE), equalTo(Type.getType(Double.class)));
-		assertThat(ByteCode.boxedType(Type.CHAR_TYPE), equalTo(Type.getType(Character.class)));
-		assertThat(ByteCode.boxedType(Type.VOID_TYPE), equalTo(Type.getType(Void.class)));
-		assertThat(ByteCode.boxedType(Type.getType(Object.class)), equalTo(Type.getType(Object.class)));
+		assertThat(ByteCode.boxedType(Type.BOOLEAN_TYPE)).isEqualTo(Type.getType(Boolean.class));
+		assertThat(ByteCode.boxedType(Type.BYTE_TYPE)).isEqualTo(Type.getType(Byte.class));
+		assertThat(ByteCode.boxedType(Type.SHORT_TYPE)).isEqualTo(Type.getType(Short.class));
+		assertThat(ByteCode.boxedType(Type.INT_TYPE)).isEqualTo(Type.getType(Integer.class));
+		assertThat(ByteCode.boxedType(Type.LONG_TYPE)).isEqualTo(Type.getType(Long.class));
+		assertThat(ByteCode.boxedType(Type.FLOAT_TYPE)).isEqualTo(Type.getType(Float.class));
+		assertThat(ByteCode.boxedType(Type.DOUBLE_TYPE)).isEqualTo(Type.getType(Double.class));
+		assertThat(ByteCode.boxedType(Type.CHAR_TYPE)).isEqualTo(Type.getType(Character.class));
+		assertThat(ByteCode.boxedType(Type.VOID_TYPE)).isEqualTo(Type.getType(Void.class));
+		assertThat(ByteCode.boxedType(Type.getType(Object.class))).isEqualTo(Type.getType(Object.class));
 	}
 
 	@Test
@@ -88,27 +88,27 @@ public class ByteCodeTest {
 
 	@Test
 	public void testUnboxingFactory() throws Exception {
-		assertThat(ByteCode.unboxingFactory(Type.BOOLEAN_TYPE), equalTo("booleanValue"));
-		assertThat(ByteCode.unboxingFactory(Type.BYTE_TYPE), equalTo("byteValue"));
-		assertThat(ByteCode.unboxingFactory(Type.SHORT_TYPE), equalTo("shortValue"));
-		assertThat(ByteCode.unboxingFactory(Type.INT_TYPE), equalTo("intValue"));
-		assertThat(ByteCode.unboxingFactory(Type.LONG_TYPE), equalTo("longValue"));
-		assertThat(ByteCode.unboxingFactory(Type.FLOAT_TYPE), equalTo("floatValue"));
-		assertThat(ByteCode.unboxingFactory(Type.DOUBLE_TYPE), equalTo("doubleValue"));
-		assertThat(ByteCode.unboxingFactory(Type.CHAR_TYPE), equalTo("charValue"));
+		assertThat(ByteCode.unboxingFactory(Type.BOOLEAN_TYPE)).isEqualTo("booleanValue");
+		assertThat(ByteCode.unboxingFactory(Type.BYTE_TYPE)).isEqualTo("byteValue");
+		assertThat(ByteCode.unboxingFactory(Type.SHORT_TYPE)).isEqualTo("shortValue");
+		assertThat(ByteCode.unboxingFactory(Type.INT_TYPE)).isEqualTo("intValue");
+		assertThat(ByteCode.unboxingFactory(Type.LONG_TYPE)).isEqualTo("longValue");
+		assertThat(ByteCode.unboxingFactory(Type.FLOAT_TYPE)).isEqualTo("floatValue");
+		assertThat(ByteCode.unboxingFactory(Type.DOUBLE_TYPE)).isEqualTo("doubleValue");
+		assertThat(ByteCode.unboxingFactory(Type.CHAR_TYPE)).isEqualTo("charValue");
 		assertThat(ByteCode.unboxingFactory(Type.VOID_TYPE), nullValue());
 	}
 
 	@Test
 	public void testBoxingFactory() throws Exception {
-		assertThat(ByteCode.boxingFactory(Type.BOOLEAN_TYPE), equalTo("valueOf"));
-		assertThat(ByteCode.boxingFactory(Type.BYTE_TYPE), equalTo("valueOf"));
-		assertThat(ByteCode.boxingFactory(Type.SHORT_TYPE), equalTo("valueOf"));
-		assertThat(ByteCode.boxingFactory(Type.INT_TYPE), equalTo("valueOf"));
-		assertThat(ByteCode.boxingFactory(Type.LONG_TYPE), equalTo("valueOf"));
-		assertThat(ByteCode.boxingFactory(Type.FLOAT_TYPE), equalTo("valueOf"));
-		assertThat(ByteCode.boxingFactory(Type.DOUBLE_TYPE), equalTo("valueOf"));
-		assertThat(ByteCode.boxingFactory(Type.CHAR_TYPE), equalTo("valueOf"));
+		assertThat(ByteCode.boxingFactory(Type.BOOLEAN_TYPE)).isEqualTo("valueOf");
+		assertThat(ByteCode.boxingFactory(Type.BYTE_TYPE)).isEqualTo("valueOf");
+		assertThat(ByteCode.boxingFactory(Type.SHORT_TYPE)).isEqualTo("valueOf");
+		assertThat(ByteCode.boxingFactory(Type.INT_TYPE)).isEqualTo("valueOf");
+		assertThat(ByteCode.boxingFactory(Type.LONG_TYPE)).isEqualTo("valueOf");
+		assertThat(ByteCode.boxingFactory(Type.FLOAT_TYPE)).isEqualTo("valueOf");
+		assertThat(ByteCode.boxingFactory(Type.DOUBLE_TYPE)).isEqualTo("valueOf");
+		assertThat(ByteCode.boxingFactory(Type.CHAR_TYPE)).isEqualTo("valueOf");
 		assertThat(ByteCode.boxingFactory(Type.VOID_TYPE), nullValue());
 	}
 
@@ -164,10 +164,10 @@ public class ByteCodeTest {
 
 	@Test
 	public void testClassFrom() throws Exception {
-		assertThat(ByteCode.classFrom("net/amygdalum/testrecorder/util/testobjects/PublicEnum"), equalTo(PublicEnum.class));
-		assertThat(ByteCode.classFrom("net/amygdalum/testrecorder/util/testobjects/Simple", ByteCodeTest.class.getClassLoader()), equalTo(Simple.class));
-		assertThat(ByteCode.classFrom(Type.getType(Complex[].class)), equalTo(Complex[].class));
-		assertThat(ByteCode.classFrom(Type.getType(int.class)), equalTo(int.class));
+		assertThat(ByteCode.classFrom("net/amygdalum/testrecorder/util/testobjects/PublicEnum")).isEqualTo(PublicEnum.class);
+		assertThat(ByteCode.classFrom("net/amygdalum/testrecorder/util/testobjects/Simple", ByteCodeTest.class.getClassLoader())).isEqualTo(Simple.class);
+		assertThat(ByteCode.classFrom(Type.getType(Complex[].class))).isEqualTo(Complex[].class);
+		assertThat(ByteCode.classFrom(Type.getType(int.class))).isEqualTo(int.class);
 		assertThat(Throwables.capture(() -> ByteCode.classFrom("net/amygdalum/testrecorder/util/testobjects/NotExisting")), matchesException(ByteCodeException.class).withCause(ClassNotFoundException.class));
 	}
 
@@ -181,9 +181,9 @@ public class ByteCodeTest {
 	
 	@Test
 	public void testResultType() throws Exception {
-		assertThat(ByteCode.resultTypeFrom("()V"), equalTo(void.class));
-		assertThat(ByteCode.resultTypeFrom("(Ljava/lang/Object;)I"), equalTo(int.class));
-		assertThat(ByteCode.resultTypeFrom("(IC)Ljava/lang/String;"), equalTo(String.class));
+		assertThat(ByteCode.resultTypeFrom("()V")).isEqualTo(void.class);
+		assertThat(ByteCode.resultTypeFrom("(Ljava/lang/Object;)I")).isEqualTo(int.class);
+		assertThat(ByteCode.resultTypeFrom("(IC)Ljava/lang/String;")).isEqualTo(String.class);
 	}
 	
 }

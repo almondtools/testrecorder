@@ -4,8 +4,8 @@ import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContex
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
@@ -62,7 +62,7 @@ public class CollectionsMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), mapDecoratedBy("unmodifiableMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
-		assertThat(result.getValue(), equalTo("map1"));
+		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
 	@Test
@@ -73,7 +73,7 @@ public class CollectionsMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), mapDecoratedBy("unmodifiableMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
-		assertThat(result.getValue(), equalTo("map1"));
+		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
 	@Test
@@ -84,7 +84,7 @@ public class CollectionsMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), mapDecoratedBy("unmodifiableMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
-		assertThat(result.getValue(), equalTo("map1"));
+		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
 	@Test
@@ -95,7 +95,7 @@ public class CollectionsMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), mapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
-		assertThat(result.getValue(), equalTo("map1"));
+		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
 	@Test
@@ -106,7 +106,7 @@ public class CollectionsMapAdaptorTest {
 	    Computation result = adaptor.tryDeserialize(value, generator, NULL);
 	    
 	    assertThat(result.getStatements().toString(), rawMapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
-	    assertThat(result.getValue(), equalTo("map1"));
+	    assertThat(result.getValue()).isEqualTo("map1");
 	}
 	
 	@Test
@@ -117,7 +117,7 @@ public class CollectionsMapAdaptorTest {
 	    Computation result = adaptor.tryDeserialize(value, generator, NULL);
 	    
 	    assertThat(result.getStatements().toString(), wildcardMapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
-	    assertThat(result.getValue(), equalTo("map1"));
+	    assertThat(result.getValue()).isEqualTo("map1");
 	}
 	
 	@Test
@@ -128,7 +128,7 @@ public class CollectionsMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), mapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
-		assertThat(result.getValue(), equalTo("map1"));
+		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
 	@Test
@@ -139,7 +139,7 @@ public class CollectionsMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), mapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
-		assertThat(result.getValue(), equalTo("map1"));
+		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
 	@Test
@@ -150,7 +150,7 @@ public class CollectionsMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), mapDecoratedBy("checkedMap", Integer.class, Integer.class, new int[] { 8, 15 }, new int[] { 47, 11 }));
-		assertThat(result.getValue(), equalTo("map1"));
+		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
 	@Test
@@ -161,7 +161,7 @@ public class CollectionsMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), mapDecoratedBy("checkedMap", Integer.class, Integer.class, new int[] { 8, 15 }, new int[] { 47, 11 }));
-		assertThat(result.getValue(), equalTo("map1"));
+		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
 	@Test
@@ -172,7 +172,7 @@ public class CollectionsMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), mapDecoratedBy("checkedMap", Integer.class, Integer.class, new int[] { 8, 15 }, new int[] { 47, 11 }));
-		assertThat(result.getValue(), equalTo("map1"));
+		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
 	@Test
@@ -183,7 +183,7 @@ public class CollectionsMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), containsString("Map<Integer, Integer> map1 = emptyMap()"));
-		assertThat(result.getValue(), equalTo("map1"));
+		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
 	@Test
@@ -194,7 +194,7 @@ public class CollectionsMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, NULL);
 
 		assertThat(result.getStatements().toString(), containsString("Map<Integer, Integer> map1 = singletonMap(8, 15)"));
-		assertThat(result.getValue(), equalTo("map1"));
+		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
 	@Test 
