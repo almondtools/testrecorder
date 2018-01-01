@@ -1,12 +1,11 @@
 package net.amygdalum.testrecorder.values;
 
+import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.util.Types.array;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
-import static net.amygdalum.testrecorder.values.ParameterizedTypeMatcher.parameterizedType;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
@@ -43,7 +42,7 @@ public class SerializedArrayTest {
 	@Test
 	public void testGetComponentTypeOnGenericArray() throws Exception {
 		SerializedArray array = new SerializedArray(SerializedArrayTest.class.getDeclaredField("genericArray").getGenericType());
-		assertThat(array.getComponentType(), parameterizedType(List.class, String.class));
+		assertThat(array.getComponentType()).isParameterizedType(List.class, null, String.class);
 	}
 
 	@Test

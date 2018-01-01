@@ -3,8 +3,6 @@ package net.amygdalum.testrecorder.values;
 import static net.amygdalum.extensions.assertj.conventions.DefaultEquality.defaultEquality;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -26,7 +24,7 @@ public class SerializedInputTest {
 	public void before() throws Exception {
 		caller = new StackTraceElement("class", "method", "file", 4711);
 		notcaller = new StackTraceElement("class", "method", "file", 815);
-		
+
 		input = new SerializedInput(42, call(caller, BufferedReader.class, "readLine"), BufferedReader.class, "readLine", String.class, new Type[0])
 			.updateResult(literal("Hello"))
 			.updateArguments(new SerializedValue[0]);
@@ -59,10 +57,10 @@ public class SerializedInputTest {
 	}
 
 	@Test
-		public void testGetArguments() throws Exception {
-			assertThat(input.getArguments()).hasSize(0);
-			assertThat(inputNoResult.getArguments()).containsExactly(inputNoResult.getArguments()[0], literal(int.class, 0), literal(int.class, 0));
-		}
+	public void testGetArguments() throws Exception {
+		assertThat(input.getArguments()).hasSize(0);
+		assertThat(inputNoResult.getArguments()).containsExactly(inputNoResult.getArguments()[0], literal(int.class, 0), literal(int.class, 0));
+	}
 
 	@Test
 	public void testGetResultType() throws Exception {
@@ -120,19 +118,14 @@ public class SerializedInputTest {
 
 	@Test
 	public void testToString() throws Exception {
-		assertThat(input.toString(), containsString("BufferedReader"));
-		assertThat(input.toString(), containsString("readLine"));
-		assertThat(input.toString(), containsString("Hello"));
+		assertThat(input.toString()).contains("BufferedReader", "readLine", "Hello");
 
-		assertThat(inputNoResult.toString(), containsString("InputStream"));
-		assertThat(inputNoResult.toString(), containsString("void"));
-		assertThat(inputNoResult.toString(), containsString("read"));
-		assertThat(inputNoResult.toString(), containsString("0"));
+		assertThat(inputNoResult.toString()).contains("InputStream", "void", "read", "0");
 	}
 
 	private StackTraceElement[] call(StackTraceElement caller, Class<?> clazz, String method) {
 		StackTraceElement callee = new StackTraceElement(clazz.getName(), method, "", 0);
-		return new StackTraceElement[] {caller, callee};
+		return new StackTraceElement[] { caller, callee };
 	}
 
 }

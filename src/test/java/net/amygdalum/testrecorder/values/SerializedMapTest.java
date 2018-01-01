@@ -1,17 +1,15 @@
 package net.amygdalum.testrecorder.values;
 
-import static com.almondtools.conmatch.datatypes.MapMatcher.containsEntries;
+import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.GenericTypes.hashMapOfStringListOfString;
 import static net.amygdalum.testrecorder.values.GenericTypes.hashMapOfStringString;
 import static net.amygdalum.testrecorder.values.GenericTypes.mapOfBounded;
 import static net.amygdalum.testrecorder.values.GenericTypes.mapOfStringListOfString;
 import static net.amygdalum.testrecorder.values.GenericTypes.mapOfStringString;
-import static net.amygdalum.testrecorder.values.ParameterizedTypeMatcher.parameterizedType;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.TypeVariable;
 import java.util.Collections;
@@ -33,12 +31,12 @@ public class SerializedMapTest {
 
 	@Test
 	public void testGetResultTypeParameterized() throws Exception {
-		assertThat(new SerializedMap(hashMapOfStringString()).withResult(mapOfStringString()).getResultType(), parameterizedType(Map.class, String.class, String.class));
+		assertThat(new SerializedMap(hashMapOfStringString()).withResult(mapOfStringString()).getResultType()).isParameterizedType(Map.class, null, String.class, String.class);
 	}
 
 	@Test
 	public void testGetResultTypeIndirectParameterized() throws Exception {
-		assertThat(new SerializedMap(hashMapOfStringString()).getResultType(), parameterizedType(HashMap.class, String.class, String.class));
+		assertThat(new SerializedMap(hashMapOfStringString()).getResultType()).isParameterizedType(HashMap.class, null, String.class, String.class);
 	}
 
 	@Test
@@ -52,7 +50,7 @@ public class SerializedMapTest {
 			.withResult(hashMapOfStringString())
 			.with(Collections.singletonMap(literal("a"), literal("b")));
 
-		assertThat(result, containsEntries(SerializedValue.class, SerializedValue.class).entry(literal("a"), literal("b")));
+		assertThat(result).containsExactly(entry(literal("a"), literal("b")));
 	}
 
 	@Test
@@ -70,7 +68,7 @@ public class SerializedMapTest {
 	@Test
 	public void testGetKeyValueTypeNestedParameterized() throws Exception {
 		assertThat(new SerializedMap(hashMapOfStringListOfString()).withResult(mapOfStringListOfString()).getMapKeyType()).isEqualTo(String.class);
-		assertThat(new SerializedMap(hashMapOfStringListOfString()).withResult(mapOfStringListOfString()).getMapValueType(), parameterizedType(List.class, String.class));
+		assertThat(new SerializedMap(hashMapOfStringListOfString()).withResult(mapOfStringListOfString()).getMapValueType()).isParameterizedType(List.class, null, String.class);
 	}
 
 	@Test

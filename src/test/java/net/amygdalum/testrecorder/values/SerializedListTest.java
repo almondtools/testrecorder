@@ -1,16 +1,15 @@
 package net.amygdalum.testrecorder.values;
 
 import static java.util.Arrays.asList;
+import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.GenericTypes.arrayListOfSetOfString;
 import static net.amygdalum.testrecorder.values.GenericTypes.arrayListOfString;
 import static net.amygdalum.testrecorder.values.GenericTypes.listOfBounded;
 import static net.amygdalum.testrecorder.values.GenericTypes.listOfString;
-import static net.amygdalum.testrecorder.values.ParameterizedTypeMatcher.parameterizedType;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
@@ -31,12 +30,12 @@ public class SerializedListTest {
 
 	@Test
 	public void testGetResultTypeParameterized() throws Exception {
-		assertThat(new SerializedList(arrayListOfString()).withResult(listOfString()).getResultType(), parameterizedType(List.class, String.class));
+		assertThat(new SerializedList(arrayListOfString()).withResult(listOfString()).getResultType()).isParameterizedType(List.class, null, String.class);
 	}
 
 	@Test
 	public void testGetResultTypeIndirectParameterized() throws Exception {
-		assertThat(new SerializedList(arrayListOfString()).withResult(arrayListOfString()).getResultType(), parameterizedType(ArrayList.class, String.class));
+		assertThat(new SerializedList(arrayListOfString()).withResult(arrayListOfString()).getResultType()).isParameterizedType(ArrayList.class, null, String.class);
 	}
 
 	@Test
@@ -56,7 +55,7 @@ public class SerializedListTest {
 
 	@Test
 	public void testGetComponentTypeNestedParameterized() throws Exception {
-		assertThat(new SerializedList(arrayListOfSetOfString()).getComponentType(), parameterizedType(Set.class, String.class));
+		assertThat(new SerializedList(arrayListOfSetOfString()).getComponentType()).isParameterizedType(Set.class, null, String.class);
 	}
 
 	@Test
