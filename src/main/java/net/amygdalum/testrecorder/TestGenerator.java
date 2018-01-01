@@ -64,6 +64,7 @@ import net.amygdalum.testrecorder.deserializers.TreeAnalyzer;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
 import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerators;
+import net.amygdalum.testrecorder.dynamiccompile.RenderedTest;
 import net.amygdalum.testrecorder.evaluator.SerializedValueEvaluator;
 import net.amygdalum.testrecorder.hints.AnnotateGroupExpression;
 import net.amygdalum.testrecorder.hints.AnnotateTimestamp;

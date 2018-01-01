@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder;
+package net.amygdalum.testrecorder.dynamiccompile;
 
 public class RenderedTest {
 

@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.hamcrest.StringDescription;
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.RenderedTest;
+import net.amygdalum.testrecorder.dynamiccompile.RenderedTest;
 
 public class CompilableMatcherTest {
 

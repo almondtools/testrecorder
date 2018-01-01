@@ -3,9 +3,9 @@ package net.amygdalum.testrecorder.testing.hamcrest;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 
-import net.amygdalum.testrecorder.RenderedTest;
 import net.amygdalum.testrecorder.dynamiccompile.DynamicClassCompiler;
 import net.amygdalum.testrecorder.dynamiccompile.DynamicClassCompilerException;
+import net.amygdalum.testrecorder.dynamiccompile.RenderedTest;
 
 public class CompilableMatcher extends TypeSafeDiagnosingMatcher<RenderedTest> {
 
