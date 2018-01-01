@@ -1,9 +1,8 @@
 package net.amygdalum.testrecorder.ioscenarios;
 
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
-import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
-import static org.junit.Assert.assertThat;
+import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRun;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,9 +24,8 @@ public class HiddenInputTest {
 		assertThat(result).isEqualTo("Hello");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(HiddenInput.class), compiles(HiddenInput.class));
-		assertThat(testGenerator.renderTest(HiddenInput.class), testsRun(HiddenInput.class));
-		assertThat(testGenerator.renderTest(HiddenInput.class)).containsWildcardPattern(".add(HiddenInput.class, \"inputImmediate\", *, \"Hello\")");
+		assertThat(testGenerator.renderTest(HiddenInput.class)).satisfies(testsRun());
+		assertThat(testGenerator.renderTest(HiddenInput.class).getTestCode()).containsWildcardPattern(".add(HiddenInput.class, \"inputImmediate\", *, \"Hello\")");
 	}
 
 	@Test
@@ -39,9 +37,8 @@ public class HiddenInputTest {
 		assertThat(result).isEqualTo("Hello");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(HiddenInput.class), compiles(HiddenInput.class));
-		assertThat(testGenerator.renderTest(HiddenInput.class), testsRun(HiddenInput.class));
-		assertThat(testGenerator.renderTest(HiddenInput.class)).containsWildcardPattern(".add(HiddenInput.class, \"inputFromField\", *, \"Hello\")");
+		assertThat(testGenerator.renderTest(HiddenInput.class)).satisfies(testsRun());
+		assertThat(testGenerator.renderTest(HiddenInput.class).getTestCode()).containsWildcardPattern(".add(HiddenInput.class, \"inputFromField\", *, \"Hello\")");
 	}
 
 }

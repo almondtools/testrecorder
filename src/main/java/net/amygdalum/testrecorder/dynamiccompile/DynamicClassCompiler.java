@@ -24,15 +24,14 @@ public class DynamicClassCompiler {
 
 	private ThreadLocal<Map<String, Class<?>>> compiled = ThreadLocal.withInitial(HashMap::new);
 
-	private ClassLoader loader;
 	private JavaCompiler compiler;
 
-	public DynamicClassCompiler(ClassLoader loader) {
-		this.loader = new ExtensibleClassLoader(loader);
+	public DynamicClassCompiler() {
 		this.compiler = ToolProvider.getSystemJavaCompiler();
 	}
 
-	public Class<?> compile(String sourceCode) throws DynamicClassCompilerException {
+	public Class<?> compile(String sourceCode, ClassLoader loader) throws DynamicClassCompilerException {
+		loader = makeExtensible(loader);
 		if (isCached(sourceCode)) {
 			return fromCache(sourceCode);
 		}
@@ -55,6 +54,14 @@ public class DynamicClassCompiler {
 			return clazz;
 		} catch (ClassNotFoundException e) {
 			throw new DynamicClassCompilerException("class " + fullQualifiedName + " cannot be loaded: " + e.getMessage());
+		}
+	}
+
+	private ClassLoader makeExtensible(ClassLoader loader) {
+		if (loader instanceof ExtensibleClassLoader) {
+			return loader;
+		} else {
+			return new ExtensibleClassLoader(loader);
 		}
 	}
 

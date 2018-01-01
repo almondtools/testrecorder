@@ -1,8 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
-import static org.junit.Assert.assertThat;
+import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRun;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,10 +14,8 @@ import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 @Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.Exceptions" })
 public class ExceptionsTest {
 
-	
-
 	@Test
-	public void testCompilable() throws Exception {
+	public void testCompilesAndRuns() throws Exception {
 		Exceptions out = new Exceptions();
 		try {
 			out.throwingException();
@@ -26,19 +23,7 @@ public class ExceptionsTest {
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Exceptions.class), compiles(Exceptions.class));
-	}
-
-	@Test
-	public void testRunnable() throws Exception {
-		Exceptions out = new Exceptions();
-		try {
-			out.throwingException();
-		} catch (IllegalArgumentException e) {
-		}
-
-		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Exceptions.class), testsRun(Exceptions.class));
+		assertThat(testGenerator.renderTest(Exceptions.class)).satisfies(testsRun());
 	}
 
 }

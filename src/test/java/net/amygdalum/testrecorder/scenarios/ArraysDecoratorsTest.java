@@ -1,10 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
-
-import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
+import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRun;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
 
@@ -19,30 +16,26 @@ import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 @Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.ArraysDecorators" })
 public class ArraysDecoratorsTest {
 
-	
-
 	@Test
-	public void testListsSetupCompilable() throws Exception {
+	public void testListsSetupCompilesAndRuns() throws Exception {
 		ArraysDecorators dataTypes = new ArraysDecorators();
 
 		dataTypes.consume(Arrays.asList("Hello", "World"));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(ArraysDecorators.class)).hasSize(1);
-		assertThat(testGenerator.renderTest(ArraysDecorators.class), compiles(ArraysDecorators.class));
-		assertThat(testGenerator.renderTest(ArraysDecorators.class), testsRun(ArraysDecorators.class));
+		assertThat(testGenerator.renderTest(ArraysDecorators.class)).satisfies(testsRun());
 	}
 
 	@Test
-	public void testListsMatcherCompilable() throws Exception {
+	public void testListsMatcherCompilesAndRuns() throws Exception {
 		ArraysDecorators dataTypes = new ArraysDecorators();
 
 		dataTypes.asList("Hello", "World");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(ArraysDecorators.class)).hasSize(1);
-		assertThat(testGenerator.renderTest(ArraysDecorators.class), compiles(ArraysDecorators.class));
-		assertThat(testGenerator.renderTest(ArraysDecorators.class), testsRun(ArraysDecorators.class));
+		assertThat(testGenerator.renderTest(ArraysDecorators.class)).satisfies(testsRun());
 	}
 
 }

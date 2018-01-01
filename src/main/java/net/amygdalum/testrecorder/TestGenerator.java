@@ -249,11 +249,11 @@ public class TestGenerator implements SnapshotConsumer {
 		return context;
 	}
 
-	public String renderTest(Class<?> clazz) {
-		return renderTest(ClassDescriptor.of(clazz));
+	public RenderedTest renderTest(Class<?> clazz) {
+		return new RenderedTest(clazz, renderTest(ClassDescriptor.of(clazz)));
 	}
 
-	public String renderTest(ClassDescriptor clazz) {
+	private String renderTest(ClassDescriptor clazz) {
 		TestGeneratorContext context = getContext(clazz);
 
 		ST file = new ST(TEST_FILE);

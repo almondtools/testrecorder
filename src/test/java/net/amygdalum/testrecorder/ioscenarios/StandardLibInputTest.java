@@ -1,9 +1,7 @@
 package net.amygdalum.testrecorder.ioscenarios;
 
-import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
+import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRun;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,28 +16,19 @@ import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 public class StandardLibInputTest {
 
 	@Test
-	public void testNativeMethodCompilable() throws Exception {
+	public void testNativeMethodCompilesAndRuns() throws Exception {
 		StandardLibInputOutput io = new StandardLibInputOutput();
 		io.getTimestamp();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(StandardLibInputOutput.class)).containsSequence(
+		assertThat(testGenerator.renderTest(StandardLibInputOutput.class).getTestCode()).containsSequence(
 			"FakeIO",
 			"fakeInput");
-		assertThat(testGenerator.renderTest(StandardLibInputOutput.class), compiles(StandardLibInputOutput.class));
+		assertThat(testGenerator.renderTest(StandardLibInputOutput.class)).satisfies(testsRun());
 	}
 
 	@Test
-	public void testNativeMethodRunnable() throws Exception {
-		StandardLibInputOutput io = new StandardLibInputOutput();
-		io.getTimestamp();
-
-		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(StandardLibInputOutput.class), testsRun(StandardLibInputOutput.class));
-	}
-
-	@Test
-	public void testNativeMethodWithArgsCompilable() throws Exception {
+	public void testNativeMethodWithArgsCompilesAndRuns() throws Exception {
 		StandardLibInputOutput io = new StandardLibInputOutput();
 
 		int result = io.readFile(new byte[] { 41, 42 }, 1);
@@ -47,22 +36,10 @@ public class StandardLibInputTest {
 		assertThat(result).isEqualTo(42);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(StandardLibInputOutput.class)).containsSequence(
+		assertThat(testGenerator.renderTest(StandardLibInputOutput.class).getTestCode()).containsSequence(
 			"FakeIO",
 			"fakeInput");
-		assertThat(testGenerator.renderTest(StandardLibInputOutput.class), compiles(StandardLibInputOutput.class));
-	}
-
-	@Test
-	public void testNativeMethodWithArgsRunnable() throws Exception {
-		StandardLibInputOutput io = new StandardLibInputOutput();
-
-		int result = io.readFile(new byte[] { 41, 42 }, 1);
-
-		assertThat(result).isEqualTo(42);
-
-		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(StandardLibInputOutput.class), testsRun(StandardLibInputOutput.class));
+		assertThat(testGenerator.renderTest(StandardLibInputOutput.class)).satisfies(testsRun());
 	}
 
 }

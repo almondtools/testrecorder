@@ -1,10 +1,8 @@
 package net.amygdalum.testrecorder.scenarios;
 
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
-import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
+import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRun;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,7 +16,7 @@ import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 public class ClassicBeanTest {
 
 	@Test
-	public void testCompilable() throws Exception {
+	public void testCompilesAndRuns() throws Exception {
 		ClassicBean bean = new ClassicBean();
 		bean.setI(22);
 		bean.setO(new ClassicBean());
@@ -26,8 +24,7 @@ public class ClassicBeanTest {
 		assertThat(bean.hashCode()).isEqualTo(191);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(ClassicBean.class), compiles(ClassicBean.class));
-		assertThat(testGenerator.renderTest(ClassicBean.class), testsRun(ClassicBean.class));
+		assertThat(testGenerator.renderTest(ClassicBean.class)).satisfies(testsRun());
 	}
 
 	@Test

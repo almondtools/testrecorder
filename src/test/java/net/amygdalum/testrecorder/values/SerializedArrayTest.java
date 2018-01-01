@@ -42,7 +42,7 @@ public class SerializedArrayTest {
 	@Test
 	public void testGetComponentTypeOnGenericArray() throws Exception {
 		SerializedArray array = new SerializedArray(SerializedArrayTest.class.getDeclaredField("genericArray").getGenericType());
-		assertThat(array.getComponentType()).isParameterizedType(List.class, null, String.class);
+		assertThat(array.getComponentType()).isEqualTo(parameterized(List.class, null, String.class));
 	}
 
 	@Test

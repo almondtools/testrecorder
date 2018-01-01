@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.values;
 
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
+import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.GenericTypes.hashMapOfStringListOfString;
 import static net.amygdalum.testrecorder.values.GenericTypes.hashMapOfStringString;
 import static net.amygdalum.testrecorder.values.GenericTypes.mapOfBounded;
@@ -31,12 +32,12 @@ public class SerializedMapTest {
 
 	@Test
 	public void testGetResultTypeParameterized() throws Exception {
-		assertThat(new SerializedMap(hashMapOfStringString()).withResult(mapOfStringString()).getResultType()).isParameterizedType(Map.class, null, String.class, String.class);
+		assertThat(new SerializedMap(hashMapOfStringString()).withResult(mapOfStringString()).getResultType()).isEqualTo(parameterized(Map.class, null, String.class, String.class));
 	}
 
 	@Test
 	public void testGetResultTypeIndirectParameterized() throws Exception {
-		assertThat(new SerializedMap(hashMapOfStringString()).getResultType()).isParameterizedType(HashMap.class, null, String.class, String.class);
+		assertThat(new SerializedMap(hashMapOfStringString()).getResultType()).isEqualTo(parameterized(HashMap.class, null, String.class, String.class));
 	}
 
 	@Test
@@ -68,7 +69,7 @@ public class SerializedMapTest {
 	@Test
 	public void testGetKeyValueTypeNestedParameterized() throws Exception {
 		assertThat(new SerializedMap(hashMapOfStringListOfString()).withResult(mapOfStringListOfString()).getMapKeyType()).isEqualTo(String.class);
-		assertThat(new SerializedMap(hashMapOfStringListOfString()).withResult(mapOfStringListOfString()).getMapValueType()).isParameterizedType(List.class, null, String.class);
+		assertThat(new SerializedMap(hashMapOfStringListOfString()).withResult(mapOfStringListOfString()).getMapValueType()).isEqualTo(parameterized(List.class, null, String.class));
 	}
 
 	@Test

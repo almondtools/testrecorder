@@ -1,11 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
+import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRun;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.core.Every.everyItem;
-import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,11 +11,9 @@ import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 
 @ExtendWith(TestRecorderAgentExtension.class)
-@Instrumented(classes={"net.amygdalum.testrecorder.scenarios.SideEffects"})
+@Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.SideEffects" })
 public class SideEffectsTest {
 
-	
-	
 	@Test
 	public void testSideEffectsOnThis() throws Exception {
 		SideEffects sideEffects = new SideEffects();
@@ -29,7 +23,7 @@ public class SideEffectsTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(SideEffects.class)).hasSize(7);
-		assertThat(testGenerator.testsFor(SideEffects.class), everyItem(containsString("assert")));
+		assertThat(testGenerator.testsFor(SideEffects.class)).allSatisfy(test -> assertThat(test).contains("assert"));
 	}
 
 	@Test
@@ -42,7 +36,7 @@ public class SideEffectsTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(SideEffects.class)).hasSize(10);
-		assertThat(testGenerator.testsFor(SideEffects.class), everyItem(containsString("assert")));
+		assertThat(testGenerator.testsFor(SideEffects.class)).allSatisfy(test -> assertThat(test).contains("assert"));
 	}
 
 	@Test
@@ -57,8 +51,7 @@ public class SideEffectsTest {
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(SideEffects.class), compiles(SideEffects.class));
-		assertThat(testGenerator.renderTest(SideEffects.class), testsRun(SideEffects.class));
+		assertThat(testGenerator.renderTest(SideEffects.class)).satisfies(testsRun());
 	}
 
 }

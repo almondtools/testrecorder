@@ -1,11 +1,13 @@
-package net.amygdalum.testrecorder.dynamiccompile;
+package net.amygdalum.testrecorder.testing.hamcrest;
 
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
-import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
+import static net.amygdalum.testrecorder.testing.hamcrest.CompilableMatcher.compiles;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.hamcrest.StringDescription;
 import org.junit.jupiter.api.Test;
+
+import net.amygdalum.testrecorder.RenderedTest;
 
 public class CompilableMatcherTest {
 
@@ -13,7 +15,7 @@ public class CompilableMatcherTest {
 	public void testDescribeTo() throws Exception {
 		StringDescription description = new StringDescription();
 
-		compiles(CompilableMatcherTest.class).describeTo(description);
+		compiles().describeTo(description);
 
 		assertThat(description.toString()).isEqualTo("should compile with success");
 	}
@@ -22,7 +24,7 @@ public class CompilableMatcherTest {
 	public void testMatchesSafelyWithSuccess() throws Exception {
 		StringDescription description = new StringDescription();
 
-		boolean matches = compiles(CompilableMatcherTest.class).matchesSafely(""
+		boolean matches = compiles().matchesSafely(new RenderedTest(CompilableMatcherTest.class, ""
 			+ "package net.amygdalum.testrecorder.dynamiccompile;"
 			+ "import org.junit.jupiter.api.Test;"
 			+ ""
@@ -30,7 +32,7 @@ public class CompilableMatcherTest {
 			+ "  @Test"
 			+ "  public void test() throws Exception {"
 			+ "  }"
-			+ "}", description);
+			+ "}"), description);
 
 		assertThat(matches).isTrue();
 		assertThat(description.toString()).isEqualTo("");
@@ -40,9 +42,9 @@ public class CompilableMatcherTest {
 	public void testMatchesSafelyCached() throws Exception {
 		StringDescription description = new StringDescription();
 
-		CompilableMatcher matcher = compiles(CompilableMatcherTest.class);
+		CompilableMatcher matcher = compiles();
 
-		boolean matches = matcher.matchesSafely(""
+		boolean matches = matcher.matchesSafely(new RenderedTest(CompilableMatcherTest.class, ""
 			+ "package net.amygdalum.testrecorder.dynamiccompile;"
 			+ "import org.junit.jupiter.api.Test;"
 			+ ""
@@ -50,8 +52,8 @@ public class CompilableMatcherTest {
 			+ "  @Test"
 			+ "  public void test() throws Exception {"
 			+ "  }"
-			+ "}", description);
-		matches = matcher.matchesSafely(""
+			+ "}"), description);
+		matches = matcher.matchesSafely(new RenderedTest(CompilableMatcherTest.class, ""
 			+ "package net.amygdalum.testrecorder.dynamiccompile;"
 			+ "import org.junit.jupiter.api.Test;"
 			+ ""
@@ -59,7 +61,7 @@ public class CompilableMatcherTest {
 			+ "  @Test"
 			+ "  public void test() throws Exception {"
 			+ "  }"
-			+ "}", description);
+			+ "}"), description);
 
 		assertThat(matches).isTrue();
 		assertThat(description.toString()).isEqualTo("");
@@ -69,7 +71,7 @@ public class CompilableMatcherTest {
 	public void testMatchesSafelyCompilesWithFailingTest() throws Exception {
 		StringDescription description = new StringDescription();
 
-		boolean matches = compiles(CompilableMatcherTest.class).matchesSafely(""
+		boolean matches = compiles().matchesSafely(new RenderedTest(CompilableMatcherTest.class, ""
 			+ "package net.amygdalum.testrecorder.dynamiccompile;"
 			+ "import org.junit.jupiter.api.Test;"
 			+ "import static org.junit.Assert.fail;"
@@ -79,7 +81,7 @@ public class CompilableMatcherTest {
 			+ "  public void test() throws Exception {"
 			+ "    fail();"
 			+ "  }"
-			+ "}", description);
+			+ "}"), description);
 
 		assertThat(matches).isTrue();
 	}
@@ -88,7 +90,7 @@ public class CompilableMatcherTest {
 	public void testMatchesSafelyWithCompileFailure() throws Exception {
 		StringDescription description = new StringDescription();
 
-		boolean matches = compiles(CompilableMatcherTest.class).matchesSafely(""
+		boolean matches = compiles().matchesSafely(new RenderedTest(CompilableMatcherTest.class, ""
 			+ "package net.amygdalum.testrecorder.dynamiccompile;"
 			+ "import org.junit.jupiter.api.Test;"
 			+ "import static org.junit.Assert.fail;"
@@ -98,7 +100,7 @@ public class CompilableMatcherTest {
 			+ "  public void test() throws Exception {"
 			+ "    fail() // missing semicolon"
 			+ "  }"
-			+ "}", description);
+			+ "}"), description);
 
 		assertThat(matches).isFalse();
 		assertThat(description.toString()).containsWildcardPattern("compile failed with messages");
@@ -108,7 +110,7 @@ public class CompilableMatcherTest {
 	public void testMatchesSafelyCompilesWithTestError() throws Exception {
 		StringDescription description = new StringDescription();
 
-		boolean matches = compiles(CompilableMatcherTest.class).matchesSafely(""
+		boolean matches = compiles().matchesSafely(new RenderedTest(CompilableMatcherTest.class, ""
 			+ "package net.amygdalum.testrecorder.dynamiccompile;"
 			+ "import org.junit.jupiter.api.Test;"
 			+ ""
@@ -117,7 +119,7 @@ public class CompilableMatcherTest {
 			+ "  public void test() throws Exception {"
 			+ "    throw new RuntimeException();"
 			+ "  }"
-			+ "}", description);
+			+ "}"), description);
 
 		assertThat(matches).isTrue();
 	}

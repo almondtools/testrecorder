@@ -1,8 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
-import static org.junit.Assert.assertThat;
+import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRun;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +24,6 @@ public class GenericDataTypesTest {
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(GenericDataTypes.class), compiles(GenericDataTypes.class));
-		assertThat(testGenerator.renderTest(GenericDataTypes.class), testsRun(GenericDataTypes.class));
+		assertThat(testGenerator.renderTest(GenericDataTypes.class)).satisfies(testsRun());
 	}
 }

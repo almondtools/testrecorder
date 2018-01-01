@@ -1,8 +1,7 @@
 package net.amygdalum.testrecorder.ioscenarios;
 
-import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
-import static org.junit.Assert.assertThat;
+import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRun;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,25 +15,14 @@ import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 public class DelegatedInputTest {
 	
 	@Test
-	public void testCompilable() throws Exception {
+	public void testCompilesAndRuns() throws Exception {
 		DelegatedInput.SingleInput singleInput = new DelegatedInput.SingleInput();
 		DelegatedInput input1 = new DelegatedInput(singleInput);
 		DelegatedInput input2 = new DelegatedInput(singleInput);
 		input1.combine(input2);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(DelegatedInput.class), compiles(DelegatedInput.class));
-	}
-	
-	@Test
-	public void testRunnable() throws Exception {
-		DelegatedInput.SingleInput singleInput = new DelegatedInput.SingleInput();
-		DelegatedInput input1 = new DelegatedInput(singleInput);
-		DelegatedInput input2 = new DelegatedInput(singleInput);
-		input1.combine(input2);
-
-		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(DelegatedInput.class), testsRun(DelegatedInput.class));
+		assertThat(testGenerator.renderTest(DelegatedInput.class)).satisfies(testsRun());
 	}
 	
 }

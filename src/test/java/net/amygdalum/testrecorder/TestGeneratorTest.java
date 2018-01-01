@@ -87,7 +87,7 @@ public class TestGeneratorTest {
 		testGenerator.accept(snapshot);
 
 		testGenerator.await();
-		assertThat(testGenerator.renderTest(MyClass.class)).containsSequence("@SuppressWarnings(\"unused\")" + System.lineSeparator() + "public class");
+		assertThat(testGenerator.renderTest(MyClass.class).getTestCode()).containsSequence("@SuppressWarnings(\"unused\")" + System.lineSeparator() + "public class");
 	}
 
 	@Test
@@ -210,7 +210,7 @@ public class TestGeneratorTest {
 		testGenerator.accept(snapshot2);
 
 		testGenerator.await();
-		assertThat(testGenerator.renderTest(TestGeneratorTest.class)).containsSequence(
+		assertThat(testGenerator.renderTest(TestGeneratorTest.class).getTestCode()).containsSequence(
 			"int field = 12;",
 			"intMethod(16);",
 			"equalTo(22)",

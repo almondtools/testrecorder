@@ -1,9 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
+import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRun;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThat;
 
 import java.util.function.Supplier;
 
@@ -29,8 +27,7 @@ public class LambdasTest {
 		assertThat(result).isEqualTo(42);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Lambdas.class), compiles(Lambdas.class));
-		assertThat(testGenerator.renderTest(Lambdas.class), testsRun(Lambdas.class));
+		assertThat(testGenerator.renderTest(Lambdas.class)).satisfies(testsRun());
 	}
 
 	@Test
@@ -42,8 +39,7 @@ public class LambdasTest {
 		assertThat(result).isEqualTo(42);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Lambdas.class), compiles(Lambdas.class));
-		assertThat(testGenerator.renderTest(Lambdas.class), testsRun(Lambdas.class));
+		assertThat(testGenerator.renderTest(Lambdas.class)).satisfies(testsRun());
 	}
 
 	@Test
@@ -55,8 +51,7 @@ public class LambdasTest {
 		assertThat(result).isEqualTo(43);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Lambdas.class), compiles(Lambdas.class));
-		assertThat(testGenerator.renderTest(Lambdas.class), testsRun(Lambdas.class));
+		assertThat(testGenerator.renderTest(Lambdas.class)).satisfies(testsRun());
 	}
 
 	@Test
@@ -68,7 +63,6 @@ public class LambdasTest {
 		assertThat(result.get()).isEqualTo(44);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Lambdas.class), compiles(Lambdas.class));
-		assertThat(testGenerator.renderTest(Lambdas.class), testsRun(Lambdas.class));
+		assertThat(testGenerator.renderTest(Lambdas.class)).satisfies(testsRun());
 	}
 }

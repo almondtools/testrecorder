@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.dynamiccompile;
+package net.amygdalum.testrecorder.testing.hamcrest;
 
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
@@ -6,14 +6,17 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 
+import net.amygdalum.testrecorder.RenderedTest;
+import net.amygdalum.testrecorder.dynamiccompile.DynamicClassCompiler;
+import net.amygdalum.testrecorder.dynamiccompile.DynamicClassCompilerException;
 import net.amygdalum.testrecorder.util.Instantiations;
 
-public class TestsRunnableMatcher extends TypeSafeDiagnosingMatcher<String> {
+public class TestsRunnableMatcher extends TypeSafeDiagnosingMatcher<RenderedTest> {
 
     private DynamicClassCompiler compiler;
 
-    public TestsRunnableMatcher(ClassLoader loader) {
-        compiler = new DynamicClassCompiler(loader);
+    public TestsRunnableMatcher() {
+        compiler = new DynamicClassCompiler();
     }
 
     @Override
@@ -22,9 +25,9 @@ public class TestsRunnableMatcher extends TypeSafeDiagnosingMatcher<String> {
     }
 
     @Override
-    protected boolean matchesSafely(String item, Description mismatchDescription) {
+    protected boolean matchesSafely(RenderedTest test, Description mismatchDescription) {
         try {
-            Class<?> clazz = compiler.compile(item);
+            Class<?> clazz = compiler.compile(test.getTestCode(), test.getTestClassLoader());
             JUnitCore junit = new JUnitCore();
             Instantiations.resetInstatiations();
             Result result = junit.run(clazz);
@@ -51,12 +54,8 @@ public class TestsRunnableMatcher extends TypeSafeDiagnosingMatcher<String> {
         }
     }
 
-    public static TestsRunnableMatcher testsRun(ClassLoader loader) {
-        return new TestsRunnableMatcher(loader);
-    }
-
-    public static TestsRunnableMatcher testsRun(Class<?> clazz) {
-        return testsRun(clazz.getClassLoader());
+    public static TestsRunnableMatcher testsRun() {
+        return new TestsRunnableMatcher();
     }
 
 }

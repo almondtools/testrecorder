@@ -1,9 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
+import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRun;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,8 +26,7 @@ public class ConstructorsWithNestedEnumsTest {
 		assertThat(string).isEqualTo("FIRST:FIRST");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(ConstructorsWithNestedEnums.class), compiles(ConstructorsWithNestedEnums.class));
-		assertThat(testGenerator.renderTest(ConstructorsWithNestedEnums.class), testsRun(ConstructorsWithNestedEnums.class));
+		assertThat(testGenerator.renderTest(ConstructorsWithNestedEnums.class)).satisfies(testsRun());
 	}
 
 	@Test
@@ -39,8 +36,7 @@ public class ConstructorsWithNestedEnumsTest {
 		assertThat(string).isEqualTo("FIRST:null");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(ConstructorsWithNestedEnums.class), compiles(ConstructorsWithNestedEnums.class));
-		assertThat(testGenerator.renderTest(ConstructorsWithNestedEnums.class), testsRun(ConstructorsWithNestedEnums.class));
+		assertThat(testGenerator.renderTest(ConstructorsWithNestedEnums.class)).satisfies(testsRun());
 	}
 
 	@Test
@@ -50,8 +46,7 @@ public class ConstructorsWithNestedEnumsTest {
 		assertThat(string).isEqualTo("FIRST:FIRST");
 		
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(ConstructorsWithNestedEnums.class), compiles(ConstructorsWithNestedEnums.class));
-		assertThat(testGenerator.renderTest(ConstructorsWithNestedEnums.class), testsRun(ConstructorsWithNestedEnums.class));
+		assertThat(testGenerator.renderTest(ConstructorsWithNestedEnums.class)).satisfies(testsRun());
 	}
 
 	@Test
@@ -61,8 +56,7 @@ public class ConstructorsWithNestedEnumsTest {
 		assertThat(string).isEqualTo("null:null:THIRD");
 		
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(ConstructorsWithNestedEnums.class), compiles(ConstructorsWithNestedEnums.class));
-		assertThat(testGenerator.renderTest(ConstructorsWithNestedEnums.class), testsRun(ConstructorsWithNestedEnums.class));
+		assertThat(testGenerator.renderTest(ConstructorsWithNestedEnums.class)).satisfies(testsRun());
 	}
 
 }

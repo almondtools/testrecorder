@@ -1,11 +1,8 @@
 package net.amygdalum.testrecorder.scenarios;
 
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
-import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRun;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,8 +26,7 @@ public class SharedStateTest {
 		assertThat(result).isEqualTo(":.");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(SharedState.class), compiles(SharedState.class));
-		assertThat(testGenerator.renderTest(SharedState.class), testsRun(SharedState.class));
+		assertThat(testGenerator.renderTest(SharedState.class)).satisfies(testsRun());
 	}
 
 	@Test
@@ -44,8 +40,7 @@ public class SharedStateTest {
 		assertThat(result).isEqualTo(":.");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(SharedState.class), compiles(SharedState.class));
-		assertThat(testGenerator.renderTest(SharedState.class), testsRun(SharedState.class));
+		assertThat(testGenerator.renderTest(SharedState.class)).satisfies(testsRun());
 	}
 
 	@Test
@@ -58,10 +53,10 @@ public class SharedStateTest {
 		assertThat(result).isEqualTo(":");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(SharedState.class), compiles(SharedState.class));
-		assertThat(testGenerator.renderTest(SharedState.class), testsRun(SharedState.class));
-		assertThat(testGenerator.renderTest(SharedState.class)).containsWildcardPattern("SharedState sharedState* = new SharedState()*SharedState sharedState* = new SharedState()");
-		assertThat(testGenerator.renderTest(SharedState.class), not(containsString("State stringState")));
+		assertThat(testGenerator.renderTest(SharedState.class)).satisfies(testsRun());
+		assertThat(testGenerator.renderTest(SharedState.class).getTestCode())
+			.containsWildcardPattern("SharedState sharedState* = new SharedState()*SharedState sharedState* = new SharedState()")
+			.doesNotContain("State stringState");
 	}
 
 }

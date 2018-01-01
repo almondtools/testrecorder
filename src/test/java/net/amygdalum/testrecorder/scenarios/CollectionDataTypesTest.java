@@ -1,9 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
+import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRun;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,10 +25,8 @@ import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 @Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.CollectionDataTypes" })
 public class CollectionDataTypesTest {
 
-	
-
 	@Test
-	public void testArrayListCompilable() throws Exception {
+	public void testArrayListCompilesAndRuns() throws Exception {
 		List<Integer> list = new ArrayList<>();
 
 		CollectionDataTypes dataTypes = new CollectionDataTypes();
@@ -40,25 +36,23 @@ public class CollectionDataTypesTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(CollectionDataTypes.class)).hasSize(10);
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles(CollectionDataTypes.class));
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRun(CollectionDataTypes.class));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class)).satisfies(testsRun());
 	}
 
 	@Test
-	public void testArrayListNullValuesCompilable() throws Exception {
+	public void testArrayListNullValuesCompilesAndRuns() throws Exception {
 		List<Integer> list = new ArrayList<>();
 		list.add(null);
 
 		CollectionDataTypes dataTypes = new CollectionDataTypes();
 		dataTypes.lists(list, 0);
-		
+
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles(CollectionDataTypes.class));
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRun(CollectionDataTypes.class));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class)).satisfies(testsRun());
 	}
 
 	@Test
-	public void testLinkedListCompilable() throws Exception {
+	public void testLinkedListCompilesAndRuns() throws Exception {
 		List<Integer> list = new LinkedList<>();
 
 		CollectionDataTypes dataTypes = new CollectionDataTypes();
@@ -68,12 +62,11 @@ public class CollectionDataTypesTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(CollectionDataTypes.class)).hasSize(10);
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles(CollectionDataTypes.class));
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRun(CollectionDataTypes.class));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class)).satisfies(testsRun());
 	}
 
 	@Test
-	public void testLinkedListNullValuesCompilable() throws Exception {
+	public void testLinkedListNullValuesCompilesAndRuns() throws Exception {
 		List<Integer> list = new LinkedList<>();
 		list.add(null);
 
@@ -81,12 +74,11 @@ public class CollectionDataTypesTest {
 		dataTypes.lists(list, 0);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles(CollectionDataTypes.class));
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRun(CollectionDataTypes.class));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class)).satisfies(testsRun());
 	}
 
 	@Test
-	public void testHashSetCompilable() throws Exception {
+	public void testHashSetCompilesAndRuns() throws Exception {
 		Set<Integer> set = new HashSet<>();
 
 		CollectionDataTypes dataTypes = new CollectionDataTypes();
@@ -96,12 +88,11 @@ public class CollectionDataTypesTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(CollectionDataTypes.class)).hasSize(10);
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles(CollectionDataTypes.class));
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRun(CollectionDataTypes.class));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class)).satisfies(testsRun());
 	}
 
 	@Test
-	public void testHashSetNullValuesCompilable() throws Exception {
+	public void testHashSetNullValuesCompilesAndRuns() throws Exception {
 		Set<Integer> set = new HashSet<>();
 		set.add(null);
 
@@ -109,12 +100,11 @@ public class CollectionDataTypesTest {
 		dataTypes.sets(set, 0);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles(CollectionDataTypes.class));
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRun(CollectionDataTypes.class));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class)).satisfies(testsRun());
 	}
 
 	@Test
-	public void testTreeSetCompilable() throws Exception {
+	public void testTreeSetCompilesAndRuns() throws Exception {
 		Set<Integer> set = new HashSet<>();
 
 		CollectionDataTypes dataTypes = new CollectionDataTypes();
@@ -124,12 +114,11 @@ public class CollectionDataTypesTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(CollectionDataTypes.class)).hasSize(10);
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles(CollectionDataTypes.class));
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRun(CollectionDataTypes.class));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class)).satisfies(testsRun());
 	}
 
 	@Test
-	public void testTreeSetNullValuesCompilable() throws Exception {
+	public void testTreeSetNullValuesCompilesAndRuns() throws Exception {
 		Set<Integer> set = new HashSet<>();
 		set.add(null);
 
@@ -137,12 +126,11 @@ public class CollectionDataTypesTest {
 		dataTypes.sets(set, 0);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles(CollectionDataTypes.class));
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRun(CollectionDataTypes.class));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class)).satisfies(testsRun());
 	}
 
 	@Test
-	public void testLinkedHashSetCompilable() throws Exception {
+	public void testLinkedHashSetCompilesAndRuns() throws Exception {
 		Set<Integer> set = new LinkedHashSet<>();
 
 		CollectionDataTypes dataTypes = new CollectionDataTypes();
@@ -152,12 +140,11 @@ public class CollectionDataTypesTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(CollectionDataTypes.class)).hasSize(10);
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles(CollectionDataTypes.class));
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRun(CollectionDataTypes.class));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class)).satisfies(testsRun());
 	}
 
 	@Test
-	public void testHashMapCompilable() throws Exception {
+	public void testHashMapCompilesAndRuns() throws Exception {
 		Map<Integer, Integer> map = new HashMap<>();
 
 		CollectionDataTypes dataTypes = new CollectionDataTypes();
@@ -167,12 +154,11 @@ public class CollectionDataTypesTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(CollectionDataTypes.class)).hasSize(10);
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles(CollectionDataTypes.class));
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRun(CollectionDataTypes.class));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class)).satisfies(testsRun());
 	}
 
 	@Test
-	public void testHashMapNullValueCompilable() throws Exception {
+	public void testHashMapNullValueCompilesAndRuns() throws Exception {
 		Map<Integer, Integer> map = new HashMap<>();
 		map.put(42, null);
 		map.put(null, 42);
@@ -181,12 +167,11 @@ public class CollectionDataTypesTest {
 		dataTypes.maps(map, 0);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles(CollectionDataTypes.class));
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRun(CollectionDataTypes.class));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class)).satisfies(testsRun());
 	}
 
 	@Test
-	public void testTreeMapCompilable() throws Exception {
+	public void testTreeMapCompilesAndRuns() throws Exception {
 		Map<Integer, Integer> map = new TreeMap<>();
 
 		CollectionDataTypes dataTypes = new CollectionDataTypes();
@@ -196,12 +181,11 @@ public class CollectionDataTypesTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(CollectionDataTypes.class)).hasSize(10);
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles(CollectionDataTypes.class));
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRun(CollectionDataTypes.class));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class)).satisfies(testsRun());
 	}
 
 	@Test
-	public void testTreeMapNullValuesCompilable() throws Exception {
+	public void testTreeMapNullValuesCompilesAndRuns() throws Exception {
 		Map<Integer, Integer> map = new TreeMap<>();
 		map.put(42, null);
 
@@ -209,12 +193,11 @@ public class CollectionDataTypesTest {
 		dataTypes.maps(map, 0);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles(CollectionDataTypes.class));
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRun(CollectionDataTypes.class));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class)).satisfies(testsRun());
 	}
 
 	@Test
-	public void testLinkedHashMapCompilable() throws Exception {
+	public void testLinkedHashMapCompilesAndRuns() throws Exception {
 		Map<Integer, Integer> map = new LinkedHashMap<>();
 
 		CollectionDataTypes dataTypes = new CollectionDataTypes();
@@ -224,12 +207,11 @@ public class CollectionDataTypesTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(CollectionDataTypes.class)).hasSize(10);
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles(CollectionDataTypes.class));
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRun(CollectionDataTypes.class));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class)).satisfies(testsRun());
 	}
 
 	@Test
-	public void testLinkedHashMapNullValuesCompilable() throws Exception {
+	public void testLinkedHashMapNullValuesCompilesAndRuns() throws Exception {
 		Map<Integer, Integer> map = new LinkedHashMap<>();
 		map.put(42, null);
 		map.put(null, 42);
@@ -238,7 +220,6 @@ public class CollectionDataTypesTest {
 		dataTypes.maps(map, 0);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), compiles(CollectionDataTypes.class));
-		assertThat(testGenerator.renderTest(CollectionDataTypes.class), testsRun(CollectionDataTypes.class));
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class)).satisfies(testsRun());
 	}
 }

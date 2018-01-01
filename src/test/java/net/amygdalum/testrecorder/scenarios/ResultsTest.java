@@ -1,11 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
+import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRun;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.core.Every.everyItem;
-import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,11 +14,9 @@ import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 
 @ExtendWith(TestRecorderAgentExtension.class)
-@Instrumented(classes={"net.amygdalum.testrecorder.scenarios.Results"})
+@Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.Results" })
 public class ResultsTest {
 
-	
-	
 	@Test
 	public void testNumberOfGeneratedTests() throws Exception {
 		List<Double> results = new ArrayList<>();
@@ -44,29 +38,18 @@ public class ResultsTest {
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(Results.class), everyItem(containsString("assert")));
+		assertThat(testGenerator.testsFor(Results.class)).allSatisfy(test -> assertThat(test).contains("assert"));
 	}
 
 	@Test
-	public void testCompilable() throws Exception {
+	public void testCompilesAndRuns() throws Exception {
 		Results pow = new Results();
 		for (int i = 1; i <= 10; i++) {
 			pow.pow(i);
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Results.class), compiles(Results.class));
+		assertThat(testGenerator.renderTest(Results.class)).satisfies(testsRun());
 	}
-	
-	@Test
-	public void testRunnable() throws Exception {
-		Results pow = new Results();
-		for (int i = 1; i <= 10; i++) {
-			pow.pow(i);
-		}
 
-		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Results.class), testsRun(Results.class));
-	}
-	
 }

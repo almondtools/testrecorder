@@ -1,9 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
+import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRun;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,7 +29,6 @@ public class ObjectCyclesTest {
 		assertThat(b.getPrev()).isSameAs(a);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(ObjectCycles.class), compiles(ObjectCycles.class));
-		assertThat(testGenerator.renderTest(ObjectCycles.class), testsRun(ObjectCycles.class));
+		assertThat(testGenerator.renderTest(ObjectCycles.class)).satisfies(testsRun());
 	}
 }

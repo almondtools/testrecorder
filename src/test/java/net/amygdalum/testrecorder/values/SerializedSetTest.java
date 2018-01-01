@@ -3,6 +3,7 @@ package net.amygdalum.testrecorder.values;
 import static java.util.Arrays.asList;
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
+import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.GenericTypes.hashSetOfListOfString;
 import static net.amygdalum.testrecorder.values.GenericTypes.hashSetOfString;
 import static net.amygdalum.testrecorder.values.GenericTypes.setOfBounded;
@@ -30,12 +31,12 @@ public class SerializedSetTest {
 
 	@Test
 	public void testGetResultTypeParameterized() throws Exception {
-		assertThat(new SerializedSet(hashSetOfString()).withResult(setOfString()).getResultType()).isParameterizedType(Set.class, null, String.class);
+		assertThat(new SerializedSet(hashSetOfString()).withResult(setOfString()).getResultType()).isEqualTo(parameterized(Set.class, null, String.class));
 	}
 
 	@Test
 	public void testGetResultTypeIndirectParameterized() throws Exception {
-		assertThat(new SerializedSet(hashSetOfString()).withResult(hashSetOfString()).getResultType()).isParameterizedType(HashSet.class, null, String.class);
+		assertThat(new SerializedSet(hashSetOfString()).withResult(hashSetOfString()).getResultType()).isEqualTo(parameterized(HashSet.class, null, String.class));
 	}
 
 	@Test
@@ -55,7 +56,7 @@ public class SerializedSetTest {
 
 	@Test
 	public void testGetComponentTypeNestedParameterized() throws Exception {
-		assertThat(new SerializedSet(hashSetOfListOfString()).withResult(setOfListOfString()).getComponentType()).isParameterizedType(List.class, null, String.class);
+		assertThat(new SerializedSet(hashSetOfListOfString()).withResult(setOfListOfString()).getComponentType()).isEqualTo(parameterized(List.class, null, String.class));
 	}
 
 	@Test

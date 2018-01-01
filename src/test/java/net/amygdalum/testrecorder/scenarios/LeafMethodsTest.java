@@ -1,9 +1,8 @@
 package net.amygdalum.testrecorder.scenarios;
 
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
-import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
-import static org.junit.Assert.assertThat;
+import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRun;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,8 +23,7 @@ public class LeafMethodsTest {
 		assertThat(leafMethods.method()).containsWildcardPattern("'net.amygdalum.testrecorder.scenarios.LeafMethods@*'");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(LeafType.class), compiles(LeafType.class));
-		assertThat(testGenerator.renderTest(LeafType.class), testsRun(LeafType.class));
+		assertThat(testGenerator.renderTest(LeafType.class)).satisfies(testsRun());
 	}
 
 	@Test

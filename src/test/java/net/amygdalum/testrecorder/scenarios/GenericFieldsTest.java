@@ -1,13 +1,8 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import static com.almondtools.conmatch.strings.WildcardStringMatcher.containsPattern;
-import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
+import static net.amygdalum.extensions.assertj.Assertions.assertThat;
+import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRun;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
 
 import java.util.HashSet;
 
@@ -22,8 +17,6 @@ import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 @Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.GenericFields" })
 public class GenericFieldsTest {
 
-	
-
 	@Test
 	public void testCompilableNonNull() throws Exception {
 		GenericFields bean = new GenericFields();
@@ -32,8 +25,7 @@ public class GenericFieldsTest {
 		assertThat(bean.hashCode()).isEqualTo(0);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(GenericFields.class), compiles(GenericFields.class));
-		assertThat(testGenerator.renderTest(GenericFields.class), testsRun(GenericFields.class));
+		assertThat(testGenerator.renderTest(GenericFields.class)).satisfies(testsRun());
 	}
 
 	@Test
@@ -44,8 +36,7 @@ public class GenericFieldsTest {
 		assertThat(bean.hashCode()).isEqualTo(1);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(GenericFields.class), compiles(GenericFields.class));
-		assertThat(testGenerator.renderTest(GenericFields.class), testsRun(GenericFields.class));
+		assertThat(testGenerator.renderTest(GenericFields.class)).satisfies(testsRun());
 	}
 
 	@Test
@@ -56,11 +47,12 @@ public class GenericFieldsTest {
 		assertThat(bean.hashCode()).isEqualTo(0);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(GenericFields.class)).hasSize(1);
-		assertThat(testGenerator.testsFor(GenericFields.class), contains(allOf(
-			containsPattern("genericFields?.setSet(set?)"),
-			containsString("equalTo(0)"),
-			containsString("empty()"))));
+		assertThat(testGenerator.testsFor(GenericFields.class))
+			.hasSize(1)
+			.first().satisfies(test -> assertThat(test)
+				.containsWildcardPattern("genericFields?.setSet(set?)")
+				.contains("equalTo(0)")
+				.contains("empty()"));
 	}
 
 	@Test
@@ -71,9 +63,10 @@ public class GenericFieldsTest {
 		assertThat(bean.hashCode()).isEqualTo(1);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(GenericFields.class)).hasSize(1);
-		assertThat(testGenerator.testsFor(GenericFields.class), contains(allOf(
-			containsString("equalTo(1)"),
-			containsString("set = null"))));
+		assertThat(testGenerator.testsFor(GenericFields.class))
+			.hasSize(1)
+			.first().satisfies(test -> assertThat(test)
+				.contains("equalTo(1)")
+				.contains("set = null"));
 	}
 }

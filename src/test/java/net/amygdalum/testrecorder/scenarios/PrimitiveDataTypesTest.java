@@ -1,10 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
-import static net.amygdalum.testrecorder.dynamiccompile.TestsRunnableMatcher.testsRun;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRun;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,11 +11,9 @@ import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 
 @ExtendWith(TestRecorderAgentExtension.class)
-@Instrumented(classes={"net.amygdalum.testrecorder.scenarios.PrimitiveDataTypes"})
+@Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.PrimitiveDataTypes" })
 public class PrimitiveDataTypesTest {
 
-    
-    
 	@Test
 	public void testCompilable() throws Exception {
 		PrimitiveDataTypes dataTypes = new PrimitiveDataTypes();
@@ -34,10 +29,9 @@ public class PrimitiveDataTypesTest {
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(PrimitiveDataTypes.class), compiles(PrimitiveDataTypes.class));
-		assertThat(testGenerator.renderTest(PrimitiveDataTypes.class), testsRun(PrimitiveDataTypes.class));
-    }
-    
+		assertThat(testGenerator.renderTest(PrimitiveDataTypes.class)).satisfies(testsRun());
+	}
+
 	@Test
 	public void testAsserts() throws Exception {
 		PrimitiveDataTypes dataTypes = new PrimitiveDataTypes();
@@ -53,14 +47,15 @@ public class PrimitiveDataTypesTest {
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(PrimitiveDataTypes.class), not(containsString("assertThat(false, equalTo(false))")));
-        assertThat(testGenerator.renderTest(PrimitiveDataTypes.class), not(containsString("assertThat(true, equalTo(true))")));
-        assertThat(testGenerator.renderTest(PrimitiveDataTypes.class), not(containsString("assertThat('\u0001', equalTo('\u0001'))")));
-        assertThat(testGenerator.renderTest(PrimitiveDataTypes.class), not(containsString("assertThat((byte) 1, equalTo((byte) 1))")));
-        assertThat(testGenerator.renderTest(PrimitiveDataTypes.class), not(containsString("assertThat((short) 1, equalTo((short) 1))")));
-        assertThat(testGenerator.renderTest(PrimitiveDataTypes.class), not(containsString("assertThat(1, equalTo(1))")));
-        assertThat(testGenerator.renderTest(PrimitiveDataTypes.class), not(containsString("assertThat(1.0f, equalTo(1.0f))")));
-        assertThat(testGenerator.renderTest(PrimitiveDataTypes.class), not(containsString("assertThat(1l, equalTo(1l))")));
-        assertThat(testGenerator.renderTest(PrimitiveDataTypes.class), not(containsString("assertThat(1.0, equalTo(1.0))")));
+		assertThat(testGenerator.renderTest(PrimitiveDataTypes.class).getTestCode())
+			.doesNotContain("assertThat(false, equalTo(false))")
+			.doesNotContain("assertThat(true, equalTo(true))")
+			.doesNotContain("assertThat('\u0001', equalTo('\u0001'))")
+			.doesNotContain("assertThat((byte) 1, equalTo((byte) 1))")
+			.doesNotContain("assertThat((short) 1, equalTo((short) 1))")
+			.doesNotContain("assertThat(1, equalTo(1))")
+			.doesNotContain("assertThat(1.0f, equalTo(1.0f))")
+			.doesNotContain("assertThat(1l, equalTo(1l))")
+			.doesNotContain("assertThat(1.0, equalTo(1.0))");
 	}
 }
