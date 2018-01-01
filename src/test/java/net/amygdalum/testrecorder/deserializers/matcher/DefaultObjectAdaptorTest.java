@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.matcher;
 
-import static net.amygdalum.assertjconventions.Assertions.assertThat;
+import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static org.assertj.core.api.Assertions.assertThat;
 

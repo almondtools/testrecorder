@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
-import static net.amygdalum.assertjconventions.Assertions.assertThat;
+import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
-import static net.amygdalum.assertjconventions.Assertions.assertThat;
+import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.testobjects.Collections.arrayList;

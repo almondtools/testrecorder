@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.assertjconventions.conventions.DefaultEnum;
+import net.amygdalum.extensions.assertj.conventions.DefaultEnum;
 
 public class GenericComparatorResultTest {
 

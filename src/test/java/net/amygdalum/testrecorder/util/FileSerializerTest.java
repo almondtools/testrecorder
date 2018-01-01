@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.util;
 
-import static net.amygdalum.assertjconventions.Assertions.assertThat;
-import static net.amygdalum.assertjconventions.conventions.UtilityClass.utilityClass;
+import static net.amygdalum.extensions.assertj.Assertions.assertThat;
+import static net.amygdalum.extensions.assertj.conventions.UtilityClass.utilityClass;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;

@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.values;
 
-import static net.amygdalum.assertjconventions.conventions.DefaultEquality.defaultEquality;
+import static net.amygdalum.extensions.assertj.conventions.DefaultEquality.defaultEquality;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;

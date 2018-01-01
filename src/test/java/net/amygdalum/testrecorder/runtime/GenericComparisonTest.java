@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.runtime;
 
 import static java.util.Arrays.asList;
-import static net.amygdalum.assertjconventions.Assertions.assertThat;
+import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.MATCH;
 import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.MISMATCH;
 import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.NOT_APPLYING;
@@ -13,7 +13,7 @@ import static org.mockito.Mockito.when;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import net.amygdalum.assertjconventions.conventions.DefaultEquality;
+import net.amygdalum.extensions.assertj.conventions.DefaultEquality;
 import net.amygdalum.testrecorder.util.WorkSet;
 
 public class GenericComparisonTest {

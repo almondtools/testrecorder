@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.runtime;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
-import static net.amygdalum.assertjconventions.Assertions.assertThat;
+import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.runtime.ContainsMatcher.contains;
 import static net.amygdalum.testrecorder.runtime.ContainsMatcher.empty;
 import static org.assertj.core.api.Assertions.assertThat;

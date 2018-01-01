@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.runtime;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static net.amygdalum.assertjconventions.Assertions.assertThat;
+import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.runtime.ContainsInOrderMatcher.containsInOrder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;

@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import static net.amygdalum.assertjconventions.Assertions.assertThat;
+import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 

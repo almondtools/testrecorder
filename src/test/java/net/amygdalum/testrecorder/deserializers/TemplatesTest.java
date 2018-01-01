@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.deserializers;
 
-import static net.amygdalum.assertjconventions.conventions.UtilityClass.utilityClass;
+import static net.amygdalum.extensions.assertj.conventions.UtilityClass.utilityClass;
 import static net.amygdalum.testrecorder.util.Literals.asLiteral;
 import static org.assertj.core.api.Assertions.assertThat;
 

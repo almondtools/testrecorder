@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.dynamiccompile;
 
-import static net.amygdalum.assertjconventions.Assertions.assertThat;
+import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.dynamiccompile.CompilableMatcher.compiles;
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder;
 
-import static net.amygdalum.assertjconventions.conventions.DefaultEquality.defaultEquality;
+import static net.amygdalum.extensions.assertj.conventions.DefaultEquality.defaultEquality;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
