@@ -1,9 +1,9 @@
-package net.amygdalum.testrecorder.runtime;
+package net.amygdalum.testrecorder.testing.hamcrest;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
-import static net.amygdalum.testrecorder.runtime.ContainsInOrderMatcher.containsInOrder;
+import static net.amygdalum.testrecorder.testing.hamcrest.ContainsInOrderMatcher.containsInOrder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.core.IsNull.nullValue;

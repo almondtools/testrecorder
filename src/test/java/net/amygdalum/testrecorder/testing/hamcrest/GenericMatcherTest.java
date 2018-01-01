@@ -1,7 +1,7 @@
-package net.amygdalum.testrecorder.runtime;
+package net.amygdalum.testrecorder.testing.hamcrest;
 
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
-import static net.amygdalum.testrecorder.runtime.GenericMatcher.recursive;
+import static net.amygdalum.testrecorder.testing.hamcrest.GenericMatcher.recursive;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.containsString;
@@ -10,6 +10,8 @@ import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.runtime.GenericObject;
+import net.amygdalum.testrecorder.runtime.Wrapped;
 import net.amygdalum.testrecorder.util.testobjects.Complex;
 import net.amygdalum.testrecorder.util.testobjects.DoubleShadowingObject;
 import net.amygdalum.testrecorder.util.testobjects.ShadowingObject;
@@ -346,13 +348,6 @@ public class GenericMatcherTest {
 		matching.describeTo(description);
 
 		assertThat(description.toString()).containsWildcardPattern("net.amygdalum.testrecorder.util.testobjects.Simple {*String str: a string containing \"st\";*}");
-	}
-
-	interface GenericComparisonMatcher extends Matcher<GenericComparison> {
-
-		GenericComparisonMatcher withLeft(Object left);
-
-		GenericComparisonMatcher withRight(Object right);
 	}
 
 	interface Functional {

@@ -1,6 +1,6 @@
-package net.amygdalum.testrecorder.runtime;
+package net.amygdalum.testrecorder.testing.hamcrest;
 
-import static net.amygdalum.testrecorder.runtime.MapMatcher.containsEntries;
+import static net.amygdalum.testrecorder.testing.hamcrest.MapMatcher.containsEntries;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.lessThan;

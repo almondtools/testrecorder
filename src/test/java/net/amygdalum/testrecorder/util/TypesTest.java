@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder.util;
 
 import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.extensions.assertj.conventions.DefaultEquality.defaultEquality;
 import static net.amygdalum.extensions.assertj.conventions.UtilityClass.utilityClass;
@@ -39,7 +38,6 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -51,9 +49,6 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.stream.Stream;
 
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.extensions.assertj.conventions.DefaultEquality;
@@ -393,43 +388,6 @@ public class TypesTest {
 		assertThat(needsCast(int.class, long.class)).isTrue();
 		assertThat(needsCast(long.class, int.class)).isTrue();
 		assertThat(needsCast(String.class, Object.class)).isTrue();
-	}
-
-	public static Matcher<Type> matchParameterized(Class<?> base, String... var) {
-		return new TypeSafeMatcher<Type>() {
-
-			@Override
-			public void describeTo(Description description) {
-				description.appendValue(base.getSimpleName() + Stream.of(var).collect(joining(",", "<", ">")));
-			}
-
-			@Override
-			protected boolean matchesSafely(Type item) {
-				if (item instanceof ParameterizedType) {
-					ParameterizedType parameterizedType = (ParameterizedType) item;
-					Class<?> clazz = baseType(parameterizedType);
-					if (clazz != base) {
-						return false;
-					}
-					Type[] typeArguments = parameterizedType.getActualTypeArguments();
-					for (int i = 0; i < var.length; i++) {
-						if (var[i] == null) {
-							continue;
-						}
-						if (!(typeArguments[i] instanceof TypeVariable<?>)) {
-							return false;
-						} else {
-							TypeVariable<?> typevar = (TypeVariable<?>) typeArguments[i];
-							if (!var[i].equals(typevar.getName())) {
-								return false;
-							}
-						}
-					}
-					return true;
-				}
-				return false;
-			}
-		};
 	}
 
 	@Test

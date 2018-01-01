@@ -20,7 +20,7 @@ import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.hints.SkipChecks;
-import net.amygdalum.testrecorder.runtime.GenericMatcher;
+import net.amygdalum.testrecorder.testing.hamcrest.GenericMatcher;
 import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.SerializedFieldType;

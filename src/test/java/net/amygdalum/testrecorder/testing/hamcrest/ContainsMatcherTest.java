@@ -1,11 +1,11 @@
-package net.amygdalum.testrecorder.runtime;
+package net.amygdalum.testrecorder.testing.hamcrest;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
-import static net.amygdalum.testrecorder.runtime.ContainsMatcher.contains;
-import static net.amygdalum.testrecorder.runtime.ContainsMatcher.empty;
+import static net.amygdalum.testrecorder.testing.hamcrest.ContainsMatcher.contains;
+import static net.amygdalum.testrecorder.testing.hamcrest.ContainsMatcher.empty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.core.IsNull.nullValue;

@@ -5,8 +5,6 @@ import static net.amygdalum.testrecorder.util.Types.equalTypes;
 
 import java.lang.reflect.Type;
 
-import org.hamcrest.Matchers;
-
 import net.amygdalum.testrecorder.deserializers.Adaptor;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
@@ -30,7 +28,6 @@ public class DefaultClassAdaptor extends DefaultSetupGenerator<SerializedImmutab
 	public Computation tryDeserialize(SerializedImmutable<Class<?>> value, SetupGenerators generator, DeserializerContext context) {
 		TypeManager types = generator.getTypes();
 		types.registerImport(Class.class);
-		types.staticImport(Matchers.class, "equalTo");
 
 		Class<?> clazz = value.getValue();
 

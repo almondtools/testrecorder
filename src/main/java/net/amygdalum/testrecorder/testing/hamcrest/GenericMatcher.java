@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.runtime;
+package net.amygdalum.testrecorder.testing.hamcrest;
 
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.MATCH;
@@ -16,6 +16,10 @@ import org.hamcrest.Matcher;
 import org.hamcrest.SelfDescribing;
 import org.hamcrest.TypeSafeMatcher;
 
+import net.amygdalum.testrecorder.runtime.GenericComparatorResult;
+import net.amygdalum.testrecorder.runtime.GenericComparison;
+import net.amygdalum.testrecorder.runtime.GenericObject;
+import net.amygdalum.testrecorder.runtime.Wrapped;
 import net.amygdalum.testrecorder.util.WorkSet;
 
 public class GenericMatcher extends GenericObject {

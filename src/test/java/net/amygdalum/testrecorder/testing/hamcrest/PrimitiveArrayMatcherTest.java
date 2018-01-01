@@ -1,13 +1,13 @@
-package net.amygdalum.testrecorder.runtime;
+package net.amygdalum.testrecorder.testing.hamcrest;
 
-import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.booleanArrayContaining;
-import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.byteArrayContaining;
-import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.charArrayContaining;
-import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.doubleArrayContaining;
-import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.floatArrayContaining;
-import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.intArrayContaining;
-import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.longArrayContaining;
-import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.shortArrayContaining;
+import static net.amygdalum.testrecorder.testing.hamcrest.PrimitiveArrayMatcher.booleanArrayContaining;
+import static net.amygdalum.testrecorder.testing.hamcrest.PrimitiveArrayMatcher.byteArrayContaining;
+import static net.amygdalum.testrecorder.testing.hamcrest.PrimitiveArrayMatcher.charArrayContaining;
+import static net.amygdalum.testrecorder.testing.hamcrest.PrimitiveArrayMatcher.doubleArrayContaining;
+import static net.amygdalum.testrecorder.testing.hamcrest.PrimitiveArrayMatcher.floatArrayContaining;
+import static net.amygdalum.testrecorder.testing.hamcrest.PrimitiveArrayMatcher.intArrayContaining;
+import static net.amygdalum.testrecorder.testing.hamcrest.PrimitiveArrayMatcher.longArrayContaining;
+import static net.amygdalum.testrecorder.testing.hamcrest.PrimitiveArrayMatcher.shortArrayContaining;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.hamcrest.StringDescription;

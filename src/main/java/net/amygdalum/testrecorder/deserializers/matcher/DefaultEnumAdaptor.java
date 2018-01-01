@@ -18,8 +18,8 @@ import org.hamcrest.Matchers;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
-import net.amygdalum.testrecorder.runtime.EnumMatcher;
-import net.amygdalum.testrecorder.runtime.WideningMatcher;
+import net.amygdalum.testrecorder.testing.hamcrest.EnumMatcher;
+import net.amygdalum.testrecorder.testing.hamcrest.WideningMatcher;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedEnum;
 
