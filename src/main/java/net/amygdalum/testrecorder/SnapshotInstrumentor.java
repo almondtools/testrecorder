@@ -105,6 +105,10 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 	@Override
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
 		try {
+			boolean aquired = lock.acquire();
+			if (!aquired) {
+				return null;
+			}
 			if (className == null) {
 				return null;
 			}
@@ -127,6 +131,8 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 			System.err.println("exception occured while preparing recording of snapshots: " + e.getMessage());
 			e.printStackTrace(System.err);
 			return null;
+		} finally {
+			lock.release();
 		}
 
 	}
@@ -181,9 +187,8 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 		private TestRecorderAgentConfig config;
 		private ClassNodeManager classes;
-		
-		protected ClassNode classNode;
 
+		protected ClassNode classNode;
 
 		public Task(TestRecorderAgentConfig config, ClassNodeManager classes, ClassNode classNode) {
 			this.config = config;
@@ -578,12 +583,13 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		@Override
 		protected SequenceInstruction inputVariables(MethodNode methodNode) {
 			return new Assign("inputId", Type.INT_TYPE)
-				.value(new InvokeStatic(BridgedSnapshotManager.class, "inputVariables", StackTraceElement[].class, Object.class, String.class, java.lang.reflect.Type.class, java.lang.reflect.Type[].class)
-					.withArgument(0, new GetStackTrace())
-					.withArgument(1, new GetThisOrClass())
-					.withArgument(2, new Ldc(methodNode.name))
-					.withArgument(3, new WrapResultType())
-					.withArgument(4, new WrapArgumentTypes()));
+				.value(new InvokeStatic(BridgedSnapshotManager.class, "inputVariables", StackTraceElement[].class, Object.class, String.class, java.lang.reflect.Type.class,
+					java.lang.reflect.Type[].class)
+						.withArgument(0, new GetStackTrace())
+						.withArgument(1, new GetThisOrClass())
+						.withArgument(2, new Ldc(methodNode.name))
+						.withArgument(3, new WrapResultType())
+						.withArgument(4, new WrapArgumentTypes()));
 		}
 
 		@Override

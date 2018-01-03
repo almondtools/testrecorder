@@ -11,11 +11,13 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 public abstract class AttachableClassFileTransformer implements ClassFileTransformer {
+	
+	protected CircularityLock lock = new CircularityLock();
 
 	public AttachableClassFileTransformer attach(Instrumentation inst) {
 		try {
-			inst.addTransformer(this, true);
 			Class<?>[] classesToRetransform = classesToRetransform(inst.getAllLoadedClasses());
+			inst.addTransformer(this, true);
 			if (classesToRetransform.length > 0) {
 				inst.retransformClasses(classesToRetransform);
 			}
