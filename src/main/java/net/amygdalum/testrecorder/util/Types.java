@@ -647,19 +647,19 @@ public final class Types {
 			return reloadedClazz;
 	}
 
-	public static Class<?>[] argumentTypesFrom(Method method, ClassLoader loader) throws ClassNotFoundException {
-		Class<?>[] argumentTypes = method.getParameterTypes();
-		Class<?>[] reloadedArgumentTypes = new Class<?>[argumentTypes.length];
-		for (int i = 0; i < reloadedArgumentTypes.length; i++) {
-			reloadedArgumentTypes[i] = classFrom(argumentTypes[i], loader);
+	public static Class<?>[] parameterTypesFrom(Method method, ClassLoader loader) throws ClassNotFoundException {
+		Class<?>[] parameterTypes = method.getParameterTypes();
+		Class<?>[] reloadedParameterTypes = new Class<?>[parameterTypes.length];
+		for (int i = 0; i < reloadedParameterTypes.length; i++) {
+			reloadedParameterTypes[i] = classFrom(parameterTypes[i], loader);
 		}
-		return argumentTypes;
+		return reloadedParameterTypes;
 	}
 
-	public static Class<?> resultTypeFrom(Method method, ClassLoader loader) throws ClassNotFoundException {
-		Class<?> resultType = method.getReturnType();
-		Class<?> reloadedArgumentTypes = classFrom(resultType, loader);
-		return reloadedArgumentTypes;
+	public static Class<?> returnTypeFrom(Method method, ClassLoader loader) throws ClassNotFoundException {
+		Class<?> returnType = method.getReturnType();
+		Class<?> reloadedReturnType = classFrom(returnType, loader);
+		return reloadedReturnType;
 	}
 
 	private static final class GenericArrayTypeImplementation implements GenericArrayType {

@@ -52,6 +52,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.extensions.assertj.conventions.DefaultEquality;
+import net.amygdalum.testrecorder.dynamiccompile.IsolatedClassLoader;
 import net.amygdalum.testrecorder.util.TypesTest.NestedPackagePrivate;
 import net.amygdalum.testrecorder.util.TypesTest.NestedProtected;
 import net.amygdalum.testrecorder.util.TypesTest.NestedPublic;
@@ -416,7 +417,8 @@ public class TypesTest {
 		assertThat(array(String.class)).isSameAs(String[].class);
 		assertThat(array(parameterized(List.class, null, String.class)).getTypeName()).isEqualTo("java.util.List<java.lang.String>[]");
 		assertThat(array(parameterized(List.class, null, String.class)).toString()).isEqualTo("java.util.List<java.lang.String>[]");
-		assertThat(((GenericArrayType) array(parameterized(List.class, null, String.class))).getGenericComponentType()).isEqualTo(parameterized(List.class, null, String.class));
+		assertThat(((GenericArrayType) array(parameterized(List.class, null, String.class))).getGenericComponentType())
+			.isEqualTo(parameterized(List.class, null, String.class));
 		assertThat(array(parameterized(List.class, null, String.class))).satisfies(defaultEquality()
 			.andEqualTo(array(parameterized(List.class, null, String.class)))
 			.andNotEqualTo(array(String.class))
@@ -471,7 +473,8 @@ public class TypesTest {
 
 	@Test
 	public void testSortByMostConcreteUnrelatedTypes() throws Exception {
-		assertThat(Stream.of(Simple.class, Complex.class).sorted(Types::byMostConcrete).collect(toList())).containsExactlyInAnyOrder(Simple.class, Complex.class);
+		assertThat(Stream.of(Simple.class, Complex.class).sorted(Types::byMostConcrete).collect(toList())).containsExactlyInAnyOrder(Simple.class,
+			Complex.class);
 	}
 
 	@Test
@@ -540,11 +543,14 @@ public class TypesTest {
 		assertThat(Types.resolve(freeType, PartlyBoundBiGeneric.class)).isEqualTo(freeType);
 		assertThat(Types.resolve(boundType, PartlyBoundBiGeneric.class)).isEqualTo(Sub.class);
 		assertThat(Types.resolve(partlyBoundType, PartlyBoundBiGeneric.class)).isEqualTo(Types.parameterized(BiGeneric.class, null, freeType, Sub.class));
-		assertThat(Types.resolve(unboundWildcardType, PartlyBoundBiGeneric.class)).isEqualTo(Types.parameterized(BiGeneric.class, null, Types.wildcardExtends(freeType), Sub.class));
+		assertThat(Types.resolve(unboundWildcardType, PartlyBoundBiGeneric.class))
+			.isEqualTo(Types.parameterized(BiGeneric.class, null, Types.wildcardExtends(freeType), Sub.class));
 		assertThat(Types.resolve(unboundSuperWildcardType, PartlyBoundBiGeneric.class))
 			.isEqualTo(Types.parameterized(BiGeneric.class, null, ((ParameterizedType) unboundSuperWildcardType).getActualTypeArguments()[0], Sub.class));
-		assertThat(Types.resolve(boundWildcardType, PartlyBoundBiGeneric.class)).isEqualTo(Types.parameterized(BiGeneric.class, null, freeType, Types.wildcardExtends(Sub.class)));
-		assertThat(Types.resolve(boundSuperWildcardType, PartlyBoundBiGeneric.class)).isEqualTo(Types.parameterized(BiGeneric.class, null, freeType, Types.wildcardSuper(Sub.class)));
+		assertThat(Types.resolve(boundWildcardType, PartlyBoundBiGeneric.class))
+			.isEqualTo(Types.parameterized(BiGeneric.class, null, freeType, Types.wildcardExtends(Sub.class)));
+		assertThat(Types.resolve(boundSuperWildcardType, PartlyBoundBiGeneric.class))
+			.isEqualTo(Types.parameterized(BiGeneric.class, null, freeType, Types.wildcardSuper(Sub.class)));
 		assertThat(Types.resolve(boundAndWildcardType, PartlyBoundBiGeneric.class))
 			.isEqualTo(Types.parameterized(BiGeneric.class, null, ((ParameterizedType) boundAndWildcardType).getActualTypeArguments()[0], Sub.class));
 		assertThat(Types.resolve(unboundAndWildcardType, PartlyBoundBiGeneric.class))
@@ -558,6 +564,33 @@ public class TypesTest {
 
 		assertThat(Types.resolve(freeType, PartlyBoundBiGeneric.class)).isEqualTo(freeType);
 		assertThat(Types.resolve(boundType, PartlyBoundBiGeneric.class)).isEqualTo(Sub[].class);
+	}
+
+	@Test
+	public void testClassFrom() throws Exception {
+		ClassLoader classLoader = new IsolatedClassLoader(ClassLoader.getSystemClassLoader(), "Complex");
+		Class<?> clazz = Types.classFrom(Complex.class, classLoader);
+
+		assertThat(clazz.getName()).isEqualTo(Complex.class.getName());
+		assertThat(clazz.getClassLoader()).isSameAs(classLoader);
+	}
+
+	@Test
+	public void testParameterTypesFrom() throws Exception {
+		ClassLoader classLoader = new IsolatedClassLoader(ClassLoader.getSystemClassLoader(), "Methods", "Nested");
+		Method method = Methods.class.getDeclaredMethod("params", NestedPublic.class, NestedPackagePrivate.class);
+		Class<?>[] parameterTypes = Types.parameterTypesFrom(method, classLoader);
+
+		assertThat(parameterTypes).allSatisfy(parameterType -> assertThat(parameterType.getClassLoader()).isSameAs(classLoader));
+	}
+
+	@Test
+	public void testReturnTypeFrom() throws Exception {
+		ClassLoader classLoader = new IsolatedClassLoader(ClassLoader.getSystemClassLoader(), "Methods", "Nested");
+		Method method = Methods.class.getDeclaredMethod("result");
+		Class<?> returnType = Types.returnTypeFrom(method, classLoader);
+
+		assertThat(returnType.getClassLoader()).isSameAs(classLoader);
 	}
 
 	public class NestedTypeField {
@@ -575,10 +608,19 @@ public class TypesTest {
 	protected static class NestedProtected {
 	}
 
+	public static class Methods {
+		public NestedPublic result() {
+			return new NestedPublic();
+		}
+
+		public void params(NestedPublic nestedPublic, NestedPackagePrivate nestedPackage) {
+		}
+	}
+
 }
 
 class TypesPackagePrivate {
-	//NestedPrivate privateAccessIsNotAllowedFromPackage;
+	// NestedPrivate privateAccessIsNotAllowedFromPackage;
 	NestedPublic publicAccessIsAllowedFromPackage;
 	NestedPackagePrivate packagePrivateAccessIsAllowedFromPackage;
 	NestedProtected protectedAccessIsAllowedFromPackage;
