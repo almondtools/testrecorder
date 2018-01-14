@@ -73,8 +73,7 @@ public class AllLambdasSerializableTransformer extends AttachableClassFileTransf
 			}
 			return null;
 		} catch (Throwable e) {
-			System.err.println("transformation error: " + e.getMessage());
-			e.printStackTrace(System.err);
+			Logger.error("transformation error: ", e);
 			return null;
 		}
 

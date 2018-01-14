@@ -30,6 +30,7 @@ public class GlobalContext {
 	private List<Field> computeGlobalFields() {
 		return globals.stream()
 			.map(FieldDescriptor::field)
+			.distinct()
 			.collect(toList());
 	}
 

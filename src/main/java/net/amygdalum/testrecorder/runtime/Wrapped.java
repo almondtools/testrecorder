@@ -38,15 +38,19 @@ public class Wrapped {
 
 	public static Wrapped clazz(String name) {
 		Class<?> clazz = classForName(name);
-		Object o = clazz.isInterface() || clazz.isEnum() ? null : GenericObject.newInstance(clazz);
-		return new Wrapped(clazz, o);
+		if (clazz.isInterface() || clazz.isEnum()) {
+			throw new GenericObjectException("cannot wrap interfaces or enums");
+		}
+		return new Wrapped(clazz, GenericObject.newInstance(clazz));
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static Wrapped enumType(String name, String value) {
 		Class<?> clazz = classForName(name);
-		Object o = clazz.isEnum() ? Enum.valueOf((Class<? extends Enum>) clazz, value) : null;
-		return new Wrapped(clazz, o);
+		if (!clazz.isEnum()) {
+			throw new GenericObjectException("cannot wrap non-enums");
+		}
+		return new Wrapped(clazz, Enum.valueOf((Class<? extends Enum>) clazz, value));
 	}
 
 }

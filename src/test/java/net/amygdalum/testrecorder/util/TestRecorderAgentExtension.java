@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 
 import net.amygdalum.testrecorder.ConfigurableTestRecorderAgentConfig;
 import net.amygdalum.testrecorder.DefaultTestRecorderAgentConfig;
+import net.amygdalum.testrecorder.Logger;
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.TestRecorderAgent;
 import net.amygdalum.testrecorder.TestRecorderAgentConfig;
@@ -46,7 +47,7 @@ public class TestRecorderAgentExtension implements BeforeEachCallback, BeforeAll
 
 	private void setupTransformer(Class<?> testClass) {
 		try {
-			System.out.println("setup");
+			Logger.info("setup");
 			Instrumented instrumented = testClass.getAnnotation(Instrumented.class);
 
 			TestRecorderAgentConfig config = fetchConfig(instrumented);
@@ -89,7 +90,7 @@ public class TestRecorderAgentExtension implements BeforeEachCallback, BeforeAll
 	}
 
 	private void resetTransformer() {
-		System.out.println("reset");
+		Logger.info("reset");
 		if (agent != null) {
 			agent.clearInstrumentations();
 		}

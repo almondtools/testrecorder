@@ -133,7 +133,7 @@ public class TestGenerator implements SnapshotConsumer {
 		this.tests = synchronizedMap(new LinkedHashMap<>());
 		this.fields = new LinkedHashSet<>();
 		this.pipeline = CompletableFuture.runAsync(() -> {
-			System.out.println("starting code generation");
+			Logger.info("starting code generation");
 		}, executor);
 	}
 
@@ -180,8 +180,7 @@ public class TestGenerator implements SnapshotConsumer {
 
 			context.add(methodGenerator.generateTest());
 		}, executor).exceptionally(e -> {
-			System.err.println("failed generating test for " + snapshot.getMethodName() + ": " + e.getClass().getSimpleName() + " " + e.getMessage());
-			e.printStackTrace(System.err);
+			Logger.error("failed generating test for " + snapshot.getMethodName() + ": " + e.getClass().getSimpleName() + " " + e.getMessage(), e);
 			return null;
 		});
 	}
@@ -202,13 +201,12 @@ public class TestGenerator implements SnapshotConsumer {
 
 			try {
 				Path testfile = locateTestFile(dir, clazz);
-				System.out.println("writing tests to " + testfile);
+				Logger.info("writing tests to " + testfile);
 				try (Writer writer = Files.newBufferedWriter(testfile, StandardCharsets.UTF_8, CREATE, WRITE, TRUNCATE_EXISTING)) {
 					writer.write(rendered);
 				}
 			} catch (IOException e) {
-				System.err.println("failed writing tests for " + rendered);
-				e.printStackTrace(System.err);
+				Logger.error("failed writing tests for " + rendered, e);
 			}
 		}
 	}
@@ -217,7 +215,7 @@ public class TestGenerator implements SnapshotConsumer {
 		this.tests.clear();
 		this.fields = new LinkedHashSet<>();
 		this.pipeline = CompletableFuture.runAsync(() -> {
-			System.out.println("starting code generation");
+			Logger.info("starting code generation");
 		}, executor);
 	}
 
@@ -400,6 +398,7 @@ public class TestGenerator implements SnapshotConsumer {
 				.forEach(statements::add);
 
 			List<Computation> setupGlobals = Stream.of(snapshot.getSetupGlobals())
+				.map(global -> registerGlobal(global))
 				.map(global -> assignGlobal(global.getDeclaringClass(), global.getName(), global.getValue().accept(setupCode, context)))
 				.collect(toList());
 
@@ -420,6 +419,11 @@ public class TestGenerator implements SnapshotConsumer {
 			statements.addAll(mocked.prepare(locals, types, context));
 
 			return this;
+		}
+
+		private SerializedField registerGlobal(SerializedField global) {
+			types.registerImport(global.getDeclaringClass());
+			return global;
 		}
 
 		private Computation assignGlobal(Class<?> clazz, String name, Computation global) {

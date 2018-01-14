@@ -18,6 +18,7 @@ import org.objectweb.asm.util.Printer;
 import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceMethodVisitor;
 
+import net.amygdalum.testrecorder.Logger;
 import net.amygdalum.testrecorder.util.Types;
 
 public final class ByteCode {
@@ -230,13 +231,13 @@ public final class ByteCode {
 
 	public static InsnList print(InsnList instructions) {
 		List<String> text = toString(instructions);
-		System.out.println(text);
+		Logger.info(text);
 		return instructions;
 	}
 
 	public static <T extends AbstractInsnNode> T print(T node) {
 		String text = toString(node);
-		System.out.println(text);
+		Logger.info(text);
 		return node;
 	}
 

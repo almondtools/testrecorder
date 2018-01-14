@@ -17,6 +17,8 @@ import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
 
+import net.amygdalum.testrecorder.util.ExtensibleClassLoader;
+
 public class DynamicClassCompiler {
 
 	private static final Pattern PACKAGE = Pattern.compile("package\\s+((\\w+\\s*\\.\\s*)*\\w+)\\s*;");
@@ -31,14 +33,15 @@ public class DynamicClassCompiler {
 	}
 
 	public Class<?> compile(String sourceCode, ClassLoader loader) throws DynamicClassCompilerException {
-		loader = makeExtensible(loader);
-		if (isCached(sourceCode)) {
-			return fromCache(sourceCode);
-		}
-
 		String name = findName(sourceCode);
 		String pkg = findPackage(sourceCode);
 		String fullQualifiedName = pkg + '.' + name;
+
+		loader = makeExtensible(loader, pkg);
+		Thread.currentThread().setContextClassLoader(loader);
+		if (isCached(sourceCode)) {
+			return fromCache(sourceCode);
+		}
 
 		JavaInMemoryFileManager fileManager = new JavaInMemoryFileManager(loader, compiler.getStandardFileManager(null, null, null));
 		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
@@ -57,11 +60,12 @@ public class DynamicClassCompiler {
 		}
 	}
 
-	private ClassLoader makeExtensible(ClassLoader loader) {
+	private ClassLoader makeExtensible(ClassLoader loader, String pkg) {
 		if (loader instanceof ExtensibleClassLoader) {
+			((ExtensibleClassLoader) loader).addPackage(pkg);
 			return loader;
 		} else {
-			return new ExtensibleClassLoader(loader);
+			return new ExtensibleClassLoader(loader, pkg);
 		}
 	}
 

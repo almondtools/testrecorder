@@ -23,6 +23,7 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodNode;
 
+import net.amygdalum.testrecorder.Logger;
 import net.amygdalum.testrecorder.asm.GetClassName;
 import net.amygdalum.testrecorder.asm.GetMethodDesc;
 import net.amygdalum.testrecorder.asm.GetMethodName;
@@ -84,8 +85,7 @@ public class FakeIOTransformer extends AttachableClassFileTransformer implements
 				inst.retransformClasses(classes);
 			}
 		} catch (UnmodifiableClassException e) {
-			System.err.println("unexpected class transforming restriction: " + e.getMessage());
-			e.printStackTrace(System.err);
+			Logger.error("unexpected class transforming restriction: ", e);
 		}
 	}
 
@@ -114,8 +114,7 @@ public class FakeIOTransformer extends AttachableClassFileTransformer implements
 			}
 			return null;
 		} catch (Throwable e) {
-			System.err.println("transformation error: " + e.getMessage());
-			e.printStackTrace(System.err);
+			Logger.error("transformation error: ", e);
 			return null;
 		}
 	}
@@ -152,8 +151,7 @@ public class FakeIOTransformer extends AttachableClassFileTransformer implements
 			try {
 				inst.retransformClasses(classesToReset);
 			} catch (UnmodifiableClassException e) {
-				System.err.println("unexpected class transforming restriction: " + e.getMessage());
-				e.printStackTrace(System.err);
+				Logger.error("unexpected class transforming restriction: ", e);
 			}
 		}
 		for (Class<?> clazz : classesToRelink) {

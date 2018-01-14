@@ -210,8 +210,7 @@ public class SnapshotProcess {
 			facade.reset();
 		} catch (InterruptedException | ExecutionException | TimeoutException | CancellationException e) {
 			snapshot.invalidate();
-			System.err.println("failed serializing " + snapshot);
-			e.printStackTrace(System.err);
+			Logger.error("failed serializing " + snapshot, e);
 		}
 	}
 

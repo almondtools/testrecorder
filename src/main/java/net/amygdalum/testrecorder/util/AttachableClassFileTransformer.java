@@ -10,6 +10,9 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import net.amygdalum.testrecorder.Logger;
+
+
 public abstract class AttachableClassFileTransformer implements ClassFileTransformer {
 	
 	protected CircularityLock lock = new CircularityLock();
@@ -22,8 +25,7 @@ public abstract class AttachableClassFileTransformer implements ClassFileTransfo
 				inst.retransformClasses(classesToRetransform);
 			}
 		} catch (RuntimeException | UnmodifiableClassException e) {
-			System.err.println("unexpected class transforming restriction: " + e.getMessage());
-			e.printStackTrace(System.err);
+			Logger.error("unexpected class transforming restriction: ", e);
 		}
 		return this;
 	}
@@ -33,12 +35,11 @@ public abstract class AttachableClassFileTransformer implements ClassFileTransfo
 			inst.removeTransformer(this);
 			Class<?>[] classesToRetransform = classesToRetransform(new Class[0]);
 			if (classesToRetransform.length > 0) {
-				System.out.println("restoring " + Arrays.stream(classesToRetransform).map(Class::getName).collect(joining(", ")));
+				Logger.info("restoring " + Arrays.stream(classesToRetransform).map(Class::getName).collect(joining(", ")));
 				inst.retransformClasses(classesToRetransform);
 			}
 		} catch (RuntimeException | UnmodifiableClassException e) {
-			System.err.println("unexpected class transforming restriction: " + e.getMessage());
-			e.printStackTrace(System.err);
+			Logger.error("unexpected class transforming restriction: ", e);
 		}
 	}
 

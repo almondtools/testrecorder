@@ -2,16 +2,16 @@ package net.amygdalum.testrecorder.dynamiccompile;
 
 public class RenderedTest {
 
-	private Class<?> testedClass;
+	private ClassLoader classLoader;
 	private String testCode;
 
 	public RenderedTest(Class<?> testedClass, String testCode) {
-		this.testedClass = testedClass;
-		this.testCode = testCode;
+		this(testedClass == null ? RenderedTest.class.getClassLoader() : testedClass.getClassLoader(), testCode);
 	}
 	
-	public Class<?> getTestedClass() {
-		return testedClass;
+	public RenderedTest(ClassLoader classLoader, String testCode) {
+		this.classLoader = classLoader;
+		this.testCode = testCode;
 	}
 	
 	public String getTestCode() {
@@ -19,7 +19,7 @@ public class RenderedTest {
 	}
 
 	public ClassLoader getTestClassLoader() {
-		return testedClass == null ? getClass().getClassLoader() : testedClass.getClassLoader();
+		return classLoader;
 	}
 
 }

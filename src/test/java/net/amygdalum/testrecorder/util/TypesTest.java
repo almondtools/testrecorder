@@ -52,7 +52,6 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.extensions.assertj.conventions.DefaultEquality;
-import net.amygdalum.testrecorder.dynamiccompile.IsolatedClassLoader;
 import net.amygdalum.testrecorder.util.TypesTest.NestedPackagePrivate;
 import net.amygdalum.testrecorder.util.TypesTest.NestedProtected;
 import net.amygdalum.testrecorder.util.TypesTest.NestedPublic;
@@ -568,7 +567,7 @@ public class TypesTest {
 
 	@Test
 	public void testClassFrom() throws Exception {
-		ClassLoader classLoader = new IsolatedClassLoader(ClassLoader.getSystemClassLoader(), "Complex");
+		ClassLoader classLoader = new ExtensibleClassLoader(ClassLoader.getSystemClassLoader(), Complex.class.getPackage().getName());
 		Class<?> clazz = Types.classFrom(Complex.class, classLoader);
 
 		assertThat(clazz.getName()).isEqualTo(Complex.class.getName());
@@ -577,7 +576,7 @@ public class TypesTest {
 
 	@Test
 	public void testParameterTypesFrom() throws Exception {
-		ClassLoader classLoader = new IsolatedClassLoader(ClassLoader.getSystemClassLoader(), "Methods", "Nested");
+		ClassLoader classLoader = new ExtensibleClassLoader(ClassLoader.getSystemClassLoader(), Methods.class.getPackage().getName());
 		Method method = Methods.class.getDeclaredMethod("params", NestedPublic.class, NestedPackagePrivate.class);
 		Class<?>[] parameterTypes = Types.parameterTypesFrom(method, classLoader);
 
@@ -586,7 +585,7 @@ public class TypesTest {
 
 	@Test
 	public void testReturnTypeFrom() throws Exception {
-		ClassLoader classLoader = new IsolatedClassLoader(ClassLoader.getSystemClassLoader(), "Methods", "Nested");
+		ClassLoader classLoader = new ExtensibleClassLoader(ClassLoader.getSystemClassLoader(), Methods.class.getPackage().getName());
 		Method method = Methods.class.getDeclaredMethod("result");
 		Class<?> returnType = Types.returnTypeFrom(method, classLoader);
 

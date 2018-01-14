@@ -114,7 +114,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 			}
 			for (Classes clazz : config.getClasses()) {
 				if (clazz.matches(className)) {
-					System.out.println("recording snapshots of " + className);
+					Logger.info("recording snapshots of " + className);
 
 					byte[] instrument = instrument(classfileBuffer, classBeingRedefined);
 					if (classBeingRedefined != null) {
@@ -128,8 +128,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 			}
 			return null;
 		} catch (Throwable e) {
-			System.err.println("exception occured while preparing recording of snapshots: " + e.getMessage());
-			e.printStackTrace(System.err);
+			Logger.error("exception occured while preparing recording of snapshots: ", e);
 			return null;
 		} finally {
 			lock.release();
@@ -198,7 +197,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 		public void logSkippedSnapshotMethods() {
 			for (MethodNode methodNode : getSkippedSnapshotMethods()) {
-				System.err.println("method " + Type.getMethodType(methodNode.desc).getDescriptor() + " in " + Type.getType(classNode.name) + " is not accessible, skipping");
+				Logger.warn("method " + Type.getMethodType(methodNode.desc).getDescriptor() + " in " + Type.getType(classNode.name) + " is not accessible, skipping");
 			}
 		}
 
@@ -457,8 +456,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 						}
 					} catch (IOException | NoSuchMethodException e) {
-						System.err.println("cannot load method " + methodinsn.owner + "." + methodinsn.name + methodinsn.desc);
-						e.printStackTrace(System.err);
+						Logger.error("cannot load method " + methodinsn.owner + "." + methodinsn.name + methodinsn.desc, e);
 					}
 				}
 			}
@@ -484,8 +482,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 						}
 					} catch (IOException | NoSuchMethodException e) {
-						System.err.println("cannot load method " + methodinsn.owner + "." + methodinsn.name + methodinsn.desc);
-						e.printStackTrace(System.err);
+						Logger.error("cannot load method " + methodinsn.owner + "." + methodinsn.name + methodinsn.desc, e);
 					}
 				}
 			}

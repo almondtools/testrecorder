@@ -16,4 +16,8 @@ public class GenericObjectException extends RuntimeException {
 		super(msg, cause);
 	}
 
+	public GenericObjectException(String msg) {
+		super(msg);
+	}
+
 }

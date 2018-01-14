@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 
+import net.amygdalum.testrecorder.Logger;
 import net.amygdalum.testrecorder.types.DeserializationException;
 import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.types.DeserializerContext;
@@ -86,7 +87,7 @@ public class Adaptors<G extends Deserializer<Computation>> {
 				add(adaptor);
 			}
 		} catch (ServiceConfigurationError serviceError) {
-			System.err.println("failed loading adaptors: " + serviceError.getMessage());
+			Logger.warn("failed loading adaptors: " + serviceError.getMessage());
 		}
 		return this;
 	}

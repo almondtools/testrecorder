@@ -28,15 +28,14 @@ public class TestRecorderAgent {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static TestRecorderAgentConfig loadConfig(String agentArgs) {
+	protected static TestRecorderAgentConfig loadConfig(String agentArgs) {
 		try {
 			Class<? extends TestRecorderAgentConfig> config = (Class<? extends TestRecorderAgentConfig>) Class.forName(agentArgs);
-			System.out.println("loading config " + config.getSimpleName());
+			Logger.info("loading config " + config.getSimpleName());
 			return config.newInstance();
 		} catch (RuntimeException | ReflectiveOperationException e) {
-			System.err.println("failed loading config " + agentArgs + ": " + e.getMessage());
-			e.printStackTrace(System.err);
-			System.out.println("loading default config");
+			Logger.error("failed loading config " + agentArgs + ": ", e);
+			Logger.info("loading default config");
 			return new DefaultTestRecorderAgentConfig();
 		}
 	}
@@ -55,8 +54,7 @@ public class TestRecorderAgent {
 			try {
 				initializer.run();
 			} catch (RuntimeException e) {
-				System.err.println("initializer " + initializer.getClass().getSimpleName() + " failed with " + e.getMessage() + ", skipping");
-				e.printStackTrace(System.err);
+				Logger.error("initializer " + initializer.getClass().getSimpleName() + " failed with " + e.getMessage() + ", skipping", e);
 			}
 		}
 	}
