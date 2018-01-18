@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -67,7 +68,7 @@ public class FakeIO {
 
 	private static boolean isRecording(StackTraceElement[] stackTrace) {
 		for (StackTraceElement stackTraceElement : stackTrace) {
-			if (stackTraceElement.getClassName() != null && stackTraceElement.getClassName().startsWith("net.amygdalum.testrecorder.SnapshotManager")) {
+			if (stackTraceElement.getClassName().startsWith("net.amygdalum.testrecorder.SnapshotManager")) {
 				return true;
 			}
 		}
@@ -154,19 +155,19 @@ public class FakeIO {
 		return interactions.stream().map(Interaction::getMethod).collect(toSet());
 	}
 
-	private Interaction findInteraction(Invocation invocation) {
+	private Optional<Interaction> findInteraction(Invocation invocation) {
 		return interactions.stream()
 			.filter(interaction -> interaction.matches(invocation))
-			.findFirst()
-			.orElse(null);
+			.findFirst();
 	}
 
 	public Object call(Invocation invocation, Object... varargs) {
-		Interaction interaction = findInteraction(invocation);
-		if (interaction == null) {
+		Optional<Interaction> interaction = findInteraction(invocation);
+		if (interaction.isPresent()) {
+			return interaction.get().call(invocation, varargs);
+		} else {
 			return NO_RESULT;
 		}
-		return interaction.call(invocation, varargs);
 	}
 
 	public void verify() {
@@ -230,11 +231,11 @@ public class FakeIO {
 					return result;
 				}
 			}
-			if (invocation.getCaller().startsWith("net.amygdalum.testrecorder.runtime")) {
-				Object newValue = DefaultValue.INSTANCE.newValue(ByteCode.resultTypeFrom(methodDesc));
-				return newValue;
+			String caller = invocation.getCaller();
+			if (caller.startsWith("net.amygdalum.testrecorder.runtime") || caller.startsWith("net.amygdalum.testrecorder.testing")) {
+				return DefaultValue.INSTANCE.newValue(ByteCode.resultTypeFrom(methodDesc));
 			}
-			throw new AssertionError("missing input for:\n" + invocation.getCallee() + " called from " + invocation.getCaller() + "\n\nIf the input was recorded ensure that all call sites are recorded");
+			throw new AssertionError("missing input for:\n" + invocation.getCallee() + " called from " + caller + "\n\nIf the input was recorded ensure that all call sites are recorded");
 		}
 
 		public abstract Object call(InvocationData data, Object[] arguments);

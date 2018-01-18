@@ -1,5 +1,7 @@
 package net.amygdalum.testrecorder.util;
 
+import java.util.function.Function;
+
 import net.amygdalum.testrecorder.Logger;
 
 public final class Debug {
@@ -9,6 +11,12 @@ public final class Debug {
 	
 	public static <T> T print(T object) {
 		Logger.info(object);
+		return object;
+	}
+
+	public static <T,S> T print(T object, Function<T,S> mapping) {
+		S part = mapping.apply(object);
+		Logger.info(part);
 		return object;
 	}
 

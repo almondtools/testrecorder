@@ -8,18 +8,18 @@ import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.dynamiccompile.RenderedTest;
 
-public class TestsRunTest {
+public class TestsFailTest {
 
 	@Test
 	public void testCompileError() throws Exception {
-		assertThatThrownBy(() -> TestsRun.testsRun().accept(new RenderedTest(this.getClass(), "")))
+		assertThatThrownBy(() -> TestsFail.testsFail().accept(new RenderedTest(this.getClass(), "")))
 			.isInstanceOf(SoftAssertionError.class)
 			.hasMessageContaining("contains no public class");
 	}
 
 	@Test
 	public void testDetailedCompileError() throws Exception {
-		assertThatThrownBy(() -> TestsRun.testsRun().accept(new RenderedTest(this.getClass(), ""
+		assertThatThrownBy(() -> TestsFail.testsFail().accept(new RenderedTest(this.getClass(), ""
 			+ "package net.amygdalum.testrecorder.testing.assertj;"
 			+ "public class Test {"
 			+ "	public void testName() throws Exception {"
@@ -33,17 +33,16 @@ public class TestsRunTest {
 
 	@Test
 	public void testTestError() throws Exception {
-		assertThatThrownBy(() -> TestsRun.testsRun().accept(new RenderedTest(this.getClass(), ""
+		assertThatCode(() -> TestsFail.testsFail().accept(new RenderedTest(this.getClass(), ""
 			+ "package net.amygdalum.testrecorder.testing.assertj;"
 			+ "public class Test {"
 			+ "}")))
-				.isInstanceOf(SoftAssertionError.class)
-				.hasMessageContaining("compiled successfully");
+				.doesNotThrowAnyException();
 	}
 
 	@Test
 	public void testTestSuccess() throws Exception {
-		assertThatCode(() -> TestsRun.testsRun().accept(new RenderedTest(this.getClass(), ""
+		assertThatCode(() -> TestsFail.testsFail().accept(new RenderedTest(this.getClass(), ""
 			+ "package net.amygdalum.testrecorder.testing.assertj;"
 			+ "public class Test {"
 			+ "	"
@@ -51,13 +50,13 @@ public class TestsRunTest {
 			+ " public void testName() throws Exception {"
 			+ "	}"
 			+ "}")))
-				.doesNotThrowAnyException();
-		;
+				.isInstanceOf(SoftAssertionError.class)
+				.hasMessageContaining("expected test failures but tests were successful");
 	}
 
 	@Test
 	public void testRuntimeException() throws Exception {
-		assertThatThrownBy(() -> TestsRun.testsRun().accept(new RenderedTest(this.getClass(), "") {
+		assertThatThrownBy(() -> TestsFail.testsFail().accept(new RenderedTest(this.getClass(), "") {
 			public String getTestCode() {
 				throw new RuntimeException();
 			}

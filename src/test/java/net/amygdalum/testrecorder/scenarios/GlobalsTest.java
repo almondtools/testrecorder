@@ -37,6 +37,7 @@ public class GlobalsTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Globals.class).getTestCode())
+			.doesNotContain("net.amygdalum.testrecorder.scenarios.Globals.incGlobal")
 			.contains("Globals.global = 1;")
 			.doesNotContain("net.amygdalum.testrecorder.scenarios.Globals.global = 1;")
 			.contains("Globals.global, equalTo(2)")

@@ -125,7 +125,7 @@ public class TestGenerator implements SnapshotConsumer {
 	private Set<String> fields;
 
 	public TestGenerator() {
-		executor = Executors.newSingleThreadExecutor(new TestrecorderThreadFactory("$consume"));
+		this.executor = Executors.newSingleThreadExecutor(new TestrecorderThreadFactory("$consume"));
 
 		this.setup = new SetupGenerators.Factory();
 		this.matcher = new MatcherGenerators.Factory();
@@ -135,6 +135,10 @@ public class TestGenerator implements SnapshotConsumer {
 		this.pipeline = CompletableFuture.runAsync(() -> {
 			Logger.info("starting code generation");
 		}, executor);
+	}
+	
+	public void execute(Runnable command) {
+		executor.execute(command);
 	}
 
 	@Override
@@ -382,6 +386,9 @@ public class TestGenerator implements SnapshotConsumer {
 
 			Deserializer<Computation> setupCode = setup.create(locals, types);
 
+			types.registerType(snapshot.getThisType());
+			Stream.of(snapshot.getSetupGlobals()).forEach(global -> types.registerImport(global.getDeclaringClass()));
+			
 			Computation setupThis = snapshot.getSetupThis() != null
 				? snapshot.getSetupThis().accept(setupCode, context)
 				: variable(types.getVariableTypeName(types.wrapHidden(snapshot.getThisType())), null);
@@ -398,7 +405,6 @@ public class TestGenerator implements SnapshotConsumer {
 				.forEach(statements::add);
 
 			List<Computation> setupGlobals = Stream.of(snapshot.getSetupGlobals())
-				.map(global -> registerGlobal(global))
 				.map(global -> assignGlobal(global.getDeclaringClass(), global.getName(), global.getValue().accept(setupCode, context)))
 				.collect(toList());
 
@@ -419,11 +425,6 @@ public class TestGenerator implements SnapshotConsumer {
 			statements.addAll(mocked.prepare(locals, types, context));
 
 			return this;
-		}
-
-		private SerializedField registerGlobal(SerializedField global) {
-			types.registerImport(global.getDeclaringClass());
-			return global;
 		}
 
 		private Computation assignGlobal(Class<?> clazz, String name, Computation global) {

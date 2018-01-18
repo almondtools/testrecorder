@@ -34,7 +34,9 @@ public class StaticMethodsTest {
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(StaticMethods.class)).hasSize(1);
 		assertThat(testGenerator.testsFor(StaticMethods.class)).iterate()
-			.next().satisfies(test -> assertThat(test).containsWildcardPattern("StaticMethods.from(\"str2\")"));
+			.next().satisfies(test -> assertThat(test)
+				.containsWildcardPattern("StaticMethods.from(\"str2\")")
+				.doesNotContainPattern("net.amygdalum.testrecorder.scenarios.StaticMethods.from"));
 	}
 
 }

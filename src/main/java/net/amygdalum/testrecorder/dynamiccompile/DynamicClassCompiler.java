@@ -33,31 +33,35 @@ public class DynamicClassCompiler {
 	}
 
 	public Class<?> compile(String sourceCode, ClassLoader loader) throws DynamicClassCompilerException {
-		String name = findName(sourceCode);
-		String pkg = findPackage(sourceCode);
-		String fullQualifiedName = pkg + '.' + name;
-
-		loader = makeExtensible(loader, pkg);
-		Thread.currentThread().setContextClassLoader(loader);
+		CompilationUnit unit = compile(loader, sourceCode);
 		if (isCached(sourceCode)) {
 			return fromCache(sourceCode);
 		}
 
-		JavaInMemoryFileManager fileManager = new JavaInMemoryFileManager(loader, compiler.getStandardFileManager(null, null, null));
+		JavaInMemoryFileManager fileManager = new JavaInMemoryFileManager(unit.getLoader(), compiler.getStandardFileManager(null, null, null));
 		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
-		CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null, null, asList((JavaFileObject) new JavaSourceFileObject(name, sourceCode)));
+		CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null, null, asList((JavaFileObject) new JavaSourceFileObject(unit.getName(), sourceCode)));
 		boolean success = task.call();
 		if (!success) {
 			throw new DynamicClassCompilerException("compile failed with messages", collectMessages(diagnostics.getDiagnostics()));
 		}
 
 		try {
-			Class<?> clazz = fileManager.getClassLoader(null).loadClass(fullQualifiedName);
+			Class<?> clazz = fileManager.getClassLoader(null).loadClass(unit.getFullQualifiedName());
 			cache(sourceCode, clazz);
 			return clazz;
 		} catch (ClassNotFoundException e) {
-			throw new DynamicClassCompilerException("class " + fullQualifiedName + " cannot be loaded: " + e.getMessage());
+			throw new DynamicClassCompilerException("class " + unit.getFullQualifiedName() + " cannot be loaded: " + e.getMessage());
 		}
+	}
+
+	private CompilationUnit compile(ClassLoader loader, String sourceCode) throws DynamicClassCompilerException {
+		String name = findName(sourceCode);
+		String pkg = findPackage(sourceCode);
+
+		ClassLoader extensibleloader = makeExtensible(loader, pkg);
+
+		return new CompilationUnit(extensibleloader, pkg, name);
 	}
 
 	private ClassLoader makeExtensible(ClassLoader loader, String pkg) {

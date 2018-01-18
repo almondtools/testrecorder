@@ -14,6 +14,9 @@ import org.junit.jupiter.api.Test;
 import net.amygdalum.testrecorder.ioscenarios.Inputs;
 import net.amygdalum.testrecorder.ioscenarios.Outputs;
 import net.amygdalum.testrecorder.ioscenarios.StandardLibInputOutput;
+import net.amygdalum.testrecorder.util.testobjects.Bean;
+import net.amygdalum.testrecorder.util.testobjects.Sub;
+import net.amygdalum.testrecorder.util.testobjects.Super;
 
 @SuppressWarnings("unused")
 public class FakeIOTest {
@@ -329,6 +332,40 @@ public class FakeIOTest {
 		io.store("My Output");
 
 		faked.verify();
+	}
+
+	@Test
+	public void testCall() throws Exception {
+		FakeIO faked = FakeIO.fake(Bean.class);
+		assertThat(faked.call(null)).isSameAs(FakeIO.NO_RESULT);
+	}
+
+	@Test
+	public void testMatches() throws Exception {
+		FakeIO faked = FakeIO.fake(Super.class);
+
+		assertThat(faked.matches(new Super(), Super.class)).isTrue();
+		assertThat(faked.matches(new Sub(), Object.class)).isTrue();
+		assertThat(faked.matches(new Object(), Super.class)).isTrue();
+		assertThat(faked.matches(new Object(), Object.class)).isFalse();
+	}
+
+	@Test
+	public void testCallFakeNonRecording() throws Exception {
+		StackTraceElement[] stackTraceContainingRecordingClass = new StackTraceElement[] { new StackTraceElement("net.amygdalum.testrecorder.SnapshotManager", "method", "file", 0) };
+		
+		Object result = FakeIO.callFake("name", stackTraceContainingRecordingClass, new Object(), "methodName", "methodDesc");
+		
+		assertThat(result).isSameAs(FakeIO.NO_RESULT);
+	}
+
+	@Test
+	public void testCallFakeNotFaked() throws Exception {
+		StackTraceElement[] stackTrace = new StackTraceElement[] { };
+		
+		Object result = FakeIO.callFake("name", stackTrace, new Object(), "methodName", "methodDesc");
+		
+		assertThat(result).isSameAs(FakeIO.NO_RESULT);
 	}
 
 }

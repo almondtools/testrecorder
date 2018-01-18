@@ -16,7 +16,7 @@ import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 public class HiddenInnerClassTest {
 
 	@Test
-	public void testCompilable() throws Exception {
+	public void testCompilesAndRuns() throws Exception {
 		HiddenInnerClass object = new HiddenInnerClass("hidden name");
 
 		assertThat(object.toString()).isEqualTo("hidden name");

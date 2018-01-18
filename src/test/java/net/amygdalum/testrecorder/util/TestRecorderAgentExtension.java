@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
 import net.amygdalum.testrecorder.ConfigurableTestRecorderAgentConfig;
+import net.amygdalum.testrecorder.ConfigurableTestRecorderAgentConfig.Builder;
 import net.amygdalum.testrecorder.DefaultTestRecorderAgentConfig;
 import net.amygdalum.testrecorder.Logger;
 import net.amygdalum.testrecorder.TestGenerator;
@@ -72,7 +73,9 @@ public class TestRecorderAgentExtension implements BeforeEachCallback, BeforeAll
 		List<Classes> classes = Arrays.stream(instrumented.classes())
 			.map(Classes::byName)
 			.collect(toList());
-		return ConfigurableTestRecorderAgentConfig.builder(base.newInstance())
+		TestRecorderAgentConfig baseConfig = base.newInstance();
+		Builder config = ConfigurableTestRecorderAgentConfig.builder(baseConfig);
+		return config
 			.withClasses(classes)
 			.build();
 	}

@@ -21,5 +21,10 @@ public class RenderedTest {
 	public ClassLoader getTestClassLoader() {
 		return classLoader;
 	}
+	
+	@Override
+	public String toString() {
+		return testCode;
+	}
 
 }

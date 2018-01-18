@@ -1,7 +1,8 @@
 package net.amygdalum.testrecorder;
 
 import static java.util.Arrays.asList;
-import static net.amygdalum.extensions.assertj.Assertions.*;
+import static net.amygdalum.extensions.assertj.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -9,13 +10,13 @@ import net.amygdalum.testrecorder.profile.Classes;
 import net.amygdalum.testrecorder.profile.Fields;
 import net.amygdalum.testrecorder.profile.Methods;
 
-public class ConfigurableTestRecorderAgentConfigTest {
+public class FixedTestRecorderAgentConfigTest {
 
 	@Test
-	public void testConfigurableTestRecorderAgentConfigBuilder() throws Exception {
+	public void testFixedTestRecorderAgentConfig() throws Exception {
 		SnapshotConsumer consumer = new TestSnapshotConsumer();
 		
-		ConfigurableTestRecorderAgentConfig config = ConfigurableTestRecorderAgentConfig.builder(new DefaultTestRecorderAgentConfig())
+		FixedTestRecorderAgentConfig config = new FixedTestRecorderAgentConfig(ConfigurableTestRecorderAgentConfig.builder(new DefaultTestRecorderAgentConfig())
 			.withClasses(asList(Classes.byName("MyClass")))
 			.withClassExclusions(asList(Classes.byName("NotMyClass")))
 			.withFieldExclusions(asList(Fields.byName("notMyField")))
@@ -24,7 +25,7 @@ public class ConfigurableTestRecorderAgentConfigTest {
 			.withOutputs(asList(Methods.byName("outputMethod")))
 			.withSnapshotConsumer(consumer)
 			.withTimeoutInMillis(42)
-			.build();
+			.build());
 		
 		assertThat(config.getClasses()).iterate()
 			.next().satisfies(element -> {
