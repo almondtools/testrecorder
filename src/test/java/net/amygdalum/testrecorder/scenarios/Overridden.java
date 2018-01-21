@@ -13,4 +13,5 @@ public class Overridden {
 	public int methodForExtension(long l) {
 		return (int) l;
 	}
+
 }

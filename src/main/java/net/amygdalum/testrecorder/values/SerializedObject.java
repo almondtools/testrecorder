@@ -6,6 +6,7 @@ import static java.util.stream.Collectors.toList;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.types.DeserializerContext;
@@ -42,6 +43,12 @@ public class SerializedObject extends AbstractSerializedReferenceType implements
 	
 	public List<SerializedField> getFields() {
 		return fields;
+	}
+
+	public Optional<SerializedField> getField(String name) {
+		return fields.stream()
+			.filter(field -> name.equals(field.getName()))
+			.findFirst();
 	}
 
 	public void addField(SerializedField field) {

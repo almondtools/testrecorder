@@ -1,7 +1,8 @@
 package net.amygdalum.testrecorder;
 
 import static java.util.Arrays.asList;
-import static net.amygdalum.extensions.assertj.Assertions.*;
+import static net.amygdalum.extensions.assertj.iterables.IterableConditions.containingExactly;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +15,7 @@ public class ConfigurableTestRecorderAgentConfigTest {
 	@Test
 	public void testConfigurableTestRecorderAgentConfigBuilder() throws Exception {
 		SnapshotConsumer consumer = new TestSnapshotConsumer();
-		
+
 		ConfigurableTestRecorderAgentConfig config = ConfigurableTestRecorderAgentConfig.builder(new DefaultTestRecorderAgentConfig())
 			.withClasses(asList(Classes.byName("MyClass")))
 			.withClassExclusions(asList(Classes.byName("NotMyClass")))
@@ -25,39 +26,23 @@ public class ConfigurableTestRecorderAgentConfigTest {
 			.withSnapshotConsumer(consumer)
 			.withTimeoutInMillis(42)
 			.build();
-		
-		assertThat(config.getClasses()).iterate()
-			.next().satisfies(element -> {
-				assertThat(element.matches("MyClass")).isTrue();
-				assertThat(element.matches("NotMyClass")).isFalse();
-			});
-		assertThat(config.getClassExclusions()).iterate()
-			.next().satisfies(element -> {
-				assertThat(element.matches("NotMyClass")).isTrue();
-				assertThat(element.matches("MyClass")).isFalse();
-			});
-		assertThat(config.getFieldExclusions()).iterate()
-			.next().satisfies(element -> {
-				assertThat(element.matches("anyClass", "notMyField", "any")).isTrue();
-				assertThat(element.matches("anyClass", "myField", "any")).isFalse();
-			});
-		assertThat(config.getGlobalFields()).iterate()
-			.next().satisfies(element -> {
-				assertThat(element.matches("anyClass", "globalField", "any")).isTrue();
-				assertThat(element.matches("anyClass", "notMyField", "any")).isFalse();
-			});
-		assertThat(config.getInputs()).iterate()
-			.next().satisfies(element -> {
-				assertThat(element.matches("anyClass", "inputMethod", "any")).isTrue();
-				assertThat(element.matches("anyClass", "outputMethod", "any")).isFalse();
-			});
-		assertThat(config.getOutputs()).iterate()
-			.next().satisfies(element -> {
-				assertThat(element.matches("anyClass", "outputMethod", "any")).isTrue();
-				assertThat(element.matches("anyClass", "inputMethod", "any")).isFalse();
-			});
+
+		assertThat(config.getClasses()).is(containingExactly(
+			AClass.matching("MyClass")
+				.andNotMatching("NotMyClass")));
+		assertThat(config.getFieldExclusions()).is(containingExactly(
+			AField.matching("anyClass", "notMyField", "any")
+				.andNotMatching("anyClass", "myField", "any")));
+		assertThat(config.getGlobalFields()).is(containingExactly(
+			AField.matching("anyClass", "globalField", "any")
+				.andNotMatching("anyClass", "notMyField", "any")));
+		assertThat(config.getInputs()).is(containingExactly(
+			AMethod.matching("anyClass", "inputMethod", "any")
+				.andNotMatching("anyClass", "outputMethod", "any")));
+		assertThat(config.getOutputs()).is(containingExactly(
+			AMethod.matching("anyClass", "outputMethod", "any")
+				.andNotMatching("anyClass", "inputMethod", "any")));
 		assertThat(config.getSnapshotConsumer()).isSameAs(consumer);
 		assertThat(config.getTimeoutInMillis()).isEqualTo(42);
 	}
-
 }

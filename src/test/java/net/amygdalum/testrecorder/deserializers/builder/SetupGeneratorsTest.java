@@ -1,12 +1,15 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
+import static net.amygdalum.extensions.assertj.iterables.IterableConditions.containingExactly;
+import static net.amygdalum.extensions.assertj.strings.StringConditions.containingWildcardPattern;
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.testobjects.Collections.arrayList;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenList;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.hiddenList;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Type;
 import java.math.BigInteger;
@@ -108,9 +111,9 @@ public class SetupGeneratorsTest {
 
 		Computation result = setupCode.visitReferenceType(value, NULL);
 
-		assertThat(result.getStatements()).iterate()
-			.next().satisfies(test -> assertThat(test).containsWildcardPattern("Cycle cycle2 = GenericObject.forward(Cycle.class)*"))
-			.next().satisfies(test -> assertThat(test).containsWildcardPattern("GenericObject.define*"));
+		assertThat(result.getStatements()).is(containingExactly(
+			containingWildcardPattern("Cycle cycle2 = GenericObject.forward(Cycle.class)*"),
+			containingWildcardPattern("GenericObject.define*")));
 		assertThat(result.getValue()).isEqualTo("cycle2");
 	}
 
@@ -120,9 +123,9 @@ public class SetupGeneratorsTest {
 
 		Computation result = setupCode.visitReferenceType(value, NULL);
 
-		assertThat(result.getStatements()).iterate()
-			.next().satisfies(test -> assertThat(test).containsWildcardPattern("GenericCycle genericCycle2 = GenericObject.forward(GenericCycle.class)*"))
-			.next().satisfies(test -> assertThat(test).containsWildcardPattern("GenericObject.define*"));
+		assertThat(result.getStatements()).is(containingExactly(
+			containingWildcardPattern("GenericCycle genericCycle2 = GenericObject.forward(GenericCycle.class)*"),
+			containingWildcardPattern("GenericObject.define*")));
 		assertThat(result.getValue()).isEqualTo("genericCycle2");
 	}
 

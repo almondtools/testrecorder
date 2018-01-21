@@ -1,8 +1,13 @@
 package net.amygdalum.testrecorder.scenarios;
 
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
+import static net.amygdalum.extensions.assertj.iterables.IterableConditions.containingExactly;
+import static net.amygdalum.extensions.assertj.strings.StringConditions.containing;
+import static net.amygdalum.extensions.assertj.strings.StringConditions.containingWildcardPattern;
 import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRun;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.condition.AllOf.allOf;
+import static org.assertj.core.condition.Not.not;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,10 +38,10 @@ public class StaticMethodsTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(StaticMethods.class)).hasSize(1);
-		assertThat(testGenerator.testsFor(StaticMethods.class)).iterate()
-			.next().satisfies(test -> assertThat(test)
-				.containsWildcardPattern("StaticMethods.from(\"str2\")")
-				.doesNotContainPattern("net.amygdalum.testrecorder.scenarios.StaticMethods.from"));
+		assertThat(testGenerator.testsFor(StaticMethods.class)).is(containingExactly(
+			allOf(
+				containingWildcardPattern("StaticMethods.from(\"str2\")"),
+				not(containing("net.amygdalum.testrecorder.scenarios.StaticMethods.from")))));
 	}
 
 }

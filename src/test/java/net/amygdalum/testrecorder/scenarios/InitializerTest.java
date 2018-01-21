@@ -1,6 +1,5 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.testing.assertj.TestsFail.testsFail;
 import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRun;
 import static org.assertj.core.api.Assertions.assertThat;
