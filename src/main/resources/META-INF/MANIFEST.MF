@@ -4,9 +4,9 @@ Created-By: Apache Maven
 Built-By: mandel
 Build-Jdk: 1.8.0_144
 Specification-Title: net.amygdalum:testrecorder
-Specification-Version: 0.3.8-SNAPSHOT
+Specification-Version: 0.3.10
 Implementation-Title: net.amygdalum:testrecorder
-Implementation-Version: 0.3.8-SNAPSHOT
+Implementation-Version: 0.3.10
 Implementation-Vendor-Id: net.amygdalum
 Can-Redefine-Classes: true
 Can-Retransform-Classes: true
