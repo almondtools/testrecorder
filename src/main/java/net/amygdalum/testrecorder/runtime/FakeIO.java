@@ -6,6 +6,7 @@ import static net.amygdalum.testrecorder.asm.ByteCode.argumentTypesFrom;
 import static net.amygdalum.testrecorder.runtime.GenericObject.copyArrayValues;
 import static net.amygdalum.testrecorder.runtime.GenericObject.copyField;
 import static net.amygdalum.testrecorder.util.Types.allFields;
+import static net.amygdalum.testrecorder.util.Types.isLiteral;
 import static org.hamcrest.Matchers.equalTo;
 
 import java.io.File;
@@ -275,8 +276,12 @@ public class FakeIO {
 
 		@Override
 		public Object call(InvocationData data, Object[] arguments) {
-			sync(data.args, arguments);
-			return data.result;
+			try {
+				sync(data.args, arguments);
+				return data.result;
+			} catch (GenericObjectException e) {
+				throw new AssertionError("failed synchronizing input " + signatureFor(data.args) + " with " + signatureFor(arguments) + ": " + e.getMessage());
+			}
 		}
 
 		public void sync(Object[] fromArgs, Object[] toArgs) {
@@ -286,7 +291,21 @@ public class FakeIO {
 		}
 
 		public void sync(Object from, Object to) {
+			if (from == to) {
+				return;
+			} else if (from == null) {
+				throw new GenericObjectException();
+			} else if (to == null) {
+				throw new GenericObjectException();
+			}
 			Class<?> current = from.getClass();
+			if (isLiteral(current)) {
+				if (from.equals(to)) {
+					return;
+				} else {
+					throw new GenericObjectException();
+				}
+			}
 			if (current.isArray()) {
 				copyArrayValues(from, to);
 				return;
@@ -296,6 +315,7 @@ public class FakeIO {
 			}
 		}
 
+		@Override
 		public void verify() {
 			if (!invocationData.isEmpty()) {
 				StringBuilder msg = new StringBuilder("expected but not found:");
@@ -338,51 +358,52 @@ public class FakeIO {
 					if (to != null) {
 						return false;
 					}
-				} else if (from != null) {
-					if (from instanceof boolean[]) {
-						if (!(to instanceof boolean[] && Arrays.equals((boolean[]) from, (boolean[]) to))) {
-							return false;
-						}
-					} else if (from instanceof byte[]) {
-						if (!(to instanceof byte[] && Arrays.equals((byte[]) from, (byte[]) to))) {
-							return false;
-						}
-					} else if (from instanceof short[]) {
-						if (!(to instanceof short[] && Arrays.equals((short[]) from, (short[]) to))) {
-							return false;
-						}
-					} else if (from instanceof int[]) {
-						if (!(to instanceof int[] && Arrays.equals((int[]) from, (int[]) to))) {
-							return false;
-						}
-					} else if (from instanceof long[]) {
-						if (!(to instanceof long[] && Arrays.equals((long[]) from, (long[]) to))) {
-							return false;
-						}
-					} else if (from instanceof float[]) {
-						if (!(to instanceof float[] && Arrays.equals((float[]) from, (float[]) to))) {
-							return false;
-						}
-					} else if (from instanceof double[]) {
-						if (!(to instanceof double[] && Arrays.equals((double[]) from, (double[]) to))) {
-							return false;
-						}
-					} else if (from instanceof char[]) {
-						if (!(to instanceof char[] && Arrays.equals((char[]) from, (char[]) to))) {
-							return false;
-						}
-					} else if (from instanceof Object[]) {
-						if (!(to instanceof Object[] && Arrays.equals((Object[]) from, (Object[]) to))) {
-							return false;
-						}
-					} else if (!from.equals(to)) {
+				} else if (to == null) {
+					return false;
+				} else if (from instanceof boolean[]) {
+					if (!(to instanceof boolean[] && Arrays.equals((boolean[]) from, (boolean[]) to))) {
 						return false;
 					}
+				} else if (from instanceof byte[]) {
+					if (!(to instanceof byte[] && Arrays.equals((byte[]) from, (byte[]) to))) {
+						return false;
+					}
+				} else if (from instanceof short[]) {
+					if (!(to instanceof short[] && Arrays.equals((short[]) from, (short[]) to))) {
+						return false;
+					}
+				} else if (from instanceof int[]) {
+					if (!(to instanceof int[] && Arrays.equals((int[]) from, (int[]) to))) {
+						return false;
+					}
+				} else if (from instanceof long[]) {
+					if (!(to instanceof long[] && Arrays.equals((long[]) from, (long[]) to))) {
+						return false;
+					}
+				} else if (from instanceof float[]) {
+					if (!(to instanceof float[] && Arrays.equals((float[]) from, (float[]) to))) {
+						return false;
+					}
+				} else if (from instanceof double[]) {
+					if (!(to instanceof double[] && Arrays.equals((double[]) from, (double[]) to))) {
+						return false;
+					}
+				} else if (from instanceof char[]) {
+					if (!(to instanceof char[] && Arrays.equals((char[]) from, (char[]) to))) {
+						return false;
+					}
+				} else if (from instanceof Object[]) {
+					if (!(to instanceof Object[] && Arrays.equals((Object[]) from, (Object[]) to))) {
+						return false;
+					}
+				} else if (!from.equals(to)) {
+					return false;
 				}
 			}
 			return true;
 		}
 
+		@Override
 		public void verify() {
 			if (!invocationData.isEmpty()) {
 				StringBuilder msg = new StringBuilder("expected but not found:");

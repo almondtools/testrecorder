@@ -2,10 +2,18 @@ package net.amygdalum.testrecorder.runtime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.mockito.Mockito.doReturn;
+
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
+import net.amygdalum.testrecorder.runtime.FakeIO.Input;
 import net.amygdalum.testrecorder.runtime.FakeIO.InvocationData;
+import net.amygdalum.testrecorder.runtime.FakeIO.Output;
 import net.amygdalum.testrecorder.util.testobjects.Abstract;
 import net.amygdalum.testrecorder.util.testobjects.Bean;
 import net.amygdalum.testrecorder.util.testobjects.Implementor;
@@ -118,6 +126,71 @@ public class FakeIOInteractionTest {
 
 	}
 
+	@Test
+	public void testGetMethod() throws Exception {
+		MyInteraction myInteraction = new MyInteraction(FakeIO.fake(Bean.class), "setAttribute", "(Ljava/lang/String;)V");
+		
+		assertThat(myInteraction.getMethod()).isEqualTo("setAttribute(Ljava/lang/String;)V");
+	}
+
+	@Test
+	public void testFakeInput() throws Exception {
+		FakeIO fakeIO = Mockito.mock(FakeIO.class);
+		doReturn(new Input(fakeIO, "fakedInput","()V")).when(fakeIO).fakeInput(Mockito.any(Aspect.class));
+		
+		MyInteraction myInteraction = new MyInteraction(fakeIO, "setAttribute", "(Ljava/lang/String;)V");
+		
+		assertThat(myInteraction.fakeInput(new Aspect() {
+			@SuppressWarnings("unused")
+			public void fakedInput() {
+			}
+		}).getMethod()).isEqualTo("fakedInput()V");
+	}
+
+	@Test
+	public void testFakeOutput() throws Exception {
+		FakeIO fakeIO = Mockito.mock(FakeIO.class);
+		doReturn(new Output(fakeIO, "fakedOutput","()V")).when(fakeIO).fakeOutput(Mockito.any(Aspect.class));
+		
+		MyInteraction myInteraction = new MyInteraction(fakeIO, "setAttribute", "(Ljava/lang/String;)V");
+		
+		assertThat(myInteraction.fakeOutput(new Aspect() {
+			@SuppressWarnings("unused")
+			public void fakedOutput() {
+			}
+		}).getMethod()).isEqualTo("fakedOutput()V");
+	}
+	
+	@Test
+	public void testSetup() throws Exception {
+		FakeIO fakeIO = Mockito.mock(FakeIO.class);
+		doReturn(fakeIO).when(fakeIO).setup();
+		
+		MyInteraction myInteraction = new MyInteraction(fakeIO, "setAttribute", "(Ljava/lang/String;)V");
+		
+		assertThat(myInteraction.setup()).isSameAs(fakeIO);
+	}
+	
+	@Test
+	public void testSignatureFor() throws Exception {
+		FakeIO fakeIO = Mockito.mock(FakeIO.class);
+		doReturn(fakeIO).when(fakeIO).setup();
+		
+		MyInteraction myInteraction = new MyInteraction(fakeIO, "setAttribute", "(Ljava/lang/String;)V");
+		
+		assertThat(myInteraction.signatureFor(new Object[] { "str", Long.valueOf(4), Byte.valueOf((byte) 1)})).isEqualTo("setAttribute(\"str\", <4L>, <1>)");
+	}
+
+	@Test
+	public void testSignatureForMatchers() throws Exception {
+		FakeIO fakeIO = Mockito.mock(FakeIO.class);
+		doReturn(fakeIO).when(fakeIO).setup();
+		
+		MyInteraction myInteraction = new MyInteraction(fakeIO, "setAttribute", "(Ljava/lang/String;)V");
+		
+		assertThat(myInteraction.signatureFor(new Object[] { "str", notNullValue(), instanceOf(List.class)})).isEqualTo("setAttribute(\"str\", not null, an instance of java.util.List)");
+	}
+	
 	private static class MyInteraction extends FakeIO.Interaction {
 
 		private Object result;
