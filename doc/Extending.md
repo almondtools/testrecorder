@@ -1,13 +1,13 @@
 Extending Testrecorder with Custom Components
 =============================================
 
-Testrecorder provides some common features in the base framework. However we are aware of many features that would fit certain real problems, that cannot be solved in a generic way. So we designed Testrecorder to be extendible.
+Testrecorder provides some common features in the base framework. However we are aware of many features that would fit certain real problems, that cannot be solved in a generic way. So we designed Testrecorder to be extensible.
 
-The [Architecture](Architecture.md) of Testrecorder is extendible at certain points:
+The [Architecture](Architecture.md) of Testrecorder is extensible at certain points:
 - Custom serializers allow you to simplify the model of a recorded object
 - Custom setup generators allow you to adjust the way the model is transformed to test setup code
 - Custom matcher generators allow you to adjust the way the model is transformed to matcher code
-- Custom intializers are needed if some instrumentations are needed before executing the agent/the test
+- Custom initializers are needed if some instrumentations are needed before executing the agent/the test
 
 You can write such extensions in the workspace of your applications. Sometimes it seems better to bundle the extension to a common artifact that could be shared. There is also a section describing how to create a __testrecorder-jar-with-dependencies__ with all your custom components.
 
