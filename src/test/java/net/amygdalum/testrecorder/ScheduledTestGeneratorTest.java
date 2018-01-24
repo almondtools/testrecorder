@@ -446,6 +446,7 @@ public class ScheduledTestGeneratorTest {
 			return Files.walk(path)
 				.filter(p -> Files.isRegularFile(p))
 				.map(p -> p.getFileName().toString())
+				.sorted()
 				.collect(toList());
 		} catch (IOException e) {
 			return emptyList();
