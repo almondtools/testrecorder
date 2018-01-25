@@ -339,16 +339,16 @@ public class ScheduledTestGeneratorTest {
 		testGenerator.accept(newSnapshot());
 		testGenerator.await();
 
-		assertThat(files()).containsExactly("2Test.java");
+		assertThat(files()).containsExactlyInAnyOrder("2Test.java");
 
 		testGenerator.accept(newSnapshot());
 		testGenerator.accept(newSnapshot());
 		testGenerator.await();
-		assertThat(files()).containsExactly("2Test.java");
+		assertThat(files()).containsExactlyInAnyOrder("2Test.java");
 		Thread.sleep(1000);
 		testGenerator.accept(newSnapshot());
 		testGenerator.await();
-		assertThat(files()).containsExactly("2Test.java", "5Test.java");
+		assertThat(files()).containsExactlyInAnyOrder("2Test.java", "5Test.java");
 	}
 
 	@Test
@@ -364,19 +364,19 @@ public class ScheduledTestGeneratorTest {
 		assertThat(files()).isEmpty();
 		testGenerator.accept(newSnapshot());
 		testGenerator.await();
-		assertThat(files()).containsExactly("2Test.java");
+		assertThat(files()).containsExactlyInAnyOrder("2Test.java");
 		testGenerator.accept(newSnapshot());
 		testGenerator.await();
-		assertThat(files()).containsExactly("2Test.java");
+		assertThat(files()).containsExactlyInAnyOrder("2Test.java");
 		testGenerator.accept(newSnapshot());
 		testGenerator.await();
-		assertThat(files()).contains("2Test.java", "4Test.java");
+		assertThat(files()).containsExactlyInAnyOrder("2Test.java", "4Test.java");
 		testGenerator.accept(newSnapshot());
 		testGenerator.await();
-		assertThat(files()).contains("2Test.java", "4Test.java");
+		assertThat(files()).containsExactlyInAnyOrder("2Test.java", "4Test.java");
 		testGenerator.accept(newSnapshot());
 		testGenerator.await();
-		assertThat(files()).contains("2Test.java", "4Test.java");
+		assertThat(files()).containsExactlyInAnyOrder("2Test.java", "4Test.java");
 	}
 
 	@Test
@@ -405,7 +405,7 @@ public class ScheduledTestGeneratorTest {
 
 		shutdown.run();
 
-		assertThat(files()).contains("5Test.java");
+		assertThat(files()).containsExactlyInAnyOrder("5Test.java");
 	}
 
 	@Test
@@ -437,7 +437,7 @@ public class ScheduledTestGeneratorTest {
 
 		shutdown.run();
 
-		assertThat(files()).contains("2Test.java", "2SecondTest.java");
+		assertThat(files()).containsExactlyInAnyOrder("2Test.java", "2SecondTest.java");
 	}
 
 	private List<String> files() {
