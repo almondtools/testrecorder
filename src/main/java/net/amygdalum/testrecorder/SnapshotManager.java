@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder;
 
 import static java.lang.Thread.currentThread;
 import static net.amygdalum.testrecorder.SnapshotProcess.PASSIVE;
+import static net.amygdalum.testrecorder.SnapshotProcess.input;
 import static net.amygdalum.testrecorder.TestrecorderThreadFactory.RECORDING;
 
 import java.io.File;
@@ -19,6 +20,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.jar.JarEntry;
@@ -156,6 +158,10 @@ public class SnapshotManager {
 		}
 	}
 
+	public Queue<SnapshotProcess> all() {
+		return current.get();
+	}
+
 	public SnapshotProcess pop(String signature) {
 		Deque<SnapshotProcess> processes = current.get();
 		SnapshotProcess currentProcess = processes.pop();
@@ -175,7 +181,7 @@ public class SnapshotManager {
 	}
 
 	public int inputVariables(StackTraceElement[] stackTrace, Object object, String method, Type resultType, Type[] paramTypes) {
-		return current().inputVariables(stackTrace, object, method, resultType, paramTypes);
+		return input(all()).variables(stackTrace, object, method, resultType, paramTypes);
 	}
 
 	public void inputArguments(int id, Object... args) {
@@ -187,7 +193,7 @@ public class SnapshotManager {
 	}
 
 	public int outputVariables(StackTraceElement[] stackTrace, Object object, String method, Type resultType, Type[] paramTypes) {
-		return current().outputVariables(stackTrace, object, method, resultType, paramTypes);
+		return SnapshotProcess.output(all()).variables(stackTrace, object, method, resultType, paramTypes);
 	}
 
 	public void outputArguments(int id, Object... args) {
