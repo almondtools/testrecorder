@@ -1,13 +1,15 @@
 package net.amygdalum.testrecorder;
 
-import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.ArrayDeque;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Deque;
 import java.util.Optional;
+import java.util.Queue;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.types.SerializedValue;
@@ -35,12 +37,14 @@ public class ContextSnapshot {
     private SerializedValue[] expectArgs;
     private SerializedField[] expectGlobals;
 
-    private List<SerializedInput> setupInput;
-    private List<SerializedOutput> expectOutput;
+    private Deque<SerializedInput> setupInput;
+    private Deque<SerializedOutput> expectOutput;
 
 
     private ContextSnapshot() {
         this.valid = false;
+        this.setupInput = new ArrayDeque<>();
+        this.expectOutput = new ArrayDeque<>();
     }
 
     public ContextSnapshot(long time, String key, MethodSignature signature) {
@@ -48,6 +52,8 @@ public class ContextSnapshot {
 		this.key = key;
         this.signature = signature;
         this.valid = true;
+        this.setupInput = new ArrayDeque<>();
+        this.expectOutput = new ArrayDeque<>();
     }
     
 	public boolean matches(String signature) {
@@ -196,28 +202,40 @@ public class ContextSnapshot {
     public void setExpectGlobals(SerializedField... expectGlobals) {
         this.expectGlobals = expectGlobals;
     }
+    
+    public void addInput(SerializedInput input) {
+    	setupInput.add(input);
+    }
 
-    public List<SerializedInput> getSetupInput() {
-    	if (setupInput == null) {
-    		return emptyList();
-    	}
+    public Queue<SerializedInput> getSetupInput() {
         return setupInput;
     }
 
-    public void setInput(List<SerializedInput> setupInput) {
-        this.setupInput = setupInput;
+	public Stream<SerializedInput> streamInput() {
+		return setupInput.stream();
+	}
+
+	public boolean lastInputSatitisfies(Predicate<SerializedInput> predicate) {
+		SerializedInput peek = setupInput.peekLast();
+		return peek != null && predicate.test(peek);
+	}
+
+    public void addOutput(SerializedOutput output) {
+    	expectOutput.add(output);
     }
 
-    public List<SerializedOutput> getExpectOutput() {
-    	if (expectOutput == null) {
-    		return emptyList();
-    	}
+    public Queue<SerializedOutput> getExpectOutput() {
         return expectOutput;
     }
 
-    public void setOutput(List<SerializedOutput> expectOutput) {
-        this.expectOutput = expectOutput;
-    }
+	public Stream<SerializedOutput> streamOutput() {
+		return expectOutput.stream();
+	}
+
+	public boolean lastOutputSatitisfies(Predicate<SerializedOutput> predicate) {
+		SerializedOutput peek = expectOutput.peekLast();
+		return peek != null && predicate.test(peek);
+	}
 
     @Override
     public String toString() {

@@ -16,6 +16,7 @@ import static net.amygdalum.testrecorder.util.Literals.asLiteral;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,12 +40,12 @@ public class MockedInteractions {
 	private DeserializerFactory setupFactory;
 	private DeserializerFactory matcherFactory;
 
-	private List<SerializedInput> input;
-	private List<SerializedOutput> output;
+	private Collection<SerializedInput> input;
+	private Collection<SerializedOutput> output;
 
 	private List<String> fakeClassVariables;
 
-	public MockedInteractions(DeserializerFactory setup, DeserializerFactory matcher, List<SerializedInput> setupInput, List<SerializedOutput> expectOutput) {
+	public MockedInteractions(DeserializerFactory setup, DeserializerFactory matcher, Collection<SerializedInput> setupInput, Collection<SerializedOutput> expectOutput) {
 		this.setupFactory = setup;
 		this.matcherFactory = matcher;
 		this.input = setupInput;

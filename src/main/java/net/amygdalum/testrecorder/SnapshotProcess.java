@@ -5,10 +5,7 @@ import static java.lang.System.identityHashCode;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Deque;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.CancellationException;
@@ -35,12 +32,8 @@ public class SnapshotProcess {
 	private ContextSnapshot snapshot;
 	private SerializerFacade facade;
 	private List<Field> globals;
-	private Deque<SerializedInput> input;
-	private Deque<SerializedOutput> output;
 
 	private SnapshotProcess() {
-		this.input = new LinkedList<>();
-		this.output = new LinkedList<>();
 	}
 
 	public SnapshotProcess(ExecutorService executor, SerializationProfile profile, ContextSnapshot snapshot, List<Field> globals) {
@@ -49,8 +42,6 @@ public class SnapshotProcess {
 		this.snapshot = snapshot;
 		this.facade = new ConfigurableSerializerFacade(profile);
 		this.globals = globals;
-		this.input = new LinkedList<>();
-		this.output = new LinkedList<>();
 	}
 
 	public ContextSnapshot getSnapshot() {
@@ -83,41 +74,35 @@ public class SnapshotProcess {
 	}
 
 	public void inputResult(int id, Object result) {
-		input.stream().filter(in -> in.id() == id).forEach(in -> {
+		snapshot.streamInput().filter(in -> in.id() == id).forEach(in -> {
 			in.updateResult(facade.serialize(in.getResultType(), result));
 		});
 	}
 
 	public void inputArguments(int id, Object... arguments) {
-		input.stream().filter(in -> in.id() == id).forEach(in -> {
+		snapshot.streamInput().filter(in -> in.id() == id).forEach(in -> {
 			in.updateArguments(facade.serialize(in.getTypes(), arguments));
 		});
 	}
 
 	public void outputResult(int id, Object result) {
-		output.stream().filter(out -> out.id() == id).forEach(out -> {
+		snapshot.streamOutput().filter(out -> out.id() == id).forEach(out -> {
 			out.updateResult(facade.serialize(out.getResultType(), result));
 		});
 	}
 
 	public void outputArguments(int id, Object... arguments) {
-		output.stream().filter(out -> out.id() == id).forEach(out -> {
+		snapshot.streamOutput().filter(out -> out.id() == id).forEach(out -> {
 			out.updateArguments(facade.serialize(out.getTypes(), arguments));
 		});
 	}
 
-	private boolean isNestedIO(StackTraceElement[] stackTrace, String methodName) {
-		if (!input.isEmpty()) {
-			SerializedInput in = input.getLast();
-			if (in.prefixesStackTrace(stackTrace)) {
-				return true;
-			}
+	public boolean isNestedIO(StackTraceElement[] stackTrace, String methodName) {
+		if (snapshot.lastInputSatitisfies(in -> in.prefixesStackTrace(stackTrace))) {
+			return true;
 		}
-		if (!output.isEmpty()) {
-			SerializedOutput out = output.getLast();
-			if (out.prefixesStackTrace(stackTrace)) {
-				return true;
-			}
+		if (snapshot.lastOutputSatitisfies(out -> out.prefixesStackTrace(stackTrace))) {
+			return true;
 		}
 		return false;
 	}
@@ -144,8 +129,6 @@ public class SnapshotProcess {
 			snapshot.setExpectGlobals(globals.stream()
 				.map(field -> facade.serialize(field, null))
 				.toArray(SerializedField[]::new));
-			snapshot.setInput(new ArrayList<>(input));
-			snapshot.setOutput(new ArrayList<>(output));
 		});
 	}
 
@@ -158,8 +141,6 @@ public class SnapshotProcess {
 			snapshot.setExpectGlobals(globals.stream()
 				.map(field -> facade.serialize(field, null))
 				.toArray(SerializedField[]::new));
-			snapshot.setInput(new ArrayList<>(input));
-			snapshot.setOutput(new ArrayList<>(output));
 		});
 	}
 
@@ -173,8 +154,6 @@ public class SnapshotProcess {
 			snapshot.setExpectGlobals(globals.stream()
 				.map(field -> facade.serialize(field, null))
 				.toArray(SerializedField[]::new));
-			snapshot.setInput(new ArrayList<>(input));
-			snapshot.setOutput(new ArrayList<>(output));
 		});
 	}
 
@@ -202,7 +181,7 @@ public class SnapshotProcess {
 
 			SerializedInput in = new SerializedInput(id, call, clazz, method, resultType, paramTypes);
 			for (SnapshotProcess process : processes) {
-				process.input.add(in);
+				process.getSnapshot().addInput(in);
 			}
 			return in.id();
 		};
@@ -219,7 +198,7 @@ public class SnapshotProcess {
 
 			SerializedOutput out = new SerializedOutput(id, call, clazz, method, resultType, paramTypes);
 			for (SnapshotProcess process : processes) {
-				process.output.add(out);
+				process.getSnapshot().addOutput(out);
 			}
 			return out.id();
 		};
@@ -258,6 +237,11 @@ public class SnapshotProcess {
 
 			@Override
 			public void throwVariables(Object self, Throwable throwable, Object[] args) {
+			}
+			
+			@Override
+			public boolean isNestedIO(StackTraceElement[] stackTrace, String methodName) {
+				return false;
 			}
 
 			@Override
