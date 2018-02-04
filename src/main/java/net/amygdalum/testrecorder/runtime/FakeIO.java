@@ -35,6 +35,7 @@ import java.util.jar.Manifest;
 import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
 
+import net.amygdalum.testrecorder.Recorder;
 import net.amygdalum.testrecorder.asm.ByteCode;
 import net.amygdalum.testrecorder.bridge.BridgedFakeIO;
 import net.amygdalum.testrecorder.util.Types;
@@ -56,7 +57,7 @@ public class FakeIO {
 	}
 
 	public static Object callFake(String name, StackTraceElement[] stackTrace, Object instance, String methodName, String methodDesc, Object... varargs) {
-		if (isRecording(stackTrace)) {
+		if (Recorder.isRecording(stackTrace)) {
 			return NO_RESULT;
 		}
 		FakeIO fake = faked.get(name);
@@ -65,15 +66,6 @@ public class FakeIO {
 		}
 		Invocation invocation = Invocation.capture(stackTrace, instance, fake.clazz, methodName, methodDesc);
 		return fake.call(invocation, varargs);
-	}
-
-	private static boolean isRecording(StackTraceElement[] stackTrace) {
-		for (StackTraceElement stackTraceElement : stackTrace) {
-			if (stackTraceElement.getClassName().startsWith("net.amygdalum.testrecorder.SnapshotManager")) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	public static FakeIO fake(Class<?> clazz) {
@@ -184,6 +176,7 @@ public class FakeIO {
 	}
 
 	public static void reset() {
+		faked.clear();
 		fakeIOTransformer.reset();
 	}
 

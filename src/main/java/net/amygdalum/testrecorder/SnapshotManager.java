@@ -3,6 +3,7 @@ package net.amygdalum.testrecorder;
 import static java.lang.System.identityHashCode;
 import static java.lang.Thread.currentThread;
 import static net.amygdalum.testrecorder.ContextSnapshot.INVALID;
+import static net.amygdalum.testrecorder.Recorder.isRecording;
 import static net.amygdalum.testrecorder.TestrecorderThreadFactory.RECORDING;
 
 import java.io.File;
@@ -194,7 +195,7 @@ public class SnapshotManager {
 	}
 
 	public int inputVariables(StackTraceElement[] stackTrace, Object object, String method, Type resultType, Type[] paramTypes) {
-		if (isNestedIO(stackTrace, method)) {
+		if (isRecording(stackTrace) || isNestedIO(stackTrace, method)) {
 			return 0;
 		}
 		Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
@@ -227,7 +228,7 @@ public class SnapshotManager {
 	}
 
 	public int outputVariables(StackTraceElement[] stackTrace, Object object, String method, Type resultType, Type[] paramTypes) {
-		if (isNestedIO(stackTrace, method)) {
+		if (isRecording(stackTrace) || isNestedIO(stackTrace, method)) {
 			return 0;
 		}
 		Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
