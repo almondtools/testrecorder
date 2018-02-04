@@ -1,10 +1,8 @@
 package net.amygdalum.testrecorder;
 
-import net.amygdalum.testrecorder.profile.SerializationProfile;
-
 public class ContextSnapshotFactory {
-
-	private SerializationProfile profile;
+	
+	public static final ContextSnapshotFactory NULL = new ContextSnapshotFactory("null", MethodSignature.NULL);
 	
 	private String key;
 	private String className;
@@ -14,19 +12,19 @@ public class ContextSnapshotFactory {
 	private MethodSignature signature;
 
 
-	public ContextSnapshotFactory(SerializationProfile profile, String key, String className, String methodName, String methodDesc) {
-		this.profile = profile;
+    private ContextSnapshotFactory(String key, MethodSignature signature) {
+    	this.key = key;
+		this.signature = signature;
+	}
+
+	public ContextSnapshotFactory(String key, String className, String methodName, String methodDesc) {
 		this.key = key;
 		this.className = className;
 		this.methodName = methodName;
 		this.methodDesc = methodDesc;
     }
 
-    public SerializationProfile profile() {
-		return profile;
-	}
-    
-    public synchronized MethodSignature signature() {
+	public synchronized MethodSignature signature() {
 		if (signature == null) {
 			signature = MethodSignature.fromDescriptor(className, methodName, methodDesc);
 		}

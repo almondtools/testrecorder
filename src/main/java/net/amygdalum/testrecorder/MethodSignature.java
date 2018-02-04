@@ -16,6 +16,13 @@ import net.amygdalum.testrecorder.util.Types;
 
 public class MethodSignature {
 
+	public static final MethodSignature NULL = new MethodSignature() {
+		@Override
+		public synchronized boolean validIn(Class<?> clazz) {
+			return false;
+		}
+	};
+	
 	public Class<?> declaringClass;
 	public Annotation[] resultAnnotation;
 	public Type resultType;
@@ -45,15 +52,10 @@ public class MethodSignature {
 
 	public static MethodSignature fromDescriptor(String className, String methodName, String methodDesc) {
 		try {
-			MethodSignature signature = new MethodSignature();
-			signature.declaringClass = classFrom(className);
-			Method method = Types.getDeclaredMethod(signature.declaringClass, methodName, argumentTypesFrom(methodDesc));
-			signature.resultAnnotation = method.getAnnotations();
-			signature.resultType = method.getGenericReturnType();
-			signature.methodName = method.getName();
-			signature.argumentAnnotations = method.getParameterAnnotations();
-			signature.argumentTypes = method.getGenericParameterTypes();
-			return signature;
+			Class<?> clazz = classFrom(className);
+			Method method = Types.getDeclaredMethod(clazz, methodName, argumentTypesFrom(methodDesc));
+
+			return new MethodSignature(clazz, method.getAnnotations(), method.getGenericReturnType(), method.getName(), method.getParameterAnnotations(), method.getGenericParameterTypes());
 		} catch (RuntimeException | ReflectiveOperationException e) {
 			throw new SerializationException(e);
 		}

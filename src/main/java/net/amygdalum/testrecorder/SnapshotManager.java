@@ -17,9 +17,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -39,7 +37,7 @@ public class SnapshotManager {
 
 	private ExecutorService snapshot;
 
-	private Map<String, ContextSnapshotFactory> methodSnapshots;
+	private MethodContext methodContext;
 	private GlobalContext globalContext;
 
 	private ThreadLocal<Deque<SnapshotProcess>> current = ThreadLocal.withInitial(() -> newStack());
@@ -55,7 +53,7 @@ public class SnapshotManager {
 		this.config = new FixedTestRecorderAgentConfig(config);
 
 		this.snapshot = Executors.newSingleThreadExecutor(new TestrecorderThreadFactory("$snapshot"));
-		this.methodSnapshots = new HashMap<>();
+		this.methodContext = new MethodContext();
 		this.globalContext = new GlobalContext();
 	}
 
@@ -122,9 +120,7 @@ public class SnapshotManager {
     }
 
 	public void registerRecordedMethod(String signature, String className, String methodName, String methodDesc) {
-		ContextSnapshotFactory factory = new ContextSnapshotFactory(config, signature, className, methodName, methodDesc);
-
-		methodSnapshots.put(signature, factory);
+		methodContext.add(config, signature, className, methodName, methodDesc);
 	}
 
 	public void registerGlobal(String className, String fieldName) {
@@ -135,15 +131,13 @@ public class SnapshotManager {
 		if (self == null) {
 			return true;
 		}
-		ContextSnapshotFactory contextSnapshotFactory = methodSnapshots.get(signature);
-		return contextSnapshotFactory.signature().validIn(self.getClass());
+		return methodContext.signature(signature).validIn(self.getClass());
 	}
 
 	public SnapshotProcess push(String signature) {
-		ContextSnapshotFactory factory = methodSnapshots.get(signature);
 		SerializationProfile profile = config;
 		List<Field> contextGlobals = globalContext.globals();
-		ContextSnapshot contextSnapshot = factory.createSnapshot();
+		ContextSnapshot contextSnapshot = methodContext.createSnapshot(signature);
 		SnapshotProcess process = new SnapshotProcess(snapshot, profile, contextSnapshot, contextGlobals);
 		current.get().push(process);
 		return process;
