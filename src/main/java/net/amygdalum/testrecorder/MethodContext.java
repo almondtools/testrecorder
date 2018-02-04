@@ -11,7 +11,7 @@ public class MethodContext {
 		factories = new HashMap<>();
 	}
 	
-	public void add(TestRecorderAgentConfig config, String signature, String className, String methodName, String methodDesc) {
+	public void add(String signature, String className, String methodName, String methodDesc) {
 		factories.put(signature, new ContextSnapshotFactory(signature, className, methodName, methodDesc));
 	}
 

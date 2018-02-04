@@ -1,8 +1,8 @@
 package net.amygdalum.testrecorder;
 
+import static java.lang.System.identityHashCode;
 import static java.lang.Thread.currentThread;
-import static net.amygdalum.testrecorder.SnapshotProcess.PASSIVE;
-import static net.amygdalum.testrecorder.SnapshotProcess.input;
+import static net.amygdalum.testrecorder.ContextSnapshot.INVALID;
 import static net.amygdalum.testrecorder.TestrecorderThreadFactory.RECORDING;
 
 import java.io.File;
@@ -13,46 +13,62 @@ import java.io.InputStream;
 import java.lang.instrument.Instrumentation;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
 import net.amygdalum.testrecorder.bridge.BridgedSnapshotManager;
-import net.amygdalum.testrecorder.profile.SerializationProfile;
 import net.amygdalum.testrecorder.runtime.FakeIO;
+import net.amygdalum.testrecorder.serializers.SerializerFacade;
+import net.amygdalum.testrecorder.util.Types;
+import net.amygdalum.testrecorder.values.SerializedField;
+import net.amygdalum.testrecorder.values.SerializedInput;
+import net.amygdalum.testrecorder.values.SerializedOutput;
 import net.bytebuddy.agent.ByteBuddyAgent;
 
 public class SnapshotManager {
 
 	public static volatile SnapshotManager MANAGER;
 
-	private ExecutorService snapshot;
+	private ExecutorService snapshotExecutor;
 
 	private MethodContext methodContext;
 	private GlobalContext globalContext;
 
-	private ThreadLocal<Deque<SnapshotProcess>> current = ThreadLocal.withInitial(() -> newStack());
+	private ThreadLocal<Deque<ContextSnapshot>> current;
 
-	private TestRecorderAgentConfig config;
+	private SnapshotConsumer snapshotConsumer;
+	private long timeoutInMillis;
+
+	private ThreadLocal<ConfigurableSerializerFacade> facade;
 
 	static {
 		Instrumentation inst = ByteBuddyAgent.install();
 		installBridge(inst);
 	}
-	
-	public SnapshotManager(TestRecorderAgentConfig config) {
-		this.config = new FixedTestRecorderAgentConfig(config);
 
-		this.snapshot = Executors.newSingleThreadExecutor(new TestrecorderThreadFactory("$snapshot"));
+	public SnapshotManager(TestRecorderAgentConfig config) {
+		this.snapshotConsumer = config.getSnapshotConsumer();
+		this.timeoutInMillis = config.getTimeoutInMillis();
+		this.current = ThreadLocal.withInitial(() -> newStack());
+		this.facade = ThreadLocal.withInitial(() -> new ConfigurableSerializerFacade(config));
+
+		this.snapshotExecutor = Executors.newSingleThreadExecutor(new TestrecorderThreadFactory("$snapshot"));
 		this.methodContext = new MethodContext();
 		this.globalContext = new GlobalContext();
 	}
@@ -76,7 +92,7 @@ public class SnapshotManager {
 			throw new RuntimeException("failed installing fake bridge", e);
 		}
 	}
-	
+
 	private static JarFile jarfile() throws IOException {
 		String bridge = "net/amygdalum/testrecorder/bridge/BridgedSnapshotManager.class";
 		InputStream resourceStream = FakeIO.class.getResourceAsStream("/" + bridge);
@@ -102,8 +118,7 @@ public class SnapshotManager {
 	}
 
 	public void close() throws Throwable {
-		snapshot.shutdown();
-		SnapshotConsumer snapshotConsumer = config.getSnapshotConsumer();
+		snapshotExecutor.shutdown();
 		if (snapshotConsumer != null) {
 			snapshotConsumer.close();
 		}
@@ -116,11 +131,11 @@ public class SnapshotManager {
 	}
 
 	public SnapshotConsumer getMethodConsumer() {
-		return config.getSnapshotConsumer();
-    }
+		return snapshotConsumer;
+	}
 
 	public void registerRecordedMethod(String signature, String className, String methodName, String methodDesc) {
-		methodContext.add(config, signature, className, methodName, methodDesc);
+		methodContext.add(signature, className, methodName, methodDesc);
 	}
 
 	public void registerGlobal(String className, String fieldName) {
@@ -134,33 +149,30 @@ public class SnapshotManager {
 		return methodContext.signature(signature).validIn(self.getClass());
 	}
 
-	public SnapshotProcess push(String signature) {
-		SerializationProfile profile = config;
-		List<Field> contextGlobals = globalContext.globals();
-		ContextSnapshot contextSnapshot = methodContext.createSnapshot(signature);
-		SnapshotProcess process = new SnapshotProcess(snapshot, profile, contextSnapshot, contextGlobals);
-		current.get().push(process);
-		return process;
+	public ContextSnapshot push(String signature) {
+		ContextSnapshot snapshot = methodContext.createSnapshot(signature);
+		current.get().push(snapshot);
+		return snapshot;
 	}
 
-	public SnapshotProcess current() {
-		Deque<SnapshotProcess> stack = current.get();
+	public ContextSnapshot current() {
+		Deque<ContextSnapshot> stack = current.get();
 		if (stack.isEmpty()) {
-			return SnapshotProcess.PASSIVE;
+			return ContextSnapshot.INVALID;
 		} else {
 			return stack.peek();
 		}
 	}
 
-	public Queue<SnapshotProcess> all() {
+	public Queue<ContextSnapshot> all() {
 		return current.get();
 	}
 
-	public SnapshotProcess pop(String signature) {
-		Deque<SnapshotProcess> processes = current.get();
-		SnapshotProcess currentProcess = processes.pop();
+	public ContextSnapshot pop(String signature) {
+		Deque<ContextSnapshot> processes = current.get();
+		ContextSnapshot currentProcess = processes.pop();
 		while (!currentProcess.matches(signature)) {
-			currentProcess.getSnapshot().invalidate();
+			currentProcess.invalidate();
 			currentProcess = processes.pop();
 		}
 		return currentProcess;
@@ -170,76 +182,200 @@ public class SnapshotManager {
 		if (!matches(self, signature)) {
 			return;
 		}
-		SnapshotProcess process = push(signature);
-		process.setupVariables(signature, self, args);
+		execute((facade, snapshot) -> {
+			if (self != null) {
+				snapshot.setSetupThis(facade.serialize(self.getClass(), self));
+			}
+			snapshot.setSetupArgs(facade.serialize(snapshot.getArgumentTypes(), args));
+			snapshot.setSetupGlobals(globalContext.globals().stream()
+				.map(field -> facade.serialize(field, null))
+				.toArray(SerializedField[]::new));
+		}, push(signature));
 	}
 
 	public int inputVariables(StackTraceElement[] stackTrace, Object object, String method, Type resultType, Type[] paramTypes) {
-		return input(all()).variables(stackTrace, object, method, resultType, paramTypes);
+		if (isNestedIO(stackTrace, method)) {
+			return 0;
+		}
+		Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
+		StackTraceElement[] call = call(stackTrace, clazz, method);
+		int id = object instanceof Class<?> ? 0 : identityHashCode(object);
+
+		SerializedInput in = new SerializedInput(id, call, clazz, method, resultType, paramTypes);
+		for (ContextSnapshot snapshot : all()) {
+			snapshot.addInput(in);
+		}
+		return in.id();
 	}
 
-	public void inputArguments(int id, Object... args) {
-		current().inputArguments(id, args);
+	public void inputArguments(int id, Object... arguments) {
+		ContextSnapshot currentSnapshot = current();
+		execute((facade, snapshot) -> {
+			snapshot.streamInput().filter(in -> in.id() == id).forEach(in -> {
+				in.updateArguments(facade.serialize(in.getTypes(), arguments));
+			});
+		}, currentSnapshot);
 	}
 
 	public void inputResult(int id, Object result) {
-		current().inputResult(id, result);
+		ContextSnapshot currentSnapshot = current();
+		execute((facade, snapshot) -> {
+			snapshot.streamInput().filter(in -> in.id() == id).forEach(in -> {
+				in.updateResult(facade.serialize(in.getResultType(), result));
+			});
+		}, currentSnapshot);
 	}
 
 	public int outputVariables(StackTraceElement[] stackTrace, Object object, String method, Type resultType, Type[] paramTypes) {
-		return SnapshotProcess.output(all()).variables(stackTrace, object, method, resultType, paramTypes);
+		if (isNestedIO(stackTrace, method)) {
+			return 0;
+		}
+		Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
+		StackTraceElement[] call = call(stackTrace, clazz, method);
+		int id = object instanceof Class<?> ? 0 : identityHashCode(object);
+
+		SerializedOutput out = new SerializedOutput(id, call, clazz, method, resultType, paramTypes);
+		for (ContextSnapshot snapshot : all()) {
+			snapshot.addOutput(out);
+		}
+		return out.id();
 	}
 
-	public void outputArguments(int id, Object... args) {
-		current().outputArguments(id, args);
+	public void outputArguments(int id, Object... arguments) {
+		ContextSnapshot currentSnapshot = current();
+		execute((facade, snapshot) -> {
+			snapshot.streamOutput().filter(out -> out.id() == id).forEach(out -> {
+				out.updateArguments(facade.serialize(out.getTypes(), arguments));
+			});
+		}, currentSnapshot);
 	}
 
 	public void outputResult(int id, Object result) {
-		current().outputResult(id, result);
+		ContextSnapshot currentSnapshot = current();
+		execute((facade, snapshot) -> {
+			snapshot.streamOutput().filter(out -> out.id() == id).forEach(out -> {
+				out.updateResult(facade.serialize(out.getResultType(), result));
+			});
+		}, currentSnapshot);
 	}
 
 	public void expectVariables(Object self, String signature, Object result, Object... args) {
 		if (!matches(self, signature)) {
 			return;
 		}
-		SnapshotProcess process = pop(signature);
-		process.expectVariables(self, result, args);
-		consume(process.getSnapshot());
+		ContextSnapshot currentSnapshot = pop(signature);
+		execute((facade, snapshot) -> {
+			if (self != null) {
+				snapshot.setExpectThis(facade.serialize(self.getClass(), self));
+			}
+			snapshot.setExpectResult(facade.serialize(snapshot.getResultType(), result));
+			snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
+			snapshot.setExpectGlobals(globalContext.globals().stream()
+				.map(field -> facade.serialize(field, null))
+				.toArray(SerializedField[]::new));
+		}, currentSnapshot);
+		consume(currentSnapshot);
 	}
 
 	public void expectVariables(Object self, String signature, Object... args) {
 		if (!matches(self, signature)) {
 			return;
 		}
-		SnapshotProcess process = pop(signature);
-		process.expectVariables(self, args);
-		consume(process.getSnapshot());
+		ContextSnapshot currentSnapshot = pop(signature);
+		execute((facade, snapshot) -> {
+			if (self != null) {
+				snapshot.setExpectThis(facade.serialize(self.getClass(), self));
+			}
+			snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
+			snapshot.setExpectGlobals(globalContext.globals().stream()
+				.map(field -> facade.serialize(field, null))
+				.toArray(SerializedField[]::new));
+		}, currentSnapshot);
+		consume(currentSnapshot);
 	}
 
 	public void throwVariables(Throwable throwable, Object self, String signature, Object... args) {
 		if (!matches(self, signature)) {
 			return;
 		}
-		SnapshotProcess process = pop(signature);
-		process.throwVariables(self, throwable, args);
-		consume(process.getSnapshot());
+		ContextSnapshot currentSnapshot = pop(signature);
+		execute((facade, snapshot) -> {
+			if (self != null) {
+				snapshot.setExpectThis(facade.serialize(self.getClass(), self));
+			}
+			snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
+			snapshot.setExpectException(facade.serialize(throwable.getClass(), throwable));
+			snapshot.setExpectGlobals(globalContext.globals().stream()
+				.map(field -> facade.serialize(field, null))
+				.toArray(SerializedField[]::new));
+		}, currentSnapshot);
+		consume(currentSnapshot);
+	}
+
+	public boolean isNestedIO(StackTraceElement[] stackTrace, String methodName) {
+		ContextSnapshot snapshot = current();
+		if (snapshot.lastInputSatitisfies(in -> in.prefixesStackTrace(stackTrace))) {
+			return true;
+		}
+		if (snapshot.lastOutputSatitisfies(out -> out.prefixesStackTrace(stackTrace))) {
+			return true;
+		}
+		return false;
+	}
+
+	private static StackTraceElement[] call(StackTraceElement[] stackTrace, Class<?> clazz, String methodName) {
+		for (int i = 0; i < stackTrace.length; i++) {
+			StackTraceElement caller = stackTrace[i];
+			if (matches(clazz, methodName, caller)) {
+				return Arrays.copyOfRange(stackTrace, i, stackTrace.length);
+			}
+		}
+		StackTraceElement[] call = new StackTraceElement[stackTrace.length + 1];
+		System.arraycopy(stackTrace, 0, call, 1, stackTrace.length);
+		call[0] = new StackTraceElement(clazz.getName(), methodName, "?", -1);
+		return call;
+	}
+
+	private static boolean matches(Class<?> clazz, String methodName, StackTraceElement caller) {
+		if (!caller.getMethodName().equals(methodName)) {
+			return false;
+		}
+		List<Method> qualifyingMethods = Types.getDeclaredMethods(clazz, methodName);
+		return qualifyingMethods.stream().anyMatch(method -> method.getName().equals(caller.getMethodName()) && method.getDeclaringClass().getName().equals(caller.getClassName()));
 	}
 
 	private void consume(ContextSnapshot snapshot) {
 		if (snapshot.isValid()) {
-			SnapshotConsumer snapshotConsumer = config.getSnapshotConsumer();
 			if (snapshotConsumer != null) {
 				snapshotConsumer.accept(snapshot);
 			}
 		}
 	}
 
-	private static Deque<SnapshotProcess> newStack() {
+	private static Deque<ContextSnapshot> newStack() {
 		if (currentThread().getThreadGroup() == RECORDING) {
-			return new PassiveDeque<>(PASSIVE);
+			return new PassiveDeque<>(INVALID);
 		} else {
 			return new ArrayDeque<>();
 		}
+	}
+
+	private void execute(SerializationTask task, ContextSnapshot snapshot) {
+		try {
+			ConfigurableSerializerFacade currentFacade = facade.get();
+			Future<?> future = snapshotExecutor.submit(() -> {
+				task.serialize(currentFacade, snapshot);
+			});
+			future.get(timeoutInMillis, TimeUnit.MILLISECONDS);
+			currentFacade.reset();
+		} catch (InterruptedException | ExecutionException | TimeoutException | CancellationException e) {
+			snapshot.invalidate();
+			Logger.error("failed serializing " + snapshot, e);
+		}
+	}
+
+	interface SerializationTask {
+		void serialize(SerializerFacade facade, ContextSnapshot snapshot);
 	}
 
 }
