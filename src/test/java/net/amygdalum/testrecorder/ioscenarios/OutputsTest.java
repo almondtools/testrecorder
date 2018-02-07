@@ -1,9 +1,14 @@
 package net.amygdalum.testrecorder.ioscenarios;
 
+import static java.util.stream.Collectors.joining;
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.testing.assertj.Compiles.compiles;
 import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRun;
+import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRunWith;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -93,6 +98,17 @@ public class OutputsTest {
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Outputs.class).getTestCode()).contains("verify()");
 		assertThat(testGenerator.renderTest(Outputs.class)).satisfies(testsRun());
+	}
+
+	@Test
+	public void testRefactorable() throws Exception {
+		Outputs out = new Outputs();
+		out.recorded();
+		String codeAfterRefactoringOutAllLines = Files.lines(Paths.get("src/test/java/" + Outputs.class.getName().replace('.', '/') + ".java"))
+			.collect(joining(" "));
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(Outputs.class)).satisfies(testsRunWith(codeAfterRefactoringOutAllLines));
 	}
 
 }

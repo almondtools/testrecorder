@@ -15,15 +15,21 @@ import net.amygdalum.testrecorder.util.Instantiations;
 public class TestsRun implements Consumer<RenderedTest> {
 
 	private SoftAssertions softly;
+	private String[] code;
 	private DynamicClassCompiler compiler;
 
-	public TestsRun() {
-		softly = new SoftAssertions();
-		compiler = new DynamicClassCompiler();
+	public TestsRun(String... code) {
+		this.softly = new SoftAssertions();
+		this.code = code;
+		this.compiler = new DynamicClassCompiler();
 	}
 
 	public static TestsRun testsRun() {
 		return new TestsRun();
+	}
+
+	public static TestsRun testsRunWith(String... code) {
+		return new TestsRun(code);
 	}
 
 	@Override
@@ -31,6 +37,9 @@ public class TestsRun implements Consumer<RenderedTest> {
 		ClassLoader backupLoader = Thread.currentThread().getContextClassLoader();
 		test:try {
 			Class<?> clazz = compiler.compile(test.getTestCode(), test.getTestClassLoader());
+			for (String nextCode : code) {
+				compiler.compile(nextCode, clazz.getClassLoader());
+			}
 			Thread.currentThread().setContextClassLoader(clazz.getClassLoader());
 			JUnitCore junit = new JUnitCore();
 			Instantiations.resetInstatiations();
