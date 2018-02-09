@@ -24,7 +24,7 @@ public class HiddenOutputTest {
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(HiddenOutput.class)).satisfies(testsRun());
 		assertThat(testGenerator.renderTest(HiddenOutput.class).getTestCode())
-			.containsWildcardPattern(".add(HiddenOutput.class, \"outputImmediate\", *, null, equalTo(\"Hello\")")
+			.containsWildcardPattern(".add(null, equalTo(\"Hello\")")
 			.contains("verify()");
 	}
 
@@ -37,7 +37,7 @@ public class HiddenOutputTest {
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(HiddenOutput.class)).satisfies(testsRun());
 		assertThat(testGenerator.renderTest(HiddenOutput.class).getTestCode())
-			.containsWildcardPattern(".add(HiddenOutput.class, \"outputToField\", *, null, equalTo(\"Hello\")")
+			.containsWildcardPattern(".add(null, equalTo(\"Hello\")")
 			.contains("verify()");
 	}
 

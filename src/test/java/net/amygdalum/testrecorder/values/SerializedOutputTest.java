@@ -14,20 +14,15 @@ import org.junit.jupiter.api.Test;
 
 public class SerializedOutputTest {
 
-	private StackTraceElement caller;
-	private StackTraceElement notcaller;
 	private SerializedOutput output;
 	private SerializedOutput outputNoResult;
 
 	@BeforeEach
 	public void before() throws Exception {
-		caller = new StackTraceElement("class", "method", "file", 4711);
-		notcaller = new StackTraceElement("class", "method", "file", 815);
-
-		output = new SerializedOutput(41, call(caller, PrintStream.class, "append"), PrintStream.class, "append", PrintStream.class, new Type[] { CharSequence.class })
+		output = new SerializedOutput(41, PrintStream.class, "append", PrintStream.class, new Type[] { CharSequence.class })
 			.updateArguments(literal("Hello"))
 			.updateResult(new SerializedObject(PrintStream.class));
-		outputNoResult = new SerializedOutput(41, call(caller, PrintStream.class, "println"), PrintStream.class, "println", void.class, new Type[] { String.class })
+		outputNoResult = new SerializedOutput(41, PrintStream.class, "println", void.class, new Type[] { String.class })
 			.updateArguments(literal("Hello"));
 	}
 
@@ -73,35 +68,30 @@ public class SerializedOutputTest {
 	@Test
 	public void testEquals() throws Exception {
 		assertThat(outputNoResult).satisfies(defaultEquality()
-			.andEqualTo(new SerializedOutput(41, call(caller, PrintStream.class, "println"), PrintStream.class, "println", void.class, new Type[] { String.class })
+			.andEqualTo(new SerializedOutput(41, PrintStream.class, "println", void.class, new Type[] { String.class })
 				.updateArguments(literal("Hello")))
 			.andNotEqualTo(output)
-			.andNotEqualTo(new SerializedOutput(41, call(notcaller, PrintStream.class, "println"), PrintStream.class, "println", void.class, new Type[] { String.class })
+			.andNotEqualTo(new SerializedOutput(42, PrintStream.class, "println", void.class, new Type[] { String.class })
 				.updateArguments(literal("Hello")))
-			.andNotEqualTo(new SerializedOutput(42, call(caller, PrintStream.class, "println"), PrintStream.class, "println", void.class, new Type[] { String.class })
+			.andNotEqualTo(new SerializedOutput(41, PrintWriter.class, "println", void.class, new Type[] { String.class })
 				.updateArguments(literal("Hello")))
-			.andNotEqualTo(new SerializedOutput(41, call(caller, PrintWriter.class, "println"), PrintWriter.class, "println", void.class, new Type[] { String.class })
+			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "print", void.class, new Type[] { String.class })
 				.updateArguments(literal("Hello")))
-			.andNotEqualTo(new SerializedOutput(41, call(caller, PrintStream.class, "print"), PrintStream.class, "print", void.class, new Type[] { String.class })
+			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "println", void.class, new Type[] { Object.class })
 				.updateArguments(literal("Hello")))
-			.andNotEqualTo(new SerializedOutput(41, call(caller, PrintStream.class, "println"), PrintStream.class, "println", void.class, new Type[] { Object.class })
-				.updateArguments(literal("Hello")))
-			.andNotEqualTo(new SerializedOutput(41, call(caller, PrintStream.class, "println"), PrintStream.class, "println", void.class, new Type[] { String.class })
+			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "println", void.class, new Type[] { String.class })
 				.updateArguments(literal("Hello World")))
 			.conventions());
 
 		assertThat(output).satisfies(defaultEquality()
-			.andEqualTo(new SerializedOutput(41, call(caller, PrintStream.class, "append"), PrintStream.class, "append", PrintStream.class, new Type[] { CharSequence.class })
+			.andEqualTo(new SerializedOutput(41, PrintStream.class, "append", PrintStream.class, new Type[] { CharSequence.class })
 				.updateArguments(literal("Hello"))
 				.updateResult(output.getResult()))
 			.andNotEqualTo(outputNoResult)
-			.andNotEqualTo(new SerializedOutput(41, call(notcaller, PrintStream.class, "append"), PrintStream.class, "append", PrintStream.class, new Type[] { CharSequence.class })
-				.updateArguments(literal("Hello"))
-				.updateResult(output.getResult()))
-			.andNotEqualTo(new SerializedOutput(41, call(caller, PrintStream.class, "append"), PrintStream.class, "append", PrintStream.class, new Type[] { CharSequence.class })
+			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "append", PrintStream.class, new Type[] { CharSequence.class })
 				.updateArguments(literal("Hello"))
 				.updateResult(null))
-			.andNotEqualTo(new SerializedOutput(41, call(caller, PrintStream.class, "append"), PrintStream.class, "append", OutputStream.class, new Type[] { CharSequence.class })
+			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "append", OutputStream.class, new Type[] { CharSequence.class })
 				.updateArguments(literal("Hello"))
 				.updateResult(output.getResult()))
 			.conventions());
@@ -112,11 +102,6 @@ public class SerializedOutputTest {
 		assertThat(output.toString()).contains("PrintStream", "append", "Hello");
 
 		assertThat(outputNoResult.toString()).contains("PrintStream", "println", "Hello");
-	}
-
-	private StackTraceElement[] call(StackTraceElement caller, Class<?> clazz, String method) {
-		StackTraceElement callee = new StackTraceElement(clazz.getName(), method, "", 0);
-		return new StackTraceElement[] { caller, callee };
 	}
 
 }

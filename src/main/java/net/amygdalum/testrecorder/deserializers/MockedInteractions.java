@@ -3,6 +3,7 @@ package net.amygdalum.testrecorder.deserializers;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
+import static net.amygdalum.testrecorder.deserializers.Computation.variable;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethod;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
@@ -11,7 +12,6 @@ import static net.amygdalum.testrecorder.deserializers.Templates.callMethodState
 import static net.amygdalum.testrecorder.deserializers.Templates.methodDeclaration;
 import static net.amygdalum.testrecorder.deserializers.Templates.newAnonymousClassInstance;
 import static net.amygdalum.testrecorder.deserializers.Templates.returnStatement;
-import static net.amygdalum.testrecorder.util.Literals.asLiteral;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.runtime.Aspect;
@@ -105,15 +104,15 @@ public class MockedInteractions {
 				for (SerializedInteraction interaction : aspectInteractions.getValue()) {
 					Deserializer<Computation> deserializer = deserializerFor(interaction, setup, matcher);			
 					List<String> arguments = new ArrayList<>();
-					arguments.add(types.getRawClass(interaction.getCallerClass()));
-					arguments.add(asLiteral(interaction.getCallerMethod()));
-					arguments.add(asLiteral(interaction.getCallerLine()));
 
-					Computation resultComputation = Optional.ofNullable(interaction.getResult())
-						.map(result -> result.accept(setup, context))
-						.orElse(Computation.variable("null", interaction.getResultType()));
-					statements.addAll(resultComputation.getStatements());
-					arguments.add(resultComputation.getValue());
+					if (interaction.hasResult()) {
+						Computation resultComputation = interaction.getResult().accept(setup, context);
+						statements.addAll(resultComputation.getStatements());
+						arguments.add(resultComputation.getValue());
+					} else {
+						Computation resultComputation = variable("null", interaction.getResultType());
+						arguments.add(resultComputation.getValue());
+					}
 
 					List<Computation> argumentsComputation = Arrays.stream(interaction.getArguments())
 						.map(argument -> argument.accept(deserializer, context))

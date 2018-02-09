@@ -5,6 +5,7 @@ import static java.lang.Thread.currentThread;
 import static net.amygdalum.testrecorder.ContextSnapshot.INVALID;
 import static net.amygdalum.testrecorder.Recorder.isRecording;
 import static net.amygdalum.testrecorder.TestrecorderThreadFactory.RECORDING;
+import static net.amygdalum.testrecorder.types.SerializedInteraction.VOID;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -14,12 +15,9 @@ import java.io.InputStream;
 import java.lang.instrument.Instrumentation;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayDeque;
-import java.util.Arrays;
 import java.util.Deque;
-import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -36,7 +34,6 @@ import java.util.jar.Manifest;
 import net.amygdalum.testrecorder.bridge.BridgedSnapshotManager;
 import net.amygdalum.testrecorder.runtime.FakeIO;
 import net.amygdalum.testrecorder.serializers.SerializerFacade;
-import net.amygdalum.testrecorder.util.Types;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedInput;
 import net.amygdalum.testrecorder.values.SerializedOutput;
@@ -83,12 +80,16 @@ public class SnapshotManager {
 				MethodType.methodType(void.class, int.class, Object[].class));
 			BridgedSnapshotManager.inputResult = MethodHandles.lookup().findVirtual(SnapshotManager.class, "inputResult",
 				MethodType.methodType(void.class, int.class, Object.class));
+			BridgedSnapshotManager.inputVoidResult = MethodHandles.lookup().findVirtual(SnapshotManager.class, "inputVoidResult",
+				MethodType.methodType(void.class, int.class));
 			BridgedSnapshotManager.outputVariables = MethodHandles.lookup().findVirtual(SnapshotManager.class, "outputVariables",
 				MethodType.methodType(int.class, StackTraceElement[].class, Object.class, String.class, Type.class, Type[].class));
 			BridgedSnapshotManager.outputArguments = MethodHandles.lookup().findVirtual(SnapshotManager.class, "outputArguments",
 				MethodType.methodType(void.class, int.class, Object[].class));
 			BridgedSnapshotManager.outputResult = MethodHandles.lookup().findVirtual(SnapshotManager.class, "outputResult",
 				MethodType.methodType(void.class, int.class, Object.class));
+			BridgedSnapshotManager.outputVoidResult = MethodHandles.lookup().findVirtual(SnapshotManager.class, "outputVoidResult",
+				MethodType.methodType(void.class, int.class));
 		} catch (ReflectiveOperationException | IOException e) {
 			throw new RuntimeException("failed installing fake bridge", e);
 		}
@@ -195,14 +196,13 @@ public class SnapshotManager {
 	}
 
 	public int inputVariables(StackTraceElement[] stackTrace, Object object, String method, Type resultType, Type[] paramTypes) {
-		if (isRecording(stackTrace) || isNestedIO(stackTrace, method)) {
+		if (isRecording(stackTrace) || isNestedIO()) {
 			return 0;
 		}
 		Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
-		StackTraceElement[] call = call(stackTrace, clazz, method);
 		int id = object instanceof Class<?> ? 0 : identityHashCode(object);
 
-		SerializedInput in = new SerializedInput(id, call, clazz, method, resultType, paramTypes);
+		SerializedInput in = new SerializedInput(id, clazz, method, resultType, paramTypes);
 		for (ContextSnapshot snapshot : all()) {
 			snapshot.addInput(in);
 		}
@@ -227,15 +227,23 @@ public class SnapshotManager {
 		}, currentSnapshot);
 	}
 
+	public void inputVoidResult(int id) {
+		ContextSnapshot currentSnapshot = current();
+		execute((facade, snapshot) -> {
+			snapshot.streamInput().filter(in -> in.id() == id).forEach(in -> {
+				in.updateResult(VOID);
+			});
+		}, currentSnapshot);
+	}
+	
 	public int outputVariables(StackTraceElement[] stackTrace, Object object, String method, Type resultType, Type[] paramTypes) {
-		if (isRecording(stackTrace) || isNestedIO(stackTrace, method)) {
+		if (isRecording(stackTrace) || isNestedIO()) {
 			return 0;
 		}
 		Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
-		StackTraceElement[] call = call(stackTrace, clazz, method);
 		int id = object instanceof Class<?> ? 0 : identityHashCode(object);
 
-		SerializedOutput out = new SerializedOutput(id, call, clazz, method, resultType, paramTypes);
+		SerializedOutput out = new SerializedOutput(id, clazz, method, resultType, paramTypes);
 		for (ContextSnapshot snapshot : all()) {
 			snapshot.addOutput(out);
 		}
@@ -256,6 +264,15 @@ public class SnapshotManager {
 		execute((facade, snapshot) -> {
 			snapshot.streamOutput().filter(out -> out.id() == id).forEach(out -> {
 				out.updateResult(facade.serialize(out.getResultType(), result));
+			});
+		}, currentSnapshot);
+	}
+
+	public void outputVoidResult(int id) {
+		ContextSnapshot currentSnapshot = current();
+		execute((facade, snapshot) -> {
+			snapshot.streamOutput().filter(out -> out.id() == id).forEach(out -> {
+				out.updateResult(VOID);
 			});
 		}, currentSnapshot);
 	}
@@ -313,36 +330,11 @@ public class SnapshotManager {
 		consume(currentSnapshot);
 	}
 
-	public boolean isNestedIO(StackTraceElement[] stackTrace, String methodName) {
+	public boolean isNestedIO() {
 		ContextSnapshot snapshot = current();
-		if (snapshot.lastInputSatitisfies(in -> in.prefixesStackTrace(stackTrace))) {
-			return true;
-		}
-		if (snapshot.lastOutputSatitisfies(out -> out.prefixesStackTrace(stackTrace))) {
-			return true;
-		}
-		return false;
-	}
-
-	private static StackTraceElement[] call(StackTraceElement[] stackTrace, Class<?> clazz, String methodName) {
-		for (int i = 0; i < stackTrace.length; i++) {
-			StackTraceElement caller = stackTrace[i];
-			if (matches(clazz, methodName, caller)) {
-				return Arrays.copyOfRange(stackTrace, i, stackTrace.length);
-			}
-		}
-		StackTraceElement[] call = new StackTraceElement[stackTrace.length + 1];
-		System.arraycopy(stackTrace, 0, call, 1, stackTrace.length);
-		call[0] = new StackTraceElement(clazz.getName(), methodName, "?", -1);
-		return call;
-	}
-
-	private static boolean matches(Class<?> clazz, String methodName, StackTraceElement caller) {
-		if (!caller.getMethodName().equals(methodName)) {
-			return false;
-		}
-		List<Method> qualifyingMethods = Types.getDeclaredMethods(clazz, methodName);
-		return qualifyingMethods.stream().anyMatch(method -> method.getName().equals(caller.getMethodName()) && method.getDeclaringClass().getName().equals(caller.getClassName()));
+		boolean inputPending = snapshot.lastInputSatitisfies(in -> !in.isComplete());
+		boolean outputPending = snapshot.lastOutputSatitisfies(out -> !out.isComplete());
+		return inputPending || outputPending;
 	}
 
 	private void consume(ContextSnapshot snapshot) {

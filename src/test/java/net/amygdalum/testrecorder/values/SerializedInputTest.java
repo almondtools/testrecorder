@@ -15,20 +15,15 @@ import net.amygdalum.testrecorder.types.SerializedValue;
 
 public class SerializedInputTest {
 
-	private StackTraceElement caller;
-	private StackTraceElement notcaller;
 	private SerializedInput input;
 	private SerializedInput inputNoResult;
 
 	@BeforeEach
 	public void before() throws Exception {
-		caller = new StackTraceElement("class", "method", "file", 4711);
-		notcaller = new StackTraceElement("class", "method", "file", 815);
-
-		input = new SerializedInput(42, call(caller, BufferedReader.class, "readLine"), BufferedReader.class, "readLine", String.class, new Type[0])
+		input = new SerializedInput(42, BufferedReader.class, "readLine", String.class, new Type[0])
 			.updateResult(literal("Hello"))
 			.updateArguments(new SerializedValue[0]);
-		inputNoResult = new SerializedInput(43, call(caller, InputStream.class, "read"), InputStream.class, "read", void.class, new Type[] { byte[].class, int.class, int.class })
+		inputNoResult = new SerializedInput(43, InputStream.class, "read", void.class, new Type[] { byte[].class, int.class, int.class })
 			.updateArguments(new SerializedArray(byte.class), literal(int.class, 0), literal(int.class, 0));
 	}
 
@@ -76,41 +71,38 @@ public class SerializedInputTest {
 
 	@Test
 	public void testEquals() throws Exception {
-		inputNoResult.equals(new SerializedInput(43, call(caller, InputStream.class, "read"), InputStream.class, "read", void.class, new Type[] { byte[].class, int.class, int.class })
+		inputNoResult.equals(new SerializedInput(43, InputStream.class, "read", void.class, new Type[] { byte[].class, int.class, int.class })
 			.updateArguments(new SerializedArray(byte.class), literal(int.class, 0), literal(int.class, 0)));
 		assertThat(input).satisfies(defaultEquality()
-			.andEqualTo(new SerializedInput(42, call(caller, BufferedReader.class, "readLine"), BufferedReader.class, "readLine", String.class, new Type[0])
+			.andEqualTo(new SerializedInput(42, BufferedReader.class, "readLine", String.class, new Type[0])
 				.updateResult(literal("Hello"))
 				.updateArguments(new SerializedValue[0]))
 			.andNotEqualTo(inputNoResult)
-			.andNotEqualTo(new SerializedInput(42, call(notcaller, BufferedReader.class, "readLine"), BufferedReader.class, "readLine", String.class, new Type[0])
+			.andNotEqualTo(new SerializedInput(43, BufferedReader.class, "readLine", String.class, new Type[0])
 				.updateResult(literal("Hello"))
 				.updateArguments(new SerializedValue[0]))
-			.andNotEqualTo(new SerializedInput(43, call(caller, BufferedReader.class, "readLine"), BufferedReader.class, "readLine", String.class, new Type[0])
+			.andNotEqualTo(new SerializedInput(42, InputStream.class, "readLine", String.class, new Type[0])
 				.updateResult(literal("Hello"))
 				.updateArguments(new SerializedValue[0]))
-			.andNotEqualTo(new SerializedInput(42, call(caller, InputStream.class, "readLine"), InputStream.class, "readLine", String.class, new Type[0])
+			.andNotEqualTo(new SerializedInput(42, BufferedReader.class, "read", String.class, new Type[0])
 				.updateResult(literal("Hello"))
 				.updateArguments(new SerializedValue[0]))
-			.andNotEqualTo(new SerializedInput(42, call(caller, BufferedReader.class, "read"), BufferedReader.class, "read", String.class, new Type[0])
+			.andNotEqualTo(new SerializedInput(42, BufferedReader.class, "readLine", Object.class, new Type[0])
 				.updateResult(literal("Hello"))
 				.updateArguments(new SerializedValue[0]))
-			.andNotEqualTo(new SerializedInput(42, call(caller, BufferedReader.class, "readLine"), BufferedReader.class, "readLine", Object.class, new Type[0])
-				.updateResult(literal("Hello"))
-				.updateArguments(new SerializedValue[0]))
-			.andNotEqualTo(new SerializedInput(42, call(caller, BufferedReader.class, "readLine"), BufferedReader.class, "readLine", String.class, new Type[0])
+			.andNotEqualTo(new SerializedInput(42, BufferedReader.class, "readLine", String.class, new Type[0])
 				.updateResult(literal("Hello World"))
 				.updateArguments(new SerializedValue[0]))
-			.andNotEqualTo(new SerializedInput(42, call(caller, BufferedReader.class, "readLine"), BufferedReader.class, "readLine", String.class, new Type[] { int.class })
+			.andNotEqualTo(new SerializedInput(42, BufferedReader.class, "readLine", String.class, new Type[] { int.class })
 				.updateResult(literal("Hello"))
 				.updateArguments(new SerializedValue[0]))
-			.andNotEqualTo(new SerializedInput(42, call(caller, BufferedReader.class, "readLine"), BufferedReader.class, "readLine", String.class, new Type[0])
+			.andNotEqualTo(new SerializedInput(42, BufferedReader.class, "readLine", String.class, new Type[0])
 				.updateResult(literal("Hello"))
 				.updateArguments(literal("value")))
 			.conventions());
 
 		assertThat(inputNoResult).satisfies(defaultEquality()
-			.andEqualTo(new SerializedInput(43, call(caller, InputStream.class, "read"), InputStream.class, "read", void.class, new Type[] { byte[].class, int.class, int.class })
+			.andEqualTo(new SerializedInput(43, InputStream.class, "read", void.class, new Type[] { byte[].class, int.class, int.class })
 				.updateArguments(inputNoResult.getArguments()))
 			.andNotEqualTo(input)
 			.conventions());
@@ -121,11 +113,6 @@ public class SerializedInputTest {
 		assertThat(input.toString()).contains("BufferedReader", "readLine", "Hello");
 
 		assertThat(inputNoResult.toString()).contains("InputStream", "void", "read", "0");
-	}
-
-	private StackTraceElement[] call(StackTraceElement caller, Class<?> clazz, String method) {
-		StackTraceElement callee = new StackTraceElement(clazz.getName(), method, "", 0);
-		return new StackTraceElement[] { caller, callee };
 	}
 
 }

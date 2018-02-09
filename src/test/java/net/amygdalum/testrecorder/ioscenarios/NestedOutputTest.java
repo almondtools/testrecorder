@@ -15,7 +15,7 @@ import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 public class NestedOutputTest {
 
 	@Test
-	public void testCompilable() throws Exception {
+	public void testCompilesAndRuns() throws Exception {
 		NestedOutput input = new NestedOutput();
 		int time = input.getTime();
 		time = input.getTime();

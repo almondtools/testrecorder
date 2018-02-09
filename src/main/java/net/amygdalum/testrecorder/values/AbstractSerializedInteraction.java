@@ -12,7 +12,6 @@ import net.amygdalum.testrecorder.types.SerializedValue;
 public abstract class AbstractSerializedInteraction implements SerializedInteraction {
 
 	protected int id;
-	protected StackTraceElement[] call;
 	protected Class<?> clazz;
 	protected String name;
 	protected Type resultType;
@@ -20,9 +19,8 @@ public abstract class AbstractSerializedInteraction implements SerializedInterac
 	protected Type[] types;
 	protected SerializedValue[] arguments;
 
-	public AbstractSerializedInteraction(int id, StackTraceElement[] call, Class<?> clazz, String name, Type resultType, Type[] types) {
+	public AbstractSerializedInteraction(int id, Class<?> clazz, String name, Type resultType, Type[] types) {
 		this.id = id;
-		this.call = call;
 		this.clazz = clazz;
 		this.name = name;
 		this.resultType = resultType;
@@ -34,44 +32,26 @@ public abstract class AbstractSerializedInteraction implements SerializedInterac
 	}
 
 	@Override
-	public int getId() {
-		return id;
-	}
-
-	@Override
-	public String getCallerClass() {
-		return call.length > 1 ? call[1].getClassName() : null;
-	}
-
-	@Override
-	public String getCallerMethod() {
-		return call.length > 1 ? call[1].getMethodName() : null;
-	}
-
-	@Override
-	public int getCallerLine() {
-		return call.length > 1 ? call[1].getLineNumber() : -1;
-	}
-
-	@Override
-	public boolean prefixesStackTrace(StackTraceElement[] stackTrace) {
-		if (call.length >= stackTrace.length) {
+	public boolean isComplete() {
+		if (resultType != null && result == null) {
 			return false;
 		}
-
-		int calleeIndex = 0;
-		int calleeIndexInStackTrace = stackTrace.length - call.length;
-		if (call.length > 1) {
-			for (int callerIndex = calleeIndex + 1, callerIndexInStackTrace = calleeIndexInStackTrace + 1; // 
-				callerIndex < call.length && callerIndexInStackTrace < stackTrace.length; //
-				callerIndex++, callerIndexInStackTrace++) {
-				if (!call[callerIndex].equals(stackTrace[callerIndexInStackTrace])) {
-					return false;
-				}
-			}
+		if (types != null && (arguments == null || arguments.length != types.length)) {
+			return false;
 		}
-		return Objects.equals(call[calleeIndex].getClassName(), stackTrace[calleeIndexInStackTrace].getClassName())
-			&& Objects.equals(call[calleeIndex].getMethodName(), stackTrace[calleeIndexInStackTrace].getMethodName());
+		return true;
+	}
+	
+	@Override
+	public boolean hasResult() {
+		return resultType != null
+			&& resultType != void.class
+			&& result != null;
+	}
+	
+	@Override
+	public int getId() {
+		return id;
 	}
 
 	@Override
@@ -137,7 +117,6 @@ public abstract class AbstractSerializedInteraction implements SerializedInterac
 		}
 		AbstractSerializedInteraction that = (AbstractSerializedInteraction) obj;
 		return this.id == that.id
-			&& Arrays.equals(this.call, that.call)
 			&& this.clazz.equals(that.clazz)
 			&& this.name.equals(that.name)
 			&& this.resultType.equals(that.resultType)

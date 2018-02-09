@@ -15,10 +15,12 @@ public class BridgedSnapshotManager {
 	public static MethodHandle inputVariables;
 	public static MethodHandle inputArguments;
 	public static MethodHandle inputResult;
+	public static MethodHandle inputVoidResult;
 
 	public static MethodHandle outputVariables;
 	public static MethodHandle outputArguments;
 	public static MethodHandle outputResult;
+	public static MethodHandle outputVoidResult;
 
 	public static int inputVariables(StackTraceElement[] stackTrace, Object object, String method, Type resultType, Type[] paramTypes) throws Throwable {
 		return (Integer) inputVariables.invoke(MANAGER, stackTrace, object, method, resultType, paramTypes);
@@ -32,6 +34,10 @@ public class BridgedSnapshotManager {
 		inputResult.invoke(MANAGER, id, result);
 	}
 
+	public static void inputVoidResult(int id) throws Throwable {
+		inputVoidResult.invoke(MANAGER, id);
+	}
+
 	public static int outputVariables(StackTraceElement[] stackTrace, Object object, String method, Type resultType, Type[] paramTypes) throws Throwable {
 		return (Integer) outputVariables.invoke(MANAGER, stackTrace, object, method, resultType, paramTypes);
 	}
@@ -42,6 +48,10 @@ public class BridgedSnapshotManager {
 
 	public static void outputResult(int id, Object result) throws Throwable {
 		outputResult.invoke(MANAGER, id, result);
+	}
+
+	public static void outputVoidResult(int id) throws Throwable {
+		outputVoidResult.invoke(MANAGER, id);
 	}
 
 }

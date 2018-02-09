@@ -209,8 +209,8 @@ public class FakeIO {
 				&& methodDesc.equals(invocation.methodDesc);
 		}
 
-		public Interaction add(Class<?> callerClass, String callerName, int callerLine, Object result, Object... args) {
-			InvocationData data = new InvocationData(callerClass, callerName, callerLine, result, args);
+		public Interaction add(Object result, Object... args) {
+			InvocationData data = new InvocationData(result, args);
 			invocationData.add(data);
 			return this;
 		}
@@ -410,24 +410,16 @@ public class FakeIO {
 	}
 
 	protected static class InvocationData {
-		public Class<?> callerClazz;
-		public String callerName;
-		private int callerLine;
 		public Object result;
 		public Object[] args;
 
-		public InvocationData(Class<?> callerClazz, String callerName, int callerLine, Object result, Object[] args) {
-			this.callerClazz = callerClazz;
-			this.callerName = callerName;
-			this.callerLine = callerLine;
+		public InvocationData(Object result, Object[] args) {
 			this.result = result;
 			this.args = args;
 		}
 
 		public boolean matchesCaller(Invocation invocation) {
-			return this.callerClazz.getName().equals(invocation.callerClassName)
-				&& this.callerName.equals(invocation.callerMethodName)
-				&& (this.callerLine == -1 || invocation.callerLine == -1 || this.callerLine == invocation.callerLine);
+			return true;
 		}
 
 	}

@@ -44,7 +44,6 @@ import net.amygdalum.testrecorder.asm.InvokeVirtual;
 import net.amygdalum.testrecorder.asm.Ldc;
 import net.amygdalum.testrecorder.asm.MemoizeBoxed;
 import net.amygdalum.testrecorder.asm.MethodContext;
-import net.amygdalum.testrecorder.asm.Nop;
 import net.amygdalum.testrecorder.asm.Recall;
 import net.amygdalum.testrecorder.asm.Sequence;
 import net.amygdalum.testrecorder.asm.SequenceInstruction;
@@ -343,6 +342,9 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
 						.withArgument(0, new Recall("inputId"))
 						.withArgument(1, new Recall("arguments")))
+					.then(new InvokeVirtual(SnapshotManager.class, "inputVoidResult", int.class)
+						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+						.withArgument(0, new Recall("inputId")))
 					.build(context);
 			}
 		}
@@ -388,7 +390,11 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 						.withArgument(1, new Recall("returnValue")))
 					.build(context);
 			} else {
-				return new InsnList();
+				return Sequence.start()
+					.then(new InvokeVirtual(SnapshotManager.class, "outputVoidResult", int.class)
+						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+						.withArgument(0, new Recall("outputId")))
+					.build(context);
 			}
 		}
 
@@ -604,7 +610,9 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 				return Sequence.start()
 					.then(new InvokeStatic(BridgedSnapshotManager.class, "inputArguments", int.class, Object[].class)
 						.withArgument(0, new Recall("inputId"))
-						.withArgument(1, new WrapArguments()));
+						.withArgument(1, new WrapArguments()))
+					.then(new InvokeStatic(BridgedSnapshotManager.class, "inputVoidResult", int.class)
+						.withArgument(0, new Recall("inputId")));
 			}
 		}
 
@@ -633,7 +641,9 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 						.withArgument(0, new Recall("outputId"))
 						.withArgument(1, new Recall("returnValue")));
 			} else {
-				return Nop.NOP;
+				return Sequence.start()
+					.then(new InvokeStatic(BridgedSnapshotManager.class, "outputVoidResult", int.class)
+						.withArgument(0, new Recall("outputId")));
 			}
 		}
 
@@ -675,7 +685,10 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 					.then(new InvokeVirtual(SnapshotManager.class, "inputArguments", int.class, Object[].class)
 						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
 						.withArgument(0, new Recall("inputId"))
-						.withArgument(1, new WrapArguments()));
+						.withArgument(1, new WrapArguments()))
+					.then(new InvokeVirtual(SnapshotManager.class, "inputVoidResult", int.class)
+						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+						.withArgument(0, new Recall("inputId")));
 			}
 		}
 
@@ -707,7 +720,10 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 						.withArgument(0, new Recall("outputId"))
 						.withArgument(1, new Recall("returnValue")));
 			} else {
-				return Nop.NOP;
+				return Sequence.start()
+					.then(new InvokeVirtual(SnapshotManager.class, "outputVoidResult", int.class)
+						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+						.withArgument(0, new Recall("outputId")));
 			}
 		}
 

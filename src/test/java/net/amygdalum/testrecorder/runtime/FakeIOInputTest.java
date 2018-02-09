@@ -18,7 +18,7 @@ public class FakeIOInputTest {
 		Input input = new Input(FakeIO.fake(Bean.class), "setAttribute", "(Ljava/lang/String;)V");
 
 		Object[] args = new Object[2];
-		InvocationData data = new InvocationData(FakeIOInputTest.class, "testCall", 0, 1, new Object[2]);
+		InvocationData data = new InvocationData(1, new Object[2]);
 		Object result = input.call(data, args);
 
 		assertThat(result).isEqualTo(1);
@@ -31,11 +31,11 @@ public class FakeIOInputTest {
 
 		Object[] args = new Object[] { null, new Bean() };
 		assertThatThrownBy(() -> {
-			InvocationData data = new InvocationData(FakeIOInputTest.class, "testCall", 0, null, new Object[] { new Bean(), new Bean() });
+			InvocationData data = new InvocationData(null, new Object[] { new Bean(), new Bean() });
 			input.call(data, args);
 		}).isInstanceOf(AssertionError.class);
 		assertThatThrownBy(() -> {
-			InvocationData data = new InvocationData(FakeIOInputTest.class, "testCall", 0, null, new Object[] { null, null });
+			InvocationData data = new InvocationData(null, new Object[] { null, null });
 			input.call(data, args);
 		}).isInstanceOf(AssertionError.class);
 	}
@@ -45,7 +45,7 @@ public class FakeIOInputTest {
 		Input input = new Input(FakeIO.fake(Bean.class), "setAttribute", "(Ljava/lang/String;)V");
 
 		Object[] args = new Object[] { "s1", "s2" };
-		InvocationData data = new InvocationData(FakeIOInputTest.class, "testCall", 0, 2, new Object[] { new String("s1"), new String("s2") });
+		InvocationData data = new InvocationData(2, new Object[] { new String("s1"), new String("s2") });
 		Object result = input.call(data, args);
 
 		assertThat(result).isEqualTo(2);
@@ -57,7 +57,7 @@ public class FakeIOInputTest {
 		Input input = new Input(FakeIO.fake(Bean.class), "setAttribute", "(Ljava/lang/String;)V");
 
 		Object[] args = new Object[] { "s1", "s2" };
-		InvocationData data = new InvocationData(FakeIOInputTest.class, "testCall", 0, null, new Object[] { new String("s1"), new String("s3") });
+		InvocationData data = new InvocationData(null, new Object[] { new String("s1"), new String("s3") });
 
 		assertThatThrownBy(() -> input.call(data, args)).isInstanceOf(AssertionError.class);
 	}
@@ -67,7 +67,7 @@ public class FakeIOInputTest {
 		Input input = new Input(FakeIO.fake(Bean.class), "setAttribute", "(Ljava/lang/String;)V");
 
 		Simple[] args = new Simple[] { new Simple("s1"), new Simple("s2") };
-		InvocationData data = new InvocationData(FakeIOInputTest.class, "testCall", 0, 3, new Simple[] { new Simple("s3"), new Simple("s4") });
+		InvocationData data = new InvocationData(3, new Simple[] { new Simple("s3"), new Simple("s4") });
 		Object result = input.call(data, args);
 
 		assertThat(result).isEqualTo(3);
@@ -80,7 +80,7 @@ public class FakeIOInputTest {
 		Input input = new Input(FakeIO.fake(Bean.class), "setAttribute", "(Ljava/lang/String;)V");
 
 		Object[] args = new Object[] { new byte[3] };
-		InvocationData data = new InvocationData(FakeIOInputTest.class, "testCall", 0, 4, new Object[] { "str".getBytes() });
+		InvocationData data = new InvocationData(4, new Object[] { "str".getBytes() });
 		Object result = input.call(data, args);
 
 		assertThat(result).isEqualTo(4);
@@ -97,7 +97,7 @@ public class FakeIOInputTest {
 	@Test
 	public void testVerifyFail() throws Exception {
 		Input input = new Input(FakeIO.fake(Bean.class), "setAttribute", "(Ljava/lang/String;)V");
-		input.add(FakeIOInputTest.class, "testCall", 0, null, new Object[] { "expectedstr" });
+		input.add(null, new Object[] { "expectedstr" });
 
 		assertThatCode(() -> input.verify())
 			.hasMessageContaining("expected but not received call setAttribute(\"expectedstr\")")

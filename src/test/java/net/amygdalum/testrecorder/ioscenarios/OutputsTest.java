@@ -66,8 +66,8 @@ public class OutputsTest {
 		assertThat(testGenerator.testsFor(Outputs.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(Outputs.class).getTestCode())
 			.containsWildcardPattern(".fakeOutput(new Aspect() {*print(String*)*})"
-				+ ".add(Outputs.class, \"recorded\", *, null, equalTo(\"Hello \"))"
-				+ ".add(Outputs.class, \"recorded\", *, null, equalTo(\"World\")")
+				+ ".add(null, equalTo(\"Hello \"))"
+				+ ".add(null, equalTo(\"World\")")
 			.contains("verify()");
 		assertThat(testGenerator.renderTest(Outputs.class)).satisfies(testsRun());
 	}
@@ -81,11 +81,11 @@ public class OutputsTest {
 		assertThat(testGenerator.testsFor(Outputs.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(Outputs.class).getTestCode())
 			.containsWildcardPattern(".fakeOutput(new Aspect() {*conditionalReturnOutput(char*)*})"
-				+ ".add(Outputs.class, \"recordedWithConditionalReturn\", *, true, equalTo('a'))"
-				+ ".add(Outputs.class, \"recordedWithConditionalReturn\", *, true, equalTo(','))"
-				+ ".add(Outputs.class, \"recordedWithConditionalReturn\", *, false, equalTo(' '))"
-				+ ".add(Outputs.class, \"recordedWithConditionalReturn\", *, true, equalTo('b'))"
-				+ ".add(Outputs.class, \"recordedWithConditionalReturn\", *, false, equalTo('\\n')")
+				+ ".add(true, equalTo('a'))"
+				+ ".add(true, equalTo(','))"
+				+ ".add(false, equalTo(' '))"
+				+ ".add(true, equalTo('b'))"
+				+ ".add(false, equalTo('\\n')")
 			.contains("verify()");
 		assertThat(testGenerator.renderTest(Outputs.class)).satisfies(testsRun());
 	}

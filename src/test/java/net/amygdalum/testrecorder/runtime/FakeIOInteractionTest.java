@@ -67,7 +67,7 @@ public class FakeIOInteractionTest {
 	@Test
 	void testCallFilteringRuntimeClasses() throws Exception {
 		MyInteraction myInteraction = new MyInteraction(FakeIO.fake(Bean.class), "setAttribute", "(Ljava/lang/String;)V");
-		myInteraction.add(FakeIOInteractionTest.class, "testCallFiltered", 0, null);
+		myInteraction.add(null);
 
 		StackTraceElement[] stackTrace = new StackTraceElement[] {
 			new StackTraceElement("net.amygdalum.testrecorder.util.testobjects.Bean", "setAttribute", "Bean.java", 0),
@@ -81,7 +81,7 @@ public class FakeIOInteractionTest {
 	@Test
 	void testCallFilteringTestingClasses() throws Exception {
 		MyInteraction myInteraction = new MyInteraction(FakeIO.fake(Bean.class), "setAttribute", "(Ljava/lang/String;)V");
-		myInteraction.add(FakeIOInteractionTest.class, "testCallFiltered", 0, null);
+		myInteraction.add(null);
 
 		StackTraceElement[] stackTrace = new StackTraceElement[] {
 			new StackTraceElement("net.amygdalum.testrecorder.util.testobjects.Bean", "setAttribute", "Bean.java", 0),
@@ -97,7 +97,7 @@ public class FakeIOInteractionTest {
 		Object RESULT = new Object();
 
 		MyInteraction myInteraction = new MyInteraction(FakeIO.fake(Bean.class), "setAttribute", "(Ljava/lang/String;)V");
-		myInteraction.add(Bean.class, "setAttribute", 0, null);
+		myInteraction.add(null);
 		myInteraction.setResult(RESULT);
 
 		StackTraceElement[] stackTrace = new StackTraceElement[] {
@@ -107,23 +107,6 @@ public class FakeIOInteractionTest {
 		Object result = myInteraction.call(Invocation.capture(stackTrace, new Bean(), Bean.class, "setAttribute", "(Ljava/lang/String;)V"), new Object[] { "mystr" });
 
 		assertThat(result).isSameAs(RESULT);
-	}
-
-	@Test
-	void testCallFailing() throws Exception {
-		Object RESULT = new Object();
-
-		MyInteraction myInteraction = new MyInteraction(FakeIO.fake(Bean.class), "setAttribute", "(Ljava/lang/String;)V");
-		myInteraction.add(Bean.class, "setAttribute", 0, null);
-		myInteraction.setResult(RESULT);
-
-		StackTraceElement[] stackTrace = new StackTraceElement[] {
-			new StackTraceElement("net.amygdalum.testrecorder.util.testobjects.Bean", "setAttribute", "Bean.java", 0),
-			new StackTraceElement("net.amygdalum.testrecorder.util.testobjects.Simple", "setAttribute", "Bean.java", 0)
-		};
-		assertThatThrownBy(() -> myInteraction.call(Invocation.capture(stackTrace, new Bean(), Bean.class, "setAttribute", "(Ljava/lang/String;)V"), new Object[] { "mystr" }))
-			.isInstanceOf(AssertionError.class);
-
 	}
 
 	@Test

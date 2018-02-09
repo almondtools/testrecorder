@@ -25,7 +25,7 @@ public class HiddenInputTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(HiddenInput.class)).satisfies(testsRun());
-		assertThat(testGenerator.renderTest(HiddenInput.class).getTestCode()).containsWildcardPattern(".add(HiddenInput.class, \"inputImmediate\", *, \"Hello\")");
+		assertThat(testGenerator.renderTest(HiddenInput.class).getTestCode()).containsWildcardPattern(".add(\"Hello\")");
 	}
 
 	@Test
@@ -38,7 +38,7 @@ public class HiddenInputTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(HiddenInput.class)).satisfies(testsRun());
-		assertThat(testGenerator.renderTest(HiddenInput.class).getTestCode()).containsWildcardPattern(".add(HiddenInput.class, \"inputFromField\", *, \"Hello\")");
+		assertThat(testGenerator.renderTest(HiddenInput.class).getTestCode()).containsWildcardPattern(".add(\"Hello\")");
 	}
 
 }

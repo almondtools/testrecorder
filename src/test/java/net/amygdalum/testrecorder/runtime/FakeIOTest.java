@@ -30,9 +30,9 @@ public class FakeIOTest {
 					return null;
 				}
 			})
-			.add(Inputs.class, "recorded", 24, "Hello")
-			.add(Inputs.class, "recorded", 25, " ")
-			.add(Inputs.class, "recorded", 26, "World")
+			.add("Hello")
+			.add(" ")
+			.add("World")
 			.setup();
 
 		String result = inputs.recorded();
@@ -50,49 +50,49 @@ public class FakeIOTest {
 					return false;
 				}
 			})
-			.add(Inputs.class, "primitivesRecorded", 41, true)
+			.add(true)
 			.fakeInput(new Aspect() {
 				public byte readByte() {
 					return 0;
 				}
 			})
-			.add(Inputs.class, "primitivesRecorded", 42, (byte) 2)
+			.add((byte) 2)
 			.fakeInput(new Aspect() {
 				public short readShort() {
 					return 0;
 				}
 			})
-			.add(Inputs.class, "primitivesRecorded", 43, (short) 3)
+			.add((short) 3)
 			.fakeInput(new Aspect() {
 				public int readInt() {
 					return 0;
 				}
 			})
-			.add(Inputs.class, "primitivesRecorded", 44, 4)
+			.add(4)
 			.fakeInput(new Aspect() {
 				public long readLong() {
 					return 0;
 				}
 			})
-			.add(Inputs.class, "primitivesRecorded", 45, 5l)
+			.add(5l)
 			.fakeInput(new Aspect() {
 				public float readFloat() {
 					return 0;
 				}
 			})
-			.add(Inputs.class, "primitivesRecorded", 46, 6f)
+			.add(6f)
 			.fakeInput(new Aspect() {
 				public double readDouble() {
 					return 0;
 				}
 			})
-			.add(Inputs.class, "primitivesRecorded", 47, 7d)
+			.add(7d)
 			.fakeInput(new Aspect() {
 				public char readChar() {
 					return 0;
 				}
 			})
-			.add(Inputs.class, "primitivesRecorded", 48, 'x')
+			.add('x')
 			.setup();
 
 		String result = inputs.primitivesRecorded();
@@ -118,7 +118,7 @@ public class FakeIOTest {
 					return;
 				}
 			})
-			.add(Inputs.class, "sideEffectsRecorded", 61, null, "Hello World".toCharArray())
+			.add(null, "Hello World".toCharArray())
 			.setup();
 
 		String result = inputs.sideEffectsRecorded();
@@ -139,7 +139,7 @@ public class FakeIOTest {
 					return;
 				}
 			})
-			.add(Inputs.class, "objectSideEffectsRecorded", 68, null, list)
+			.add(null, list)
 			.setup();
 
 		String result = inputs.objectSideEffectsRecorded();
@@ -157,17 +157,11 @@ public class FakeIOTest {
 					return null;
 				}
 			})
-			.add(Inputs.class, "recorded", 24, "Hello")
-			.add(Inputs.class, "recorded", 25, " ")
-			.add(Inputs.class, "recorded", 26, "World")
+			.add("Hello")
+			.add(" ")
+			.add("World")
 			.setup();
 
-		Throwable exception = Throwables.capture(() -> inputs.notrecorded());
-
-		assertThat(exception.getMessage()).containsWildcardPattern("missing input for:"
-			+ "\n*called from*"
-			+ "\n"
-			+ "\nIf the input was recorded ensure that all call sites are recorded");
 		assertThatThrownBy(faked::verify)
 			.isInstanceOf(AssertionError.class)
 			.satisfies(e -> assertThat(e.getMessage()).containsWildcardPattern("expected but not found"
@@ -188,8 +182,8 @@ public class FakeIOTest {
 					return null;
 				}
 			})
-			.add(Inputs.class, "recorded", 24, "Hello")
-			.add(Inputs.class, "recorded", 25, "")
+			.add("Hello")
+			.add("")
 			.setup();
 
 		Throwable exception = Throwables.capture(() -> inputs.recorded());
@@ -210,7 +204,7 @@ public class FakeIOTest {
 					return 0l;
 				}
 			})
-			.add(StandardLibInputOutput.class, "getTimestamp", 20, 42l)
+			.add(42l)
 			.setup();
 
 		long result = io.getTimestamp();
@@ -229,8 +223,8 @@ public class FakeIOTest {
 					return;
 				}
 			})
-			.add(Outputs.class, "recorded", 13, null, equalTo("Hello "))
-			.add(Outputs.class, "recorded", 14, null, equalTo("World"))
+			.add(null, equalTo("Hello "))
+			.add(null, equalTo("World"))
 			.setup();
 
 		outputs.recorded();
@@ -247,16 +241,10 @@ public class FakeIOTest {
 					return;
 				}
 			})
-			.add(Outputs.class, "recorded", 13, null, equalTo("Hello "))
-			.add(Outputs.class, "recorded", 14, null, equalTo("World"))
+			.add(null, equalTo("Hello "))
+			.add(null, equalTo("World"))
 			.setup();
 
-		Throwable exception = Throwables.capture(() -> outputs.notrecorded());
-
-		assertThat(exception.getMessage()).containsWildcardPattern("missing input for:"
-			+ "\n*called from*"
-			+ "\n"
-			+ "\nIf the input was recorded ensure that all call sites are recorded");
 		assertThatThrownBy(faked::verify)
 			.isInstanceOf(AssertionError.class)
 			.satisfies(e -> assertThat(e.getMessage())
@@ -276,8 +264,8 @@ public class FakeIOTest {
 					return;
 				}
 			})
-			.add(Outputs.class, "recorded", 13, null, equalTo("Hello "))
-			.add(Outputs.class, "recorded", 14, null, equalTo("Welt"))
+			.add(null, equalTo("Hello "))
+			.add(null, equalTo("Welt"))
 			.setup();
 
 		Throwable exception = Throwables.capture(() -> outputs.recorded());
@@ -301,9 +289,9 @@ public class FakeIOTest {
 					return;
 				}
 			})
-			.add(Outputs.class, "recorded", 13, null, equalTo("Hello "))
-			.add(Outputs.class, "recorded", 14, null, equalTo("World"))
-			.add(Outputs.class, "recorded", 15, null, equalTo("!"))
+			.add(null, equalTo("Hello "))
+			.add(null, equalTo("World"))
+			.add(null, equalTo("!"))
 			.setup();
 
 		assertThatThrownBy(faked::verify)
@@ -326,7 +314,7 @@ public class FakeIOTest {
 					return;
 				}
 			})
-			.add(StandardLibInputOutput.class, "store", 38, null, "My Output".getBytes())
+			.add(null, "My Output".getBytes())
 			.setup();
 
 		io.store("My Output");

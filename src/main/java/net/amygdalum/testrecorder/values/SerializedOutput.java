@@ -10,8 +10,8 @@ import net.amygdalum.testrecorder.types.SerializedValue;
 
 public class SerializedOutput extends AbstractSerializedInteraction implements SerializedInteraction {
 
-	public SerializedOutput(int id, StackTraceElement[] call, Class<?> clazz, String name, Type resultType, Type[] types) {
-		super(id, call, clazz, name, resultType, types);
+	public SerializedOutput(int id, Class<?> clazz, String name, Type resultType, Type[] types) {
+		super(id, clazz, name, resultType, types);
 	}
 
 	public SerializedOutput updateArguments(SerializedValue... arguments) {
