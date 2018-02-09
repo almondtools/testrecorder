@@ -101,14 +101,31 @@ public class OutputsTest {
 	}
 
 	@Test
-	public void testRefactorable() throws Exception {
+	public void testRobustOnSyntacticalChanges() throws Exception {
 		Outputs out = new Outputs();
 		out.recorded();
-		String codeAfterRefactoringOutAllLines = Files.lines(Paths.get("src/test/java/" + Outputs.class.getName().replace('.', '/') + ".java"))
+		String codeAfterJoiningAllLines = Files.lines(Paths.get("src/test/java/" + Outputs.class.getName().replace('.', '/') + ".java"))
 			.collect(joining(" "));
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Outputs.class)).satisfies(testsRunWith(codeAfterRefactoringOutAllLines));
+		assertThat(testGenerator.renderTest(Outputs.class)).satisfies(testsRunWith(codeAfterJoiningAllLines));
 	}
+
+	@Test
+	public void testRobustOnSmallRefactoringsLikeExtractMethod() throws Exception {
+		Outputs out = new Outputs();
+		out.recorded();
+		String codeAfterExtractingMethod = Files.lines(Paths.get("src/test/java/" + Outputs.class.getName().replace('.', '/') + ".java"))
+			.collect(joining("\n"))
+			.replace("public void recorded() {", ""
+				+ "public void recorded() {"
+				+ "  delegated();"
+				+ "}"
+				+ "public void delegated() {");
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(Outputs.class)).satisfies(testsRunWith(codeAfterExtractingMethod));
+	}
+
 
 }

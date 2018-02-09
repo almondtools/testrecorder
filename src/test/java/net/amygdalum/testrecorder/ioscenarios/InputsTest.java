@@ -1,9 +1,14 @@
 package net.amygdalum.testrecorder.ioscenarios;
 
+import static java.util.stream.Collectors.joining;
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.testing.assertj.Compiles.compiles;
 import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRun;
+import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRunWith;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -143,6 +148,33 @@ public class InputsTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(Inputs.class)).satisfies(testsRun());
+	}
+
+	@Test
+	public void testRobustOnSyntacticalChanges() throws Exception {
+		Inputs in = new Inputs();
+		in.recorded();
+		String codeAfterJoiningAllLines = Files.lines(Paths.get("src/test/java/" + Inputs.class.getName().replace('.', '/') + ".java"))
+			.collect(joining(" "));
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(Inputs.class)).satisfies(testsRunWith(codeAfterJoiningAllLines));
+	}
+
+	@Test
+	public void testRobustOnSmallRefactoringsLikeExtractMethod() throws Exception {
+		Inputs in = new Inputs();
+		in.recorded();
+		String codeAfterExtractingMethod = Files.lines(Paths.get("src/test/java/" + Inputs.class.getName().replace('.', '/') + ".java"))
+			.collect(joining("\n"))
+			.replace("public String recorded() {", ""
+				+ "public String recorded() {"
+				+ "  return delegated();"
+				+ "}"
+				+ "public String delegated() {");
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(Inputs.class)).satisfies(testsRunWith(codeAfterExtractingMethod));
 	}
 
 }
