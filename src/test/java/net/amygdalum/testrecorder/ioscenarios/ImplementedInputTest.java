@@ -34,8 +34,8 @@ public class ImplementedInputTest {
 		assertThat(testGenerator.renderTest(ImplementedInput.class).getTestCode())
 			.containsWildcardPattern("FakeIO.fake(ImplementedInput.class)")
 			.containsWildcardPattern(".fakeInput(new Aspect() {*public long input() {*}*})")
-			.containsWildcardPattern(".add(ImplementedInput.class, \"recorded\", *)");
-		assertThat(testGenerator.renderTest(Inputs.class)).satisfies(testsRun());
+			.containsWildcardPattern(".add(*)");
+		assertThat(testGenerator.renderTest(ImplementedInput.class)).satisfies(testsRun());
 	}
 
 }

@@ -65,6 +65,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 	private TestRecorderAgentConfig config;
 	private ClassNodeManager classes = new ClassNodeManager();
+	private IOManager io = new IOManager();
 	private Set<String> instrumentedClassNames;
 	private Set<Class<?>> instrumentedClasses;
 
@@ -144,12 +145,14 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 	}
 
 	public byte[] instrument(ClassNode classNode, Class<?> clazz) {
+		analyzeMethods(classNode);
+		
 		if (!isClass(classNode)) {
 			return null;
 		}
 		Task task = needsBridging(classNode, clazz)
-			? new BridgedTask(config, classes, classNode)
-			: new DefaultTask(config, classes, classNode);
+			? new BridgedTask(config, classes, io, classNode)
+			: new DefaultTask(config, classes, io, classNode);
 
 		task.logSkippedSnapshotMethods();
 
@@ -170,6 +173,23 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		return out.toByteArray();
 	}
 
+	private void analyzeMethods(ClassNode classNode) {
+		for (MethodNode methodNode : classNode.methods) {
+			analyzeMethod(classNode, methodNode);
+		}
+	}
+
+	private void analyzeMethod(ClassNode classNode, MethodNode methodNode) {
+		if (methodNode.visibleAnnotations != null && methodNode.visibleAnnotations.stream()
+			.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Input.class)))) {
+			io.registerInput(classNode.name, methodNode.name, methodNode.desc);
+		}
+		if (methodNode.visibleAnnotations != null && methodNode.visibleAnnotations.stream()
+			.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Output.class)))) {
+			io.registerOutput(classNode.name, methodNode.name, methodNode.desc);
+		}
+	}
+
 	private boolean isClass(ClassNode classNode) {
 		return (classNode.access & (ACC_INTERFACE | ACC_ANNOTATION)) == 0;
 	}
@@ -185,13 +205,16 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 		private TestRecorderAgentConfig config;
 		private ClassNodeManager classes;
+		private IOManager io;
 
 		protected ClassNode classNode;
 
-		public Task(TestRecorderAgentConfig config, ClassNodeManager classes, ClassNode classNode) {
+		public Task(TestRecorderAgentConfig config, ClassNodeManager classes, IOManager io, ClassNode classNode) {
 			this.config = config;
 			this.classes = classes;
+			this.io = io;
 			this.classNode = classNode;
+			io.propagate(classNode.name, classNode.superName, classNode.interfaces);
 		}
 
 		public void logSkippedSnapshotMethods() {
@@ -521,8 +544,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		}
 
 		protected boolean isInputMethod(ClassNode classNode, MethodNode methodNode) {
-			return methodNode.visibleAnnotations != null && methodNode.visibleAnnotations.stream()
-				.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Input.class)))
+			return io.isInput(classNode.name, methodNode.name, methodNode.desc)
 				|| config.getInputs().stream()
 					.anyMatch(method -> matches(method, classNode.name, methodNode.name, methodNode.desc));
 		}
@@ -538,8 +560,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		}
 
 		protected boolean isOutputMethod(ClassNode classNode, MethodNode methodNode) {
-			return methodNode.visibleAnnotations != null && methodNode.visibleAnnotations.stream()
-				.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Output.class)))
+			return io.isOutput(classNode.name, methodNode.name, methodNode.desc)
 				|| config.getOutputs().stream()
 					.anyMatch(method -> matches(method, classNode.name, methodNode.name, methodNode.desc));
 		}
@@ -579,8 +600,8 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 	public static class BridgedTask extends Task {
 
-		public BridgedTask(TestRecorderAgentConfig config, ClassNodeManager classes, ClassNode classNode) {
-			super(config, classes, classNode);
+		public BridgedTask(TestRecorderAgentConfig config, ClassNodeManager classes, IOManager io, ClassNode classNode) {
+			super(config, classes, io, classNode);
 		}
 
 		@Override
@@ -651,8 +672,8 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 	public static class DefaultTask extends Task {
 
-		public DefaultTask(TestRecorderAgentConfig config, ClassNodeManager classes, ClassNode classNode) {
-			super(config, classes, classNode);
+		public DefaultTask(TestRecorderAgentConfig config, ClassNodeManager classes, IOManager io, ClassNode classNode) {
+			super(config, classes, io, classNode);
 		}
 
 		@Override

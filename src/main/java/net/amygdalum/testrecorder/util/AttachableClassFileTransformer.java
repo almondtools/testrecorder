@@ -7,8 +7,9 @@ import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
 
 import net.amygdalum.testrecorder.Logger;
 
@@ -44,12 +45,36 @@ public abstract class AttachableClassFileTransformer implements ClassFileTransfo
 	}
 
 	public Class<?>[] classesToRetransform(Class<?>[] loaded) {
-		Set<Class<?>> classes = new LinkedHashSet<>();
-		classes.addAll(filterClassesToRetransform(loaded));
-		classes.addAll(getClassesToRetransform());
-		return classes.toArray(new Class[0]);
+		List<Class<?>> closure = new LinkedList<>();
+		WorkSet<Class<?>> todo = new WorkSet<>();
+		todo.addAll(filterClassesToRetransform(loaded));
+		todo.addAll(getClassesToRetransform());
+		while (todo.hasMoreElements()) {
+			Class<?> current = todo.remove();
+			if (current.getSuperclass() != null) {
+				todo.add(current.getSuperclass());
+			}
+			for (Class<?> interfaceClazz : current.getInterfaces()) {
+				todo.add(interfaceClazz);
+			}
+			insert(current, closure);
+		}
+		return closure.toArray(new Class[0]);
 	}
 	
+	private void insert(Class<?> clazz, List<Class<?>> closure) {
+		ListIterator<Class<?>> iterator = closure.listIterator();
+		while (iterator.hasNext()) {
+			Class<?> next = iterator.next();
+			if (clazz.isAssignableFrom(next)) {
+				iterator.set(clazz);
+				iterator.add(next);
+				return;
+			}
+		}
+		closure.add(clazz);
+	}
+
 	public abstract Collection<Class<?>> filterClassesToRetransform(Class<?>[] loaded);
 	public abstract Collection<Class<?>> getClassesToRetransform();
 
