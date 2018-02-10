@@ -2,6 +2,8 @@ package net.amygdalum.testrecorder.profile;
 
 import java.lang.reflect.Field;
 
+import org.objectweb.asm.Type;
+
 /**
  * used to specify a field or multiple fields. Provides two predicate methods for matching at compile time and at run time.
  */
@@ -47,4 +49,17 @@ public interface Fields {
 		return new FieldDescription(className, fieldName, fieldDescriptor);
 	}
 
+	/**
+	 * specifies a field by sample field object
+	 * 
+	 * @param field the field to be described
+	 * @return a predicate return true for the specified field
+	 */
+	static Fields byDescription(Field field) {
+		String className = Type.getInternalName(field.getDeclaringClass());
+		String fieldName = field.getName();
+		String fieldDescriptor = Type.getDescriptor(field.getType());
+		return new FieldDescription(className, fieldName, fieldDescriptor);
+	}
+	
 }

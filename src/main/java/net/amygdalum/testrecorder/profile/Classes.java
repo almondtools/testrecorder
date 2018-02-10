@@ -1,5 +1,7 @@
 package net.amygdalum.testrecorder.profile;
 
+import org.objectweb.asm.Type;
+
 /**
  * used to specify a class or multiple classes. Provides two predicate methods for matching at compile time and at run time.
  */
@@ -51,4 +53,15 @@ public interface Classes {
 		return new ClassDescription(className);
 	}
 
+	/**
+	 * specifies a class by a sample class object
+	 * 
+	 * @param clazz the class to be described
+	 * @return a predicate return true for the class of the given name
+	 */
+	static Classes byDescription(Class<?> clazz) {
+		String className = Type.getInternalName(clazz);
+		return new ClassDescription(className);
+	}
+	
 }

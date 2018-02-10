@@ -11,11 +11,17 @@ import net.amygdalum.testrecorder.util.testobjects.SimpleMisleadingFieldName;
 
 public class ClassDescriptionTest {
 
-	private Classes classByDescription;
+	private ClassDescription classByDescription;
 
 	@BeforeEach
 	public void before() {
-		classByDescription = Classes.byDescription("net/amygdalum/testrecorder/util/testobjects/Simple");
+		classByDescription = new ClassDescription("net/amygdalum/testrecorder/util/testobjects/Simple");
+	}
+	
+	@Test
+	public void testAlternativeFactories() throws Exception {
+		assertThat(classByDescription).isEqualToComparingFieldByField(Classes.byDescription("net/amygdalum/testrecorder/util/testobjects/Simple"));
+		assertThat(classByDescription).isEqualToComparingFieldByField(Classes.byDescription(Simple.class));
 	}
 	
 	@Test

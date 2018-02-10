@@ -11,25 +11,30 @@ import net.amygdalum.testrecorder.util.testobjects.SimpleMisleadingFieldName;
 
 public class MethodsByNameTest {
 
-	private Methods methodByName;
+	private MethodsByName methodByName;
 
 	@BeforeEach
 	public void before() throws Exception {
-		methodByName = Methods.byName("getStr");
+		methodByName = new MethodsByName("getStr");
 	}
-	
+
+	@Test
+	public void testFactoryMethod() throws Exception {
+		assertThat(methodByName).isEqualToComparingFieldByField(Methods.byName("getStr"));
+	}
+
 	@Test
 	public void testMatchesReflectiveMethod() throws Exception {
-		assertThat(methodByName.matches(Simple.class.getDeclaredMethod("getStr"))).isTrue(); 
-		assertThat(methodByName.matches(SimpleMisleadingFieldName.class.getDeclaredMethod("getStr"))).isTrue(); 
-		assertThat(methodByName.matches(Complex.class.getDeclaredMethod("getSimple"))).isFalse(); 
+		assertThat(methodByName.matches(Simple.class.getDeclaredMethod("getStr"))).isTrue();
+		assertThat(methodByName.matches(SimpleMisleadingFieldName.class.getDeclaredMethod("getStr"))).isTrue();
+		assertThat(methodByName.matches(Complex.class.getDeclaredMethod("getSimple"))).isFalse();
 	}
 
 	@Test
 	public void testMatchesMethodDescriptor() throws Exception {
-		assertThat(methodByName.matches("net/amygdalum/testrecorder/util/testobjects/Simple", "getStr", "()Ljava/lang/String;")).isTrue(); 
-		assertThat(methodByName.matches("net/amygdalum/testrecorder/util/testobjects/SimpleMisleadingFieldName", "getStr", "()Ljava/lang/String;")).isTrue(); 
-		assertThat(methodByName.matches("net/amygdalum/testrecorder/util/testobjects/Complex", "getSimple", "()Lnet/amygdalum/testrecorder/util/testobjects/Simple;")).isFalse(); 
+		assertThat(methodByName.matches("net/amygdalum/testrecorder/util/testobjects/Simple", "getStr", "()Ljava/lang/String;")).isTrue();
+		assertThat(methodByName.matches("net/amygdalum/testrecorder/util/testobjects/SimpleMisleadingFieldName", "getStr", "()Ljava/lang/String;")).isTrue();
+		assertThat(methodByName.matches("net/amygdalum/testrecorder/util/testobjects/Complex", "getSimple", "()Lnet/amygdalum/testrecorder/util/testobjects/Simple;")).isFalse();
 	}
 
 }

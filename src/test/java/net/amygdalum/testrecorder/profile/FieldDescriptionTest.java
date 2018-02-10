@@ -11,11 +11,17 @@ import net.amygdalum.testrecorder.util.testobjects.SimpleMisleadingFieldName;
 
 public class FieldDescriptionTest {
 
-	private Fields fieldByDescription;
+	private FieldDescription fieldByDescription;
 
 	@BeforeEach
 	public void before() {
-		fieldByDescription = Fields.byDescription("net/amygdalum/testrecorder/util/testobjects/Simple", "str", "Ljava/lang/String;");
+		fieldByDescription = new FieldDescription("net/amygdalum/testrecorder/util/testobjects/Simple", "str", "Ljava/lang/String;");
+	}
+	
+	@Test
+	public void testAlternativeFactories() throws Exception {
+		assertThat(fieldByDescription).isEqualToComparingFieldByField(Fields.byDescription("net/amygdalum/testrecorder/util/testobjects/Simple", "str", "Ljava/lang/String;"));
+		assertThat(fieldByDescription).isEqualToComparingFieldByField(Fields.byDescription(Simple.class.getDeclaredField("str")));
 	}
 	
 	@Test

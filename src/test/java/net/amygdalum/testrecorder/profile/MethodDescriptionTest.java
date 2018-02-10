@@ -11,13 +11,19 @@ import net.amygdalum.testrecorder.util.testobjects.SimpleMisleadingFieldName;
 
 public class MethodDescriptionTest {
 
-	private Methods methodByDescriptionResult;
-	private Methods methodByDescriptionArguments;
+	private MethodDescription methodByDescriptionResult;
+	private MethodDescription methodByDescriptionArguments;
 
 	@BeforeEach
 	public void before() throws Exception {
-		methodByDescriptionResult = Methods.byDescription("net/amygdalum/testrecorder/util/testobjects/Simple", "getStr", "()Ljava/lang/String;");
-		methodByDescriptionArguments = Methods.byDescription("net/amygdalum/testrecorder/util/testobjects/Collections", "arrayList", "([Ljava/lang/Object;)Ljava/util/ArrayList;");
+		methodByDescriptionResult = new MethodDescription("net/amygdalum/testrecorder/util/testobjects/Simple", "getStr", "()Ljava/lang/String;");
+		methodByDescriptionArguments = new MethodDescription("net/amygdalum/testrecorder/util/testobjects/Collections", "arrayList", "([Ljava/lang/Object;)Ljava/util/ArrayList;");
+	}
+	
+	@Test
+	public void testAlternativeFactories() throws Exception {
+		assertThat(methodByDescriptionResult).isEqualToComparingFieldByField(Methods.byDescription("net/amygdalum/testrecorder/util/testobjects/Simple", "getStr", "()Ljava/lang/String;"));
+		assertThat(methodByDescriptionResult).isEqualToComparingFieldByField(Methods.byDescription(Simple.class.getDeclaredMethod("getStr")));
 	}
 	
 	@Test
