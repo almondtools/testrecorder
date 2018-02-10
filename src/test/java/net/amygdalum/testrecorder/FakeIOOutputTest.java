@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.runtime;
+package net.amygdalum.testrecorder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -7,8 +7,9 @@ import static org.hamcrest.CoreMatchers.equalTo;
 
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.runtime.FakeIO.InvocationData;
-import net.amygdalum.testrecorder.runtime.FakeIO.Output;
+import net.amygdalum.testrecorder.FakeIO;
+import net.amygdalum.testrecorder.FakeIO.InvocationData;
+import net.amygdalum.testrecorder.FakeIO.Output;
 import net.amygdalum.testrecorder.util.testobjects.Bean;
 
 public class FakeIOOutputTest {

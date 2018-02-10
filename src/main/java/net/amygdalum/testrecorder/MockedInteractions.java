@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.deserializers;
+package net.amygdalum.testrecorder;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
@@ -22,8 +22,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
+import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
+import net.amygdalum.testrecorder.deserializers.Templates;
+import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.runtime.Aspect;
-import net.amygdalum.testrecorder.runtime.FakeIO;
 import net.amygdalum.testrecorder.types.DeserializationException;
 import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.types.DeserializerContext;

@@ -2,8 +2,6 @@ package net.amygdalum.testrecorder.util;
 
 import java.util.function.Function;
 
-import net.amygdalum.testrecorder.Logger;
-
 public final class Debug {
 
 	private Debug() {

@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.runtime;
+package net.amygdalum.testrecorder;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
@@ -23,7 +23,6 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodNode;
 
-import net.amygdalum.testrecorder.Logger;
 import net.amygdalum.testrecorder.asm.GetClassName;
 import net.amygdalum.testrecorder.asm.GetMethodDesc;
 import net.amygdalum.testrecorder.asm.GetMethodName;
@@ -38,6 +37,7 @@ import net.amygdalum.testrecorder.asm.SequenceInstruction;
 import net.amygdalum.testrecorder.asm.WrapArguments;
 import net.amygdalum.testrecorder.bridge.BridgedFakeIO;
 import net.amygdalum.testrecorder.util.AttachableClassFileTransformer;
+import net.amygdalum.testrecorder.util.Logger;
 
 public class FakeIOTransformer extends AttachableClassFileTransformer implements ClassFileTransformer {
 

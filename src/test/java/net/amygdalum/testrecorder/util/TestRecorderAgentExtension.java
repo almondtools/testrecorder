@@ -15,7 +15,6 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import net.amygdalum.testrecorder.ConfigurableTestRecorderAgentConfig;
 import net.amygdalum.testrecorder.ConfigurableTestRecorderAgentConfig.Builder;
 import net.amygdalum.testrecorder.DefaultTestRecorderAgentConfig;
-import net.amygdalum.testrecorder.Logger;
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.TestRecorderAgent;
 import net.amygdalum.testrecorder.TestRecorderAgentConfig;

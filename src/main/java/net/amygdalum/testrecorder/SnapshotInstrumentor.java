@@ -60,6 +60,7 @@ import net.amygdalum.testrecorder.profile.SerializationProfile.Global;
 import net.amygdalum.testrecorder.profile.SerializationProfile.Input;
 import net.amygdalum.testrecorder.profile.SerializationProfile.Output;
 import net.amygdalum.testrecorder.util.AttachableClassFileTransformer;
+import net.amygdalum.testrecorder.util.Logger;
 
 public class SnapshotInstrumentor extends AttachableClassFileTransformer implements ClassFileTransformer {
 

@@ -24,6 +24,7 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import net.amygdalum.testrecorder.util.AttachableClassFileTransformer;
+import net.amygdalum.testrecorder.util.Logger;
 
 public class AllLambdasSerializableTransformer extends AttachableClassFileTransformer implements ClassFileTransformer {
 

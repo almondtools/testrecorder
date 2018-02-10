@@ -11,8 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import net.amygdalum.testrecorder.Logger;
-
 
 public abstract class AttachableClassFileTransformer implements ClassFileTransformer {
 	

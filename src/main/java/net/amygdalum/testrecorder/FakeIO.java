@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.runtime;
+package net.amygdalum.testrecorder;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toSet;
@@ -35,9 +35,12 @@ import java.util.jar.Manifest;
 import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
 
-import net.amygdalum.testrecorder.Recorder;
 import net.amygdalum.testrecorder.asm.ByteCode;
 import net.amygdalum.testrecorder.bridge.BridgedFakeIO;
+import net.amygdalum.testrecorder.runtime.Aspect;
+import net.amygdalum.testrecorder.runtime.DefaultValue;
+import net.amygdalum.testrecorder.runtime.GenericObjectException;
+import net.amygdalum.testrecorder.runtime.Invocation;
 import net.amygdalum.testrecorder.util.Types;
 import net.bytebuddy.agent.ByteBuddyAgent;
 

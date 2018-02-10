@@ -10,8 +10,6 @@ import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 
-import net.amygdalum.testrecorder.Logger;
-
 public class LoggerExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
 
 	private ByteArrayOutputStream info;

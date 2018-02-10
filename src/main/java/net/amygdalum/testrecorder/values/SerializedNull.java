@@ -19,6 +19,7 @@ import net.amygdalum.testrecorder.types.SerializedValue;
 public class SerializedNull extends AbstractSerializedReferenceType implements SerializedImmutableType {
 
 	private static final Map<Type, SerializedNull> KNOWN_LITERALS = new HashMap<>();
+	public static final SerializedNull VOID = nullInstance(void.class);
 
 	private SerializedNull(Type type) {
 		super(type);

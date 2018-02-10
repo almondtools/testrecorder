@@ -18,7 +18,7 @@ import org.objectweb.asm.util.Printer;
 import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceMethodVisitor;
 
-import net.amygdalum.testrecorder.Logger;
+import net.amygdalum.testrecorder.util.Logger;
 import net.amygdalum.testrecorder.util.Types;
 
 public final class ByteCode {

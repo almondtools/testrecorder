@@ -5,7 +5,6 @@ import static java.lang.Thread.currentThread;
 import static net.amygdalum.testrecorder.ContextSnapshot.INVALID;
 import static net.amygdalum.testrecorder.Recorder.isRecording;
 import static net.amygdalum.testrecorder.TestrecorderThreadFactory.RECORDING;
-import static net.amygdalum.testrecorder.types.SerializedInteraction.VOID;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -32,10 +31,11 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
 import net.amygdalum.testrecorder.bridge.BridgedSnapshotManager;
-import net.amygdalum.testrecorder.runtime.FakeIO;
 import net.amygdalum.testrecorder.serializers.SerializerFacade;
+import net.amygdalum.testrecorder.util.Logger;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedInput;
+import net.amygdalum.testrecorder.values.SerializedNull;
 import net.amygdalum.testrecorder.values.SerializedOutput;
 import net.bytebuddy.agent.ByteBuddyAgent;
 
@@ -231,7 +231,7 @@ public class SnapshotManager {
 		ContextSnapshot currentSnapshot = current();
 		execute((facade, snapshot) -> {
 			snapshot.streamInput().filter(in -> in.id() == id).forEach(in -> {
-				in.updateResult(VOID);
+				in.updateResult(SerializedNull.VOID);
 			});
 		}, currentSnapshot);
 	}
@@ -272,7 +272,7 @@ public class SnapshotManager {
 		ContextSnapshot currentSnapshot = current();
 		execute((facade, snapshot) -> {
 			snapshot.streamOutput().filter(out -> out.id() == id).forEach(out -> {
-				out.updateResult(VOID);
+				out.updateResult(SerializedNull.VOID);
 			});
 		}, currentSnapshot);
 	}

@@ -4,6 +4,7 @@ import java.lang.instrument.Instrumentation;
 import java.util.ServiceLoader;
 
 import net.amygdalum.testrecorder.util.AttachableClassFileTransformer;
+import net.amygdalum.testrecorder.util.Logger;
 
 public class TestRecorderAgent {
 
