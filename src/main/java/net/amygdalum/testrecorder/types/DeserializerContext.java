@@ -23,10 +23,4 @@ public interface DeserializerContext {
 
 	Set<SerializedValue> closureOf(SerializedValue value);
 
-	void inputFrom(SerializedReferenceType object);
-
-	void outputFrom(SerializedReferenceType object);
-
-	boolean hasOutputInteractions(SerializedReferenceType value);
-
 }

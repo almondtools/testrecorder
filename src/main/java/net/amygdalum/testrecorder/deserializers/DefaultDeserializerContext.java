@@ -8,7 +8,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -32,15 +31,11 @@ public class DefaultDeserializerContext implements DeserializerContext {
 	private DefaultDeserializerContext parent;
 	private Map<SerializedValue, Set<SerializedReferenceType>> backReferences;
 	private Map<SerializedValue, Set<SerializedValue>> closures;
-	private Map<Integer, SerializedReferenceType> inputs;
-	private Map<Integer, SerializedReferenceType> outputs;
 	private List<Object> hints;
 
 	public DefaultDeserializerContext() {
 		this.backReferences = new IdentityHashMap<>();
 		this.closures = new IdentityHashMap<>();
-		this.inputs = new HashMap<>();
-		this.outputs = new HashMap<>();
 		this.hints = emptyList();
 	}
 
@@ -48,8 +43,6 @@ public class DefaultDeserializerContext implements DeserializerContext {
 		this.parent = parent;
 		this.backReferences = parent.backReferences;
 		this.closures = parent.closures;
-		this.inputs = parent.inputs;
-		this.outputs = parent.outputs;
 		this.hints = new ArrayList<>(hints);
 	}
 
@@ -132,21 +125,6 @@ public class DefaultDeserializerContext implements DeserializerContext {
 		} else {
 			return Collections.singleton(value);
 		}
-	}
-
-	@Override
-	public void inputFrom(SerializedReferenceType object) {
-		inputs.put(object.getId(), object);
-	}
-
-	@Override
-	public void outputFrom(SerializedReferenceType object) {
-		outputs.put(object.getId(), object);
-	}
-
-	@Override
-	public boolean hasOutputInteractions(SerializedReferenceType value) {
-		return outputs.containsValue(value);
 	}
 
 	private static class GlobalRoot implements SerializedReferenceType {

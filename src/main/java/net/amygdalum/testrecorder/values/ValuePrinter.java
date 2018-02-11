@@ -136,17 +136,4 @@ public class ValuePrinter implements Deserializer<String>, DeserializerContext {
 		return emptySet();
 	}
 
-	@Override
-	public void inputFrom(SerializedReferenceType object) {
-	}
-
-	@Override
-	public void outputFrom(SerializedReferenceType object) {
-	}
-
-	@Override
-	public boolean hasOutputInteractions(SerializedReferenceType value) {
-		return false;
-	}
-
 }

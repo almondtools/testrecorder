@@ -64,12 +64,6 @@ public class TreeAnalyzer {
 		context.staticRef(value);
 		if (value instanceof SerializedReferenceType) {
 			SerializedReferenceType object = (SerializedReferenceType) value;
-			if (inputs.contains(object.getId())) {
-				context.inputFrom(object);
-			}
-			if (outputs.contains(object.getId())) {
-				context.outputFrom(object);
-			}
 			todo.add(object);
 		}
 	}
@@ -80,11 +74,9 @@ public class TreeAnalyzer {
 			SerializedReferenceType object = (SerializedReferenceType) referencedValue;
 			if (inputs.contains(object.getId())) {
 				context.staticRef(object);
-				context.inputFrom(object);
 			}
 			if (outputs.contains(object.getId())) {
 				context.staticRef(object);
-				context.outputFrom(object);
 			}
 			todo.add(object);
 		}
