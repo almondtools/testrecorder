@@ -190,8 +190,8 @@ public class FakeIOTest {
 
 		Throwable exception = Throwables.capture(() -> inputs.recorded());
 
-		assertThat(exception.getMessage()).containsWildcardPattern("missing input for:"
-			+ "\n*called from*"
+		assertThat(exception.getMessage()).containsWildcardPattern("missing input for:\n"
+			+ "net.amygdalum.testrecorder.ioscenarios.Inputs.read()Ljava/lang/String;"
 			+ "\n"
 			+ "\nIf the input was recorded ensure that all call sites are recorded");
 		faked.verify();
@@ -342,18 +342,14 @@ public class FakeIOTest {
 
 	@Test
 	public void testCallFakeNonRecording() throws Exception {
-		StackTraceElement[] stackTraceContainingRecordingClass = new StackTraceElement[] { new StackTraceElement("net.amygdalum.testrecorder.SnapshotManager", "method", "file", 0) };
-		
-		Object result = FakeIO.callFake("name", stackTraceContainingRecordingClass, new Object(), "methodName", "methodDesc");
+		Object result = FakeIO.callFake("name", new Object(), "methodName", "methodDesc");
 		
 		assertThat(result).isSameAs(FakeIO.NO_RESULT);
 	}
 
 	@Test
 	public void testCallFakeNotFaked() throws Exception {
-		StackTraceElement[] stackTrace = new StackTraceElement[] { };
-		
-		Object result = FakeIO.callFake("name", stackTrace, new Object(), "methodName", "methodDesc");
+		Object result = FakeIO.callFake("name", new Object(), "methodName", "methodDesc");
 		
 		assertThat(result).isSameAs(FakeIO.NO_RESULT);
 	}

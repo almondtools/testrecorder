@@ -12,8 +12,8 @@ public class BridgedFakeIO {
 	public static MethodHandle callFake;
 	public static Object NO_RESULT;
 	
-	public static Object callFake(String name, StackTraceElement[] stackTrace, Object instance, String methodName, String methodDesc, Object... varargs) throws Throwable {
-		return callFake.invoke(name, stackTrace, instance, methodName, methodDesc, varargs);		
+	public static Object callFake(String name, Object instance, String methodName, String methodDesc, Object... varargs) throws Throwable {
+		return callFake.invoke(name, instance, methodName, methodDesc, varargs);		
 	}
 	
 }

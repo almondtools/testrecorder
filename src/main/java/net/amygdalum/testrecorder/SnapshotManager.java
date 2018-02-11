@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder;
 import static java.lang.System.identityHashCode;
 import static java.lang.Thread.currentThread;
 import static net.amygdalum.testrecorder.ContextSnapshot.INVALID;
-import static net.amygdalum.testrecorder.Recorder.isRecording;
 import static net.amygdalum.testrecorder.TestrecorderThreadFactory.RECORDING;
 
 import java.io.File;
@@ -32,6 +31,7 @@ import java.util.jar.Manifest;
 
 import net.amygdalum.testrecorder.bridge.BridgedSnapshotManager;
 import net.amygdalum.testrecorder.serializers.SerializerFacade;
+import net.amygdalum.testrecorder.util.CircularityLock;
 import net.amygdalum.testrecorder.util.Logger;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedInput;
@@ -44,6 +44,7 @@ public class SnapshotManager {
 	public static volatile SnapshotManager MANAGER;
 
 	private ExecutorService snapshotExecutor;
+	private CircularityLock lock = new CircularityLock();
 
 	private MethodContext methodContext;
 	private GlobalContext globalContext;
@@ -75,7 +76,7 @@ public class SnapshotManager {
 		try {
 			inst.appendToBootstrapClassLoaderSearch(jarfile());
 			BridgedSnapshotManager.inputVariables = MethodHandles.lookup().findVirtual(SnapshotManager.class, "inputVariables",
-				MethodType.methodType(int.class, StackTraceElement[].class, Object.class, String.class, Type.class, Type[].class));
+				MethodType.methodType(int.class, Object.class, String.class, Type.class, Type[].class));
 			BridgedSnapshotManager.inputArguments = MethodHandles.lookup().findVirtual(SnapshotManager.class, "inputArguments",
 				MethodType.methodType(void.class, int.class, Object[].class));
 			BridgedSnapshotManager.inputResult = MethodHandles.lookup().findVirtual(SnapshotManager.class, "inputResult",
@@ -83,7 +84,7 @@ public class SnapshotManager {
 			BridgedSnapshotManager.inputVoidResult = MethodHandles.lookup().findVirtual(SnapshotManager.class, "inputVoidResult",
 				MethodType.methodType(void.class, int.class));
 			BridgedSnapshotManager.outputVariables = MethodHandles.lookup().findVirtual(SnapshotManager.class, "outputVariables",
-				MethodType.methodType(int.class, StackTraceElement[].class, Object.class, String.class, Type.class, Type[].class));
+				MethodType.methodType(int.class, Object.class, String.class, Type.class, Type[].class));
 			BridgedSnapshotManager.outputArguments = MethodHandles.lookup().findVirtual(SnapshotManager.class, "outputArguments",
 				MethodType.methodType(void.class, int.class, Object[].class));
 			BridgedSnapshotManager.outputResult = MethodHandles.lookup().findVirtual(SnapshotManager.class, "outputResult",
@@ -181,153 +182,231 @@ public class SnapshotManager {
 	}
 
 	public void setupVariables(Object self, String signature, Object... args) {
-		if (!matches(self, signature)) {
-			return;
-		}
-		execute((facade, snapshot) -> {
-			if (self != null) {
-				snapshot.setSetupThis(facade.serialize(self.getClass(), self));
+		try {
+			boolean aquired = lock.acquire();
+			if (!aquired || !matches(self, signature)) {
+				return;
 			}
-			snapshot.setSetupArgs(facade.serialize(snapshot.getArgumentTypes(), args));
-			snapshot.setSetupGlobals(globalContext.globals().stream()
-				.map(field -> facade.serialize(field, null))
-				.toArray(SerializedField[]::new));
-		}, push(signature));
+			execute((facade, snapshot) -> {
+				if (self != null) {
+					snapshot.setSetupThis(facade.serialize(self.getClass(), self));
+				}
+				snapshot.setSetupArgs(facade.serialize(snapshot.getArgumentTypes(), args));
+				snapshot.setSetupGlobals(globalContext.globals().stream()
+					.map(field -> facade.serialize(field, null))
+					.toArray(SerializedField[]::new));
+			}, push(signature));
+		} finally {
+			lock.release();
+		}
 	}
 
-	public int inputVariables(StackTraceElement[] stackTrace, Object object, String method, Type resultType, Type[] paramTypes) {
-		if (isRecording(stackTrace) || isNestedIO()) {
-			return 0;
-		}
-		Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
-		int id = object instanceof Class<?> ? 0 : identityHashCode(object);
+	public int inputVariables(Object object, String method, Type resultType, Type[] paramTypes) {
+		try {
+			boolean aquired = lock.acquire();
+			if (!aquired || isNestedIO()) {
+				return 0;
+			}
+			Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
+			int id = object instanceof Class<?> ? 0 : identityHashCode(object);
 
-		SerializedInput in = new SerializedInput(id, clazz, method, resultType, paramTypes);
-		for (ContextSnapshot snapshot : all()) {
-			snapshot.addInput(in);
+			SerializedInput in = new SerializedInput(id, clazz, method, resultType, paramTypes);
+			for (ContextSnapshot snapshot : all()) {
+				snapshot.addInput(in);
+			}
+			return in.id();
+		} finally {
+			lock.release();
 		}
-		return in.id();
 	}
 
 	public void inputArguments(int id, Object... arguments) {
-		ContextSnapshot currentSnapshot = current();
-		execute((facade, snapshot) -> {
-			snapshot.streamInput().filter(in -> in.id() == id).forEach(in -> {
-				in.updateArguments(facade.serialize(in.getTypes(), arguments));
-			});
-		}, currentSnapshot);
+		try {
+			boolean aquired = lock.acquire();
+			if (!aquired) {
+				return;
+			}
+			ContextSnapshot currentSnapshot = current();
+			execute((facade, snapshot) -> {
+				snapshot.streamInput().filter(in -> in.id() == id).forEach(in -> {
+					in.updateArguments(facade.serialize(in.getTypes(), arguments));
+				});
+			}, currentSnapshot);
+		} finally {
+			lock.release();
+		}
 	}
 
 	public void inputResult(int id, Object result) {
-		ContextSnapshot currentSnapshot = current();
-		execute((facade, snapshot) -> {
-			snapshot.streamInput().filter(in -> in.id() == id).forEach(in -> {
-				in.updateResult(facade.serialize(in.getResultType(), result));
-			});
-		}, currentSnapshot);
+		try {
+			boolean aquired = lock.acquire();
+			if (!aquired) {
+				return;
+			}
+			ContextSnapshot currentSnapshot = current();
+			execute((facade, snapshot) -> {
+				snapshot.streamInput().filter(in -> in.id() == id).forEach(in -> {
+					in.updateResult(facade.serialize(in.getResultType(), result));
+				});
+			}, currentSnapshot);
+		} finally {
+			lock.release();
+		}
 	}
 
 	public void inputVoidResult(int id) {
-		ContextSnapshot currentSnapshot = current();
-		execute((facade, snapshot) -> {
-			snapshot.streamInput().filter(in -> in.id() == id).forEach(in -> {
-				in.updateResult(SerializedNull.VOID);
-			});
-		}, currentSnapshot);
+		try {
+			boolean aquired = lock.acquire();
+			if (!aquired) {
+				return;
+			}
+			ContextSnapshot currentSnapshot = current();
+			execute((facade, snapshot) -> {
+				snapshot.streamInput().filter(in -> in.id() == id).forEach(in -> {
+					in.updateResult(SerializedNull.VOID);
+				});
+			}, currentSnapshot);
+		} finally {
+			lock.release();
+		}
 	}
-	
-	public int outputVariables(StackTraceElement[] stackTrace, Object object, String method, Type resultType, Type[] paramTypes) {
-		if (isRecording(stackTrace) || isNestedIO()) {
-			return 0;
-		}
-		Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
-		int id = object instanceof Class<?> ? 0 : identityHashCode(object);
 
-		SerializedOutput out = new SerializedOutput(id, clazz, method, resultType, paramTypes);
-		for (ContextSnapshot snapshot : all()) {
-			snapshot.addOutput(out);
+	public int outputVariables(Object object, String method, Type resultType, Type[] paramTypes) {
+		try {
+			boolean aquired = lock.acquire();
+			if (!aquired || isNestedIO()) {
+				return 0;
+			}
+			Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
+			int id = object instanceof Class<?> ? 0 : identityHashCode(object);
+
+			SerializedOutput out = new SerializedOutput(id, clazz, method, resultType, paramTypes);
+			for (ContextSnapshot snapshot : all()) {
+				snapshot.addOutput(out);
+			}
+			return out.id();
+		} finally {
+			lock.release();
 		}
-		return out.id();
 	}
 
 	public void outputArguments(int id, Object... arguments) {
-		ContextSnapshot currentSnapshot = current();
-		execute((facade, snapshot) -> {
-			snapshot.streamOutput().filter(out -> out.id() == id).forEach(out -> {
-				out.updateArguments(facade.serialize(out.getTypes(), arguments));
-			});
-		}, currentSnapshot);
+		try {
+			boolean aquired = lock.acquire();
+			if (!aquired) {
+				return;
+			}
+			ContextSnapshot currentSnapshot = current();
+			execute((facade, snapshot) -> {
+				snapshot.streamOutput().filter(out -> out.id() == id).forEach(out -> {
+					out.updateArguments(facade.serialize(out.getTypes(), arguments));
+				});
+			}, currentSnapshot);
+		} finally {
+			lock.release();
+		}
 	}
 
 	public void outputResult(int id, Object result) {
-		ContextSnapshot currentSnapshot = current();
-		execute((facade, snapshot) -> {
-			snapshot.streamOutput().filter(out -> out.id() == id).forEach(out -> {
-				out.updateResult(facade.serialize(out.getResultType(), result));
-			});
-		}, currentSnapshot);
+		try {
+			boolean aquired = lock.acquire();
+			if (!aquired) {
+				return;
+			}
+			ContextSnapshot currentSnapshot = current();
+			execute((facade, snapshot) -> {
+				snapshot.streamOutput().filter(out -> out.id() == id).forEach(out -> {
+					out.updateResult(facade.serialize(out.getResultType(), result));
+				});
+			}, currentSnapshot);
+		} finally {
+			lock.release();
+		}
 	}
 
 	public void outputVoidResult(int id) {
-		ContextSnapshot currentSnapshot = current();
-		execute((facade, snapshot) -> {
-			snapshot.streamOutput().filter(out -> out.id() == id).forEach(out -> {
-				out.updateResult(SerializedNull.VOID);
-			});
-		}, currentSnapshot);
+		try {
+			boolean aquired = lock.acquire();
+			if (!aquired) {
+				return;
+			}
+			ContextSnapshot currentSnapshot = current();
+			execute((facade, snapshot) -> {
+				snapshot.streamOutput().filter(out -> out.id() == id).forEach(out -> {
+					out.updateResult(SerializedNull.VOID);
+				});
+			}, currentSnapshot);
+		} finally {
+			lock.release();
+		}
 	}
 
 	public void expectVariables(Object self, String signature, Object result, Object... args) {
-		if (!matches(self, signature)) {
-			return;
-		}
-		ContextSnapshot currentSnapshot = pop(signature);
-		execute((facade, snapshot) -> {
-			if (self != null) {
-				snapshot.setExpectThis(facade.serialize(self.getClass(), self));
+		try {
+			boolean aquired = lock.acquire();
+			if (!aquired || !matches(self, signature)) {
+				return;
 			}
-			snapshot.setExpectResult(facade.serialize(snapshot.getResultType(), result));
-			snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
-			snapshot.setExpectGlobals(globalContext.globals().stream()
-				.map(field -> facade.serialize(field, null))
-				.toArray(SerializedField[]::new));
-		}, currentSnapshot);
-		consume(currentSnapshot);
+			ContextSnapshot currentSnapshot = pop(signature);
+			execute((facade, snapshot) -> {
+				if (self != null) {
+					snapshot.setExpectThis(facade.serialize(self.getClass(), self));
+				}
+				snapshot.setExpectResult(facade.serialize(snapshot.getResultType(), result));
+				snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
+				snapshot.setExpectGlobals(globalContext.globals().stream()
+					.map(field -> facade.serialize(field, null))
+					.toArray(SerializedField[]::new));
+			}, currentSnapshot);
+			consume(currentSnapshot);
+		} finally {
+			lock.release();
+		}
 	}
 
 	public void expectVariables(Object self, String signature, Object... args) {
-		if (!matches(self, signature)) {
-			return;
-		}
-		ContextSnapshot currentSnapshot = pop(signature);
-		execute((facade, snapshot) -> {
-			if (self != null) {
-				snapshot.setExpectThis(facade.serialize(self.getClass(), self));
+		try {
+			boolean aquired = lock.acquire();
+			if (!aquired || !matches(self, signature)) {
+				return;
 			}
-			snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
-			snapshot.setExpectGlobals(globalContext.globals().stream()
-				.map(field -> facade.serialize(field, null))
-				.toArray(SerializedField[]::new));
-		}, currentSnapshot);
-		consume(currentSnapshot);
+			ContextSnapshot currentSnapshot = pop(signature);
+			execute((facade, snapshot) -> {
+				if (self != null) {
+					snapshot.setExpectThis(facade.serialize(self.getClass(), self));
+				}
+				snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
+				snapshot.setExpectGlobals(globalContext.globals().stream()
+					.map(field -> facade.serialize(field, null))
+					.toArray(SerializedField[]::new));
+			}, currentSnapshot);
+			consume(currentSnapshot);
+		} finally {
+			lock.release();
+		}
 	}
 
 	public void throwVariables(Throwable throwable, Object self, String signature, Object... args) {
-		if (!matches(self, signature)) {
-			return;
-		}
-		ContextSnapshot currentSnapshot = pop(signature);
-		execute((facade, snapshot) -> {
-			if (self != null) {
-				snapshot.setExpectThis(facade.serialize(self.getClass(), self));
+		try {
+			boolean aquired = lock.acquire();
+			if (!aquired || !matches(self, signature)) {
+				return;
 			}
-			snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
-			snapshot.setExpectException(facade.serialize(throwable.getClass(), throwable));
-			snapshot.setExpectGlobals(globalContext.globals().stream()
-				.map(field -> facade.serialize(field, null))
-				.toArray(SerializedField[]::new));
-		}, currentSnapshot);
-		consume(currentSnapshot);
+			ContextSnapshot currentSnapshot = pop(signature);
+			execute((facade, snapshot) -> {
+				if (self != null) {
+					snapshot.setExpectThis(facade.serialize(self.getClass(), self));
+				}
+				snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
+				snapshot.setExpectException(facade.serialize(throwable.getClass(), throwable));
+				snapshot.setExpectGlobals(globalContext.globals().stream()
+					.map(field -> facade.serialize(field, null))
+					.toArray(SerializedField[]::new));
+			}, currentSnapshot);
+			consume(currentSnapshot);
+		} finally {
+			lock.release();
+		}
 	}
 
 	public boolean isNestedIO() {

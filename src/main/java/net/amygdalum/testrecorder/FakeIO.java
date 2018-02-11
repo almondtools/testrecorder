@@ -35,10 +35,8 @@ import java.util.jar.Manifest;
 import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
 
-import net.amygdalum.testrecorder.asm.ByteCode;
 import net.amygdalum.testrecorder.bridge.BridgedFakeIO;
 import net.amygdalum.testrecorder.runtime.Aspect;
-import net.amygdalum.testrecorder.runtime.DefaultValue;
 import net.amygdalum.testrecorder.runtime.GenericObjectException;
 import net.amygdalum.testrecorder.runtime.Invocation;
 import net.amygdalum.testrecorder.util.Types;
@@ -59,15 +57,15 @@ public class FakeIO {
 		this.interactions = new ArrayList<>();
 	}
 
-	public static Object callFake(String name, StackTraceElement[] stackTrace, Object instance, String methodName, String methodDesc, Object... varargs) {
-		if (Recorder.isRecording(stackTrace)) {
+	public static Object callFake(String name, Object instance, String methodName, String methodDesc, Object... varargs) {
+		if (Recorder.isRecording()) {
 			return NO_RESULT;
 		}
 		FakeIO fake = faked.get(name);
 		if (fake == null) {
 			return NO_RESULT;
 		}
-		Invocation invocation = Invocation.capture(stackTrace, instance, fake.clazz, methodName, methodDesc);
+		Invocation invocation = Invocation.capture(instance, fake.clazz, methodName, methodDesc);
 		return fake.call(invocation, varargs);
 	}
 
@@ -84,8 +82,7 @@ public class FakeIO {
 	private static void installBridge(Instrumentation inst) {
 		try {
 			inst.appendToBootstrapClassLoaderSearch(jarfile());
-			BridgedFakeIO.callFake = MethodHandles.lookup().findStatic(FakeIO.class, "callFake",
-				MethodType.methodType(Object.class, String.class, StackTraceElement[].class, Object.class, String.class, String.class, Object[].class));
+			BridgedFakeIO.callFake = MethodHandles.lookup().findStatic(FakeIO.class, "callFake", MethodType.methodType(Object.class, String.class, Object.class, String.class, String.class, Object[].class));
 			BridgedFakeIO.NO_RESULT = NO_RESULT;
 		} catch (ReflectiveOperationException | IOException e) {
 			throw new RuntimeException("failed installing fake bridge", e);
@@ -228,11 +225,7 @@ public class FakeIO {
 					return result;
 				}
 			}
-			String caller = invocation.getCaller();
-			if (caller.startsWith("net.amygdalum.testrecorder.runtime") || caller.startsWith("net.amygdalum.testrecorder.testing")) {
-				return DefaultValue.INSTANCE.newValue(ByteCode.resultTypeFrom(methodDesc));
-			}
-			throw new AssertionError("missing input for:\n" + invocation.getCallee() + " called from " + caller + "\n\nIf the input was recorded ensure that all call sites are recorded");
+			throw new AssertionError("missing input for:\n" + invocation.getCallee() + "\n\nIf the input was recorded ensure that all call sites are recorded");
 		}
 
 		public abstract Object call(InvocationData data, Object[] arguments);

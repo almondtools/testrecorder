@@ -35,7 +35,6 @@ import net.amygdalum.testrecorder.asm.CaptureCall;
 import net.amygdalum.testrecorder.asm.GetInvokedMethodArgumentTypes;
 import net.amygdalum.testrecorder.asm.GetInvokedMethodName;
 import net.amygdalum.testrecorder.asm.GetInvokedMethodResultType;
-import net.amygdalum.testrecorder.asm.GetStackTrace;
 import net.amygdalum.testrecorder.asm.GetStatic;
 import net.amygdalum.testrecorder.asm.GetThisOrClass;
 import net.amygdalum.testrecorder.asm.GetThisOrNull;
@@ -337,13 +336,12 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 				.then(new CaptureCall(inputCall, "base", "arguments"))
 				.then(new Assign("inputId", Type.INT_TYPE)
 					.value(
-						new InvokeVirtual(SnapshotManager.class, "inputVariables", StackTraceElement[].class, Object.class, String.class, java.lang.reflect.Type.class, java.lang.reflect.Type[].class)
+						new InvokeVirtual(SnapshotManager.class, "inputVariables", Object.class, String.class, java.lang.reflect.Type.class, java.lang.reflect.Type[].class)
 							.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-							.withArgument(0, new GetStackTrace())
-							.withArgument(1, new Recall("base"))
-							.withArgument(2, new GetInvokedMethodName(inputCall))
-							.withArgument(3, new GetInvokedMethodResultType(inputCall))
-							.withArgument(4, new GetInvokedMethodArgumentTypes(inputCall))))
+							.withArgument(0, new Recall("base"))
+							.withArgument(1, new GetInvokedMethodName(inputCall))
+							.withArgument(2, new GetInvokedMethodResultType(inputCall))
+							.withArgument(3, new GetInvokedMethodArgumentTypes(inputCall))))
 				.build(context);
 		}
 
@@ -390,13 +388,12 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 				.then(new CaptureCall(inputCall, "base", "arguments"))
 				.then(new Assign("outputId", Type.INT_TYPE)
 					.value(
-						new InvokeVirtual(SnapshotManager.class, "outputVariables", StackTraceElement[].class, Object.class, String.class, java.lang.reflect.Type.class, java.lang.reflect.Type[].class)
+						new InvokeVirtual(SnapshotManager.class, "outputVariables", Object.class, String.class, java.lang.reflect.Type.class, java.lang.reflect.Type[].class)
 							.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-							.withArgument(0, new GetStackTrace())
-							.withArgument(1, new Recall("base"))
-							.withArgument(2, new GetInvokedMethodName(inputCall))
-							.withArgument(3, new GetInvokedMethodResultType(inputCall))
-							.withArgument(4, new GetInvokedMethodArgumentTypes(inputCall))))
+							.withArgument(0, new Recall("base"))
+							.withArgument(1, new GetInvokedMethodName(inputCall))
+							.withArgument(2, new GetInvokedMethodResultType(inputCall))
+							.withArgument(3, new GetInvokedMethodArgumentTypes(inputCall))))
 				.then(new InvokeVirtual(SnapshotManager.class, "outputArguments", int.class, Object[].class)
 					.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
 					.withArgument(0, new Recall("outputId"))
@@ -608,13 +605,12 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		@Override
 		protected SequenceInstruction inputVariables(MethodNode methodNode) {
 			return new Assign("inputId", Type.INT_TYPE)
-				.value(new InvokeStatic(BridgedSnapshotManager.class, "inputVariables", StackTraceElement[].class, Object.class, String.class, java.lang.reflect.Type.class,
+				.value(new InvokeStatic(BridgedSnapshotManager.class, "inputVariables", Object.class, String.class, java.lang.reflect.Type.class,
 					java.lang.reflect.Type[].class)
-						.withArgument(0, new GetStackTrace())
-						.withArgument(1, new GetThisOrClass())
-						.withArgument(2, new Ldc(methodNode.name))
-						.withArgument(3, new WrapResultType())
-						.withArgument(4, new WrapArgumentTypes()));
+						.withArgument(0, new GetThisOrClass())
+						.withArgument(1, new Ldc(methodNode.name))
+						.withArgument(2, new WrapResultType())
+						.withArgument(3, new WrapArgumentTypes()));
 		}
 
 		@Override
@@ -642,13 +638,12 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		protected SequenceInstruction outputVariables(MethodNode methodNode) {
 			return Sequence.start()
 				.then(new Assign("outputId", Type.INT_TYPE)
-					.value(new InvokeStatic(BridgedSnapshotManager.class, "outputVariables", StackTraceElement[].class, Object.class, String.class, java.lang.reflect.Type.class,
+					.value(new InvokeStatic(BridgedSnapshotManager.class, "outputVariables", Object.class, String.class, java.lang.reflect.Type.class,
 						java.lang.reflect.Type[].class)
-							.withArgument(0, new GetStackTrace())
-							.withArgument(1, new GetThisOrClass())
-							.withArgument(2, new Ldc(methodNode.name))
-							.withArgument(3, new WrapResultType())
-							.withArgument(4, new WrapArgumentTypes())))
+							.withArgument(0, new GetThisOrClass())
+							.withArgument(1, new Ldc(methodNode.name))
+							.withArgument(2, new WrapResultType())
+							.withArgument(3, new WrapArgumentTypes())))
 				.then(new InvokeStatic(BridgedSnapshotManager.class, "outputArguments", int.class, Object[].class)
 					.withArgument(0, new Recall("outputId"))
 					.withArgument(1, new WrapArguments()));
@@ -680,13 +675,12 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		@Override
 		protected SequenceInstruction inputVariables(MethodNode methodNode) {
 			return new Assign("inputId", Type.INT_TYPE)
-				.value(new InvokeVirtual(SnapshotManager.class, "inputVariables", StackTraceElement[].class, Object.class, String.class, java.lang.reflect.Type.class, java.lang.reflect.Type[].class)
+				.value(new InvokeVirtual(SnapshotManager.class, "inputVariables", Object.class, String.class, java.lang.reflect.Type.class, java.lang.reflect.Type[].class)
 					.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-					.withArgument(0, new GetStackTrace())
-					.withArgument(1, new GetThisOrClass())
-					.withArgument(2, new Ldc(methodNode.name))
-					.withArgument(3, new WrapResultType())
-					.withArgument(4, new WrapArgumentTypes()));
+					.withArgument(0, new GetThisOrClass())
+					.withArgument(1, new Ldc(methodNode.name))
+					.withArgument(2, new WrapResultType())
+					.withArgument(3, new WrapArgumentTypes()));
 		}
 
 		@Override
@@ -719,13 +713,12 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 			return Sequence.start()
 				.then(new Assign("outputId", Type.INT_TYPE)
 					.value(
-						new InvokeVirtual(SnapshotManager.class, "outputVariables", StackTraceElement[].class, Object.class, String.class, java.lang.reflect.Type.class, java.lang.reflect.Type[].class)
+						new InvokeVirtual(SnapshotManager.class, "outputVariables", Object.class, String.class, java.lang.reflect.Type.class, java.lang.reflect.Type[].class)
 							.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-							.withArgument(0, new GetStackTrace())
-							.withArgument(1, new GetThisOrClass())
-							.withArgument(2, new Ldc(methodNode.name))
-							.withArgument(3, new WrapResultType())
-							.withArgument(4, new WrapArgumentTypes())))
+							.withArgument(0, new GetThisOrClass())
+							.withArgument(1, new Ldc(methodNode.name))
+							.withArgument(2, new WrapResultType())
+							.withArgument(3, new WrapArgumentTypes())))
 				.then(new InvokeVirtual(SnapshotManager.class, "outputArguments", int.class, Object[].class)
 					.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
 					.withArgument(0, new Recall("outputId"))

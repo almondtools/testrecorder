@@ -15,7 +15,7 @@ import java.util.ListIterator;
 public abstract class AttachableClassFileTransformer implements ClassFileTransformer {
 	
 	protected CircularityLock lock = new CircularityLock();
-
+	
 	public AttachableClassFileTransformer attach(Instrumentation inst) {
 		try {
 			Class<?>[] classesToRetransform = classesToRetransform(inst.getAllLoadedClasses());

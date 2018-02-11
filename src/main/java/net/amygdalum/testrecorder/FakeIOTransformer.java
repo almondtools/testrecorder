@@ -26,7 +26,6 @@ import org.objectweb.asm.tree.MethodNode;
 import net.amygdalum.testrecorder.asm.GetClassName;
 import net.amygdalum.testrecorder.asm.GetMethodDesc;
 import net.amygdalum.testrecorder.asm.GetMethodName;
-import net.amygdalum.testrecorder.asm.GetStackTrace;
 import net.amygdalum.testrecorder.asm.GetThisOrNull;
 import net.amygdalum.testrecorder.asm.InvokeStatic;
 import net.amygdalum.testrecorder.asm.MethodContext;
@@ -103,7 +102,7 @@ public class FakeIOTransformer extends AttachableClassFileTransformer implements
 					: new DefaultTask(classNode, fakedMethods(classNode));
 
 				task.insertIOFakes();
-				
+
 				if (classBeingRedefined != null && task.instrumentsNative()) {
 					nativeClasses.add(classBeingRedefined);
 				}
@@ -187,7 +186,7 @@ public class FakeIOTransformer extends AttachableClassFileTransformer implements
 
 		protected ClassNode classNode;
 		protected List<MethodNode> methods;
-		
+
 		private boolean nativeInstrumentation;
 
 		public Task(ClassNode classNode, List<MethodNode> methods) {
@@ -236,13 +235,12 @@ public class FakeIOTransformer extends AttachableClassFileTransformer implements
 
 		public SequenceInstruction createIOFake(MethodNode methodNode) {
 			return Sequence.start()
-				.then(new InvokeStatic(BridgedFakeIO.class, "callFake", String.class, StackTraceElement[].class, Object.class, String.class, String.class, Object[].class)
+				.then(new InvokeStatic(BridgedFakeIO.class, "callFake", String.class, Object.class, String.class, String.class, Object[].class)
 					.withArgument(0, new GetClassName())
-					.withArgument(1, new GetStackTrace())
-					.withArgument(2, new GetThisOrNull())
-					.withArgument(3, new GetMethodName())
-					.withArgument(4, new GetMethodDesc())
-					.withArgument(5, new WrapArguments()))
+					.withArgument(1, new GetThisOrNull())
+					.withArgument(2, new GetMethodName())
+					.withArgument(3, new GetMethodDesc())
+					.withArgument(4, new WrapArguments()))
 				.then(new ReturnFakeOrProceed(BridgedFakeIO.class, "NO_RESULT"));
 		}
 
@@ -256,13 +254,12 @@ public class FakeIOTransformer extends AttachableClassFileTransformer implements
 
 		public SequenceInstruction createIOFake(MethodNode methodNode) {
 			return Sequence.start()
-				.then(new InvokeStatic(FakeIO.class, "callFake", String.class, StackTraceElement[].class, Object.class, String.class, String.class, Object[].class)
+				.then(new InvokeStatic(FakeIO.class, "callFake", String.class, Object.class, String.class, String.class, Object[].class)
 					.withArgument(0, new GetClassName())
-					.withArgument(1, new GetStackTrace())
-					.withArgument(2, new GetThisOrNull())
-					.withArgument(3, new GetMethodName())
-					.withArgument(4, new GetMethodDesc())
-					.withArgument(5, new WrapArguments()))
+					.withArgument(1, new GetThisOrNull())
+					.withArgument(2, new GetMethodName())
+					.withArgument(3, new GetMethodDesc())
+					.withArgument(4, new WrapArguments()))
 				.then(new ReturnFakeOrProceed(FakeIO.class, "NO_RESULT"));
 		}
 

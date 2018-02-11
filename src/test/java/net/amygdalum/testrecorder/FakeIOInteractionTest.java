@@ -11,7 +11,6 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import net.amygdalum.testrecorder.FakeIO;
 import net.amygdalum.testrecorder.FakeIO.Input;
 import net.amygdalum.testrecorder.FakeIO.InvocationData;
 import net.amygdalum.testrecorder.FakeIO.Output;
@@ -57,14 +56,10 @@ public class FakeIOInteractionTest {
 	void testMatchesIfFakeAndInteractionMatch() throws Exception {
 		MyInteraction myInteraction = new MyInteraction(FakeIO.fake(Bean.class), "setAttribute", "(Ljava/lang/String;)V");
 
-		StackTraceElement[] stackTrace = new StackTraceElement[] {
-			new StackTraceElement("net.amygdalum.testrecorder.util.testobjects.Bean", "setAttribute", "Bean.java", 0),
-			new StackTraceElement("net.amygdalum.testrecorder.runtime.FakeIOInteractionTest", "testMatchesIfFakeAndInteractionMatch", "FakeIOInteractionTest.java", 0)
-		};
-		assertThat(myInteraction.matches(Invocation.capture(stackTrace, new Bean(), Bean.class, "setAttribute", "(Ljava/lang/String;)V"))).isTrue();
-		assertThat(myInteraction.matches(Invocation.capture(stackTrace, new Bean(), Bean.class, "setOtherAttribute", "(Ljava/lang/String;)V"))).isFalse();
-		assertThat(myInteraction.matches(Invocation.capture(stackTrace, new Object(), Object.class, "setAttribute", "(Ljava/lang/String;)V"))).isFalse();
-		assertThat(myInteraction.matches(Invocation.capture(stackTrace, new Bean(), Bean.class, "setAttribute", "(I)V"))).isFalse();
+		assertThat(myInteraction.matches(Invocation.capture(new Bean(), Bean.class, "setAttribute", "(Ljava/lang/String;)V"))).isTrue();
+		assertThat(myInteraction.matches(Invocation.capture(new Bean(), Bean.class, "setOtherAttribute", "(Ljava/lang/String;)V"))).isFalse();
+		assertThat(myInteraction.matches(Invocation.capture(new Object(), Object.class, "setAttribute", "(Ljava/lang/String;)V"))).isFalse();
+		assertThat(myInteraction.matches(Invocation.capture(new Bean(), Bean.class, "setAttribute", "(I)V"))).isFalse();
 	}
 
 	@Test
@@ -72,11 +67,7 @@ public class FakeIOInteractionTest {
 		MyInteraction myInteraction = new MyInteraction(FakeIO.fake(Bean.class), "setAttribute", "(Ljava/lang/String;)V");
 		myInteraction.add(null);
 
-		StackTraceElement[] stackTrace = new StackTraceElement[] {
-			new StackTraceElement("net.amygdalum.testrecorder.util.testobjects.Bean", "setAttribute", "Bean.java", 0),
-			new StackTraceElement("net.amygdalum.testrecorder.runtime.FakeIO", "call", "FakeIO.java", 0)
-		};
-		Object result = myInteraction.call(Invocation.capture(stackTrace, new Bean(), Bean.class, "setAttribute", "(Ljava/lang/String;)V"), new Object[] { "mystr" });
+		Object result = myInteraction.call(Invocation.capture(new Bean(), Bean.class, "setAttribute", "(Ljava/lang/String;)V"), new Object[] { "mystr" });
 
 		assertThat(result).isNull();
 	}
@@ -86,11 +77,7 @@ public class FakeIOInteractionTest {
 		MyInteraction myInteraction = new MyInteraction(FakeIO.fake(Bean.class), "setAttribute", "(Ljava/lang/String;)V");
 		myInteraction.add(null);
 
-		StackTraceElement[] stackTrace = new StackTraceElement[] {
-			new StackTraceElement("net.amygdalum.testrecorder.util.testobjects.Bean", "setAttribute", "Bean.java", 0),
-			new StackTraceElement("net.amygdalum.testrecorder.testing.hamcrest.GenericMatcher", "matches", "GenericMatcher.java", 0)
-		};
-		Object result = myInteraction.call(Invocation.capture(stackTrace, new Bean(), Bean.class, "setAttribute", "(Ljava/lang/String;)V"), new Object[] { "mystr" });
+		Object result = myInteraction.call(Invocation.capture(new Bean(), Bean.class, "setAttribute", "(Ljava/lang/String;)V"), new Object[] { "mystr" });
 
 		assertThat(result).isNull();
 	}
@@ -103,11 +90,7 @@ public class FakeIOInteractionTest {
 		myInteraction.add(null);
 		myInteraction.setResult(RESULT);
 
-		StackTraceElement[] stackTrace = new StackTraceElement[] {
-			new StackTraceElement("net.amygdalum.testrecorder.util.testobjects.Bean", "setAttribute", "Bean.java", 0),
-			new StackTraceElement("net.amygdalum.testrecorder.util.testobjects.Bean", "setAttribute", "Bean.java", 0)
-		};
-		Object result = myInteraction.call(Invocation.capture(stackTrace, new Bean(), Bean.class, "setAttribute", "(Ljava/lang/String;)V"), new Object[] { "mystr" });
+		Object result = myInteraction.call(Invocation.capture(new Bean(), Bean.class, "setAttribute", "(Ljava/lang/String;)V"), new Object[] { "mystr" });
 
 		assertThat(result).isSameAs(RESULT);
 	}

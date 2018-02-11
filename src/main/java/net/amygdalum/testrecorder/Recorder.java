@@ -6,7 +6,6 @@ import java.util.Set;
 public final class Recorder {
 
 	private static final Set<String> RECORDER_CLASSES = computeRecorderClassNames(
-		Recorder.class,
 		SnapshotInstrumentor.class,
 		SnapshotManager.class
 		);
@@ -25,7 +24,8 @@ public final class Recorder {
 		return classNames;
 	}
 
-	public static boolean isRecording(StackTraceElement[] stackTrace) {
+	public static boolean isRecording() {
+		StackTraceElement[] stackTrace = new Throwable().getStackTrace();
 		for (StackTraceElement stackTraceElement : stackTrace) {
 			if (RECORDER_CLASSES.contains(stackTraceElement.getClassName())) {
 				return true;

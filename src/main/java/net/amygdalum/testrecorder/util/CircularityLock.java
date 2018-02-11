@@ -12,7 +12,7 @@ public class CircularityLock extends ThreadLocal<Boolean> {
             return false;
         }
     }
-
+    
     public void release() {
         set(NOT_ACQUIRED);
     }
