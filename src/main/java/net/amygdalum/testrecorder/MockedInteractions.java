@@ -126,6 +126,7 @@ public class MockedInteractions {
 						arguments.add(argumentComputation.getValue());
 					});
 
+					//TODO replace it by addStatic/addVirtual
 					methods.add(callLocalMethod("add", arguments));
 				}
 			}

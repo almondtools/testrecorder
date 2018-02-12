@@ -31,6 +31,7 @@ import java.util.jar.Manifest;
 
 import net.amygdalum.testrecorder.bridge.BridgedSnapshotManager;
 import net.amygdalum.testrecorder.serializers.SerializerFacade;
+import net.amygdalum.testrecorder.types.SerializedInteraction;
 import net.amygdalum.testrecorder.util.CircularityLock;
 import net.amygdalum.testrecorder.util.Logger;
 import net.amygdalum.testrecorder.values.SerializedField;
@@ -208,7 +209,7 @@ public class SnapshotManager {
 				return 0;
 			}
 			Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
-			int id = object instanceof Class<?> ? 0 : identityHashCode(object);
+			int id = object instanceof Class<?> ? SerializedInteraction.STATIC : identityHashCode(object);
 
 			SerializedInput in = new SerializedInput(id, clazz, method, resultType, paramTypes);
 			for (ContextSnapshot snapshot : all()) {

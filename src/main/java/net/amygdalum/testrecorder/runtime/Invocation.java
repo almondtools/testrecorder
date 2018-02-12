@@ -18,9 +18,4 @@ public class Invocation {
 		return new Invocation(instance, clazz, methodName, methodDesc);
 	}
 
-	public String getCallee() {
-		Class<?> calleeClass = instance != null ? instance.getClass() : clazz; 
-		return calleeClass.getName() + "." + methodName + methodDesc;
-	}
-	
 }

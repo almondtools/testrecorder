@@ -30,6 +30,11 @@ public abstract class AbstractSerializedInteraction implements SerializedInterac
 	public int id() {
 		return System.identityHashCode(this);
 	}
+	
+	@Override
+	public boolean isStatic() {
+		return id == STATIC;
+	}
 
 	@Override
 	public boolean isComplete() {

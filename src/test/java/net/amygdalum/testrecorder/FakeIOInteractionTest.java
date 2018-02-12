@@ -63,34 +63,15 @@ public class FakeIOInteractionTest {
 	}
 
 	@Test
-	void testCallFilteringRuntimeClasses() throws Exception {
-		MyInteraction myInteraction = new MyInteraction(FakeIO.fake(Bean.class), "setAttribute", "(Ljava/lang/String;)V");
-		myInteraction.add(null);
-
-		Object result = myInteraction.call(Invocation.capture(new Bean(), Bean.class, "setAttribute", "(Ljava/lang/String;)V"), new Object[] { "mystr" });
-
-		assertThat(result).isNull();
-	}
-
-	@Test
-	void testCallFilteringTestingClasses() throws Exception {
-		MyInteraction myInteraction = new MyInteraction(FakeIO.fake(Bean.class), "setAttribute", "(Ljava/lang/String;)V");
-		myInteraction.add(null);
-
-		Object result = myInteraction.call(Invocation.capture(new Bean(), Bean.class, "setAttribute", "(Ljava/lang/String;)V"), new Object[] { "mystr" });
-
-		assertThat(result).isNull();
-	}
-
-	@Test
 	void testCallMatching() throws Exception {
 		Object RESULT = new Object();
 
 		MyInteraction myInteraction = new MyInteraction(FakeIO.fake(Bean.class), "setAttribute", "(Ljava/lang/String;)V");
-		myInteraction.add(null);
+		Bean instance = new Bean();
+		myInteraction.addVirtual(instance, null, new Object[] {"mystr"});
 		myInteraction.setResult(RESULT);
 
-		Object result = myInteraction.call(Invocation.capture(new Bean(), Bean.class, "setAttribute", "(Ljava/lang/String;)V"), new Object[] { "mystr" });
+		Object result = myInteraction.call(Invocation.capture(instance, Bean.class, "setAttribute", "(Ljava/lang/String;)V"), new Object[] { "mystr" });
 
 		assertThat(result).isSameAs(RESULT);
 	}
@@ -182,4 +163,5 @@ public class FakeIOInteractionTest {
 		}
 
 	}
+
 }

@@ -7,4 +7,12 @@ public class Static {
 	private Static() {
 	}
 
+	public static void setGlobal(String global) {
+		Static.global = global;
+	}
+	
+	public static String getGlobal() {
+		return global;
+	}
+	
 }

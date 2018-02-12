@@ -5,6 +5,8 @@ import java.util.List;
 
 public interface SerializedInteraction {
 
+	public static final int STATIC = 0;
+	
 	int getId();
 	
 	boolean isComplete();
@@ -24,5 +26,7 @@ public interface SerializedInteraction {
 	List<SerializedValue> getAllValues();
 
 	boolean hasResult();
+
+	boolean isStatic();
 
 }

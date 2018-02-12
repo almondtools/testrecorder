@@ -25,7 +25,7 @@ import net.amygdalum.testrecorder.types.SerializedValue;
 public class DefaultDeserializerContext implements DeserializerContext {
 
 	public static final DefaultDeserializerContext NULL = new DefaultDeserializerContext();
-	
+
 	private static final SerializedReferenceType GLOBAL_REFERRER = new GlobalRoot();
 
 	private DefaultDeserializerContext parent;
@@ -131,7 +131,7 @@ public class DefaultDeserializerContext implements DeserializerContext {
 
 		public GlobalRoot() {
 		}
-		
+
 		@Override
 		public <T> T accept(Deserializer<T> visitor, DeserializerContext context) {
 			return null;

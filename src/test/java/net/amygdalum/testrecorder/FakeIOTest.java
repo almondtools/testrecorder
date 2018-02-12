@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder;
 
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.equalTo;
 
@@ -11,6 +12,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.FakeIO.AnyInvocation;
 import net.amygdalum.testrecorder.ioscenarios.Inputs;
 import net.amygdalum.testrecorder.ioscenarios.Outputs;
 import net.amygdalum.testrecorder.ioscenarios.StandardLibInputOutput;
@@ -32,9 +34,9 @@ public class FakeIOTest {
 					return null;
 				}
 			})
-			.add("Hello")
-			.add(" ")
-			.add("World")
+			.addVirtual(inputs, "Hello")
+			.addVirtual(inputs, " ")
+			.addVirtual(inputs, "World")
 			.setup();
 
 		String result = inputs.recorded();
@@ -52,49 +54,49 @@ public class FakeIOTest {
 					return false;
 				}
 			})
-			.add(true)
+			.addVirtual(inputs, true)
 			.fakeInput(new Aspect() {
 				public byte readByte() {
 					return 0;
 				}
 			})
-			.add((byte) 2)
+			.addVirtual(inputs, (byte) 2)
 			.fakeInput(new Aspect() {
 				public short readShort() {
 					return 0;
 				}
 			})
-			.add((short) 3)
+			.addVirtual(inputs, (short) 3)
 			.fakeInput(new Aspect() {
 				public int readInt() {
 					return 0;
 				}
 			})
-			.add(4)
+			.addVirtual(inputs, 4)
 			.fakeInput(new Aspect() {
 				public long readLong() {
 					return 0;
 				}
 			})
-			.add(5l)
+			.addVirtual(inputs, 5l)
 			.fakeInput(new Aspect() {
 				public float readFloat() {
 					return 0;
 				}
 			})
-			.add(6f)
+			.addVirtual(inputs, 6f)
 			.fakeInput(new Aspect() {
 				public double readDouble() {
 					return 0;
 				}
 			})
-			.add(7d)
+			.addVirtual(inputs, 7d)
 			.fakeInput(new Aspect() {
 				public char readChar() {
 					return 0;
 				}
 			})
-			.add('x')
+			.addVirtual(inputs, 'x')
 			.setup();
 
 		String result = inputs.primitivesRecorded();
@@ -120,7 +122,7 @@ public class FakeIOTest {
 					return;
 				}
 			})
-			.add(null, "Hello World".toCharArray())
+			.addVirtual(inputs, null, "Hello World".toCharArray())
 			.setup();
 
 		String result = inputs.sideEffectsRecorded();
@@ -141,7 +143,7 @@ public class FakeIOTest {
 					return;
 				}
 			})
-			.add(null, list)
+			.addVirtual(inputs, null, list)
 			.setup();
 
 		String result = inputs.objectSideEffectsRecorded();
@@ -159,9 +161,9 @@ public class FakeIOTest {
 					return null;
 				}
 			})
-			.add("Hello")
-			.add(" ")
-			.add("World")
+			.addVirtual(inputs, "Hello")
+			.addVirtual(inputs, " ")
+			.addVirtual(inputs, "World")
 			.setup();
 
 		assertThatThrownBy(faked::verify)
@@ -176,7 +178,7 @@ public class FakeIOTest {
 	}
 
 	@Test
-	public void testMissingInput() throws Exception {
+	public void testSurplusInputRequest() throws Exception {
 		Inputs inputs = new Inputs();
 		FakeIO faked = FakeIO.fake(Inputs.class)
 			.fakeInput(new Aspect() {
@@ -184,14 +186,13 @@ public class FakeIOTest {
 					return null;
 				}
 			})
-			.add("Hello")
-			.add("")
+			.addVirtual(inputs, "Hello")
+			.addVirtual(inputs, "")
 			.setup();
 
 		Throwable exception = Throwables.capture(() -> inputs.recorded());
 
-		assertThat(exception.getMessage()).containsWildcardPattern("missing input for:\n"
-			+ "net.amygdalum.testrecorder.ioscenarios.Inputs.read()Ljava/lang/String;"
+		assertThat(exception.getMessage()).containsWildcardPattern("surplus invocation Inputs.read()"
 			+ "\n"
 			+ "\nIf the input was recorded ensure that all call sites are recorded");
 		faked.verify();
@@ -206,7 +207,7 @@ public class FakeIOTest {
 					return 0l;
 				}
 			})
-			.add(42l)
+			.addStatic(42l)
 			.setup();
 
 		long result = io.getTimestamp();
@@ -225,8 +226,8 @@ public class FakeIOTest {
 					return;
 				}
 			})
-			.add(null, equalTo("Hello "))
-			.add(null, equalTo("World"))
+			.addVirtual(outputs, null, equalTo("Hello "))
+			.addVirtual(outputs, null, equalTo("World"))
 			.setup();
 
 		outputs.recorded();
@@ -243,8 +244,8 @@ public class FakeIOTest {
 					return;
 				}
 			})
-			.add(null, equalTo("Hello "))
-			.add(null, equalTo("World"))
+			.addVirtual(outputs, null, equalTo("Hello "))
+			.addVirtual(outputs, null, equalTo("World"))
 			.setup();
 
 		assertThatThrownBy(faked::verify)
@@ -266,8 +267,8 @@ public class FakeIOTest {
 					return;
 				}
 			})
-			.add(null, equalTo("Hello "))
-			.add(null, equalTo("Welt"))
+			.addVirtual(outputs, null, equalTo("Hello "))
+			.addVirtual(outputs, null, equalTo("Welt"))
 			.setup();
 
 		Throwable exception = Throwables.capture(() -> outputs.recorded());
@@ -291,9 +292,9 @@ public class FakeIOTest {
 					return;
 				}
 			})
-			.add(null, equalTo("Hello "))
-			.add(null, equalTo("World"))
-			.add(null, equalTo("!"))
+			.addVirtual(outputs, null, equalTo("Hello "))
+			.addVirtual(outputs, null, equalTo("World"))
+			.addVirtual(outputs, null, equalTo("!"))
 			.setup();
 
 		assertThatThrownBy(faked::verify)
@@ -316,12 +317,12 @@ public class FakeIOTest {
 					return;
 				}
 			})
-			.add(null, "My Output".getBytes())
+			.addFreeVirtual(22, null, new Object[] {"My Output".getBytes()})
 			.setup();
 
 		io.store("My Output");
 
-		faked.verify();
+		assertThatCode(() -> faked.verify()).doesNotThrowAnyException();
 	}
 
 	@Test

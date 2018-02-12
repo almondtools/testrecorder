@@ -68,6 +68,10 @@ public class FakeIO {
 		Invocation invocation = Invocation.capture(instance, fake.clazz, methodName, methodDesc);
 		return fake.call(invocation, varargs);
 	}
+	
+	public Class<?> getClazz() {
+		return clazz;
+	}
 
 	public static FakeIO fake(Class<?> clazz) {
 		return faked.computeIfAbsent(clazz.getName(), key -> new FakeIO(clazz));
@@ -186,12 +190,14 @@ public class FakeIO {
 		protected String methodName;
 		protected String methodDesc;
 		protected List<InvocationData> invocationData;
+		protected Map<Integer, BindableInvocation> bindableInvocations;
 
 		public Interaction(FakeIO io, String methodName, String methodDesc) {
 			this.io = io;
 			this.methodName = methodName;
 			this.methodDesc = methodDesc;
 			this.invocationData = new ArrayList<>();
+			this.bindableInvocations = new HashMap<>();
 		}
 
 		public Class<?> resolve(Class<?> clazz) {
@@ -210,7 +216,29 @@ public class FakeIO {
 		}
 
 		public Interaction add(Object result, Object... args) {
-			InvocationData data = new InvocationData(result, args);
+			AnyInvocation invocation = new AnyInvocation();
+			InvocationData data = new InvocationData(invocation, result, args);
+			invocationData.add(data);
+			return this;
+		}
+
+		public Interaction addStatic(Object result, Object... args) {
+			StaticInvocation invocation = new StaticInvocation();
+			InvocationData data = new InvocationData(invocation, result, args);
+			invocationData.add(data);
+			return this;
+		}
+
+		public Interaction addVirtual(Object instance, Object result, Object... args) {
+			BoundInvocation invocation = new BoundInvocation(instance);
+			InvocationData data = new InvocationData(invocation, result, args);
+			invocationData.add(data);
+			return this;
+		}
+
+		public Interaction addFreeVirtual(int id, Object result, Object... args) {
+			BindableInvocation invocation = bindableInvocations.computeIfAbsent(id, key -> new BindableInvocation());
+			InvocationData data = new InvocationData(invocation, result, args);
 			invocationData.add(data);
 			return this;
 		}
@@ -219,13 +247,18 @@ public class FakeIO {
 			Iterator<InvocationData> invocationDataIterator = invocationData.iterator();
 			while (invocationDataIterator.hasNext()) {
 				InvocationData next = invocationDataIterator.next();
-				if (next.matchesCaller(invocation)) {
+				if (next.matches(invocation, arguments)) {
 					Object result = call(next, arguments);
 					invocationDataIterator.remove();
 					return result;
 				}
 			}
-			throw new AssertionError("missing input for:\n" + invocation.getCallee() + "\n\nIf the input was recorded ensure that all call sites are recorded");
+			String methodInvocation = invocation.clazz.getSimpleName() +"." + signatureFor(arguments);
+			if (invocationData.isEmpty()) {
+				throw new AssertionError("surplus invocation " + methodInvocation + "\n\nIf the input was recorded ensure that all call sites are recorded");
+			} else {
+				throw new AssertionError("mismatching invocation " + methodInvocation + "\n\nIf the input was recorded ensure that all call sites are recorded");
+			}
 		}
 
 		public abstract Object call(InvocationData data, Object[] arguments);
@@ -309,7 +342,7 @@ public class FakeIO {
 			if (!invocationData.isEmpty()) {
 				StringBuilder msg = new StringBuilder("expected but not found:");
 				for (InvocationData invocationDataItem : invocationData) {
-					String expected = signatureFor(invocationDataItem.args);
+					String expected = io.getClazz().getSimpleName() + "." + signatureFor(invocationDataItem.args);
 					msg.append("\nexpected but not received call " + expected);
 				}
 				throw new AssertionError(msg);
@@ -406,18 +439,75 @@ public class FakeIO {
 	}
 
 	protected static class InvocationData {
+		public SelfSpecification self;
 		public Object result;
 		public Object[] args;
 
-		public InvocationData(Object result, Object[] args) {
+		public InvocationData(SelfSpecification self, Object result, Object[] args) {
+			this.self = self;
 			this.result = result;
 			this.args = args;
 		}
 
-		public boolean matchesCaller(Invocation invocation) {
-			return true;
+		public boolean matches(Invocation invocation, Object[] arguments) {
+			return self.matches(invocation.instance)
+				&& args != null
+				&& arguments != null
+				&& args.length == arguments.length;
 		}
 
+	}
+	
+	protected interface SelfSpecification {
+
+		boolean matches(Object instance);
+		
+	}
+	
+	protected static class AnyInvocation implements SelfSpecification {
+		
+		@Override
+		public boolean matches(Object instance) {
+			return true;
+		}
+	}
+
+	protected static class StaticInvocation implements SelfSpecification {
+		
+		@Override
+		public boolean matches(Object instance) {
+			return instance == null;
+		}
+	}
+	
+	protected static class BoundInvocation implements SelfSpecification {
+		
+		private Object instance;
+		
+		public BoundInvocation(Object instance) {
+			this.instance = instance;
+		}
+
+		@Override
+		public boolean matches(Object instance) {
+			return this.instance == instance;
+		}
+	}
+
+	protected static class BindableInvocation implements SelfSpecification {
+		
+		private Object instance;
+		
+		public BindableInvocation() {
+		}
+
+		@Override
+		public boolean matches(Object instance) {
+			if (this.instance == null) {
+				this.instance = instance;
+			}
+			return this.instance == instance;
+		}
 	}
 
 }
