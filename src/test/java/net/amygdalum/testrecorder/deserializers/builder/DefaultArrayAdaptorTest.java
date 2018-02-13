@@ -1,6 +1,5 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
-import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -8,15 +7,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
+import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedArray;
 
 public class DefaultArrayAdaptorTest {
 
 	private DefaultArrayAdaptor adaptor;
+	private DeserializerContext context;
 
 	@BeforeEach
 	public void before() throws Exception {
 		adaptor = new DefaultArrayAdaptor();
+		context = new DefaultDeserializerContext();
 	}
 
 	@Test
@@ -37,9 +40,9 @@ public class DefaultArrayAdaptorTest {
 		value.add(literal(int.class, 0));
 		value.add(literal(int.class, 8));
 		value.add(literal(int.class, 15));
-		SetupGenerators generator = new SetupGenerators(getClass());
+		SetupGenerators generator = new SetupGenerators();
 
-		Computation result = adaptor.tryDeserialize(value, generator, NULL);
+		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).contains("int[] intArray1 = new int[]{0, 8, 15}");
 		assertThat(result.getValue()).isEqualTo("intArray1");

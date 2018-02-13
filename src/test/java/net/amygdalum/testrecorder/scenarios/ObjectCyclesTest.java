@@ -14,8 +14,6 @@ import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 @Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.ObjectCycles" })
 public class ObjectCyclesTest {
 
-	
-
 	@Test
 	public void testCompilable() throws Exception {
 		ObjectCycles a = new ObjectCycles();

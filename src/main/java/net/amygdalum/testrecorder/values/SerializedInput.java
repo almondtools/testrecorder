@@ -28,9 +28,13 @@ public class SerializedInput extends AbstractSerializedInteraction implements Se
 	@Override
 	public String toString() {
 		ValuePrinter printer = new ValuePrinter();
-		return "<< " + clazz.getTypeName() + "@" + id + "." + name + "(" + Optional.ofNullable(result).map(r -> r.accept(printer, printer)).orElse("void") + ", " + Stream.of(arguments)
-			.map(value -> value.accept(printer, printer))
-			.collect(joining(", ")) + ")";
+		String resultStr = Optional.ofNullable(result)
+			.map(value -> printer.printValue(value))
+			.orElse("void");
+		String argumentsStr = Stream.of(arguments)
+			.map(value -> printer.printValue(value))
+			.collect(joining(", "));
+		return "<< " + clazz.getTypeName() + "@" + id + "." + name + "(" + resultStr + ", " + argumentsStr + ")";
 	}
 
 }

@@ -28,7 +28,7 @@ public class DefaultEnumAdaptor extends DefaultSetupGenerator<SerializedEnum> im
 
 	@Override
 	public Computation tryDeserialize(SerializedEnum value, SetupGenerators generator, DeserializerContext context) {
-		TypeManager types = generator.getTypes();
+		TypeManager types = context.getTypes();
 		types.registerType(value.getType());
 
 		if (types.isHidden(value.getType())) {
@@ -36,7 +36,7 @@ public class DefaultEnumAdaptor extends DefaultSetupGenerator<SerializedEnum> im
 			String typeArgument = asLiteral(typeName);
 			String expression = callMethod(types.getRawTypeName(Wrapped.class), "enumType", typeArgument, asLiteral(value.getName()));
 			
-			expression = generator.adapt(expression, value.getResultType(), value.getType());
+			expression = context.adapt(expression, value.getResultType(), value.getType());
 			return expression(expression, value.getResultType());
 		} else {
 			String typeName = types.getVariableTypeName(value.getType());

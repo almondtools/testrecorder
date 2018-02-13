@@ -1,8 +1,15 @@
 package net.amygdalum.testrecorder.types;
 
+import java.lang.reflect.Type;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.LocalVariable;
+import net.amygdalum.testrecorder.deserializers.LocalVariableDefinition;
+import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
+import net.amygdalum.testrecorder.deserializers.TypeManager;
 
 
 public interface DeserializerContext {
@@ -23,4 +30,31 @@ public interface DeserializerContext {
 
 	Set<SerializedValue> closureOf(SerializedValue value);
 
+	TypeManager getTypes();
+
+	String adapt(String expression, Type resultType, Type type);
+
+	boolean defines(SerializedValue value);
+
+	LocalVariable getDefinition(SerializedValue value);
+
+	boolean needsAdaptation(Type resultType, Type type);
+
+	Computation forVariable(SerializedValue value, Type type, LocalVariableDefinition computation);
+
+	String temporaryLocal();
+
+	String newLocal(String name);
+
+	LocalVariable localVariable(SerializedValue value, Type type, Type resultType);
+
+	void resetVariable(SerializedValue value);
+
+	void finishVariable(SerializedValue value);
+
+	LocalVariableNameGenerator getLocals();
+
+	boolean isComputed(SerializedValue value);
+
+	
 }

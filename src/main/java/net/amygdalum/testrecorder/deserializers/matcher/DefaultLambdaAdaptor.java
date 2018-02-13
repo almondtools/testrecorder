@@ -28,7 +28,7 @@ public class DefaultLambdaAdaptor extends DefaultMatcherGenerator<SerializedLamb
 
 	@Override
 	public Computation tryDeserialize(SerializedLambdaObject value, MatcherGenerators generator, DeserializerContext context) {
-		TypeManager types = generator.getTypes();
+		TypeManager types = context.getTypes();
 		types.registerImport(Matcher.class);
 		types.staticImport(LambdaMatcher.class, "lambda");
 		LambdaSignature signature = value.getSignature();

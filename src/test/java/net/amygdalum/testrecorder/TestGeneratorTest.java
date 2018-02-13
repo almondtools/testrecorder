@@ -15,12 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 
-import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
-import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
 import net.amygdalum.testrecorder.deserializers.TestComputationValueVisitor;
-import net.amygdalum.testrecorder.deserializers.TypeManager;
-import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
@@ -92,18 +87,7 @@ public class TestGeneratorTest {
 
 	@Test
 	public void testSetSetup() throws Exception {
-		testGenerator.setSetup(new DeserializerFactory() {
-
-			@Override
-			public Deserializer<Computation> create(LocalVariableNameGenerator locals, TypeManager types) {
-				return new TestComputationValueVisitor();
-			}
-
-			@Override
-			public Type resultType(Type value) {
-				return value;
-			}
-		});
+		testGenerator.setSetup(new TestComputationValueVisitor());
 		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));
@@ -129,18 +113,7 @@ public class TestGeneratorTest {
 
 	@Test
 	public void testSetMatcher() throws Exception {
-		testGenerator.setMatcher(new DeserializerFactory() {
-
-			@Override
-			public Deserializer<Computation> create(LocalVariableNameGenerator locals, TypeManager types) {
-				return new TestComputationValueVisitor();
-			}
-
-			@Override
-			public Type resultType(Type value) {
-				return value;
-			}
-		});
+		testGenerator.setMatcher(new TestComputationValueVisitor());
 		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));

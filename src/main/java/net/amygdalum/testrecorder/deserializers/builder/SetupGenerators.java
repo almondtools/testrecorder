@@ -4,27 +4,16 @@ import static net.amygdalum.testrecorder.deserializers.Computation.expression;
 import static net.amygdalum.testrecorder.deserializers.Computation.variable;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
-import static net.amygdalum.testrecorder.deserializers.Templates.cast;
-import static net.amygdalum.testrecorder.util.Types.assignableTypes;
-import static net.amygdalum.testrecorder.util.Types.baseType;
-import static net.amygdalum.testrecorder.util.Types.boxingEquivalentTypes;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
 
 import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.deserializers.LocalVariable;
-import net.amygdalum.testrecorder.deserializers.LocalVariableDefinition;
-import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.runtime.GenericObject;
-import net.amygdalum.testrecorder.runtime.Wrapped;
-import net.amygdalum.testrecorder.types.DeserializationException;
 import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.SerializedFieldType;
@@ -38,98 +27,19 @@ public class SetupGenerators implements Deserializer<Computation> {
 	public static final Adaptors<SetupGenerators> DEFAULT = new Adaptors<SetupGenerators>()
 		.load(SetupGenerator.class);
 
-	private LocalVariableNameGenerator locals;
-	private TypeManager types;
 	private Adaptors<SetupGenerators> adaptors;
 
-	private Map<SerializedValue, LocalVariable> defined;
-
-	public SetupGenerators(Class<?> clazz) {
-		this(new LocalVariableNameGenerator(), new TypeManager(clazz.getPackage().getName()));
+	public SetupGenerators() {
+		this(DEFAULT);
 	}
 
-	public SetupGenerators(LocalVariableNameGenerator locals, TypeManager types) {
-		this(locals, types, DEFAULT);
-	}
-
-	public SetupGenerators(LocalVariableNameGenerator locals, TypeManager types, Adaptors<SetupGenerators> adaptors) {
-		this.types = types;
-		this.locals = locals;
+	public SetupGenerators(Adaptors<SetupGenerators> adaptors) {
 		this.adaptors = adaptors;
-		this.defined = new IdentityHashMap<>();
-	}
-
-	public String adapt(String expression, Type resultType, Type type) {
-		if (baseType(resultType) != Wrapped.class && type == Wrapped.class) {
-			expression = callMethod(expression, "value");
-			type = Object.class;
-		} else if (baseType(resultType) != Wrapped.class && types.isHidden(type)) {
-			expression = callMethod(expression, "value");
-			type = Object.class;
-		}
-		if ((!assignableTypes(resultType, type) || types.isHidden(type))
-			&& !boxingEquivalentTypes(resultType, type)
-			&& baseType(resultType) != Wrapped.class) {
-			expression = cast(types.getVariableTypeName(resultType), expression);
-		}
-		return expression;
-	}
-
-	public boolean needsAdaptation(Type resultType, Type type) {
-		if (baseType(resultType) != Wrapped.class && type == Wrapped.class) {
-			return true;
-		} else if (baseType(resultType) != Wrapped.class && types.isHidden(type)) {
-			return true;
-		}
-		if ((!assignableTypes(resultType, type) || types.isHidden(type))
-			&& !boxingEquivalentTypes(resultType, type)
-			&& baseType(resultType) != Wrapped.class) {
-			return true;
-		}
-		return false;
-	}
-
-	public TypeManager getTypes() {
-		return types;
-	}
-
-	public Computation forVariable(SerializedValue value, Type type, LocalVariableDefinition computation) {
-		LocalVariable local = localVariable(value, type, value.getResultType());
-		try {
-			Computation definition = computation.define(local);
-			finishVariable(value);
-			return definition;
-		} catch (DeserializationException e) {
-			resetVariable(value);
-			throw e;
-		}
-	}
-
-	public String temporaryLocal() {
-		return locals.fetchName("temp");
-	}
-
-	public String newLocal(String name) {
-		return locals.fetchName(name);
-	}
-
-	private LocalVariable localVariable(SerializedValue value, Type type, Type resultType) {
-		String name = locals.fetchName(type);
-		LocalVariable definition = new LocalVariable(name, resultType);
-		defined.put(value, definition);
-		return definition;
-	}
-
-	private void finishVariable(SerializedValue value) {
-		defined.computeIfPresent(value, (val, def) -> def.finish());
-	}
-
-	private void resetVariable(SerializedValue value) {
-		defined.remove(value);
 	}
 
 	@Override
 	public Computation visitField(SerializedFieldType field, DeserializerContext context) {
+		TypeManager types = context.getTypes();
 		Type fieldType = field.getType();
 		Type resultType = field.getValue().getResultType();
 		Type fieldResultType = types.bestType(fieldType, Object.class);
@@ -145,7 +55,7 @@ public class SetupGenerators implements Deserializer<Computation> {
 
 		String expression = valueTemplate.getValue();
 
-		expression = adapt(expression, fieldResultType, valueTemplate.getType());
+		expression = context.adapt(expression, fieldResultType, valueTemplate.getType());
 
 		String assignField = assignLocalVariableStatement(types.getVariableTypeName(fieldResultType), field.getName(), expression);
 		return expression(assignField, null, statements);
@@ -153,8 +63,9 @@ public class SetupGenerators implements Deserializer<Computation> {
 
 	@Override
 	public Computation visitReferenceType(SerializedReferenceType value, DeserializerContext context) {
-		if (defined.containsKey(value)) {
-			LocalVariable definition = defined.get(value);
+		TypeManager types = context.getTypes();
+		if (context.defines(value)) {
+			LocalVariable definition = context.getDefinition(value);
 			String name = definition.getName();
 			if (definition.isDefined()) {
 				return variable(name, definition.getType());
@@ -172,25 +83,14 @@ public class SetupGenerators implements Deserializer<Computation> {
 
 	@Override
 	public Computation visitValueType(SerializedValueType value, DeserializerContext context) {
+		TypeManager types = context.getTypes();
 		return adaptors.tryDeserialize(value, types, this, context);
 	}
 
 	@Override
 	public Computation visitImmutableType(SerializedImmutableType value, DeserializerContext context) {
+		TypeManager types = context.getTypes();
 		return adaptors.tryDeserialize(value, types, this, context);
-	}
-
-	public static class Factory implements DeserializerFactory {
-
-		@Override
-		public SetupGenerators create(LocalVariableNameGenerator locals, TypeManager types) {
-			return new SetupGenerators(locals, types);
-		}
-
-		@Override
-		public Type resultType(Type type) {
-			return type;
-		}
 	}
 
 }

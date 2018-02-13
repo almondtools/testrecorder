@@ -31,7 +31,7 @@ public class DefaultClassAdaptor extends DefaultMatcherGenerator<SerializedImmut
 
 	@Override
 	public Computation tryDeserialize(SerializedImmutable<Class<?>> value, MatcherGenerators generator, DeserializerContext context) {
-		TypeManager types = generator.getTypes();
+		TypeManager types = context.getTypes();
 		types.registerImport(Class.class);
 		types.staticImport(Matchers.class, "equalTo");
 

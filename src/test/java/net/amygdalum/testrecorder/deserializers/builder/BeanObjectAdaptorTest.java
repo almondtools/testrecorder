@@ -1,6 +1,5 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
-import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -9,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.types.DeserializationException;
@@ -44,18 +44,18 @@ public class BeanObjectAdaptorTest {
 		SerializedObject value = new SerializedObject(Simple.class);
 		value.addField(new SerializedField(String.class, "attribute", String.class, SerializedLiteral.literal("Hello World")));
 		TypeManager types = new TypeManager();
-		SetupGenerators generator = new SetupGenerators(new LocalVariableNameGenerator(), types);
+		SetupGenerators generator = new SetupGenerators();
 
-		assertThrows(DeserializationException.class, () -> adaptor.tryDeserialize(value, generator, NULL));
+		assertThrows(DeserializationException.class, () -> adaptor.tryDeserialize(value, generator, new DefaultDeserializerContext(types, new LocalVariableNameGenerator())));
 	}
 
 	@Test
 	public void testTryDeserializeWithBean() throws Exception {
 		SerializedObject value = new SerializedObject(Bean.class);
 		value.addField(new SerializedField(String.class, "attribute", String.class, literal("Hello World")));
-		SetupGenerators generator = new SetupGenerators(getClass());
+		SetupGenerators generator = new SetupGenerators();
 
-		Computation result = adaptor.tryDeserialize(value, generator, NULL);
+		Computation result = adaptor.tryDeserialize(value, generator, new DefaultDeserializerContext());
 
 		assertThat(result.getStatements().toString()).containsSequence(
 			"Bean bean1 = new Bean()",

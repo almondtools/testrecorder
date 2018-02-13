@@ -1,6 +1,5 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
-import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
@@ -14,16 +13,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.types.DeserializationException;
+import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedList;
 
 public class CollectionsListAdaptorTest {
 
 	private CollectionsListAdaptor adaptor;
+	private DeserializerContext context;
 
 	@BeforeEach
 	public void before() throws Exception {
 		adaptor = new CollectionsListAdaptor();
+		context = new DefaultDeserializerContext();
 	}
 
 	@Test
@@ -47,9 +50,9 @@ public class CollectionsListAdaptorTest {
 	@Test
 	public void testTryDeserializeUnmodifiable() throws Exception {
 		SerializedList value = listOf("java.util.Collections$UnmodifiableList", 0, 8, 15);
-		SetupGenerators generator = new SetupGenerators(getClass());
+		SetupGenerators generator = new SetupGenerators();
 
-		Computation result = adaptor.tryDeserialize(value, generator, NULL);
+		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSequence(listDecoratedBy("unmodifiableList", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("list1");
@@ -58,9 +61,9 @@ public class CollectionsListAdaptorTest {
 	@Test
 	public void testTryDeserializeUnmodifiableRandomAccess() throws Exception {
 		SerializedList value = listOf("java.util.Collections$UnmodifiableRandomAccessList", 0, 8, 15);
-		SetupGenerators generator = new SetupGenerators(getClass());
+		SetupGenerators generator = new SetupGenerators();
 
-		Computation result = adaptor.tryDeserialize(value, generator, NULL);
+		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSequence(listDecoratedBy("unmodifiableList", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("list1");
@@ -69,9 +72,9 @@ public class CollectionsListAdaptorTest {
 	@Test
 	public void testTryDeserializeSynchronized() throws Exception {
 		SerializedList value = listOf("java.util.Collections$SynchronizedList", 0, 8, 15);
-		SetupGenerators generator = new SetupGenerators(getClass());
+		SetupGenerators generator = new SetupGenerators();
 
-		Computation result = adaptor.tryDeserialize(value, generator, NULL);
+		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSequence(listDecoratedBy("synchronizedList", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("list1");
@@ -80,9 +83,9 @@ public class CollectionsListAdaptorTest {
 	@Test
 	public void testTryDeserializeSynchronizedRawType() throws Exception {
 		SerializedList value = listOfRaw("java.util.Collections$SynchronizedList", 0, 8, 15);
-		SetupGenerators generator = new SetupGenerators(getClass());
+		SetupGenerators generator = new SetupGenerators();
 
-		Computation result = adaptor.tryDeserialize(value, generator, NULL);
+		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSequence(rawListDecoratedBy("synchronizedList", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("list1");
@@ -91,9 +94,9 @@ public class CollectionsListAdaptorTest {
 	@Test
 	public void testTryDeserializeSynchronizedWildcardType() throws Exception {
 		SerializedList value = listOfWildcard("java.util.Collections$SynchronizedList", 0, 8, 15);
-		SetupGenerators generator = new SetupGenerators(getClass());
+		SetupGenerators generator = new SetupGenerators();
 
-		Computation result = adaptor.tryDeserialize(value, generator, NULL);
+		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSequence(wildcardListDecoratedBy("synchronizedList", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("list1");
@@ -102,9 +105,9 @@ public class CollectionsListAdaptorTest {
 	@Test
 	public void testTryDeserializeSynchronizedRandomAccess() throws Exception {
 		SerializedList value = listOf("java.util.Collections$SynchronizedRandomAccessList", 0, 8, 15);
-		SetupGenerators generator = new SetupGenerators(getClass());
+		SetupGenerators generator = new SetupGenerators();
 
-		Computation result = adaptor.tryDeserialize(value, generator, NULL);
+		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSequence(listDecoratedBy("synchronizedList", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("list1");
@@ -113,9 +116,9 @@ public class CollectionsListAdaptorTest {
 	@Test
 	public void testTryDeserializeChecked() throws Exception {
 		SerializedList value = listOf("java.util.Collections$CheckedList", 0, 8, 15);
-		SetupGenerators generator = new SetupGenerators(getClass());
+		SetupGenerators generator = new SetupGenerators();
 
-		Computation result = adaptor.tryDeserialize(value, generator, NULL);
+		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSequence(listDecoratedBy("checkedList", Integer.class, 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("list1");
@@ -124,9 +127,9 @@ public class CollectionsListAdaptorTest {
 	@Test
 	public void testTryDeserializeCheckedRandomAccess() throws Exception {
 		SerializedList value = listOf("java.util.Collections$CheckedRandomAccessList", 0, 8, 15);
-		SetupGenerators generator = new SetupGenerators(getClass());
+		SetupGenerators generator = new SetupGenerators();
 
-		Computation result = adaptor.tryDeserialize(value, generator, NULL);
+		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSequence(listDecoratedBy("checkedList", Integer.class, 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("list1");
@@ -135,9 +138,9 @@ public class CollectionsListAdaptorTest {
 	@Test
 	public void testTryDeserializeEmpty() throws Exception {
 		SerializedList value = listOf("java.util.Collections$EmptyList");
-		SetupGenerators generator = new SetupGenerators(getClass());
+		SetupGenerators generator = new SetupGenerators();
 
-		Computation result = adaptor.tryDeserialize(value, generator, NULL);
+		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).contains("List<Integer> list1 = emptyList()");
 		assertThat(result.getValue()).isEqualTo("list1");
@@ -146,9 +149,9 @@ public class CollectionsListAdaptorTest {
 	@Test
 	public void testTryDeserializeSingleton() throws Exception {
 		SerializedList value = listOf("java.util.Collections$SingletonList", 0);
-		SetupGenerators generator = new SetupGenerators(getClass());
+		SetupGenerators generator = new SetupGenerators();
 
-		Computation result = adaptor.tryDeserialize(value, generator, NULL);
+		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).contains("List<Integer> list1 = singletonList(0)");
 		assertThat(result.getValue()).isEqualTo("list1");
@@ -157,9 +160,9 @@ public class CollectionsListAdaptorTest {
 	@Test
 	public void testTryDeserializeOther() throws Exception {
 		SerializedList value = listOf("java.lang.Object");
-		SetupGenerators generator = new SetupGenerators(getClass());
+		SetupGenerators generator = new SetupGenerators();
 
-		assertThrows(DeserializationException.class, () -> adaptor.tryDeserialize(value, generator, NULL));
+		assertThrows(DeserializationException.class, () -> adaptor.tryDeserialize(value, generator, context));
 	}
 
 	private SerializedList listOf(String className, int... elements) throws ClassNotFoundException {

@@ -1,6 +1,5 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
-import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -11,15 +10,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
+import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedList;
 
 public class ArraysListAdaptorTest {
 
 	private ArraysListAdaptor adaptor;
+	private DeserializerContext context;
 
 	@BeforeEach
 	public void before() throws Exception {
 		adaptor = new ArraysListAdaptor();
+		context = new DefaultDeserializerContext();
 	}
 
 	@Test
@@ -36,9 +39,9 @@ public class ArraysListAdaptorTest {
 	@Test
 	public void testTryDeserialize() throws Exception {
 		SerializedList value = listOf("java.util.Arrays$ArrayList", 0, 8, 15);
-		SetupGenerators generator = new SetupGenerators(getClass());
+		SetupGenerators generator = new SetupGenerators();
 
-		Computation result = adaptor.tryDeserialize(value, generator, NULL);
+		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSequence(
 			"Integer[] integerArray1 = new Integer[]{0, 8, 15}",

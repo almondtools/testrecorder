@@ -76,7 +76,7 @@ public class ConstructionPlan implements Comparable<ConstructionPlan> {
 			Computation fieldComputation = param.computeSerializedValue().accept(generator, context);
 			statements.addAll(fieldComputation.getStatements());
 
-			String value = generator.adapt(fieldComputation.getValue(), param.getType(), fieldComputation.getType());
+			String value = context.adapt(fieldComputation.getValue(), param.getType(), fieldComputation.getType());
 
 			String setStatement = callMethodStatement(var.getName(), param.getName(), value);
 			statements.add(setStatement);

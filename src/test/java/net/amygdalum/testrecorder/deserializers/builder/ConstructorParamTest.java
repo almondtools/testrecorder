@@ -49,7 +49,7 @@ public class ConstructorParamTest {
 
     @Test
     public void testCompile() throws Exception {
-        SetupGenerators compiler = new SetupGenerators(Simple.class);
+        SetupGenerators compiler = new SetupGenerators();
         TypeManager types = new TypeManager();
         
         assertThat(new ConstructorParam(constructor, 0, new SerializedField(Simple.class, "field", String.class, literal("value")), "value")

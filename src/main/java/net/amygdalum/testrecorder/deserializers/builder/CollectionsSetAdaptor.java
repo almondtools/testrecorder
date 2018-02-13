@@ -51,13 +51,13 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
 
 	@Override
 	public Computation tryDeserialize(SerializedSet value, SetupGenerators generator, DeserializerContext context) {
-		TypeManager types = generator.getTypes();
+		TypeManager types = context.getTypes();
 		types.registerImport(Set.class);
 		types.registerType(value.getComponentType());
 
 		String name = types.getRawTypeName(value.getType());
 		if (name.contains("Empty")) {
-			return tryDeserializeEmpty(value, generator);
+			return tryDeserializeEmpty(value, generator, context);
 		} else if (name.contains("Singleton")) {
 			return tryDeserializeSingleton(value, generator, context);
 		} else if (name.contains("Unmodifiable")) {
@@ -77,17 +77,17 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
 		return adaptor.tryDeserialize(baseValue, generator, context);
 	}
 
-	private Computation tryDeserializeEmpty(SerializedSet value, SetupGenerators generator) {
+	private Computation tryDeserializeEmpty(SerializedSet value, SetupGenerators generator, DeserializerContext context) {
         Type componentType = value.getComponentType();
 		String factoryMethod = "emptySet";
-		TypeManager types = generator.getTypes();
+		TypeManager types = context.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
 
 		if (types.isHidden(componentType)) {
 		    componentType = wildcard();
 		}
         Type resultType = parameterized(Set.class, null, componentType);
-		return generator.forVariable(value, resultType, local -> {
+		return context.forVariable(value, resultType, local -> {
 
 			String decoratingStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod(factoryMethod));
 
@@ -98,7 +98,7 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
 	private Computation tryDeserializeSingleton(SerializedSet value, SetupGenerators generator, DeserializerContext context) {
         Type componentType = value.getComponentType();
 		String factoryMethod = "singleton";
-		TypeManager types = generator.getTypes();
+		TypeManager types = context.getTypes();
 		types.registerImport(Set.class);
 		types.staticImport(Collections.class, factoryMethod);
 
@@ -106,7 +106,7 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
             componentType = wildcard();
         }
         Type resultType = parameterized(Set.class, null, componentType);
-		return generator.forVariable(value, resultType, local -> {
+		return context.forVariable(value, resultType, local -> {
 
 			Computation computation = value.iterator().next().accept(generator, context);
 			List<String> statements = new LinkedList<>(computation.getStatements());
@@ -123,14 +123,14 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
         Type componentType = value.getComponentType();
 		String factoryMethod = "unmodifiableSet";
 
-		TypeManager types = generator.getTypes();
+		TypeManager types = context.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
 
         if (types.isHidden(componentType)) {
             componentType = wildcard();
         }
         Type resultType = parameterized(Set.class, null, componentType);
-		return generator.forVariable(value, resultType, local -> {
+		return context.forVariable(value, resultType, local -> {
 
 			Computation computation = createOrdinarySet(value, generator, context);
 			List<String> statements = new LinkedList<>(computation.getStatements());
@@ -146,14 +146,14 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
 	private Computation tryDeserializeSynchronized(SerializedSet value, SetupGenerators generator, DeserializerContext context) {
         Type componentType = value.getComponentType();
 		String factoryMethod = "synchronizedSet";
-		TypeManager types = generator.getTypes();
+		TypeManager types = context.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
 
         if (types.isHidden(componentType)) {
             componentType = wildcard();
         }
         Type resultType = parameterized(Set.class, null, componentType);
-		return generator.forVariable(value, resultType, local -> {
+		return context.forVariable(value, resultType, local -> {
 
 			Computation computation = createOrdinarySet(value, generator, context);
 			List<String> statements = new LinkedList<>(computation.getStatements());
@@ -169,14 +169,14 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
 	private Computation tryDeserializeChecked(SerializedSet value, SetupGenerators generator, DeserializerContext context) {
         Type componentType = value.getComponentType();
 		String factoryMethod = "checkedSet";
-		TypeManager types = generator.getTypes();
+		TypeManager types = context.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
 
         if (types.isHidden(componentType)) {
             throw new DeserializationException("cannot deserialize checked set with hidden element type: " + types.getVariableTypeName(componentType));
         }
         Type resultType = parameterized(Set.class, null, componentType);
-		return generator.forVariable(value, resultType, local -> {
+		return context.forVariable(value, resultType, local -> {
 
 			Computation computation = createOrdinarySet(value, generator, context);
 			List<String> statements = new LinkedList<>(computation.getStatements());

@@ -53,13 +53,13 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 
 	@Override
 	public Computation tryDeserialize(SerializedMap value, SetupGenerators generator, DeserializerContext context) {
-		TypeManager types = generator.getTypes();
+		TypeManager types = context.getTypes();
 		types.registerImport(Map.class);
         types.registerTypes(value.getMapKeyType(), value.getMapValueType());
 
 		String name = types.getRawTypeName(value.getType());
 		if (name.contains("Empty")) {
-			return tryDeserializeEmpty(value, generator);
+			return tryDeserializeEmpty(value, generator, context);
 		} else if (name.contains("Singleton")) {
 			return tryDeserializeSingleton(value, generator, context);
 		} else if (name.contains("Unmodifiable")) {
@@ -79,12 +79,12 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 		return adaptor.tryDeserialize(baseValue, generator, context);
 	}
 
-	private Computation tryDeserializeEmpty(SerializedMap value, SetupGenerators generator) {
+	private Computation tryDeserializeEmpty(SerializedMap value, SetupGenerators generator, DeserializerContext context) {
         Type mapKeyType = value.getMapKeyType();
         Type mapValueType = value.getMapValueType();
 
         String factoryMethod = "emptyMap";
-		TypeManager types = generator.getTypes();
+		TypeManager types = context.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
 		
 		if (types.isHidden(mapKeyType)) {
@@ -94,7 +94,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 		    mapValueType = wildcard();
 		}
         Type resultType = parameterized(Map.class, null, mapKeyType, mapValueType);
-		return generator.forVariable(value, resultType, local -> {
+		return context.forVariable(value, resultType, local -> {
 
 			String decoratingStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod(factoryMethod));
 
@@ -106,7 +106,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
         Type mapKeyType = value.getMapKeyType();
         Type mapValueType = value.getMapValueType();
 		String factoryMethod = "singletonMap";
-		TypeManager types = generator.getTypes();
+		TypeManager types = context.getTypes();
 		types.registerImport(Map.class);
 		types.staticImport(Collections.class, factoryMethod);
 
@@ -117,7 +117,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
             mapValueType = wildcard();
         }
         Type resultType = parameterized(Map.class, null, mapKeyType, mapValueType);
-		return generator.forVariable(value, resultType, local -> {
+		return context.forVariable(value, resultType, local -> {
 
 			Entry<SerializedValue, SerializedValue> entry = value.entrySet().iterator().next();
 			List<String> statements = new LinkedList<>();
@@ -142,7 +142,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
         Type mapKeyType = value.getMapKeyType();
         Type mapValueType = value.getMapValueType();
 		String factoryMethod = "unmodifiableMap";
-		TypeManager types = generator.getTypes();
+		TypeManager types = context.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
 
         if (types.isHidden(mapKeyType)) {
@@ -152,7 +152,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
             mapValueType = wildcard();
         }
 		Type resultType = parameterized(Map.class, null, mapKeyType, mapValueType);
-		return generator.forVariable(value, resultType, local -> {
+		return context.forVariable(value, resultType, local -> {
 
 			Computation computation = createOrdinaryMap(value, generator, context);
 			List<String> statements = new LinkedList<>(computation.getStatements());
@@ -170,7 +170,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
         Type mapKeyType = value.getMapKeyType();
         Type mapValueType = value.getMapValueType();
 		String factoryMethod = "synchronizedMap";
-		TypeManager types = generator.getTypes();
+		TypeManager types = context.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
 
         if (types.isHidden(mapKeyType)) {
@@ -180,7 +180,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
             mapValueType = wildcard();
         }
 		Type resultType = parameterized(Map.class, null, mapKeyType, mapValueType);
-		return generator.forVariable(value, resultType, local -> {
+		return context.forVariable(value, resultType, local -> {
 
 			Computation computation = createOrdinaryMap(value, generator, context);
 			List<String> statements = new LinkedList<>(computation.getStatements());
@@ -198,7 +198,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
         Type mapKeyType = value.getMapKeyType();
         Type mapValueType = value.getMapValueType();
 		String factoryMethod = "checkedMap";
-		TypeManager types = generator.getTypes();
+		TypeManager types = context.getTypes();
 		types.staticImport(Collections.class, factoryMethod);
 
         if (types.isHidden(mapKeyType)) {
@@ -208,7 +208,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
             throw new DeserializationException("cannot deserialize checked map with hidden value type: " + types.getVariableTypeName(mapValueType));
         }
 		Type resultType = parameterized(Map.class, null, mapKeyType, mapValueType);
-		return generator.forVariable(value, resultType, local -> {
+		return context.forVariable(value, resultType, local -> {
 
 			Computation computation = createOrdinaryMap(value, generator, context);
 			List<String> statements = new LinkedList<>(computation.getStatements());

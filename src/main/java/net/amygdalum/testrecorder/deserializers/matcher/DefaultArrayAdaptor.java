@@ -34,7 +34,7 @@ public class DefaultArrayAdaptor extends DefaultMatcherGenerator<SerializedArray
 	public Computation tryDeserialize(SerializedArray value, MatcherGenerators generator, DeserializerContext context) {
 	    Type componentType = value.getComponentType();
 
-	    TypeManager types = generator.getTypes();
+	    TypeManager types = context.getTypes();
         if (types.isHidden(componentType)) {
             componentType = Object.class;
         }

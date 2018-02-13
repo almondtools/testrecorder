@@ -56,7 +56,6 @@ import org.stringtemplate.v4.ST;
 import net.amygdalum.testrecorder.ContextSnapshot.AnnotatedValue;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
-import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
 import net.amygdalum.testrecorder.deserializers.Templates;
 import net.amygdalum.testrecorder.deserializers.TreeAnalyzer;
@@ -118,16 +117,16 @@ public class TestGenerator implements SnapshotConsumer {
 
 	private volatile CompletableFuture<Void> pipeline;
 
-	private DeserializerFactory setup;
-	private DeserializerFactory matcher;
+	private Deserializer<Computation> setup;
+	private Deserializer<Computation> matcher;
 	private Map<ClassDescriptor, TestGeneratorContext> tests;
 	private Set<String> fields;
 
 	public TestGenerator() {
 		this.executor = Executors.newSingleThreadExecutor(new TestrecorderThreadFactory("$consume"));
 
-		this.setup = new SetupGenerators.Factory();
-		this.matcher = new MatcherGenerators.Factory();
+		this.setup = new SetupGenerators();
+		this.matcher = new MatcherGenerators();
 
 		this.tests = synchronizedMap(new LinkedHashMap<>());
 		this.fields = new LinkedHashSet<>();
@@ -153,11 +152,11 @@ public class TestGenerator implements SnapshotConsumer {
 		return test.render();
 	}
 
-	public void setSetup(DeserializerFactory setup) {
+	public void setSetup(Deserializer<Computation> setup) {
 		this.setup = setup;
 	}
 
-	public void setMatcher(DeserializerFactory matcher) {
+	public void setMatcher(Deserializer<Computation> matcher) {
 		this.matcher = matcher;
 	}
 
@@ -343,7 +342,7 @@ public class TestGenerator implements SnapshotConsumer {
 		}
 
 		private DefaultDeserializerContext computeInitialContext(ContextSnapshot snapshot) {
-			DefaultDeserializerContext context = new DefaultDeserializerContext();
+			DefaultDeserializerContext context = new DefaultDeserializerContext(types, locals);
 			TreeAnalyzer collector = new TreeAnalyzer();
 
 			Optional.ofNullable(snapshot.getSetupThis())
@@ -383,20 +382,18 @@ public class TestGenerator implements SnapshotConsumer {
 		public MethodGenerator generateArrange() {
 			statements.add(BEGIN_ARRANGE);
 
-			Deserializer<Computation> setupCode = setup.create(locals, types);
-
 			types.registerType(snapshot.getThisType());
 			Stream.of(snapshot.getSetupGlobals()).forEach(global -> types.registerImport(global.getDeclaringClass()));
 			
 			Computation setupThis = snapshot.getSetupThis() != null
-				? snapshot.getSetupThis().accept(setupCode, context)
+				? snapshot.getSetupThis().accept(setup, context)
 				: variable(types.getVariableTypeName(types.wrapHidden(snapshot.getThisType())), null);
 			setupThis.getStatements()
 				.forEach(statements::add);
 
 			AnnotatedValue[] snapshotSetupArgs = snapshot.getAnnotatedSetupArgs();
 			List<Computation> setupArgs = Stream.of(snapshotSetupArgs)
-				.map(arg -> arg.value.accept(setupCode, context.newWithHints(arg.annotations)))
+				.map(arg -> arg.value.accept(setup, context.newWithHints(arg.annotations)))
 				.collect(toList());
 
 			setupArgs.stream()
@@ -404,7 +401,7 @@ public class TestGenerator implements SnapshotConsumer {
 				.forEach(statements::add);
 
 			List<Computation> setupGlobals = Stream.of(snapshot.getSetupGlobals())
-				.map(global -> assignGlobal(global.getDeclaringClass(), global.getName(), global.getValue().accept(setupCode, context)))
+				.map(global -> assignGlobal(global.getDeclaringClass(), global.getName(), global.getValue().accept(setup, context)))
 				.collect(toList());
 
 			setupGlobals.stream()
@@ -421,7 +418,7 @@ public class TestGenerator implements SnapshotConsumer {
 					: assign(arg.getElement2().value.getResultType(), arg.getElement1().getValue()))
 				.collect(toList());
 			
-			statements.addAll(mocked.prepare(locals, types, context));
+			statements.addAll(mocked.prepare(context));
 
 			return this;
 		}
@@ -509,7 +506,7 @@ public class TestGenerator implements SnapshotConsumer {
 			if (result == null) {
 				return Stream.empty();
 			}
-			Computation matcherExpression = result.accept(matcher.create(locals, types), context.newWithHints(resultAnnotation));
+			Computation matcherExpression = result.accept(matcher, new DefaultDeserializerContext(types, locals).newWithHints(resultAnnotation));
 			if (matcherExpression == null) {
 				return Stream.empty();
 			}
@@ -520,7 +517,7 @@ public class TestGenerator implements SnapshotConsumer {
 			if (exception == null) {
 				return Stream.empty();
 			}
-			Computation matcherExpression = exception.accept(matcher.create(locals, types), context);
+			Computation matcherExpression = exception.accept(matcher, new DefaultDeserializerContext(types, locals));
 			return createAssertion(matcherExpression, expression).stream();
 		}
 
@@ -528,7 +525,7 @@ public class TestGenerator implements SnapshotConsumer {
 			if (value == null) {
 				return Stream.empty();
 			}
-			Computation matcherExpression = value.accept(matcher.create(locals, types), context);
+			Computation matcherExpression = value.accept(matcher, new DefaultDeserializerContext(types, locals));
 			return createAssertion(matcherExpression, expression, changed).stream();
 		}
 
@@ -536,7 +533,7 @@ public class TestGenerator implements SnapshotConsumer {
 			if (value == null || value.value instanceof SerializedLiteral || value.value instanceof SerializedImmutableType) {
 				return Stream.empty();
 			}
-			Computation matcherExpression = value.value.accept(matcher.create(locals, types), context.newWithHints(value.annotations));
+			Computation matcherExpression = value.value.accept(matcher, new DefaultDeserializerContext(types, locals).newWithHints(value.annotations));
 			if (matcherExpression == null) {
 				return Stream.empty();
 			}
@@ -544,7 +541,7 @@ public class TestGenerator implements SnapshotConsumer {
 		}
 
 		private Stream<String> generateGlobalAssert(TypeManager types, SerializedField value, Boolean changed) {
-			Computation matcherExpression = value.getValue().accept(matcher.create(locals, types), context);
+			Computation matcherExpression = value.getValue().accept(matcher, new DefaultDeserializerContext(types, locals));
 			String expression = fieldAccess(types.getVariableTypeName(value.getDeclaringClass()), value.getName());
 			return createAssertion(matcherExpression, expression, changed).stream();
 		}
@@ -571,8 +568,8 @@ public class TestGenerator implements SnapshotConsumer {
 			} else if (s == null || e == null) {
 				return false;
 			}
-			Computation sc = s.accept(setup.create(new LocalVariableNameGenerator(), new TypeManager()), context);
-			Computation ec = e.accept(setup.create(new LocalVariableNameGenerator(), new TypeManager()), context);
+			Computation sc = s.accept(setup, new DefaultDeserializerContext());
+			Computation ec = e.accept(setup, new DefaultDeserializerContext());
 			return !ec.getValue().equals(sc.getValue())
 				|| !ec.getStatements().equals(sc.getStatements());
 		}

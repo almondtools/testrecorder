@@ -38,7 +38,7 @@ public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> im
 		Type mapKeyType = value.getMapKeyType();
 		Type mapValueType = value.getMapValueType();
 
-		TypeManager types = generator.getTypes();
+		TypeManager types = context.getTypes();
 		if (types.isHidden(mapKeyType)) {
 			mapKeyType = Object.class;
 		}
@@ -101,7 +101,7 @@ public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> im
 			Type keyType = key instanceof SerializedNull ? null : key.getResultType();
 			Type valueType = value instanceof SerializedNull ? null : value.getResultType();
 			
-			TypeManager types = generator.getTypes();
+			TypeManager types = context.getTypes();
 			if (assignableTypes(mapKeyType, keyType) && assignableTypes(Matcher.class, keyType)) {
 				String keyTypeName = types.getRawTypeName(mapKeyType);
 				keyDeserialized = new Computation(cast(keyTypeName, keyDeserialized.getValue()), keyDeserialized.getType(), false, keyDeserialized.getStatements());

@@ -1,6 +1,5 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
-import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenEnum;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -8,16 +7,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
+import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.util.testobjects.PublicEnum;
 import net.amygdalum.testrecorder.values.SerializedEnum;
 
 public class DefaultEnumAdaptorTest {
 
 	private DefaultEnumAdaptor adaptor;
+	private DeserializerContext context;
 
 	@BeforeEach
 	public void before() throws Exception {
 		adaptor = new DefaultEnumAdaptor();
+		context = new DefaultDeserializerContext();
 	}
 
 	@Test
@@ -37,9 +40,9 @@ public class DefaultEnumAdaptorTest {
 	public void testTryDeserialize() throws Exception {
 		SerializedEnum value = new SerializedEnum(PublicEnum.class);
 		value.setName("VALUE1");
-		SetupGenerators generator = new SetupGenerators(getClass());
+		SetupGenerators generator = new SetupGenerators();
 
-		Computation result = adaptor.tryDeserialize(value, generator, NULL);
+		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("PublicEnum.VALUE1");
@@ -49,9 +52,9 @@ public class DefaultEnumAdaptorTest {
 	public void testTryDeserializeHidden() throws Exception {
 		SerializedEnum value = new SerializedEnum(classOfHiddenEnum());
 		value.setName("VALUE2");
-		SetupGenerators generator = new SetupGenerators(getClass());
+		SetupGenerators generator = new SetupGenerators();
 		
-		Computation result = adaptor.tryDeserialize(value, generator, NULL);
+		Computation result = adaptor.tryDeserialize(value, generator, context);
 		
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).contains("Wrapped.enumType(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenEnum\", \"VALUE2\").value()");

@@ -53,7 +53,7 @@ public abstract class DefaultGenericMapAdaptor<T extends SerializedReferenceType
 
         Class<?> matchingType = matchType(type).get();
 
-        TypeManager types = generator.getTypes();
+        TypeManager types = context.getTypes();
 
         Type effectiveResultType = types.bestType(resultType, matchingType);
         Type temporaryType = types.bestType(type, effectiveResultType, matchingType);
@@ -62,7 +62,7 @@ public abstract class DefaultGenericMapAdaptor<T extends SerializedReferenceType
 
         types.registerTypes(effectiveResultType, temporaryType, type, keyResultType, valueResultType);
 
-        return generator.forVariable(value, matchingType, definition -> {
+        return context.forVariable(value, matchingType, definition -> {
 
             List<Pair<Computation, Computation>> elementTemplates = entries(value)
                 .map(entry -> new Pair<>(
@@ -73,8 +73,8 @@ public abstract class DefaultGenericMapAdaptor<T extends SerializedReferenceType
 
             List<Pair<String, String>> elements = elementTemplates.stream()
                 .map(pair -> new Pair<>(
-                    generator.adapt(pair.getElement1().getValue(), keyResultType, pair.getElement1().getType()),
-                    generator.adapt(pair.getElement2().getValue(), valueResultType, pair.getElement2().getType())))
+                    context.adapt(pair.getElement1().getValue(), keyResultType, pair.getElement1().getType()),
+                    context.adapt(pair.getElement2().getValue(), valueResultType, pair.getElement2().getType())))
                 .collect(toList());
 
             List<String> statements = elementTemplates.stream()
@@ -84,11 +84,11 @@ public abstract class DefaultGenericMapAdaptor<T extends SerializedReferenceType
 
             String tempVar = definition.getName();
             if (!equalTypes(effectiveResultType, temporaryType)) {
-                tempVar = generator.temporaryLocal();
+                tempVar = context.temporaryLocal();
             }
 
             String map = types.isHidden(type)
-                ? generator.adapt(types.getWrappedName(type), temporaryType, types.wrapHidden(type))
+                ? context.adapt(types.getWrappedName(type), temporaryType, types.wrapHidden(type))
                 : newObject(types.getConstructorTypeName(type));
             String temporaryTypeName = Optional.of(temporaryType)
                 .filter(t -> typeArguments(t).count() > 0)
@@ -106,8 +106,8 @@ public abstract class DefaultGenericMapAdaptor<T extends SerializedReferenceType
             if (definition.isDefined() && !definition.isReady()) {
                 statements.add(callMethodStatement(definition.getName(), "putAll", tempVar));
                 return variable(definition.getName(), definition.getType(), statements);
-            } else if (generator.needsAdaptation(effectiveResultType, temporaryType)) {
-                tempVar = generator.adapt(tempVar, effectiveResultType, temporaryType);
+            } else if (context.needsAdaptation(effectiveResultType, temporaryType)) {
+                tempVar = context.adapt(tempVar, effectiveResultType, temporaryType);
                 statements.add(assignLocalVariableStatement(types.getVariableTypeName(effectiveResultType), definition.getName(), tempVar));
             } else if (!equalTypes(effectiveResultType, temporaryType)) {
                 statements.add(assignLocalVariableStatement(types.getVariableTypeName(effectiveResultType), definition.getName(), tempVar));

@@ -31,7 +31,7 @@ public class DefaultSetAdaptor extends DefaultMatcherGenerator<SerializedSet> im
 	public Computation tryDeserialize(SerializedSet value, MatcherGenerators generator, DeserializerContext context) {
         Type componentType = value.getComponentType();
 
-        TypeManager types = generator.getTypes();
+        TypeManager types = context.getTypes();
         if (types.isHidden(componentType)) {
             componentType = Object.class;
         }

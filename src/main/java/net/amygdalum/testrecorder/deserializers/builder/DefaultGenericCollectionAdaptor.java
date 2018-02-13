@@ -50,7 +50,7 @@ public abstract class DefaultGenericCollectionAdaptor<T extends SerializedRefere
 
         Class<?> matchingType = matchType(type).get();
 
-        TypeManager types = generator.getTypes();
+        TypeManager types = context.getTypes();
 
         Type effectiveResultType = types.bestType(resultType, matchingType);
         Type temporaryType = types.bestType(type, effectiveResultType, matchingType);
@@ -58,7 +58,7 @@ public abstract class DefaultGenericCollectionAdaptor<T extends SerializedRefere
 
         types.registerTypes(effectiveResultType, type, componentResultType);
 
-        return generator.forVariable(value, matchingType, definition -> {
+        return context.forVariable(value, matchingType, definition -> {
 
             List<Computation> elementTemplates = elements(value)
                 .map(element -> withResultType(element, componentResultType).accept(generator, context))
@@ -66,7 +66,7 @@ public abstract class DefaultGenericCollectionAdaptor<T extends SerializedRefere
                 .collect(toList());
 
             List<String> elements = elementTemplates.stream()
-                .map(template -> generator.adapt(template.getValue(), componentResultType, template.getType()))
+                .map(template -> context.adapt(template.getValue(), componentResultType, template.getType()))
                 .collect(toList());
 
             List<String> statements = elementTemplates.stream()
@@ -75,11 +75,11 @@ public abstract class DefaultGenericCollectionAdaptor<T extends SerializedRefere
 
             String tempVar = definition.getName();
             if (!equalTypes(effectiveResultType, temporaryType)) {
-                tempVar = generator.temporaryLocal();
+                tempVar = context.temporaryLocal();
             }
 
             String set = types.isHidden(type)
-                ? generator.adapt(types.getWrappedName(type), temporaryType, types.wrapHidden(type))
+                ? context.adapt(types.getWrappedName(type), temporaryType, types.wrapHidden(type))
                 : newObject(types.getConstructorTypeName(type));
             String temporaryTypeName = Optional.of(temporaryType)
                 .filter(t -> typeArguments(t).count() > 0)
@@ -97,8 +97,8 @@ public abstract class DefaultGenericCollectionAdaptor<T extends SerializedRefere
             if (definition.isDefined() && !definition.isReady()) {
                 statements.add(callMethodStatement(definition.getName(), "addAll", tempVar));
                 return variable(definition.getName(), definition.getType(), statements);
-            } else if (generator.needsAdaptation(effectiveResultType, temporaryType)) {
-                tempVar = generator.adapt(tempVar, effectiveResultType, temporaryType);
+            } else if (context.needsAdaptation(effectiveResultType, temporaryType)) {
+                tempVar = context.adapt(tempVar, effectiveResultType, temporaryType);
                 statements.add(assignLocalVariableStatement(types.getVariableTypeName(effectiveResultType), definition.getName(), tempVar));
             } else if (!equalTypes(effectiveResultType, temporaryType)) {
                 statements.add(assignLocalVariableStatement(types.getVariableTypeName(effectiveResultType), definition.getName(), tempVar));

@@ -26,12 +26,12 @@ public class DefaultObjectAdaptor extends DefaultSetupGenerator<SerializedObject
 
     @Override
     public Computation tryDeserialize(SerializedObject value, SetupGenerators generator, DeserializerContext context) {
-        TypeManager types = generator.getTypes();
+        TypeManager types = context.getTypes();
         types.registerTypes(value.getType(), value.getResultType(), GenericObject.class);
 
         Type type = value.getType();
         Type resultType = value.getResultType();
-        return generator.forVariable(value, type, definition -> {
+        return context.forVariable(value, type, definition -> {
 
             List<Computation> elementTemplates = ensureUniqueNames(value.getFields()).stream()
                 .sorted()
@@ -54,7 +54,7 @@ public class DefaultObjectAdaptor extends DefaultSetupGenerator<SerializedObject
             } else {
                 effectiveResultType = types.wrapHidden(resultType);
                 String genericObject = genericObjectConverter(types.getRawClass(type), elements);
-                genericObject = generator.adapt(genericObject, effectiveResultType, type);
+                genericObject = context.adapt(genericObject, effectiveResultType, type);
                 statements.add(assignLocalVariableStatement(types.getRawTypeName(effectiveResultType), definition.getName(), genericObject));
             }
 

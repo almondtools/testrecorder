@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
 import net.amygdalum.testrecorder.deserializers.Templates;
 import net.amygdalum.testrecorder.deserializers.TypeManager;
@@ -40,31 +39,31 @@ public class MockedInteractions {
 
 	public static final MockedInteractions NONE = new MockedInteractions(null, null, emptyList(), emptyList());
 
-	private DeserializerFactory setupFactory;
-	private DeserializerFactory matcherFactory;
+	private Deserializer<Computation> setup;
+	private Deserializer<Computation> matcher;
 
 	private Collection<SerializedInput> input;
 	private Collection<SerializedOutput> output;
 
 	private List<String> fakeClassVariables;
 
-	public MockedInteractions(DeserializerFactory setup, DeserializerFactory matcher, Collection<SerializedInput> setupInput, Collection<SerializedOutput> expectOutput) {
-		this.setupFactory = setup;
-		this.matcherFactory = matcher;
+	public MockedInteractions(Deserializer<Computation> setup, Deserializer<Computation> matcher, Collection<SerializedInput> setupInput, Collection<SerializedOutput> expectOutput) {
+		this.setup = setup;
+		this.matcher = matcher;
 		this.input = setupInput;
 		this.output = expectOutput;
 
 		this.fakeClassVariables = new ArrayList<>();
 	}
 
-	public List<String> prepare(LocalVariableNameGenerator locals, TypeManager types, DeserializerContext context) {
-		if (setupFactory == null || matcherFactory == null) {
+	public List<String> prepare(DeserializerContext context) {
+		if (setup == null || matcher == null) {
 			return emptyList();
 		} else if (input.isEmpty() && output.isEmpty()) {
 			return emptyList();
 		}
-		Deserializer<Computation> setup = setupFactory.create(locals, types);
-		Deserializer<Computation> matcher = matcherFactory.create(locals, types);
+		LocalVariableNameGenerator locals = context.getLocals();
+		TypeManager types = context.getTypes();
 
 		types.registerTypes(FakeIO.class, Aspect.class);
 

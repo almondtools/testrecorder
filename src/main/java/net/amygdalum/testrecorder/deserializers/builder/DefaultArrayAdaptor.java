@@ -24,19 +24,19 @@ public class DefaultArrayAdaptor extends DefaultSetupGenerator<SerializedArray> 
 
 	@Override
 	public Computation tryDeserialize(SerializedArray value, SetupGenerators generator, DeserializerContext context) {
-		TypeManager types = generator.getTypes();
+		TypeManager types = context.getTypes();
 		Type componentType = types.bestType(value.getComponentType(), Object.class);
 		types.registerTypes(value.getResultType(), value.getComponentType(), componentType);
 		
 
-		return generator.forVariable(value, value.getResultType(), local -> {
+		return context.forVariable(value, value.getResultType(), local -> {
 
 			List<Computation> elementTemplates = Stream.of(value.getArray())
 				.map(element -> element.accept(generator, context))
 				.collect(toList());
 
 			List<String> elements = elementTemplates.stream()
-				.map(template -> generator.adapt(template.getValue(), componentType, template.getType()))
+				.map(template -> context.adapt(template.getValue(), componentType, template.getType()))
 				.collect(toList());
 
 			List<String> statements = elementTemplates.stream()

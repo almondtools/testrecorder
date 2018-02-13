@@ -34,7 +34,7 @@ public class DefaultBigIntegerAdaptor extends DefaultMatcherGenerator<Serialized
 
 	@Override
 	public Computation tryDeserialize(SerializedImmutable<BigInteger> value, MatcherGenerators generator, DeserializerContext context) {
-		TypeManager types = generator.getTypes();
+		TypeManager types = context.getTypes();
 		types.registerImport(BigInteger.class);
 		types.staticImport(Matchers.class, "equalTo");
 

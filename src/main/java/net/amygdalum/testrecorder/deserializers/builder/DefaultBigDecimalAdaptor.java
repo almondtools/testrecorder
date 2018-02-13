@@ -29,7 +29,7 @@ public class DefaultBigDecimalAdaptor extends DefaultSetupGenerator<SerializedIm
 
 	@Override
 	public Computation tryDeserialize(SerializedImmutable<BigDecimal> value, SetupGenerators generator, DeserializerContext context) {
-		TypeManager types = generator.getTypes();
+		TypeManager types = context.getTypes();
 		types.registerImport(BigDecimal.class);
 
 		String literal = asLiteral(value.getValue().toPlainString());

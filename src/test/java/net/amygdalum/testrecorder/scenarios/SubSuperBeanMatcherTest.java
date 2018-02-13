@@ -14,7 +14,7 @@ public class SubSuperBeanMatcherTest {
 	@Test
 	public void testCodeSerializerSimple() throws Exception {
 		CodeSerializer codeSerializer = matcherSerializer();
-		
+
 		assertThat(codeSerializer.serialize(createSimpleBean())).containsWildcardPattern(""
 			+ "Matcher<SubBean> serializedObject1 = new GenericMatcher() {*"
 			+ "int i = 22;*"
@@ -25,7 +25,7 @@ public class SubSuperBeanMatcherTest {
 	@Test
 	public void testCodeSerializerString() throws Exception {
 		CodeSerializer codeSerializer = matcherSerializer();
-		
+
 		assertThat(codeSerializer.serialize(createStringBean())).containsWildcardPattern(""
 			+ "Matcher<SubBean> serializedObject1 = new GenericMatcher() {*"
 			+ "int i = 22;*"
@@ -36,7 +36,7 @@ public class SubSuperBeanMatcherTest {
 	@Test
 	public void testCodeSerializerNested() throws Exception {
 		CodeSerializer codeSerializer = matcherSerializer();
-		
+
 		assertThat(codeSerializer.serialize(createNestedBean())).containsWildcardPattern(""
 			+ "Matcher<SubBean> serializedObject1 = new GenericMatcher() {*"
 			+ "int i = 22;*"
@@ -46,11 +46,11 @@ public class SubSuperBeanMatcherTest {
 			+ "}.matching(SubBean.class, Object.class);*"
 			+ "}.matching(SubBean.class);");
 	}
-	
+
 	@Test
 	public void testCodeSerializerRecursive() throws Exception {
 		CodeSerializer codeSerializer = matcherSerializer();
-		
+
 		assertThat(codeSerializer.serialize(createRecursiveBean())).containsWildcardPattern(""
 			+ "Matcher<SubBean> serializedObject1 = new GenericMatcher() {*"
 			+ "int i = 22;*"
@@ -87,9 +87,9 @@ public class SubSuperBeanMatcherTest {
 	}
 
 	private static CodeSerializer matcherSerializer() {
-		CodeSerializer codeSerializer = new CodeSerializer("net.amygdalum.testrecorder.scenarios", new ConfigurableSerializerFacade(new DefaultTestRecorderAgentConfig()), new MatcherGenerators.Factory());
+		CodeSerializer codeSerializer = new CodeSerializer("net.amygdalum.testrecorder.scenarios", new ConfigurableSerializerFacade(new DefaultTestRecorderAgentConfig()), new MatcherGenerators());
 		codeSerializer.getTypes().registerTypes(SubBean.class);
-        return codeSerializer;
+		return codeSerializer;
 	}
 
 }

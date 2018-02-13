@@ -27,9 +27,10 @@ public class SerializedOutput extends AbstractSerializedInteraction implements S
 	@Override
 	public String toString() {
 		ValuePrinter printer = new ValuePrinter();
-		return ">> " + clazz.getTypeName() + "@" + id + "." + name + Stream.of(arguments)
-			.map(value -> value.accept(printer, printer))
+		String argumentsStr = Stream.of(arguments)
+			.map(value -> printer.printValue(value))
 			.collect(joining(", ", "(", ")"));
+		return ">> " + clazz.getTypeName() + "@" + id + "." + name + argumentsStr;
 	}
 
 }

@@ -26,7 +26,7 @@ public class DefaultClassAdaptor extends DefaultSetupGenerator<SerializedImmutab
 
 	@Override
 	public Computation tryDeserialize(SerializedImmutable<Class<?>> value, SetupGenerators generator, DeserializerContext context) {
-		TypeManager types = generator.getTypes();
+		TypeManager types = context.getTypes();
 		types.registerImport(Class.class);
 
 		Class<?> clazz = value.getValue();

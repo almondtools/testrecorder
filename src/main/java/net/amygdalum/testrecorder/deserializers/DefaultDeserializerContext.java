@@ -2,6 +2,11 @@ package net.amygdalum.testrecorder.deserializers;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
+import static net.amygdalum.testrecorder.deserializers.Templates.cast;
+import static net.amygdalum.testrecorder.util.Types.assignableTypes;
+import static net.amygdalum.testrecorder.util.Types.baseType;
+import static net.amygdalum.testrecorder.util.Types.boxingEquivalentTypes;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -16,6 +21,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import net.amygdalum.testrecorder.runtime.Wrapped;
+import net.amygdalum.testrecorder.types.DeserializationException;
 import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.SerializedImmutableType;
@@ -32,11 +39,30 @@ public class DefaultDeserializerContext implements DeserializerContext {
 	private Map<SerializedValue, Set<SerializedReferenceType>> backReferences;
 	private Map<SerializedValue, Set<SerializedValue>> closures;
 	private List<Object> hints;
+	private LocalVariableNameGenerator locals;
+	private TypeManager types;
+	private Map<SerializedValue, LocalVariable> defined;
+	private Set<SerializedValue> computed;
+
 
 	public DefaultDeserializerContext() {
 		this.backReferences = new IdentityHashMap<>();
 		this.closures = new IdentityHashMap<>();
 		this.hints = emptyList();
+		this.types = new TypeManager();
+		this.locals = new LocalVariableNameGenerator();
+		this.defined = new IdentityHashMap<>();
+		this.computed = new HashSet<>();
+	}
+
+	public DefaultDeserializerContext(TypeManager types, LocalVariableNameGenerator locals) {
+		this.backReferences = new IdentityHashMap<>();
+		this.closures = new IdentityHashMap<>();
+		this.hints = emptyList();
+		this.types = types;
+		this.locals = locals;
+		this.defined = new IdentityHashMap<>();
+		this.computed = new HashSet<>();
 	}
 
 	private DefaultDeserializerContext(DefaultDeserializerContext parent, Collection<Object> hints) {
@@ -44,6 +70,58 @@ public class DefaultDeserializerContext implements DeserializerContext {
 		this.backReferences = parent.backReferences;
 		this.closures = parent.closures;
 		this.hints = new ArrayList<>(hints);
+		this.types = parent.types;
+		this.locals = parent.locals;
+		this.defined = parent.defined;
+		this.computed = parent.computed;
+	}
+	
+	@Override
+	public LocalVariableNameGenerator getLocals() {
+		return locals;
+	}
+
+	@Override
+	public TypeManager getTypes() {
+		return types;
+	}
+
+	@Override
+	public String temporaryLocal() {
+		return locals.fetchName("temp");
+	}
+
+	@Override
+	public String newLocal(String name) {
+		return locals.fetchName(name);
+	}
+
+	@Override
+	public LocalVariable localVariable(SerializedValue value, Type type, Type resultType) {
+		String name = locals.fetchName(type);
+		LocalVariable definition = new LocalVariable(name, resultType);
+		defined.put(value, definition);
+		return definition;
+	}
+
+	@Override
+	public void finishVariable(SerializedValue value) {
+		defined.computeIfPresent(value, (val, def) -> def.finish());
+	}
+
+	@Override
+	public void resetVariable(SerializedValue value) {
+		defined.remove(value);
+	}
+	
+	@Override
+	public boolean defines(SerializedValue value) {
+		return defined.containsKey(value);
+	}
+	
+	@Override
+	public LocalVariable getDefinition(SerializedValue value) {
+		return defined.get(value);
 	}
 
 	@Override
@@ -125,6 +203,57 @@ public class DefaultDeserializerContext implements DeserializerContext {
 		} else {
 			return Collections.singleton(value);
 		}
+	}
+
+	@Override
+	public String adapt(String expression, Type resultType, Type type) {
+		if (baseType(resultType) != Wrapped.class && type == Wrapped.class) {
+			expression = callMethod(expression, "value");
+			type = Object.class;
+		} else if (baseType(resultType) != Wrapped.class && types.isHidden(type)) {
+			expression = callMethod(expression, "value");
+			type = Object.class;
+		}
+		if ((!assignableTypes(resultType, type) || types.isHidden(type))
+			&& !boxingEquivalentTypes(resultType, type)
+			&& baseType(resultType) != Wrapped.class) {
+			expression = cast(types.getVariableTypeName(resultType), expression);
+		}
+		return expression;
+	}
+
+	@Override
+	public boolean needsAdaptation(Type resultType, Type type) {
+		if (baseType(resultType) != Wrapped.class && type == Wrapped.class) {
+			return true;
+		} else if (baseType(resultType) != Wrapped.class && types.isHidden(type)) {
+			return true;
+		}
+		if ((!assignableTypes(resultType, type) || types.isHidden(type))
+			&& !boxingEquivalentTypes(resultType, type)
+			&& baseType(resultType) != Wrapped.class) {
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public Computation forVariable(SerializedValue value, Type type, LocalVariableDefinition computation) {
+		LocalVariable local = localVariable(value, type, value.getResultType());
+		try {
+			Computation definition = computation.define(local);
+			finishVariable(value);
+			return definition;
+		} catch (DeserializationException e) {
+			resetVariable(value);
+			throw e;
+		}
+	}
+	
+	@Override
+	public boolean isComputed(SerializedValue value) {
+		boolean changed = computed.add(value);
+		return !changed;
 	}
 
 	private static class GlobalRoot implements SerializedReferenceType {

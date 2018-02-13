@@ -1,6 +1,5 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
-import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenMap;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
@@ -15,8 +14,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.deserializers.LocalVariable;
 import net.amygdalum.testrecorder.deserializers.LocalVariableDefinition;
+import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.util.testobjects.OrthogonalInterface;
 import net.amygdalum.testrecorder.util.testobjects.PublicMap;
@@ -25,10 +26,12 @@ import net.amygdalum.testrecorder.values.SerializedMap;
 public class DefaultMapAdaptorTest {
 
 	private DefaultMapAdaptor adaptor;
+	private DeserializerContext context;
 
 	@BeforeEach
 	public void before() throws Exception {
 		adaptor = new DefaultMapAdaptor();
+		context = new DefaultDeserializerContext();
 	}
 
 	@Test
@@ -51,9 +54,9 @@ public class DefaultMapAdaptorTest {
 		SerializedMap value = new SerializedMap(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class)).withResult(parameterized(Map.class, null, Integer.class, Integer.class));
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
-		SetupGenerators generator = new SetupGenerators(getClass());
+		SetupGenerators generator = new SetupGenerators();
 
-		Computation result = adaptor.tryDeserialize(value, generator, NULL);
+		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSequence(
 			"LinkedHashMap<Integer, Integer> temp1 = new LinkedHashMap<Integer, Integer>()",
@@ -69,9 +72,9 @@ public class DefaultMapAdaptorTest {
 			.withResult(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class));
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
-		SetupGenerators generator = new SetupGenerators(getClass());
+		SetupGenerators generator = new SetupGenerators();
 
-		Computation result = adaptor.tryDeserialize(value, generator, NULL);
+		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSequence(
 			"LinkedHashMap<Integer, Integer> map1 = new LinkedHashMap<Integer, Integer>()",
@@ -86,9 +89,9 @@ public class DefaultMapAdaptorTest {
 			.withResult(OrthogonalInterface.class);
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
-		SetupGenerators generator = new SetupGenerators(Object.class);
+		SetupGenerators generator = new SetupGenerators();
 
-		Computation result = adaptor.tryDeserialize(value, generator, NULL);
+		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSequence(
 			"PublicMap<Integer, Integer> temp1 = new PublicMap<Integer, Integer>()",
@@ -104,9 +107,9 @@ public class DefaultMapAdaptorTest {
 			.withResult(OrthogonalInterface.class);
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
-		SetupGenerators generator = new SetupGenerators(Object.class);
+		SetupGenerators generator = new SetupGenerators();
 
-		Computation result = adaptor.tryDeserialize(value, generator, NULL);
+		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSequence(
 			"Map temp1 = (Map<?, ?>) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenMap\").value();",
@@ -122,9 +125,9 @@ public class DefaultMapAdaptorTest {
 			.withResult(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class));
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
-		SetupGenerators generator = new SetupGenerators(Object.class);
+		SetupGenerators generator = new SetupGenerators();
 
-		Computation result = adaptor.tryDeserialize(value, generator, NULL);
+		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).doesNotContain("new net.amygdalum.testrecorder.util.testobjects.Hidden.HiddenMap");
 		assertThat(result.getStatements().toString()).containsSequence(
@@ -139,16 +142,16 @@ public class DefaultMapAdaptorTest {
 		SerializedMap value = new SerializedMap(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class)).withResult(parameterized(Map.class, null, Integer.class, Integer.class));
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
-		SetupGenerators generator = new SetupGenerators(getClass()) {
+		SetupGenerators generator = new SetupGenerators();
+
+		Computation result = adaptor.tryDeserialize(value, generator, new DefaultDeserializerContext() {
 			@Override
 			public Computation forVariable(SerializedValue value, Type type, LocalVariableDefinition computation) {
 				LocalVariable local = new LocalVariable("forwarded");
 				local.define(type);
 				return computation.define(local);
 			}
-		};
-
-		Computation result = adaptor.tryDeserialize(value, generator, NULL);
+		});
 
 		assertThat(result.getStatements().toString()).containsSequence(
 			"LinkedHashMap<Integer, Integer> temp1 = new LinkedHashMap<Integer, Integer>()",

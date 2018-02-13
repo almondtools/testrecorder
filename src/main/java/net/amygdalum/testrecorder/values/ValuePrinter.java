@@ -1,13 +1,12 @@
 package net.amygdalum.testrecorder.values;
 
-import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.joining;
 
 import java.util.LinkedHashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.SerializedFieldType;
@@ -16,22 +15,30 @@ import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.SerializedValueType;
 
-public class ValuePrinter implements Deserializer<String>, DeserializerContext {
+public class ValuePrinter implements Deserializer<String> {
 
 	private Set<Object> known;
 
 	public ValuePrinter() {
 		known = new LinkedHashSet<>();
 	}
-	
+
 	public static String print(SerializedValue value) {
 		ValuePrinter printer = new ValuePrinter();
-		return value.accept(printer, printer);
+		return printer.printValue(value);
 	}
 
 	public static String print(SerializedFieldType value) {
 		ValuePrinter printer = new ValuePrinter();
-		return value.accept(printer, printer);
+		return printer.printField(value);
+	}
+
+	public String printValue(SerializedValue value) {
+		return value.accept(this, DefaultDeserializerContext.NULL);
+	}
+
+	public String printField(SerializedFieldType value) {
+		return value.accept(this, DefaultDeserializerContext.NULL);
 	}
 
 	@Override
@@ -88,7 +95,7 @@ public class ValuePrinter implements Deserializer<String>, DeserializerContext {
 		} else if (rt instanceof SerializedEnum) {
 			SerializedEnum value = (SerializedEnum) rt;
 			return value.getName();
-		} else{
+		} else {
 			return "";
 		}
 	}
@@ -96,44 +103,6 @@ public class ValuePrinter implements Deserializer<String>, DeserializerContext {
 	@Override
 	public String visitValueType(SerializedValueType value, DeserializerContext context) {
 		return value.getValue().toString();
-	}
-
-	@Override
-	public DeserializerContext getParent() {
-		return this;
-	}
-
-	@Override
-	public <T> DeserializerContext newWithHints(T[] hints) {
-		return this;
-	}
-
-	@Override
-	public <T> Optional<T> getHint(Class<T> clazz) {
-		return Optional.empty();
-	}
-
-	@Override
-	public <T> Stream<T> getHints(Class<T> clazz) {
-		return Stream.empty();
-	}
-
-	@Override
-	public int refCount(SerializedValue value) {
-		return 0;
-	}
-
-	@Override
-	public void ref(SerializedReferenceType value, SerializedValue referencedValue) {
-	}
-
-	@Override
-	public void staticRef(SerializedValue referencedValue) {
-	}
-
-	@Override
-	public Set<SerializedValue> closureOf(SerializedValue value) {
-		return emptySet();
 	}
 
 }

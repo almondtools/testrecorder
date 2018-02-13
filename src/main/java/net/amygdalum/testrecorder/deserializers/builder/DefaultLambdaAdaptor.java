@@ -31,9 +31,9 @@ public class DefaultLambdaAdaptor extends DefaultSetupGenerator<SerializedLambda
 
 	@Override
 	public Computation tryDeserialize(SerializedLambdaObject value, SetupGenerators generator, DeserializerContext context) {
-		TypeManager types = generator.getTypes();
+		TypeManager types = context.getTypes();
 		types.registerImport(LambdaSignature.class);
-		return generator.forVariable(value, value.getResultType(), local -> {
+		return context.forVariable(value, value.getResultType(), local -> {
 			LambdaSignature signature = value.getSignature();
 			
 			Class<?> functionalInterfaceType = baseType(local.getType());

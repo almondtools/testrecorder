@@ -97,8 +97,8 @@ public class ConstructorParam {
         String value = computation.getValue();
         boolean stored = computation.isStored();
         
-        if (generator.needsAdaptation(type, computation.getType()))  {
-            value = generator.adapt(value, type, computation.getType());
+        if (context.needsAdaptation(type, computation.getType()))  {
+            value = context.adapt(value, type, computation.getType());
             stored = true;
         } else if (castNeeded()) {
             value = cast(types.getVariableTypeName(type), value);

@@ -52,7 +52,7 @@ public class ArraysListAdaptor implements SetupGenerator<SerializedList> {
     public Computation tryDeserialize(SerializedList value, SetupGenerators generator, DeserializerContext context) {
         Type componentType = value.getComponentType();
 
-        TypeManager types = generator.getTypes();
+        TypeManager types = context.getTypes();
         types.staticImport(Arrays.class, "asList");
         types.registerType(componentType);
 
@@ -65,7 +65,7 @@ public class ArraysListAdaptor implements SetupGenerator<SerializedList> {
         Type resultType = types.isHidden(componentType)
             ? parameterized(List.class, null, wildcard())
             : parameterized(List.class, null, componentType);
-        return generator.forVariable(value, resultType, local -> {
+        return context.forVariable(value, resultType, local -> {
 
             Computation computation = adaptor.tryDeserialize(baseValue, generator, context);
             List<String> statements = new LinkedList<>(computation.getStatements());

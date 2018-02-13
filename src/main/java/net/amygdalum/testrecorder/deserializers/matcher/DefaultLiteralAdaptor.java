@@ -23,7 +23,7 @@ public class DefaultLiteralAdaptor extends DefaultMatcherGenerator<SerializedLit
 
 	@Override
 	public Computation tryDeserialize(SerializedLiteral value, MatcherGenerators generator, DeserializerContext context) {
-		TypeManager types = generator.getTypes();
+		TypeManager types = context.getTypes();
 		types.staticImport(Matchers.class, "equalTo");
 
 		String valueExpression = asLiteral(value.getValue());

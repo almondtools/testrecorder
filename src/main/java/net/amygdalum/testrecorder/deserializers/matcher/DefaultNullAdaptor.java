@@ -23,7 +23,7 @@ public class DefaultNullAdaptor extends DefaultMatcherGenerator<SerializedNull> 
 
 	@Override
 	public Computation tryDeserialize(SerializedNull value, MatcherGenerators generator, DeserializerContext context) {
-		TypeManager types = generator.getTypes();
+		TypeManager types = context.getTypes();
 		types.registerType(value.getType());
 		types.staticImport(Matchers.class, "nullValue");
 

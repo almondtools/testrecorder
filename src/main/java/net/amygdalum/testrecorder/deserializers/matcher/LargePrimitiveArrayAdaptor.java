@@ -44,7 +44,7 @@ public class LargePrimitiveArrayAdaptor implements MatcherGenerator<SerializedAr
 
 	@Override
 	public Computation tryDeserialize(SerializedArray value, MatcherGenerators generator, DeserializerContext context) throws DeserializationException {
-		TypeManager types = generator.getTypes();
+		TypeManager types = context.getTypes();
 		Class<?> componentType = baseType(value.getComponentType());
 		while (componentType.isArray()) {
 			componentType = componentType.getComponentType();

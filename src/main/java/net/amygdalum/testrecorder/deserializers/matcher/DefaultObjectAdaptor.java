@@ -30,7 +30,7 @@ public class DefaultObjectAdaptor extends DefaultMatcherGenerator<SerializedObje
 
 	@Override
 	public Computation tryDeserialize(SerializedObject value, MatcherGenerators generator, DeserializerContext context) {
-		TypeManager types = generator.getTypes();
+		TypeManager types = context.getTypes();
 		types.registerTypes(value.getResultType(), value.getType(), GenericMatcher.class);
 
 		List<Computation> fields = ensureUniqueNames(value.getFields()).stream()

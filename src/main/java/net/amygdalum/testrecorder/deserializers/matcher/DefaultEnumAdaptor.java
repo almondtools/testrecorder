@@ -37,7 +37,7 @@ public class DefaultEnumAdaptor extends DefaultMatcherGenerator<SerializedEnum> 
 
 	@Override
 	public Computation tryDeserialize(SerializedEnum value, MatcherGenerators generator, DeserializerContext context) {
-		TypeManager types = generator.getTypes();
+		TypeManager types = context.getTypes();
 		Type type = value.getType();
         types.registerType(type);
 
