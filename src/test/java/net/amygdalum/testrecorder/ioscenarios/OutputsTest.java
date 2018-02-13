@@ -66,8 +66,8 @@ public class OutputsTest {
 		assertThat(testGenerator.testsFor(Outputs.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(Outputs.class).getTestCode())
 			.containsWildcardPattern(".fakeOutput(new Aspect() {*print(String*)*})"
-				+ ".add(null, equalTo(\"Hello \"))"
-				+ ".add(null, equalTo(\"World\")")
+				+ ".addVirtual(outputs?, null, equalTo(\"Hello \"))"
+				+ ".addVirtual(outputs?, null, equalTo(\"World\")")
 			.contains("verify()");
 		assertThat(testGenerator.renderTest(Outputs.class)).satisfies(testsRun());
 	}
@@ -81,11 +81,11 @@ public class OutputsTest {
 		assertThat(testGenerator.testsFor(Outputs.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(Outputs.class).getTestCode())
 			.containsWildcardPattern(".fakeOutput(new Aspect() {*conditionalReturnOutput(char*)*})"
-				+ ".add(true, equalTo('a'))"
-				+ ".add(true, equalTo(','))"
-				+ ".add(false, equalTo(' '))"
-				+ ".add(true, equalTo('b'))"
-				+ ".add(false, equalTo('\\n')")
+				+ ".addVirtual(outputs?, true, equalTo('a'))"
+				+ ".addVirtual(outputs?, true, equalTo(','))"
+				+ ".addVirtual(outputs?, false, equalTo(' '))"
+				+ ".addVirtual(outputs?, true, equalTo('b'))"
+				+ ".addVirtual(outputs?, false, equalTo('\\n')")
 			.contains("verify()");
 		assertThat(testGenerator.renderTest(Outputs.class)).satisfies(testsRun());
 	}

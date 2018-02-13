@@ -100,6 +100,8 @@ public final class Literals {
 			return "(byte) " + value.toString();
 		} else if (value instanceof Short) {
 			return "(short) " + value.toString();
+		} else if (value instanceof Integer) {
+			return value.toString();
 		} else if (value instanceof Float) {
 			return asLiteral((Float) value);
 		} else if (value instanceof Long) {

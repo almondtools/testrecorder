@@ -255,6 +255,13 @@ public class DefaultDeserializerContext implements DeserializerContext {
 		boolean changed = computed.add(value);
 		return !changed;
 	}
+	
+	@Override
+	public Optional<SerializedValue> resolve(int id) {
+		return defined.keySet().stream()
+			.filter(value -> (value instanceof SerializedReferenceType) && ((SerializedReferenceType)value).getId() == id)
+			.findFirst();
+	}
 
 	private static class GlobalRoot implements SerializedReferenceType {
 

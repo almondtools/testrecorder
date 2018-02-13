@@ -56,5 +56,7 @@ public interface DeserializerContext {
 
 	boolean isComputed(SerializedValue value);
 
+	Optional<SerializedValue> resolve(int id);
+
 	
 }

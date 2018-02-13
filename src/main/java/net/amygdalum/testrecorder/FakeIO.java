@@ -215,13 +215,6 @@ public class FakeIO {
 				&& methodDesc.equals(invocation.methodDesc);
 		}
 
-		public Interaction add(Object result, Object... args) {
-			AnyInvocation invocation = new AnyInvocation();
-			InvocationData data = new InvocationData(invocation, result, args);
-			invocationData.add(data);
-			return this;
-		}
-
 		public Interaction addStatic(Object result, Object... args) {
 			StaticInvocation invocation = new StaticInvocation();
 			InvocationData data = new InvocationData(invocation, result, args);

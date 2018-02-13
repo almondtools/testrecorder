@@ -85,9 +85,9 @@ public class InputsTest {
 		assertThat(testGenerator.renderTest(Inputs.class).getTestCode())
 			.containsWildcardPattern("FakeIO.fake(Inputs.class)")
 			.containsWildcardPattern(".fakeInput(new Aspect() {*public String read() {*}*})")
-			.containsWildcardPattern(".add(\"Hello\")")
-			.containsWildcardPattern(".add(\" \")")
-			.containsWildcardPattern(".add(\"World\")");
+			.containsWildcardPattern(".addVirtual(inputs?, \"Hello\")")
+			.containsWildcardPattern(".addVirtual(inputs?, \" \")")
+			.containsWildcardPattern(".addVirtual(inputs?, \"World\")");
 		assertThat(testGenerator.renderTest(Inputs.class)).satisfies(testsRun());
 	}
 
@@ -100,8 +100,8 @@ public class InputsTest {
 		assertThat(testGenerator.renderTest(Inputs.class).getTestCode())
 			.containsWildcardPattern("FakeIO.fake(Inputs.class)")
 			.containsWildcardPattern(".fakeInput(new Aspect() {*public String conditionalReturnRead() {*}*})"
-				+ ".add(\"Hello\")"
-				+ ".add(\"World\")");
+				+ ".addVirtual(inputs?, \"Hello\")"
+				+ ".addVirtual(inputs?, \"World\")");
 		assertThat(testGenerator.renderTest(Inputs.class)).satisfies(testsRun());
 	}
 
@@ -114,21 +114,21 @@ public class InputsTest {
 		assertThat(testGenerator.renderTest(Inputs.class).getTestCode())
 			.containsWildcardPattern("FakeIO.fake(Inputs.class)")
 			.containsWildcardPattern(".fakeInput(new Aspect() {*public boolean readBoolean() {*}*})"
-				+ ".add(true)")
+				+ ".addVirtual(inputs?, true)")
 			.containsWildcardPattern(".fakeInput(new Aspect() {*public byte readByte() {*}*})"
-				+ ".add((byte) 42)")
+				+ ".addVirtual(inputs?, (byte) 42)")
 			.containsWildcardPattern(".fakeInput(new Aspect() {*public short readShort() {*}*})"
-				+ ".add((short) 42)")
+				+ ".addVirtual(inputs?, (short) 42)")
 			.containsWildcardPattern(".fakeInput(new Aspect() {*public int readInt() {*}*})"
-				+ ".add(42)")
+				+ ".addVirtual(inputs?, 42)")
 			.containsWildcardPattern(".fakeInput(new Aspect() {*public long readLong() {*}*})"
-				+ ".add(42l)")
+				+ ".addVirtual(inputs?, 42l)")
 			.containsWildcardPattern(".fakeInput(new Aspect() {*public float readFloat() {*}*})"
-				+ ".add(42.0f)")
+				+ ".addVirtual(inputs?, 42.0f)")
 			.containsWildcardPattern(".fakeInput(new Aspect() {*public double readDouble() {*}*})"
-				+ ".add(42.0)")
+				+ ".addVirtual(inputs?, 42.0)")
 			.containsWildcardPattern(".fakeInput(new Aspect() {*public char readChar() {*}*})"
-				+ ".add('a')");
+				+ ".addVirtual(inputs?, 'a')");
 		assertThat(testGenerator.renderTest(Inputs.class)).satisfies(testsRun());
 	}
 

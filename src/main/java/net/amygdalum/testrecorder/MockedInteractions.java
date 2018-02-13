@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
@@ -31,6 +32,8 @@ import net.amygdalum.testrecorder.types.DeserializationException;
 import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.SerializedInteraction;
+import net.amygdalum.testrecorder.types.SerializedValue;
+import net.amygdalum.testrecorder.util.Literals;
 import net.amygdalum.testrecorder.util.Types;
 import net.amygdalum.testrecorder.values.SerializedInput;
 import net.amygdalum.testrecorder.values.SerializedOutput;
@@ -107,6 +110,17 @@ public class MockedInteractions {
 				for (SerializedInteraction interaction : aspectInteractions.getValue()) {
 					Deserializer<Computation> deserializer = deserializerFor(interaction, setup, matcher);			
 					List<String> arguments = new ArrayList<>();
+					
+					if (!interaction.isStatic()) {
+						Optional<SerializedValue> value = context.resolve(interaction.getId());
+						if (value.isPresent()) {
+							Computation selfComputation = value.get().accept(setup, context);
+							statements.addAll(selfComputation.getStatements());
+							arguments.add(selfComputation.getValue());
+						} else {
+							arguments.add(Literals.asLiteral(interaction.getId()));
+						}
+					}
 
 					if (interaction.hasResult()) {
 						Computation resultComputation = interaction.getResult().accept(setup, context);
@@ -125,8 +139,13 @@ public class MockedInteractions {
 						arguments.add(argumentComputation.getValue());
 					});
 
-					//TODO replace it by addStatic/addVirtual
-					methods.add(callLocalMethod("add", arguments));
+					if (interaction.isStatic()) {
+						methods.add(callLocalMethod("addStatic", arguments));
+					} else if (context.resolve(interaction.getId()).isPresent()) {
+						methods.add(callLocalMethod("addVirtual", arguments));
+					} else {
+						methods.add(callLocalMethod("addFreeVirtual", arguments));
+					}
 				}
 			}
 			val = callMethodChainExpression(val, methods);
