@@ -24,10 +24,6 @@ public class Adaptors<G extends Deserializer<Computation>> {
 		this.adaptors = new LinkedHashMap<>();
 	}
 
-	public Adaptors(Adaptors<G> base) {
-		this.adaptors = new LinkedHashMap<>(base.adaptors);
-	}
-
 	public Adaptors<G> add(Adaptor<?, G> adaptor) {
 		return add(adaptor.getAdaptedClass(), adaptor);
 	}
@@ -55,7 +51,6 @@ public class Adaptors<G extends Deserializer<Computation>> {
 				}
 			}
 			if (iterator.hasPrevious()) {
-				iterator.previous();
 				iterator.add(adaptor);
 			} else {
 				matching.add(0, adaptor);

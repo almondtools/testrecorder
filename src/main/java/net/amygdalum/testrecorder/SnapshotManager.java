@@ -16,6 +16,7 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.Type;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -24,6 +25,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
@@ -153,18 +155,31 @@ public class SnapshotManager {
 		return methodContext.signature(signature).validIn(self.getClass());
 	}
 
-	public ContextSnapshot push(String signature) {
+	public ContextSnapshotTransaction push(String signature) {
 		ContextSnapshot snapshot = methodContext.createSnapshot(signature);
 		current.get().push(snapshot);
-		return snapshot;
+		return new ValidContextSnapshotTransaction(snapshotExecutor, timeoutInMillis, facade, snapshot);
 	}
 
-	public ContextSnapshot current() {
+	public ContextSnapshotTransaction pop(String signature) {
+		Deque<ContextSnapshot> snapshots = current.get();
+		while (!snapshots.isEmpty()) {
+			ContextSnapshot snapshot = snapshots.pop();
+			if (snapshot.matches(signature)) {
+				return new ValidContextSnapshotTransaction(snapshotExecutor, timeoutInMillis, facade, snapshot); 
+			}
+			snapshot.invalidate();
+		}
+		return DummyContextSnapshotTransaction.INVALID;
+	}
+
+	public ContextSnapshotTransaction current() {
 		Deque<ContextSnapshot> stack = current.get();
 		if (stack.isEmpty()) {
-			return ContextSnapshot.INVALID;
+			return DummyContextSnapshotTransaction.INVALID;
 		} else {
-			return stack.peek();
+			ContextSnapshot snapshot = stack.peek();
+			return new ValidContextSnapshotTransaction(snapshotExecutor, timeoutInMillis, facade, snapshot);
 		}
 	}
 
@@ -172,14 +187,8 @@ public class SnapshotManager {
 		return current.get();
 	}
 
-	public ContextSnapshot pop(String signature) {
-		Deque<ContextSnapshot> processes = current.get();
-		ContextSnapshot currentProcess = processes.pop();
-		while (!currentProcess.matches(signature)) {
-			currentProcess.invalidate();
-			currentProcess = processes.pop();
-		}
-		return currentProcess;
+	public Optional<ContextSnapshot> peek() {
+		return Optional.ofNullable(current.get().peek());
 	}
 
 	public void setupVariables(Object self, String signature, Object... args) {
@@ -188,7 +197,7 @@ public class SnapshotManager {
 			if (!aquired || !matches(self, signature)) {
 				return;
 			}
-			execute((facade, snapshot) -> {
+			push(signature).to((facade, snapshot) -> {
 				if (self != null) {
 					snapshot.setSetupThis(facade.serialize(self.getClass(), self));
 				}
@@ -196,7 +205,7 @@ public class SnapshotManager {
 				snapshot.setSetupGlobals(globalContext.globals().stream()
 					.map(field -> facade.serialize(field, null))
 					.toArray(SerializedField[]::new));
-			}, push(signature));
+			});
 		} finally {
 			lock.release();
 		}
@@ -227,12 +236,11 @@ public class SnapshotManager {
 			if (!aquired) {
 				return;
 			}
-			ContextSnapshot currentSnapshot = current();
-			execute((facade, snapshot) -> {
+			current().to((facade, snapshot) -> {
 				snapshot.streamInput().filter(in -> in.id() == id).forEach(in -> {
 					in.updateArguments(facade.serialize(in.getTypes(), arguments));
 				});
-			}, currentSnapshot);
+			});
 		} finally {
 			lock.release();
 		}
@@ -244,12 +252,11 @@ public class SnapshotManager {
 			if (!aquired) {
 				return;
 			}
-			ContextSnapshot currentSnapshot = current();
-			execute((facade, snapshot) -> {
+			current().to((facade, snapshot) -> {
 				snapshot.streamInput().filter(in -> in.id() == id).forEach(in -> {
 					in.updateResult(facade.serialize(in.getResultType(), result));
 				});
-			}, currentSnapshot);
+			});
 		} finally {
 			lock.release();
 		}
@@ -261,12 +268,11 @@ public class SnapshotManager {
 			if (!aquired) {
 				return;
 			}
-			ContextSnapshot currentSnapshot = current();
-			execute((facade, snapshot) -> {
+			current().to((facade, snapshot) -> {
 				snapshot.streamInput().filter(in -> in.id() == id).forEach(in -> {
 					in.updateResult(SerializedNull.VOID);
 				});
-			}, currentSnapshot);
+			});
 		} finally {
 			lock.release();
 		}
@@ -297,12 +303,11 @@ public class SnapshotManager {
 			if (!aquired) {
 				return;
 			}
-			ContextSnapshot currentSnapshot = current();
-			execute((facade, snapshot) -> {
+			current().to((facade, snapshot) -> {
 				snapshot.streamOutput().filter(out -> out.id() == id).forEach(out -> {
 					out.updateArguments(facade.serialize(out.getTypes(), arguments));
 				});
-			}, currentSnapshot);
+			});
 		} finally {
 			lock.release();
 		}
@@ -314,12 +319,11 @@ public class SnapshotManager {
 			if (!aquired) {
 				return;
 			}
-			ContextSnapshot currentSnapshot = current();
-			execute((facade, snapshot) -> {
+			current().to((facade, snapshot) -> {
 				snapshot.streamOutput().filter(out -> out.id() == id).forEach(out -> {
 					out.updateResult(facade.serialize(out.getResultType(), result));
 				});
-			}, currentSnapshot);
+			});
 		} finally {
 			lock.release();
 		}
@@ -331,12 +335,11 @@ public class SnapshotManager {
 			if (!aquired) {
 				return;
 			}
-			ContextSnapshot currentSnapshot = current();
-			execute((facade, snapshot) -> {
+			current().to((facade, snapshot) -> {
 				snapshot.streamOutput().filter(out -> out.id() == id).forEach(out -> {
 					out.updateResult(SerializedNull.VOID);
 				});
-			}, currentSnapshot);
+			});
 		} finally {
 			lock.release();
 		}
@@ -348,8 +351,7 @@ public class SnapshotManager {
 			if (!aquired || !matches(self, signature)) {
 				return;
 			}
-			ContextSnapshot currentSnapshot = pop(signature);
-			execute((facade, snapshot) -> {
+			pop(signature).to((facade, snapshot) -> {
 				if (self != null) {
 					snapshot.setExpectThis(facade.serialize(self.getClass(), self));
 				}
@@ -358,8 +360,7 @@ public class SnapshotManager {
 				snapshot.setExpectGlobals(globalContext.globals().stream()
 					.map(field -> facade.serialize(field, null))
 					.toArray(SerializedField[]::new));
-			}, currentSnapshot);
-			consume(currentSnapshot);
+			}).andConsume(this::consume);
 		} finally {
 			lock.release();
 		}
@@ -371,8 +372,7 @@ public class SnapshotManager {
 			if (!aquired || !matches(self, signature)) {
 				return;
 			}
-			ContextSnapshot currentSnapshot = pop(signature);
-			execute((facade, snapshot) -> {
+			pop(signature).to((facade, snapshot) -> {
 				if (self != null) {
 					snapshot.setExpectThis(facade.serialize(self.getClass(), self));
 				}
@@ -380,8 +380,8 @@ public class SnapshotManager {
 				snapshot.setExpectGlobals(globalContext.globals().stream()
 					.map(field -> facade.serialize(field, null))
 					.toArray(SerializedField[]::new));
-			}, currentSnapshot);
-			consume(currentSnapshot);
+			}).andConsume(this::consume);
+			;
 		} finally {
 			lock.release();
 		}
@@ -393,8 +393,7 @@ public class SnapshotManager {
 			if (!aquired || !matches(self, signature)) {
 				return;
 			}
-			ContextSnapshot currentSnapshot = pop(signature);
-			execute((facade, snapshot) -> {
+			pop(signature).to((facade, snapshot) -> {
 				if (self != null) {
 					snapshot.setExpectThis(facade.serialize(self.getClass(), self));
 				}
@@ -403,26 +402,28 @@ public class SnapshotManager {
 				snapshot.setExpectGlobals(globalContext.globals().stream()
 					.map(field -> facade.serialize(field, null))
 					.toArray(SerializedField[]::new));
-			}, currentSnapshot);
-			consume(currentSnapshot);
+			}).andConsume(this::consume);
 		} finally {
 			lock.release();
 		}
 	}
 
-	public boolean isNestedIO() {
-		ContextSnapshot snapshot = current();
-		boolean inputPending = snapshot.lastInputSatitisfies(in -> !in.isComplete());
-		boolean outputPending = snapshot.lastOutputSatitisfies(out -> !out.isComplete());
-		return inputPending || outputPending;
-	}
-
-	private void consume(ContextSnapshot snapshot) {
+	protected void consume(ContextSnapshot snapshot) {
 		if (snapshot.isValid()) {
 			if (snapshotConsumer != null) {
 				snapshotConsumer.accept(snapshot);
 			}
 		}
+	}
+
+	public boolean isNestedIO() {
+		return peek()
+			.map(snapshot -> {
+				boolean inputPending = snapshot.lastInputSatitisfies(in -> !in.isComplete());
+				boolean outputPending = snapshot.lastOutputSatitisfies(out -> !out.isComplete());
+				return inputPending || outputPending;
+			})
+			.orElse(false);
 	}
 
 	private static Deque<ContextSnapshot> newStack() {
@@ -433,21 +434,68 @@ public class SnapshotManager {
 		}
 	}
 
-	private void execute(SerializationTask task, ContextSnapshot snapshot) {
-		try {
-			ConfigurableSerializerFacade currentFacade = facade.get();
-			Future<?> future = snapshotExecutor.submit(() -> {
-				task.serialize(currentFacade, snapshot);
-			});
-			future.get(timeoutInMillis, TimeUnit.MILLISECONDS);
-			currentFacade.reset();
-		} catch (InterruptedException | ExecutionException | TimeoutException | CancellationException e) {
-			snapshot.invalidate();
-			Logger.error("failed serializing " + snapshot, e);
+	public interface ContextSnapshotTransaction {
+
+		ContextSnapshotTransaction to(SerializationTask task);
+
+		void andConsume(Consumer<ContextSnapshot> consumer);
+
+	}
+
+	public static class DummyContextSnapshotTransaction implements ContextSnapshotTransaction {
+
+		public static final DummyContextSnapshotTransaction INVALID = new DummyContextSnapshotTransaction();
+
+		@Override
+		public ContextSnapshotTransaction to(SerializationTask task) {
+			return this;
+		}
+
+		@Override
+		public void andConsume(Consumer<ContextSnapshot> consumer) {
+		}
+
+	}
+
+	public static class ValidContextSnapshotTransaction implements ContextSnapshotTransaction {
+
+		private ExecutorService snapshotExecutor;
+		private long timeoutInMillis;
+		private ThreadLocal<ConfigurableSerializerFacade> facade;
+
+		private ContextSnapshot snapshot;
+		
+		public ValidContextSnapshotTransaction(ExecutorService snapshotExecutor, long timeoutInMillis, ThreadLocal<ConfigurableSerializerFacade> facade, ContextSnapshot snapshot) {
+			this.snapshotExecutor = snapshotExecutor;
+			this.timeoutInMillis = timeoutInMillis;
+			this.facade = facade;
+			this.snapshot = snapshot;
+		}
+
+		@Override
+		public ContextSnapshotTransaction to(SerializationTask task) {
+			try {
+				ConfigurableSerializerFacade currentFacade = facade.get();
+				Future<?> future = snapshotExecutor.submit(() -> {
+					task.serialize(currentFacade, snapshot);
+				});
+				future.get(timeoutInMillis, TimeUnit.MILLISECONDS);
+				currentFacade.reset();
+				return this;
+			} catch (InterruptedException | ExecutionException | TimeoutException | CancellationException e) {
+				snapshot.invalidate();
+				Logger.error("failed serializing " + snapshot, e);
+				return this;
+			}
+		}
+
+		@Override
+		public void andConsume(Consumer<ContextSnapshot> consumer) {
+			consumer.accept(snapshot);
 		}
 	}
 
-	interface SerializationTask {
+	public interface SerializationTask {
 		void serialize(SerializerFacade facade, ContextSnapshot snapshot);
 	}
 
