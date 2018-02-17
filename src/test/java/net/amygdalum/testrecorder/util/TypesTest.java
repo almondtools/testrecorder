@@ -13,6 +13,7 @@ import static net.amygdalum.testrecorder.util.Types.boxedType;
 import static net.amygdalum.testrecorder.util.Types.boxingEquivalentTypes;
 import static net.amygdalum.testrecorder.util.Types.component;
 import static net.amygdalum.testrecorder.util.Types.equalTypes;
+import static net.amygdalum.testrecorder.util.Types.getDeclaredConstructor;
 import static net.amygdalum.testrecorder.util.Types.getDeclaredField;
 import static net.amygdalum.testrecorder.util.Types.getDeclaredMethod;
 import static net.amygdalum.testrecorder.util.Types.inferType;
@@ -76,49 +77,6 @@ public class TypesTest {
 	@Test
 	public void testTypes() throws Exception {
 		assertThat(Types.class).satisfies(utilityClass().conventions());
-	}
-
-	@Test
-	public void testIsHiddenTrueForPrivate() throws Exception {
-		assertThat(Types.isHidden(NestedPrivate.class, "any")).isTrue();
-	}
-
-	@Test
-	public void testIsHiddenFalseForNestedPackagePrivate() throws Exception {
-		assertThat(Types.isHidden(NestedPackagePrivate.class, "net.amygdalum.testrecorder.util")).isFalse();
-	}
-
-	@Test
-	public void testIsHiddenFalseForNestedProtected() throws Exception {
-		assertThat(Types.isHidden(NestedProtected.class, "net.amygdalum.testrecorder.util")).isFalse();
-		assertThat(Types.isHidden(NestedProtected.class, "other")).isTrue();
-	}
-
-	@Test
-	public void testIsHiddenFalseForPackagePrivateInSamePackage() throws Exception {
-		assertThat(Types.isHidden(TypesPackagePrivate.class, "net.amygdalum.testrecorder.util")).isFalse();
-		assertThat(Types.isHidden(TypesPackagePrivate.class, "other")).isTrue();
-	}
-
-	@Test
-	public void testIsHiddenFalseForNestedPublic() throws Exception {
-		assertThat(Types.isHidden(NestedPublic.class, "any")).isFalse();
-	}
-
-	@Test
-	public void testIsHiddenFalseForPublic() throws Exception {
-		assertThat(Types.isHidden(TypesPublic.class, "net.amygdalum.testrecorder.util")).isFalse();
-		assertThat(Types.isHidden(TypesPublic.class, "other")).isFalse();
-	}
-
-	@Test
-	public void testIsHiddenForArrays() throws Exception {
-		assertThat(Types.isHidden(TypesPublic[].class, "any")).isFalse();
-		assertThat(Types.isHidden(TypesPackagePrivate[].class, "net.amygdalum.testrecorder.util")).isFalse();
-		assertThat(Types.isHidden(TypesPackagePrivate[].class, "other")).isTrue();
-		assertThat(Types.isHidden(NestedProtected[].class, "net.amygdalum.testrecorder.util")).isFalse();
-		assertThat(Types.isHidden(NestedProtected[].class, "other")).isTrue();
-		assertThat(Types.isHidden(NestedPrivate[].class, "any")).isTrue();
 	}
 
 	@Test
@@ -319,18 +277,41 @@ public class TypesTest {
 		assertThat(isHidden(NestedPrivate.class, "any")).isTrue();
 		assertThat(isHidden(NestedPackagePrivate.class, "any")).isTrue();
 		assertThat(isHidden(NestedPackagePrivate.class, "net.amygdalum.testrecorder.util")).isFalse();
+		assertThat(isHidden(NestedProtected.class, "net.amygdalum.testrecorder.util")).isFalse();
+		assertThat(isHidden(NestedProtected.class, "other")).isTrue();
 		assertThat(isHidden(TypesPackagePrivate.class, "any")).isTrue();
 		assertThat(isHidden(TypesPackagePrivate.class, "net.amygdalum.testrecorder.util")).isFalse();
+		assertThat(isHidden(NestedPublic.class, "any")).isFalse();
+		assertThat(isHidden(TypesPublic.class, "net.amygdalum.testrecorder.util")).isFalse();
+		assertThat(isHidden(TypesPublic.class, "other")).isFalse();
+	}
+
+	@Test
+	public void testIsHiddenForArrays() throws Exception {
+		assertThat(Types.isHidden(TypesPublic[].class, "any")).isFalse();
+		assertThat(Types.isHidden(TypesPackagePrivate[].class, "net.amygdalum.testrecorder.util")).isFalse();
+		assertThat(Types.isHidden(TypesPackagePrivate[].class, "other")).isTrue();
+		assertThat(Types.isHidden(NestedProtected[].class, "net.amygdalum.testrecorder.util")).isFalse();
+		assertThat(Types.isHidden(NestedProtected[].class, "other")).isTrue();
+		assertThat(Types.isHidden(NestedPrivate[].class, "any")).isTrue();
 	}
 
 	@Test
 	public void testIsHiddenConstructor() throws Exception {
-		assertThat(isHidden(TypesTest.class.getDeclaredConstructor(), "any")).isFalse();
-		assertThat(isHidden(NestedPrivate.class.getDeclaredConstructor(), "any")).isTrue();
-		assertThat(isHidden(NestedPackagePrivate.class.getDeclaredConstructor(), "any")).isTrue();
-		assertThat(isHidden(NestedPackagePrivate.class.getDeclaredConstructor(), "net.amygdalum.testrecorder.util")).isFalse();
-		assertThat(isHidden(TypesPackagePrivate.class.getDeclaredConstructor(), "any")).isTrue();
-		assertThat(isHidden(TypesPackagePrivate.class.getDeclaredConstructor(), "net.amygdalum.testrecorder.util")).isFalse();
+		assertThat(isHidden(getDeclaredConstructor(TypesTest.class), "any")).isFalse();
+		assertThat(isHidden(getDeclaredConstructor(NestedPrivate.class), "any")).isTrue();
+		assertThat(isHidden(getDeclaredConstructor(NestedPackagePrivate.class), "any")).isTrue();
+		assertThat(isHidden(getDeclaredConstructor(NestedPackagePrivate.class), "net.amygdalum.testrecorder.util")).isTrue();
+		assertThat(isHidden(getDeclaredConstructor(TypesPackagePrivate.class), "any")).isTrue();
+		assertThat(isHidden(getDeclaredConstructor(TypesPackagePrivate.class), "net.amygdalum.testrecorder.util")).isFalse();
+	}
+
+	@Test
+	public void testIsHiddenTrueForConstructorsOfNestedTypes() throws Exception {
+		assertThat(Types.isHidden(getDeclaredConstructor(NestedConstructors.class), "any")).isTrue();
+		assertThat(Types.isHidden(getDeclaredConstructor(NestedConstructors.class, int.class), "any")).isFalse();
+		assertThat(Types.isHidden(getDeclaredConstructor(NestedConstructors.class, boolean.class), "any")).isTrue();
+		assertThat(Types.isHidden(getDeclaredConstructor(NestedConstructors.class, char.class), "any")).isTrue();
 	}
 
 	@Test
@@ -605,6 +586,22 @@ public class TypesTest {
 	}
 
 	protected static class NestedProtected {
+	}
+
+	@SuppressWarnings("unused")
+	public static class NestedConstructors {
+		public NestedConstructors(int i) {
+			
+		}
+		protected NestedConstructors(char c) {
+			
+		}
+		NestedConstructors(boolean b) {
+			
+		}
+		private NestedConstructors() {
+			
+		}
 	}
 
 	public static class Methods {

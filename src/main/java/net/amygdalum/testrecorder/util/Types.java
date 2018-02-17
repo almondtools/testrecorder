@@ -447,7 +447,8 @@ public final class Types {
 		if (isPrivate(modifiers)) {
 			return true;
 		} else {
-			return isHidden(constructor.getDeclaringClass(), pkg);
+			return isHidden(constructor.getDeclaringClass(), pkg)
+				|| (constructor.getDeclaringClass().getEnclosingClass() != null && !isPublic(modifiers));
 		}
 	}
 
