@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.deserializers.Computation.expression;
 import static net.amygdalum.testrecorder.deserializers.Templates.containsInAnyOrderMatcher;
 import static net.amygdalum.testrecorder.deserializers.Templates.emptyMatcher;
+import static net.amygdalum.testrecorder.util.Types.isGeneric;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
 
@@ -29,18 +30,22 @@ public class DefaultSetAdaptor extends DefaultMatcherGenerator<SerializedSet> im
 
 	@Override
 	public Computation tryDeserialize(SerializedSet value, MatcherGenerators generator, DeserializerContext context) {
-        Type componentType = value.getComponentType();
+		Type componentType = value.getComponentType();
 
-        TypeManager types = context.getTypes();
-        if (types.isHidden(componentType)) {
-            componentType = Object.class;
-        }
-		
+		TypeManager types = context.getTypes();
+		if (types.isHidden(componentType)) {
+			componentType = Object.class;
+		}
+
+		String elementType = types.getRawClass(componentType);
+		if (isGeneric(componentType)) {
+			elementType = context.adapt(elementType, parameterized(Class.class, null, componentType), parameterized(Class.class, null, wildcard()));
+		}
+
 		if (value.isEmpty()) {
 			types.staticImport(Matchers.class, "empty");
 
-			String emptyMatcher = emptyMatcher();
-			return expression(emptyMatcher, parameterized(Matcher.class, null, wildcard()), emptyList());
+			return expression(emptyMatcher(), parameterized(Matcher.class, null, wildcard()), emptyList());
 		} else {
 			types.staticImport(ContainsMatcher.class, "contains");
 
@@ -56,8 +61,8 @@ public class DefaultSetAdaptor extends DefaultMatcherGenerator<SerializedSet> im
 				.map(element -> element.getValue())
 				.toArray(String[]::new);
 
-            String elementType = types.getRawTypeName(componentType);
 			String containsInAnyOrderMatcher = containsInAnyOrderMatcher(elementType, elementValues);
+
 			return expression(containsInAnyOrderMatcher, parameterized(Matcher.class, null, wildcard()), elementComputations);
 		}
 	}

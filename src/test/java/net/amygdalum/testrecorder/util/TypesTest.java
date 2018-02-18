@@ -1,6 +1,5 @@
 package net.amygdalum.testrecorder.util;
 
-import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.extensions.assertj.conventions.DefaultEquality.defaultEquality;
 import static net.amygdalum.extensions.assertj.conventions.UtilityClass.utilityClass;
@@ -165,15 +164,15 @@ public class TypesTest {
 
 	@Test
 	public void testInferType() throws Exception {
-		assertThat(inferType(asList(ArrayList.class))).isEqualTo(List.class);
-		assertThat(inferType(asList(ArrayList.class, Collection.class))).isEqualTo(Collection.class);
-		assertThat(inferType(asList(List.class, Set.class))).isEqualTo(Collection.class);
-		assertThat(inferType(asList(HashSet.class, ArrayList.class))).isEqualTo(Collection.class);
-		assertThat(inferType(asList(parameterized(HashSet.class, String.class), parameterized(ArrayList.class, Object.class)))).isEqualTo(Collection.class);
-		assertThat(inferType(asList(String.class, List.class))).isEqualTo(Object.class);
-		assertThat(inferType(asList(Sub1.class, Sub2.class))).isEqualTo(Super.class);
-		assertThat(inferType(asList(Integer.class, Integer.class))).isEqualTo(Integer.class);
-		assertThat(inferType(asList(String.class, String.class))).isEqualTo(String.class);
+		assertThat(inferType(ArrayList.class)).isEqualTo(List.class);
+		assertThat(inferType(ArrayList.class, Collection.class)).isEqualTo(Collection.class);
+		assertThat(inferType(List.class, Set.class)).isEqualTo(Collection.class);
+		assertThat(inferType(HashSet.class, ArrayList.class)).isEqualTo(Collection.class);
+		assertThat(inferType(parameterized(HashSet.class, String.class), parameterized(ArrayList.class, Object.class))).isEqualTo(Collection.class);
+		assertThat(inferType(String.class, List.class)).isEqualTo(Object.class);
+		assertThat(inferType(Sub1.class, Sub2.class)).isEqualTo(Super.class);
+		assertThat(inferType(Integer.class, Integer.class)).isEqualTo(Integer.class);
+		assertThat(inferType(String.class, String.class)).isEqualTo(String.class);
 	}
 
 	@Test

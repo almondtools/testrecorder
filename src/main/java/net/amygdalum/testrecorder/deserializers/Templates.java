@@ -42,15 +42,15 @@ public final class Templates {
 	private static final String ENUM_MATCHER = "matchingEnum(<value>)";
 	private static final String RECURSIVE_MATCHER = "recursive(<type>)";
 	private static final String LAMBDA_MATCHER = "lambda(<name>)";
-	private static final String CONTAINS_IN_ORDER_MATCHER = "containsInOrder(<type>.class, <values; separator=\", \">)";
+	private static final String CONTAINS_IN_ORDER_MATCHER = "containsInOrder(<type>, <values; separator=\", \">)";
 	private static final String EMPTY_MATCHER = "empty()";
-	private static final String CONTAINS_IN_ANY_ORDER_MATCHER = "contains(<type>.class, <values; separator=\", \">)";
+	private static final String CONTAINS_IN_ANY_ORDER_MATCHER = "contains(<type>, <values; separator=\", \">)";
 	private static final String EQUAL_TO_MATCHER = "equalTo(<value>)";
 	private static final String SAME_INSTANCE_MATCHER = "sameInstance(<value>)";
 	private static final String NULL_MATCHER = "nullValue(<value>)";
 	private static final String NO_ENTRIES_MATCHER = "noEntries(<keytype>, <valuetype>)";
 	private static final String CONTAINS_ENTRIES_MATCHER = "containsEntries(<keytype>, <valuetype>)<entries : { entry | .entry(<entry.element1>, <entry.element2>)}>";
-	private static final String ARRAY_CONTAINING_MATCHER = "arrayContaining(<type>.class, <values; separator=\", \">)";
+	private static final String ARRAY_CONTAINING_MATCHER = "arrayContaining(<type>, <values; separator=\", \">)";
 	private static final String ARRAY_EMPTY_MATCHER = "emptyArray()";
 	private static final String PRIMITIVE_ARRAY_CONTAINING_MATCHER = "<type>ArrayContaining(<values; separator=\", \">)";
 	private static final String PRIMITIVE_ARRAY_EMPTY_MATCHER = "<type>EmptyArray()";

@@ -384,15 +384,14 @@ public class TestGenerator implements SnapshotConsumer {
 			types.registerType(snapshot.getThisType());
 			Stream.of(snapshot.getSetupGlobals()).forEach(global -> types.registerImport(global.getDeclaringClass()));
 
-			Computation setupThis = snapshot.getSetupThis() != null
-				? snapshot.getSetupThis().accept(setup, context)
-				: variable(types.getVariableTypeName(types.wrapHidden(snapshot.getThisType())), null);
+			Computation setupThis = prepareThis(snapshot.getSetupThis(), snapshot.getThisType());
 			setupThis.getStatements()
 				.forEach(statements::add);
 
 			AnnotatedValue[] snapshotSetupArgs = snapshot.getAnnotatedSetupArgs();
 			List<Computation> setupArgs = Stream.of(snapshotSetupArgs)
-				.map(arg -> arg.value.accept(setup, context.newWithHints(arg.annotations)))
+				.map(arg -> prepareArgument(arg.value, arg.annotations))
+
 				.collect(toList());
 
 			setupArgs.stream()
@@ -410,16 +409,54 @@ public class TestGenerator implements SnapshotConsumer {
 			this.base = setupThis.isStored()
 				? setupThis.getValue()
 				: assign(snapshot.getSetupThis().getType(), setupThis.getValue());
-			Pair<Computation, AnnotatedValue>[] arguments = Pair.zip(setupArgs.toArray(new Computation[0]), snapshotSetupArgs);
-			this.args = Stream.of(arguments)
-				.map(arg -> arg.getElement1().isStored()
-					? arg.getElement1().getValue()
-					: assign(arg.getElement2().value.getResultType(), arg.getElement1().getValue()))
+			this.args = setupArgs.stream()
+				.map(arg -> arg.getValue())
 				.collect(toList());
-			
+
 			statements.addAll(mocked.prepare(context));
 
 			return this;
+		}
+
+		private Computation prepareThis(SerializedValue self, Type type) {
+			Computation computation = self != null
+				? self.accept(setup, context)
+				: variable(types.getVariableTypeName(types.wrapHidden(type)), null);
+			if (computation.isStored()) {
+				return computation;
+			} else if (isLiteral(type)) {
+				return computation;
+			} else {
+				List<String> statements = new ArrayList<>(computation.getStatements());
+				String value = computation.getValue();
+
+				types.registerType(type);
+				String name = locals.fetchName(type);
+
+				statements.add(assignLocalVariableStatement(types.getVariableTypeName(type), name, value));
+
+				return variable(name, type, statements);
+			}
+		}
+
+		private Computation prepareArgument(SerializedValue argValue, Annotation[] annotations) {
+			Type type = argValue.getResultType(); 
+			Computation computation = argValue.accept(setup, context.newWithHints(annotations));
+			if (computation.isStored()) {
+				return computation;
+			} else if (isLiteral(type)) {
+				return computation;
+			} else {
+				List<String> statements = new ArrayList<>(computation.getStatements());
+				String value = computation.getValue();
+
+				types.registerType(type);
+				String name = locals.fetchName(type);
+
+				statements.add(assignLocalVariableStatement(types.getVariableTypeName(type), name, value));
+
+				return variable(name, type, statements);
+			}
 		}
 
 		private Computation assignGlobal(Class<?> clazz, String name, Computation global) {

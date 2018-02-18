@@ -42,12 +42,32 @@ public final class Types {
 	private Types() {
 	}
 
-	public static Type inferType(List<Type> types) {
-		Optional<Class<?>> reduce = types.stream()
+	public static Type visibleType(Object element, Type componentType) {
+		if (element != null) {
+			Class<?> current = element.getClass();
+			while (current != Object.class) {
+				if (!isHidden(current, null)) {
+					return current;
+				}
+				current = current.getSuperclass();
+			}
+		}
+		return componentType;
+	}
+
+	public static Type inferType(Type... types) {
+		Optional<Class<?>> inferred = Arrays.stream(types)
 			.map(type -> superTypes(baseType(type)))
 			.reduce((s1, s2) -> intersectClasses(s1, s2))
 			.map(s -> bestClass(s));
-		return reduce.orElse(Object.class);
+		return inferred.orElse(Object.class);
+	}
+
+	public static Type mostSpecialOf(Type... types) {
+		Optional<Type> inferred = Arrays.stream(types)
+			.sorted(Types::byMostConcreteGeneric)
+			.findFirst();
+		return inferred.orElse(Object.class);
 	}
 
 	private static Set<Class<?>> superTypes(Class<?> clazz) {
@@ -221,7 +241,9 @@ public final class Types {
 	}
 
 	public static int byMostConcrete(Type type1, Type type2) {
-		if (type1 instanceof Class<?> && type2 instanceof Class<?>) {
+		if (type1 == type2) {
+			return 0;
+		} else if (type1 instanceof Class<?> && type2 instanceof Class<?>) {
 			Class<?> clazz1 = (Class<?>) type1;
 			Class<?> clazz2 = (Class<?>) type2;
 
@@ -238,6 +260,40 @@ public final class Types {
 			return 1;
 		} else {
 			return byMostConcrete(baseType(type1), baseType(type2));
+		}
+	}
+
+	public static int byMostConcreteGeneric(Type type1, Type type2) {
+		if (type1 == type2) {
+			return 0;
+		} else if (type1 instanceof Class<?> && type2 instanceof Class<?>) {
+			Class<?> clazz1 = (Class<?>) type1;
+			Class<?> clazz2 = (Class<?>) type2;
+
+			if (clazz1.isAssignableFrom(clazz2)) {
+				return 1;
+			} else if (clazz2.isAssignableFrom(clazz1)) {
+				return -1;
+			} else {
+				return 0;
+			}
+		} else if (type1 instanceof Class<?>) {
+			return -1;
+		} else if (type2 instanceof Class<?>) {
+			return 1;
+		} else {
+			int compare = byMostConcrete(baseType(type1), baseType(type2));
+			if (compare == 0 && type1 instanceof ParameterizedType && type2 instanceof ParameterizedType) {
+				Type[] typeArguments1 = ((ParameterizedType) type1).getActualTypeArguments();
+				Type[] typeArguments2 = ((ParameterizedType) type2).getActualTypeArguments();
+				compare = Integer.compare(typeArguments1.length, typeArguments2.length);
+				if (compare == 0) {
+					for (int i = 0; i < typeArguments1.length && i < typeArguments2.length; i++) {
+						compare += byMostConcrete(typeArguments1[i], typeArguments2[i]);
+					}
+				}
+			}
+			return compare;
 		}
 	}
 
@@ -369,7 +425,10 @@ public final class Types {
 	}
 
 	public static boolean boxingEquivalentTypes(Type type1, Type type2) {
-		return boxedType(type1).equals(boxedType(type2));
+		if (type1 instanceof Class<?> && type2 instanceof Class<?>) {
+			return boxedType(type1).equals(boxedType(type2));	
+		}
+		return false;
 	}
 
 	public static Optional<Type> typeArgument(Type type, int i) {
@@ -421,6 +480,10 @@ public final class Types {
 				return false;
 			}
 		}
+	}
+
+	public static boolean isGeneric(Type type) {
+		return !(type instanceof Class<?>);
 	}
 
 	public static boolean isGenericVariable(Type type, String pkg) {
@@ -634,18 +697,18 @@ public final class Types {
 	}
 
 	public static Class<?> classFrom(Class<?> clazz, ClassLoader loader) throws ClassNotFoundException {
-			int arrayDimensions = 0;
+		int arrayDimensions = 0;
 
-			while (clazz.isArray()) {
-				clazz = clazz.getComponentType();
-				arrayDimensions++;
-			}
-			
-			Class<?> reloadedClazz = clazz.isPrimitive() ? clazz : loader.loadClass(clazz.getName());
-			for (int i = 0; i < arrayDimensions; i++) {
-				reloadedClazz = Array.newInstance(reloadedClazz, 0).getClass();
-			}
-			return reloadedClazz;
+		while (clazz.isArray()) {
+			clazz = clazz.getComponentType();
+			arrayDimensions++;
+		}
+
+		Class<?> reloadedClazz = clazz.isPrimitive() ? clazz : loader.loadClass(clazz.getName());
+		for (int i = 0; i < arrayDimensions; i++) {
+			reloadedClazz = Array.newInstance(reloadedClazz, 0).getClass();
+		}
+		return reloadedClazz;
 	}
 
 	public static Class<?>[] parameterTypesFrom(Method method, ClassLoader loader) throws ClassNotFoundException {

@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.deserializers.Computation.expression;
 import static net.amygdalum.testrecorder.deserializers.Templates.containsInOrderMatcher;
 import static net.amygdalum.testrecorder.deserializers.Templates.emptyMatcher;
+import static net.amygdalum.testrecorder.util.Types.isGeneric;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
 
@@ -29,13 +30,18 @@ public class DefaultSequenceAdaptor extends DefaultMatcherGenerator<SerializedLi
 
 	@Override
 	public Computation tryDeserialize(SerializedList value, MatcherGenerators generator, DeserializerContext context) {
-        Type componentType = value.getComponentType();
+		Type componentType = value.getComponentType();
 
-        TypeManager types = context.getTypes();
-        if (types.isHidden(componentType)) {
-            componentType = Object.class;
-        }
-        
+		TypeManager types = context.getTypes();
+		if (types.isHidden(componentType)) {
+			componentType = Object.class;
+		}
+
+		String elementType = types.getRawClass(componentType);
+		if (isGeneric(componentType)) {
+			elementType = context.adapt(elementType, parameterized(Class.class, null, componentType), parameterized(Class.class, null, wildcard()));
+		}
+
 		if (value.isEmpty()) {
 			types.staticImport(Matchers.class, "empty");
 
@@ -55,7 +61,6 @@ public class DefaultSequenceAdaptor extends DefaultMatcherGenerator<SerializedLi
 				.map(element -> element.getValue())
 				.toArray(String[]::new);
 
-	        String elementType = types.getRawTypeName(componentType);
 			String containsMatcher = containsInOrderMatcher(elementType, elementValues);
 
 			return expression(containsMatcher, parameterized(Matcher.class, null, wildcard()), elementComputations);

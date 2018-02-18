@@ -61,7 +61,7 @@ public abstract class DefaultGenericCollectionAdaptor<T extends SerializedRefere
         return context.forVariable(value, matchingType, definition -> {
 
             List<Computation> elementTemplates = elements(value)
-                .map(element -> withResultType(element, componentResultType).accept(generator, context))
+                .map(element -> element.accept(generator, context))
                 .filter(element -> element != null)
                 .collect(toList());
 
@@ -106,14 +106,6 @@ public abstract class DefaultGenericCollectionAdaptor<T extends SerializedRefere
 
             return variable(definition.getName(), effectiveResultType, statements);
         });
-    }
-
-    private SerializedValue withResultType(SerializedValue value, Type type) {
-    	//TODO remove this when case was tested
-        if (value instanceof SerializedReferenceType) {
-            ((SerializedReferenceType) value).setResultType(type);
-        }
-        return value;
     }
 
 }

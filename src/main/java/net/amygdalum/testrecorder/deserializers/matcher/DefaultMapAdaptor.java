@@ -7,6 +7,7 @@ import static net.amygdalum.testrecorder.deserializers.Templates.cast;
 import static net.amygdalum.testrecorder.deserializers.Templates.containsEntriesMatcher;
 import static net.amygdalum.testrecorder.deserializers.Templates.noEntriesMatcher;
 import static net.amygdalum.testrecorder.util.Types.assignableTypes;
+import static net.amygdalum.testrecorder.util.Types.isGeneric;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
 
@@ -46,8 +47,15 @@ public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> im
 			mapValueType = Object.class;
 		}
 
-		String keyType = getGenericClass(types, mapKeyType);
-		String valueType = getGenericClass(types, mapValueType);
+		String keyType = types.getRawClass(mapKeyType);
+		if (isGeneric(mapKeyType)) {
+			keyType = context.adapt(keyType, parameterized(Class.class, null, mapKeyType), parameterized(Class.class, null, wildcard()));
+		}
+		String valueType = types.getRawClass(mapValueType);
+		if (isGeneric(mapValueType)) {
+			valueType = context.adapt(valueType, parameterized(Class.class, null, mapValueType), parameterized(Class.class, null, wildcard()));
+		}
+
 		if (value.isEmpty()) {
 			types.staticImport(MapMatcher.class, "noEntries");
 
@@ -73,18 +81,6 @@ public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> im
 
 			String containsEntriesMatcher = containsEntriesMatcher(keyType, valueType, entryValues);
 			return expression(containsEntriesMatcher, parameterized(Matcher.class, null, wildcard()), entryStatements);
-		}
-	}
-
-	private String getGenericClass(TypeManager types, Type type) {
-		String rawClass = types.getRawClass(type);
-		if (type instanceof Class<?>) {
-			return rawClass;
-		} else {
-			types.registerImport(Class.class);
-			String erasedClass = cast(types.getRawTypeName(Class.class), rawClass);
-			String genericClass = cast(types.getVariableTypeName(parameterized(Class.class, null, type)), erasedClass);
-			return genericClass;
 		}
 	}
 

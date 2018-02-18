@@ -7,6 +7,7 @@ import static net.amygdalum.testrecorder.deserializers.Templates.cast;
 import static net.amygdalum.testrecorder.util.Types.assignableTypes;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.boxingEquivalentTypes;
+import static net.amygdalum.testrecorder.util.Types.isGeneric;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -217,6 +218,9 @@ public class DefaultDeserializerContext implements DeserializerContext {
 		if ((!assignableTypes(resultType, type) || types.isHidden(type))
 			&& !boxingEquivalentTypes(resultType, type)
 			&& baseType(resultType) != Wrapped.class) {
+			if (isGeneric(resultType) && isGeneric(type)) {
+				expression = cast(types.getRawTypeName(resultType), expression);
+			}
 			expression = cast(types.getVariableTypeName(resultType), expression);
 		}
 		return expression;

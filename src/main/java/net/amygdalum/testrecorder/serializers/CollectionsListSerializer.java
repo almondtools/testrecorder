@@ -5,12 +5,13 @@ import static net.amygdalum.testrecorder.util.TypeFilters.startingWith;
 import static net.amygdalum.testrecorder.util.Types.inferType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.typeArgument;
+import static net.amygdalum.testrecorder.util.Types.visibleType;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.util.Reflections;
 import net.amygdalum.testrecorder.values.SerializedList;
@@ -39,7 +40,7 @@ public class CollectionsListSerializer extends HiddenInnerClassSerializer<Serial
         Type componentType = computeComponentType(serializedObject, object);
 
         for (Object element : (List<?>) object) {
-            Type elementType = element != null ? element.getClass() : componentType;
+        	Type elementType = visibleType(element, componentType);
 
             serializedObject.add(facade.serialize(elementType, element));
         }
@@ -53,14 +54,12 @@ public class CollectionsListSerializer extends HiddenInnerClassSerializer<Serial
         }
         Type resultType = serializedObject.getResultType();
 
-        List<Type> elementTypes = new ArrayList<>();
-        elementTypes.add(typeArgument(resultType, 0).orElse(Object.class));
-        ((List<?>) object).stream()
-            .filter(Objects::nonNull)
-            .map(element -> element.getClass())
-            .forEach(elementTypes::add);
-
-        return inferType(elementTypes);
+		Stream<Type> elementTypes = Stream.concat(
+			Stream.of(typeArgument(resultType, 0).orElse(Object.class)),
+			((List<?>) object).stream()
+				.filter(Objects::nonNull)
+				.map(element -> element.getClass()));
+		return inferType(elementTypes.toArray(Type[]::new));
     }
 
     private Class<?> getTypeField(Object object) {

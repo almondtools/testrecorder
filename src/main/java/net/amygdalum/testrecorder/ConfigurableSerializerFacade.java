@@ -3,6 +3,7 @@ package net.amygdalum.testrecorder;
 import static java.lang.System.identityHashCode;
 import static net.amygdalum.testrecorder.asm.ByteCode.classFrom;
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
+import static net.amygdalum.testrecorder.util.Types.assignableTypes;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.isLiteral;
 
@@ -33,6 +34,7 @@ import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.util.Lambdas;
 import net.amygdalum.testrecorder.util.Logger;
+import net.amygdalum.testrecorder.util.Types;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedNull;
@@ -123,6 +125,12 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 				((SerializedReferenceType) serializedObject).setId(identityHashCode(object));
 			}
 			serializer.populate(serializedObject, object);
+		}
+		
+		if (serializedObject instanceof SerializedReferenceType) {
+			if (!assignableTypes(type, serializedObject.getResultType())) {
+				((SerializedReferenceType) serializedObject).setResultType(Types.mostSpecialOf(type, serializedObject.getResultType()));
+			}
 		}
 		return serializedObject;
 	}
