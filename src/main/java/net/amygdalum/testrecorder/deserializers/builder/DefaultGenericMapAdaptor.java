@@ -66,8 +66,8 @@ public abstract class DefaultGenericMapAdaptor<T extends SerializedReferenceType
 
             List<Pair<Computation, Computation>> elementTemplates = entries(value)
                 .map(entry -> new Pair<>(
-                    withResultType(entry.getElement1(), keyResultType).accept(generator, context),
-                    withResultType(entry.getElement2(), valueResultType).accept(generator, context)))
+                    entry.getElement1().accept(generator, context),
+                    entry.getElement2().accept(generator, context)))
                 .filter(pair -> pair.getElement1() != null && pair.getElement2() != null)
                 .collect(toList());
 
@@ -115,13 +115,6 @@ public abstract class DefaultGenericMapAdaptor<T extends SerializedReferenceType
 
             return variable(definition.getName(), effectiveResultType, statements);
         });
-    }
-
-    private SerializedValue withResultType(SerializedValue value, Type type) {
-        if (value instanceof SerializedReferenceType) {
-            ((SerializedReferenceType) value).setResultType(type);
-        }
-        return value;
     }
 
 }

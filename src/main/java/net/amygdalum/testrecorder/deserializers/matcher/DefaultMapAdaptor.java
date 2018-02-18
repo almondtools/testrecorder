@@ -46,8 +46,8 @@ public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> im
 			mapValueType = Object.class;
 		}
 
-		String keyType = types.getRawTypeName(mapKeyType);
-		String valueType = types.getRawTypeName(mapValueType);
+		String keyType = getGenericClass(types, mapKeyType);
+		String valueType = getGenericClass(types, mapValueType);
 		if (value.isEmpty()) {
 			types.staticImport(MapMatcher.class, "noEntries");
 
@@ -73,6 +73,18 @@ public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> im
 
 			String containsEntriesMatcher = containsEntriesMatcher(keyType, valueType, entryValues);
 			return expression(containsEntriesMatcher, parameterized(Matcher.class, null, wildcard()), entryStatements);
+		}
+	}
+
+	private String getGenericClass(TypeManager types, Type type) {
+		String rawClass = types.getRawClass(type);
+		if (type instanceof Class<?>) {
+			return rawClass;
+		} else {
+			types.registerImport(Class.class);
+			String erasedClass = cast(types.getRawTypeName(Class.class), rawClass);
+			String genericClass = cast(types.getVariableTypeName(parameterized(Class.class, null, type)), erasedClass);
+			return genericClass;
 		}
 	}
 

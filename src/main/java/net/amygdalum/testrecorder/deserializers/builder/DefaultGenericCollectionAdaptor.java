@@ -109,6 +109,7 @@ public abstract class DefaultGenericCollectionAdaptor<T extends SerializedRefere
     }
 
     private SerializedValue withResultType(SerializedValue value, Type type) {
+    	//TODO remove this when case was tested
         if (value instanceof SerializedReferenceType) {
             ((SerializedReferenceType) value).setResultType(type);
         }

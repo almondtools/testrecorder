@@ -102,7 +102,6 @@ public class TestGenerator implements SnapshotConsumer {
 		+ "  <statements;separator=\"\\n\">\n"
 		+ "}\n";
 
-	
 	private static final String TEST_TEMPLATE = "@Test\n"
 		+ "<annotations:{annotation | <annotation>\n}>"
 		+ "public void test<testName>() throws Exception {\n"
@@ -134,7 +133,7 @@ public class TestGenerator implements SnapshotConsumer {
 			Logger.info("starting code generation");
 		}, executor);
 	}
-	
+
 	public void execute(Runnable command) {
 		executor.execute(command);
 	}
@@ -169,11 +168,11 @@ public class TestGenerator implements SnapshotConsumer {
 			}
 			ClassDescriptor baseType = ClassDescriptor.of(thisType);
 			TestGeneratorContext context = getContext(baseType);
-			
+
 			if (!snapshot.getSetupInput().isEmpty() || !snapshot.getExpectOutput().isEmpty()) {
 				context.addSetup(resetFakeIO(context));
 			}
-			
+
 			MethodGenerator methodGenerator = new MethodGenerator(context.size(), context.getTypes())
 				.analyze(snapshot)
 				.generateArrange()
@@ -190,7 +189,7 @@ public class TestGenerator implements SnapshotConsumer {
 	private String resetFakeIO(TestGeneratorContext context) {
 		TypeManager types = context.getTypes();
 		types.registerTypes(Before.class, After.class, FakeIO.class);
-		
+
 		List<String> statements = new ArrayList<>();
 		statements.add(Templates.callMethodStatement(types.getRawTypeName(FakeIO.class), "reset"));
 		return generateSetup(asList(annotation(types.getRawTypeName(Before.class)), annotation(types.getRawTypeName(After.class))), "resetFakeIO", statements);
@@ -384,7 +383,7 @@ public class TestGenerator implements SnapshotConsumer {
 
 			types.registerType(snapshot.getThisType());
 			Stream.of(snapshot.getSetupGlobals()).forEach(global -> types.registerImport(global.getDeclaringClass()));
-			
+
 			Computation setupThis = snapshot.getSetupThis() != null
 				? snapshot.getSetupThis().accept(setup, context)
 				: variable(types.getVariableTypeName(types.wrapHidden(snapshot.getThisType())), null);
