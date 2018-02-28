@@ -11,6 +11,7 @@ import java.util.Optional;
 
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -57,6 +58,10 @@ public final class ByteCode {
 	}
 
 	public static boolean isStatic(MethodNode methodNode) {
+		return (methodNode.access & ACC_STATIC) != 0;
+	}
+
+	public static boolean isStatic(FieldNode methodNode) {
 		return (methodNode.access & ACC_STATIC) != 0;
 	}
 

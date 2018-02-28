@@ -1,12 +1,17 @@
 package net.amygdalum.testrecorder;
 
-import static net.amygdalum.testrecorder.InstrumentationUnit.instrument;
+import static net.amygdalum.testrecorder.InstrumentationField.instrumentField;
+import static net.amygdalum.testrecorder.InstrumentationMethod.instrumentMethod;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.objectweb.asm.Opcodes.POP;
 
+import java.io.ByteArrayOutputStream;
+
+import org.assertj.core.internal.asm.Type;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
@@ -16,7 +21,10 @@ import org.objectweb.asm.tree.MethodNode;
 import net.amygdalum.testrecorder.asm.ByteCode;
 import net.amygdalum.testrecorder.asm.MethodContext;
 import net.amygdalum.testrecorder.asm.Sequence;
+import net.amygdalum.testrecorder.util.LogLevel;
+import net.amygdalum.testrecorder.util.LoggerExtension;
 
+@ExtendWith(LoggerExtension.class)
 public class SnapshotInstrumentorTest {
 
 	private DefaultTestRecorderAgentConfig config;
@@ -32,7 +40,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testSetupVariablesWithNoResultNoArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "noResultNoArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "noResultNoArgs");
 		InsnList insnlist = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode)
 			.setupVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
@@ -48,7 +56,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testSetupVariablesWithPrimitiveResultNoArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "primitiveResultNoArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "primitiveResultNoArgs");
 		InsnList insnlist = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode)
 			.setupVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
@@ -64,7 +72,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testSetupVariablesWithObjectResultNoArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "objectResultNoArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "objectResultNoArgs");
 		InsnList insnlist = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode)
 			.setupVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
@@ -80,7 +88,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testSetupVariablesWithNoResultPrimitiveArg() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "noResultPrimitiveArg");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "noResultPrimitiveArg");
 		InsnList insnlist = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode)
 			.setupVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
@@ -101,7 +109,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testSetupVariablesWithNoResultObjectArg() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "noResultObjectArg");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "noResultObjectArg");
 		InsnList insnlist = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode)
 			.setupVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
@@ -121,7 +129,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testSetupVariablesWithObjectResultMixedArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "objectResultMixedArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "objectResultMixedArgs");
 		InsnList insnlist = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode)
 			.setupVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
@@ -146,7 +154,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testSetupVariablesWithStaticPrimitiveResultMixedArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "staticPrimitiveResultMixedArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "staticPrimitiveResultMixedArgs");
 		InsnList insnlist = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode)
 			.setupVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
@@ -171,7 +179,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testExpectVariablesWithNoResultNoArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "noResultNoArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "noResultNoArgs");
 		InsnList insnlist = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode)
 			.expectVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
@@ -187,7 +195,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testExpectVariablesWithPrimitiveResultNoArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "primitiveResultNoArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "primitiveResultNoArgs");
 		InsnList insnlist = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode)
 			.expectVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
@@ -207,7 +215,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testExpectVariablesWithObjectResultNoArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "objectResultNoArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "objectResultNoArgs");
 		InsnList insnlist = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode)
 			.expectVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
@@ -226,7 +234,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testExpectVariablesWithNoResultPrimitiveArg() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "noResultPrimitiveArg");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "noResultPrimitiveArg");
 		InsnList insnlist = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode)
 			.expectVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
@@ -247,7 +255,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testExpectVariablesWithNoResultObjectArg() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "noResultObjectArg");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "noResultObjectArg");
 		InsnList insnlist = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode)
 			.expectVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
@@ -267,7 +275,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testExpectVariablesWithObjectResultMixedArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "objectResultMixedArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "objectResultMixedArgs");
 		InsnList insnlist = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode)
 			.expectVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
@@ -295,7 +303,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testExpectVariablesWithStaticPrimitiveResultMixedArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "staticPrimitiveResultMixedArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "staticPrimitiveResultMixedArgs");
 		InsnList insnlist = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode)
 			.expectVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
@@ -324,7 +332,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testThrowVariablesWithNoResultNoArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "noResultNoArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "noResultNoArgs");
 		InsnList insnlist = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode)
 			.throwVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
@@ -343,7 +351,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testThrowVariablesWithPrimitiveResultNoArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "primitiveResultNoArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "primitiveResultNoArgs");
 		InsnList insnlist = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode)
 			.throwVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
@@ -362,7 +370,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testThrowVariablesWithObjectResultNoArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "objectResultNoArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "objectResultNoArgs");
 		InsnList insnlist = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode)
 			.throwVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
@@ -381,7 +389,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testThrowVariablesWithNoResultPrimitiveArg() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "noResultPrimitiveArg");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "noResultPrimitiveArg");
 		InsnList insnlist = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode)
 			.throwVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
@@ -405,7 +413,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testThrowVariablesWithNoResultObjectArg() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "noResultObjectArg");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "noResultObjectArg");
 		InsnList insnlist = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode)
 			.throwVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
@@ -428,7 +436,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testThrowVariablesWithObjectResultMixedArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "objectResultMixedArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "objectResultMixedArgs");
 		InsnList insnlist = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode)
 			.throwVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
@@ -456,7 +464,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testThrowVariablesWithStaticPrimitiveResultMixedArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "staticPrimitiveResultMixedArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "staticPrimitiveResultMixedArgs");
 		InsnList insnlist = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode)
 			.throwVariables(unit.methodNode)
 			.build(new MethodContext(unit.classNode, unit.methodNode));
@@ -484,7 +492,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testInstrumentSnapshotMethodWithNoResultNoArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "noResultNoArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "noResultNoArgs");
 
 		stubbedSnapshotInstrumentor(new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode))
 			.instrumentSnapshotMethod(unit.methodNode);
@@ -509,7 +517,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testInstrumentSnapshotMethodWithPrimitiveResultNoArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "primitiveResultNoArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "primitiveResultNoArgs");
 
 		stubbedSnapshotInstrumentor(new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode))
 			.instrumentSnapshotMethod(unit.methodNode);
@@ -535,7 +543,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testInstrumentSnapshotMethodWithObjectResultNoArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "objectResultNoArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "objectResultNoArgs");
 
 		stubbedSnapshotInstrumentor(new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode))
 			.instrumentSnapshotMethod(unit.methodNode);
@@ -561,7 +569,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testInstrumentSnapshotMethodWithNoResultPrimitiveArg() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "noResultPrimitiveArg");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "noResultPrimitiveArg");
 
 		stubbedSnapshotInstrumentor(new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode))
 			.instrumentSnapshotMethod(unit.methodNode);
@@ -586,7 +594,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testInstrumentSnapshotMethodWithNoResultObjectArg() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "noResultObjectArg");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "noResultObjectArg");
 
 		stubbedSnapshotInstrumentor(new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode))
 			.instrumentSnapshotMethod(unit.methodNode);
@@ -611,7 +619,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testInstrumentSnapshotMethodWithObjectResultMixedArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "objectResultMixedArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "objectResultMixedArgs");
 
 		stubbedSnapshotInstrumentor(new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode))
 			.instrumentSnapshotMethod(unit.methodNode);
@@ -637,7 +645,7 @@ public class SnapshotInstrumentorTest {
 
 	@Test
 	public void testInstrumentSnapshotMethodWithStaticPrimitiveResultMixedArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "staticPrimitiveResultMixedArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "staticPrimitiveResultMixedArgs");
 
 		stubbedSnapshotInstrumentor(new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode))
 			.instrumentSnapshotMethod(unit.methodNode);
@@ -659,6 +667,75 @@ public class SnapshotInstrumentorTest {
 			"LDC \"throwVariables\"",
 			"POP",
 			"ATHROW");
+	}
+
+	@Test
+	public void testIsOutputMethod() throws Exception {
+		InstrumentationMethod unit = instrumentMethod(Annotations.class, "output");
+		io.registerOutput(Type.getInternalName(Annotations.class), "output", "()V");
+		SnapshotInstrumentor.DefaultTask task = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode);
+		
+		assertThat(task.isOutputMethod(unit.classNode, unit.methodNode)).isTrue();
+	}
+
+	@Test
+	public void testIsOutputMethodAlsoRecordedIsSkipped(@LogLevel("warn") ByteArrayOutputStream warn) throws Exception {
+		InstrumentationMethod unit = instrumentMethod(Annotations.class, "outputRecorded");
+		io.registerOutput(Type.getInternalName(Annotations.class), "outputRecorded", "()V");
+		SnapshotInstrumentor.DefaultTask task = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode);
+		
+		assertThat(task.isOutputMethod(unit.classNode, unit.methodNode)).isFalse();
+		assertThat(warn.toString()).contains("found annotation @Output on method already annotated with @Recorded or @Input outputRecorded()V, skipping");
+	}
+
+	@Test
+	public void testIsInputMethod() throws Exception {
+		InstrumentationMethod unit = instrumentMethod(Annotations.class, "input");
+		io.registerInput(Type.getInternalName(Annotations.class), "input", "()V");
+		SnapshotInstrumentor.DefaultTask task = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode);
+		
+		assertThat(task.isInputMethod(unit.classNode, unit.methodNode)).isTrue();
+	}
+
+	@Test
+	public void testIsInputMethodAlsoRecordedIsSkipped(@LogLevel("warn") ByteArrayOutputStream warn) throws Exception {
+		InstrumentationMethod unit = instrumentMethod(Annotations.class, "inputRecorded");
+		io.registerInput(Type.getInternalName(Annotations.class), "inputRecorded", "()V");
+		SnapshotInstrumentor.DefaultTask task = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode);
+		
+		assertThat(task.isInputMethod(unit.classNode, unit.methodNode)).isFalse();
+		assertThat(warn.toString()).contains("found annotation @Input on method already annotated with @Recorded or @Output inputRecorded()V, skipping");
+	}
+
+	@Test
+	public void testIsInputAndOutputMethodIsSkipped(@LogLevel("warn") ByteArrayOutputStream warn) throws Exception {
+		InstrumentationMethod unit = instrumentMethod(Annotations.class, "bothInputAndOutput");
+		io.registerInput(Type.getInternalName(Annotations.class), "bothInputAndOutput", "()V");
+		io.registerOutput(Type.getInternalName(Annotations.class), "bothInputAndOutput", "()V");
+		SnapshotInstrumentor.DefaultTask task = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode);
+		
+		assertThat(task.isInputMethod(unit.classNode, unit.methodNode)).isFalse();
+		assertThat(task.isOutputMethod(unit.classNode, unit.methodNode)).isFalse();
+		assertThat(warn.toString())
+		.contains("found annotation @Output on method already annotated with @Recorded or @Input bothInputAndOutput()V, skipping")
+		.contains("found annotation @Input on method already annotated with @Recorded or @Output bothInputAndOutput()V, skipping");
+	}
+	
+	@Test
+	public void testIsGlobalField() throws Exception {
+		InstrumentationField unit = instrumentField(Annotations.class, "global");
+		SnapshotInstrumentor.DefaultTask task = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode);
+
+		assertThat(task.isGlobalField(unit.classNode.name, unit.fieldNode)).isTrue();
+	}
+
+	@Test
+	public void testIsGlobalFieldNonStatic(@LogLevel("warn") ByteArrayOutputStream warn) throws Exception {
+		InstrumentationField unit = instrumentField(Annotations.class, "notGlobal");
+		SnapshotInstrumentor.DefaultTask task = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode);
+
+		assertThat(task.isGlobalField(unit.classNode.name, unit.fieldNode)).isFalse();
+		assertThat(warn.toString()).contains("found annotation @Global on non static field Ljava/lang/String; notGlobal, skipping");
 	}
 
 	private SnapshotInstrumentor.Task stubbedSnapshotInstrumentor(SnapshotInstrumentor.Task task) {

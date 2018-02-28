@@ -3,6 +3,7 @@ package net.amygdalum.testrecorder;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.asm.ByteCode.classFrom;
 import static net.amygdalum.testrecorder.asm.ByteCode.isNative;
+import static net.amygdalum.testrecorder.asm.ByteCode.isStatic;
 import static net.amygdalum.testrecorder.asm.ByteCode.returnsResult;
 import static org.objectweb.asm.Opcodes.ACC_ANNOTATION;
 import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
@@ -146,7 +147,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 	public byte[] instrument(ClassNode classNode, Class<?> clazz) {
 		analyzeMethods(classNode);
-		
+
 		if (!isClass(classNode)) {
 			return null;
 		}
@@ -516,14 +517,19 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 			return calls;
 		}
 
-		private boolean isGlobalField(String className, FieldNode fieldNode) {
-			return fieldNode.visibleAnnotations != null && fieldNode.visibleAnnotations.stream()
+		protected boolean isGlobalField(String className, FieldNode fieldNode) {
+			boolean global = fieldNode.visibleAnnotations != null && fieldNode.visibleAnnotations.stream()
 				.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Global.class)))
 				|| config.getGlobalFields().stream()
 					.anyMatch(field -> matches(field, className, fieldNode.name, fieldNode.desc));
+			if (global && !isStatic(fieldNode)) {
+				Logger.warn("found annotation @Global on non static field " + fieldNode.desc + " " + fieldNode.name + ", skipping");
+				return false;
+			}
+			return global;
 		}
 
-		private boolean isSnapshotMethod(MethodNode methodNode) {
+		protected boolean isSnapshotMethod(MethodNode methodNode) {
 			if (methodNode.visibleAnnotations == null) {
 				return false;
 			}
@@ -542,6 +548,16 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		}
 
 		protected boolean isInputMethod(ClassNode classNode, MethodNode methodNode) {
+			boolean input = isQualifiedInputMethod(classNode, methodNode);
+			if (input && (isQualifiedOutputMethod(classNode, methodNode) || isSnapshotMethod(methodNode))) {
+				Logger.warn("found annotation @Input on method already annotated with @Recorded or @Output " + methodNode.name + methodNode.desc + ", skipping");
+				return false;
+			}
+
+			return input;
+		}
+
+		private boolean isQualifiedInputMethod(ClassNode classNode, MethodNode methodNode) {
 			return io.isInput(classNode.name, methodNode.name, methodNode.desc)
 				|| config.getInputs().stream()
 					.anyMatch(method -> matches(method, classNode.name, methodNode.name, methodNode.desc));
@@ -558,6 +574,16 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		}
 
 		protected boolean isOutputMethod(ClassNode classNode, MethodNode methodNode) {
+			boolean output = isQualifiedOutputMethod(classNode, methodNode);
+			if (output && (isQualifiedInputMethod(classNode, methodNode) || isSnapshotMethod(methodNode))) {
+				Logger.warn("found annotation @Output on method already annotated with @Recorded or @Input " + methodNode.name + methodNode.desc + ", skipping");
+				return false;
+			}
+
+			return output;
+		}
+
+		private boolean isQualifiedOutputMethod(ClassNode classNode, MethodNode methodNode) {
 			return io.isOutput(classNode.name, methodNode.name, methodNode.desc)
 				|| config.getOutputs().stream()
 					.anyMatch(method -> matches(method, classNode.name, methodNode.name, methodNode.desc));

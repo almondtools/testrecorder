@@ -9,16 +9,16 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
-public class InstrumentationUnit {
+public class InstrumentationMethod {
 	public ClassNode classNode;
 	public MethodNode methodNode;
 
-	public InstrumentationUnit(ClassNode classNode, MethodNode methodNode) {
+	public InstrumentationMethod(ClassNode classNode, MethodNode methodNode) {
 		this.classNode = classNode;
 		this.methodNode = methodNode;
 	}
 
-	public static InstrumentationUnit instrument(Class<?> clazz, String methodName) throws IOException, NoSuchMethodException {
+	public static InstrumentationMethod instrumentMethod(Class<?> clazz, String methodName) throws IOException, NoSuchMethodException {
 		Method method = Arrays.stream(clazz.getDeclaredMethods())
 			.filter(m -> m.getName().equals(methodName))
 			.findFirst()
@@ -36,7 +36,7 @@ public class InstrumentationUnit {
 			.findFirst()
 			.orElseThrow(() -> new NoSuchMethodException(methodName + methodDesc));
 	
-		return new InstrumentationUnit(classNode, methodNode);
+		return new InstrumentationMethod(classNode, methodNode);
 	}
 
 }

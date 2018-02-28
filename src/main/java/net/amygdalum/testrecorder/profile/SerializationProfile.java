@@ -35,6 +35,8 @@ public interface SerializationProfile {
 	 * Configuring {@link #getClassExclusions()} enables excluding specified classes from serialization 
 	 * (e.g if they are irrelevant or not easily serialized).
 	 * 
+	 * Note that only static fields may be annotated with {@link Global}. Every use on a non static field will be ignored. 
+	 * 
 	 * {@link net.amygdalum.testrecorder.profile.Classes} provides some default predicates to put into this list.
 	 *  
 	 * @return a list of Classes/Predicates describing the classes to be excluded.
@@ -63,14 +65,14 @@ public interface SerializationProfile {
 	List<Fields> getGlobalFields();
 
 	/**
-	 * Annotating a method with {@link Input} specifies a method to be an input method.
+	 * Annotating a method with {@link Input} specifies a method to be an input method. {@link Input} is inheritable, 
+	 * i.e. overriding methods in sub classes or implementation classes will also be handled as input. 
 	 * 
 	 * We define input as state that is dependent on sources not controlled by the JVM (e.g. filesystem, webservices,
 	 * random numbers, date/time).   
 	 * 
-	 * Note that the Input annotation is a bit tricky yet. Input is recognized at the callers site (not at the site of the called method).
-	 * Consequently it is not sufficient to annotate all implementations of the method, but in general also all abstract methods
-	 * (including interface definitions).
+	 * Note that a method could only be exclusively {@link Recorded}, {@link Input} or {@link Output}. {@link Input} 
+	 * will be ignored in presence of these annotations. 
 	 * 
 	 * @see SerializationProfile#getInputs()
 	 */
@@ -94,17 +96,13 @@ public interface SerializationProfile {
 	List<Methods> getInputs();
 
 	/**
-	 * Annotating a method with {@link Output} specifies a method to be an output method.
+	 * Annotating a method with {@link Output} specifies a method to be an output method. {@link Output} is inheritable, 
+	 * i.e. overriding methods in sub classes or implementation classes will also be handled as output.
 	 * 
 	 * We define output as state that is consumed by systems not controlled by the JVM (e.g. filesystem, webservices, browser).
 	 * 
-	 * Output is recognized at the callers site (not at the site of the called method).
-	 * Consequently it is not sufficient to include specifications for all implementations of the method, but in general also all abstract methods
-	 * (including interface definitions).
-	 * 
-	 * Note that the Output annotation is a bit tricky yet. Output is recognized at the callers site (not at the site of the called method).
-	 * Consequently it is not sufficient to annotate all implementations of the method, but in general also all abstract methods
-	 * (including interface definitions).
+	 * Note that a method could only be exclusively {@link Recorded}, {@link Input} or {@link Output}. {@link Output} 
+	 * will be ignored in presence of these annotations. 
 	 * 
 	 * @see SerializationProfile#getOutputs()
 	 */
@@ -118,10 +116,6 @@ public interface SerializationProfile {
 	 * 
 	 * We define output as state that is consumed by systems not controlled by the JVM (e.g. filesystem, webservices, browser).
 	 * Methods that consume such output as arguments can be specified as output methods by adding a specification to this list.   
-	 * 
-	 * Input is recognized at the callers site (not at the site of the called method).
-	 * Consequently it is not sufficient to include specifications for all implementations of the method, but in general also all abstract methods
-	 * (including interface definitions).
 	 * 
 	 * {@link net.amygdalum.testrecorder.profile.Methods} provides some default predicates to specify methods that provide input.
 	 *  

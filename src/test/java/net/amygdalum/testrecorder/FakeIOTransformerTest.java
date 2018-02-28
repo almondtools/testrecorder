@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder;
 
 import static java.util.Collections.emptyList;
-import static net.amygdalum.testrecorder.InstrumentationUnit.instrument;
+import static net.amygdalum.testrecorder.InstrumentationMethod.instrumentMethod;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,7 @@ public class FakeIOTransformerTest {
 
 	@Test
 	public void testCreateDirectIOFakePrimitiveResultNoArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "primitiveResultNoArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "primitiveResultNoArgs");
 		InsnList insnlist = new FakeIOTransformer.DefaultTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 
 		assertThat(ByteCode.toString(insnlist)).containsExactly(
@@ -39,7 +39,7 @@ public class FakeIOTransformerTest {
 
 	@Test
 	public void testCreateDirectIOFakeObjectResultNoArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "objectResultNoArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "objectResultNoArgs");
 		InsnList insnlist = new FakeIOTransformer.DefaultTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 
 		assertThat(ByteCode.toString(insnlist)).containsExactly(
@@ -63,7 +63,7 @@ public class FakeIOTransformerTest {
 
 	@Test
 	public void testCreateDirectIOFakeNoResultPrimitiveArg() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "noResultPrimitiveArg");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "noResultPrimitiveArg");
 		InsnList insnlist = new FakeIOTransformer.DefaultTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 
 		assertThat(ByteCode.toString(insnlist)).containsExactly(
@@ -92,7 +92,7 @@ public class FakeIOTransformerTest {
 
 	@Test
 	public void testCreateDirectIOFakeNoResultArrayArg() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "noResultArrayArg");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "noResultArrayArg");
 		InsnList insnlist = new FakeIOTransformer.DefaultTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 
 		assertThat(ByteCode.toString(insnlist)).containsExactly(
@@ -120,7 +120,7 @@ public class FakeIOTransformerTest {
 
 	@Test
 	public void testCreateDirectIOFakeNoResultObjectArrayArg() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "noResultObjectArrayArg");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "noResultObjectArrayArg");
 		InsnList insnlist = new FakeIOTransformer.DefaultTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 
 		assertThat(ByteCode.toString(insnlist)).containsExactly(
@@ -148,7 +148,7 @@ public class FakeIOTransformerTest {
 
 	@Test
 	public void testCreateDirectIOFakeNoResultObjectArg() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "noResultObjectArg");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "noResultObjectArg");
 		InsnList insnlist = new FakeIOTransformer.DefaultTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 
 		assertThat(ByteCode.toString(insnlist)).containsExactly(
@@ -176,7 +176,7 @@ public class FakeIOTransformerTest {
 
 	@Test
 	public void testCreateDirectIOFakeObjectResultMixedArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "objectResultMixedArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "objectResultMixedArgs");
 		InsnList insnlist = new FakeIOTransformer.DefaultTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 
 		assertThat(ByteCode.toString(insnlist)).containsExactly(
@@ -209,7 +209,7 @@ public class FakeIOTransformerTest {
 
 	@Test
 	public void testCreateDirectIOFakeStaticPrimitiveResultMixedArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "staticPrimitiveResultMixedArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "staticPrimitiveResultMixedArgs");
 		InsnList insnlist = new FakeIOTransformer.DefaultTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 
 		assertThat(ByteCode.toString(insnlist)).containsExactly(
@@ -241,7 +241,7 @@ public class FakeIOTransformerTest {
 
 	@Test
 	public void testCreateBridgedIOFakePrimitiveResultNoArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "primitiveResultNoArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "primitiveResultNoArgs");
 		InsnList insnlist = new FakeIOTransformer.BridgedTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 
 		assertThat(ByteCode.toString(insnlist)).containsExactly(
@@ -266,7 +266,7 @@ public class FakeIOTransformerTest {
 
 	@Test
 	public void testCreateBridgedIOFakeObjectResultNoArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "objectResultNoArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "objectResultNoArgs");
 		InsnList insnlist = new FakeIOTransformer.BridgedTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 
 		assertThat(ByteCode.toString(insnlist)).containsExactly(
@@ -290,7 +290,7 @@ public class FakeIOTransformerTest {
 
 	@Test
 	public void testCreateBridgedIOFakeNoResultPrimitiveArg() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "noResultPrimitiveArg");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "noResultPrimitiveArg");
 		InsnList insnlist = new FakeIOTransformer.BridgedTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 
 		assertThat(ByteCode.toString(insnlist)).containsExactly(
@@ -319,7 +319,7 @@ public class FakeIOTransformerTest {
 
 	@Test
 	public void testCreateBridgedIOFakeNoResultArrayArg() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "noResultArrayArg");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "noResultArrayArg");
 		InsnList insnlist = new FakeIOTransformer.BridgedTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 
 		assertThat(ByteCode.toString(insnlist)).containsExactly(
@@ -347,7 +347,7 @@ public class FakeIOTransformerTest {
 
 	@Test
 	public void testCreateBridgedIOFakeNoResultObjectArrayArg() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "noResultObjectArrayArg");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "noResultObjectArrayArg");
 		InsnList insnlist = new FakeIOTransformer.BridgedTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 
 		assertThat(ByteCode.toString(insnlist)).containsExactly(
@@ -375,7 +375,7 @@ public class FakeIOTransformerTest {
 
 	@Test
 	public void testCreateBridgedIOFakeNoResultObjectArg() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "noResultObjectArg");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "noResultObjectArg");
 		InsnList insnlist = new FakeIOTransformer.BridgedTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 
 		assertThat(ByteCode.toString(insnlist)).containsExactly(
@@ -403,7 +403,7 @@ public class FakeIOTransformerTest {
 
 	@Test
 	public void testCreateBridgedIOFakeObjectResultMixedArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "objectResultMixedArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "objectResultMixedArgs");
 		InsnList insnlist = new FakeIOTransformer.BridgedTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 
 		assertThat(ByteCode.toString(insnlist)).containsExactly(
@@ -436,7 +436,7 @@ public class FakeIOTransformerTest {
 
 	@Test
 	public void testCreateBridgedIOFakeStaticPrimitiveResultMixedArgs() throws Exception {
-		InstrumentationUnit unit = instrument(Example.class, "staticPrimitiveResultMixedArgs");
+		InstrumentationMethod unit = instrumentMethod(Example.class, "staticPrimitiveResultMixedArgs");
 		InsnList insnlist = new FakeIOTransformer.BridgedTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 
 		assertThat(ByteCode.toString(insnlist)).containsExactly(
