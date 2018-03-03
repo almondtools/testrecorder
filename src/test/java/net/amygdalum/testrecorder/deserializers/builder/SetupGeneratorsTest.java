@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.types.DeserializerContext;
-import net.amygdalum.testrecorder.util.Types;
 import net.amygdalum.testrecorder.util.testobjects.Complex;
 import net.amygdalum.testrecorder.util.testobjects.ContainingList;
 import net.amygdalum.testrecorder.util.testobjects.Cycle;
@@ -122,7 +121,7 @@ public class SetupGeneratorsTest {
 
 	@Test
 	public void testVisitReferenceTypeGenericsForwarding() throws Exception {
-		SerializedObject value = values.object(Types.parameterized(GenericCycle.class, null, String.class), GenericCycle.recursive("Foo"));
+		SerializedObject value = values.object(parameterized(GenericCycle.class, null, String.class), GenericCycle.recursive("Foo"));
 
 		Computation result = setupCode.visitReferenceType(value, context);
 

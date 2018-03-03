@@ -6,6 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
 
+import net.amygdalum.testrecorder.Recorded;
+
 public interface SerializationProfile {
 
 	long getTimeoutInMillis();

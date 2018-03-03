@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.values;
 
+import static net.amygdalum.testrecorder.util.Types.mostSpecialOf;
 import static net.amygdalum.testrecorder.util.Types.typeArgument;
 
 import java.lang.reflect.Type;
@@ -32,25 +33,20 @@ public class SerializedMap extends AbstractSerializedReferenceType implements Se
 		this.map = new LinkedHashMap<>();
 	}
 
-	public SerializedMap withResult(Type resultType) {
-		setResultType(resultType);
-		return this;
-	}
-
 	public SerializedMap with(Map<SerializedValue, SerializedValue> values) {
 		map.putAll(values);
 		return this;
 	}
 
 	public Type getMapKeyType() {
-		 return typeArgument(getType(), 0)
-			.orElse(typeArgument(getResultType(), 0)
+		return typeArgument(getType(), 0)
+			.orElse(typeArgument(mostSpecialOf(getUsedTypes()).orElse(Object.class), 0)
 				.orElse(Object.class));
 	}
 
 	public Type getMapValueType() {
-		 return typeArgument(getType(), 1)
-			.orElse(typeArgument(getResultType(), 1)
+		return typeArgument(getType(), 1)
+			.orElse(typeArgument(mostSpecialOf(getUsedTypes()).orElse(Object.class), 1)
 				.orElse(Object.class));
 	}
 

@@ -8,7 +8,6 @@ public interface SerializedReferenceType extends SerializedValue {
 
 	int getId();
 
-	void setResultType(Type resultType);
-
+	void useAs(Type type);
 
 }

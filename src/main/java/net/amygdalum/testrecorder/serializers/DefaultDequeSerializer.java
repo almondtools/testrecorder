@@ -27,7 +27,9 @@ public class DefaultDequeSerializer implements Serializer<SerializedList> {
 
 	@Override
 	public SerializedList generate(Type resultType, Type type) {
-		return new SerializedList(type).withResult(resultType);
+		SerializedList object = new SerializedList(type);
+		object.useAs(resultType);
+		return object;
 	}
 
 	@Override

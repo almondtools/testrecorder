@@ -56,7 +56,7 @@ public class CollectionsSetSerializerTest {
 
 		SerializedSet value = serializer.generate(setOfString, unmodifiableSetOfString);
 
-		assertThat(value.getResultType()).isEqualTo(setOfString);
+		assertThat(value.getUsedTypes()).containsExactly(setOfString);
 		assertThat(value.getType()).isEqualTo(unmodifiableSetOfString);
 		assertThat(value.getComponentType()).isEqualTo(String.class);
 	}

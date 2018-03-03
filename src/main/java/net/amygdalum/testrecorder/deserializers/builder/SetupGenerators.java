@@ -41,13 +41,13 @@ public class SetupGenerators implements Deserializer<Computation> {
 	public Computation visitField(SerializedFieldType field, DeserializerContext context) {
 		TypeManager types = context.getTypes();
 		Type fieldType = field.getType();
-		Type resultType = field.getValue().getResultType();
+		Type usedType = types.mostSpecialOf(field.getValue().getUsedTypes()).orElse(Object.class);
 		Type fieldResultType = types.bestType(fieldType, Object.class);
-		types.registerTypes(fieldType, resultType, fieldResultType);
+		types.registerTypes(fieldType, usedType, fieldResultType);
 
 		SerializedValue value = field.getValue();
 		if (value instanceof SerializedReferenceType) {
-			((SerializedReferenceType) value).setResultType(fieldResultType);
+			((SerializedReferenceType) value).useAs(fieldResultType);
 		}
 		Computation valueTemplate = value.accept(this, context.newWithHints(field.getAnnotations()));
 

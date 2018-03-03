@@ -17,8 +17,8 @@ public abstract class AbstractSerializedValue implements SerializedValue {
     }
 
     @Override
-    public Type getResultType() {
-        return type;
+    public Type[] getUsedTypes() {
+        return new Type[] {type};
     }
 
     @Override

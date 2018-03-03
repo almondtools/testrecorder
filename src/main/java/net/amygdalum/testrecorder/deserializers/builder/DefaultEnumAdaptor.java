@@ -31,19 +31,20 @@ public class DefaultEnumAdaptor extends DefaultSetupGenerator<SerializedEnum> im
 		TypeManager types = context.getTypes();
 		types.registerType(value.getType());
 
+		Type usedType = types.mostSpecialOf(value.getUsedTypes()).orElse(Enum.class);
 		if (types.isHidden(value.getType())) {
 			String typeName = baseType(value.getType()).getName();
 			String typeArgument = asLiteral(typeName);
 			String expression = callMethod(types.getRawTypeName(Wrapped.class), "enumType", typeArgument, asLiteral(value.getName()));
 			
-			expression = context.adapt(expression, value.getResultType(), value.getType());
-			return expression(expression, value.getResultType());
+			expression = context.adapt(expression, usedType, value.getType());
+			return expression(expression, usedType);
 		} else {
 			String typeName = types.getVariableTypeName(value.getType());
 			String name = value.getName();
 
 			String enumConstant = fieldAccess(typeName, name);
-			return expression(enumConstant, value.getResultType());
+			return expression(enumConstant, usedType);
 		}
 	}
 

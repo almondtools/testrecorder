@@ -27,10 +27,11 @@ public class DefaultObjectAdaptor extends DefaultSetupGenerator<SerializedObject
     @Override
     public Computation tryDeserialize(SerializedObject value, SetupGenerators generator, DeserializerContext context) {
         TypeManager types = context.getTypes();
-        types.registerTypes(value.getType(), value.getResultType(), GenericObject.class);
+        types.registerTypes(value.getType(), GenericObject.class);
+        types.registerTypes(value.getUsedTypes());
 
         Type type = value.getType();
-        Type resultType = value.getResultType();
+        Type usedType = types.mostSpecialOf(value.getUsedTypes()).orElse(Object.class);
         return context.forVariable(value, type, definition -> {
 
             List<Computation> elementTemplates = ensureUniqueNames(value.getFields()).stream()
@@ -46,13 +47,13 @@ public class DefaultObjectAdaptor extends DefaultSetupGenerator<SerializedObject
                 .flatMap(template -> template.getStatements().stream())
                 .collect(toList());
 
-            Type effectiveResultType = resultType;
+            Type effectiveResultType = usedType;
             if (definition.isDefined() && !definition.isReady()) {
                 effectiveResultType = definition.getType();
                 String genericObject = genericObject(types.getRawClass(type), elements);
                 statements.add(callMethodStatement(types.getVariableTypeName(GenericObject.class), "define", definition.getName(), genericObject));
             } else {
-                effectiveResultType = types.wrapHidden(resultType);
+                effectiveResultType = types.wrapHidden(usedType);
                 String genericObject = genericObjectConverter(types.getRawClass(type), elements);
                 genericObject = context.adapt(genericObject, effectiveResultType, type);
                 statements.add(assignLocalVariableStatement(types.getRawTypeName(effectiveResultType), definition.getName(), genericObject));

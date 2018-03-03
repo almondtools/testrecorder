@@ -42,7 +42,7 @@ public class DefaultDequeSerializerTest {
 
 		SerializedList value = serializer.generate(arrayDequeOfString, ArrayDeque.class);
 
-		assertThat(value.getResultType()).isEqualTo(arrayDequeOfString);
+		assertThat(value.getUsedTypes()).containsExactly(arrayDequeOfString);
 		assertThat(value.getType()).isEqualTo(ArrayDeque.class);
 		assertThat(value.getComponentType()).isEqualTo(String.class);
 	}

@@ -1,7 +1,8 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import static net.amygdalum.extensions.assertj.Assertions.*;
+import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRun;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

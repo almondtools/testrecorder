@@ -99,6 +99,8 @@ public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> im
 		}
 
 		private Pair<Computation, Computation> computeKeyValues(Entry<SerializedValue, SerializedValue> entry) {
+			TypeManager types = context.getTypes();
+
 			SerializedValue key = entry.getKey();
 			SerializedValue value = entry.getValue();
 
@@ -106,10 +108,9 @@ public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> im
 
 			Computation valueDeserialized = generator.simpleMatcher(value, context);
 
-			Type keyType = key instanceof SerializedNull ? null : key.getResultType();
-			Type valueType = value instanceof SerializedNull ? null : value.getResultType();
-			
-			TypeManager types = context.getTypes();
+			Type keyType = key instanceof SerializedNull ? null : types.mostSpecialOf(key.getUsedTypes()).orElse(Object.class);
+			Type valueType = value instanceof SerializedNull ? null : types.mostSpecialOf(value.getUsedTypes()).orElse(Object.class);
+
 			if (assignableTypes(mapKeyType, keyType) && assignableTypes(Matcher.class, keyType)) {
 				String keyTypeName = types.getRawTypeName(mapKeyType);
 				keyDeserialized = new Computation(cast(keyTypeName, keyDeserialized.getValue()), keyDeserialized.getType(), false, keyDeserialized.getStatements());

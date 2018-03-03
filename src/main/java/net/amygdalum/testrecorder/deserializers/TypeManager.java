@@ -11,10 +11,12 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -246,7 +248,7 @@ public class TypeManager {
 			while (clazz != Object.class && isHidden(clazz)) {
 				clazz = clazz.getSuperclass();
 			}
-			if (clazz == Object.class) {
+			if (clazz == Object.class || clazz == null) {
 				return bound;
 			} else {
 				return clazz;
@@ -267,5 +269,11 @@ public class TypeManager {
 		}
 		return bound;
 	}
+
+	public Optional<Type> mostSpecialOf(Type... types) {
+		Type[] visibleTypes = Arrays.stream(types).filter(type -> !isHidden(type)).toArray(Type[]::new);
+		return Types.mostSpecialOf(visibleTypes);
+	}
+
 
 }

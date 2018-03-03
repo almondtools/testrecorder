@@ -12,7 +12,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.FakeIO.AnyInvocation;
 import net.amygdalum.testrecorder.ioscenarios.Inputs;
 import net.amygdalum.testrecorder.ioscenarios.Outputs;
 import net.amygdalum.testrecorder.ioscenarios.StandardLibInputOutput;

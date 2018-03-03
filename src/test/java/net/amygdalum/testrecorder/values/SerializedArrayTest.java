@@ -22,17 +22,17 @@ public class SerializedArrayTest {
 	public void testGetResultType() throws Exception {
 		SerializedArray array = new SerializedArray(String[].class);
 
-		assertThat(array.getResultType()).isEqualTo(String[].class);
+		assertThat(array.getUsedTypes()).containsExactly(String[].class);
 	}
 
 	@Test
 	public void testGetSetResultType() throws Exception {
-		SerializedArray array = new SerializedArray(String[].class)
-			.withResult(Object.class);
-		
-		assertThat(array.getResultType()).isEqualTo(Object.class);
+		SerializedArray value = new SerializedArray(String[].class);
+		value.useAs(Object.class);
+
+		assertThat(value.getUsedTypes()).containsExactly(Object.class);
 	}
-	
+
 	@Test
 	public void testGetComponentType() throws Exception {
 		SerializedArray array = new SerializedArray(String[].class).with(literal("s1"), literal("s2"));
@@ -96,7 +96,7 @@ public class SerializedArrayTest {
 	@Test
 	public void testReferencedValues() throws Exception {
 		SerializedArray array = new SerializedArray(String[].class).with(literal("s1"), literal("s2"));
-		
+
 		assertThat(array.referencedValues()).hasSize(2);
 	}
 

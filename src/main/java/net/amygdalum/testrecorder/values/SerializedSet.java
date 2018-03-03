@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.values;
 
 import static java.util.Arrays.asList;
+import static net.amygdalum.testrecorder.util.Types.mostSpecialOf;
 import static net.amygdalum.testrecorder.util.Types.typeArgument;
 
 import java.lang.reflect.Type;
@@ -33,11 +34,6 @@ public class SerializedSet extends AbstractSerializedReferenceType implements Se
 		this.set = new LinkedHashSet<>();
 	}
 
-	public SerializedSet withResult(Type resultType) {
-		setResultType(resultType);
-		return this;
-	}
-
 	public SerializedSet with(Collection<SerializedValue> values) {
 		set.addAll(values);
 		return this;
@@ -49,7 +45,7 @@ public class SerializedSet extends AbstractSerializedReferenceType implements Se
 
 	public Type getComponentType() {
 		return typeArgument(getType(), 0)
-			.orElse(typeArgument(getResultType(), 0)
+			.orElse(typeArgument(mostSpecialOf(getUsedTypes()).orElse(Object.class), 0)
 				.orElse(Object.class));
 	}
 

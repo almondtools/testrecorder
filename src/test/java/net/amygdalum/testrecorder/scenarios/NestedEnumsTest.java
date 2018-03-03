@@ -14,8 +14,6 @@ import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 @Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.NestedEnums" })
 public class NestedEnumsTest {
 
-	
-
 	@Test
 	public void testNestedEnumsCompilable() throws Exception {
 		NestedEnums dataTypes = new NestedEnums();

@@ -45,7 +45,7 @@ public class DefaultQueueSerializerTest {
 
 		SerializedList value = serializer.generate(priorityBlockingQueueOfString, PriorityBlockingQueue.class);
 
-		assertThat(value.getResultType()).isEqualTo(priorityBlockingQueueOfString);
+		assertThat(value.getUsedTypes()).containsExactly(priorityBlockingQueueOfString);
 		assertThat(value.getType()).isEqualTo(PriorityBlockingQueue.class);
 		assertThat(value.getComponentType()).isEqualTo(String.class);
 	}

@@ -29,7 +29,7 @@ public class LambdaSerializer implements Serializer<SerializedLambdaObject> {
 	@Override
 	public SerializedLambdaObject generate(Type resultType, Type type) {
 		SerializedLambdaObject o = new SerializedLambdaObject(type);
-		o.setResultType(resultType);
+		o.useAs(resultType);
 		return o;
 	}
 
@@ -44,11 +44,10 @@ public class LambdaSerializer implements Serializer<SerializedLambdaObject> {
 			.withCapturingClass(lambda.getCapturingClass())
 			.withInstantiatedMethodType(lambda.getInstantiatedMethodType())
 			.withFunctionalInterface(
-				lambda.getFunctionalInterfaceClass(), 
+				lambda.getFunctionalInterfaceClass(),
 				lambda.getFunctionalInterfaceMethodName(),
 				lambda.getFunctionalInterfaceMethodSignature())
 			.withImplMethod(lambda.getImplClass(), lambda.getImplMethodKind(), lambda.getImplMethodName(), lambda.getImplMethodSignature()));
-		
 
 		List<SerializedValue> arguments = IntStream.range(0, lambda.getCapturedArgCount())
 			.mapToObj(lambda::getCapturedArg)

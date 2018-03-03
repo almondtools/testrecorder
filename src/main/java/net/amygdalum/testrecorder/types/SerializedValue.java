@@ -20,7 +20,7 @@ public interface SerializedValue {
 
 	<T> T accept(Deserializer<T> visitor, DeserializerContext context);
 
-	Type getResultType();
+	Type[] getUsedTypes();
 	
 	void setType(Type type);
 

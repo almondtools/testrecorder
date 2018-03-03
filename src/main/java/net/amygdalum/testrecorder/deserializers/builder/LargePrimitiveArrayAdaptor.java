@@ -54,7 +54,7 @@ public class LargePrimitiveArrayAdaptor implements SetupGenerator<SerializedArra
 					Object object = unwrap(value);
 					String fileName = FileSerializer.store(loadFromFile.writeTo(), object);
 					String result = callLocalMethod("load", asLiteral(loadFromFile.readFrom()), asLiteral(fileName), types.getRawClass(value.getType()));
-					return expression(result, value.getResultType());
+					return expression(result, types.mostSpecialOf(value.getUsedTypes()).orElse(Object.class));
 				} catch (IOException e) {
 					throw new DeserializationException("failed deserializing: " + value, e);
 				}

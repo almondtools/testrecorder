@@ -203,7 +203,8 @@ public class CollectionsMapAdaptorTest {
 	}
 
 	private SerializedMap mapOf(String className, int[]... elements) throws ClassNotFoundException {
-		SerializedMap value = new SerializedMap(Class.forName(className)).withResult(parameterized(Map.class, null, Integer.class, Integer.class));
+		SerializedMap value = new SerializedMap(Class.forName(className));
+		value.useAs(parameterized(Map.class, null, Integer.class, Integer.class));
 		for (int[] element : elements) {
 			value.put(literal(element[0]), literal(Integer.class, element[1]));
 		}
@@ -211,7 +212,8 @@ public class CollectionsMapAdaptorTest {
 	}
 
 	private SerializedMap mapOfRaw(String className, int[]... elements) throws ClassNotFoundException {
-		SerializedMap value = new SerializedMap(Class.forName(className)).withResult(Map.class);
+		SerializedMap value = new SerializedMap(Class.forName(className));
+		value.useAs(Map.class);
 		for (int[] element : elements) {
 			value.put(literal(element[0]), literal(Integer.class, element[1]));
 		}
@@ -219,7 +221,8 @@ public class CollectionsMapAdaptorTest {
 	}
 
 	private SerializedMap mapOfWildcard(String className, int[]... elements) throws ClassNotFoundException {
-		SerializedMap value = new SerializedMap(Class.forName(className)).withResult(parameterized(Map.class, null, wildcard(), wildcard()));
+		SerializedMap value = new SerializedMap(Class.forName(className));
+		value.useAs(parameterized(Map.class, null, wildcard(), wildcard()));
 		for (int[] element : elements) {
 			value.put(literal(element[0]), literal(Integer.class, element[1]));
 		}

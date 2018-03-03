@@ -51,7 +51,8 @@ public class DefaultMapAdaptorTest {
 
 	@Test
 	public void testTryDeserialize() throws Exception {
-		SerializedMap value = new SerializedMap(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class)).withResult(parameterized(Map.class, null, Integer.class, Integer.class));
+		SerializedMap value = new SerializedMap(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class));
+		value.useAs(parameterized(Map.class, null, Integer.class, Integer.class));
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
 		SetupGenerators generator = new SetupGenerators();
@@ -68,8 +69,8 @@ public class DefaultMapAdaptorTest {
 
 	@Test
 	public void testTryDeserializeSameResultTypes() throws Exception {
-		SerializedMap value = new SerializedMap(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class))
-			.withResult(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class));
+		SerializedMap value = new SerializedMap(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class));
+		value.useAs(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class));
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
 		SetupGenerators generator = new SetupGenerators();
@@ -85,8 +86,8 @@ public class DefaultMapAdaptorTest {
 
 	@Test
 	public void testTryDeserializeNonListResult() throws Exception {
-		SerializedMap value = new SerializedMap(parameterized(PublicMap.class, null, Integer.class, Integer.class))
-			.withResult(OrthogonalInterface.class);
+		SerializedMap value = new SerializedMap(parameterized(PublicMap.class, null, Integer.class, Integer.class));
+		value.useAs(OrthogonalInterface.class);
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
 		SetupGenerators generator = new SetupGenerators();
@@ -103,8 +104,8 @@ public class DefaultMapAdaptorTest {
 
 	@Test
 	public void testTryDeserializeNeedingAdaptation() throws Exception {
-		SerializedMap value = new SerializedMap(parameterized(classOfHiddenMap(), null, Integer.class, Integer.class))
-			.withResult(OrthogonalInterface.class);
+		SerializedMap value = new SerializedMap(parameterized(classOfHiddenMap(), null, Integer.class, Integer.class));
+		value.useAs(OrthogonalInterface.class);
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
 		SetupGenerators generator = new SetupGenerators();
@@ -121,8 +122,8 @@ public class DefaultMapAdaptorTest {
 
 	@Test
 	public void testTryDeserializeHiddenType() throws Exception {
-		SerializedMap value = new SerializedMap(parameterized(classOfHiddenMap(), null, Integer.class, Integer.class))
-			.withResult(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class));
+		SerializedMap value = new SerializedMap(parameterized(classOfHiddenMap(), null, Integer.class, Integer.class));
+		value.useAs(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class));
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
 		SetupGenerators generator = new SetupGenerators();
@@ -139,7 +140,8 @@ public class DefaultMapAdaptorTest {
 
 	@Test
 	public void testTryDeserializeForwarded() throws Exception {
-		SerializedMap value = new SerializedMap(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class)).withResult(parameterized(Map.class, null, Integer.class, Integer.class));
+		SerializedMap value = new SerializedMap(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class));
+		value.useAs(parameterized(Map.class, null, Integer.class, Integer.class));
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
 		SetupGenerators generator = new SetupGenerators();

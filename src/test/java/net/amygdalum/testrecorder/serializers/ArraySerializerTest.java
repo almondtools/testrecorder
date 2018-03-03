@@ -32,7 +32,7 @@ public class ArraySerializerTest {
 	public void testGenerate() throws Exception {
 		SerializedArray value = serializer.generate(String[].class, String[].class);
 
-		assertThat(value.getResultType()).isEqualTo(String[].class);
+		assertThat(value.getUsedTypes()).containsExactly(String[].class);
 		assertThat(value.getType()).isEqualTo(String[].class);
 		assertThat(value.getComponentType()).isEqualTo(String.class);
 	}

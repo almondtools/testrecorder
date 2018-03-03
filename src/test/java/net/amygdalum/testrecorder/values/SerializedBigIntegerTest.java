@@ -15,7 +15,7 @@ public class SerializedBigIntegerTest {
 	public void testGetType() throws Exception {
 		SerializedImmutable<BigInteger> value = new SerializedImmutable<BigInteger>(BigInteger.class);
 
-		assertThat(value.getResultType()).isEqualTo(BigInteger.class);
+		assertThat(value.getUsedTypes()).containsExactly(BigInteger.class);
 	}
 
 	@Test

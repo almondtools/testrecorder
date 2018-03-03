@@ -24,7 +24,9 @@ public class EnumSerializer implements Serializer<SerializedEnum> {
 		while (!baseType(type).isEnum()) {
 			type = baseType(type).getSuperclass();
 		}
-		return new SerializedEnum(type).withResult(resultType);
+		SerializedEnum object = new SerializedEnum(type);
+		object.useAs(resultType);
+		return object;
 	}
 
 	@Override

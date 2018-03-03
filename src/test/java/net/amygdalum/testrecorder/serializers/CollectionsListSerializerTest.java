@@ -52,7 +52,7 @@ public class CollectionsListSerializerTest {
 
 		SerializedList value = serializer.generate(listOfString, unmodifiableListOfString);
 
-		assertThat(value.getResultType()).isEqualTo(listOfString);
+		assertThat(value.getUsedTypes()).containsExactly(listOfString);
 		assertThat(value.getType()).isEqualTo(unmodifiableListOfString);
 		assertThat(value.getComponentType()).isEqualTo(String.class);
 	}

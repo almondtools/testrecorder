@@ -33,11 +33,14 @@ public class DefaultLambdaAdaptor extends DefaultSetupGenerator<SerializedLambda
 	public Computation tryDeserialize(SerializedLambdaObject value, SetupGenerators generator, DeserializerContext context) {
 		TypeManager types = context.getTypes();
 		types.registerImport(LambdaSignature.class);
-		return context.forVariable(value, value.getResultType(), local -> {
+		types.registerTypes(value.getUsedTypes());
+		
+		Type usedType = types.mostSpecialOf(value.getUsedTypes()).orElse(Object.class);
+		return context.forVariable(value, usedType, local -> {
 			LambdaSignature signature = value.getSignature();
-			
+
 			Class<?> functionalInterfaceType = baseType(local.getType());
-			types.registerTypes(value.getResultType(), local.getType(), functionalInterfaceType);
+			types.registerTypes(local.getType(), functionalInterfaceType);
 
 			List<String> statements = new ArrayList<>();
 			List<String> deserializeArguments = new ArrayList<>();

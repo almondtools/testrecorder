@@ -26,10 +26,12 @@ public class DefaultArrayAdaptor extends DefaultSetupGenerator<SerializedArray> 
 	public Computation tryDeserialize(SerializedArray value, SetupGenerators generator, DeserializerContext context) {
 		TypeManager types = context.getTypes();
 		Type componentType = types.bestType(value.getComponentType(), Object.class);
-		types.registerTypes(value.getResultType(), value.getComponentType(), componentType);
+		types.registerTypes(value.getComponentType(), componentType);
+		types.registerTypes(value.getUsedTypes());
 		
-
-		return context.forVariable(value, value.getResultType(), local -> {
+		Type usedType = types.mostSpecialOf(value.getUsedTypes()).orElse(Object[].class);
+		
+		return context.forVariable(value, usedType, local -> {
 
 			List<Computation> elementTemplates = Stream.of(value.getArray())
 				.map(element -> element.accept(generator, context))
@@ -45,9 +47,9 @@ public class DefaultArrayAdaptor extends DefaultSetupGenerator<SerializedArray> 
 
 			String arrayLiteral = arrayLiteral(types.getVariableTypeName(array(componentType)), elements);
 
-			statements.add(assignLocalVariableStatement(types.getVariableTypeName(value.getResultType()), local.getName(), arrayLiteral));
+			statements.add(assignLocalVariableStatement(types.getVariableTypeName(usedType), local.getName(), arrayLiteral));
 
-			return variable(local.getName(), value.getResultType(), statements);
+			return variable(local.getName(), usedType, statements);
 		});
 	}
 

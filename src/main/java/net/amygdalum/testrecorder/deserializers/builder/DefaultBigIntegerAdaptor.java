@@ -34,7 +34,7 @@ public class DefaultBigIntegerAdaptor extends DefaultSetupGenerator<SerializedIm
 
 		String literal = asLiteral(value.getValue().toString());
 		String bigInteger = newObject("BigInteger", literal);
-		return expression(bigInteger, value.getResultType());
+		return expression(bigInteger, types.mostSpecialOf(value.getUsedTypes()).orElse(BigInteger.class));
 	}
 
 }

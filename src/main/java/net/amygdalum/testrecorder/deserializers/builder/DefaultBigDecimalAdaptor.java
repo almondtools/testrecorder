@@ -34,7 +34,7 @@ public class DefaultBigDecimalAdaptor extends DefaultSetupGenerator<SerializedIm
 
 		String literal = asLiteral(value.getValue().toPlainString());
 		String bigDecimal = newObject("BigDecimal", literal);
-		return expression(bigDecimal, value.getResultType());
+		return expression(bigDecimal, types.mostSpecialOf(value.getUsedTypes()).orElse(BigDecimal.class));
 	}
 
 }

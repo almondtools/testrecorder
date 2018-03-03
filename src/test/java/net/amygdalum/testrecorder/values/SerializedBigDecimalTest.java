@@ -15,7 +15,7 @@ public class SerializedBigDecimalTest {
 	public void testGetType() throws Exception {
 		SerializedImmutable<BigDecimal> value = new SerializedImmutable<BigDecimal>(BigDecimal.class);
 
-		assertThat(value.getResultType()).isEqualTo(BigDecimal.class);
+		assertThat(value.getUsedTypes()).containsExactly(BigDecimal.class);
 	}
 
 	@Test

@@ -21,7 +21,7 @@ public class SerializedImmutableTest {
 
 	@Test
 	public void testGetResultType() throws Exception {
-		assertThat(value.getResultType()).isEqualTo(String.class);
+		assertThat(value.getUsedTypes()).containsExactly(String.class);
 	}
 
 	@Test

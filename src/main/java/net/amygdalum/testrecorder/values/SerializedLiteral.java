@@ -44,8 +44,8 @@ public class SerializedLiteral extends AbstractSerializedValue implements Serial
     }
 
     @Override
-    public Type getResultType() {
-        return resultType;
+    public Type[] getUsedTypes() {
+        return new Type[] {resultType};
     }
 
     @Override

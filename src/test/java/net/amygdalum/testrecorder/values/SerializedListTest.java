@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.values;
 
 import static java.util.Arrays.asList;
+import static java.util.Comparator.comparing;
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
@@ -12,6 +13,7 @@ import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,32 +28,48 @@ public class SerializedListTest {
 
 	@Test
 	public void testGetResultTypeRaw() throws Exception {
-		assertThat(new SerializedList(ArrayList.class).withResult(List.class).getResultType()).isEqualTo(List.class);
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		assertThat(value.getUsedTypes()).containsExactly(List.class);
 	}
 
 	@Test
 	public void testGetResultTypeParameterized() throws Exception {
-		assertThat(new SerializedList(arrayListOfString()).withResult(listOfString()).getResultType()).isEqualTo(parameterized(List.class, null, String.class));
+		SerializedList value = new SerializedList(arrayListOfString());
+		value.useAs(listOfString());
+		assertThat(value.getUsedTypes())
+			.usingElementComparator(comparing(Type::getTypeName))
+			.containsExactly(parameterized(List.class, null, String.class));
 	}
 
 	@Test
 	public void testGetResultTypeIndirectParameterized() throws Exception {
-		assertThat(new SerializedList(arrayListOfString()).withResult(arrayListOfString()).getResultType()).isEqualTo(parameterized(ArrayList.class, null, String.class));
+		SerializedList value = new SerializedList(arrayListOfString());
+		value.useAs(arrayListOfString());
+		assertThat(value.getUsedTypes())
+			.usingElementComparator(comparing(Type::getTypeName))
+			.containsExactly(parameterized(ArrayList.class, null, String.class));
 	}
 
 	@Test
 	public void testGetResultTypeBounded() throws Exception {
-		assertThat(new SerializedList(ArrayList.class).withResult(listOfBounded()).getResultType()).isInstanceOf(TypeVariable.class);
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(listOfBounded());
+		assertThat(value.getUsedTypes()).allMatch(type -> type instanceof TypeVariable);
 	}
 
 	@Test
 	public void testGetComponentTypeRaw() throws Exception {
-		assertThat(new SerializedList(ArrayList.class).withResult(listOfBounded()).getComponentType()).isEqualTo(Object.class);
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(listOfBounded());
+		assertThat(value.getComponentType()).isEqualTo(Object.class);
 	}
 
 	@Test
 	public void testGetComponentTypeParameterized() throws Exception {
-		assertThat(new SerializedList(arrayListOfString()).withResult(listOfString()).getComponentType()).isEqualTo(String.class);
+		SerializedList value = new SerializedList(arrayListOfString());
+		value.useAs(listOfString());
+		assertThat(value.getComponentType()).isEqualTo(String.class);
 	}
 
 	@Test
@@ -67,156 +85,177 @@ public class SerializedListTest {
 	@Test
 	public void testWithSerializedValueArray() throws Exception {
 		SerializedList result = new SerializedList(ArrayList.class)
-			.withResult(arrayListOfString())
 			.with(literal("a"), literal("b"));
+		result.useAs(arrayListOfString());
 
 		assertThat(result).containsExactly(literal("a"), literal("b"));
 	}
 
 	@Test
 	public void testGetComponentTypeBounded() throws Exception {
-		assertThat(new SerializedList(ArrayList.class).withResult(listOfBounded()).getComponentType()).isEqualTo(Object.class);
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(listOfBounded());
+		assertThat(value.getComponentType()).isEqualTo(Object.class);
 	}
 
 	@Test
 	public void testSize0() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
 
-		assertThat(list.size()).isEqualTo(0);
-		assertThat(list.referencedValues()).isEmpty();
+		assertThat(value.size()).isEqualTo(0);
+		assertThat(value.referencedValues()).isEmpty();
 	}
 
 	@Test
 	public void testSize1() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		list.add(literal("string"));
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		value.add(literal("string"));
 
-		assertThat(list.size()).isEqualTo(1);
-		assertThat(list.referencedValues()).hasSize(1);
+		assertThat(value.size()).isEqualTo(1);
+		assertThat(value.referencedValues()).hasSize(1);
 	}
 
 	@Test
 	public void testSize2() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		list.add(literal("string"));
-		list.add(literal("second"));
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		value.add(literal("string"));
+		value.add(literal("second"));
 
-		assertThat(list.size()).isEqualTo(2);
-		assertThat(list.referencedValues()).hasSize(2);
+		assertThat(value.size()).isEqualTo(2);
+		assertThat(value.referencedValues()).hasSize(2);
 	}
 
 	@Test
 	public void testIsEmpty0() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		assertThat(list.isEmpty()).isTrue();
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		assertThat(value.isEmpty()).isTrue();
 	}
 
 	@Test
 	public void testIsEmpty1() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		list.add(literal("string"));
-		assertThat(list.isEmpty()).isFalse();
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		value.add(literal("string"));
+		assertThat(value.isEmpty()).isFalse();
 	}
 
 	@Test
 	public void testContains0() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		assertThat(list.contains(literal("string"))).isFalse();
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		assertThat(value.contains(literal("string"))).isFalse();
 	}
 
 	@Test
 	public void testContains1() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		list.add(literal("string"));
-		assertThat(list.contains(literal("string"))).isTrue();
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		value.add(literal("string"));
+		assertThat(value.contains(literal("string"))).isTrue();
 	}
 
 	@Test
 	public void testIterator0() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		assertThat(list.iterator().hasNext()).isFalse();
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		assertThat(value.iterator().hasNext()).isFalse();
 	}
 
 	@Test
 	public void testIterator1() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		list.add(literal("string"));
-		assertThat(list.iterator().next()).isEqualTo(literal("string"));
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		value.add(literal("string"));
+		assertThat(value.iterator().next()).isEqualTo(literal("string"));
 	}
 
 	@Test
 	public void testToArray0() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		assertThat(list.toArray()).isEmpty();
-		assertThat(list.toArray(new SerializedValue[0])).isEmpty();
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		assertThat(value.toArray()).isEmpty();
+		assertThat(value.toArray(new SerializedValue[0])).isEmpty();
 	}
 
 	@Test
 	public void testToArray1() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		list.add(literal("string"));
-		assertThat(list.toArray()).containsExactly(literal("string"));
-		assertThat(list.toArray(new SerializedValue[0])).containsExactly(literal("string"));
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		value.add(literal("string"));
+		assertThat(value.toArray()).containsExactly(literal("string"));
+		assertThat(value.toArray(new SerializedValue[0])).containsExactly(literal("string"));
 	}
 
 	@Test
 	public void testRemoveObject0() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		assertThat(list.remove(literal("string"))).isFalse();
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		assertThat(value.remove(literal("string"))).isFalse();
 	}
 
 	@Test
 	public void testRemoveObject1() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		list.add(literal("string"));
-		assertThat(list.remove(literal("string"))).isTrue();
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		value.add(literal("string"));
+		assertThat(value.remove(literal("string"))).isTrue();
 	}
 
 	@Test
 	public void testRemoveInt0() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		assertThatThrownBy(() -> list.remove(0)).isInstanceOf(IndexOutOfBoundsException.class);
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		assertThatThrownBy(() -> value.remove(0)).isInstanceOf(IndexOutOfBoundsException.class);
 	}
 
 	@Test
 	public void testRemoveInt1() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		list.add(literal("string"));
-		assertThat(list.remove(0)).isEqualTo(literal("string"));
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		value.add(literal("string"));
+		assertThat(value.remove(0)).isEqualTo(literal("string"));
 	}
 
 	@Test
 	public void testContainsAll0() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		assertThat(list.containsAll(asList(literal("string")))).isFalse();
-		assertThat(list.containsAll(asList(literal("string"), literal("other")))).isFalse();
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		assertThat(value.containsAll(asList(literal("string")))).isFalse();
+		assertThat(value.containsAll(asList(literal("string"), literal("other")))).isFalse();
 	}
 
 	@Test
 	public void testContainsAll1() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		list.add(literal("string"));
-		assertThat(list.containsAll(asList(literal("string")))).isTrue();
-		assertThat(list.containsAll(asList(literal("string"), literal("other")))).isFalse();
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		value.add(literal("string"));
+		assertThat(value.containsAll(asList(literal("string")))).isTrue();
+		assertThat(value.containsAll(asList(literal("string"), literal("other")))).isFalse();
 	}
 
 	@Test
 	public void testAddAll() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
 
-		list.addAll(asList(literal("string"), literal("other")));
+		value.addAll(asList(literal("string"), literal("other")));
 
-		assertThat(list).containsExactly(literal("string"), literal("other"));
+		assertThat(value).containsExactly(literal("string"), literal("other"));
 	}
 
 	@Test
 	public void testAddAllAtPos() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
 
-		list.addAll(asList(literal("first"), literal("last")));
-		list.addAll(1, asList(literal("middle"), literal("other")));
+		value.addAll(asList(literal("first"), literal("last")));
+		value.addAll(1, asList(literal("middle"), literal("other")));
 
-		assertThat(list).containsExactly(
+		assertThat(value).containsExactly(
 			literal("first"),
 			literal("middle"),
 			literal("other"),
@@ -225,160 +264,174 @@ public class SerializedListTest {
 
 	@Test
 	public void testRemoveAll() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		list.addAll(asList(
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		value.addAll(asList(
 			literal("first"),
 			literal("middle"),
 			literal("other"),
 			literal("last")));
-		list.removeAll(asList(literal("middle"), literal("other")));
+		value.removeAll(asList(literal("middle"), literal("other")));
 
-		assertThat(list).containsExactly(
+		assertThat(value).containsExactly(
 			literal("first"),
 			literal("last"));
 	}
 
 	@Test
 	public void testRetainAll() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		list.addAll(asList(
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		value.addAll(asList(
 			literal("first"),
 			literal("middle"),
 			literal("other"),
 			literal("last")));
-		list.retainAll(asList(literal("middle"), literal("other")));
+		value.retainAll(asList(literal("middle"), literal("other")));
 
-		assertThat(list).containsExactly(
+		assertThat(value).containsExactly(
 			literal("middle"),
 			literal("other"));
 	}
 
 	@Test
 	public void testClear() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		list.addAll(asList(
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		value.addAll(asList(
 			literal("first"),
 			literal("middle"),
 			literal("other"),
 			literal("last")));
-		list.clear();
+		value.clear();
 
-		assertThat(list).isEmpty();
+		assertThat(value).isEmpty();
 	}
 
 	@Test
 	public void testGet() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		list.addAll(asList(
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		value.addAll(asList(
 			literal("first"),
 			literal("middle"),
 			literal("other"),
 			literal("last")));
 
-		assertThat(list.get(0)).isEqualTo(literal("first"));
-		assertThat(list.get(2)).isEqualTo(literal("other"));
+		assertThat(value.get(0)).isEqualTo(literal("first"));
+		assertThat(value.get(2)).isEqualTo(literal("other"));
 	}
 
 	@Test
 	public void testSet() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		list.addAll(asList(
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		value.addAll(asList(
 			literal("first"),
 			literal("middle"),
 			literal("other"),
 			literal("last")));
 
-		list.set(2, literal("changed"));
+		value.set(2, literal("changed"));
 
-		assertThat(list.get(0)).isEqualTo(literal("first"));
-		assertThat(list.get(2)).isEqualTo(literal("changed"));
+		assertThat(value.get(0)).isEqualTo(literal("first"));
+		assertThat(value.get(2)).isEqualTo(literal("changed"));
 	}
 
 	@Test
 	public void testAdd() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		list.addAll(asList(
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		value.addAll(asList(
 			literal("first"),
 			literal("middle"),
 			literal("other"),
 			literal("last")));
 
-		list.add(1, literal("changed"));
+		value.add(1, literal("changed"));
 
-		assertThat(list.get(0)).isEqualTo(literal("first"));
-		assertThat(list.get(1)).isEqualTo(literal("changed"));
-		assertThat(list.get(2)).isEqualTo(literal("middle"));
+		assertThat(value.get(0)).isEqualTo(literal("first"));
+		assertThat(value.get(1)).isEqualTo(literal("changed"));
+		assertThat(value.get(2)).isEqualTo(literal("middle"));
 	}
 
 	@Test
 	public void testIndexOf() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		list.addAll(asList(
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		value.addAll(asList(
 			literal("first"),
 			literal("middle"),
 			literal("middle"),
 			literal("last")));
 
-		assertThat(list.indexOf(literal("middle"))).isEqualTo(1);
+		assertThat(value.indexOf(literal("middle"))).isEqualTo(1);
 	}
 
 	@Test
 	public void testLastIndexOf() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		list.addAll(asList(
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		value.addAll(asList(
 			literal("first"),
 			literal("middle"),
 			literal("middle"),
 			literal("last")));
 
-		assertThat(list.lastIndexOf(literal("middle"))).isEqualTo(2);
+		assertThat(value.lastIndexOf(literal("middle"))).isEqualTo(2);
 	}
 
 	@Test
 	public void testListIterator0() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		assertThat(list.listIterator().hasNext()).isFalse();
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		assertThat(value.listIterator().hasNext()).isFalse();
 	}
 
 	@Test
 	public void testListIterator1() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		list.add(literal("string"));
-		assertThat(list.listIterator().next()).isEqualTo(literal("string"));
-		assertThat(list.listIterator(1).previous()).isEqualTo(literal("string"));
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		value.add(literal("string"));
+		assertThat(value.listIterator().next()).isEqualTo(literal("string"));
+		assertThat(value.listIterator(1).previous()).isEqualTo(literal("string"));
 	}
 
 	@Test
 	public void testSubList() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		list.addAll(asList(
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		value.addAll(asList(
 			literal("first"),
 			literal("middle"),
 			literal("other"),
 			literal("last")));
 
-		assertThat(list.subList(0, 2)).isEqualTo(asList(literal("first"), literal("middle")));
-		assertThat(list.subList(1, 3)).isEqualTo(asList(literal("middle"), literal("other")));
-		assertThat(list.subList(2, 4)).isEqualTo(asList(literal("other"), literal("last")));
+		assertThat(value.subList(0, 2)).isEqualTo(asList(literal("first"), literal("middle")));
+		assertThat(value.subList(1, 3)).isEqualTo(asList(literal("middle"), literal("other")));
+		assertThat(value.subList(2, 4)).isEqualTo(asList(literal("other"), literal("last")));
 	}
 
 	@Test
 	public void testToString0() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		assertThat(list.toString()).isEqualTo("[]");
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		assertThat(value.toString()).isEqualTo("[]");
 	}
 
 	@Test
 	public void testToString1() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		list.add(literal("string"));
-		assertThat(list.toString()).isEqualTo("[string]");
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		value.add(literal("string"));
+		assertThat(value.toString()).isEqualTo("[string]");
 	}
 
 	@Test
 	public void testAccept() throws Exception {
-		SerializedList list = new SerializedList(ArrayList.class).withResult(List.class);
-		assertThat(list.accept(new TestValueVisitor(), NULL)).isEqualTo("SerializedList");
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(List.class);
+		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("SerializedList");
 	}
 
 }

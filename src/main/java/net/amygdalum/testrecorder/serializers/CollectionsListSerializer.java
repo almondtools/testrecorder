@@ -8,6 +8,7 @@ import static net.amygdalum.testrecorder.util.Types.typeArgument;
 import static net.amygdalum.testrecorder.util.Types.visibleType;
 
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -18,65 +19,67 @@ import net.amygdalum.testrecorder.values.SerializedList;
 
 public class CollectionsListSerializer extends HiddenInnerClassSerializer<SerializedList> {
 
-    public CollectionsListSerializer(SerializerFacade facade) {
-        super(Collections.class, facade);
-    }
+	public CollectionsListSerializer(SerializerFacade facade) {
+		super(Collections.class, facade);
+	}
 
-    @Override
-    public List<Class<?>> getMatchingClasses() {
-        return innerClasses().stream()
-            .filter(startingWith("Unmodifiable", "Synchronized", "Checked", "Empty", "Singleton"))
-            .filter(clazz -> List.class.isAssignableFrom(clazz))
-            .collect(toList());
-    }
+	@Override
+	public List<Class<?>> getMatchingClasses() {
+		return innerClasses().stream()
+			.filter(startingWith("Unmodifiable", "Synchronized", "Checked", "Empty", "Singleton"))
+			.filter(clazz -> List.class.isAssignableFrom(clazz))
+			.collect(toList());
+	}
 
-    @Override
-    public SerializedList generate(Type resultType, Type type) {
-        return new SerializedList(type).withResult(resultType);
-    }
+	@Override
+	public SerializedList generate(Type resultType, Type type) {
+		SerializedList object = new SerializedList(type);
+		object.useAs(resultType);
+		return object;
+	}
 
-    @Override
-    public void populate(SerializedList serializedObject, Object object) {
-        Type componentType = computeComponentType(serializedObject, object);
+	@Override
+	public void populate(SerializedList serializedObject, Object object) {
+		Type componentType = computeComponentType(serializedObject, object);
 
-        for (Object element : (List<?>) object) {
-        	Type elementType = visibleType(element, componentType);
+		for (Object element : (List<?>) object) {
+			Type elementType = visibleType(element, componentType);
 
-            serializedObject.add(facade.serialize(elementType, element));
-        }
-        Type newType = parameterized(List.class, null, componentType);
-        serializedObject.setResultType(newType);
-    }
+			serializedObject.add(facade.serialize(elementType, element));
+		}
+		Type newType = parameterized(List.class, null, componentType);
+		serializedObject.useAs(newType);
+	}
 
-    private Type computeComponentType(SerializedList serializedObject, Object object) {
-        if (object.getClass().getSimpleName().contains("Checked")) {
-            return getTypeField(object);
-        }
-        Type resultType = serializedObject.getResultType();
+	private Type computeComponentType(SerializedList serializedObject, Object object) {
+		if (object.getClass().getSimpleName().contains("Checked")) {
+			return getTypeField(object);
+		}
+		Stream<Type> definedTypes = Arrays.stream(serializedObject.getUsedTypes())
+			.map(type -> typeArgument(type, 0).orElse(Object.class));
+		Stream<Type> elementTypes = ((List<?>) object).stream()
+			.filter(Objects::nonNull)
+			.map(element -> element.getClass());
+		Stream<Type> usedTypes = Stream.concat(definedTypes, elementTypes);
+		
+		return inferType(usedTypes.toArray(Type[]::new));
+	}
 
-		Stream<Type> elementTypes = Stream.concat(
-			Stream.of(typeArgument(resultType, 0).orElse(Object.class)),
-			((List<?>) object).stream()
-				.filter(Objects::nonNull)
-				.map(element -> element.getClass()));
-		return inferType(elementTypes.toArray(Type[]::new));
-    }
+	private Class<?> getTypeField(Object object) {
+		try {
+			return (Class<?>) Reflections.getValue("type", object);
+		} catch (ReflectiveOperationException e) {
+			return Object.class;
+		}
+	}
 
-    private Class<?> getTypeField(Object object) {
-        try {
-        	return (Class<?>) Reflections.getValue("type", object);
-        } catch (ReflectiveOperationException e) {
-            return Object.class;
-        }
-    }
+	public static class Factory implements SerializerFactory<SerializedList> {
 
-    public static class Factory implements SerializerFactory<SerializedList> {
+		@Override
+		public CollectionsListSerializer newSerializer(SerializerFacade facade) {
+			return new CollectionsListSerializer(facade);
+		}
 
-        @Override
-        public CollectionsListSerializer newSerializer(SerializerFacade facade) {
-            return new CollectionsListSerializer(facade);
-        }
-
-    }
+	}
 
 }

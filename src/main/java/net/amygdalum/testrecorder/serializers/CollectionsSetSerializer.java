@@ -8,6 +8,7 @@ import static net.amygdalum.testrecorder.util.Types.typeArgument;
 import static net.amygdalum.testrecorder.util.Types.visibleType;
 
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -33,7 +34,9 @@ public class CollectionsSetSerializer extends HiddenInnerClassSerializer<Seriali
 
 	@Override
 	public SerializedSet generate(Type resultType, Type type) {
-		return new SerializedSet(type).withResult(resultType);
+		SerializedSet object = new SerializedSet(type);
+		object.useAs(resultType);
+		return object;
 	}
 
 	@Override
@@ -46,22 +49,21 @@ public class CollectionsSetSerializer extends HiddenInnerClassSerializer<Seriali
 			serializedObject.add(facade.serialize(elementType, element));
 		}
 		Type newType = parameterized(Set.class, null, componentType);
-		serializedObject.setResultType(newType);
+		serializedObject.useAs(newType);
 	}
 
 	private Type computeComponentType(SerializedSet serializedObject, Object object) {
 		if (object.getClass().getSimpleName().contains("Checked")) {
 			return getTypeField(object);
 		}
-		Type resultType = serializedObject.getResultType();
-
-		Stream<Type> elementTypes = Stream.concat(
-			Stream.of(typeArgument(resultType, 0).orElse(Object.class)),
-			((Set<?>) object).stream()
-				.filter(Objects::nonNull)
-				.map(element -> element.getClass()));
-
-		return inferType(elementTypes.toArray(Type[]::new));
+		Stream<Type> definedTypes = Arrays.stream(serializedObject.getUsedTypes())
+			.map(type -> typeArgument(type, 0).orElse(Object.class));
+		Stream<Type> elementTypes = ((Set<?>) object).stream()
+			.filter(Objects::nonNull)
+			.map(element -> element.getClass());
+		Stream<Type> usedTypes = Stream.concat(definedTypes, elementTypes);
+		
+		return inferType(usedTypes.toArray(Type[]::new));
 	}
 
 	private Class<?> getTypeField(Object object) {

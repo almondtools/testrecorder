@@ -42,7 +42,7 @@ public class DefaultSetSerializerTest {
 		
 		SerializedSet value = serializer.generate(hashSetOfString, HashSet.class);
 		
-		assertThat(value.getResultType()).isEqualTo(hashSetOfString);
+		assertThat(value.getUsedTypes()).containsExactly(hashSetOfString);
 		assertThat(value.getType()).isEqualTo(HashSet.class);
 		assertThat(value.getComponentType()).isEqualTo(String.class);
 	}

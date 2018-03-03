@@ -30,7 +30,7 @@ public class EnumSerializerTest {
 	public void testGenerate() throws Exception {
 		SerializedEnum value = serializer.generate(MyInterface.class, MyEnum.class);
 
-		assertThat(value.getResultType()).isEqualTo(MyInterface.class);
+		assertThat(value.getUsedTypes()).containsExactly(MyInterface.class);
 		assertThat(value.getType()).isEqualTo(MyEnum.class);
 	}
 
@@ -38,7 +38,7 @@ public class EnumSerializerTest {
 	public void testGenerateWithExtendedEnum() throws Exception {
 		SerializedEnum value = serializer.generate(MyInterface.class, ExtendedEnum.VALUE1.getClass());
 
-		assertThat(value.getResultType()).isEqualTo(MyInterface.class);
+		assertThat(value.getUsedTypes()).containsExactly(MyInterface.class);
 		assertThat(value.getType()).isEqualTo(ExtendedEnum.class);
 	}
 

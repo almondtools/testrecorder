@@ -19,11 +19,11 @@ public class SerializedLiteralTest {
 	}
 
 	@Test
-	public void testGetResultType() throws Exception {
-		SerializedLiteral value = literal("string");
-
-		assertThat(value.getResultType()).isEqualTo(String.class);
-	}
+		public void testGetUsedTypes() throws Exception {
+			SerializedLiteral value = literal("string");
+	
+			assertThat(value.getUsedTypes()).containsExactly(String.class);
+		}
 
 	@Test
 	public void testGetValue() throws Exception {

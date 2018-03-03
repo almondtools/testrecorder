@@ -12,7 +12,7 @@ import java.util.TreeSet;
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.values.SerializedSet;
 
-public class DefaultSetSerializer implements Serializer<SerializedSet>{
+public class DefaultSetSerializer implements Serializer<SerializedSet> {
 
 	private SerializerFacade facade;
 
@@ -27,7 +27,9 @@ public class DefaultSetSerializer implements Serializer<SerializedSet>{
 
 	@Override
 	public SerializedSet generate(Type resultType, Type type) {
-		return new SerializedSet(type).withResult(resultType);
+		SerializedSet object = new SerializedSet(type);
+		object.useAs(resultType);
+		return object;
 	}
 
 	@Override

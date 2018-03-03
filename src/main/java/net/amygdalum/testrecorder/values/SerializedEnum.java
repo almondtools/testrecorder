@@ -14,27 +14,22 @@ import net.amygdalum.testrecorder.types.SerializedValue;
  * Serializing to SerializedEnum is restricted to enums. It is recommended not to use another enum implementation. 
  */
 public class SerializedEnum extends AbstractSerializedReferenceType implements SerializedImmutableType {
-	
+
 	private String name;
 
 	public SerializedEnum(Type type) {
 		super(type);
 	}
 
-	public SerializedEnum withResult(Type resultType) {
-		setResultType(resultType);
-		return this;
-	}
-	
 	public SerializedEnum withName(String name) {
 		this.name = name;
 		return this;
 	}
-	
+
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
 	public String getName() {
 		return name;
 	}

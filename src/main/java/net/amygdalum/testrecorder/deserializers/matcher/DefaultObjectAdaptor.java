@@ -31,7 +31,8 @@ public class DefaultObjectAdaptor extends DefaultMatcherGenerator<SerializedObje
 	@Override
 	public Computation tryDeserialize(SerializedObject value, MatcherGenerators generator, DeserializerContext context) {
 		TypeManager types = context.getTypes();
-		types.registerTypes(value.getResultType(), value.getType(), GenericMatcher.class);
+		types.registerTypes(value.getType(), GenericMatcher.class);
+		types.registerTypes(value.getUsedTypes());
 
 		List<Computation> fields = ensureUniqueNames(value.getFields()).stream()
 			.sorted()
@@ -47,7 +48,8 @@ public class DefaultObjectAdaptor extends DefaultMatcherGenerator<SerializedObje
 			.map(field -> field.getValue())
 			.collect(toList());
 
-		Type matchedType = types.isHidden(value.getResultType()) ? wildcard() : value.getResultType();
+		Type usedType = types.mostSpecialOf(value.getUsedTypes()).orElse(Object.class);
+		Type matchedType = types.isHidden(usedType) ? wildcard() : usedType;
 		Type resultType = parameterized(Matcher.class, null, matchedType);
 
 		String matcherExpression = with(types).createMatcherExpression(value, fieldAssignments);
@@ -68,17 +70,17 @@ public class DefaultObjectAdaptor extends DefaultMatcherGenerator<SerializedObje
 		}
 
 		public String createMatcherExpression(SerializedObject value, List<String> fieldAssignments) {
-			Type resultType = value.getResultType();
-			if (baseType(resultType) == Matcher.class) {
-				resultType = typeArgument(resultType, 0).orElse(wildcard());
-			}
 			Type type = value.getType();
-			if (resultType.equals(type)) {
+			Type usedType = types.mostSpecialOf(value.getUsedTypes()).orElse(type);
+			if (baseType(usedType) == Matcher.class) {
+				usedType = typeArgument(usedType, 0).orElse(wildcard());
+			}
+			if (usedType.equals(type)) {
 				String matcherRawType = types.getRawClass(type);
 				return genericObjectMatcher(matcherRawType, fieldAssignments);
 			} else {
 				String matcherRawType = types.getRawClass(type);
-				String matcherToType = types.getRawClass(resultType);
+				String matcherToType = types.getRawClass(usedType);
 				return genericObjectMatcher(matcherRawType, matcherToType, fieldAssignments);
 			}
 		}

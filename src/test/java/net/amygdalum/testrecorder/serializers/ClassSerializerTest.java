@@ -30,7 +30,7 @@ public class ClassSerializerTest {
 	public void testGenerate() throws Exception {
 		SerializedImmutable<Class<?>> value = serializer.generate(Class.class, Class.class);
 
-		assertThat(value.getResultType()).isEqualTo(Class.class);
+		assertThat(value.getUsedTypes()).containsExactly(Class.class);
 		assertThat(value.getType()).isEqualTo(Class.class);
 	}
 

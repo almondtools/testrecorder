@@ -43,16 +43,15 @@ public abstract class DefaultGenericCollectionAdaptor<T extends SerializedRefere
 
     @Override
     public Computation tryDeserialize(T value, SetupGenerators generator, DeserializerContext context) {
+        TypeManager types = context.getTypes();
 
         Type type = value.getType();
-        Type resultType = value.getResultType();
+        Type usedType = types.mostSpecialOf(value.getUsedTypes()).orElse(Object.class);
         Type componentType = componentType(value);
 
         Class<?> matchingType = matchType(type).get();
 
-        TypeManager types = context.getTypes();
-
-        Type effectiveResultType = types.bestType(resultType, matchingType);
+        Type effectiveResultType = types.bestType(usedType, matchingType);
         Type temporaryType = types.bestType(type, effectiveResultType, matchingType);
         Type componentResultType = types.isHidden(componentType) ? typeArgument(temporaryType, 0).orElse(Object.class) : componentType;
 

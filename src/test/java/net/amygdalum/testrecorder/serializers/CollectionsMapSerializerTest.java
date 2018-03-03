@@ -54,7 +54,7 @@ public class CollectionsMapSerializerTest {
 
 		SerializedMap value = serializer.generate(setOfString, unmodifiableMapOfString);
 
-		assertThat(value.getResultType()).isEqualTo(setOfString);
+		assertThat(value.getUsedTypes()).containsExactly(setOfString);
 		assertThat(value.getType()).isEqualTo(unmodifiableMapOfString);
 		assertThat(value.getMapKeyType()).isEqualTo(String.class);
 		assertThat(value.getMapValueType()).isEqualTo(Integer.class);

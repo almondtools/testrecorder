@@ -42,7 +42,7 @@ public class DefaultListSerializerTest {
 
 		SerializedList value = serializer.generate(linkedListOfString, LinkedList.class);
 
-		assertThat(value.getResultType()).isEqualTo(linkedListOfString);
+		assertThat(value.getUsedTypes()).containsExactly(linkedListOfString);
 		assertThat(value.getType()).isEqualTo(LinkedList.class);
 		assertThat(value.getComponentType()).isEqualTo(String.class);
 	}

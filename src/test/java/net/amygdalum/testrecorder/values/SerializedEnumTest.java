@@ -13,7 +13,7 @@ public class SerializedEnumTest {
 	public void testGetType() throws Exception {
 		SerializedEnum value = new SerializedEnum(MyEnum.class).withName("VALUE1");
 
-		assertThat(value.getResultType()).isEqualTo(MyEnum.class);
+		assertThat(value.getUsedTypes()).containsExactly(MyEnum.class);
 		assertThat(value.getName()).isEqualTo("VALUE1");
 	}
 

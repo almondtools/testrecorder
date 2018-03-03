@@ -41,8 +41,9 @@ public class DefaultEnumAdaptor extends DefaultMatcherGenerator<SerializedEnum> 
 		Type type = value.getType();
         types.registerType(type);
 
+		Type usedType = types.mostSpecialOf(value.getUsedTypes()).orElse(type);
 		if (types.isHidden(type)) {
-			if (!Enum.class.isAssignableFrom(baseType(value.getResultType()))) {
+			if (!Enum.class.isAssignableFrom(baseType(usedType))) {
 				types.staticImport(WideningMatcher.class, "widening");
 			}
 			types.staticImport(EnumMatcher.class, "matchingEnum");
@@ -52,7 +53,7 @@ public class DefaultEnumAdaptor extends DefaultMatcherGenerator<SerializedEnum> 
 
 		if (types.isHidden(type)) {
 			String enumMatcher = enumMatcher(asLiteral(value.getName()));
-			if (!Enum.class.isAssignableFrom(baseType(value.getResultType()))) {
+			if (!Enum.class.isAssignableFrom(baseType(usedType))) {
 				enumMatcher = widening(enumMatcher); 
 			}
 			return expression(enumMatcher, parameterized(Matcher.class, null, wildcardExtends(Enum.class)), emptyList());

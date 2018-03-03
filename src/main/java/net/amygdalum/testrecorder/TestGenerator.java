@@ -22,6 +22,7 @@ import static net.amygdalum.testrecorder.deserializers.Templates.returnStatement
 import static net.amygdalum.testrecorder.util.Literals.asLiteral;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.isPrimitive;
+import static net.amygdalum.testrecorder.util.Types.mostSpecialOf;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -440,7 +441,7 @@ public class TestGenerator implements SnapshotConsumer {
 		}
 
 		private Computation prepareArgument(SerializedValue argValue, Annotation[] annotations) {
-			Type type = argValue.getResultType(); 
+			Type type = mostSpecialOf(argValue.getUsedTypes()).orElse(Object.class); 
 			Computation computation = argValue.accept(setup, context.newWithHints(annotations));
 			if (computation.isStored()) {
 				return computation;

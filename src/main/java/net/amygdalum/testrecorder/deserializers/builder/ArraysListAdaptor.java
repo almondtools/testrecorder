@@ -74,7 +74,7 @@ public class ArraysListAdaptor implements SetupGenerator<SerializedList> {
             String asListStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod("asList", resultArray));
             statements.add(asListStatement);
 
-            return variable(local.getName(), value.getResultType(), statements);
+            return variable(local.getName(), resultType, statements);
         });
     }
 

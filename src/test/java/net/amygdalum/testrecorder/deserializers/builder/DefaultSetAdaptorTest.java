@@ -54,7 +54,8 @@ public class DefaultSetAdaptorTest {
 
 	@Test
 	public void testTryDeserialize() throws Exception {
-		SerializedSet value = new SerializedSet(parameterized(LinkedHashSet.class, null, Integer.class)).withResult(parameterized(Set.class, null, Integer.class));
+		SerializedSet value = new SerializedSet(parameterized(LinkedHashSet.class, null, Integer.class));
+		value.useAs(parameterized(Set.class, null, Integer.class));
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
@@ -73,7 +74,8 @@ public class DefaultSetAdaptorTest {
 
 	@Test
 	public void testTryDeserializeSameResultTypes() throws Exception {
-		SerializedSet value = new SerializedSet(parameterized(LinkedHashSet.class, null, Integer.class)).withResult(parameterized(LinkedHashSet.class, null, Integer.class));
+		SerializedSet value = new SerializedSet(parameterized(LinkedHashSet.class, null, Integer.class));
+		value.useAs(parameterized(LinkedHashSet.class, null, Integer.class));
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
@@ -91,8 +93,8 @@ public class DefaultSetAdaptorTest {
 
 	@Test
 	public void testTryDeserializeNonListResult() throws Exception {
-		SerializedSet value = new SerializedSet(parameterized(PublicSet.class, null, Integer.class))
-			.withResult(OrthogonalInterface.class);
+		SerializedSet value = new SerializedSet(parameterized(PublicSet.class, null, Integer.class));
+		value.useAs(OrthogonalInterface.class);
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
@@ -111,8 +113,8 @@ public class DefaultSetAdaptorTest {
 
 	@Test
 	public void testTryDeserializeNeedingAdaptation() throws Exception {
-		SerializedSet value = new SerializedSet(parameterized(classOfHiddenSet(), null, Integer.class))
-			.withResult(OrthogonalInterface.class);
+		SerializedSet value = new SerializedSet(parameterized(classOfHiddenSet(), null, Integer.class));
+		value.useAs(OrthogonalInterface.class);
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
@@ -131,7 +133,8 @@ public class DefaultSetAdaptorTest {
 
 	@Test
 	public void testTryDeserializeNeedingHiddenAdaptation() throws Exception {
-		SerializedSet value = new SerializedSet(parameterized(classOfHiddenSet(), null, Integer.class)).withResult(parameterized(LinkedHashSet.class, null, Integer.class));
+		SerializedSet value = new SerializedSet(parameterized(classOfHiddenSet(), null, Integer.class));
+		value.useAs(parameterized(LinkedHashSet.class, null, Integer.class));
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
@@ -150,7 +153,8 @@ public class DefaultSetAdaptorTest {
 
 	@Test
 	public void testTryDeserializeForwarded() throws Exception {
-		SerializedSet value = new SerializedSet(parameterized(LinkedHashSet.class, null, Integer.class)).withResult(parameterized(Set.class, null, Integer.class));
+		SerializedSet value = new SerializedSet(parameterized(LinkedHashSet.class, null, Integer.class));
+		value.useAs(parameterized(Set.class, null, Integer.class));
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));

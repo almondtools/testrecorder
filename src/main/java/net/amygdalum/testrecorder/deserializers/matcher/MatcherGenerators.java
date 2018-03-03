@@ -48,10 +48,12 @@ public class MatcherGenerators implements Deserializer<Computation> {
 	}
 
 	public Computation simpleMatcher(SerializedValue element, DeserializerContext context) {
+		TypeManager types = context.getTypes();
+		Type usedType = types.mostSpecialOf(element.getUsedTypes()).orElse(Object.class);
 		if (element instanceof SerializedNull) {
-			return expression("null", element.getResultType());
+			return expression("null", usedType);
 		} else if (element instanceof SerializedLiteral) {
-			return expression(asLiteral(((SerializedLiteral) element).getValue()), element.getResultType());
+			return expression(asLiteral(((SerializedLiteral) element).getValue()), usedType);
 		} else {
 			return element.accept(this, context);
 		}
@@ -84,15 +86,16 @@ public class MatcherGenerators implements Deserializer<Computation> {
 	@Override
 	public Computation visitReferenceType(SerializedReferenceType value, DeserializerContext context) {
 		TypeManager types = context.getTypes();
+		Type usedType = types.mostSpecialOf(value.getUsedTypes()).orElse(Object.class);
 		if (context.getHint(SkipChecks.class).isPresent()) {
 			return null;
 		} else if (context.isComputed(value)) {
 			types.staticImport(GenericMatcher.class, "recursive");
-			Type resultType = value.getResultType().equals(value.getType()) ? parameterized(Matcher.class, null, value.getResultType()) : parameterized(Matcher.class, null, wildcard());
+			Type resultType = usedType.equals(value.getType()) ? parameterized(Matcher.class, null, usedType) : parameterized(Matcher.class, null, wildcard());
 			if (!types.isHidden(value.getType())) {
 				return expression(recursiveMatcher(types.getRawClass(value.getType())), resultType);
-			} else if (!types.isHidden(value.getResultType())) {
-				return expression(recursiveMatcher(types.getRawClass(value.getResultType())), resultType);
+			} else if (!types.isHidden(usedType)) {
+				return expression(recursiveMatcher(types.getRawClass(usedType)), resultType);
 			} else {
 				return expression(recursiveMatcher(types.getRawClass(Object.class)), parameterized(Matcher.class, null, wildcard()));
 			}

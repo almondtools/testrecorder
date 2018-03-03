@@ -26,7 +26,7 @@ public class DefaultMapAdaptorTest {
 		adaptor = new DefaultMapAdaptor();
 		context = new DefaultDeserializerContext();
 	}
-	
+
 	@Test
 	public void testParentNull() throws Exception {
 		assertThat(adaptor.parent()).isNull();
@@ -35,17 +35,19 @@ public class DefaultMapAdaptorTest {
 	@Test
 	public void testMatchesAnyArray() throws Exception {
 		assertThat(adaptor.matches(Object.class)).isTrue();
-		assertThat(adaptor.matches(new Object(){}.getClass())).isTrue();
+		assertThat(adaptor.matches(new Object() {
+		}.getClass())).isTrue();
 	}
 
 	@Test
 	public void testTryDeserializeMap() throws Exception {
-		SerializedMap value = new SerializedMap(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class)).withResult(parameterized(Map.class, null, Integer.class, Integer.class));
+		SerializedMap value = new SerializedMap(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class));
+		value.useAs(parameterized(Map.class, null, Integer.class, Integer.class));
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
 		MatcherGenerators generator = new MatcherGenerators();
 		Computation result = adaptor.tryDeserialize(value, generator, context);
-		
+
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("containsEntries(Integer.class, Integer.class).entry(8, 15).entry(47, 11)");
 	}
@@ -54,12 +56,11 @@ public class DefaultMapAdaptorTest {
 	public void testTryDeserializeEmptyMap() throws Exception {
 		SerializedMap value = new SerializedMap(BigInteger[].class);
 		MatcherGenerators generator = new MatcherGenerators();
-		
+
 		Computation result = adaptor.tryDeserialize(value, generator, context);
-		
+
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("noEntries(Object.class, Object.class)");
 	}
-
 
 }

@@ -166,7 +166,8 @@ public class CollectionsListAdaptorTest {
 	}
 
 	private SerializedList listOf(String className, int... elements) throws ClassNotFoundException {
-		SerializedList value = new SerializedList(Class.forName(className)).withResult(parameterized(List.class, null, Integer.class));
+		SerializedList value = new SerializedList(Class.forName(className));
+		value.useAs(parameterized(List.class, null, Integer.class));
 		for (int element : elements) {
 			value.add(literal(element));
 		}
@@ -174,7 +175,8 @@ public class CollectionsListAdaptorTest {
 	}
 
 	private SerializedList listOfRaw(String className, int... elements) throws ClassNotFoundException {
-		SerializedList value = new SerializedList(Class.forName(className)).withResult(List.class);
+		SerializedList value = new SerializedList(Class.forName(className));
+		value.useAs(List.class);
 		for (int element : elements) {
 			value.add(literal(element));
 		}
@@ -182,7 +184,8 @@ public class CollectionsListAdaptorTest {
 	}
 
 	private SerializedList listOfWildcard(String className, int... elements) throws ClassNotFoundException {
-		SerializedList value = new SerializedList(Class.forName(className)).withResult(parameterized(List.class, null, wildcard()));
+		SerializedList value = new SerializedList(Class.forName(className));
+		value.useAs(parameterized(List.class, null, wildcard()));
 		for (int element : elements) {
 			value.add(literal(element));
 		}

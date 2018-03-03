@@ -42,7 +42,7 @@ public class ArraysListSerializerTest {
 
 		SerializedList value = serializer.generate(listOfString, arrayListOfString);
 
-		assertThat(value.getResultType()).isEqualTo(listOfString);
+		assertThat(value.getUsedTypes()).containsExactly(listOfString);
 		assertThat(value.getType()).isEqualTo(arrayListOfString);
 		assertThat(value.getComponentType()).isEqualTo(String.class);
 	}

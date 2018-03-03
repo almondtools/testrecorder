@@ -31,7 +31,7 @@ public class DefaultClassAdaptor extends DefaultSetupGenerator<SerializedImmutab
 
 		Class<?> clazz = value.getValue();
 
-		return expression(types.getRawClass(clazz), value.getResultType());
+		return expression(types.getRawClass(clazz), types.mostSpecialOf(value.getUsedTypes()).orElse(Class.class));
 	}
 
 }

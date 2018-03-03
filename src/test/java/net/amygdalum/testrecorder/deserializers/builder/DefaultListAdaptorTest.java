@@ -52,7 +52,8 @@ public class DefaultListAdaptorTest {
 
 	@Test
 	public void testTryDeserialize() throws Exception {
-		SerializedList value = new SerializedList(parameterized(ArrayList.class, null, Integer.class)).withResult(parameterized(List.class, null, Integer.class));
+		SerializedList value = new SerializedList(parameterized(ArrayList.class, null, Integer.class));
+		value.useAs(parameterized(List.class, null, Integer.class));
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
@@ -71,7 +72,8 @@ public class DefaultListAdaptorTest {
 
 	@Test
 	public void testTryDeserializeSameResultTypes() throws Exception {
-		SerializedList value = new SerializedList(parameterized(ArrayList.class, null, Integer.class)).withResult(parameterized(ArrayList.class, null, Integer.class));
+		SerializedList value = new SerializedList(parameterized(ArrayList.class, null, Integer.class));
+		value.useAs(parameterized(ArrayList.class, null, Integer.class));
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
@@ -89,8 +91,8 @@ public class DefaultListAdaptorTest {
 
 	@Test
 	public void testTryDeserializeNonListResult() throws Exception {
-		SerializedList value = new SerializedList(parameterized(PublicList.class, null, Integer.class))
-			.withResult(OrthogonalInterface.class);
+		SerializedList value = new SerializedList(parameterized(PublicList.class, null, Integer.class));
+		value.useAs(OrthogonalInterface.class);
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
@@ -109,8 +111,8 @@ public class DefaultListAdaptorTest {
 
 	@Test
 	public void testTryDeserializeNeedingAdaptation() throws Exception {
-		SerializedList value = new SerializedList(parameterized(classOfHiddenList(), null, Integer.class))
-			.withResult(OrthogonalInterface.class);
+		SerializedList value = new SerializedList(parameterized(classOfHiddenList(), null, Integer.class));
+		value.useAs(OrthogonalInterface.class);
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
@@ -129,7 +131,8 @@ public class DefaultListAdaptorTest {
 
 	@Test
 	public void testTryDeserializeHiddenType() throws Exception {
-		SerializedList value = new SerializedList(parameterized(Hidden.classOfHiddenList(), null, Integer.class)).withResult(parameterized(ArrayList.class, null, Integer.class));
+		SerializedList value = new SerializedList(parameterized(Hidden.classOfHiddenList(), null, Integer.class));
+		value.useAs(parameterized(ArrayList.class, null, Integer.class));
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
@@ -148,13 +151,14 @@ public class DefaultListAdaptorTest {
 
 	@Test
 	public void testTryDeserializeForwarded() throws Exception {
-		SerializedList value = new SerializedList(parameterized(ArrayList.class, null, Integer.class)).withResult(parameterized(List.class, null, Integer.class));
+		SerializedList value = new SerializedList(parameterized(ArrayList.class, null, Integer.class));
+		value.useAs(parameterized(List.class, null, Integer.class));
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
 		SetupGenerators generator = new SetupGenerators();
 
-		Computation result = adaptor.tryDeserialize(value, generator, new DefaultDeserializerContext()  {
+		Computation result = adaptor.tryDeserialize(value, generator, new DefaultDeserializerContext() {
 			@Override
 			public Computation forVariable(SerializedValue value, Type type, LocalVariableDefinition computation) {
 				LocalVariable local = new LocalVariable("forwarded");

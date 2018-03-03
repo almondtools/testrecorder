@@ -46,7 +46,7 @@ public interface DeserializerContext {
 
 	String newLocal(String name);
 
-	LocalVariable localVariable(SerializedValue value, Type type, Type resultType);
+	LocalVariable localVariable(SerializedValue value, Type type);
 
 	void resetVariable(SerializedValue value);
 

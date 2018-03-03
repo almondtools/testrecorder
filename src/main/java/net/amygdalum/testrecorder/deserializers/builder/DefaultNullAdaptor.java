@@ -3,6 +3,7 @@ package net.amygdalum.testrecorder.deserializers.builder;
 import static net.amygdalum.testrecorder.deserializers.Computation.expression;
 
 import net.amygdalum.testrecorder.deserializers.Computation;
+import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedNull;
 
@@ -15,7 +16,9 @@ public class DefaultNullAdaptor extends DefaultSetupGenerator<SerializedNull> im
 
 	@Override
 	public Computation tryDeserialize(SerializedNull value, SetupGenerators generator, DeserializerContext context) {
-		return expression("null", value.getResultType());
+		TypeManager types = context.getTypes();
+		
+		return expression("null", types.mostSpecialOf(value.getUsedTypes()).orElse(Object.class));
 	}
 
 }

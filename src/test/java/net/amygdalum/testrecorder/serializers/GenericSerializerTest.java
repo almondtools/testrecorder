@@ -43,7 +43,7 @@ public class GenericSerializerTest {
 	public void testGenerate() throws Exception {
 		SerializedObject value = (SerializedObject) serializer.generate(GenericObject.class, GenericObject.class);
 
-		assertThat(value.getResultType()).isEqualTo(GenericObject.class);
+		assertThat(value.getUsedTypes()).containsExactly(GenericObject.class);
 		assertThat(value.getType()).isEqualTo(GenericObject.class);
 	}
 

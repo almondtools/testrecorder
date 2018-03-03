@@ -8,6 +8,7 @@ import static net.amygdalum.testrecorder.util.Types.typeArgument;
 import static net.amygdalum.testrecorder.util.Types.visibleType;
 
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,9 @@ public class CollectionsMapSerializer extends HiddenInnerClassSerializer<Seriali
 
 	@Override
 	public SerializedMap generate(Type resultType, Type type) {
-		return new SerializedMap(type).withResult(resultType);
+		SerializedMap object = new SerializedMap(type);
+		object.useAs(resultType);
+		return object;
 	}
 
 	@Override
@@ -43,31 +46,32 @@ public class CollectionsMapSerializer extends HiddenInnerClassSerializer<Seriali
 		for (Map.Entry<?, ?> element : ((Map<?, ?>) object).entrySet()) {
 			Object key = element.getKey();
 			Object value = element.getValue();
-			Type keyType = visibleType(key,  componentTypes[0]); 
-			Type valueType = visibleType(value,  componentTypes[1]);
+			Type keyType = visibleType(key, componentTypes[0]);
+			Type valueType = visibleType(value, componentTypes[1]);
 			serializedObject.put(facade.serialize(keyType, key), facade.serialize(valueType, value));
 		}
 		Type newType = parameterized(Map.class, null, componentTypes);
-		serializedObject.setResultType(newType);
+		serializedObject.useAs(newType);
 	}
 
 	private Type[] computeComponentType(SerializedMap serializedObject, Object object) {
 		if (object.getClass().getSimpleName().contains("Checked")) {
 			return new Type[] { getKeyTypeField(object), getValueTypeField(object) };
 		}
-		Type resultType = serializedObject.getResultType();
+		Stream<Type> keyDefinedTypes = Arrays.stream(serializedObject.getUsedTypes())
+			.map(type -> typeArgument(type, 0).orElse(Object.class));
+		Stream<Type> keyElementTypes = ((Map<?, ?>) object).keySet().stream()
+			.filter(Objects::nonNull)
+			.map(element -> element.getClass());
+		Stream<Type> keyTypes = Stream.concat(keyDefinedTypes, keyElementTypes);
 
-		Stream<Type> keyTypes = Stream.concat(
-			Stream.of(typeArgument(resultType, 0).orElse(Object.class)),
-			((Map<?, ?>) object).keySet().stream()
-				.filter(Objects::nonNull)
-				.map(element -> element.getClass()));
+		Stream<Type> valueDefinedTypes = Arrays.stream(serializedObject.getUsedTypes())
+			.map(type -> typeArgument(type, 1).orElse(Object.class));
+		Stream<Type> valueElementTypes = ((Map<?, ?>) object).values().stream()
+			.filter(Objects::nonNull)
+			.map(element -> element.getClass());
+		Stream<Type> valueTypes = Stream.concat(valueDefinedTypes, valueElementTypes);
 
-		Stream<Type> valueTypes = Stream.<Type> concat(
-			Stream.of(typeArgument(resultType, 1).orElse(Object.class)),
-			((Map<?, ?>) object).values().stream()
-				.filter(Objects::nonNull)
-				.map(element -> element.getClass()));
 		return new Type[] { inferType(keyTypes.toArray(Type[]::new)), inferType(valueTypes.toArray(Type[]::new)) };
 	}
 

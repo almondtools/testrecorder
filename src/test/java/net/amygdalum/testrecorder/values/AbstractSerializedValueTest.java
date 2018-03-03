@@ -18,7 +18,7 @@ public class AbstractSerializedValueTest {
 		ASerializedValue value = new ASerializedValue(String.class);
 
 		assertThat(value.getType()).isSameAs(String.class);
-		assertThat(value.getResultType()).isSameAs(String.class);
+		assertThat(value.getUsedTypes()).containsExactly(String.class);
 	}
 
 	@Test
@@ -27,7 +27,7 @@ public class AbstractSerializedValueTest {
 		value.setType(Object.class);
 
 		assertThat(value.getType()).isSameAs(Object.class);
-		assertThat(value.getResultType()).isSameAs(Object.class);
+		assertThat(value.getUsedTypes()).containsExactly(Object.class);
 	}
 
 	@Test

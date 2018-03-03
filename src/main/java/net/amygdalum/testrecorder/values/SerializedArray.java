@@ -26,11 +26,6 @@ public class SerializedArray extends AbstractSerializedReferenceType implements 
 		this.array = new ArrayList<>();
 	}
 
-	public SerializedArray withResult(Type resultType) {
-		setResultType(resultType);
-		return this;
-	}
-	
 	public SerializedArray with(Collection<SerializedValue> values) {
 		array.addAll(values);
 		return this;
@@ -55,7 +50,7 @@ public class SerializedArray extends AbstractSerializedReferenceType implements 
 	public List<SerializedValue> getArrayAsList() {
 		return array;
 	}
-	
+
 	@Override
 	public List<SerializedValue> referencedValues() {
 		return new ArrayList<>(array);
@@ -65,7 +60,7 @@ public class SerializedArray extends AbstractSerializedReferenceType implements 
 	public <T> T accept(Deserializer<T> visitor, DeserializerContext context) {
 		return visitor.visitReferenceType(this, context);
 	}
-	
+
 	public void add(SerializedValue value) {
 		array.add(value);
 	}
@@ -74,5 +69,5 @@ public class SerializedArray extends AbstractSerializedReferenceType implements 
 	public String toString() {
 		return ValuePrinter.print(this);
 	}
-	
+
 }

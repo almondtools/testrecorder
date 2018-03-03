@@ -22,7 +22,7 @@ public class SerializedNullTest {
 	public void testGetResultType() throws Exception {
 		SerializedNull value = nullInstance(String.class);
 
-		assertThat(value.getResultType()).isEqualTo(String.class);
+		assertThat(value.getUsedTypes()).containsExactly(String.class);
 	}
 
 	@Test

@@ -38,7 +38,8 @@ public class ContextSnapshotTest {
 	@Test
 	public void testGetThisType() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
-		SerializedList setupThis = new SerializedList(ArrayList.class).withResult(List.class);
+		SerializedList setupThis = new SerializedList(ArrayList.class);
+		setupThis.useAs(List.class);
 		setupThis.add(literal("setup"));
 
 		snapshot.setSetupThis(setupThis);
@@ -49,7 +50,8 @@ public class ContextSnapshotTest {
 	@Test
 	public void testSetGetSetupThis() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
-		SerializedList setupThis = new SerializedList(ArrayList.class).withResult(List.class);
+		SerializedList setupThis = new SerializedList(ArrayList.class);
+		setupThis.useAs(List.class);
 		setupThis.add(literal("setup"));
 
 		snapshot.setSetupThis(setupThis);
@@ -60,7 +62,8 @@ public class ContextSnapshotTest {
 	@Test
 	public void testSetGetExpectThis() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
-		SerializedList expectedThis = new SerializedList(ArrayList.class).withResult(List.class);
+		SerializedList expectedThis = new SerializedList(ArrayList.class);
+		expectedThis.useAs(List.class);
 		expectedThis.add(literal("expected"));
 
 		snapshot.setExpectThis(expectedThis);

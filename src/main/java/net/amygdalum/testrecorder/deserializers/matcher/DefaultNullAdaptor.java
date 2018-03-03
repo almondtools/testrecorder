@@ -6,6 +6,9 @@ import static net.amygdalum.testrecorder.deserializers.Templates.nullMatcher;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
 
+import java.lang.reflect.Type;
+import java.util.Optional;
+
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
@@ -25,14 +28,17 @@ public class DefaultNullAdaptor extends DefaultMatcherGenerator<SerializedNull> 
 	public Computation tryDeserialize(SerializedNull value, MatcherGenerators generator, DeserializerContext context) {
 		TypeManager types = context.getTypes();
 		types.registerType(value.getType());
+		types.registerTypes(value.getUsedTypes());
 		types.staticImport(Matchers.class, "nullValue");
 
+		Optional<Type> usedType = types.mostSpecialOf(value.getUsedTypes());
 		if (!types.isHidden(value.getType())) {
 			String nullMatcher = nullMatcher(types.getRawClass(value.getType()));
 			return expression(nullMatcher, parameterized(Matcher.class, null, value.getType()), emptyList());
-		} else if (!types.isHidden(value.getResultType())) {
-			String nullMatcher = nullMatcher(types.getRawClass(value.getResultType()));
-			return expression(nullMatcher, parameterized(Matcher.class, null, value.getResultType()), emptyList());
+		} else if (usedType.isPresent()) {
+			Type visibleUsedType = usedType.get();
+			String nullMatcher = nullMatcher(types.getRawClass(visibleUsedType));
+			return expression(nullMatcher, parameterized(Matcher.class, null, visibleUsedType), emptyList());
 		} else {
 			String nullMatcher = nullMatcher("");
 			return expression(nullMatcher, parameterized(Matcher.class, null, wildcard()), emptyList());

@@ -26,8 +26,8 @@ public class CollectionsSetAdaptorTest {
 
 	@BeforeEach
 	public void before() throws Exception {
-	adaptor = new CollectionsSetAdaptor();
-	context = new DefaultDeserializerContext();
+		adaptor = new CollectionsSetAdaptor();
+		context = new DefaultDeserializerContext();
 	}
 
 	@Test
@@ -203,7 +203,8 @@ public class CollectionsSetAdaptorTest {
 	}
 
 	private SerializedSet setOf(String className, int... elements) throws ClassNotFoundException {
-		SerializedSet value = new SerializedSet(Class.forName(className)).withResult(parameterized(Set.class, null, Integer.class));
+		SerializedSet value = new SerializedSet(Class.forName(className));
+		value.useAs(parameterized(Set.class, null, Integer.class));
 		for (int element : elements) {
 			value.add(literal(element));
 		}
@@ -211,7 +212,8 @@ public class CollectionsSetAdaptorTest {
 	}
 
 	private SerializedSet setOfRaw(String className, int... elements) throws ClassNotFoundException {
-		SerializedSet value = new SerializedSet(Class.forName(className)).withResult(Set.class);
+		SerializedSet value = new SerializedSet(Class.forName(className));
+		value.useAs(Set.class);
 		for (int element : elements) {
 			value.add(literal(element));
 		}
@@ -219,7 +221,8 @@ public class CollectionsSetAdaptorTest {
 	}
 
 	private SerializedSet setOfWildcard(String className, int... elements) throws ClassNotFoundException {
-		SerializedSet value = new SerializedSet(Class.forName(className)).withResult(parameterized(Set.class, null, wildcard()));
+		SerializedSet value = new SerializedSet(Class.forName(className));
+		value.useAs(parameterized(Set.class, null, wildcard()));
 		for (int element : elements) {
 			value.add(literal(element));
 		}

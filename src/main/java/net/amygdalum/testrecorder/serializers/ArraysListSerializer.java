@@ -25,7 +25,9 @@ public class ArraysListSerializer extends HiddenInnerClassSerializer<SerializedL
 
 	@Override
 	public SerializedList generate(Type resultType, Type type) {
-		return new SerializedList(type).withResult(resultType);
+		SerializedList object = new SerializedList(type);
+		object.useAs(resultType);
+		return object;
 	}
 
 	@Override

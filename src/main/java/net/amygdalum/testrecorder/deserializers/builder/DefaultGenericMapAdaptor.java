@@ -46,16 +46,16 @@ public abstract class DefaultGenericMapAdaptor<T extends SerializedReferenceType
 
     @Override
     public Computation tryDeserialize(T value, SetupGenerators generator, DeserializerContext context) {
+        TypeManager types = context.getTypes();
+
         Type type = value.getType();
-        Type resultType = value.getResultType();
+        Type usedType = types.mostSpecialOf(value.getUsedTypes()).orElse(Object.class);
         Type mapKeyType = keyType(value);
         Type mapValueType = valueType(value);
 
         Class<?> matchingType = matchType(type).get();
 
-        TypeManager types = context.getTypes();
-
-        Type effectiveResultType = types.bestType(resultType, matchingType);
+        Type effectiveResultType = types.bestType(usedType, matchingType);
         Type temporaryType = types.bestType(type, effectiveResultType, matchingType);
         Type keyResultType = types.isHidden(mapKeyType) ? typeArgument(temporaryType, 0).orElse(Object.class) : mapKeyType;
         Type valueResultType = types.isHidden(mapValueType) ? typeArgument(temporaryType, 1).orElse(Object.class) : mapValueType;

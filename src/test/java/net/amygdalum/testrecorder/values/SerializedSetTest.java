@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.values;
 
 import static java.util.Arrays.asList;
+import static java.util.Comparator.comparing;
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
@@ -12,6 +13,7 @@ import static net.amygdalum.testrecorder.values.GenericTypes.setOfString;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.HashSet;
 import java.util.List;
@@ -26,37 +28,55 @@ public class SerializedSetTest {
 
 	@Test
 	public void testGetResultTypeRaw() throws Exception {
-		assertThat(new SerializedSet(HashSet.class).withResult(Set.class).getResultType()).isEqualTo(Set.class);
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(Set.class);
+		assertThat(value.getUsedTypes()).containsExactly(Set.class);
 	}
 
 	@Test
 	public void testGetResultTypeParameterized() throws Exception {
-		assertThat(new SerializedSet(hashSetOfString()).withResult(setOfString()).getResultType()).isEqualTo(parameterized(Set.class, null, String.class));
+		SerializedSet value = new SerializedSet(hashSetOfString());
+		value.useAs(setOfString());
+		assertThat(value.getUsedTypes())
+			.usingElementComparator(comparing(Type::getTypeName))
+			.containsExactly(parameterized(Set.class, null, String.class));
 	}
 
 	@Test
 	public void testGetResultTypeIndirectParameterized() throws Exception {
-		assertThat(new SerializedSet(hashSetOfString()).withResult(hashSetOfString()).getResultType()).isEqualTo(parameterized(HashSet.class, null, String.class));
+		SerializedSet value = new SerializedSet(hashSetOfString());
+		value.useAs(hashSetOfString());
+		assertThat(value.getUsedTypes())
+			.usingElementComparator(comparing(Type::getTypeName))
+			.containsExactly(parameterized(HashSet.class, null, String.class));
 	}
 
 	@Test
 	public void testGetResultTypeBounded() throws Exception {
-		assertThat(new SerializedSet(HashSet.class).withResult(setOfBounded()).getResultType()).isInstanceOf(TypeVariable.class);
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(setOfBounded());
+		assertThat(value.getUsedTypes()).allMatch(type -> type instanceof TypeVariable);
 	}
 
 	@Test
 	public void testGetComponentTypeRaw() throws Exception {
-		assertThat(new SerializedSet(HashSet.class).withResult(Set.class).getComponentType()).isEqualTo(Object.class);
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(Set.class);
+		assertThat(value.getComponentType()).isEqualTo(Object.class);
 	}
 
 	@Test
 	public void testGetComponentTypeParameterized() throws Exception {
-		assertThat(new SerializedSet(hashSetOfString()).withResult(setOfString()).getComponentType()).isEqualTo(String.class);
+		SerializedSet value = new SerializedSet(hashSetOfString());
+		value.useAs(setOfString());
+		assertThat(value.getComponentType()).isEqualTo(String.class);
 	}
 
 	@Test
 	public void testGetComponentTypeNestedParameterized() throws Exception {
-		assertThat(new SerializedSet(hashSetOfListOfString()).withResult(setOfListOfString()).getComponentType()).isEqualTo(parameterized(List.class, null, String.class));
+		SerializedSet value = new SerializedSet(hashSetOfListOfString());
+		value.useAs(setOfListOfString());
+		assertThat(value.getComponentType()).isEqualTo(parameterized(List.class, null, String.class));
 	}
 
 	@Test
@@ -66,196 +86,220 @@ public class SerializedSetTest {
 
 	@Test
 	public void testGetComponentTypeBounded() throws Exception {
-		assertThat(new SerializedSet(HashSet.class).withResult(hashSetOfString()).getComponentType()).isEqualTo(String.class);
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(hashSetOfString());
+		assertThat(value.getComponentType()).isEqualTo(String.class);
 	}
 
 	@Test
 	public void testWithSerializedValueArray() throws Exception {
-		SerializedSet result = new SerializedSet(HashSet.class)
-			.withResult(hashSetOfString())
+		SerializedSet value = new SerializedSet(HashSet.class)
 			.with(literal("a"), literal("b"));
-		
-		assertThat(result).containsExactly(literal("a"), literal("b"));
+		value.useAs(hashSetOfString());
+
+		assertThat(value).containsExactly(literal("a"), literal("b"));
 	}
 
 	@Test
 	public void testSize0() throws Exception {
-		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(Set.class);
 
-		assertThat(set.size()).isEqualTo(0);
-		assertThat(set.referencedValues()).isEmpty();
+		assertThat(value.size()).isEqualTo(0);
+		assertThat(value.referencedValues()).isEmpty();
 	}
 
 	@Test
 	public void testSize1() throws Exception {
-		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		set.add(literal("string"));
-		
-		assertThat(set.size()).isEqualTo(1);
-		assertThat(set.referencedValues()).hasSize(1);
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(Set.class);
+		value.add(literal("string"));
+
+		assertThat(value.size()).isEqualTo(1);
+		assertThat(value.referencedValues()).hasSize(1);
 	}
 
 	@Test
 	public void testSize2() throws Exception {
-		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		set.add(literal("string"));
-		set.add(literal("second"));
-		
-		assertThat(set.size()).isEqualTo(2);
-		assertThat(set.referencedValues()).hasSize(2);
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(Set.class);
+		value.add(literal("string"));
+		value.add(literal("second"));
+
+		assertThat(value.size()).isEqualTo(2);
+		assertThat(value.referencedValues()).hasSize(2);
 	}
 
 	@Test
 	public void testIsEmpty0() throws Exception {
-		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		assertThat(set.isEmpty()).isTrue();
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(Set.class);
+		assertThat(value.isEmpty()).isTrue();
 	}
 
 	@Test
 	public void testIsEmpty1() throws Exception {
-		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		set.add(literal("string"));
-		assertThat(set.isEmpty()).isFalse();
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(Set.class);
+		value.add(literal("string"));
+		assertThat(value.isEmpty()).isFalse();
 	}
 
 	@Test
 	public void testContains0() throws Exception {
-		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		assertThat(set.contains(literal("string"))).isFalse();
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(Set.class);
+		assertThat(value.contains(literal("string"))).isFalse();
 	}
 
 	@Test
 	public void testContains1() throws Exception {
-		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		set.add(literal("string"));
-		assertThat(set.contains(literal("string"))).isTrue();
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(Set.class);
+		value.add(literal("string"));
+		assertThat(value.contains(literal("string"))).isTrue();
 	}
 
 	@Test
 	public void testIterator0() throws Exception {
-		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		assertThat(set.iterator().hasNext()).isFalse();
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(Set.class);
+		assertThat(value.iterator().hasNext()).isFalse();
 	}
 
 	@Test
 	public void testIterator1() throws Exception {
-		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		set.add(literal("string"));
-		assertThat(set.iterator().next()).isEqualTo(literal("string"));
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(Set.class);
+		value.add(literal("string"));
+		assertThat(value.iterator().next()).isEqualTo(literal("string"));
 	}
 
 	@Test
 	public void testToArray0() throws Exception {
-		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		assertThat(set.toArray()).isEmpty();
-		assertThat(set.toArray(new SerializedValue[0])).isEmpty();
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(Set.class);
+		assertThat(value.toArray()).isEmpty();
+		assertThat(value.toArray(new SerializedValue[0])).isEmpty();
 	}
 
 	@Test
 	public void testToArray1() throws Exception {
-		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		set.add(literal("string"));
-		assertThat(set.toArray()).containsExactly(literal("string"));
-		assertThat(set.toArray(new SerializedValue[0])).containsExactly(literal("string"));
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(Set.class);
+		value.add(literal("string"));
+		assertThat(value.toArray()).containsExactly(literal("string"));
+		assertThat(value.toArray(new SerializedValue[0])).containsExactly(literal("string"));
 	}
 
 	@Test
 	public void testRemoveObject0() throws Exception {
-		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		assertThat(set.remove(literal("string"))).isFalse();
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(Set.class);
+		assertThat(value.remove(literal("string"))).isFalse();
 	}
 
 	@Test
 	public void testRemoveObject1() throws Exception {
-		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		set.add(literal("string"));
-		assertThat(set.remove(literal("string"))).isTrue();
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(Set.class);
+		value.add(literal("string"));
+		assertThat(value.remove(literal("string"))).isTrue();
 	}
 
 	@Test
 	public void testContainsAll0() throws Exception {
-		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		assertThat(set.containsAll(asList(literal("string")))).isFalse();
-		assertThat(set.containsAll(asList(literal("string"), literal("other")))).isFalse();
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(Set.class);
+		assertThat(value.containsAll(asList(literal("string")))).isFalse();
+		assertThat(value.containsAll(asList(literal("string"), literal("other")))).isFalse();
 	}
 
 	@Test
 	public void testContainsAll1() throws Exception {
-		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		set.add(literal("string"));
-		assertThat(set.containsAll(asList(literal("string")))).isTrue();
-		assertThat(set.containsAll(asList(literal("string"), literal("other")))).isFalse();
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(Set.class);
+		value.add(literal("string"));
+		assertThat(value.containsAll(asList(literal("string")))).isTrue();
+		assertThat(value.containsAll(asList(literal("string"), literal("other")))).isFalse();
 	}
 
 	@Test
 	public void testAddAll() throws Exception {
-		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(Set.class);
 
-		set.addAll(asList(literal("string"), literal("other")));
+		value.addAll(asList(literal("string"), literal("other")));
 
-		assertThat(set).containsExactly(literal("string"), literal("other"));
+		assertThat(value).containsExactly(literal("string"), literal("other"));
 	}
 
 	@Test
 	public void testRemoveAll() throws Exception {
-		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		set.addAll(asList(
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(Set.class);
+		value.addAll(asList(
 			literal("first"),
 			literal("middle"),
 			literal("other"),
 			literal("last")));
-		set.removeAll(asList(literal("middle"), literal("other")));
+		value.removeAll(asList(literal("middle"), literal("other")));
 
-		assertThat(set).containsExactly(
+		assertThat(value).containsExactly(
 			literal("first"),
 			literal("last"));
 	}
 
 	@Test
 	public void testRetainAll() throws Exception {
-		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		set.addAll(asList(
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(Set.class);
+		value.addAll(asList(
 			literal("first"),
 			literal("middle"),
 			literal("other"),
 			literal("last")));
-		set.retainAll(asList(literal("middle"), literal("other")));
+		value.retainAll(asList(literal("middle"), literal("other")));
 
-		assertThat(set).containsExactly(
+		assertThat(value).containsExactly(
 			literal("middle"),
 			literal("other"));
 	}
 
 	@Test
 	public void testClear() throws Exception {
-		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		set.addAll(asList(
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(Set.class);
+		value.addAll(asList(
 			literal("first"),
 			literal("middle"),
 			literal("other"),
 			literal("last")));
-		set.clear();
+		value.clear();
 
-		assertThat(set).isEmpty();
+		assertThat(value).isEmpty();
 	}
 
 	@Test
 	public void testToString0() throws Exception {
-		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		assertThat(set.toString()).isEqualTo("{}");
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(Set.class);
+		assertThat(value.toString()).isEqualTo("{}");
 	}
 
 	@Test
 	public void testToString1() throws Exception {
-		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		set.add(literal("string"));
-		assertThat(set.toString()).isEqualTo("{string}");
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(Set.class);
+		value.add(literal("string"));
+		assertThat(value.toString()).isEqualTo("{string}");
 	}
 
 	@Test
 	public void testAccept() throws Exception {
-		SerializedSet set = new SerializedSet(HashSet.class).withResult(Set.class);
-		assertThat(set.accept(new TestValueVisitor(), NULL)).isEqualTo("SerializedSet");
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(Set.class);
+		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("SerializedSet");
 	}
 
 }

@@ -62,7 +62,8 @@ public class DefaultEnumAdaptorTest {
 
 	@Test
 	public void testTryDeserializeHiddenWithGenericResultType() throws Exception {
-		SerializedEnum value = new SerializedEnum(classOfHiddenEnum()).withResult(Object.class);
+		SerializedEnum value = new SerializedEnum(classOfHiddenEnum());
+		value.useAs(Object.class);
 		value.setName("VALUE2");
 		MatcherGenerators generator = new MatcherGenerators();
 

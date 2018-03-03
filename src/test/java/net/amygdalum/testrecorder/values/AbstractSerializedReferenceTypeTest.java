@@ -13,17 +13,17 @@ public class AbstractSerializedReferenceTypeTest {
 		ASerializedReferenceType value = new ASerializedReferenceType(String.class);
 
 		assertThat(value.getType()).isSameAs(String.class);
-		assertThat(value.getResultType()).isSameAs(String.class);
+		assertThat(value.getUsedTypes()).containsExactly(String.class);
 	}
 
 	@Test
-	public void testSetResultType() throws Exception {
-		ASerializedReferenceType value = new ASerializedReferenceType(String.class);
-		value.setResultType(Object.class);
-		
-		assertThat(value.getType()).isSameAs(String.class);
-		assertThat(value.getResultType()).isSameAs(Object.class);
-	}
+		public void testUseAs() throws Exception {
+			ASerializedReferenceType value = new ASerializedReferenceType(String.class);
+			value.useAs(Object.class);
+			
+			assertThat(value.getType()).isSameAs(String.class);
+			assertThat(value.getUsedTypes()).containsExactly(Object.class);
+		}
 
 	@Test
 	public void testGetId() throws Exception {

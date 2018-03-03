@@ -30,7 +30,9 @@ public class GenericSerializer implements Serializer<SerializedReferenceType> {
 		if (facade.excludes(baseType(type))) {
 			return SerializedNull.nullInstance(type);
 		} else {
-			return new SerializedObject(type).withResult(resultType);
+			SerializedObject object = new SerializedObject(type);
+			object.useAs(resultType);
+			return object;
 		}
 	}
 

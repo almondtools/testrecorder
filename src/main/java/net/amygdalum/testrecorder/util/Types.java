@@ -63,11 +63,10 @@ public final class Types {
 		return inferred.orElse(Object.class);
 	}
 
-	public static Type mostSpecialOf(Type... types) {
-		Optional<Type> inferred = Arrays.stream(types)
+	public static Optional<Type> mostSpecialOf(Type... types) {
+		return Arrays.stream(types)
 			.sorted(Types::byMostConcreteGeneric)
 			.findFirst();
-		return inferred.orElse(Object.class);
 	}
 
 	private static Set<Class<?>> superTypes(Class<?> clazz) {

@@ -19,59 +19,60 @@ public class DefaultNullAdaptorTest {
 	private DefaultNullAdaptor adaptor;
 	private DeserializerContext context;
 
-    @BeforeEach
-    public void before() throws Exception {
-        adaptor = new DefaultNullAdaptor();
-        context = new DefaultDeserializerContext();
-    }
+	@BeforeEach
+	public void before() throws Exception {
+		adaptor = new DefaultNullAdaptor();
+		context = new DefaultDeserializerContext();
+	}
 
-    @Test
-    public void testParentNull() throws Exception {
-        assertThat(adaptor.parent()).isNull();
-    }
+	@Test
+	public void testParentNull() throws Exception {
+		assertThat(adaptor.parent()).isNull();
+	}
 
-    @Test
-    public void testMatchesAny() throws Exception {
-        assertThat(adaptor.matches(Object.class)).isTrue();
-        assertThat(adaptor.matches(new Object() {
-        }.getClass())).isTrue();
-    }
+	@Test
+	public void testMatchesAny() throws Exception {
+		assertThat(adaptor.matches(Object.class)).isTrue();
+		assertThat(adaptor.matches(new Object() {
+		}.getClass())).isTrue();
+	}
 
-    @Test
-    public void testTryDeserialize() throws Exception {
-        SerializedNull value = nullInstance(String.class);
-        MatcherGenerators generator = new MatcherGenerators();
+	@Test
+	public void testTryDeserialize() throws Exception {
+		SerializedNull value = nullInstance(String.class);
+		MatcherGenerators generator = new MatcherGenerators();
 
-        Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-        assertThat(result.getStatements()).isEmpty();
-        assertThat(result.getValue()).isEqualTo("nullValue(String.class)");
-    }
+		assertThat(result.getStatements()).isEmpty();
+		assertThat(result.getValue()).isEqualTo("nullValue(String.class)");
+	}
 
-    @Test
-    public void testTryDeserializeOnHidden() throws Exception {
-        SerializedNull value = nullInstance(classOfPartiallyHidden());
-        value.setResultType(Hidden.VisibleInterface.class);
+	@Test
+	public void testTryDeserializeOnHidden() throws Exception {
+		SerializedNull value = nullInstance(classOfPartiallyHidden());
+		value.useAs(Hidden.VisibleInterface.class);
 
-        MatcherGenerators generator = new MatcherGenerators();
+		MatcherGenerators generator = new MatcherGenerators();
 
-        Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-        assertThat(result.getStatements()).isEmpty();
-        assertThat(result.getValue()).isEqualTo("nullValue(net.amygdalum.testrecorder.util.testobjects.Hidden.VisibleInterface.class)");
-    }
+		assertThat(result.getStatements()).isEmpty();
+		assertThat(context.getTypes().getImports()).contains("net.amygdalum.testrecorder.util.testobjects.Hidden.VisibleInterface");
+		assertThat(result.getValue()).isEqualTo("nullValue(VisibleInterface.class)");
+	}
 
-    @Test
-    public void testTryDeserializeOnReallyHidden() throws Exception {
-        SerializedNull value = nullInstance(classOfCompletelyHidden());
-        value.setResultType(classOfCompletelyHidden());
+	@Test
+	public void testTryDeserializeOnReallyHidden() throws Exception {
+		SerializedNull value = nullInstance(classOfCompletelyHidden());
+		value.useAs(classOfCompletelyHidden());
 
-        MatcherGenerators generator = new MatcherGenerators();
+		MatcherGenerators generator = new MatcherGenerators();
 
-        Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-        assertThat(result.getStatements()).isEmpty();
-        assertThat(result.getValue()).isEqualTo("nullValue()");
-    }
+		assertThat(result.getStatements()).isEmpty();
+		assertThat(result.getValue()).isEqualTo("nullValue()");
+	}
 
 }

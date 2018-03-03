@@ -45,7 +45,6 @@ public class DefaultDeserializerContext implements DeserializerContext {
 	private Map<SerializedValue, LocalVariable> defined;
 	private Set<SerializedValue> computed;
 
-
 	public DefaultDeserializerContext() {
 		this.backReferences = new IdentityHashMap<>();
 		this.closures = new IdentityHashMap<>();
@@ -76,7 +75,7 @@ public class DefaultDeserializerContext implements DeserializerContext {
 		this.defined = parent.defined;
 		this.computed = parent.computed;
 	}
-	
+
 	@Override
 	public LocalVariableNameGenerator getLocals() {
 		return locals;
@@ -98,9 +97,9 @@ public class DefaultDeserializerContext implements DeserializerContext {
 	}
 
 	@Override
-	public LocalVariable localVariable(SerializedValue value, Type type, Type resultType) {
+	public LocalVariable localVariable(SerializedValue value, Type type) {
 		String name = locals.fetchName(type);
-		LocalVariable definition = new LocalVariable(name, resultType);
+		LocalVariable definition = new LocalVariable(name, type);
 		defined.put(value, definition);
 		return definition;
 	}
@@ -114,12 +113,12 @@ public class DefaultDeserializerContext implements DeserializerContext {
 	public void resetVariable(SerializedValue value) {
 		defined.remove(value);
 	}
-	
+
 	@Override
 	public boolean defines(SerializedValue value) {
 		return defined.containsKey(value);
 	}
-	
+
 	@Override
 	public LocalVariable getDefinition(SerializedValue value) {
 		return defined.get(value);
@@ -243,7 +242,7 @@ public class DefaultDeserializerContext implements DeserializerContext {
 
 	@Override
 	public Computation forVariable(SerializedValue value, Type type, LocalVariableDefinition computation) {
-		LocalVariable local = localVariable(value, type, value.getResultType());
+		LocalVariable local = localVariable(value, type);
 		try {
 			Computation definition = computation.define(local);
 			finishVariable(value);
@@ -253,17 +252,17 @@ public class DefaultDeserializerContext implements DeserializerContext {
 			throw e;
 		}
 	}
-	
+
 	@Override
 	public boolean isComputed(SerializedValue value) {
 		boolean changed = computed.add(value);
 		return !changed;
 	}
-	
+
 	@Override
 	public Optional<SerializedValue> resolve(int id) {
 		return defined.keySet().stream()
-			.filter(value -> (value instanceof SerializedReferenceType) && ((SerializedReferenceType)value).getId() == id)
+			.filter(value -> (value instanceof SerializedReferenceType) && ((SerializedReferenceType) value).getId() == id)
 			.findFirst();
 	}
 
@@ -278,12 +277,12 @@ public class DefaultDeserializerContext implements DeserializerContext {
 		}
 
 		@Override
-		public void setResultType(Type resultType) {
+		public void useAs(Type resultType) {
 		}
 
 		@Override
-		public Type getResultType() {
-			return Class.class;
+		public Type[] getUsedTypes() {
+			return new Type[] {Class.class};
 		}
 
 		@Override
