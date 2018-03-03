@@ -481,7 +481,6 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 						MethodNode calledMethodNode = classes.fetch(calledClassNode, methodinsn.name, methodinsn.desc);
 						if (isNativeInputMethod(calledClassNode, calledMethodNode)) {
 							calls.add(methodinsn);
-
 						}
 					} catch (IOException | NoSuchMethodException e) {
 						Logger.error("cannot load method " + methodinsn.owner + "." + methodinsn.name + methodinsn.desc, e);
@@ -507,7 +506,6 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 						MethodNode calledMethodNode = classes.fetch(calledClassNode, methodinsn.name, methodinsn.desc);
 						if (isNativeOutputMethod(calledClassNode, calledMethodNode)) {
 							calls.add(methodinsn);
-
 						}
 					} catch (IOException | NoSuchMethodException e) {
 						Logger.error("cannot load method " + methodinsn.owner + "." + methodinsn.name + methodinsn.desc, e);

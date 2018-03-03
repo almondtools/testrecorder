@@ -62,7 +62,7 @@ public class ClassNodeManager {
 			}
 			interfaces.addAll(currentClassNode.interfaces);
 		}
-		return null;
+		throw new NoSuchMethodException(methodName + methodDesc);
 	}
 
 }
