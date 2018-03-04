@@ -19,7 +19,6 @@ import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.values.SerializedList;
 
-
 public class DefaultDequeSerializerTest {
 
 	private SerializerFacade facade;
@@ -40,7 +39,8 @@ public class DefaultDequeSerializerTest {
 	public void testGenerate() throws Exception {
 		Type arrayDequeOfString = parameterized(ArrayDeque.class, null, String.class);
 
-		SerializedList value = serializer.generate(arrayDequeOfString, ArrayDeque.class);
+		SerializedList value = serializer.generate(ArrayDeque.class);
+		value.useAs(arrayDequeOfString);
 
 		assertThat(value.getUsedTypes()).containsExactly(arrayDequeOfString);
 		assertThat(value.getType()).isEqualTo(ArrayDeque.class);
@@ -54,7 +54,8 @@ public class DefaultDequeSerializerTest {
 		when(facade.serialize(String.class, "Foo")).thenReturn(foo);
 		when(facade.serialize(String.class, "Bar")).thenReturn(bar);
 		Type linkedBlockingDequeOfString = parameterized(LinkedBlockingDeque.class, null, String.class);
-		SerializedList value = serializer.generate(linkedBlockingDequeOfString, LinkedBlockingDeque.class);
+		SerializedList value = serializer.generate(linkedBlockingDequeOfString);
+		value.useAs(LinkedBlockingDeque.class);
 
 		serializer.populate(value, new LinkedBlockingDeque<>(asList("Foo", "Bar")));
 

@@ -20,7 +20,7 @@ public class BigIntegerSerializer implements Serializer<SerializedImmutable<BigI
 	}
 
 	@Override
-	public SerializedImmutable<BigInteger> generate(Type resultType, Type type) {
+	public SerializedImmutable<BigInteger> generate(Type type) {
 		return new SerializedImmutable<>(type);
 	}
 

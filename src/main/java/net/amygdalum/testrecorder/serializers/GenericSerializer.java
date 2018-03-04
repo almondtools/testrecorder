@@ -26,13 +26,11 @@ public class GenericSerializer implements Serializer<SerializedReferenceType> {
 	}
 
 	@Override
-	public SerializedReferenceType generate(Type resultType, Type type) {
+	public SerializedReferenceType generate(Type type) {
 		if (facade.excludes(baseType(type))) {
 			return SerializedNull.nullInstance(type);
 		} else {
-			SerializedObject object = new SerializedObject(type);
-			object.useAs(resultType);
-			return object;
+			return new SerializedObject(type);
 		}
 	}
 

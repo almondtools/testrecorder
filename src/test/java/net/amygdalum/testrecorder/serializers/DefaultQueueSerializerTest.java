@@ -22,7 +22,6 @@ import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.values.SerializedList;
 
-
 public class DefaultQueueSerializerTest {
 
 	private SerializerFacade facade;
@@ -36,14 +35,16 @@ public class DefaultQueueSerializerTest {
 
 	@Test
 	public void testGetMatchingClasses() throws Exception {
-		assertThat(serializer.getMatchingClasses()).containsExactlyInAnyOrder(LinkedBlockingQueue.class, ArrayBlockingQueue.class, ConcurrentLinkedQueue.class, PriorityBlockingQueue.class, LinkedTransferQueue.class, DelayQueue.class);
+		assertThat(serializer.getMatchingClasses()).containsExactlyInAnyOrder(LinkedBlockingQueue.class, ArrayBlockingQueue.class, ConcurrentLinkedQueue.class, PriorityBlockingQueue.class,
+			LinkedTransferQueue.class, DelayQueue.class);
 	}
 
 	@Test
 	public void testGenerate() throws Exception {
 		Type priorityBlockingQueueOfString = parameterized(PriorityBlockingQueue.class, null, String.class);
 
-		SerializedList value = serializer.generate(priorityBlockingQueueOfString, PriorityBlockingQueue.class);
+		SerializedList value = serializer.generate(PriorityBlockingQueue.class);
+		value.useAs(priorityBlockingQueueOfString);
 
 		assertThat(value.getUsedTypes()).containsExactly(priorityBlockingQueueOfString);
 		assertThat(value.getType()).isEqualTo(PriorityBlockingQueue.class);
@@ -57,7 +58,8 @@ public class DefaultQueueSerializerTest {
 		when(facade.serialize(String.class, "Foo")).thenReturn(foo);
 		when(facade.serialize(String.class, "Bar")).thenReturn(bar);
 		Type linkedBlockingQueueOfString = parameterized(LinkedBlockingQueue.class, null, String.class);
-		SerializedList value = serializer.generate(linkedBlockingQueueOfString, LinkedBlockingQueue.class);
+		SerializedList value = serializer.generate(linkedBlockingQueueOfString);
+		value.useAs(LinkedBlockingQueue.class);
 
 		serializer.populate(value, new LinkedBlockingQueue<>(asList("Foo", "Bar")));
 

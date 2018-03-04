@@ -51,7 +51,7 @@ public class ConfigurableSerializerFacadeTest {
         openFacade.getSerializers().put(TestClass.class, serializer);
         SerializedObject expectedResult = new SerializedObject(TestClass.class);
 
-        when(serializer.generate(TestClass.class, TestClass.class)).thenReturn(expectedResult);
+        when(serializer.generate(TestClass.class)).thenReturn(expectedResult);
 
         TestClass value = new TestClass();
         SerializedValue result = facade.serialize(TestClass.class, value);

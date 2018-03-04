@@ -20,13 +20,11 @@ public class EnumSerializer implements Serializer<SerializedEnum> {
 	}
 
 	@Override
-	public SerializedEnum generate(Type resultType, Type type) {
+	public SerializedEnum generate(Type type) {
 		while (!baseType(type).isEnum()) {
 			type = baseType(type).getSuperclass();
 		}
-		SerializedEnum object = new SerializedEnum(type);
-		object.useAs(resultType);
-		return object;
+		return new SerializedEnum(type);
 	}
 
 	@Override

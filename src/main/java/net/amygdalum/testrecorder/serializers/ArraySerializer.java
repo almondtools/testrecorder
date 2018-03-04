@@ -23,7 +23,7 @@ public class ArraySerializer implements Serializer<SerializedArray> {
 	}
 
 	@Override
-	public SerializedArray generate(Type resultType, Type type) {
+	public SerializedArray generate(Type type) {
 		return new SerializedArray(type);
 	}
 

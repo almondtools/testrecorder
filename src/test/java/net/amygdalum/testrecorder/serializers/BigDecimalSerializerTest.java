@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 
-
 public class BigDecimalSerializerTest {
 
 	private SerializerFacade facade;
@@ -30,7 +29,8 @@ public class BigDecimalSerializerTest {
 
 	@Test
 	public void testGenerate() throws Exception {
-		SerializedImmutable<BigDecimal> value = serializer.generate(BigDecimal.class, BigDecimal.class);
+		SerializedImmutable<BigDecimal> value = serializer.generate(BigDecimal.class);
+		value.useAs(BigDecimal.class);
 
 		assertThat(value.getUsedTypes()).containsExactly(BigDecimal.class);
 		assertThat(value.getType()).isEqualTo(BigDecimal.class);
@@ -38,7 +38,8 @@ public class BigDecimalSerializerTest {
 
 	@Test
 	public void testPopulate() throws Exception {
-		SerializedImmutable<BigDecimal> value = serializer.generate(BigDecimal.class, BigDecimal.class);
+		SerializedImmutable<BigDecimal> value = serializer.generate(BigDecimal.class);
+		value.useAs(BigDecimal.class);
 
 		serializer.populate(value, BigDecimal.valueOf(2222, 2));
 

@@ -27,10 +27,8 @@ public class LambdaSerializer implements Serializer<SerializedLambdaObject> {
 	}
 
 	@Override
-	public SerializedLambdaObject generate(Type resultType, Type type) {
-		SerializedLambdaObject o = new SerializedLambdaObject(type);
-		o.useAs(resultType);
-		return o;
+	public SerializedLambdaObject generate(Type type) {
+		return new SerializedLambdaObject(type);
 	}
 
 	@Override

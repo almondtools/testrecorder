@@ -30,7 +30,8 @@ public class ArraySerializerTest {
 
 	@Test
 	public void testGenerate() throws Exception {
-		SerializedArray value = serializer.generate(String[].class, String[].class);
+		SerializedArray value = serializer.generate(String[].class);
+		value.useAs(String[].class);
 
 		assertThat(value.getUsedTypes()).containsExactly(String[].class);
 		assertThat(value.getType()).isEqualTo(String[].class);
@@ -43,7 +44,8 @@ public class ArraySerializerTest {
 		SerializedValue bar = literal("Bar");
 		when(facade.serialize(String.class, "Foo")).thenReturn(foo);
 		when(facade.serialize(String.class, "Bar")).thenReturn(bar);
-		SerializedArray value = serializer.generate(String[].class, String[].class);
+		SerializedArray value = serializer.generate(String[].class);
+		value.useAs(String[].class);
 
 		serializer.populate(value, new String[] { "Foo", "Bar" });
 

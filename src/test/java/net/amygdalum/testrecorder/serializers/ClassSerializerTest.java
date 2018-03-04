@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 
-
 public class ClassSerializerTest {
 
 	private SerializerFacade facade;
@@ -28,7 +27,8 @@ public class ClassSerializerTest {
 
 	@Test
 	public void testGenerate() throws Exception {
-		SerializedImmutable<Class<?>> value = serializer.generate(Class.class, Class.class);
+		SerializedImmutable<Class<?>> value = serializer.generate(Class.class);
+		value.useAs(Class.class);
 
 		assertThat(value.getUsedTypes()).containsExactly(Class.class);
 		assertThat(value.getType()).isEqualTo(Class.class);
@@ -36,7 +36,8 @@ public class ClassSerializerTest {
 
 	@Test
 	public void testPopulate() throws Exception {
-		SerializedImmutable<Class<?>> value = serializer.generate(Class.class, Class.class);
+		SerializedImmutable<Class<?>> value = serializer.generate(Class.class);
+		value.useAs(Class.class);
 
 		serializer.populate(value, String.class);
 

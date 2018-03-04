@@ -20,7 +20,6 @@ import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.values.SerializedList;
 
-
 public class CollectionsListSerializerTest {
 
 	private SerializerFacade facade;
@@ -50,7 +49,8 @@ public class CollectionsListSerializerTest {
 		Type unmodifiableListOfString = parameterized(innerType(Collections.class, "UnmodifiableList"), null, String.class);
 		Type listOfString = parameterized(List.class, null, String.class);
 
-		SerializedList value = serializer.generate(listOfString, unmodifiableListOfString);
+		SerializedList value = serializer.generate(unmodifiableListOfString);
+		value.useAs(listOfString);
 
 		assertThat(value.getUsedTypes()).containsExactly(listOfString);
 		assertThat(value.getType()).isEqualTo(unmodifiableListOfString);
@@ -65,7 +65,8 @@ public class CollectionsListSerializerTest {
 		when(facade.serialize(String.class, "Bar")).thenReturn(bar);
 		Type unmodifiableListOfString = parameterized(innerType(Collections.class, "UnmodifiableList"), null, String.class);
 		Type listOfString = parameterized(List.class, null, String.class);
-		SerializedList value = serializer.generate(listOfString, unmodifiableListOfString);
+		SerializedList value = serializer.generate(listOfString);
+		value.useAs(unmodifiableListOfString);
 
 		serializer.populate(value, asList("Foo", "Bar"));
 
@@ -74,16 +75,17 @@ public class CollectionsListSerializerTest {
 
 	@Test
 	public void testPopulateNull() throws Exception {
-	    SerializedValue foo = literal("Foo");
-	    when(facade.serialize(String.class, "Foo")).thenReturn(foo);
-	    when(facade.serialize(String.class, null)).thenReturn(nullInstance(String.class));
-	    Type unmodifiableListOfString = parameterized(innerType(Collections.class, "UnmodifiableList"), null, String.class);
-	    Type listOfString = parameterized(List.class, null, String.class);
-	    SerializedList value = serializer.generate(listOfString, unmodifiableListOfString);
-	    
-	    serializer.populate(value, asList("Foo", null));
-	    
-	    assertThat(value).containsExactly(foo, nullInstance(String.class));
+		SerializedValue foo = literal("Foo");
+		when(facade.serialize(String.class, "Foo")).thenReturn(foo);
+		when(facade.serialize(String.class, null)).thenReturn(nullInstance(String.class));
+		Type unmodifiableListOfString = parameterized(innerType(Collections.class, "UnmodifiableList"), null, String.class);
+		Type listOfString = parameterized(List.class, null, String.class);
+		SerializedList value = serializer.generate(listOfString);
+		value.useAs(unmodifiableListOfString);
+
+		serializer.populate(value, asList("Foo", null));
+
+		assertThat(value).containsExactly(foo, nullInstance(String.class));
 	}
-	
+
 }

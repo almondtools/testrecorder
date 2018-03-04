@@ -33,10 +33,8 @@ public class CollectionsSetSerializer extends HiddenInnerClassSerializer<Seriali
 	}
 
 	@Override
-	public SerializedSet generate(Type resultType, Type type) {
-		SerializedSet object = new SerializedSet(type);
-		object.useAs(resultType);
-		return object;
+	public SerializedSet generate(Type type) {
+		return new SerializedSet(type);
 	}
 
 	@Override

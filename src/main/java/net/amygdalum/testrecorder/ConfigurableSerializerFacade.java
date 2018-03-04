@@ -99,10 +99,12 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 			try {
 				Class<?> functionalInterfaceType = classFrom(serializedLambda.getFunctionalInterfaceClass());
 				Serializer serializer = fetchSerializer(serializedLambda.getClass());
-				serializedObject = serializer.generate(type, functionalInterfaceType);
+				serializedObject = serializer.generate(functionalInterfaceType);
 				serialized.put(object, serializedObject);
 				if (serializedObject instanceof SerializedReferenceType) {
-					((SerializedReferenceType) serializedObject).setId(identityHashCode(object));
+					SerializedReferenceType serializedReferenceType = (SerializedReferenceType) serializedObject;
+					serializedReferenceType.useAs(type);
+					serializedReferenceType.setId(identityHashCode(object));
 				}
 				serializer.populate(serializedObject, serializedLambda);
 			} catch (RuntimeException e) {
@@ -117,16 +119,17 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 		SerializedValue serializedObject = serialized.get(object);
 		if (serializedObject == null) {
 			Serializer serializer = fetchSerializer(object.getClass());
-			serializedObject = serializer.generate(type, object.getClass());
+			serializedObject = serializer.generate(object.getClass());
 			serialized.put(object, serializedObject);
 			if (serializedObject instanceof SerializedReferenceType) {
-				((SerializedReferenceType) serializedObject).setId(identityHashCode(object));
+				SerializedReferenceType serializedReferenceType = (SerializedReferenceType) serializedObject;
+				serializedReferenceType.setId(identityHashCode(object));
+				serializedReferenceType.useAs(type);
 			}
 			serializer.populate(serializedObject, object);
-		}
-		
-		if (serializedObject instanceof SerializedReferenceType) {
-			((SerializedReferenceType) serializedObject).useAs(type);
+		} else if (serializedObject instanceof SerializedReferenceType) {
+			SerializedReferenceType serializedReferenceType = (SerializedReferenceType) serializedObject;
+			serializedReferenceType.useAs(type);
 		}
 		return serializedObject;
 	}

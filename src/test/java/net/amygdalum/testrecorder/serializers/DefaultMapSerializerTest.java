@@ -20,12 +20,11 @@ import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.values.SerializedMap;
 
-
 public class DefaultMapSerializerTest {
 
 	private SerializerFacade facade;
 	private Serializer<SerializedMap> serializer;
-	
+
 	@BeforeEach
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
@@ -40,9 +39,10 @@ public class DefaultMapSerializerTest {
 	@Test
 	public void testGenerate() throws Exception {
 		Type hashMapOfStringInteger = parameterized(HashMap.class, null, String.class, Integer.class);
-		
-		SerializedMap value = serializer.generate(hashMapOfStringInteger, HashMap.class);
-		
+
+		SerializedMap value = serializer.generate(HashMap.class);
+		value.useAs(hashMapOfStringInteger);
+
 		assertThat(value.getUsedTypes()).containsExactly(hashMapOfStringInteger);
 		assertThat(value.getType()).isEqualTo(HashMap.class);
 		assertThat(value.getMapKeyType()).isEqualTo(String.class);
@@ -56,7 +56,8 @@ public class DefaultMapSerializerTest {
 		when(facade.serialize(String.class, "Foo")).thenReturn(foo);
 		when(facade.serialize(Integer.class, 42)).thenReturn(i42);
 		Type hashMapOfStringInteger = parameterized(HashMap.class, null, String.class, Integer.class);
-		SerializedMap value = serializer.generate(hashMapOfStringInteger, HashMap.class);
+		SerializedMap value = serializer.generate(hashMapOfStringInteger);
+		value.useAs(HashMap.class);
 
 		serializer.populate(value, singletonMap("Foo", 42));
 

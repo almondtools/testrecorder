@@ -19,12 +19,11 @@ import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.values.SerializedList;
 
-
 public class DefaultListSerializerTest {
 
 	private SerializerFacade facade;
 	private Serializer<SerializedList> serializer;
-	
+
 	@BeforeEach
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
@@ -40,7 +39,8 @@ public class DefaultListSerializerTest {
 	public void testGenerate() throws Exception {
 		Type linkedListOfString = parameterized(LinkedList.class, null, String.class);
 
-		SerializedList value = serializer.generate(linkedListOfString, LinkedList.class);
+		SerializedList value = serializer.generate(LinkedList.class);
+		value.useAs(linkedListOfString);
 
 		assertThat(value.getUsedTypes()).containsExactly(linkedListOfString);
 		assertThat(value.getType()).isEqualTo(LinkedList.class);
@@ -54,7 +54,8 @@ public class DefaultListSerializerTest {
 		when(facade.serialize(String.class, "Foo")).thenReturn(foo);
 		when(facade.serialize(String.class, "Bar")).thenReturn(bar);
 		Type linkedListOfString = parameterized(LinkedList.class, null, String.class);
-		SerializedList value = serializer.generate(linkedListOfString, LinkedList.class);
+		SerializedList value = serializer.generate(linkedListOfString);
+		value.useAs(LinkedList.class);
 
 		serializer.populate(value, asList("Foo", "Bar"));
 

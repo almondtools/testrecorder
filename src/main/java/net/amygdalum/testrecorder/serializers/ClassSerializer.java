@@ -19,7 +19,7 @@ public class ClassSerializer implements Serializer<SerializedImmutable<Class<?>>
 	}
 
 	@Override
-	public SerializedImmutable<Class<?>> generate(Type resultType, Type type) {
+	public SerializedImmutable<Class<?>> generate(Type type) {
 		return new SerializedImmutable<>(type);
 	}
 

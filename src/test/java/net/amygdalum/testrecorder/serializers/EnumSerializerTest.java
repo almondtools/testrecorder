@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.values.SerializedEnum;
 
-
 public class EnumSerializerTest {
 
 	private SerializerFacade facade;
@@ -28,7 +27,8 @@ public class EnumSerializerTest {
 
 	@Test
 	public void testGenerate() throws Exception {
-		SerializedEnum value = serializer.generate(MyInterface.class, MyEnum.class);
+		SerializedEnum value = serializer.generate(MyEnum.class);
+		value.useAs(MyInterface.class);
 
 		assertThat(value.getUsedTypes()).containsExactly(MyInterface.class);
 		assertThat(value.getType()).isEqualTo(MyEnum.class);
@@ -36,7 +36,8 @@ public class EnumSerializerTest {
 
 	@Test
 	public void testGenerateWithExtendedEnum() throws Exception {
-		SerializedEnum value = serializer.generate(MyInterface.class, ExtendedEnum.VALUE1.getClass());
+		SerializedEnum value = serializer.generate(ExtendedEnum.VALUE1.getClass());
+		value.useAs(MyInterface.class);
 
 		assertThat(value.getUsedTypes()).containsExactly(MyInterface.class);
 		assertThat(value.getType()).isEqualTo(ExtendedEnum.class);
@@ -44,7 +45,8 @@ public class EnumSerializerTest {
 
 	@Test
 	public void testPopulate() throws Exception {
-		SerializedEnum value = serializer.generate(MyInterface.class, MyEnum.class);
+		SerializedEnum value = serializer.generate(MyEnum.class);
+		value.useAs(MyInterface.class);
 
 		serializer.populate(value, MyEnum.VALUE1);
 
@@ -52,14 +54,15 @@ public class EnumSerializerTest {
 	}
 
 	interface MyInterface {
-		
+
 	}
-	
+
 	private static enum MyEnum implements MyInterface {
 		VALUE1, VALUE2;
 	}
 
 	private static enum ExtendedEnum {
-		VALUE1 {};
+		VALUE1 {
+		};
 	}
 }

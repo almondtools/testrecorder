@@ -19,12 +19,11 @@ import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.values.SerializedSet;
 
-
 public class DefaultSetSerializerTest {
 
 	private SerializerFacade facade;
 	private Serializer<SerializedSet> serializer;
-	
+
 	@BeforeEach
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
@@ -39,9 +38,10 @@ public class DefaultSetSerializerTest {
 	@Test
 	public void testGenerate() throws Exception {
 		Type hashSetOfString = parameterized(HashSet.class, null, String.class);
-		
-		SerializedSet value = serializer.generate(hashSetOfString, HashSet.class);
-		
+
+		SerializedSet value = serializer.generate(HashSet.class);
+		value.useAs(hashSetOfString);
+
 		assertThat(value.getUsedTypes()).containsExactly(hashSetOfString);
 		assertThat(value.getType()).isEqualTo(HashSet.class);
 		assertThat(value.getComponentType()).isEqualTo(String.class);
@@ -54,7 +54,8 @@ public class DefaultSetSerializerTest {
 		when(facade.serialize(String.class, "Foo")).thenReturn(foo);
 		when(facade.serialize(String.class, "Bar")).thenReturn(bar);
 		Type hashSetOfString = parameterized(HashSet.class, null, String.class);
-		SerializedSet value = serializer.generate(hashSetOfString, HashSet.class);
+		SerializedSet value = serializer.generate(hashSetOfString);
+		value.useAs(HashSet.class);
 
 		serializer.populate(value, new HashSet<>(asList("Foo", "Bar")));
 

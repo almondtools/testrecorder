@@ -23,35 +23,38 @@ import net.amygdalum.testrecorder.values.SerializedList;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class SerializedValues {
-    
-    private ConfigurableSerializerFacade facade;
 
-    public SerializedValues() {
-        facade = new ConfigurableSerializerFacade(new DefaultTestRecorderAgentConfig());
-    }
+	private ConfigurableSerializerFacade facade;
 
-    public SerializedList list(Type type, List<?> values) {
-        DefaultListSerializer serializer = new DefaultListSerializer(facade);
-        SerializedList value = serializer.generate(type, type);
-        serializer.populate(value, values);
-        return value;
-    }
-    
-    public SerializedObject object(Type type, Object object) {
-        GenericSerializer serializer = new GenericSerializer(facade);
-        SerializedObject value = (SerializedObject) serializer.generate(type, object.getClass());
-        xray(facade).to(OpenFacade.class).getSerialized().put(object, value);
-        serializer.populate(value, object);
-        return value;
-    }
+	public SerializedValues() {
+		facade = new ConfigurableSerializerFacade(new DefaultTestRecorderAgentConfig());
+	}
 
-    public SerializedImmutable<BigInteger> bigInteger(BigInteger object) {
-        BigIntegerSerializer serializer = new BigIntegerSerializer(facade);
-        SerializedImmutable<BigInteger> value = serializer.generate(BigInteger.class, BigInteger.class);
-        serializer.populate(value, object);
-        return value;
-    }
-    
+	public SerializedList list(Type type, List<?> values) {
+		DefaultListSerializer serializer = new DefaultListSerializer(facade);
+		SerializedList value = serializer.generate(type);
+		value.useAs(type);
+		serializer.populate(value, values);
+		return value;
+	}
+
+	public SerializedObject object(Type type, Object object) {
+		GenericSerializer serializer = new GenericSerializer(facade);
+		SerializedObject value = (SerializedObject) serializer.generate(object.getClass());
+		value.useAs(type);
+		xray(facade).to(OpenFacade.class).getSerialized().put(object, value);
+		serializer.populate(value, object);
+		return value;
+	}
+
+	public SerializedImmutable<BigInteger> bigInteger(BigInteger object) {
+		BigIntegerSerializer serializer = new BigIntegerSerializer(facade);
+		SerializedImmutable<BigInteger> value = serializer.generate(BigInteger.class);
+		value.useAs(BigInteger.class);
+		serializer.populate(value, object);
+		return value;
+	}
+
 	public static class ASerializedValue extends AbstractSerializedValue {
 		public ASerializedValue(Type type) {
 			super(type);
@@ -72,7 +75,7 @@ public class SerializedValues {
 		public ASerializedReferenceType(Type type) {
 			super(type);
 		}
-		
+
 		@Override
 		public List<SerializedValue> referencedValues() {
 			return emptyList();
@@ -85,7 +88,7 @@ public class SerializedValues {
 	}
 
 	interface OpenFacade {
-        Map<Object, SerializedValue> getSerialized();
-    }
+		Map<Object, SerializedValue> getSerialized();
+	}
 
 }

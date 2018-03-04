@@ -40,7 +40,8 @@ public class ArraysListSerializerTest {
 		Type arrayListOfString = parameterized(innerType(Arrays.class, "ArrayList"), null, String.class);
 		Type listOfString = parameterized(List.class, null, String.class);
 
-		SerializedList value = serializer.generate(listOfString, arrayListOfString);
+		SerializedList value = serializer.generate(arrayListOfString);
+		value.useAs(listOfString);
 
 		assertThat(value.getUsedTypes()).containsExactly(listOfString);
 		assertThat(value.getType()).isEqualTo(arrayListOfString);
@@ -55,7 +56,8 @@ public class ArraysListSerializerTest {
 		when(facade.serialize(String.class, "Bar")).thenReturn(bar);
 		Type arrayListOfString = parameterized(innerType(Arrays.class, "ArrayList"), null, String.class);
 		Type listOfString = parameterized(List.class, null, String.class);
-		SerializedList value = serializer.generate(listOfString, arrayListOfString);
+		SerializedList value = serializer.generate(listOfString);
+		value.useAs(arrayListOfString);
 
 		serializer.populate(value, asList("Foo", "Bar"));
 

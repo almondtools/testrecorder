@@ -41,7 +41,8 @@ public class GenericSerializerTest {
 
 	@Test
 	public void testGenerate() throws Exception {
-		SerializedObject value = (SerializedObject) serializer.generate(GenericObject.class, GenericObject.class);
+		SerializedReferenceType value = serializer.generate(GenericObject.class);
+		value.useAs(GenericObject.class);
 
 		assertThat(value.getUsedTypes()).containsExactly(GenericObject.class);
 		assertThat(value.getType()).isEqualTo(GenericObject.class);
@@ -50,7 +51,8 @@ public class GenericSerializerTest {
 	@Test
 	public void testGenerateOnExcludedType() throws Exception {
 		when(facade.excludes(Random.class)).thenReturn(true);
-		SerializedValue value = serializer.generate(Random.class, Random.class);
+		SerializedReferenceType value = serializer.generate(Random.class);
+		value.useAs(Random.class);
 
 		assertThat(value).isInstanceOf(SerializedNull.class);
 	}
@@ -64,7 +66,8 @@ public class GenericSerializerTest {
 		when(facade.excludes(any(Field.class))).thenAnswer(field -> ((Field) field.getArguments()[0]).isSynthetic());
 		when(facade.serialize(eq(GenericObject.class.getDeclaredField("stringField")), any())).thenReturn(fooField);
 		when(facade.serialize(eq(GenericObject.class.getDeclaredField("intField")), any())).thenReturn(barField);
-		SerializedObject value = (SerializedObject) serializer.generate(GenericObject.class, GenericObject.class);
+		SerializedObject value = (SerializedObject) serializer.generate(GenericObject.class);
+		value.useAs(GenericObject.class);
 
 		serializer.populate(value, new GenericObject("Foo", 1));
 
