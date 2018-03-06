@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder;
 
 import static java.lang.System.identityHashCode;
 import static java.lang.Thread.currentThread;
+import static java.util.stream.Collectors.joining;
 import static net.amygdalum.testrecorder.ContextSnapshot.INVALID;
 import static net.amygdalum.testrecorder.TestrecorderThreadFactory.RECORDING;
 
@@ -32,6 +33,7 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
 import net.amygdalum.testrecorder.bridge.BridgedSnapshotManager;
+import net.amygdalum.testrecorder.serializers.Profile;
 import net.amygdalum.testrecorder.serializers.SerializerFacade;
 import net.amygdalum.testrecorder.types.SerializedInteraction;
 import net.amygdalum.testrecorder.util.CircularityLock;
@@ -166,7 +168,7 @@ public class SnapshotManager {
 		while (!snapshots.isEmpty()) {
 			ContextSnapshot snapshot = snapshots.pop();
 			if (snapshot.matches(signature)) {
-				return new ValidContextSnapshotTransaction(snapshotExecutor, timeoutInMillis, facade, snapshot); 
+				return new ValidContextSnapshotTransaction(snapshotExecutor, timeoutInMillis, facade, snapshot);
 			}
 			snapshot.invalidate();
 		}
@@ -464,7 +466,7 @@ public class SnapshotManager {
 		private ThreadLocal<ConfigurableSerializerFacade> facade;
 
 		private ContextSnapshot snapshot;
-		
+
 		public ValidContextSnapshotTransaction(ExecutorService snapshotExecutor, long timeoutInMillis, ThreadLocal<ConfigurableSerializerFacade> facade, ContextSnapshot snapshot) {
 			this.snapshotExecutor = snapshotExecutor;
 			this.timeoutInMillis = timeoutInMillis;
@@ -474,18 +476,25 @@ public class SnapshotManager {
 
 		@Override
 		public ContextSnapshotTransaction to(SerializationTask task) {
+			if (!snapshot.isValid()) {
+				return this;
+			}
+			ConfigurableSerializerFacade currentFacade = facade.get();
 			try {
-				ConfigurableSerializerFacade currentFacade = facade.get();
 				Future<?> future = snapshotExecutor.submit(() -> {
 					task.serialize(currentFacade, snapshot);
 				});
 				future.get(timeoutInMillis, TimeUnit.MILLISECONDS);
-				currentFacade.reset();
 				return this;
 			} catch (InterruptedException | ExecutionException | TimeoutException | CancellationException e) {
 				snapshot.invalidate();
-				Logger.error("failed serializing " + snapshot, e);
+				String profile = currentFacade.dumpProfiles().stream()
+					.map(Profile::toString)
+					.collect(joining("\n\t", "\n\t", ""));
+				Logger.error("failed serializing " + snapshot + ", most time consuming types are:" + profile, e);
 				return this;
+			} finally {
+				currentFacade.reset();
 			}
 		}
 

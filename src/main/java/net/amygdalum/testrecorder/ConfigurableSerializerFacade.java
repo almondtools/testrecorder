@@ -1,6 +1,8 @@
 package net.amygdalum.testrecorder;
 
 import static java.lang.System.identityHashCode;
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.asm.ByteCode.classFrom;
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
 import static net.amygdalum.testrecorder.util.Types.baseType;
@@ -9,7 +11,9 @@ import static net.amygdalum.testrecorder.util.Types.isLiteral;
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceConfigurationError;
@@ -25,6 +29,7 @@ import net.amygdalum.testrecorder.serializers.ArraySerializer;
 import net.amygdalum.testrecorder.serializers.EnumSerializer;
 import net.amygdalum.testrecorder.serializers.GenericSerializer;
 import net.amygdalum.testrecorder.serializers.LambdaSerializer;
+import net.amygdalum.testrecorder.serializers.Profile;
 import net.amygdalum.testrecorder.serializers.SerializerFacade;
 import net.amygdalum.testrecorder.serializers.SerializerFactory;
 import net.amygdalum.testrecorder.types.SerializationException;
@@ -43,12 +48,32 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 	private Map<Object, SerializedValue> serialized;
 	private List<Classes> classExclusions;
 	private List<Fields> fieldExclusions;
+	private Map<Class<?>, Profile> profiles;
 
 	public ConfigurableSerializerFacade(SerializationProfile profile) {
 		serializers = setupSerializers(this);
 		serialized = new IdentityHashMap<>();
-		classExclusions = profile.getClassExclusions();
-		fieldExclusions = profile.getFieldExclusions();
+		classExclusions = classExclusions(profile.getClassExclusions());
+		fieldExclusions = fieldExclusions(profile.getFieldExclusions());
+		profiles = new LinkedHashMap<>();
+	}
+
+	private static List<Classes> classExclusions(List<Classes> base) {
+		List<Classes> excluded = new ArrayList<>(base);
+		excluded.addAll(testrecorderClasses());
+		return excluded;
+	}
+
+	private static List<Classes> testrecorderClasses() {
+		return asList(
+			Classes.byDescription(SerializerFacade.class),
+			Classes.byDescription(ConfigurableSerializerFacade.class),
+			Classes.byDescription(Profile.class));
+	}
+
+	private static List<Fields> fieldExclusions(List<Fields> base) {
+		List<Fields> excluded = new ArrayList<>(base);
+		return excluded;
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -74,6 +99,21 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 	@Override
 	public void reset() {
 		serialized.clear();
+		profiles.clear();
+	}
+
+	private synchronized Profile log(Type type) {
+		return profiles.computeIfAbsent(baseType(type), (t) -> Profile.start(t));
+	}
+
+	@Override
+	public synchronized List<Profile> dumpProfiles() {
+		List<Profile> dump = profiles.values().stream()
+			.sorted()
+			.limit(20)
+			.collect(toList());
+		profiles = new LinkedHashMap<>();
+		return dump;
 	}
 
 	@Override
@@ -93,6 +133,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private SerializedValue createLambdaObject(Type type, Object object) {
+		Profile serialization = log(type);
 		SerializedValue serializedObject = serialized.get(object);
 		if (serializedObject == null) {
 			SerializedLambda serializedLambda = Lambdas.serializeLambda(object);
@@ -111,11 +152,13 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 				throw new SerializationException(e);
 			}
 		}
+		serialization.stop();
 		return serializedObject;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private SerializedValue createObject(Type type, Object object) {
+		Profile serialization = log(type);
 		SerializedValue serializedObject = serialized.get(object);
 		if (serializedObject == null) {
 			Serializer serializer = fetchSerializer(object.getClass());
@@ -131,6 +174,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 			SerializedReferenceType serializedReferenceType = (SerializedReferenceType) serializedObject;
 			serializedReferenceType.useAs(type);
 		}
+		serialization.stop();
 		return serializedObject;
 	}
 

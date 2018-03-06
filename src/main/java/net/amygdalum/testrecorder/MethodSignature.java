@@ -21,8 +21,9 @@ public class MethodSignature {
 		public synchronized boolean validIn(Class<?> clazz) {
 			return false;
 		}
+
 	};
-	
+
 	public Class<?> declaringClass;
 	public Annotation[] resultAnnotation;
 	public Type resultType;

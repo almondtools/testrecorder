@@ -4,18 +4,19 @@ import static java.util.stream.Collectors.joining;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
 public class WorkSet<T> implements Queue<T> {
 
-    private Set<T> done;
+    private Map<T,T> done;
     private Queue<T> elements;
 
     public WorkSet(Queue<T> base) {
-        this.done = new LinkedHashSet<T>();
+        this.done = new LinkedHashMap<>();
         this.elements = base;
     }
     
@@ -24,7 +25,7 @@ public class WorkSet<T> implements Queue<T> {
     }
 
     public Set<T> getDone() {
-        return done;
+        return done.keySet();
     }
 
     @Override
@@ -43,7 +44,7 @@ public class WorkSet<T> implements Queue<T> {
 
     @Override
     public boolean contains(Object o) {
-        return done.contains(o)
+        return done.containsKey(o)
             || elements.contains(o);
     }
 
@@ -65,13 +66,13 @@ public class WorkSet<T> implements Queue<T> {
     @Override
     public boolean remove(Object o) {
         return elements.remove(o)
-            | done.remove(o);
+            | done.remove(o,o);
     }
 
     @Override
     public boolean containsAll(Collection<?> c) {
         for (Object element : c) {
-            if (!done.contains(element) && !elements.contains(element)) {
+            if (!done.containsKey(element) && !elements.contains(element)) {
                 return false;
             }
         }
@@ -82,7 +83,7 @@ public class WorkSet<T> implements Queue<T> {
     public boolean addAll(Collection<? extends T> c) {
         boolean changed = false;
         for (T element : c) {
-            if (done.contains(element) || elements.contains(element)) {
+            if (done.containsKey(element) || elements.contains(element)) {
                 continue;
             }
             elements.add(element);
@@ -94,13 +95,13 @@ public class WorkSet<T> implements Queue<T> {
     @Override
     public boolean removeAll(Collection<?> c) {
         return elements.removeAll(c)
-            | done.removeAll(c);
+            | done.keySet().removeAll(c);
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
         return elements.retainAll(c)
-            | done.retainAll(c);
+            | done.keySet().retainAll(c);
     }
 
     @Override
@@ -111,7 +112,7 @@ public class WorkSet<T> implements Queue<T> {
 
     @Override
     public boolean add(T e) {
-        if (done.contains(e) || elements.contains(e)) {
+        if (done.containsKey(e) || elements.contains(e)) {
             return false;
         }
         elements.add(e);
@@ -120,7 +121,7 @@ public class WorkSet<T> implements Queue<T> {
 
     @Override
     public boolean offer(T e) {
-        if (done.contains(e) || elements.contains(e)) {
+        if (done.containsKey(e) || elements.contains(e)) {
             return false;
         }
         elements.add(e);
@@ -130,7 +131,7 @@ public class WorkSet<T> implements Queue<T> {
     @Override
     public T remove() {
         T head = elements.remove();
-        done.add(head);
+        done.put(head,head);
         return head;
     }
 
@@ -140,7 +141,7 @@ public class WorkSet<T> implements Queue<T> {
         if (head == null) {
             return null;
         }
-        done.add(head);
+        done.put(head, head);
         return head;
     }
 
@@ -163,7 +164,7 @@ public class WorkSet<T> implements Queue<T> {
             buffer.append('{');
             buffer.append(elements.stream().map(Object::toString).collect(joining(", ")));
             buffer.append(" | ");
-            buffer.append(done.stream().map(Object::toString).collect(joining(", ")));
+            buffer.append(done.keySet().stream().map(Object::toString).collect(joining(", ")));
             buffer.append('}');
             return buffer.toString();
         }

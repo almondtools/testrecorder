@@ -33,56 +33,56 @@ public class ConfigurableSerializerFacadeTest {
     }
 
     @Test
-    public void testSerializeTypeObjectOnNull() throws Exception {
-        assertThat(facade.serialize(String.class, null)).isEqualTo(SerializedNull.nullInstance(String.class));
-    }
+	    public void testLogTypeObjectOnNull() throws Exception {
+	        assertThat(facade.serialize(String.class, null)).isEqualTo(SerializedNull.nullInstance(String.class));
+	    }
 
     @Test
-    public void testSerializeTypeObjectOnLiteral() throws Exception {
-        assertThat(facade.serialize(String.class, "strliteral")).isEqualTo(SerializedLiteral.literal("strliteral"));
-        assertThat(facade.serialize(int.class, 22)).isEqualTo(SerializedLiteral.literal(int.class, 22));
-        assertThat(facade.serialize(Integer.class, 22)).isEqualTo(SerializedLiteral.literal(Integer.class, 22));
-    }
+	    public void testLogTypeObjectOnLiteral() throws Exception {
+	        assertThat(facade.serialize(String.class, "strliteral")).isEqualTo(SerializedLiteral.literal("strliteral"));
+	        assertThat(facade.serialize(int.class, 22)).isEqualTo(SerializedLiteral.literal(int.class, 22));
+	        assertThat(facade.serialize(Integer.class, 22)).isEqualTo(SerializedLiteral.literal(Integer.class, 22));
+	    }
 
     @SuppressWarnings("unchecked")
-    @Test
-    public void testSerializeTypeObjectOnOther() throws Exception {
-        Serializer<SerializedObject> serializer = Mockito.mock(Serializer.class);
-        openFacade.getSerializers().put(TestClass.class, serializer);
-        SerializedObject expectedResult = new SerializedObject(TestClass.class);
-
-        when(serializer.generate(TestClass.class)).thenReturn(expectedResult);
-
-        TestClass value = new TestClass();
-        SerializedValue result = facade.serialize(TestClass.class, value);
-
-        assertThat(result).isSameAs(expectedResult);
-        verify(serializer).populate(expectedResult, value);
-    }
-
-    @Test
-    public void testSerializeTypeArrayObjectArrayOnEmpty() throws Exception {
-        SerializedValue[] serialize = facade.serialize(new Type[0], new Object[0]);
-
-        assertThat(serialize).isEmpty();
-    }
+	    @Test
+	    public void testLogTypeObjectOnOther() throws Exception {
+	        Serializer<SerializedObject> serializer = Mockito.mock(Serializer.class);
+	        openFacade.getSerializers().put(TestClass.class, serializer);
+	        SerializedObject expectedResult = new SerializedObject(TestClass.class);
+	
+	        when(serializer.generate(TestClass.class)).thenReturn(expectedResult);
+	
+	        TestClass value = new TestClass();
+	        SerializedValue result = facade.serialize(TestClass.class, value);
+	
+	        assertThat(result).isSameAs(expectedResult);
+	        verify(serializer).populate(expectedResult, value);
+	    }
 
     @Test
-    public void testSerializeTypeArrayObjectArray() throws Exception {
-        SerializedValue[] serialize = facade.serialize(new Type[] { String.class }, new Object[] { "str" });
-
-        assertThat(serialize).containsExactly(SerializedLiteral.literal(String.class, "str"));
-    }
+	    public void testLogTypeArrayObjectArrayOnEmpty() throws Exception {
+	        SerializedValue[] serialize = facade.serialize(new Type[0], new Object[0]);
+	
+	        assertThat(serialize).isEmpty();
+	    }
 
     @Test
-    public void testSerializeFieldObject() throws Exception {
-        SerializedField serialized = facade.serialize(getDeclaredField(TestClass.class, "testField"), new TestClass());
+	    public void testLogTypeArrayObjectArray() throws Exception {
+	        SerializedValue[] serialize = facade.serialize(new Type[] { String.class }, new Object[] { "str" });
+	
+	        assertThat(serialize).containsExactly(SerializedLiteral.literal(String.class, "str"));
+	    }
 
-        assertThat(serialized.getName()).isEqualTo("testField");
-        assertThat(serialized.getDeclaringClass()).isEqualTo(TestClass.class);
-        assertThat(serialized.getType()).isEqualTo(int.class);
-        assertThat(serialized.getValue()).isEqualTo(literal(int.class, 42));
-    }
+    @Test
+	    public void testLogFieldObject() throws Exception {
+	        SerializedField serialized = facade.serialize(getDeclaredField(TestClass.class, "testField"), new TestClass());
+	
+	        assertThat(serialized.getName()).isEqualTo("testField");
+	        assertThat(serialized.getDeclaringClass()).isEqualTo(TestClass.class);
+	        assertThat(serialized.getType()).isEqualTo(int.class);
+	        assertThat(serialized.getValue()).isEqualTo(literal(int.class, 42));
+	    }
 
     interface OpenFacade {
         Map<Class<?>, Serializer<?>> getSerializers();

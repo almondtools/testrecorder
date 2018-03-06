@@ -58,6 +58,9 @@ public class Logger {
 
 	public void log(Object msg) {
 		out.println(msg);
+		if (msg instanceof Exception) {
+			((Exception) msg).printStackTrace(out);
+		}
 	}
 
 }
