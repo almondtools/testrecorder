@@ -26,7 +26,7 @@ public interface Classes {
 	/**
 	 * specifies a class by name (common name in this case, i.e. java.lang.String for java.lang.String)
 	 * 
-	 * @param name the name of the class
+	 * @param name the name of the class (may be abbreviated to the simple name)
 	 * @return a predicate return true for the class of the given name
 	 */
 	static Classes byName(String name) {

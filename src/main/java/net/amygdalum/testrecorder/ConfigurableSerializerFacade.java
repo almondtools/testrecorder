@@ -66,9 +66,12 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 
 	private static List<Classes> testrecorderClasses() {
 		return asList(
+			Classes.byDescription(SnapshotManager.class),
+			Classes.byDescription(ContextSnapshot.class),
 			Classes.byDescription(SerializerFacade.class),
 			Classes.byDescription(ConfigurableSerializerFacade.class),
-			Classes.byDescription(Profile.class));
+			Classes.byDescription(Profile.class),
+			Classes.byPackage("net.amygdalum.testrecorder.values"));
 	}
 
 	private static List<Fields> fieldExclusions(List<Fields> base) {

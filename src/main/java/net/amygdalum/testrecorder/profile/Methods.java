@@ -28,9 +28,9 @@ public interface Methods {
 	boolean matches(String className, String methodName, String methodDescriptor);
 
 	/**
-	 * specifies a set of methods by name (note that class and descriptor of the method are not taken into account)
+	 * specifies a set of methods by name
 	 * 
-	 * @param name the name of the method
+	 * @param name the name of the method (it may be qualified with the declaring class, but signature spec is not accepted)
 	 * @return a predicate return true for every method of the given name
 	 */
 	static Methods byName(String name) {

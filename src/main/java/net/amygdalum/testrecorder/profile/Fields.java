@@ -28,9 +28,9 @@ public interface Fields {
 	boolean matches(String className, String fieldName, String fieldDescriptor);
 
 	/**
-	 * specifies a set of fields by name (note that class and type of the field are not taken into account)
+	 * specifies a set of fields by name
 	 * 
-	 * @param name the name of the field
+	 * @param name the name of the field (it may be qualified with the declaring class, but signature spec is not accepted)
 	 * @return a predicate return true for every field of the given name
 	 */
 	static Fields byName(String name) {
