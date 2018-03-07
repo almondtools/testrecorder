@@ -53,7 +53,7 @@ public class Profile implements Comparable<Profile> {
 
 	@Override
 	public String toString() {
-		return type.getName() + ":" + (duration == 0l ? "timeout" : (duration - start));
+		return type.getName() + ":" + (duration == Long.MAX_VALUE ? "timeout" : duration);
 	}
 
 }
