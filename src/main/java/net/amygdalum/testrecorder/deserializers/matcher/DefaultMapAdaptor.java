@@ -2,10 +2,10 @@ package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
-import static net.amygdalum.testrecorder.deserializers.Computation.expression;
 import static net.amygdalum.testrecorder.deserializers.Templates.cast;
 import static net.amygdalum.testrecorder.deserializers.Templates.containsEntriesMatcher;
 import static net.amygdalum.testrecorder.deserializers.Templates.noEntriesMatcher;
+import static net.amygdalum.testrecorder.types.Computation.expression;
 import static net.amygdalum.testrecorder.util.Types.assignableTypes;
 import static net.amygdalum.testrecorder.util.Types.isGeneric;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
@@ -18,11 +18,11 @@ import java.util.stream.Stream;
 
 import org.hamcrest.Matcher;
 
-import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.testing.hamcrest.MapMatcher;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.SerializedValue;
+import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.util.Pair;
 import net.amygdalum.testrecorder.values.SerializedMap;
 import net.amygdalum.testrecorder.values.SerializedNull;

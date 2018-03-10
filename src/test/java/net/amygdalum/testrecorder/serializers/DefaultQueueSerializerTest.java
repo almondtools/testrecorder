@@ -30,7 +30,7 @@ public class DefaultQueueSerializerTest {
 	@BeforeEach
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
-		serializer = new DefaultQueueSerializer.Factory().newSerializer(facade);
+		serializer = new DefaultQueueSerializer(facade);
 	}
 
 	@Test

@@ -4,10 +4,10 @@ import static java.util.Arrays.asList;
 
 import java.util.List;
 
-import net.amygdalum.testrecorder.DefaultTestRecorderAgentConfig;
+import net.amygdalum.testrecorder.DefaultSerializationProfile;
 import net.amygdalum.testrecorder.profile.Methods;
 
-public class StandardLibInputOutputTestRecorderAgentConfig extends DefaultTestRecorderAgentConfig {
+public class StandardLibInputOutputTestRecorderAgentConfig extends DefaultSerializationProfile {
 
 	@Override
 	public List<Methods> getInputs() {

@@ -38,13 +38,4 @@ public class DefaultDequeSerializer implements Serializer<SerializedList> {
 		}
 	}
 
-	public static class Factory implements SerializerFactory<SerializedList> {
-
-		@Override
-		public DefaultDequeSerializer newSerializer(SerializerFacade facade) {
-			return new DefaultDequeSerializer(facade);
-		}
-
-	}
-
 }

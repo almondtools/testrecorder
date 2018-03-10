@@ -22,9 +22,10 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.runtime.Wrapped;
+import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.util.Types;
 
-public class TypeManager {
+public class DeserializerTypeManager implements TypeManager {
 
 	private static final String DEFAULT_PKG = "java.lang";
 	private static final String WILDCARD = "?";
@@ -34,36 +35,41 @@ public class TypeManager {
 	private Set<String> staticImports;
 	private Set<Type> noImports;
 
-	public TypeManager() {
+	public DeserializerTypeManager() {
 		this("");
 	}
 
-	public TypeManager(String pkg) {
+	public DeserializerTypeManager(String pkg) {
 		this.pkg = pkg;
 		this.imports = new LinkedHashMap<>();
 		this.staticImports = new LinkedHashSet<>();
 		this.noImports = new LinkedHashSet<>();
 	}
 
+	@Override
 	public String getPackage() {
 		return pkg;
 	}
 
+	@Override
 	public List<String> getImports() {
 		return Stream.concat(imports.values().stream(), staticImports.stream())
 			.collect(toList());
 	}
 
+	@Override
 	public void staticImport(Class<?> type, String method) {
 		staticImports.add("static " + type.getName() + "." + method);
 	}
 
+	@Override
 	public void registerTypes(Type... types) {
 		for (Type type : types) {
 			registerType(type);
 		}
 	}
 
+	@Override
 	public void registerType(Type type) {
 		if (type instanceof Class<?>) {
 			registerImport((Class<?>) type);
@@ -75,6 +81,7 @@ public class TypeManager {
 		}
 	}
 
+	@Override
 	public void registerImport(Class<?> clazz) {
 		if (cannotBeNotImported(clazz)) {
 			return;
@@ -93,6 +100,7 @@ public class TypeManager {
 		}
 	}
 
+	@Override
 	public String getVariableTypeName(Type type) {
 		if (type instanceof Class<?>) {
 			Class<?> clazz = (Class<?>) type;
@@ -124,6 +132,7 @@ public class TypeManager {
 		}
 	}
 
+	@Override
 	public String getConstructorTypeName(Type type) {
 		if (type instanceof Class<?>) {
 			Class<?> clazz = (Class<?>) type;
@@ -148,6 +157,7 @@ public class TypeManager {
 		}
 	}
 
+	@Override
 	public String getRawTypeName(Type type) {
 		if (type instanceof Class<?>) {
 			Class<?> clazz = (Class<?>) type;
@@ -167,6 +177,7 @@ public class TypeManager {
 		}
 	}
 
+	@Override
 	public String getRawClass(String type) {
 		try {
 			return getRawClass(Class.forName(type));
@@ -175,6 +186,7 @@ public class TypeManager {
 		}
 	}
 
+	@Override
 	public String getRawClass(Type type) {
 		if (isHidden(type)) {
 			return getWrappedName(type);
@@ -183,22 +195,27 @@ public class TypeManager {
 		}
 	}
 
+	@Override
 	public boolean isHidden(Constructor<?> constructor) {
 		return Types.isHidden(constructor, pkg);
 	}
 
+	@Override
 	public boolean isHidden(Type type) {
 		return Types.isHidden(type, pkg);
 	}
 
+	@Override
 	public boolean isGenericVariable(Type type) {
 		return Types.isGenericVariable(type, pkg);
 	}
 
+	@Override
 	public boolean isErasureHidden(Type type) {
 		return Types.isErasureHidden(type, pkg);
 	}
 
+	@Override
 	public boolean isColliding(Class<?> clazz) {
 		return imports.containsKey(clazz.getSimpleName())
 			&& !imports.get(clazz.getSimpleName()).equals(clazz.getCanonicalName());
@@ -208,6 +225,7 @@ public class TypeManager {
 		return noImports.contains(clazz);
 	}
 
+	@Override
 	public boolean isNotImported(Class<?> clazz) {
 		if (clazz.getPackage() != null && clazz.getPackage().getName().equals(DEFAULT_PKG)) {
 			return noImports.contains(clazz);
@@ -216,6 +234,7 @@ public class TypeManager {
 			|| !imports.get(clazz.getSimpleName()).equals(clazz.getCanonicalName());
 	}
 
+	@Override
 	public Type wrapHidden(Type type) {
 		if (isHidden(type)) {
 			return Wrapped.class;
@@ -224,10 +243,12 @@ public class TypeManager {
 		}
 	}
 
+	@Override
 	public String getWrappedName(Type type) {
 		return "clazz(\"" + baseType(type).getName() + "\")";
 	}
 
+	@Override
 	public Type bestType(Type preferred, Class<?> bound) {
 		if (isGenericVariable(preferred)) {
 			TypeVariable<?> variable = (TypeVariable<?>) preferred;
@@ -260,6 +281,7 @@ public class TypeManager {
 		return preferred;
 	}
 
+	@Override
 	public Type bestType(Type preferred, Type secondary, Class<?> bound) {
 		if (!isHidden(preferred) && !isErasureHidden(preferred) && bound.isAssignableFrom(baseType(preferred))) {
 			return preferred;
@@ -270,6 +292,7 @@ public class TypeManager {
 		return bound;
 	}
 
+	@Override
 	public Optional<Type> mostSpecialOf(Type... types) {
 		Type[] visibleTypes = Arrays.stream(types).filter(type -> !isHidden(type)).toArray(Type[]::new);
 		return Types.mostSpecialOf(visibleTypes);

@@ -10,7 +10,7 @@ import net.amygdalum.testrecorder.Recorded;
 
 public interface SerializationProfile {
 
-	long getTimeoutInMillis();
+	List<Classes> getClasses();
 
 	/**
 	 * Annotating a field or class with {@link Excluded} excludes it from serialization.

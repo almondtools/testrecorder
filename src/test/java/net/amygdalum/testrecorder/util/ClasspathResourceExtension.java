@@ -11,7 +11,7 @@ public class ClasspathResourceExtension implements BeforeEachCallback, AfterEach
 
 	private ClassLoader backupClassLoader;
 	private ExtensibleClassLoader classLoader;
-
+	
 	@Override
 	public void beforeEach(ExtensionContext context) throws Exception {
 		backupClassLoader = Thread.currentThread().getContextClassLoader();

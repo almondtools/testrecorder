@@ -5,6 +5,8 @@ import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
+
 /**
  * A configurable SnapshotConsumer client that writes tests to the file system
  */
@@ -20,7 +22,8 @@ public class ScheduledTestGenerator extends TestGenerator {
 	private long timeInterval;
 	private String classNameTemplate;
 
-	public ScheduledTestGenerator() {
+	public ScheduledTestGenerator(AgentConfiguration config) {
+		super(config);
 		this.counterMaximum = -1;
 		this.counter = 0;
 		this.start = System.currentTimeMillis();
@@ -128,7 +131,7 @@ public class ScheduledTestGenerator extends TestGenerator {
 
 	private void checkCounterInterval() {
 		if (counterInterval > 0 && counter % counterInterval == 0) {
-			dumpResults();
+			andThen(() -> dumpResults());
 		}
 	}
 
@@ -136,15 +139,13 @@ public class ScheduledTestGenerator extends TestGenerator {
 		long oldStart = start;
 		start = System.currentTimeMillis();
 		if (timeInterval > 0 && start - oldStart >= timeInterval) {
-			dumpResults();
+			andThen(() -> dumpResults());
 		}
 	}
 
 	public void dumpResults() {
-		andThen(() -> {
 			writeResults(path);
 			clearResults();
-		});
 	}
 
 	@Override

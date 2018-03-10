@@ -9,18 +9,21 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedList;
 
 public class ArraysListAdaptorTest {
 
+	private AgentConfiguration config;
 	private ArraysListAdaptor adaptor;
 	private DeserializerContext context;
 
 	@BeforeEach
 	public void before() throws Exception {
+		config = new AgentConfiguration();
 		adaptor = new ArraysListAdaptor();
 		context = new DefaultDeserializerContext();
 	}
@@ -39,7 +42,7 @@ public class ArraysListAdaptorTest {
 	@Test
 	public void testTryDeserialize() throws Exception {
 		SerializedList value = listOf("java.util.Arrays$ArrayList", 0, 8, 15);
-		SetupGenerators generator = new SetupGenerators();
+		SetupGenerators generator = new SetupGenerators(config);
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 

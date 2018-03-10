@@ -13,19 +13,22 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializationException;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedMap;
 
 public class CollectionsMapAdaptorTest {
 
+	private AgentConfiguration config;
 	private CollectionsMapAdaptor adaptor;
 	private DeserializerContext context;
 
 	@BeforeEach
 	public void before() throws Exception {
+		config = new AgentConfiguration();
 		adaptor = new CollectionsMapAdaptor();
 		context = new DefaultDeserializerContext();
 	}
@@ -54,7 +57,7 @@ public class CollectionsMapAdaptorTest {
 	@Test
 	public void testTryDeserializeUnmodifiable() throws Exception {
 		SerializedMap value = mapOf("java.util.Collections$UnmodifiableMap", new int[] { 8, 15 }, new int[] { 47, 11 });
-		SetupGenerators generator = new SetupGenerators();
+		SetupGenerators generator = new SetupGenerators(config);
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -65,7 +68,7 @@ public class CollectionsMapAdaptorTest {
 	@Test
 	public void testTryDeserializeUnmodifiableNavigable() throws Exception {
 		SerializedMap value = mapOf("java.util.Collections$UnmodifiableNavigableMap", new int[] { 8, 15 }, new int[] { 47, 11 });
-		SetupGenerators generator = new SetupGenerators();
+		SetupGenerators generator = new SetupGenerators(config);
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -76,7 +79,7 @@ public class CollectionsMapAdaptorTest {
 	@Test
 	public void testTryDeserializeUnmodifiableSorted() throws Exception {
 		SerializedMap value = mapOf("java.util.Collections$UnmodifiableSortedMap", new int[] { 8, 15 }, new int[] { 47, 11 });
-		SetupGenerators generator = new SetupGenerators();
+		SetupGenerators generator = new SetupGenerators(config);
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -87,7 +90,7 @@ public class CollectionsMapAdaptorTest {
 	@Test
 	public void testTryDeserializeSynchronized() throws Exception {
 		SerializedMap value = mapOf("java.util.Collections$SynchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 });
-		SetupGenerators generator = new SetupGenerators();
+		SetupGenerators generator = new SetupGenerators(config);
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -98,7 +101,7 @@ public class CollectionsMapAdaptorTest {
 	@Test
 	public void testTryDeserializeSynchronizedRawType() throws Exception {
 		SerializedMap value = mapOfRaw("java.util.Collections$SynchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 });
-		SetupGenerators generator = new SetupGenerators();
+		SetupGenerators generator = new SetupGenerators(config);
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -109,7 +112,7 @@ public class CollectionsMapAdaptorTest {
 	@Test
 	public void testTryDeserializeSynchronizedWildcardType() throws Exception {
 		SerializedMap value = mapOfWildcard("java.util.Collections$SynchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 });
-		SetupGenerators generator = new SetupGenerators();
+		SetupGenerators generator = new SetupGenerators(config);
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -120,7 +123,7 @@ public class CollectionsMapAdaptorTest {
 	@Test
 	public void testTryDeserializeSynchronizedNavigable() throws Exception {
 		SerializedMap value = mapOf("java.util.Collections$SynchronizedNavigableMap", new int[] { 8, 15 }, new int[] { 47, 11 });
-		SetupGenerators generator = new SetupGenerators();
+		SetupGenerators generator = new SetupGenerators(config);
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -131,7 +134,7 @@ public class CollectionsMapAdaptorTest {
 	@Test
 	public void testTryDeserializeSynchronizedSorted() throws Exception {
 		SerializedMap value = mapOf("java.util.Collections$SynchronizedSortedMap", new int[] { 8, 15 }, new int[] { 47, 11 });
-		SetupGenerators generator = new SetupGenerators();
+		SetupGenerators generator = new SetupGenerators(config);
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -142,7 +145,7 @@ public class CollectionsMapAdaptorTest {
 	@Test
 	public void testTryDeserializeChecked() throws Exception {
 		SerializedMap value = mapOf("java.util.Collections$CheckedMap", new int[] { 8, 15 }, new int[] { 47, 11 });
-		SetupGenerators generator = new SetupGenerators();
+		SetupGenerators generator = new SetupGenerators(config);
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -153,7 +156,7 @@ public class CollectionsMapAdaptorTest {
 	@Test
 	public void testTryDeserializeCheckedSorted() throws Exception {
 		SerializedMap value = mapOf("java.util.Collections$CheckedSortedMap", new int[] { 8, 15 }, new int[] { 47, 11 });
-		SetupGenerators generator = new SetupGenerators();
+		SetupGenerators generator = new SetupGenerators(config);
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -164,7 +167,7 @@ public class CollectionsMapAdaptorTest {
 	@Test
 	public void testTryDeserializeCheckedNavigable() throws Exception {
 		SerializedMap value = mapOf("java.util.Collections$CheckedNavigableMap", new int[] { 8, 15 }, new int[] { 47, 11 });
-		SetupGenerators generator = new SetupGenerators();
+		SetupGenerators generator = new SetupGenerators(config);
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -175,7 +178,7 @@ public class CollectionsMapAdaptorTest {
 	@Test
 	public void testTryDeserializeEmpty() throws Exception {
 		SerializedMap value = mapOf("java.util.Collections$EmptyMap");
-		SetupGenerators generator = new SetupGenerators();
+		SetupGenerators generator = new SetupGenerators(config);
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -186,7 +189,7 @@ public class CollectionsMapAdaptorTest {
 	@Test
 	public void testTryDeserializeSingleton() throws Exception {
 		SerializedMap value = mapOf("java.util.Collections$SingletonMap", new int[] { 8, 15 });
-		SetupGenerators generator = new SetupGenerators();
+		SetupGenerators generator = new SetupGenerators(config);
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -197,7 +200,7 @@ public class CollectionsMapAdaptorTest {
 	@Test
 	public void testTryDeserializeOther() throws Exception {
 		SerializedMap value = mapOf("java.lang.Object");
-		SetupGenerators generator = new SetupGenerators();
+		SetupGenerators generator = new SetupGenerators(config);
 
 		assertThatThrownBy(() -> adaptor.tryDeserialize(value, generator, context)).isInstanceOf(DeserializationException.class);
 	}

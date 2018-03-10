@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder;
 
 import static net.amygdalum.testrecorder.SnapshotManager.DummyContextSnapshotTransaction.INVALID;
+import static net.amygdalum.testrecorder.util.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.xrayinterface.XRayInterface.xray;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,6 +23,7 @@ import org.mockito.Mockito;
 
 import net.amygdalum.testrecorder.SnapshotManager.ContextSnapshotTransaction;
 import net.amygdalum.testrecorder.SnapshotManager.DummyContextSnapshotTransaction;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.util.CircularityLock;
 import net.amygdalum.testrecorder.util.testobjects.Bean;
 import net.amygdalum.testrecorder.util.testobjects.Overridden;
@@ -32,13 +34,14 @@ import net.amygdalum.testrecorder.values.SerializedObject;
 public class SnapshotManagerTest {
 
 	private SnapshotConsumer consumer;
-	private TestTestRecorderAgentConfig config;
+	private AgentConfiguration config;
 	private SnapshotManager snapshotManager;
 
 	@BeforeEach
 	public void before() throws Exception {
 		consumer = Mockito.mock(SnapshotConsumer.class);
-		config = new TestTestRecorderAgentConfig(consumer);
+		config = defaultConfig()
+			.withDefaultValue(SnapshotConsumer.class, () -> consumer);
 		snapshotManager = new SnapshotManager(config);
 		snapshotManager.registerRecordedMethod("getAttribute()Ljava/lang/String;", "net/amygdalum/testrecorder/util/testobjects/Bean", "getAttribute", "()Ljava/lang/String;");
 		snapshotManager.registerRecordedMethod("setAttribute(Ljava/lang/String;)V", "net/amygdalum/testrecorder/util/testobjects/Bean", "setAttribute", "(Ljava/lang/String;)V");

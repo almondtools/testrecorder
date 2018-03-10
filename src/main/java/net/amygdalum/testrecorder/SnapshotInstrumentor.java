@@ -53,9 +53,11 @@ import net.amygdalum.testrecorder.asm.WrapMethod;
 import net.amygdalum.testrecorder.asm.WrapResultType;
 import net.amygdalum.testrecorder.asm.WrapWithTryCatch;
 import net.amygdalum.testrecorder.bridge.BridgedSnapshotManager;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.Classes;
 import net.amygdalum.testrecorder.profile.Fields;
 import net.amygdalum.testrecorder.profile.Methods;
+import net.amygdalum.testrecorder.profile.SerializationProfile;
 import net.amygdalum.testrecorder.profile.SerializationProfile.Global;
 import net.amygdalum.testrecorder.profile.SerializationProfile.Input;
 import net.amygdalum.testrecorder.profile.SerializationProfile.Output;
@@ -64,14 +66,14 @@ import net.amygdalum.testrecorder.util.Logger;
 
 public class SnapshotInstrumentor extends AttachableClassFileTransformer implements ClassFileTransformer {
 
-	private TestRecorderAgentConfig config;
+	private SerializationProfile profile;
 	private ClassNodeManager classes = new ClassNodeManager();
 	private IOManager io = new IOManager();
 	private Set<String> instrumentedClassNames;
 	private Set<Class<?>> instrumentedClasses;
 
-	public SnapshotInstrumentor(TestRecorderAgentConfig config) {
-		this.config = config;
+	public SnapshotInstrumentor(AgentConfiguration config) {
+		this.profile = config.loadConfiguration(SerializationProfile.class);
 		this.classes = new ClassNodeManager();
 		this.instrumentedClassNames = new LinkedHashSet<>();
 		this.instrumentedClasses = new LinkedHashSet<>();
@@ -82,7 +84,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 	public Collection<Class<?>> filterClassesToRetransform(Class<?>[] loaded) {
 		Set<Class<?>> classesToRetransform = new LinkedHashSet<>();
 		for (Class<?> clazz : loaded) {
-			for (Classes classes : config.getClasses()) {
+			for (Classes classes : profile.getClasses()) {
 				if (classes.matches(clazz)) {
 					classesToRetransform.add(clazz);
 				}
@@ -113,7 +115,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 			if (className == null) {
 				return null;
 			}
-			for (Classes clazz : config.getClasses()) {
+			for (Classes clazz : profile.getClasses()) {
 				if (clazz.matches(className)) {
 					Logger.info("recording snapshots of " + className);
 
@@ -152,8 +154,8 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 			return null;
 		}
 		Task task = needsBridging(classNode, clazz)
-			? new BridgedTask(config, classes, io, classNode)
-			: new DefaultTask(config, classes, io, classNode);
+			? new BridgedTask(profile, classes, io, classNode)
+			: new DefaultTask(profile, classes, io, classNode);
 
 		task.logSkippedSnapshotMethods();
 
@@ -204,14 +206,14 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 	public static abstract class Task {
 
-		private TestRecorderAgentConfig config;
+		private SerializationProfile profile;
 		private ClassNodeManager classes;
 		private IOManager io;
 
 		protected ClassNode classNode;
 
-		public Task(TestRecorderAgentConfig config, ClassNodeManager classes, IOManager io, ClassNode classNode) {
-			this.config = config;
+		public Task(SerializationProfile profile, ClassNodeManager classes, IOManager io, ClassNode classNode) {
+			this.profile = profile;
 			this.classes = classes;
 			this.io = io;
 			this.classNode = classNode;
@@ -518,7 +520,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		protected boolean isGlobalField(String className, FieldNode fieldNode) {
 			boolean global = fieldNode.visibleAnnotations != null && fieldNode.visibleAnnotations.stream()
 				.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Global.class)))
-				|| config.getGlobalFields().stream()
+				|| profile.getGlobalFields().stream()
 					.anyMatch(field -> matches(field, className, fieldNode.name, fieldNode.desc));
 			if (global && !isStatic(fieldNode)) {
 				Logger.warn("found annotation @Global on non static field " + fieldNode.desc + " " + fieldNode.name + ", skipping");
@@ -557,7 +559,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 		private boolean isQualifiedInputMethod(ClassNode classNode, MethodNode methodNode) {
 			return io.isInput(classNode.name, methodNode.name, methodNode.desc)
-				|| config.getInputs().stream()
+				|| profile.getInputs().stream()
 					.anyMatch(method -> matches(method, classNode.name, methodNode.name, methodNode.desc));
 		}
 
@@ -583,7 +585,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 		private boolean isQualifiedOutputMethod(ClassNode classNode, MethodNode methodNode) {
 			return io.isOutput(classNode.name, methodNode.name, methodNode.desc)
-				|| config.getOutputs().stream()
+				|| profile.getOutputs().stream()
 					.anyMatch(method -> matches(method, classNode.name, methodNode.name, methodNode.desc));
 		}
 
@@ -622,8 +624,8 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 	public static class BridgedTask extends Task {
 
-		public BridgedTask(TestRecorderAgentConfig config, ClassNodeManager classes, IOManager io, ClassNode classNode) {
-			super(config, classes, io, classNode);
+		public BridgedTask(SerializationProfile profile, ClassNodeManager classes, IOManager io, ClassNode classNode) {
+			super(profile, classes, io, classNode);
 		}
 
 		@Override
@@ -692,8 +694,8 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 	public static class DefaultTask extends Task {
 
-		public DefaultTask(TestRecorderAgentConfig config, ClassNodeManager classes, IOManager io, ClassNode classNode) {
-			super(config, classes, io, classNode);
+		public DefaultTask(SerializationProfile profile, ClassNodeManager classes, IOManager io, ClassNode classNode) {
+			super(profile, classes, io, classNode);
 		}
 
 		@Override

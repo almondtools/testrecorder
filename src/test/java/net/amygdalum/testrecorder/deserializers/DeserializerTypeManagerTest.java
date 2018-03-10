@@ -15,19 +15,19 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class TypeManagerTest {
+public class DeserializerTypeManagerTest {
 
-    private TypeManager types;
+    private DeserializerTypeManager types;
 
     @BeforeEach
     public void before() throws Exception {
-        types = new TypeManager("net.amygdalum.testrecorder.deserializers");
+        types = new DeserializerTypeManager("net.amygdalum.testrecorder.deserializers");
     }
 
     @Test
     public void testGetPackage() throws Exception {
         assertThat(types.getPackage()).isEqualTo("net.amygdalum.testrecorder.deserializers");
-        assertThat(new TypeManager().getPackage()).isEqualTo("");
+        assertThat(new DeserializerTypeManager().getPackage()).isEqualTo("");
     }
 
     @Test

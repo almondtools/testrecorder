@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
-import net.amygdalum.testrecorder.scenarios.ScenarioAgentConfig;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.util.ClasspathResourceExtension;
 import net.amygdalum.testrecorder.util.ExtensibleClassLoader;
 import net.amygdalum.testrecorder.util.LogLevel;
@@ -20,35 +20,8 @@ public class TestRecorderAgentTest {
 
 	@Test
 	@ExtendWith(ClasspathResourceExtension.class)
-	public void testLoadConfigLoading(ExtensibleClassLoader loader, @LogLevel("info") ByteArrayOutputStream info, @LogLevel("error") ByteArrayOutputStream error) throws Exception {
-		loader.defineResource("META-INF/services/net.amygdalum.testrecorder.TestRecorderAgentConfig", "net.amygdalum.testrecorder.scenarios.ScenarioAgentConfig".getBytes());
-		AgentConfiguration agentconfig = TestRecorderAgent.loadConfig(null, loader);
-		TestRecorderAgent agent = new TestRecorderAgent(Mockito.mock(Instrumentation.class), agentconfig);
-		
-		TestRecorderAgentConfig config = agent.loadInstrumentationConfig();
-		
-		assertThat(config).isInstanceOf(ScenarioAgentConfig.class);
-		assertThat(info.toString()).contains("loading ScenarioAgentConfig");
-	}
-
-	@Test
-	@ExtendWith(ClasspathResourceExtension.class)
-	public void testLoadConfigFailing(ExtensibleClassLoader loader, @LogLevel("info") ByteArrayOutputStream info, @LogLevel("error") ByteArrayOutputStream error) throws Exception {
-		loader.defineResource("META-INF/services/net.amygdalum.testrecorder.TestRecorderAgentConfig", "net.amygdalum.testrecorder.NotExistingTestRecorderAgentConfig".getBytes());
-		AgentConfiguration agentconfig = TestRecorderAgent.loadConfig(null, loader);
-		TestRecorderAgent agent = new TestRecorderAgent(Mockito.mock(Instrumentation.class), agentconfig);
-		
-		TestRecorderAgentConfig config = agent.loadInstrumentationConfig();
-		
-		assertThat(config).isInstanceOf(DefaultTestRecorderAgentConfig.class);
-		assertThat(error.toString()).contains("failed loading NotExistingTestRecorderAgentConfig");
-		assertThat(info.toString()).contains("loading default DefaultTestRecorderAgentConfig");
-	}
-
-	@Test
-	@ExtendWith(ClasspathResourceExtension.class)
 	public void testInitialize(ExtensibleClassLoader loader, @LogLevel("info") ByteArrayOutputStream info, @LogLevel("error") ByteArrayOutputStream error) throws Exception {
-		loader.defineResource("META-INF/services/net.amygdalum.testrecorder.TestRecorderAgentInitializer", "net.amygdalum.testrecorder.util.AgentInitializer".getBytes());
+		loader.defineResource("agentconfig/net.amygdalum.testrecorder.TestRecorderAgentInitializer", "net.amygdalum.testrecorder.util.AgentInitializer".getBytes());
 		AgentConfiguration agentconfig = TestRecorderAgent.loadConfig(null, loader);
 		TestRecorderAgent agent = new TestRecorderAgent(Mockito.mock(Instrumentation.class), agentconfig);
 
@@ -61,7 +34,7 @@ public class TestRecorderAgentTest {
 	@Test
 	@ExtendWith(ClasspathResourceExtension.class)
 	public void testInitializeWithInitializationFailure(ExtensibleClassLoader loader, @LogLevel("info") ByteArrayOutputStream info, @LogLevel("error") ByteArrayOutputStream error) throws Exception {
-		loader.defineResource("META-INF/services/net.amygdalum.testrecorder.TestRecorderAgentInitializer", "net.amygdalum.testrecorder.util.BrokenAgentInitializer".getBytes());
+		loader.defineResource("agentconfig/net.amygdalum.testrecorder.TestRecorderAgentInitializer", "net.amygdalum.testrecorder.util.BrokenAgentInitializer".getBytes());
 		AgentConfiguration agentconfig = TestRecorderAgent.loadConfig(null, loader);
 		TestRecorderAgent agent = new TestRecorderAgent(Mockito.mock(Instrumentation.class), agentconfig);
 

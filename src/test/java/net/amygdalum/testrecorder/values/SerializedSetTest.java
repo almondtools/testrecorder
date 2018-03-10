@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.values;
 import static java.util.Arrays.asList;
 import static java.util.Comparator.comparing;
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
-import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
+import static net.amygdalum.testrecorder.types.DeserializerContext.NULL;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.GenericTypes.hashSetOfListOfString;
 import static net.amygdalum.testrecorder.values.GenericTypes.hashSetOfString;

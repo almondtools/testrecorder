@@ -7,20 +7,22 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.ServiceConfigurationError;
-import java.util.ServiceLoader;
 
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializationException;
 import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.SerializedValue;
-import net.amygdalum.testrecorder.util.Logger;
+import net.amygdalum.testrecorder.types.TypeManager;
 
 public class Adaptors<G extends Deserializer<Computation>> {
 
+	private AgentConfiguration config;
 	private Map<Class<? extends SerializedValue>, List<Adaptor<?, G>>> adaptors;
 
-	public Adaptors() {
+	public Adaptors(AgentConfiguration config) {
+		this.config = config;
 		this.adaptors = new LinkedHashMap<>();
 	}
 
@@ -74,15 +76,11 @@ public class Adaptors<G extends Deserializer<Computation>> {
 		}
 		return null;
 	}
-	@SuppressWarnings({ "rawtypes", "unchecked" }) 
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Adaptors<G> load(Class<? extends Adaptor> clazz) {
-		try {
-			ServiceLoader<? extends Adaptor> loader = ServiceLoader.load(clazz);
-			for (Adaptor<?, G> adaptor : loader) {
-				add(adaptor);
-			}
-		} catch (ServiceConfigurationError serviceError) {
-			Logger.warn("failed loading adaptors: " + serviceError.getMessage());
+		for (Adaptor<?, G> adaptor : config.loadConfigurations(clazz)) {
+			add(adaptor);
 		}
 		return this;
 	}

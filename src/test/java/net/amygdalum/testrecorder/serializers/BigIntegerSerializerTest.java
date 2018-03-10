@@ -19,7 +19,7 @@ public class BigIntegerSerializerTest {
 	@BeforeEach
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
-		serializer = new BigIntegerSerializer.Factory().newSerializer(facade);
+		serializer = new BigIntegerSerializer(facade);
 	}
 
 	@Test

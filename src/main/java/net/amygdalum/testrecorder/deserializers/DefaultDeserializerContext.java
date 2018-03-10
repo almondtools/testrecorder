@@ -23,16 +23,19 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.runtime.Wrapped;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializationException;
 import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.LocalVariable;
+import net.amygdalum.testrecorder.types.LocalVariableDefinition;
+import net.amygdalum.testrecorder.types.LocalVariableNameGenerator;
 import net.amygdalum.testrecorder.types.SerializedImmutableType;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedValue;
+import net.amygdalum.testrecorder.types.TypeManager;
 
 public class DefaultDeserializerContext implements DeserializerContext {
-
-	public static final DefaultDeserializerContext NULL = new DefaultDeserializerContext();
 
 	private static final SerializedReferenceType GLOBAL_REFERRER = new GlobalRoot();
 
@@ -49,7 +52,7 @@ public class DefaultDeserializerContext implements DeserializerContext {
 		this.backReferences = new IdentityHashMap<>();
 		this.closures = new IdentityHashMap<>();
 		this.hints = emptyList();
-		this.types = new TypeManager();
+		this.types = new DeserializerTypeManager();
 		this.locals = new LocalVariableNameGenerator();
 		this.defined = new IdentityHashMap<>();
 		this.computed = new HashSet<>();

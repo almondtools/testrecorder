@@ -29,13 +29,4 @@ public class BigIntegerSerializer implements Serializer<SerializedImmutable<BigI
 		serializedObject.setValue((BigInteger) object);
 	}
 
-	public static class Factory implements SerializerFactory<SerializedImmutable<BigInteger>> {
-
-		@Override
-		public BigIntegerSerializer newSerializer(SerializerFacade facade) {
-			return new BigIntegerSerializer(facade);
-		}
-
-	}
-
 }

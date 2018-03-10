@@ -19,7 +19,7 @@ public class BigDecimalSerializerTest {
 	@BeforeEach
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
-		serializer = new BigDecimalSerializer.Factory().newSerializer(facade);
+		serializer = new BigDecimalSerializer(facade);
 	}
 
 	@Test

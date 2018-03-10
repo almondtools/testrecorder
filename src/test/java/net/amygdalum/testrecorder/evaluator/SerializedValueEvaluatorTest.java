@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.evaluator;
 
 import static java.util.Arrays.asList;
+import static net.amygdalum.testrecorder.util.TestAgentConfiguration.defaultConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
@@ -9,18 +10,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.ConfigurableSerializerFacade;
-import net.amygdalum.testrecorder.DefaultTestRecorderAgentConfig;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.util.testobjects.Complex;
 import net.amygdalum.testrecorder.util.testobjects.Simple;
 
 public class SerializedValueEvaluatorTest {
 
+	private AgentConfiguration config;
     private ConfigurableSerializerFacade facade;
 
     @BeforeEach
     public void before() throws Exception {
-        facade = new ConfigurableSerializerFacade(new DefaultTestRecorderAgentConfig());
+        config = defaultConfig();
+		facade = new ConfigurableSerializerFacade(config);
     }
 
     @Test

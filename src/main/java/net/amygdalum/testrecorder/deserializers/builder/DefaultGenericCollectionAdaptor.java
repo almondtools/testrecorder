@@ -1,10 +1,10 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static java.util.stream.Collectors.toList;
-import static net.amygdalum.testrecorder.deserializers.Computation.variable;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethodStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
+import static net.amygdalum.testrecorder.types.Computation.variable;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.equalTypes;
 import static net.amygdalum.testrecorder.util.Types.typeArgument;
@@ -15,11 +15,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.TypeManager;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedValue;
+import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.util.Types;
 
 public abstract class DefaultGenericCollectionAdaptor<T extends SerializedReferenceType> extends DefaultSetupGenerator<T> implements SetupGenerator<T> {

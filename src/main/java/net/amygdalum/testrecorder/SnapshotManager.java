@@ -22,8 +22,9 @@ import java.util.Queue;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
@@ -33,6 +34,8 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
 import net.amygdalum.testrecorder.bridge.BridgedSnapshotManager;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.serializers.Profile;
 import net.amygdalum.testrecorder.serializers.SerializerFacade;
 import net.amygdalum.testrecorder.types.SerializedInteraction;
@@ -66,17 +69,20 @@ public class SnapshotManager {
 		installBridge(inst);
 	}
 
-	public SnapshotManager(TestRecorderAgentConfig config) {
-		this.snapshotConsumer = config.getSnapshotConsumer();
-		this.timeoutInMillis = config.getTimeoutInMillis();
+	public SnapshotManager(AgentConfiguration config) {
+		this.snapshotConsumer = config.loadConfiguration(SnapshotConsumer.class, config);
+
 		this.current = ThreadLocal.withInitial(() -> newStack());
 		this.facade = ThreadLocal.withInitial(() -> new ConfigurableSerializerFacade(config));
 
-		this.snapshotExecutor = Executors.newSingleThreadExecutor(new TestrecorderThreadFactory("$snapshot"));
+		PerformanceProfile performanceProfile = config.loadConfiguration(PerformanceProfile.class);
+		
+		this.timeoutInMillis = performanceProfile.getTimeoutInMillis();
+		this.snapshotExecutor = new ThreadPoolExecutor(0, performanceProfile.getThreads(), performanceProfile.getIdleTime(), TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new TestrecorderThreadFactory("$snapshot"));
 		this.methodContext = new MethodContext();
 		this.globalContext = new GlobalContext();
 	}
-
+	
 	private static void installBridge(Instrumentation inst) {
 		try {
 			inst.appendToBootstrapClassLoaderSearch(jarfile());
@@ -132,7 +138,7 @@ public class SnapshotManager {
 		}
 	}
 
-	public static SnapshotManager init(TestRecorderAgentConfig config) {
+	public static SnapshotManager init(AgentConfiguration config) {
 		MANAGER = new SnapshotManager(config);
 		BridgedSnapshotManager.MANAGER = MANAGER;
 		return MANAGER;

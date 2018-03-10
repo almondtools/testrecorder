@@ -2,6 +2,9 @@ package net.amygdalum.testrecorder;
 
 import java.lang.instrument.Instrumentation;
 
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.profile.PerformanceProfile;
+import net.amygdalum.testrecorder.profile.SerializationProfile;
 import net.amygdalum.testrecorder.util.AttachableClassFileTransformer;
 import net.amygdalum.testrecorder.util.Logger;
 
@@ -15,6 +18,10 @@ public class TestRecorderAgent {
 	public TestRecorderAgent(Instrumentation inst, AgentConfiguration config) {
 		this.inst = inst;
 		this.config = config;
+	}
+
+	public AgentConfiguration getConfig() {
+		return config;
 	}
 
 	public static void agentmain(String agentArgs, Instrumentation inst) {
@@ -32,31 +39,27 @@ public class TestRecorderAgent {
 	protected static AgentConfiguration loadConfig(String agentArgs) {
 		return loadConfig(agentArgs, TestRecorderAgent.class.getClassLoader());
 	}
-	
+
 	protected static AgentConfiguration loadConfig(String agentArgs, ClassLoader loader) {
 		if (agentArgs != null) {
 			String[] args = agentArgs.split(";");
-			return new AgentConfiguration(loader, args);
+			return new AgentConfiguration(loader, args)
+				.withDefaultValue(SerializationProfile.class, DefaultSerializationProfile::new)
+				.withDefaultValue(PerformanceProfile.class, DefaultPerformanceProfile::new)
+				.withDefaultValue(SnapshotConsumer.class, DefaultSnapshotConsumer::new);
 		} else {
-			return new AgentConfiguration(loader);
+			return new AgentConfiguration(loader)
+				.withDefaultValue(SerializationProfile.class, DefaultSerializationProfile::new)
+				.withDefaultValue(PerformanceProfile.class, DefaultPerformanceProfile::new)
+				.withDefaultValue(SnapshotConsumer.class, DefaultSnapshotConsumer::new);
 		}
 	}
 
 	public void prepareInstrumentations() {
-		TestRecorderAgentConfig instrumentationConfig = loadInstrumentationConfig();
-		snapshotInstrumentor = new SnapshotInstrumentor(instrumentationConfig).attach(inst);
+		snapshotInstrumentor = new SnapshotInstrumentor(config).attach(inst);
 		lambdaTransformer = new AllLambdasSerializableTransformer().attach(inst);
 
 		initialize();
-	}
-
-	protected TestRecorderAgentConfig loadInstrumentationConfig() {
-		return config.loadConfiguration(TestRecorderAgentConfig.class)
-			.orElseGet(this::loadDefaultConfig);
-	}
-	
-	private TestRecorderAgentConfig loadDefaultConfig() {
-		return config.loadDefaultConfiguration(new DefaultTestRecorderAgentConfig());
 	}
 
 	public void initialize() {

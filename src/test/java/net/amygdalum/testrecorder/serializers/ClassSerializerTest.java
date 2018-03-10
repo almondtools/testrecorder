@@ -17,7 +17,7 @@ public class ClassSerializerTest {
 	@BeforeEach
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
-		serializer = new ClassSerializer.Factory().newSerializer(facade);
+		serializer = new ClassSerializer(facade);
 	}
 
 	@Test

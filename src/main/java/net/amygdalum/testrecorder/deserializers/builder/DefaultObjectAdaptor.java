@@ -1,20 +1,20 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static java.util.stream.Collectors.toList;
-import static net.amygdalum.testrecorder.deserializers.Computation.variable;
 import static net.amygdalum.testrecorder.deserializers.FieldNamingStrategy.ensureUniqueNames;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethodStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.genericObject;
 import static net.amygdalum.testrecorder.deserializers.Templates.genericObjectConverter;
+import static net.amygdalum.testrecorder.types.Computation.variable;
 
 import java.lang.reflect.Type;
 import java.util.List;
 
-import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.runtime.GenericObject;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class DefaultObjectAdaptor extends DefaultSetupGenerator<SerializedObject> implements SetupGenerator<SerializedObject> {

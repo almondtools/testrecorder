@@ -8,19 +8,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.util.testobjects.Hidden;
 import net.amygdalum.testrecorder.values.SerializedNull;
 
 public class DefaultNullAdaptorTest {
 
+	private AgentConfiguration config;
 	private DefaultNullAdaptor adaptor;
 	private DeserializerContext context;
 
 	@BeforeEach
 	public void before() throws Exception {
+		config = new AgentConfiguration();
 		adaptor = new DefaultNullAdaptor();
 		context = new DefaultDeserializerContext();
 	}
@@ -40,7 +43,7 @@ public class DefaultNullAdaptorTest {
 	@Test
 	public void testTryDeserialize() throws Exception {
 		SerializedNull value = nullInstance(String.class);
-		MatcherGenerators generator = new MatcherGenerators();
+		MatcherGenerators generator = new MatcherGenerators(config);
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -53,7 +56,7 @@ public class DefaultNullAdaptorTest {
 		SerializedNull value = nullInstance(classOfPartiallyHidden());
 		value.useAs(Hidden.VisibleInterface.class);
 
-		MatcherGenerators generator = new MatcherGenerators();
+		MatcherGenerators generator = new MatcherGenerators(config);
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -67,7 +70,7 @@ public class DefaultNullAdaptorTest {
 		SerializedNull value = nullInstance(classOfCompletelyHidden());
 		value.useAs(classOfCompletelyHidden());
 
-		MatcherGenerators generator = new MatcherGenerators();
+		MatcherGenerators generator = new MatcherGenerators(config);
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 

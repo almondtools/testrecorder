@@ -1,8 +1,8 @@
 package net.amygdalum.testrecorder.deserializers.matcher;
 
-import static net.amygdalum.testrecorder.deserializers.Computation.expression;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.recursiveMatcher;
+import static net.amygdalum.testrecorder.types.Computation.expression;
 import static net.amygdalum.testrecorder.util.Literals.asLiteral;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
@@ -13,10 +13,10 @@ import java.lang.reflect.Type;
 import org.hamcrest.Matcher;
 
 import net.amygdalum.testrecorder.deserializers.Adaptors;
-import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.hints.SkipChecks;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.testing.hamcrest.GenericMatcher;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.SerializedFieldType;
@@ -24,22 +24,16 @@ import net.amygdalum.testrecorder.types.SerializedImmutableType;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.SerializedValueType;
+import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedNull;
 
 public class MatcherGenerators implements Deserializer<Computation> {
 
-	public static final Adaptors<MatcherGenerators> DEFAULT = new Adaptors<MatcherGenerators>()
-		.load(MatcherGenerator.class);
-
 	private Adaptors<MatcherGenerators> adaptors;
 
-	public MatcherGenerators() {
-		this(DEFAULT);
-	}
-
-	public MatcherGenerators(Adaptors<MatcherGenerators> adaptors) {
-		this.adaptors = adaptors;
+	public MatcherGenerators(AgentConfiguration config) {
+		this.adaptors = new Adaptors<MatcherGenerators>(config).load(MatcherGenerator.class);
 	}
 
 	public boolean isSimpleValue(SerializedValue element) {

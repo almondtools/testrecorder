@@ -6,19 +6,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.util.testobjects.PublicEnum;
 import net.amygdalum.testrecorder.values.SerializedEnum;
 
 public class DefaultEnumAdaptorTest {
 
+	private AgentConfiguration config;
 	private DefaultEnumAdaptor adaptor;
 	private DeserializerContext context;
 
 	@BeforeEach
 	public void before() throws Exception {
+		config = new AgentConfiguration();
 		adaptor = new DefaultEnumAdaptor();
 		context = new DefaultDeserializerContext();
 	}
@@ -40,7 +43,7 @@ public class DefaultEnumAdaptorTest {
 	public void testTryDeserialize() throws Exception {
 		SerializedEnum value = new SerializedEnum(PublicEnum.class);
 		value.setName("VALUE1");
-		SetupGenerators generator = new SetupGenerators();
+		SetupGenerators generator = new SetupGenerators(config);
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -52,12 +55,12 @@ public class DefaultEnumAdaptorTest {
 	public void testTryDeserializeHidden() throws Exception {
 		SerializedEnum value = new SerializedEnum(classOfHiddenEnum());
 		value.setName("VALUE2");
-		SetupGenerators generator = new SetupGenerators();
-		
+		SetupGenerators generator = new SetupGenerators(config);
+
 		Computation result = adaptor.tryDeserialize(value, generator, context);
-		
+
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).contains("Wrapped.enumType(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenEnum\", \"VALUE2\").value()");
 	}
-	
+
 }

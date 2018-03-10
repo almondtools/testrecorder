@@ -37,13 +37,4 @@ public class DefaultListSerializer implements Serializer<SerializedList> {
 		}
 	}
 
-	public static class Factory implements SerializerFactory<SerializedList> {
-
-		@Override
-		public DefaultListSerializer newSerializer(SerializerFacade facade) {
-			return new DefaultListSerializer(facade);
-		}
-
-	}
-
 }

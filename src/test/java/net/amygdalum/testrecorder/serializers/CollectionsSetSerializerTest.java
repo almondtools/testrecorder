@@ -29,7 +29,7 @@ public class CollectionsSetSerializerTest {
 	@BeforeEach
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
-		serializer = new CollectionsSetSerializer.Factory().newSerializer(facade);
+		serializer = new CollectionsSetSerializer(facade);
 	}
 
 	@Test

@@ -27,7 +27,7 @@ public class DefaultListSerializerTest {
 	@BeforeEach
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
-		serializer = new DefaultListSerializer.Factory().newSerializer(facade);
+		serializer = new DefaultListSerializer(facade);
 	}
 
 	@Test

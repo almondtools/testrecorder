@@ -27,13 +27,13 @@ import net.amygdalum.testrecorder.util.LoggerExtension;
 @ExtendWith(LoggerExtension.class)
 public class SnapshotInstrumentorTest {
 
-	private DefaultTestRecorderAgentConfig config;
+	private DefaultSerializationProfile config;
 	private ClassNodeManager classes;
 	private IOManager io;
 
 	@BeforeEach
 	public void before() throws Exception {
-		config = new DefaultTestRecorderAgentConfig();
+		config = new DefaultSerializationProfile();
 		classes = new ClassNodeManager();
 		io = new IOManager();
 	}

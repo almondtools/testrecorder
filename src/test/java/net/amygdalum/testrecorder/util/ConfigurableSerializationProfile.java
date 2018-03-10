@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder;
+package net.amygdalum.testrecorder.util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,8 +6,9 @@ import java.util.List;
 import net.amygdalum.testrecorder.profile.Classes;
 import net.amygdalum.testrecorder.profile.Fields;
 import net.amygdalum.testrecorder.profile.Methods;
+import net.amygdalum.testrecorder.profile.SerializationProfile;
 
-public class ConfigurableTestRecorderAgentConfig implements TestRecorderAgentConfig {
+public class ConfigurableSerializationProfile implements SerializationProfile {
 
 	private List<Fields> fieldExclusions;
 	private List<Classes> classExclusions;
@@ -15,22 +16,18 @@ public class ConfigurableTestRecorderAgentConfig implements TestRecorderAgentCon
 	private List<Methods> inputs;
 	private List<Methods> outputs;
 
-	private SnapshotConsumer snapshotConsumer;
-	private long timeoutInMillis;
 	private List<Classes> classes;
 
-	public ConfigurableTestRecorderAgentConfig(TestRecorderAgentConfig base) {
+	public ConfigurableSerializationProfile(SerializationProfile base) {
 		this.fieldExclusions = new ArrayList<>(base.getFieldExclusions());
 		this.classExclusions = new ArrayList<>(base.getClassExclusions());
 		this.globalFields = new ArrayList<>(base.getGlobalFields());
 		this.inputs = new ArrayList<>(base.getInputs());
 		this.outputs = new ArrayList<>(base.getOutputs());
-		this.snapshotConsumer = base.getSnapshotConsumer();
-		this.timeoutInMillis = base.getTimeoutInMillis();
 		this.classes = new ArrayList<>(base.getClasses());
 	}
 
-	public static Builder builder(TestRecorderAgentConfig base) {
+	public static Builder builder(SerializationProfile base) {
 		return new Builder(base);
 	}
 
@@ -64,22 +61,12 @@ public class ConfigurableTestRecorderAgentConfig implements TestRecorderAgentCon
 		return outputs;
 	}
 
-	@Override
-	public SnapshotConsumer getSnapshotConsumer() {
-		return snapshotConsumer;
-	}
-
-	@Override
-	public long getTimeoutInMillis() {
-		return timeoutInMillis;
-	}
-
 	public static class Builder {
 
-		private ConfigurableTestRecorderAgentConfig agent;
+		private ConfigurableSerializationProfile agent;
 
-		public Builder(TestRecorderAgentConfig base) {
-			this.agent = new ConfigurableTestRecorderAgentConfig(base);
+		public Builder(SerializationProfile base) {
+			this.agent = new ConfigurableSerializationProfile(base);
 		}
 
 		public Builder withClasses(List<Classes> classes) {
@@ -112,17 +99,7 @@ public class ConfigurableTestRecorderAgentConfig implements TestRecorderAgentCon
 			return this;
 		}
 
-		public Builder withSnapshotConsumer(SnapshotConsumer snapshotConsumer) {
-			agent.snapshotConsumer = snapshotConsumer;
-			return this;
-		}
-
-		public Builder withTimeoutInMillis(long timeoutInMillis) {
-			agent.timeoutInMillis = timeoutInMillis;
-			return this;
-		}
-
-		public ConfigurableTestRecorderAgentConfig build() {
+		public ConfigurableSerializationProfile build() {
 			return agent;
 		}
 

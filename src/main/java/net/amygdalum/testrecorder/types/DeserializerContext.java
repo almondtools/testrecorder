@@ -1,18 +1,123 @@
 package net.amygdalum.testrecorder.types;
 
+import static java.util.Collections.emptySet;
+
 import java.lang.reflect.Type;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.LocalVariable;
-import net.amygdalum.testrecorder.deserializers.LocalVariableDefinition;
-import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
-import net.amygdalum.testrecorder.deserializers.TypeManager;
-
-
 public interface DeserializerContext {
+
+	public static final DeserializerContext NULL = new DeserializerContext() {
+
+		@Override
+		public DeserializerContext getParent() {
+			return null;
+		}
+
+		@Override
+		public <T> DeserializerContext newWithHints(T[] hints) {
+			return null;
+		}
+
+		@Override
+		public <T> Optional<T> getHint(Class<T> clazz) {
+			return null;
+		}
+
+		@Override
+		public <T> Stream<T> getHints(Class<T> clazz) {
+			return null;
+		}
+
+		@Override
+		public int refCount(SerializedValue value) {
+			return 0;
+		}
+
+		@Override
+		public void ref(SerializedReferenceType value, SerializedValue referencedValue) {
+		}
+
+		@Override
+		public void staticRef(SerializedValue referencedValue) {
+		}
+
+		@Override
+		public Set<SerializedValue> closureOf(SerializedValue value) {
+			return emptySet();
+		}
+
+		@Override
+		public TypeManager getTypes() {
+			return null;
+		}
+
+		@Override
+		public String adapt(String expression, Type resultType, Type type) {
+			return null;
+		}
+
+		@Override
+		public boolean defines(SerializedValue value) {
+			return false;
+		}
+
+		@Override
+		public LocalVariable getDefinition(SerializedValue value) {
+			return null;
+		}
+
+		@Override
+		public boolean needsAdaptation(Type resultType, Type type) {
+			return false;
+		}
+
+		@Override
+		public Computation forVariable(SerializedValue value, Type type, LocalVariableDefinition computation) {
+			return null;
+		}
+
+		@Override
+		public String temporaryLocal() {
+			return null;
+		}
+
+		@Override
+		public String newLocal(String name) {
+			return null;
+		}
+
+		@Override
+		public LocalVariable localVariable(SerializedValue value, Type type) {
+			return null;
+		}
+
+		@Override
+		public void resetVariable(SerializedValue value) {
+		}
+
+		@Override
+		public void finishVariable(SerializedValue value) {
+		}
+
+		@Override
+		public LocalVariableNameGenerator getLocals() {
+			return null;
+		}
+
+		@Override
+		public boolean isComputed(SerializedValue value) {
+			return false;
+		}
+
+		@Override
+		public Optional<SerializedValue> resolve(int id) {
+			return null;
+		}
+
+	};
 
 	DeserializerContext getParent();
 
@@ -58,5 +163,4 @@ public interface DeserializerContext {
 
 	Optional<SerializedValue> resolve(int id);
 
-	
 }

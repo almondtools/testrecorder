@@ -6,18 +6,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 
 public class DefaultLiteralAdaptorTest {
 
+	private AgentConfiguration config;
 	private DefaultLiteralAdaptor adaptor;
 	private DeserializerContext context;
 
 	@BeforeEach
 	public void before() throws Exception {
+		config = new AgentConfiguration();
 		adaptor = new DefaultLiteralAdaptor();
 		context = new DefaultDeserializerContext();
 	}
@@ -38,7 +41,7 @@ public class DefaultLiteralAdaptorTest {
 	@Test
 	public void testTryDeserialize() throws Exception {
 		SerializedLiteral value = literal("string");
-		SetupGenerators generator = new SetupGenerators();
+		SetupGenerators generator = new SetupGenerators(config);
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 

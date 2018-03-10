@@ -71,13 +71,4 @@ public class CollectionsListSerializer extends HiddenInnerClassSerializer<Serial
 		}
 	}
 
-	public static class Factory implements SerializerFactory<SerializedList> {
-
-		@Override
-		public CollectionsListSerializer newSerializer(SerializerFacade facade) {
-			return new CollectionsListSerializer(facade);
-		}
-
-	}
-
 }

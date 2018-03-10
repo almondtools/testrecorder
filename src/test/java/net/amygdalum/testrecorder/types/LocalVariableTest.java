@@ -1,8 +1,10 @@
-package net.amygdalum.testrecorder.deserializers;
+package net.amygdalum.testrecorder.types;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
+
+import net.amygdalum.testrecorder.types.LocalVariable;
 
 public class LocalVariableTest {
 

@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
+import static net.amygdalum.testrecorder.util.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.testobjects.Collections.arrayList;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.createCompletelyHidden;
@@ -17,9 +18,10 @@ import java.util.ArrayList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.hints.SkipChecks;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.util.testobjects.ContainingList;
 import net.amygdalum.testrecorder.util.testobjects.Dubble;
@@ -36,14 +38,16 @@ import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class MatcherGeneratorsTest {
 
+	private AgentConfiguration config;
 	private SerializedValues values;
 	private MatcherGenerators matcherCode;
 	private DeserializerContext context;
 
 	@BeforeEach
 	public void before() throws Exception {
-		values = new SerializedValues();
-		matcherCode = new MatcherGenerators();
+		config = defaultConfig();
+		values = new SerializedValues(config);
+		matcherCode = new MatcherGenerators(config);
 		context = new DefaultDeserializerContext();
 	}
 
@@ -245,7 +249,7 @@ public class MatcherGeneratorsTest {
 			public Class<? extends Annotation> annotationType() {
 				return SkipChecks.class;
 			}
-		}};
+		} };
 	}
 
 }

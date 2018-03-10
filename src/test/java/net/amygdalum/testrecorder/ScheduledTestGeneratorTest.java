@@ -25,6 +25,7 @@ import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 
 import net.amygdalum.testrecorder.deserializers.TestComputationValueVisitor;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedObject;
 import net.amygdalum.xrayinterface.XRayInterface;
@@ -37,6 +38,7 @@ public class ScheduledTestGeneratorTest {
 	@Rule
 	public TemporaryFolder folder = new TemporaryFolder();
 
+	private AgentConfiguration config;
 	private ScheduledTestGenerator testGenerator;
 
 	@BeforeAll
@@ -60,7 +62,8 @@ public class ScheduledTestGeneratorTest {
 	@BeforeEach
 	public void before() throws Exception {
 		XRayInterface.xray(ScheduledTestGenerator.class).to(OpenScheduledTestGenerator.class).setDumpOnShutDown(null);
-		testGenerator = new ScheduledTestGenerator()
+		config = new AgentConfiguration();
+		testGenerator = new ScheduledTestGenerator(config)
 			.withDumpMaximum(1);
 	}
 
@@ -231,54 +234,6 @@ public class ScheduledTestGeneratorTest {
 	}
 
 	@Test
-	public void testFromRecordedIfConsumerIsNull() throws Exception {
-		SnapshotManager.MANAGER = new SnapshotManager(new DefaultTestRecorderAgentConfig() {
-
-			@Override
-			public SnapshotConsumer getSnapshotConsumer() {
-				return null;
-			}
-		});
-		assertThat(TestGenerator.fromRecorded()).isNull();
-		assertThat(TestGenerator.fromRecorded()).isNull();
-	}
-
-	@Test
-	public void testFromRecordedIfConsumerIsNonNull() throws Exception {
-		TestGenerator tg = new TestGenerator();
-		SnapshotManager.MANAGER = new SnapshotManager(new DefaultTestRecorderAgentConfig() {
-
-			@Override
-			public SnapshotConsumer getSnapshotConsumer() {
-				return tg;
-			}
-		});
-		assertThat(TestGenerator.fromRecorded()).isSameAs(tg);
-		assertThat(TestGenerator.fromRecorded()).isSameAs(tg);
-	}
-
-	@Test
-	public void testFromRecordedIfConsumerIsNotTestGenerator() throws Exception {
-		SnapshotManager.MANAGER = new SnapshotManager(new DefaultTestRecorderAgentConfig() {
-
-			@Override
-			public SnapshotConsumer getSnapshotConsumer() {
-				return new SnapshotConsumer() {
-
-					@Override
-					public void accept(ContextSnapshot snapshot) {
-					}
-
-					@Override
-					public void close() {
-					}
-				};
-			}
-		});
-		assertThat(TestGenerator.fromRecorded()).isNull();
-	}
-
-	@Test
 	public void testWriteResults() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
@@ -391,7 +346,7 @@ public class ScheduledTestGeneratorTest {
 			.withClassName("${counter}Test")
 			.withDumpOnShutDown(true);
 
-		ScheduledTestGenerator second = new ScheduledTestGenerator()
+		ScheduledTestGenerator second = new ScheduledTestGenerator(config)
 			.withDumpMaximum(2)
 			.withDumpTo(folder.getRoot().toPath())
 			.withClassName("${counter}SecondTest")
@@ -411,7 +366,7 @@ public class ScheduledTestGeneratorTest {
 			.findFirst().orElseThrow(() -> new AssertionError("no shutdown thread"));
 
 		shutdown.run();
-		
+
 		testGenerator.await();
 		second.await();
 

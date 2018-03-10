@@ -8,9 +8,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import net.amygdalum.testrecorder.TestGenerator;
+import net.amygdalum.testrecorder.util.ClasspathResourceExtension;
 import net.amygdalum.testrecorder.util.ExtensibleClassLoader;
 import net.amygdalum.testrecorder.util.Instrumented;
-import net.amygdalum.testrecorder.util.ClasspathResourceExtension;
+import net.amygdalum.testrecorder.util.TestAgentConfiguration;
 import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 
 @ExtendWith(TestRecorderAgentExtension.class)
@@ -19,12 +20,10 @@ public class InitializerTest {
 
 	@Test
 	@ExtendWith(ClasspathResourceExtension.class)
-	public void testWithInitializer(ExtensibleClassLoader loader) throws Exception {
+	public void testWithInitializer(TestAgentConfiguration config, ExtensibleClassLoader loader) throws Exception {
 		loader.addPackage("net.amygdalum.testrecorder.scenarios");
-		loader.defineResource("META-INF/services/net.amygdalum.testrecorder.TestRecorderAgentInitializer", "net.amygdalum.testrecorder.scenarios.GlobalsInitializer".getBytes());
-		TestGenerator.fromRecorded().execute(() -> {
-			Thread.currentThread().setContextClassLoader(loader);	
-		}); 
+		loader.defineResource("agentconfig/net.amygdalum.testrecorder.TestRecorderAgentInitializer", "net.amygdalum.testrecorder.scenarios.GlobalsInitializer".getBytes());
+		config.reset().withLoader(loader);
 
 		Globals.global = 0;
 		new GlobalsInitializer().run();

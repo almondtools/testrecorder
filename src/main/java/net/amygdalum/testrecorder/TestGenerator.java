@@ -7,7 +7,6 @@ import static java.nio.file.StandardOpenOption.WRITE;
 import static java.util.Arrays.asList;
 import static java.util.Collections.synchronizedMap;
 import static java.util.stream.Collectors.toList;
-import static net.amygdalum.testrecorder.deserializers.Computation.variable;
 import static net.amygdalum.testrecorder.deserializers.Templates.annotation;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignFieldStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
@@ -19,6 +18,7 @@ import static net.amygdalum.testrecorder.deserializers.Templates.expressionState
 import static net.amygdalum.testrecorder.deserializers.Templates.fieldAccess;
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
 import static net.amygdalum.testrecorder.deserializers.Templates.returnStatement;
+import static net.amygdalum.testrecorder.types.Computation.variable;
 import static net.amygdalum.testrecorder.util.Literals.asLiteral;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.isPrimitive;
@@ -42,11 +42,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import org.junit.After;
@@ -55,22 +56,23 @@ import org.junit.Before;
 import org.stringtemplate.v4.ST;
 
 import net.amygdalum.testrecorder.ContextSnapshot.AnnotatedValue;
-import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
-import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
 import net.amygdalum.testrecorder.deserializers.Templates;
 import net.amygdalum.testrecorder.deserializers.TreeAnalyzer;
-import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
 import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerators;
 import net.amygdalum.testrecorder.dynamiccompile.RenderedTest;
 import net.amygdalum.testrecorder.evaluator.SerializedValueEvaluator;
 import net.amygdalum.testrecorder.hints.AnnotateGroupExpression;
 import net.amygdalum.testrecorder.hints.AnnotateTimestamp;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.runtime.Throwables;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.Deserializer;
+import net.amygdalum.testrecorder.types.LocalVariableNameGenerator;
 import net.amygdalum.testrecorder.types.SerializedImmutableType;
 import net.amygdalum.testrecorder.types.SerializedValue;
+import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.util.AnnotatedBy;
 import net.amygdalum.testrecorder.util.Logger;
 import net.amygdalum.testrecorder.util.Pair;
@@ -117,16 +119,19 @@ public class TestGenerator implements SnapshotConsumer {
 
 	private volatile CompletableFuture<Void> pipeline;
 
+	private AgentConfiguration config;
 	private Deserializer<Computation> setup;
 	private Deserializer<Computation> matcher;
 	private Map<ClassDescriptor, TestGeneratorContext> tests;
 	private Set<String> fields;
 
-	public TestGenerator() {
-		this.executor = Executors.newSingleThreadExecutor(new TestrecorderThreadFactory("$consume"));
 
-		this.setup = new SetupGenerators();
-		this.matcher = new MatcherGenerators();
+	public TestGenerator(AgentConfiguration config) {
+		this.config = config;
+		this.executor = new ThreadPoolExecutor(0, 1, 10, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new TestrecorderThreadFactory("$consume"));
+
+		this.setup = new SetupGenerators(config);
+		this.matcher = new MatcherGenerators(config);
 
 		this.tests = synchronizedMap(new LinkedHashMap<>());
 		this.fields = new LinkedHashSet<>();
@@ -272,10 +277,8 @@ public class TestGenerator implements SnapshotConsumer {
 		TypeManager types = context.getTypes();
 		types.registerType(Before.class);
 
-		ServiceLoader<TestRecorderAgentInitializer> loader = ServiceLoader.load(TestRecorderAgentInitializer.class);
-
 		List<String> statements = new ArrayList<>();
-		for (TestRecorderAgentInitializer initializer : loader) {
+		for (TestRecorderAgentInitializer initializer : config.loadConfigurations(TestRecorderAgentInitializer.class)) {
 			types.registerType(initializer.getClass());
 			String initObject = newObject(types.getConstructorTypeName(initializer.getClass()));
 			String initStmt = callMethodStatement(initObject, "run");

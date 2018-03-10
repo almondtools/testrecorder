@@ -11,18 +11,21 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedMap;
 
 public class DefaultMapAdaptorTest {
 
+	private AgentConfiguration config;
 	private DefaultMapAdaptor adaptor;
 	private DeserializerContext context;
 
 	@BeforeEach
 	public void before() throws Exception {
+		config = new AgentConfiguration();
 		adaptor = new DefaultMapAdaptor();
 		context = new DefaultDeserializerContext();
 	}
@@ -45,7 +48,7 @@ public class DefaultMapAdaptorTest {
 		value.useAs(parameterized(Map.class, null, Integer.class, Integer.class));
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
-		MatcherGenerators generator = new MatcherGenerators();
+		MatcherGenerators generator = new MatcherGenerators(config);
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements()).isEmpty();
@@ -55,7 +58,7 @@ public class DefaultMapAdaptorTest {
 	@Test
 	public void testTryDeserializeEmptyMap() throws Exception {
 		SerializedMap value = new SerializedMap(BigInteger[].class);
-		MatcherGenerators generator = new MatcherGenerators();
+		MatcherGenerators generator = new MatcherGenerators(config);
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 

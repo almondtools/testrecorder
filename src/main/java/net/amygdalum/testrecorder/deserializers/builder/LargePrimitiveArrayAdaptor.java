@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
-import static net.amygdalum.testrecorder.deserializers.Computation.expression;
 import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethod;
+import static net.amygdalum.testrecorder.types.Computation.expression;
 import static net.amygdalum.testrecorder.util.Literals.asLiteral;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.isLiteral;
@@ -11,12 +11,12 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.hints.LoadFromFile;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializationException;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.SerializedValue;
+import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.util.FileSerializer;
 import net.amygdalum.testrecorder.values.SerializedArray;
 import net.amygdalum.testrecorder.values.SerializedLiteral;

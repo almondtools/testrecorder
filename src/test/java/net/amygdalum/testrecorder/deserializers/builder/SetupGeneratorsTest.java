@@ -3,6 +3,7 @@ package net.amygdalum.testrecorder.deserializers.builder;
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.extensions.assertj.iterables.IterableConditions.containingExactly;
 import static net.amygdalum.extensions.assertj.strings.StringConditions.containingWildcardPattern;
+import static net.amygdalum.testrecorder.util.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.testobjects.Collections.arrayList;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenList;
@@ -18,8 +19,9 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.util.testobjects.Complex;
 import net.amygdalum.testrecorder.util.testobjects.ContainingList;
@@ -36,14 +38,16 @@ import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class SetupGeneratorsTest {
 
+	private AgentConfiguration config;
 	private SerializedValues values;
 	private SetupGenerators setupCode;
 	private DeserializerContext context;
 
 	@BeforeEach
 	public void before() throws Exception {
-		values = new SerializedValues();
-		setupCode = new SetupGenerators();
+		config = defaultConfig();
+		values = new SerializedValues(config);
+		setupCode = new SetupGenerators(config);
 		context = new DefaultDeserializerContext();
 	}
 

@@ -1,20 +1,20 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static java.util.stream.Collectors.toList;
-import static net.amygdalum.testrecorder.deserializers.Computation.variable;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethodStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
+import static net.amygdalum.testrecorder.types.Computation.variable;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.LocalVariable;
-import net.amygdalum.testrecorder.deserializers.TypeManager;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.LocalVariable;
+import net.amygdalum.testrecorder.types.TypeManager;
 
 public class ConstructionPlan implements Comparable<ConstructionPlan> {
 

@@ -89,13 +89,4 @@ public class CollectionsMapSerializer extends HiddenInnerClassSerializer<Seriali
 		}
 	}
 
-	public static class Factory implements SerializerFactory<SerializedMap> {
-
-		@Override
-		public CollectionsMapSerializer newSerializer(SerializerFacade facade) {
-			return new CollectionsMapSerializer(facade);
-		}
-
-	}
-
 }

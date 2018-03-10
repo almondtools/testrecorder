@@ -29,13 +29,4 @@ public class BigDecimalSerializer implements Serializer<SerializedImmutable<BigD
 		serializedObject.setValue((BigDecimal) object);
 	}
 
-	public static class Factory implements SerializerFactory<SerializedImmutable<BigDecimal>> {
-
-		@Override
-		public BigDecimalSerializer newSerializer(SerializerFacade facade) {
-			return new BigDecimalSerializer(facade);
-		}
-
-	}
-
 }

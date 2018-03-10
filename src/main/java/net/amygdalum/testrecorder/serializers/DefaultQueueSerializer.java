@@ -41,13 +41,4 @@ public class DefaultQueueSerializer implements Serializer<SerializedList> {
 		}
 	}
 
-	public static class Factory implements SerializerFactory<SerializedList> {
-
-		@Override
-		public DefaultQueueSerializer newSerializer(SerializerFacade facade) {
-			return new DefaultQueueSerializer(facade);
-		}
-
-	}
-
 }

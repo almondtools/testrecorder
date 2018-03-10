@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.deserializers;
+package net.amygdalum.testrecorder.types;
 
 import static net.amygdalum.testrecorder.util.Types.array;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
@@ -11,6 +11,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import net.amygdalum.testrecorder.types.LocalVariableNameGenerator;
 
 public class LocalVariableNameGeneratorTest {
 

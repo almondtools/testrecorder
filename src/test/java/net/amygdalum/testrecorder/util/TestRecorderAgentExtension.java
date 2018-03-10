@@ -11,17 +11,23 @@ import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.api.extension.ParameterResolutionException;
+import org.junit.jupiter.api.extension.ParameterResolver;
 
-import net.amygdalum.testrecorder.AgentConfiguration;
-import net.amygdalum.testrecorder.ConfigurableTestRecorderAgentConfig;
-import net.amygdalum.testrecorder.ConfigurableTestRecorderAgentConfig.Builder;
+import net.amygdalum.testrecorder.DefaultPerformanceProfile;
+import net.amygdalum.testrecorder.DefaultSerializationProfile;
+import net.amygdalum.testrecorder.DefaultSnapshotConsumer;
+import net.amygdalum.testrecorder.SnapshotConsumer;
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.TestRecorderAgent;
-import net.amygdalum.testrecorder.TestRecorderAgentConfig;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.Classes;
+import net.amygdalum.testrecorder.profile.PerformanceProfile;
+import net.amygdalum.testrecorder.profile.SerializationProfile;
 import net.bytebuddy.agent.ByteBuddyAgent;
 
-public class TestRecorderAgentExtension implements BeforeEachCallback, BeforeAllCallback, AfterAllCallback {
+public class TestRecorderAgentExtension implements BeforeEachCallback, BeforeAllCallback, AfterAllCallback, ParameterResolver {
 
 	public static Instrumentation inst = ByteBuddyAgent.install();
 
@@ -42,7 +48,20 @@ public class TestRecorderAgentExtension implements BeforeEachCallback, BeforeAll
 
 	@Override
 	public void beforeEach(ExtensionContext context) throws Exception {
-		TestGenerator.fromRecorded().clearResults();
+		TestGenerator fromRecorded = TestGenerator.fromRecorded();
+		if (fromRecorded != null) {
+			fromRecorded.clearResults();
+		}
+	}
+
+	@Override
+	public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+		return AgentConfiguration.class.isAssignableFrom(parameterContext.getParameter().getType());
+	}
+
+	@Override
+	public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+		return agent.getConfig();
 	}
 
 	private void setupTransformer(Class<?> testClass) {
@@ -66,17 +85,23 @@ public class TestRecorderAgentExtension implements BeforeEachCallback, BeforeAll
 
 	private AgentConfiguration fetchConfig(Instrumented instrumented) throws InstantiationException, IllegalAccessException {
 		if (instrumented == null) {
-			return new TestAgentConfiguration();
+			return new TestAgentConfiguration()
+				.withDefaultValue(SerializationProfile.class, DefaultSerializationProfile::new)
+				.withDefaultValue(PerformanceProfile.class, DefaultPerformanceProfile::new)
+				.withDefaultValue(SnapshotConsumer.class, DefaultSnapshotConsumer::new);
 		}
-		Class<? extends TestRecorderAgentConfig> base = instrumented.config();
+		Class<? extends SerializationProfile> base = instrumented.config();
 		List<Classes> classes = Arrays.stream(instrumented.classes())
 			.map(Classes::byName)
 			.collect(toList());
-		TestRecorderAgentConfig baseConfig = base.newInstance();
-		Builder config = ConfigurableTestRecorderAgentConfig.builder(baseConfig);
-		return new TestAgentConfiguration(config
+		SerializationProfile profile = ConfigurableSerializationProfile.builder(base.newInstance())
 			.withClasses(classes)
-			.build());
+			.build();
+		AgentConfiguration config = new TestAgentConfiguration();
+		return config
+			.withDefaultValue(SerializationProfile.class, () -> profile)
+			.withDefaultValue(PerformanceProfile.class, DefaultPerformanceProfile::new)
+			.withDefaultValue(SnapshotConsumer.class, () -> new TestGenerator(config));
 	}
 
 	private Class<?>[] fetchClasses(Instrumented instrumented) throws ClassNotFoundException {

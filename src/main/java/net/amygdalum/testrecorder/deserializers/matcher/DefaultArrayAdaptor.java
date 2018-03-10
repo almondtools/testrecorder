@@ -1,10 +1,10 @@
 package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static java.util.stream.Collectors.toList;
-import static net.amygdalum.testrecorder.deserializers.Computation.expression;
 import static net.amygdalum.testrecorder.deserializers.Templates.arrayContainingMatcher;
 import static net.amygdalum.testrecorder.deserializers.Templates.arrayEmptyMatcher;
 import static net.amygdalum.testrecorder.deserializers.Templates.primitiveArrayContainingMatcher;
+import static net.amygdalum.testrecorder.types.Computation.expression;
 import static net.amygdalum.testrecorder.util.Types.isPrimitive;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
@@ -16,11 +16,11 @@ import java.util.stream.Stream;
 import org.hamcrest.Matcher;
 import org.hamcrest.collection.IsArrayWithSize;
 
-import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.testing.hamcrest.ArrayMatcher;
 import net.amygdalum.testrecorder.testing.hamcrest.PrimitiveArrayMatcher;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedArray;
 
 public class DefaultArrayAdaptor extends DefaultMatcherGenerator<SerializedArray> implements MatcherGenerator<SerializedArray> {

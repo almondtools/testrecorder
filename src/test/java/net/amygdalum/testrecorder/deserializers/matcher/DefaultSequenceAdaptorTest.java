@@ -7,23 +7,26 @@ import java.math.BigInteger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 import net.amygdalum.testrecorder.values.SerializedList;
 
 public class DefaultSequenceAdaptorTest {
 
+	private AgentConfiguration config;
 	private DefaultSequenceAdaptor adaptor;
 	private DeserializerContext context;
 
 	@BeforeEach
 	public void before() throws Exception {
+		config = new AgentConfiguration();
 		adaptor = new DefaultSequenceAdaptor();
 		context = new DefaultDeserializerContext();
 	}
-	
+
 	@Test
 	public void testParentNull() throws Exception {
 		assertThat(adaptor.parent()).isNull();
@@ -32,7 +35,8 @@ public class DefaultSequenceAdaptorTest {
 	@Test
 	public void testMatchesAnyArray() throws Exception {
 		assertThat(adaptor.matches(Object.class)).isTrue();
-		assertThat(adaptor.matches(new Object(){}.getClass())).isTrue();
+		assertThat(adaptor.matches(new Object() {
+		}.getClass())).isTrue();
 	}
 
 	@Test
@@ -41,10 +45,10 @@ public class DefaultSequenceAdaptorTest {
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(0)));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(8)));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(15)));
-		MatcherGenerators generator = new MatcherGenerators();
-		
+		MatcherGenerators generator = new MatcherGenerators(config);
+
 		Computation result = adaptor.tryDeserialize(value, generator, context);
-		
+
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("containsInOrder(Object.class, equalTo(new BigInteger(\"0\")), equalTo(new BigInteger(\"8\")), equalTo(new BigInteger(\"15\")))");
 	}
@@ -53,10 +57,10 @@ public class DefaultSequenceAdaptorTest {
 	public void testTryDeserializeEmptyList() throws Exception {
 		SerializedList value = new SerializedList(BigInteger[].class);
 
-		MatcherGenerators generator = new MatcherGenerators();
-		
+		MatcherGenerators generator = new MatcherGenerators(config);
+
 		Computation result = adaptor.tryDeserialize(value, generator, context);
-		
+
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("empty()");
 	}

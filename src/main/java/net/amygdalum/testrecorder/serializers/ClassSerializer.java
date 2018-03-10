@@ -28,13 +28,4 @@ public class ClassSerializer implements Serializer<SerializedImmutable<Class<?>>
 		serializedObject.setValue((Class<?>) object);
 	}
 
-	public static class Factory implements SerializerFactory<SerializedImmutable<Class<?>>> {
-
-		@Override
-		public ClassSerializer newSerializer(SerializerFacade facade) {
-			return new ClassSerializer(facade);
-		}
-
-	}
-
 }

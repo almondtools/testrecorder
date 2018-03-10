@@ -6,18 +6,24 @@ import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVari
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
-import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
-import net.amygdalum.testrecorder.deserializers.LocalVariableNameGenerator;
-import net.amygdalum.testrecorder.deserializers.TypeManager;
+import net.amygdalum.testrecorder.deserializers.DeserializerTypeManager;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.profile.PerformanceProfile;
+import net.amygdalum.testrecorder.profile.SerializationProfile;
 import net.amygdalum.testrecorder.serializers.SerializerFacade;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.Deserializer;
+import net.amygdalum.testrecorder.types.LocalVariableNameGenerator;
 import net.amygdalum.testrecorder.types.SerializedValue;
+import net.amygdalum.testrecorder.types.TypeManager;
 
 public class CodeSerializer {
 
+	private AgentConfiguration config;
 	private SerializerFacade facade;
 	private TypeManager types;
 	private Deserializer<Computation> deserializer;
@@ -25,29 +31,29 @@ public class CodeSerializer {
 	public CodeSerializer() {
 		this("");
 	}
-	
+
 	public CodeSerializer(String pkg) {
-		this(pkg, new ConfigurableSerializerFacade(new DefaultTestRecorderAgentConfig()), new SetupGenerators());
+		this(pkg, config -> new ConfigurableSerializerFacade(config), config -> new SetupGenerators(config));
 	}
-	
-	public CodeSerializer(String pkg, Deserializer<Computation> deserializer) {
-		this(pkg, new ConfigurableSerializerFacade(new DefaultTestRecorderAgentConfig()), deserializer);
+
+	public CodeSerializer(String pkg, Function<AgentConfiguration, SerializerFacade> facade, Function<AgentConfiguration, Deserializer<Computation>> deserializer) {
+		this.types = new DeserializerTypeManager(pkg);
+		this.config = new AgentConfiguration()
+			.withDefaultValue(SerializationProfile.class, DefaultSerializationProfile::new)
+			.withDefaultValue(PerformanceProfile.class, DefaultPerformanceProfile::new)
+			.withDefaultValue(SnapshotConsumer.class, DefaultSnapshotConsumer::new);
+		this.facade = facade.apply(config);
+		this.deserializer = deserializer.apply(config);
 	}
-	
-	public CodeSerializer(String pkg, SerializerFacade facade, Deserializer<Computation> deserializer) {
-		this.types = new TypeManager(pkg);
-		this.facade = facade;
-		this.deserializer = deserializer;
-	}
-	
+
 	public TypeManager getTypes() {
-        return types;
-    }
-	
+		return types;
+	}
+
 	public String serialize(Object value) {
 		return serialize(value.getClass(), value);
 	}
-	
+
 	public String serialize(Type type, Object value) {
 		SerializedValue serializedValue = facade.serialize(type, value);
 
@@ -71,7 +77,6 @@ public class CodeSerializer {
 		public String generateCode() {
 			Computation serialized = value.accept(deserializer, new DefaultDeserializerContext(types, locals));
 
-			
 			statements.addAll(serialized.getStatements());
 			if (!serialized.isStored()) {
 				String name = locals.fetchName(value.getClass());

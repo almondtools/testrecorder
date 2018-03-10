@@ -10,6 +10,8 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializationException;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.SerializedValue;
@@ -17,12 +19,14 @@ import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class AdaptorsTest {
 
+	private AgentConfiguration config;
 	private Adaptors<TestComputationValueVisitor> adaptors;
 	private OpenAdaptors openadaptors;
 
 	@BeforeEach
 	public void before() throws Exception {
-		adaptors = new Adaptors<>();
+		config = new AgentConfiguration();
+		adaptors = new Adaptors<>(config);
 		openadaptors = xray(adaptors).to(OpenAdaptors.class);
 	}
 

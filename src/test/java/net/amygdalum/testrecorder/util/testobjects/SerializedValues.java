@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.amygdalum.testrecorder.ConfigurableSerializerFacade;
-import net.amygdalum.testrecorder.DefaultTestRecorderAgentConfig;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.serializers.BigIntegerSerializer;
 import net.amygdalum.testrecorder.serializers.DefaultListSerializer;
 import net.amygdalum.testrecorder.serializers.GenericSerializer;
@@ -26,8 +26,8 @@ public class SerializedValues {
 
 	private ConfigurableSerializerFacade facade;
 
-	public SerializedValues() {
-		facade = new ConfigurableSerializerFacade(new DefaultTestRecorderAgentConfig());
+	public SerializedValues(AgentConfiguration config) {
+		facade = new ConfigurableSerializerFacade(config);
 	}
 
 	public SerializedList list(Type type, List<?> values) {

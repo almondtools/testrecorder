@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.deserializers;
+package net.amygdalum.testrecorder.types;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;

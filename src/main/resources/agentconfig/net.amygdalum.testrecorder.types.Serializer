@@ -1,0 +1,12 @@
+net.amygdalum.testrecorder.serializers.ArraysListSerializer
+net.amygdalum.testrecorder.serializers.CollectionsListSerializer
+net.amygdalum.testrecorder.serializers.CollectionsSetSerializer
+net.amygdalum.testrecorder.serializers.CollectionsMapSerializer
+net.amygdalum.testrecorder.serializers.DefaultListSerializer
+net.amygdalum.testrecorder.serializers.DefaultQueueSerializer
+net.amygdalum.testrecorder.serializers.DefaultDequeSerializer
+net.amygdalum.testrecorder.serializers.DefaultSetSerializer
+net.amygdalum.testrecorder.serializers.DefaultMapSerializer
+net.amygdalum.testrecorder.serializers.ClassSerializer
+net.amygdalum.testrecorder.serializers.BigIntegerSerializer
+net.amygdalum.testrecorder.serializers.BigDecimalSerializer

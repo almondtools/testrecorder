@@ -9,11 +9,11 @@ import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
 
-import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.runtime.DefaultValue;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.SerializedValue;
+import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedField;
 
 public class ConstructorParam {

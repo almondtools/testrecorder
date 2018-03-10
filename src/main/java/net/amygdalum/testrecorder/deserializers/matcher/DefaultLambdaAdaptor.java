@@ -7,10 +7,10 @@ import java.lang.reflect.Type;
 
 import org.hamcrest.Matcher;
 
-import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.testing.hamcrest.LambdaMatcher;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.values.LambdaSignature;
 import net.amygdalum.testrecorder.values.SerializedLambdaObject;
 

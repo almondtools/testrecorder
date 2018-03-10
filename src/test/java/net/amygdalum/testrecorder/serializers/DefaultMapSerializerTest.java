@@ -28,7 +28,7 @@ public class DefaultMapSerializerTest {
 	@BeforeEach
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
-		serializer = new DefaultMapSerializer.Factory().newSerializer(facade);
+		serializer = new DefaultMapSerializer(facade);
 	}
 
 	@Test

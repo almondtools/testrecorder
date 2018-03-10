@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.CodeSerializer;
 import net.amygdalum.testrecorder.ConfigurableSerializerFacade;
-import net.amygdalum.testrecorder.DefaultTestRecorderAgentConfig;
 import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerators;
 
 public class ClassicBeanMatcherTest {
@@ -87,7 +86,7 @@ public class ClassicBeanMatcherTest {
 	}
 
 	private static CodeSerializer matcherSerializer() {
-		CodeSerializer codeSerializer = new CodeSerializer("net.amygdalum.testrecorder.scenarios", new ConfigurableSerializerFacade(new DefaultTestRecorderAgentConfig()), new MatcherGenerators());
+		CodeSerializer codeSerializer = new CodeSerializer("net.amygdalum.testrecorder.scenarios", config -> new ConfigurableSerializerFacade(config), config -> new MatcherGenerators(config));
 		codeSerializer.getTypes().registerTypes(ClassicBean.class);
 		return codeSerializer;
 	}

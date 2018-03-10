@@ -1,40 +1,34 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
-import static net.amygdalum.testrecorder.deserializers.Computation.expression;
-import static net.amygdalum.testrecorder.deserializers.Computation.variable;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
+import static net.amygdalum.testrecorder.types.Computation.expression;
+import static net.amygdalum.testrecorder.types.Computation.variable;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
 import net.amygdalum.testrecorder.deserializers.Adaptors;
-import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.LocalVariable;
-import net.amygdalum.testrecorder.deserializers.TypeManager;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.runtime.GenericObject;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.LocalVariable;
 import net.amygdalum.testrecorder.types.SerializedFieldType;
 import net.amygdalum.testrecorder.types.SerializedImmutableType;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.SerializedValueType;
+import net.amygdalum.testrecorder.types.TypeManager;
 
 public class SetupGenerators implements Deserializer<Computation> {
 
-	public static final Adaptors<SetupGenerators> DEFAULT = new Adaptors<SetupGenerators>()
-		.load(SetupGenerator.class);
-
 	private Adaptors<SetupGenerators> adaptors;
 
-	public SetupGenerators() {
-		this(DEFAULT);
-	}
-
-	public SetupGenerators(Adaptors<SetupGenerators> adaptors) {
-		this.adaptors = adaptors;
+	public SetupGenerators(AgentConfiguration config) {
+		this.adaptors = new Adaptors<SetupGenerators>(config).load(SetupGenerator.class);
 	}
 
 	@Override

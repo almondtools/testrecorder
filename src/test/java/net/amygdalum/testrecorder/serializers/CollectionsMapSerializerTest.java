@@ -27,7 +27,7 @@ public class CollectionsMapSerializerTest {
 	@BeforeEach
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
-		serializer = new CollectionsMapSerializer.Factory().newSerializer(facade);
+		serializer = new CollectionsMapSerializer(facade);
 	}
 
 	@Test

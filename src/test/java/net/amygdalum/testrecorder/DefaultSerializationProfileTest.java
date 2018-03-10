@@ -9,13 +9,13 @@ import net.amygdalum.testrecorder.profile.ExcludeExplicitExcluded;
 import net.amygdalum.testrecorder.profile.ExcludeGenerated;
 import net.amygdalum.testrecorder.profile.ExcludeStatic;
 
-public class DefaultTestRecorderAgentConfigTest {
+public class DefaultSerializationProfileTest {
 
-    private DefaultTestRecorderAgentConfig config;
+    private DefaultSerializationProfile config;
 
     @BeforeEach
     public void before() throws Exception {
-        config = new DefaultTestRecorderAgentConfig();
+        config = new DefaultSerializationProfile();
     }
     
     @Test
@@ -37,18 +37,8 @@ public class DefaultTestRecorderAgentConfigTest {
     }
 
     @Test
-    public void testGetSnapshotConsumer() throws Exception {
-        assertThat(config.getSnapshotConsumer()).isInstanceOf(TestGenerator.class);
-    }
-
-    @Test
     public void testGetPackages() throws Exception {
         assertThat(config.getClasses()).isEmpty();
-    }
-
-    @Test
-    public void testGetTimeoutInMillis() throws Exception {
-        assertThat(config.getTimeoutInMillis()).isEqualTo(100_000l);
     }
 
 }

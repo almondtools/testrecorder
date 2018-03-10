@@ -1,9 +1,9 @@
 package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static java.util.stream.Collectors.toList;
-import static net.amygdalum.testrecorder.deserializers.Computation.expression;
 import static net.amygdalum.testrecorder.deserializers.FieldNamingStrategy.ensureUniqueNames;
 import static net.amygdalum.testrecorder.deserializers.Templates.genericObjectMatcher;
+import static net.amygdalum.testrecorder.types.Computation.expression;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.typeArgument;
@@ -15,10 +15,10 @@ import java.util.Objects;
 
 import org.hamcrest.Matcher;
 
-import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.testing.hamcrest.GenericMatcher;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class DefaultObjectAdaptor extends DefaultMatcherGenerator<SerializedObject> implements MatcherGenerator<SerializedObject> {

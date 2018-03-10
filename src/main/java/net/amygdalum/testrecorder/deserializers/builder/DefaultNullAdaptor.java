@@ -1,10 +1,10 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
-import static net.amygdalum.testrecorder.deserializers.Computation.expression;
+import static net.amygdalum.testrecorder.types.Computation.expression;
 
-import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.TypeManager;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedNull;
 
 public class DefaultNullAdaptor extends DefaultSetupGenerator<SerializedNull> implements SetupGenerator<SerializedNull> {

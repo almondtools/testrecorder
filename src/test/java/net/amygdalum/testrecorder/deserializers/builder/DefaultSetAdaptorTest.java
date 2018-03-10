@@ -15,11 +15,12 @@ import java.util.TreeSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
-import net.amygdalum.testrecorder.deserializers.LocalVariable;
-import net.amygdalum.testrecorder.deserializers.LocalVariableDefinition;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.LocalVariable;
+import net.amygdalum.testrecorder.types.LocalVariableDefinition;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.util.testobjects.OrthogonalInterface;
 import net.amygdalum.testrecorder.util.testobjects.PublicSet;
@@ -27,11 +28,13 @@ import net.amygdalum.testrecorder.values.SerializedSet;
 
 public class DefaultSetAdaptorTest {
 
+	private AgentConfiguration config;
 	private DefaultSetAdaptor adaptor;
 	private DeserializerContext context;
 
 	@BeforeEach
 	public void before() throws Exception {
+		config = new AgentConfiguration();
 		adaptor = new DefaultSetAdaptor();
 		context = new DefaultDeserializerContext();
 	}
@@ -59,7 +62,7 @@ public class DefaultSetAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		SetupGenerators generator = new SetupGenerators();
+		SetupGenerators generator = new SetupGenerators(config);
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -79,7 +82,7 @@ public class DefaultSetAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		SetupGenerators generator = new SetupGenerators();
+		SetupGenerators generator = new SetupGenerators(config);
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -98,7 +101,7 @@ public class DefaultSetAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		SetupGenerators generator = new SetupGenerators();
+		SetupGenerators generator = new SetupGenerators(config);
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -118,7 +121,7 @@ public class DefaultSetAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		SetupGenerators generator = new SetupGenerators();
+		SetupGenerators generator = new SetupGenerators(config);
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -138,7 +141,7 @@ public class DefaultSetAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		SetupGenerators generator = new SetupGenerators();
+		SetupGenerators generator = new SetupGenerators(config);
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -158,7 +161,7 @@ public class DefaultSetAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		SetupGenerators generator = new SetupGenerators();
+		SetupGenerators generator = new SetupGenerators(config);
 
 		Computation result = adaptor.tryDeserialize(value, generator, new DefaultDeserializerContext() {
 			@Override

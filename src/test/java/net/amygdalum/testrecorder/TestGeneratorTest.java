@@ -16,6 +16,7 @@ import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 
 import net.amygdalum.testrecorder.deserializers.TestComputationValueVisitor;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
@@ -27,6 +28,7 @@ public class TestGeneratorTest {
 	@Rule
 	public TemporaryFolder folder = new TemporaryFolder();
 
+	private AgentConfiguration config;
 	private TestGenerator testGenerator;
 
 	@BeforeAll
@@ -41,7 +43,8 @@ public class TestGeneratorTest {
 
 	@BeforeEach
 	public void before() throws Exception {
-		testGenerator = new TestGenerator();
+		config = new AgentConfiguration();
+		testGenerator = new TestGenerator(config);
 	}
 
 	@Test
@@ -197,54 +200,6 @@ public class TestGeneratorTest {
 	@Test
 	public void testComputeClassName() throws Exception {
 		assertThat(testGenerator.computeClassName(ClassDescriptor.of(MyClass.class))).isEqualTo("MyClassRecordedTest");
-	}
-
-	@Test
-	public void testFromRecordedIfConsumerIsNull() throws Exception {
-		SnapshotManager.MANAGER = new SnapshotManager(new DefaultTestRecorderAgentConfig() {
-
-			@Override
-			public SnapshotConsumer getSnapshotConsumer() {
-				return null;
-			}
-		});
-		assertThat(TestGenerator.fromRecorded()).isNull();
-		assertThat(TestGenerator.fromRecorded()).isNull();
-	}
-
-	@Test
-	public void testFromRecordedIfConsumerIsNonNull() throws Exception {
-		TestGenerator tg = new TestGenerator();
-		SnapshotManager.MANAGER = new SnapshotManager(new DefaultTestRecorderAgentConfig() {
-
-			@Override
-			public SnapshotConsumer getSnapshotConsumer() {
-				return tg;
-			}
-		});
-		assertThat(TestGenerator.fromRecorded()).isSameAs(tg);
-		assertThat(TestGenerator.fromRecorded()).isSameAs(tg);
-	}
-
-	@Test
-	public void testFromRecordedIfConsumerIsNotTestGenerator() throws Exception {
-		SnapshotManager.MANAGER = new SnapshotManager(new DefaultTestRecorderAgentConfig() {
-
-			@Override
-			public SnapshotConsumer getSnapshotConsumer() {
-				return new SnapshotConsumer() {
-
-					@Override
-					public void accept(ContextSnapshot snapshot) {
-					}
-
-					@Override
-					public void close() {
-					}
-				};
-			}
-		});
-		assertThat(TestGenerator.fromRecorded()).isNull();
 	}
 
 	@Test

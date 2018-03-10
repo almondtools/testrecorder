@@ -11,8 +11,9 @@ import net.amygdalum.testrecorder.profile.ExcludeGenerated;
 import net.amygdalum.testrecorder.profile.ExcludeStatic;
 import net.amygdalum.testrecorder.profile.Fields;
 import net.amygdalum.testrecorder.profile.Methods;
+import net.amygdalum.testrecorder.profile.SerializationProfile;
 
-public class DefaultTestRecorderAgentConfig implements TestRecorderAgentConfig {
+public class DefaultSerializationProfile implements SerializationProfile {
 
     public static final List<Fields> DEFAULT_FIELD_EXCLUDES = asList(
         new ExcludeExplicitExcluded(),
@@ -48,16 +49,6 @@ public class DefaultTestRecorderAgentConfig implements TestRecorderAgentConfig {
     @Override
     public List<Methods> getOutputs() {
         return OUTPUT;
-    }
-
-    @Override
-    public SnapshotConsumer getSnapshotConsumer() {
-        return new TestGenerator();
-    }
-
-    @Override
-    public long getTimeoutInMillis() {
-        return 100_000;
     }
 
     @Override

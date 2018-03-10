@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder;
+package net.amygdalum.testrecorder.profile;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.joining;
@@ -12,14 +12,24 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.Stream.Builder;
 
@@ -29,10 +39,31 @@ public class AgentConfiguration {
 
 	private ClassLoader loader;
 	private List<Path> configurationPaths;
+	private Map<Class<?>, Supplier<?>> defaultValues;
+	private Map<Class<?>, Object> singleValues;
+	private Map<Class<?>, List<?>> multiValues;
+
+	public AgentConfiguration(String... configurationPaths) {
+		this(defaultClassLoader(), configurationPaths);
+	}
 
 	public AgentConfiguration(ClassLoader loader, String... configurationPaths) {
 		this.loader = loader;
 		this.configurationPaths = pathsOf(configurationPaths);
+		this.defaultValues = new IdentityHashMap<>();
+		this.singleValues = new IdentityHashMap<>();
+		this.multiValues = new IdentityHashMap<>();
+	}
+
+	private static ClassLoader defaultClassLoader() {
+		ClassLoader loader = Thread.currentThread().getContextClassLoader();
+		if (loader == null) {
+			loader = AgentConfiguration.class.getClassLoader();
+		}
+		if (loader == null) {
+			loader = ClassLoader.getSystemClassLoader();
+		}
+		return loader;
 	}
 
 	private static List<Path> pathsOf(String[] paths) {
@@ -41,59 +72,62 @@ public class AgentConfiguration {
 			.collect(toList());
 	}
 
-	public <T> T loadDefaultConfiguration(T defaultInstance) {
-		Logger.info("loading default " + defaultInstance.getClass().getSimpleName());
-		return defaultInstance;
+	public AgentConfiguration reset() {
+		singleValues.clear();
+		multiValues.clear();
+		return this;
 	}
 
-	public <T> Optional<T> loadConfiguration(Class<T> clazz, Object... args) {
-		for (Path configurationPath : configurationPaths) {
-			Path lookupPath = configurationPath.resolve(clazz.getName());
-			try {
-				InputStream configResource = Files.newInputStream(lookupPath);
-				Optional<T> configs = configsFrom(configResource, clazz, args).findFirst();
-				if (configs.isPresent()) {
-					return configs.map(this::logLoad);
-				}
-			} catch (FileNotFoundException | NoSuchFileException e) {
-				Logger.info("did not find configuration file " + lookupPath + ", continuing");
-			} catch (IOException e) {
-				Logger.error("cannot load configuration file: " + lookupPath);
-			}
-		}
-
-		InputStream classPathResource = loader.getResourceAsStream("META-INF/services/" + clazz.getName());
-		if (classPathResource != null) {
-			Optional<T> configs = configsFrom(classPathResource, clazz, args).findFirst();
-			if (configs.isPresent()) {
-				return configs.map(this::logLoad);
-			}
-		}
-
-		if (configurationPaths.isEmpty()) {
-			Path defaultResourcePath = Paths.get("agentconfig");
-			Path lookupPath = defaultResourcePath.resolve(clazz.getName());
-			try {
-				InputStream configResource = Files.newInputStream(lookupPath);
-				Optional<T> configs = configsFrom(configResource, clazz, args).findFirst();
-				if (configs.isPresent()) {
-					return configs.map(this::logLoad);
-				}
-			} catch (FileNotFoundException | NoSuchFileException e) {
-				Logger.info("did not find configuration file " + lookupPath + ", continuing");
-			} catch (IOException e) {
-				Logger.error("cannot load configuration file: " + lookupPath);
-			}
-		}
-		return Optional.empty();
+	public <T> AgentConfiguration withDefaultValue(Class<T> clazz, Supplier<T> defaultValue) {
+		defaultValues.put(clazz, defaultValue);
+		return this;
 	}
 
-	private <T> T logLoad(T object) {
-		Logger.info("loading " + object.getClass().getSimpleName());
-		return object;
+	public void setLoader(ClassLoader loader) {
+		this.loader = loader;
 	}
 
+	public <T> T loadConfiguration(Class<T> clazz, Object... args) {
+		if (args.length == 0) {
+			Object cached = singleValues.get(clazz);
+			if (cached != null) {
+				return clazz.cast(cached);
+			}
+		}
+		Optional<T> matchingConfig = load(clazz, args).findFirst();
+		T config = matchingConfig.isPresent() ? matchingConfig.get() : loadDefault(clazz);
+		if (args.length == 0) {
+			singleValues.put(clazz, config);
+		}
+		return config;
+	}
+
+	private <T> T loadDefault(Class<T> clazz) {
+		Supplier<?> defaultConfigSupplier = defaultValues.get(clazz);
+		if (defaultConfigSupplier == null) {
+			return null;
+		}
+		T defaultConfig = clazz.cast(defaultConfigSupplier.get());
+		logLoad("default", defaultConfig);
+		return defaultConfig;
+	}
+
+	@SuppressWarnings("unchecked")
 	public <T> List<T> loadConfigurations(Class<T> clazz, Object... args) {
+		if (args.length == 0) {
+			List<?> cached = multiValues.get(clazz);
+			if (cached != null) {
+				return (List<T>) cached;
+			}
+		}
+		List<T> configs = load(clazz, args).collect(toList());
+		if (args.length == 0) {
+			multiValues.put(clazz, configs);
+		}
+		return configs;
+	}
+
+	private <T> Stream<T> load(Class<T> clazz, Object... args) {
 		Builder<T> configurations = Stream.<T> builder();
 
 		for (Path configurationPath : configurationPaths) {
@@ -104,17 +138,30 @@ public class AgentConfiguration {
 					.map(this::logLoad)
 					.forEach(configurations::add);
 			} catch (FileNotFoundException | NoSuchFileException e) {
-				Logger.info("did not find configuration file " + lookupPath + ", continuing");
+				Logger.info("did not find configuration file " + lookupPath + ", skipping");
 			} catch (IOException e) {
 				Logger.error("cannot load configuration file: " + lookupPath);
 			}
 		}
 
-		InputStream classPathResource = loader.getResourceAsStream("META-INF/services/" + clazz.getName());
-		if (classPathResource != null) {
-			configsFrom(classPathResource, clazz, args)
-				.map(this::logLoad)
-				.forEach(configurations::add);
+		try {
+			Enumeration<URL> urls = loader.getResources("agentconfig/" + clazz.getName());
+			while (urls.hasMoreElements()) {
+				URL url = urls.nextElement();
+				Path lookupPath = pathFrom(url);
+				try {
+					InputStream classPathResource = Files.newInputStream(lookupPath);
+					configsFrom(classPathResource, clazz, args)
+						.map(this::logLoad)
+						.forEach(configurations::add);
+				} catch (FileNotFoundException | NoSuchFileException e) {
+					Logger.info("did not find configuration file " + lookupPath + ", skipping");
+				} catch (IOException e) {
+					Logger.error("cannot load configuration file: " + lookupPath);
+				}
+			}
+		} catch (IOException e) {
+			Logger.error("cannot load configuration from classpath", e);
 		}
 
 		if (configurationPaths.isEmpty()) {
@@ -126,18 +173,47 @@ public class AgentConfiguration {
 					.map(this::logLoad)
 					.forEach(configurations::add);
 			} catch (FileNotFoundException | NoSuchFileException e) {
-				Logger.info("did not find configuration file " + lookupPath + ", continuing");
+				Logger.info("did not find configuration file " + lookupPath + ", skipping");
 			} catch (IOException e) {
 				Logger.error("cannot load configuration file: " + lookupPath);
 			}
 		}
 
-		return configurations.build().distinct().collect(toList());
+		return configurations.build().distinct();
+	}
+
+	private Path pathFrom(URL url) throws IOException {
+		try {
+			URI uri = url.toURI();
+			try {
+				return Paths.get(uri);
+			} catch (FileSystemNotFoundException e) {
+				FileSystems.newFileSystem(uri, Collections.singletonMap("create", "true"));
+				return Paths.get(uri);
+			}
+		} catch (URISyntaxException e) {
+			throw new IOException(e);
+		}
+	}
+
+	private <T> T logLoad(T object) {
+		if (object != null) {
+			Logger.info("loading " + object.getClass().getSimpleName());
+		}
+		return object;
+	}
+
+	private <T> T logLoad(String prefix, T object) {
+		if (object != null) {
+			Logger.info("loading " + prefix + " " + object.getClass().getSimpleName());
+		}
+		return object;
 	}
 
 	private <T> Stream<T> configsFrom(InputStream resource, Class<T> clazz, Object[] args) {
 		return new BufferedReader(new InputStreamReader(resource, UTF_8)).lines()
 			.map(line -> line.trim())
+			.filter(line -> !line.isEmpty())
 			.map(name -> configFrom(name, clazz, args))
 			.filter(Objects::nonNull);
 
@@ -153,8 +229,8 @@ public class AgentConfiguration {
 				return superClazz.cast(constructor.get().newInstance(args));
 			} else {
 				Logger.error("failed loading " + clazz.getSimpleName() + " because no constructor matching "
-					+ Arrays.stream(args).map(arg -> arg == null ? "null" : arg.getClass().getSimpleName()).collect(joining(",","(",")"))
-					+", skipping");
+					+ Arrays.stream(args).map(arg -> arg == null ? "null" : arg.getClass().getSimpleName()).collect(joining(",", "(", ")"))
+					+ ", skipping");
 				return null;
 			}
 		} catch (ClassNotFoundException e) {

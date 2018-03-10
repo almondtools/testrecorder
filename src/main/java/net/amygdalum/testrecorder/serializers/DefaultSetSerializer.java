@@ -38,13 +38,4 @@ public class DefaultSetSerializer implements Serializer<SerializedSet> {
 		}
 	}
 
-	public static class Factory implements SerializerFactory<SerializedSet> {
-
-		@Override
-		public DefaultSetSerializer newSerializer(SerializerFacade facade) {
-			return new DefaultSetSerializer(facade);
-		}
-
-	}
-
 }

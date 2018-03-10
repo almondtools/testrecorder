@@ -1,8 +1,8 @@
 package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static java.util.Collections.emptyList;
-import static net.amygdalum.testrecorder.deserializers.Computation.expression;
 import static net.amygdalum.testrecorder.deserializers.Templates.equalToMatcher;
+import static net.amygdalum.testrecorder.types.Computation.expression;
 import static net.amygdalum.testrecorder.util.Types.equalTypes;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 
@@ -11,9 +11,9 @@ import java.lang.reflect.Type;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
-import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.TypeManager;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 
 public class DefaultClassAdaptor extends DefaultMatcherGenerator<SerializedImmutable<Class<?>>> implements MatcherGenerator<SerializedImmutable<Class<?>>> {

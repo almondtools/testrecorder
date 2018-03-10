@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder;
 
+import static net.amygdalum.testrecorder.util.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.testrecorder.util.Types.getDeclaredField;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,7 +29,7 @@ public class ConfigurableSerializerFacadeTest {
 
     @BeforeEach
     public void before() throws Exception {
-        facade = new ConfigurableSerializerFacade(new DefaultTestRecorderAgentConfig());
+        facade = new ConfigurableSerializerFacade(defaultConfig());
         openFacade = XRayInterface.xray(facade).to(OpenFacade.class);
     }
 

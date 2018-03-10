@@ -6,7 +6,8 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import net.amygdalum.testrecorder.deserializers.TypeManager;
+import net.amygdalum.testrecorder.deserializers.DeserializerTypeManager;
+import net.amygdalum.testrecorder.types.TypeManager;
 
 public class TestGeneratorContext {
 
@@ -15,7 +16,7 @@ public class TestGeneratorContext {
 	private Set<String> tests;
 	
 	public TestGeneratorContext(ClassDescriptor key) {
-		this.types = new TypeManager(key.getPackage());
+		this.types = new DeserializerTypeManager(key.getPackage());
 		this.setups = new LinkedHashSet<>();
 		this.tests = new LinkedHashSet<>();
 

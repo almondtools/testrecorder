@@ -2,9 +2,9 @@ package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
-import static net.amygdalum.testrecorder.deserializers.Computation.expression;
 import static net.amygdalum.testrecorder.deserializers.Templates.containsInAnyOrderMatcher;
 import static net.amygdalum.testrecorder.deserializers.Templates.emptyMatcher;
+import static net.amygdalum.testrecorder.types.Computation.expression;
 import static net.amygdalum.testrecorder.util.Types.isGeneric;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
@@ -15,10 +15,10 @@ import java.util.List;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
-import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.TypeManager;
 import net.amygdalum.testrecorder.testing.hamcrest.ContainsMatcher;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedSet;
 
 public class DefaultSetAdaptor extends DefaultMatcherGenerator<SerializedSet> implements MatcherGenerator<SerializedSet> {

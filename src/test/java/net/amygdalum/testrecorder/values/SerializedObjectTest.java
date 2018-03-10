@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.values;
 
-import static net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext.NULL;
+import static net.amygdalum.testrecorder.types.DeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 

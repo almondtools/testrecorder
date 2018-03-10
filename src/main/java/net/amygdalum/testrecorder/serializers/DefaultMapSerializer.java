@@ -41,13 +41,4 @@ public class DefaultMapSerializer implements Serializer<SerializedMap> {
 		}
 	}
 
-	public static class Factory implements SerializerFactory<SerializedMap> {
-
-		@Override
-		public DefaultMapSerializer newSerializer(SerializerFacade facade) {
-			return new DefaultMapSerializer(facade);
-		}
-
-	}
-
 }

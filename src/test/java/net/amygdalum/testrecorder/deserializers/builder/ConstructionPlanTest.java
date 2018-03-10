@@ -9,7 +9,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import net.amygdalum.testrecorder.deserializers.LocalVariable;
+import net.amygdalum.testrecorder.types.LocalVariable;
 
 public class ConstructionPlanTest {
 

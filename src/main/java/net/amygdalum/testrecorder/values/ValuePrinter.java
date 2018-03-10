@@ -6,7 +6,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.SerializedFieldType;
@@ -34,11 +33,11 @@ public class ValuePrinter implements Deserializer<String> {
 	}
 
 	public String printValue(SerializedValue value) {
-		return value.accept(this, DefaultDeserializerContext.NULL);
+		return value.accept(this, DeserializerContext.NULL);
 	}
 
 	public String printField(SerializedFieldType value) {
-		return value.accept(this, DefaultDeserializerContext.NULL);
+		return value.accept(this, DeserializerContext.NULL);
 	}
 
 	@Override

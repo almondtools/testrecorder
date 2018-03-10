@@ -35,13 +35,4 @@ public class ArraysListSerializer extends HiddenInnerClassSerializer<SerializedL
 		}
 	}
 
-	public static class Factory implements SerializerFactory<SerializedList> {
-
-		@Override
-		public ArraysListSerializer newSerializer(SerializerFacade facade) {
-			return new ArraysListSerializer(facade);
-		}
-
-	}
-
 }

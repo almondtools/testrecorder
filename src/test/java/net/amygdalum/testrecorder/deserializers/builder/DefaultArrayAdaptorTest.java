@@ -6,18 +6,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.deserializers.Computation;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.values.SerializedArray;
 
 public class DefaultArrayAdaptorTest {
 
+	private AgentConfiguration config;
 	private DefaultArrayAdaptor adaptor;
 	private DeserializerContext context;
 
 	@BeforeEach
 	public void before() throws Exception {
+		config = new AgentConfiguration();
 		adaptor = new DefaultArrayAdaptor();
 		context = new DefaultDeserializerContext();
 	}
@@ -40,7 +43,7 @@ public class DefaultArrayAdaptorTest {
 		value.add(literal(int.class, 0));
 		value.add(literal(int.class, 8));
 		value.add(literal(int.class, 15));
-		SetupGenerators generator = new SetupGenerators();
+		SetupGenerators generator = new SetupGenerators(config);
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 

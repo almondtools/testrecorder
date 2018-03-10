@@ -1,18 +1,18 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static java.util.stream.Collectors.toList;
-import static net.amygdalum.testrecorder.deserializers.Computation.variable;
 import static net.amygdalum.testrecorder.deserializers.Templates.arrayLiteral;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
+import static net.amygdalum.testrecorder.types.Computation.variable;
 import static net.amygdalum.testrecorder.util.Types.array;
 
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.stream.Stream;
 
-import net.amygdalum.testrecorder.deserializers.Computation;
-import net.amygdalum.testrecorder.deserializers.TypeManager;
+import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedArray;
 
 public class DefaultArrayAdaptor extends DefaultSetupGenerator<SerializedArray> implements SetupGenerator<SerializedArray> {

@@ -16,11 +16,9 @@ import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ServiceConfigurationError;
-import java.util.ServiceLoader;
 import java.util.stream.IntStream;
-import java.util.stream.StreamSupport;
 
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.Classes;
 import net.amygdalum.testrecorder.profile.Fields;
 import net.amygdalum.testrecorder.profile.SerializationProfile;
@@ -31,13 +29,11 @@ import net.amygdalum.testrecorder.serializers.GenericSerializer;
 import net.amygdalum.testrecorder.serializers.LambdaSerializer;
 import net.amygdalum.testrecorder.serializers.Profile;
 import net.amygdalum.testrecorder.serializers.SerializerFacade;
-import net.amygdalum.testrecorder.serializers.SerializerFactory;
 import net.amygdalum.testrecorder.types.SerializationException;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.util.Lambdas;
-import net.amygdalum.testrecorder.util.Logger;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedNull;
@@ -50,16 +46,17 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 	private List<Fields> fieldExclusions;
 	private Map<Class<?>, Profile> profiles;
 
-	public ConfigurableSerializerFacade(SerializationProfile profile) {
-		serializers = setupSerializers(this);
+	public ConfigurableSerializerFacade(AgentConfiguration config) {
+		serializers = setupSerializers(config, this);
 		serialized = new IdentityHashMap<>();
-		classExclusions = classExclusions(profile.getClassExclusions());
-		fieldExclusions = fieldExclusions(profile.getFieldExclusions());
+		classExclusions = classExclusions(config);
+		fieldExclusions = fieldExclusions(config);
 		profiles = new LinkedHashMap<>();
 	}
 
-	private static List<Classes> classExclusions(List<Classes> base) {
-		List<Classes> excluded = new ArrayList<>(base);
+	private static List<Classes> classExclusions(AgentConfiguration config) {
+		List<Classes> excluded = new ArrayList<>(config.loadConfiguration(SerializationProfile.class)
+			.getClassExclusions());
 		excluded.addAll(testrecorderClasses());
 		return excluded;
 	}
@@ -74,28 +71,19 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 			Classes.byPackage("net.amygdalum.testrecorder.values"));
 	}
 
-	private static List<Fields> fieldExclusions(List<Fields> base) {
-		List<Fields> excluded = new ArrayList<>(base);
+	private static List<Fields> fieldExclusions(AgentConfiguration config) {
+		List<Fields> excluded = new ArrayList<>(config.loadConfiguration(SerializationProfile.class)
+			.getFieldExclusions());
 		return excluded;
 	}
 
-	@SuppressWarnings("rawtypes")
-	private static Map<Class<?>, Serializer<?>> setupSerializers(SerializerFacade facade) {
+	private static Map<Class<?>, Serializer<?>> setupSerializers(AgentConfiguration config, SerializerFacade facade) {
 		IdentityHashMap<Class<?>, Serializer<?>> serializers = new IdentityHashMap<>();
-		try {
-			ServiceLoader<SerializerFactory> loader = ServiceLoader.load(SerializerFactory.class);
-
-			StreamSupport.stream(loader.spliterator(), false)
-				.map(factory -> (Serializer<?>) factory.newSerializer(facade))
-				.forEach(serializer -> {
-					for (Class<?> clazz : serializer.getMatchingClasses()) {
-						serializers.put(clazz, serializer);
-					}
-				});
-		} catch (ServiceConfigurationError serviceError) {
-			Logger.warn("failed loading serializers: " + serviceError.getMessage());
+		for (Serializer<?> serializer : config.loadConfigurations(Serializer.class, facade)) {
+			for (Class<?> clazz : serializer.getMatchingClasses()) {
+				serializers.put(clazz, serializer);
+			}
 		}
-
 		return serializers;
 	}
 
