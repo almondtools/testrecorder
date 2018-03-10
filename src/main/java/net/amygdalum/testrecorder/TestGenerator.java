@@ -307,7 +307,7 @@ public class TestGenerator implements SnapshotConsumer {
 	}
 
 	public void andThen(Runnable runnable) {
-		this.pipeline.thenRun(runnable).join();
+		this.pipeline = this.pipeline.thenRunAsync(runnable);
 	}
 
 	private class MethodGenerator {

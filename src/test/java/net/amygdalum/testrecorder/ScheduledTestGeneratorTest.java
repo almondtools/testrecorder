@@ -378,6 +378,8 @@ public class ScheduledTestGeneratorTest {
 
 		shutdown.run();
 
+		testGenerator.await();
+
 		assertThat(files()).containsExactlyInAnyOrder("5Test.java");
 	}
 
@@ -409,6 +411,9 @@ public class ScheduledTestGeneratorTest {
 			.findFirst().orElseThrow(() -> new AssertionError("no shutdown thread"));
 
 		shutdown.run();
+		
+		testGenerator.await();
+		second.await();
 
 		assertThat(files()).containsExactlyInAnyOrder("2Test.java", "2SecondTest.java");
 	}
