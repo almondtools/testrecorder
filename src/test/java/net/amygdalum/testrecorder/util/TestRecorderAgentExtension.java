@@ -12,9 +12,9 @@ import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
+import net.amygdalum.testrecorder.AgentConfiguration;
 import net.amygdalum.testrecorder.ConfigurableTestRecorderAgentConfig;
 import net.amygdalum.testrecorder.ConfigurableTestRecorderAgentConfig.Builder;
-import net.amygdalum.testrecorder.DefaultTestRecorderAgentConfig;
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.TestRecorderAgent;
 import net.amygdalum.testrecorder.TestRecorderAgentConfig;
@@ -50,12 +50,12 @@ public class TestRecorderAgentExtension implements BeforeEachCallback, BeforeAll
 			Logger.info("setup");
 			Instrumented instrumented = testClass.getAnnotation(Instrumented.class);
 
-			TestRecorderAgentConfig config = fetchConfig(instrumented);
+			AgentConfiguration config = fetchConfig(instrumented);
 
 			Class<?>[] classes = fetchClasses(instrumented);
 
-			agent = new TestRecorderAgent(inst);
-			agent.prepareInstrumentations(config);
+			agent = new TestRecorderAgent(inst, config);
+			agent.prepareInstrumentations();
 			if (classes.length > 0) {
 				inst.retransformClasses(classes);
 			}
@@ -64,9 +64,9 @@ public class TestRecorderAgentExtension implements BeforeEachCallback, BeforeAll
 		}
 	}
 
-	private TestRecorderAgentConfig fetchConfig(Instrumented instrumented) throws InstantiationException, IllegalAccessException {
+	private AgentConfiguration fetchConfig(Instrumented instrumented) throws InstantiationException, IllegalAccessException {
 		if (instrumented == null) {
-			return new DefaultTestRecorderAgentConfig();
+			return new TestAgentConfiguration();
 		}
 		Class<? extends TestRecorderAgentConfig> base = instrumented.config();
 		List<Classes> classes = Arrays.stream(instrumented.classes())
@@ -74,9 +74,9 @@ public class TestRecorderAgentExtension implements BeforeEachCallback, BeforeAll
 			.collect(toList());
 		TestRecorderAgentConfig baseConfig = base.newInstance();
 		Builder config = ConfigurableTestRecorderAgentConfig.builder(baseConfig);
-		return config
+		return new TestAgentConfiguration(config
 			.withClasses(classes)
-			.build();
+			.build());
 	}
 
 	private Class<?>[] fetchClasses(Instrumented instrumented) throws ClassNotFoundException {

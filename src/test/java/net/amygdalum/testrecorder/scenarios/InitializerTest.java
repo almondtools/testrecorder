@@ -10,7 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import net.amygdalum.testrecorder.TestGenerator;
 import net.amygdalum.testrecorder.util.ExtensibleClassLoader;
 import net.amygdalum.testrecorder.util.Instrumented;
-import net.amygdalum.testrecorder.util.ServiceLoaderExtension;
+import net.amygdalum.testrecorder.util.ClasspathResourceExtension;
 import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 
 @ExtendWith(TestRecorderAgentExtension.class)
@@ -18,7 +18,7 @@ import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 public class InitializerTest {
 
 	@Test
-	@ExtendWith(ServiceLoaderExtension.class)
+	@ExtendWith(ClasspathResourceExtension.class)
 	public void testWithInitializer(ExtensibleClassLoader loader) throws Exception {
 		loader.addPackage("net.amygdalum.testrecorder.scenarios");
 		loader.defineResource("META-INF/services/net.amygdalum.testrecorder.TestRecorderAgentInitializer", "net.amygdalum.testrecorder.scenarios.GlobalsInitializer".getBytes());

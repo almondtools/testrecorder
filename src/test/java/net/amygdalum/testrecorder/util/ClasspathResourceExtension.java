@@ -7,7 +7,7 @@ import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 
-public class ServiceLoaderExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
+public class ClasspathResourceExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
 
 	private ClassLoader backupClassLoader;
 	private ExtensibleClassLoader classLoader;

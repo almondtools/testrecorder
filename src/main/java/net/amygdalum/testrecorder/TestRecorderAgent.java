@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder;
 
 import java.lang.instrument.Instrumentation;
-import java.util.ServiceLoader;
 
 import net.amygdalum.testrecorder.util.AttachableClassFileTransformer;
 import net.amygdalum.testrecorder.util.Logger;
@@ -9,49 +8,59 @@ import net.amygdalum.testrecorder.util.Logger;
 public class TestRecorderAgent {
 
 	private Instrumentation inst;
+	private AgentConfiguration config;
 	private AttachableClassFileTransformer lambdaTransformer;
 	private AttachableClassFileTransformer snapshotInstrumentor;
 
-	public TestRecorderAgent(Instrumentation inst) {
+	public TestRecorderAgent(Instrumentation inst, AgentConfiguration config) {
 		this.inst = inst;
+		this.config = config;
 	}
 
 	public static void agentmain(String agentArgs, Instrumentation inst) {
-		TestRecorderAgentConfig config = loadConfig(agentArgs);
+		AgentConfiguration config = loadConfig(agentArgs);
 
-		new TestRecorderAgent(inst).prepareInstrumentations(config);
+		new TestRecorderAgent(inst, config).prepareInstrumentations();
 	}
 
 	public static void premain(String agentArgs, Instrumentation inst) {
-		TestRecorderAgentConfig config = loadConfig(agentArgs);
+		AgentConfiguration config = loadConfig(agentArgs);
 
-		new TestRecorderAgent(inst).prepareInstrumentations(config);
+		new TestRecorderAgent(inst, config).prepareInstrumentations();
 	}
 
-	@SuppressWarnings("unchecked")
-	protected static TestRecorderAgentConfig loadConfig(String agentArgs) {
-		try {
-			Class<? extends TestRecorderAgentConfig> config = (Class<? extends TestRecorderAgentConfig>) Class.forName(agentArgs);
-			Logger.info("loading config " + config.getSimpleName());
-			return config.newInstance();
-		} catch (RuntimeException | ReflectiveOperationException e) {
-			Logger.error("failed loading config " + agentArgs + ": ", e);
-			Logger.info("loading default config");
-			return new DefaultTestRecorderAgentConfig();
+	protected static AgentConfiguration loadConfig(String agentArgs) {
+		return loadConfig(agentArgs, TestRecorderAgent.class.getClassLoader());
+	}
+	
+	protected static AgentConfiguration loadConfig(String agentArgs, ClassLoader loader) {
+		if (agentArgs != null) {
+			String[] args = agentArgs.split(";");
+			return new AgentConfiguration(loader, args);
+		} else {
+			return new AgentConfiguration(loader);
 		}
 	}
 
-	public void prepareInstrumentations(TestRecorderAgentConfig config) {
-		snapshotInstrumentor = new SnapshotInstrumentor(config).attach(inst);
+	public void prepareInstrumentations() {
+		TestRecorderAgentConfig instrumentationConfig = loadInstrumentationConfig();
+		snapshotInstrumentor = new SnapshotInstrumentor(instrumentationConfig).attach(inst);
 		lambdaTransformer = new AllLambdasSerializableTransformer().attach(inst);
 
-		initialize(config);
+		initialize();
 	}
 
-	public void initialize(TestRecorderAgentConfig config) {
-		ServiceLoader<TestRecorderAgentInitializer> loader = ServiceLoader.load(TestRecorderAgentInitializer.class);
+	protected TestRecorderAgentConfig loadInstrumentationConfig() {
+		return config.loadConfiguration(TestRecorderAgentConfig.class)
+			.orElseGet(this::loadDefaultConfig);
+	}
+	
+	private TestRecorderAgentConfig loadDefaultConfig() {
+		return config.loadDefaultConfiguration(new DefaultTestRecorderAgentConfig());
+	}
 
-		for (TestRecorderAgentInitializer initializer : loader) {
+	public void initialize() {
+		for (TestRecorderAgentInitializer initializer : config.loadConfigurations(TestRecorderAgentInitializer.class)) {
 			try {
 				initializer.run();
 			} catch (RuntimeException e) {
