@@ -58,6 +58,7 @@ import net.amygdalum.testrecorder.util.TypesTest.NestedPublic;
 import net.amygdalum.testrecorder.util.testobjects.BiGeneric;
 import net.amygdalum.testrecorder.util.testobjects.BoundGeneric;
 import net.amygdalum.testrecorder.util.testobjects.Complex;
+import net.amygdalum.testrecorder.util.testobjects.ElevatingToPublic;
 import net.amygdalum.testrecorder.util.testobjects.Final;
 import net.amygdalum.testrecorder.util.testobjects.Generic;
 import net.amygdalum.testrecorder.util.testobjects.GenericCycle;
@@ -327,6 +328,7 @@ public class TypesTest {
 		assertThat(getDeclaredMethod(Sub1.class, "getStr")).isEqualTo(Super.class.getDeclaredMethod("getStr"));
 		assertThat(getDeclaredMethod(Sub2.class, "setSubAttr", boolean.class)).isEqualTo(Sub2.class.getDeclaredMethod("setSubAttr", boolean.class));
 		assertThat(getDeclaredMethod(Sub2.class, "getStr")).isEqualTo(Super.class.getDeclaredMethod("getStr"));
+		assertThat(getDeclaredMethod(ElevatingToPublic.class, "method")).isEqualTo(ElevatingToPublic.class.getSuperclass().getDeclaredMethod("method"));
 		assertThatThrownBy(() -> getDeclaredMethod(Sub1.class, "nonExistent"))
 			.isInstanceOf(NoSuchMethodException.class);
 		assertThatThrownBy(() -> getDeclaredMethod(Sub2.class, "nonExistent"))

@@ -621,7 +621,11 @@ public final class Types {
 		Class<?> current = clazz;
 		while (current != Object.class) {
 			try {
-				return current.getDeclaredMethod(name, parameterTypes);
+				Method method = current.getDeclaredMethod(name, parameterTypes);
+				if (!method.isSynthetic()) {
+					return method;
+				}
+				current = current.getSuperclass();
 			} catch (NoSuchMethodException e) {
 				current = current.getSuperclass();
 			}
