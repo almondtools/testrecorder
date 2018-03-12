@@ -5,7 +5,5 @@ public interface PerformanceProfile {
 	long getTimeoutInMillis();
 
 	long getIdleTime();
-	
-	int getThreads();
 
 }

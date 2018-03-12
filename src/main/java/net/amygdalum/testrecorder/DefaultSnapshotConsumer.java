@@ -6,7 +6,4 @@ public class DefaultSnapshotConsumer implements SnapshotConsumer {
 	public void accept(ContextSnapshot snapshot) {
 	}
 
-	@Override
-	public void close() {
-	}
 }

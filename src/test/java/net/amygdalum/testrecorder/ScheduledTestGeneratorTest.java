@@ -3,6 +3,7 @@ package net.amygdalum.testrecorder;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
+import static net.amygdalum.testrecorder.util.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -62,7 +63,7 @@ public class ScheduledTestGeneratorTest {
 	@BeforeEach
 	public void before() throws Exception {
 		XRayInterface.xray(ScheduledTestGenerator.class).to(OpenScheduledTestGenerator.class).setDumpOnShutDown(null);
-		config = new AgentConfiguration();
+		config = defaultConfig();
 		testGenerator = new ScheduledTestGenerator(config)
 			.withDumpMaximum(1);
 	}
@@ -333,7 +334,7 @@ public class ScheduledTestGeneratorTest {
 
 		shutdown.run();
 
-		testGenerator.await();
+		shutdown.join();
 
 		assertThat(files()).containsExactlyInAnyOrder("5Test.java");
 	}
@@ -366,9 +367,7 @@ public class ScheduledTestGeneratorTest {
 			.findFirst().orElseThrow(() -> new AssertionError("no shutdown thread"));
 
 		shutdown.run();
-
-		testGenerator.await();
-		second.await();
+		shutdown.join();
 
 		assertThat(files()).containsExactlyInAnyOrder("2Test.java", "2SecondTest.java");
 	}

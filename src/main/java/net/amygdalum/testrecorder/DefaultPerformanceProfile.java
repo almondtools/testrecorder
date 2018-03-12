@@ -14,9 +14,4 @@ public class DefaultPerformanceProfile implements PerformanceProfile {
 		return 10_000;
 	}
 
-	@Override
-	public int getThreads() {
-		return 1;
-	}
-
 }

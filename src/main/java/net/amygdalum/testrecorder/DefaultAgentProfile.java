@@ -57,9 +57,4 @@ public class DefaultAgentProfile implements SerializationProfile, PerformancePro
 		return 10_000;
 	}
 
-	@Override
-	public int getThreads() {
-		return 1;
-	}
-
 }

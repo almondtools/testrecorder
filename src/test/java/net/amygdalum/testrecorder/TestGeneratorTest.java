@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder;
 
+import static net.amygdalum.testrecorder.util.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,7 +44,7 @@ public class TestGeneratorTest {
 
 	@BeforeEach
 	public void before() throws Exception {
-		config = new AgentConfiguration();
+		config = defaultConfig();
 		testGenerator = new TestGenerator(config);
 	}
 

@@ -4,5 +4,4 @@ public interface SnapshotConsumer {
 
 	void accept(ContextSnapshot snapshot);
 
-	void close();
 }

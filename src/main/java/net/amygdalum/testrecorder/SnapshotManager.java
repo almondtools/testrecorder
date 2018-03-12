@@ -78,7 +78,7 @@ public class SnapshotManager {
 		PerformanceProfile performanceProfile = config.loadConfiguration(PerformanceProfile.class);
 		
 		this.timeoutInMillis = performanceProfile.getTimeoutInMillis();
-		this.snapshotExecutor = new ThreadPoolExecutor(0, performanceProfile.getThreads(), performanceProfile.getIdleTime(), TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new TestrecorderThreadFactory("$snapshot"));
+		this.snapshotExecutor = new ThreadPoolExecutor(0, 1, performanceProfile.getIdleTime(), TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new TestrecorderThreadFactory("$snapshot"));
 		this.methodContext = new MethodContext();
 		this.globalContext = new GlobalContext();
 	}
@@ -128,13 +128,6 @@ public class SnapshotManager {
 				jarOutputStream.closeEntry();
 			}
 			return new JarFile(agentJar);
-		}
-	}
-
-	public void close() throws Throwable {
-		snapshotExecutor.shutdown();
-		if (snapshotConsumer != null) {
-			snapshotConsumer.close();
 		}
 	}
 
