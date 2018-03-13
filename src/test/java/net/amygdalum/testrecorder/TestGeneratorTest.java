@@ -1,34 +1,38 @@
 package net.amygdalum.testrecorder;
 
+import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.util.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import net.amygdalum.testrecorder.deserializers.TestComputationValueVisitor;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.util.Debug;
+import net.amygdalum.testrecorder.util.ExtensibleClassLoader;
+import net.amygdalum.testrecorder.util.TemporaryFolder;
+import net.amygdalum.testrecorder.util.TemporaryFolderExtension;
 import net.amygdalum.testrecorder.values.SerializedField;
+import net.amygdalum.testrecorder.values.SerializedInput;
 import net.amygdalum.testrecorder.values.SerializedObject;
+import net.amygdalum.testrecorder.values.SerializedOutput;
 
-@EnableRuleMigrationSupport
+@ExtendWith(TemporaryFolderExtension.class)
 public class TestGeneratorTest {
 
 	private static SnapshotManager saveManager;
 
-	@Rule
-	public TemporaryFolder folder = new TemporaryFolder();
-
+	private ExtensibleClassLoader loader;
 	private AgentConfiguration config;
 	private TestGenerator testGenerator;
 
@@ -44,7 +48,8 @@ public class TestGeneratorTest {
 
 	@BeforeEach
 	public void before() throws Exception {
-		config = defaultConfig();
+		loader = new ExtensibleClassLoader(TestGenerator.class.getClassLoader());
+		config = defaultConfig().withLoader(loader);
 		testGenerator = new TestGenerator(config);
 	}
 
@@ -70,6 +75,77 @@ public class TestGeneratorTest {
 					"equalTo(22)",
 					"int field = 8;");
 			});
+	}
+
+	@Test
+	public void testAcceptWithInitializer() throws Exception {
+		loader.defineResource("agentconfig/net.amygdalum.testrecorder.TestRecorderAgentInitializer", "net.amygdalum.testrecorder.util.AgentInitializer".getBytes());
+		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
+		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
+		snapshot.setSetupArgs(literal(int.class, 16));
+		snapshot.setSetupGlobals(new SerializedField[0]);
+		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 8))));
+		snapshot.setExpectArgs(literal(int.class, 16));
+		snapshot.setExpectResult(literal(int.class, 22));
+		snapshot.setExpectGlobals(new SerializedField[0]);
+
+		testGenerator.accept(snapshot);
+
+		testGenerator.await();
+		assertThat(Debug.print(testGenerator.renderTest(TestGeneratorTest.class).getTestCode()))
+			.containsSequence(
+				"@Before",
+				"public void initialize() throws Exception {",
+				"new AgentInitializer().run();",
+				"}");
+	}
+
+	@Test
+	public void testAcceptWithInput() throws Exception {
+		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
+		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
+		snapshot.setSetupArgs(literal(int.class, 16));
+		snapshot.setSetupGlobals(new SerializedField[0]);
+		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 8))));
+		snapshot.setExpectArgs(literal(int.class, 16));
+		snapshot.setExpectResult(literal(int.class, 22));
+		snapshot.setExpectGlobals(new SerializedField[0]);
+		snapshot.addInput(new SerializedInput(42, System.class, "currentTimeMillis", long.class, new Type[0]).updateResult(literal(42l)));
+
+		testGenerator.accept(snapshot);
+
+		testGenerator.await();
+		assertThat(Debug.print(testGenerator.renderTest(TestGeneratorTest.class).getTestCode()))
+			.containsSequence(
+				"@Before",
+				"@After",
+				"public void resetFakeIO() throws Exception {",
+				"FakeIO.reset();",
+				"}");
+	}
+
+	@Test
+	public void testAcceptWithOutput() throws Exception {
+		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
+		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
+		snapshot.setSetupArgs(literal(int.class, 16));
+		snapshot.setSetupGlobals(new SerializedField[0]);
+		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 8))));
+		snapshot.setExpectArgs(literal(int.class, 16));
+		snapshot.setExpectResult(literal(int.class, 22));
+		snapshot.setExpectGlobals(new SerializedField[0]);
+		snapshot.addOutput(new SerializedOutput(42, Writer.class, "write", void.class, new Type[] { Writer.class }).updateArguments(literal("hello")));
+
+		testGenerator.accept(snapshot);
+
+		testGenerator.await();
+		assertThat(Debug.print(testGenerator.renderTest(TestGeneratorTest.class).getTestCode()))
+			.containsSequence(
+				"@Before",
+				"@After",
+				"public void resetFakeIO() throws Exception {",
+				"FakeIO.reset();",
+				"}");
 	}
 
 	@Test
@@ -204,7 +280,7 @@ public class TestGeneratorTest {
 	}
 
 	@Test
-	public void testWriteResults() throws Exception {
+	public void testWriteResults(TemporaryFolder folder) throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));
@@ -217,9 +293,9 @@ public class TestGeneratorTest {
 		testGenerator.accept(snapshot);
 
 		testGenerator.await();
-		testGenerator.writeResults(folder.getRoot().toPath());
+		testGenerator.writeResults(folder.getRoot());
 
-		assertThat(Files.exists(folder.getRoot().toPath().resolve("net/amygdalum/testrecorder/TestGeneratorTestRecordedTest.java"))).isTrue();
+		assertThat(Files.exists(folder.resolve("net/amygdalum/testrecorder/TestGeneratorTestRecordedTest.java"))).isTrue();
 	}
 
 	private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {

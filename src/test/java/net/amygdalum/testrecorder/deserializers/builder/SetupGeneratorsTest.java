@@ -76,7 +76,7 @@ public class SetupGeneratorsTest {
 
 		Computation result = setupCode.visitField(new SerializedField(ContainingList.class, "list", parameterized(List.class, null, String.class), value), context);
 
-		assertThat(result.getStatements().toString()).containsWildcardPattern("List hiddenList2 = (List<String>) new GenericObject*.as(clazz(*HiddenList*)*.value()");
+		assertThat(result.getStatements().toString()).containsWildcardPattern("List hiddenList2 = new GenericObject*.as(clazz(*HiddenList*)*.value(List.class)");
 		assertThat(result.getValue()).isEqualTo("List<String> list = hiddenList2;");
 	}
 
@@ -86,7 +86,7 @@ public class SetupGeneratorsTest {
 
 		Computation result = setupCode.visitField(new SerializedField(ContainingList.class, "list", parameterized(classOfHiddenList(), null, String.class), value), context);
 
-		assertThat(result.getStatements().toString()).containsWildcardPattern("ArrayList hiddenList2 = *(ArrayList<?>) new GenericObject*value()");
+		assertThat(result.getStatements().toString()).containsWildcardPattern("ArrayList hiddenList2 = *new GenericObject*value(ArrayList.class)");
 		assertThat(result.getValue()).isEqualTo("ArrayList<?> list = hiddenList2;");
 	}
 

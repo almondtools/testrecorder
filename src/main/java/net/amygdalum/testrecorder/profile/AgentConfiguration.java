@@ -8,7 +8,6 @@ import static net.amygdalum.testrecorder.util.Types.boxedType;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -102,7 +101,7 @@ public class AgentConfiguration {
 		return config;
 	}
 
-	private <T> T loadDefault(Class<T> clazz) {
+	protected <T> T loadDefault(Class<T> clazz) {
 		Supplier<?> defaultConfigSupplier = defaultValues.get(clazz);
 		if (defaultConfigSupplier == null) {
 			return null;
@@ -127,14 +126,13 @@ public class AgentConfiguration {
 		return configs;
 	}
 
-	private <T> Stream<T> load(Class<T> clazz, Object... args) {
+	protected <T> Stream<T> load(Class<T> clazz, Object... args) {
 		Builder<T> configurations = Stream.<T> builder();
 
 		for (Path configurationPath : configurationPaths) {
 			Path lookupPath = configurationPath.resolve(clazz.getName());
 			try {
-				InputStream configResource = Files.newInputStream(lookupPath);
-				configsFrom(configResource, clazz, args)
+				configsFrom(lookupPath, clazz, args)
 					.map(this::logLoad)
 					.forEach(configurations::add);
 			} catch (FileNotFoundException | NoSuchFileException e) {
@@ -150,8 +148,7 @@ public class AgentConfiguration {
 				URL url = urls.nextElement();
 				Path lookupPath = pathFrom(url);
 				try {
-					InputStream classPathResource = Files.newInputStream(lookupPath);
-					configsFrom(classPathResource, clazz, args)
+					configsFrom(lookupPath, clazz, args)
 						.map(this::logLoad)
 						.forEach(configurations::add);
 				} catch (FileNotFoundException | NoSuchFileException e) {
@@ -165,11 +162,9 @@ public class AgentConfiguration {
 		}
 
 		if (configurationPaths.isEmpty()) {
-			Path defaultResourcePath = Paths.get("agentconfig");
-			Path lookupPath = defaultResourcePath.resolve(clazz.getName());
+			Path lookupPath = defaultConfigPath().resolve(clazz.getName());
 			try {
-				InputStream configResource = Files.newInputStream(lookupPath);
-				configsFrom(configResource, clazz, args)
+				configsFrom(lookupPath, clazz, args)
 					.map(this::logLoad)
 					.forEach(configurations::add);
 			} catch (FileNotFoundException | NoSuchFileException e) {
@@ -180,6 +175,10 @@ public class AgentConfiguration {
 		}
 
 		return configurations.build().distinct();
+	}
+
+	protected Path defaultConfigPath() {
+		return Paths.get("agentconfig");
 	}
 
 	private Path pathFrom(URL url) throws IOException {
@@ -210,8 +209,8 @@ public class AgentConfiguration {
 		return object;
 	}
 
-	private <T> Stream<T> configsFrom(InputStream resource, Class<T> clazz, Object[] args) {
-		return new BufferedReader(new InputStreamReader(resource, UTF_8)).lines()
+	protected <T> Stream<T> configsFrom(Path path, Class<T> clazz, Object[] args) throws IOException {
+		return new BufferedReader(new InputStreamReader(Files.newInputStream(path), UTF_8)).lines()
 			.map(line -> line.trim())
 			.filter(line -> !line.isEmpty())
 			.map(name -> configFrom(name, clazz, args))
@@ -219,7 +218,7 @@ public class AgentConfiguration {
 
 	}
 
-	private <T> T configFrom(String name, Class<T> superClazz, Object[] args) {
+	protected <T> T configFrom(String name, Class<T> superClazz, Object[] args) {
 		try {
 			Class<?> clazz = loader.loadClass(name);
 			Optional<Constructor<?>> constructor = Arrays.stream(clazz.getConstructors())
@@ -229,14 +228,14 @@ public class AgentConfiguration {
 				return superClazz.cast(constructor.get().newInstance(args));
 			} else {
 				Logger.error("failed loading " + clazz.getSimpleName() + " because no constructor matching "
-					+ Arrays.stream(args).map(arg -> arg == null ? "null" : arg.getClass().getSimpleName()).collect(joining(",", "(", ")"))
+					+ Arrays.stream(args).map(arg -> arg == null ? "null" : arg.getClass().getSimpleName()).collect(joining(", ", "(", ")"))
 					+ ", skipping");
 				return null;
 			}
 		} catch (ClassNotFoundException e) {
 			int pos = name.lastIndexOf('.');
 			String simpleName = name.substring(pos + 1);
-			Logger.error("failed loading " + simpleName + " from class path, skipping");
+			Logger.error("failed loading " + simpleName + " from classpath, skipping");
 			return null;
 		} catch (ClassCastException e) {
 			int pos = name.lastIndexOf('.');

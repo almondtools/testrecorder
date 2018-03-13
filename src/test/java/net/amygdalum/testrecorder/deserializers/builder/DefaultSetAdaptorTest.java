@@ -126,7 +126,7 @@ public class DefaultSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSequence(
-			"java.util.Set temp1 = (java.util.Set<?>) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenSet\").value();",
+			"java.util.Set temp1 = clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenSet\").value(java.util.Set.class);",
 			"temp1.add(0)",
 			"temp1.add(8)",
 			"temp1.add(15)",
@@ -147,7 +147,7 @@ public class DefaultSetAdaptorTest {
 
 		assertThat(result.getStatements().toString()).doesNotContain("new net.amygdalum.testrecorder.util.testobjects.Hidden.HiddenSet");
 		assertThat(result.getStatements().toString()).containsSequence(
-			"LinkedHashSet<Integer> set1 = (LinkedHashSet<Integer>) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenSet\").value();",
+			"LinkedHashSet<Integer> set1 = clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenSet\").value(LinkedHashSet.class);",
 			"set1.add(0)",
 			"set1.add(8)",
 			"set1.add(15)");

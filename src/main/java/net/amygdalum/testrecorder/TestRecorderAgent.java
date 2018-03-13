@@ -37,18 +37,14 @@ public class TestRecorderAgent {
 	}
 
 	protected static AgentConfiguration loadConfig(String agentArgs) {
-		return loadConfig(agentArgs, TestRecorderAgent.class.getClassLoader());
-	}
-
-	protected static AgentConfiguration loadConfig(String agentArgs, ClassLoader loader) {
 		if (agentArgs != null) {
 			String[] args = agentArgs.split(";");
-			return new AgentConfiguration(loader, args)
+			return new AgentConfiguration(args)
 				.withDefaultValue(SerializationProfile.class, DefaultSerializationProfile::new)
 				.withDefaultValue(PerformanceProfile.class, DefaultPerformanceProfile::new)
 				.withDefaultValue(SnapshotConsumer.class, DefaultSnapshotConsumer::new);
 		} else {
-			return new AgentConfiguration(loader)
+			return new AgentConfiguration()
 				.withDefaultValue(SerializationProfile.class, DefaultSerializationProfile::new)
 				.withDefaultValue(PerformanceProfile.class, DefaultPerformanceProfile::new)
 				.withDefaultValue(SnapshotConsumer.class, DefaultSnapshotConsumer::new);

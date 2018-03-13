@@ -5,9 +5,6 @@ import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
 import static java.util.Arrays.asList;
 import static java.util.Collections.synchronizedMap;
-import static net.amygdalum.testrecorder.deserializers.Templates.annotation;
-import static net.amygdalum.testrecorder.deserializers.Templates.callMethodStatement;
-import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 
 import java.io.IOException;
@@ -15,7 +12,6 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 
-import net.amygdalum.testrecorder.deserializers.Templates;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
 import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerators;
 import net.amygdalum.testrecorder.dynamiccompile.RenderedTest;
@@ -37,7 +32,6 @@ import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.Deserializer;
-import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.util.Logger;
 
 public class TestGenerator implements SnapshotConsumer {
@@ -68,10 +62,6 @@ public class TestGenerator implements SnapshotConsumer {
 		}, executor);
 	}
 
-	public void execute(Runnable command) {
-		executor.execute(command);
-	}
-
 	public void setSetup(Deserializer<Computation> setup) {
 		this.setup = setup;
 	}
@@ -91,7 +81,9 @@ public class TestGenerator implements SnapshotConsumer {
 			TestGeneratorContext context = getContext(baseType);
 
 			if (!snapshot.getSetupInput().isEmpty() || !snapshot.getExpectOutput().isEmpty()) {
-				prepareIO(context);
+				SetupGenerator setupGenerator = new SetupGenerator(context.getTypes(), "resetFakeIO", asList(Before.class, After.class))
+					.generateReset();
+				context.addSetup("resetFakeIO", setupGenerator.generateSetup());
 			}
 
 			MethodGenerator methodGenerator = new MethodGenerator(context.size(), context.getTypes(), setup, matcher)
@@ -105,31 +97,6 @@ public class TestGenerator implements SnapshotConsumer {
 			Logger.error("failed generating test for " + snapshot.getMethodName() + ": " + e.getClass().getSimpleName() + " " + e.getMessage(), e);
 			return null;
 		});
-	}
-
-	private void prepareIO(TestGeneratorContext context) {
-		TypeManager types = context.getTypes();
-		types.registerTypes(Before.class, After.class, FakeIO.class);
-
-		List<String> statements = new ArrayList<>();
-		statements.add(Templates.callMethodStatement(types.getRawTypeName(FakeIO.class), "reset"));
-		context.addSetup(asList(annotation(types.getRawTypeName(Before.class)), annotation(types.getRawTypeName(After.class))), "resetFakeIO", statements);
-	}
-
-	private void prepareInitialization(TestGeneratorContext context) {
-		TypeManager types = context.getTypes();
-		types.registerType(Before.class);
-
-		List<String> statements = new ArrayList<>();
-		for (TestRecorderAgentInitializer initializer : config.loadConfigurations(TestRecorderAgentInitializer.class)) {
-			types.registerType(initializer.getClass());
-			String initObject = newObject(types.getConstructorTypeName(initializer.getClass()));
-			String initStmt = callMethodStatement(initObject, "run");
-			statements.add(initStmt);
-		}
-		if (!statements.isEmpty()) {
-			context.addSetup(asList(annotation(types.getRawTypeName(Before.class))), "initialize", statements);
-		}
 	}
 
 	public void writeResults(Path dir) {
@@ -181,7 +148,16 @@ public class TestGenerator implements SnapshotConsumer {
 
 	public TestGeneratorContext newContext(ClassDescriptor clazz) {
 		TestGeneratorContext context = new TestGeneratorContext(clazz, computeClassName(clazz));
-		prepareInitialization(context);
+		List<TestRecorderAgentInitializer> initializers = config.loadConfigurations(TestRecorderAgentInitializer.class);
+		if (!initializers.isEmpty()) {
+			SetupGenerator setupGenerator = new SetupGenerator(context.getTypes(), "initialize", asList(Before.class));
+		
+			for (TestRecorderAgentInitializer initializer : initializers) {
+				setupGenerator = setupGenerator.generateInitialize(initializer);
+			}
+		
+			context.addSetup("initialize", setupGenerator.generateSetup());
+		}
 		return context;
 	}
 
@@ -211,10 +187,6 @@ public class TestGenerator implements SnapshotConsumer {
 	public TestGenerator await() {
 		this.pipeline.join();
 		return this;
-	}
-
-	public void andThen(Runnable runnable) {
-		this.pipeline = this.pipeline.thenRunAsync(runnable);
 	}
 
 }

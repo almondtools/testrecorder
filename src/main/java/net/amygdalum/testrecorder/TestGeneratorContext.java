@@ -1,7 +1,9 @@
 package net.amygdalum.testrecorder;
 
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
@@ -23,24 +25,22 @@ public class TestGeneratorContext {
 		+ "  <methods; separator=\"\\n\">"
 		+ "\n}";
 
-	private static final String SETUP_TEMPLATE = "<annotations>\n"
-		+ "public void <name>() throws Exception {\n"
-		+ "  <statements;separator=\"\\n\">\n"
-		+ "}\n";
-
-
 	private String testName;
 	private TypeManager types;
-	private Set<String> setups;
+	private Map<String,String> setups;
 	private Set<String> tests;
 	
 	public TestGeneratorContext(ClassDescriptor key, String testName) {
 		this.testName = testName;
 		this.types = new DeserializerTypeManager(key.getPackage());
-		this.setups = new LinkedHashSet<>();
+		this.setups = new LinkedHashMap<>();
 		this.tests = new LinkedHashSet<>();
 
 		types.registerTypes(Test.class);
+	}
+	
+	public String getTestName() {
+		return testName;
 	}
 	
 	public String getPackage() {
@@ -51,7 +51,7 @@ public class TestGeneratorContext {
 		return types;
 	}
 	
-	public Set<String> getSetups() {
+	public Map<String, String> getSetups() {
 		return setups;
 	}
 
@@ -67,12 +67,8 @@ public class TestGeneratorContext {
 		return tests.size();
 	}
 
-	public synchronized void addSetup(List<String> annotations, String name, List<String> statements) {
-		ST test = new ST(SETUP_TEMPLATE);
-		test.add("annotations", annotations);
-		test.add("name", name);
-		test.add("statements", statements);
-		setups.add(test.render());
+	public synchronized void addSetup(String key, String setup) {
+		setups.put(key, setup);
 	}
 
 	public synchronized void add(String test) {
@@ -83,7 +79,7 @@ public class TestGeneratorContext {
 		ST file = new ST(TEST_FILE);
 		file.add("package", types.getPackage());
 		file.add("className", testName);
-		file.add("setup", setups);
+		file.add("setup", setups.values());
 		file.add("methods", tests);
 		file.add("imports", types.getImports());
 

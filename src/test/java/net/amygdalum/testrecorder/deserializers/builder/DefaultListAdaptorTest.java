@@ -124,7 +124,7 @@ public class DefaultListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSequence(
-			"java.util.List temp1 = (java.util.List<?>) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenList\").value();",
+			"java.util.List temp1 = clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenList\").value(java.util.List.class);",
 			"temp1.add(0)",
 			"temp1.add(8)",
 			"temp1.add(15)",
@@ -145,7 +145,7 @@ public class DefaultListAdaptorTest {
 
 		assertThat(result.getStatements().toString()).doesNotContain("new net.amygdalum.testrecorder.util.testobjects.Hidden.HiddenList");
 		assertThat(result.getStatements().toString()).containsSequence(
-			"ArrayList<Integer> list1 = (ArrayList<Integer>) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenList\").value();",
+			"ArrayList<Integer> list1 = clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenList\").value(ArrayList.class);",
 			"list1.add(0)",
 			"list1.add(8)",
 			"list1.add(15)");

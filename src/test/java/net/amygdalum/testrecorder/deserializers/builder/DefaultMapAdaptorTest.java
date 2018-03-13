@@ -116,7 +116,7 @@ public class DefaultMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSequence(
-			"Map temp1 = (Map<?, ?>) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenMap\").value();",
+			"Map temp1 = clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenMap\").value(Map.class);",
 			"temp1.put(8, 15)",
 			"temp1.put(47, 11)",
 			"OrthogonalInterface map1 = (OrthogonalInterface) temp1;");
@@ -135,7 +135,7 @@ public class DefaultMapAdaptorTest {
 
 		assertThat(result.getStatements().toString()).doesNotContain("new net.amygdalum.testrecorder.util.testobjects.Hidden.HiddenMap");
 		assertThat(result.getStatements().toString()).containsSequence(
-			"LinkedHashMap<Integer, Integer> map1 = (LinkedHashMap<Integer, Integer>) clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenMap\").value();",
+			"LinkedHashMap<Integer, Integer> map1 = clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenMap\").value(LinkedHashMap.class);",
 			"map1.put(8, 15)",
 			"map1.put(47, 11)");
 		assertThat(result.getValue()).isEqualTo("map1");

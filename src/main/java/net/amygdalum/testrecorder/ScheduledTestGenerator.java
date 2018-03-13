@@ -5,9 +5,6 @@ import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
 import static java.util.Arrays.asList;
 import static java.util.Collections.synchronizedMap;
-import static net.amygdalum.testrecorder.deserializers.Templates.annotation;
-import static net.amygdalum.testrecorder.deserializers.Templates.callMethodStatement;
-import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 
 import java.io.IOException;
@@ -16,7 +13,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -30,9 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
-import org.stringtemplate.v4.ST;
 
-import net.amygdalum.testrecorder.deserializers.Templates;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
 import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerators;
 import net.amygdalum.testrecorder.dynamiccompile.RenderedTest;
@@ -40,7 +34,6 @@ import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.Deserializer;
-import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.util.Logger;
 
 /**
@@ -49,11 +42,6 @@ import net.amygdalum.testrecorder.util.Logger;
 public class ScheduledTestGenerator implements SnapshotConsumer {
 
 	private static final String RECORDED_TEST = "RecordedTest";
-
-	private static final String SETUP_TEMPLATE = "<annotations>\n"
-		+ "public void <name>() throws Exception {\n"
-		+ "  <statements;separator=\"\\n\">\n"
-		+ "}\n";
 
 	private ExecutorService executor;
 
@@ -66,13 +54,35 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 
 	private static volatile Set<ScheduledTestGenerator> dumpOnShutDown;
 
-	private Path path;
-	private int counter;
-	private int counterInterval;
-	private int counterMaximum;
+	/**
+	 * specifies the path where test files are dumped
+	 */
+	protected Path generateTo;
+	/**
+	 * specifies how many tests will be dumped (surplus will be skipped)
+	 */
+	protected int counterMaximum;
+	/**
+	 * specifies the generic class name of a dumped test file.
+	 * The argument {@code template} is a template string using characters and following template expressions:
+	 *     ${class} - the name of the class under test
+	 *     ${counter} - the number of the generated test
+	 *     ${millis} - the time stamp corresponding to the generated test
+	 */
+	protected String classNameTemplate;
+	/**
+	 * specifies a time interval of latency between two test renderings. Any snapshot arriving at least this 
+	 * time interval after the last dump will trigger a new dump. 
+	 */
+	protected long timeInterval;
+	/**
+	 * specifies a number of tests that should trigger a new dump. Every time the list of recorded snapshots
+	 * exceeds this number a new dump will be triggered.
+	 */
+	protected int counterInterval;
+
 	private long start;
-	private long timeInterval;
-	private String classNameTemplate;
+	private int counter;
 
 	public ScheduledTestGenerator(AgentConfiguration config) {
 		this.config = config;
@@ -90,79 +100,14 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 		this.counterMaximum = -1;
 		this.counter = 0;
 		this.start = System.currentTimeMillis();
-		this.path = Paths.get(".");
-	}
-
-	/**
-	 * specifies the path where test files are dumped
-	 * @param path the path where test files are dumped
-	 * @return this
-	 */
-	public ScheduledTestGenerator withDumpTo(Path path) {
-		this.path = path;
-		return this;
-	}
-
-	/**
-	 * specifies how many tests will be dumped
-	 * @param maximum the maximum of tests to be dumped
-	 * @return this
-	 */
-	public ScheduledTestGenerator withDumpMaximum(int maximum) {
-		this.counterMaximum = maximum;
-		return this;
-	}
-
-	/**
-	 * specifies the generic class name of a dumped test file.
-	 * The argument {@code template} is a template string using characters and following template expressions:
-	 *     ${class} - the name of the class under test
-	 *     ${counter} - the number of the generated test
-	 *     ${millis} - the time stamp corresponding to the generated test
-	 * 
-	 * @param template a template string build of characters and variable references
-	 * @return this
-	 */
-	public ScheduledTestGenerator withClassName(String template) {
-		this.classNameTemplate = template;
-		return this;
-	}
-
-	/**
-	 * specifies a time interval of latency between two test renderings. Any snapshot arriving at least this 
-	 * time interval after the last dump will trigger a new dump. 
-	 * @param timeInterval the interval of latency
-	 * @return this
-	 */
-	public ScheduledTestGenerator withDumpOnTimeInterval(long timeInterval) {
-		this.timeInterval = timeInterval;
-		return this;
-	}
-
-	/**
-	 * specifies a number of tests that should trigger a new dump. Every time the list of recorded snapshots
-	 * exceeds this number a new dump will be triggered.
-	 * @param counterInterval the number that will trigger a new dump
-	 * @return this
-	 */
-	public ScheduledTestGenerator withDumpOnCounterInterval(int counterInterval) {
-		this.counterInterval = counterInterval;
-		return this;
+		this.generateTo = Paths.get("generated + " + start);
 	}
 
 	/**
 	 * specifies that all pending tests should be dumped at shutdown time
 	 * @param shutDown true if pending tests should be dumped at shutdown, false otherwise 
-	 * @return this
 	 */
-	public ScheduledTestGenerator withDumpOnShutDown(boolean shutDown) {
-		if (shutDown) {
-			addDumpOnShutdown();
-		}
-		return this;
-	}
-
-	private synchronized void addDumpOnShutdown() {
+	protected synchronized void dumpOnShutdown(boolean shutDown) {
 		if (dumpOnShutDown == null) {
 			dumpOnShutDown = new HashSet<>();
 			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
@@ -178,7 +123,11 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 
 			}, "$generate-shutdown"));
 		}
-		dumpOnShutDown.add(this);
+		if (shutDown) {
+			dumpOnShutDown.add(this);
+		} else {
+			dumpOnShutDown.remove(this);
+		}
 	}
 
 	@Override
@@ -196,7 +145,9 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 			TestGeneratorContext context = getContext(baseType);
 
 			if (!snapshot.getSetupInput().isEmpty() || !snapshot.getExpectOutput().isEmpty()) {
-				prepareIO(context);
+				SetupGenerator setupGenerator = new SetupGenerator(context.getTypes(), "resetFakeIO", asList(Before.class, After.class))
+					.generateReset();
+				context.addSetup("resetFakeIO", setupGenerator.generateSetup());
 			}
 
 			MethodGenerator methodGenerator = new MethodGenerator(context.size(), context.getTypes(), setup, matcher)
@@ -223,7 +174,7 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 	}
 
 	public void dumpResults() {
-		writeResults(path);
+		writeResults(generateTo);
 		clearResults();
 	}
 
@@ -237,49 +188,12 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 			.replace("${millis}", String.valueOf(start));
 	}
 
-	public void execute(Runnable command) {
-		executor.execute(command);
-	}
-
-	public String generateSetup(List<String> annotations, String name, List<String> statements) {
-		ST test = new ST(SETUP_TEMPLATE);
-		test.add("annotations", annotations);
-		test.add("name", name);
-		test.add("statements", statements);
-		return test.render();
-	}
-
 	public void setSetup(Deserializer<Computation> setup) {
 		this.setup = setup;
 	}
 
 	public void setMatcher(Deserializer<Computation> matcher) {
 		this.matcher = matcher;
-	}
-
-	private void prepareIO(TestGeneratorContext context) {
-		TypeManager types = context.getTypes();
-		types.registerTypes(Before.class, After.class, FakeIO.class);
-
-		List<String> statements = new ArrayList<>();
-		statements.add(Templates.callMethodStatement(types.getRawTypeName(FakeIO.class), "reset"));
-		context.addSetup(asList(annotation(types.getRawTypeName(Before.class)), annotation(types.getRawTypeName(After.class))), "resetFakeIO", statements);
-	}
-
-	private void prepareInitialization(TestGeneratorContext context) {
-		TypeManager types = context.getTypes();
-		types.registerType(Before.class);
-
-		List<String> statements = new ArrayList<>();
-		for (TestRecorderAgentInitializer initializer : config.loadConfigurations(TestRecorderAgentInitializer.class)) {
-			types.registerType(initializer.getClass());
-			String initObject = newObject(types.getConstructorTypeName(initializer.getClass()));
-			String initStmt = callMethodStatement(initObject, "run");
-			statements.add(initStmt);
-		}
-		if (!statements.isEmpty()) {
-			context.addSetup(asList(annotation(types.getRawTypeName(Before.class))), "initialize", statements);
-		}
 	}
 
 	public void writeResults(Path dir) {
@@ -308,7 +222,7 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 
 	private Path locateTestFile(Path dir, ClassDescriptor clazz) throws IOException {
 		String pkg = clazz.getPackage();
-		String className = computeClassName(clazz);
+		String className = getContext(clazz).getTestName();
 		Path testpackage = dir.resolve(pkg.replace('.', '/'));
 
 		Files.createDirectories(testpackage);
@@ -331,7 +245,16 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 
 	public TestGeneratorContext newContext(ClassDescriptor clazz) {
 		TestGeneratorContext context = new TestGeneratorContext(clazz, computeClassName(clazz));
-		prepareInitialization(context);
+		List<TestRecorderAgentInitializer> initializers = config.loadConfigurations(TestRecorderAgentInitializer.class);
+		if (!initializers.isEmpty()) {
+			SetupGenerator setupGenerator = new SetupGenerator(context.getTypes(), "initialize", asList(Before.class));
+
+			for (TestRecorderAgentInitializer initializer : initializers) {
+				setupGenerator = setupGenerator.generateInitialize(initializer);
+			}
+
+			context.addSetup("initialize", setupGenerator.generateSetup());
+		}
 		return context;
 	}
 
@@ -353,12 +276,8 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 		this.pipeline.join();
 		this.executor.shutdown();
 		if (dumpFiles) {
-			writeResults(path);
+			writeResults(generateTo);
 		}
-	}
-
-	public void andThen(Runnable runnable) {
-		this.pipeline = this.pipeline.thenRunAsync(runnable);
 	}
 
 }

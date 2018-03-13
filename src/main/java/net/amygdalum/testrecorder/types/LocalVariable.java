@@ -37,11 +37,6 @@ public class LocalVariable {
 		return progress == Progress.DEFINED || progress == Progress.READY;
 	}
 
-	public LocalVariable redefine(String name) {
-		this.name = name;
-		return this;
-	}
-
 	public LocalVariable finish() {
 		this.progress = Progress.READY;
 		return this;

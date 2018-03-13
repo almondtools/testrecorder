@@ -1,44 +1,42 @@
 package net.amygdalum.testrecorder;
 
-import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.util.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.IOException;
+import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.IdentityHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import net.amygdalum.testrecorder.deserializers.TestComputationValueVisitor;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.util.Debug;
+import net.amygdalum.testrecorder.util.ExtensibleClassLoader;
+import net.amygdalum.testrecorder.util.TemporaryFolder;
+import net.amygdalum.testrecorder.util.TemporaryFolderExtension;
 import net.amygdalum.testrecorder.values.SerializedField;
+import net.amygdalum.testrecorder.values.SerializedInput;
 import net.amygdalum.testrecorder.values.SerializedObject;
+import net.amygdalum.testrecorder.values.SerializedOutput;
 import net.amygdalum.xrayinterface.XRayInterface;
 
-@EnableRuleMigrationSupport
+@ExtendWith(TemporaryFolderExtension.class)
 public class ScheduledTestGeneratorTest {
 
 	private static SnapshotManager saveManager;
 
-	@Rule
-	public TemporaryFolder folder = new TemporaryFolder();
-
+	private ExtensibleClassLoader loader;
 	private AgentConfiguration config;
 	private ScheduledTestGenerator testGenerator;
 
@@ -63,9 +61,10 @@ public class ScheduledTestGeneratorTest {
 	@BeforeEach
 	public void before() throws Exception {
 		XRayInterface.xray(ScheduledTestGenerator.class).to(OpenScheduledTestGenerator.class).setDumpOnShutDown(null);
-		config = defaultConfig();
-		testGenerator = new ScheduledTestGenerator(config)
-			.withDumpMaximum(1);
+		loader = new ExtensibleClassLoader(ScheduledTestGenerator.class.getClassLoader());
+		config = defaultConfig().withLoader(loader);
+		testGenerator = new ScheduledTestGenerator(config);
+		testGenerator.counterMaximum = 1;
 	}
 
 	@Test
@@ -92,6 +91,77 @@ public class ScheduledTestGeneratorTest {
 						"equalTo(22)",
 						"int field = 8;");
 			});
+	}
+
+	@Test
+	public void testAcceptWithInitializer() throws Exception {
+		loader.defineResource("agentconfig/net.amygdalum.testrecorder.TestRecorderAgentInitializer", "net.amygdalum.testrecorder.util.AgentInitializer".getBytes());
+		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
+		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
+		snapshot.setSetupArgs(literal(int.class, 16));
+		snapshot.setSetupGlobals(new SerializedField[0]);
+		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 8))));
+		snapshot.setExpectArgs(literal(int.class, 16));
+		snapshot.setExpectResult(literal(int.class, 22));
+		snapshot.setExpectGlobals(new SerializedField[0]);
+
+		testGenerator.accept(snapshot);
+
+		testGenerator.await();
+		assertThat(Debug.print(testGenerator.renderTest(ScheduledTestGeneratorTest.class).getTestCode()))
+			.containsSequence(
+				"@Before",
+				"public void initialize() throws Exception {",
+				"new AgentInitializer().run();",
+				"}");
+	}
+
+	@Test
+	public void testAcceptWithInput() throws Exception {
+		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
+		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
+		snapshot.setSetupArgs(literal(int.class, 16));
+		snapshot.setSetupGlobals(new SerializedField[0]);
+		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 8))));
+		snapshot.setExpectArgs(literal(int.class, 16));
+		snapshot.setExpectResult(literal(int.class, 22));
+		snapshot.setExpectGlobals(new SerializedField[0]);
+		snapshot.addInput(new SerializedInput(42, System.class, "currentTimeMillis", long.class, new Type[0]).updateResult(literal(42l)));
+
+		testGenerator.accept(snapshot);
+
+		testGenerator.await();
+		assertThat(Debug.print(testGenerator.renderTest(ScheduledTestGeneratorTest.class).getTestCode()))
+			.containsSequence(
+				"@Before",
+				"@After",
+				"public void resetFakeIO() throws Exception {",
+				"FakeIO.reset();",
+				"}");
+	}
+
+	@Test
+	public void testAcceptWithOutput() throws Exception {
+		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
+		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
+		snapshot.setSetupArgs(literal(int.class, 16));
+		snapshot.setSetupGlobals(new SerializedField[0]);
+		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 8))));
+		snapshot.setExpectArgs(literal(int.class, 16));
+		snapshot.setExpectResult(literal(int.class, 22));
+		snapshot.setExpectGlobals(new SerializedField[0]);
+		snapshot.addOutput(new SerializedOutput(42, Writer.class, "write", void.class, new Type[] { Writer.class }).updateArguments(literal("hello")));
+
+		testGenerator.accept(snapshot);
+
+		testGenerator.await();
+		assertThat(Debug.print(testGenerator.renderTest(ScheduledTestGeneratorTest.class).getTestCode()))
+			.containsSequence(
+				"@Before",
+				"@After",
+				"public void resetFakeIO() throws Exception {",
+				"FakeIO.reset();",
+				"}");
 	}
 
 	@Test
@@ -206,7 +276,7 @@ public class ScheduledTestGeneratorTest {
 		snapshot2.setExpectResult(literal(int.class, 23));
 		snapshot2.setExpectGlobals(new SerializedField[0]);
 
-		testGenerator.withDumpMaximum(2);
+		testGenerator.counterMaximum = 2;
 		testGenerator.accept(snapshot1);
 		testGenerator.accept(snapshot2);
 
@@ -228,14 +298,25 @@ public class ScheduledTestGeneratorTest {
 	}
 
 	@Test
-	public void testComputeClassNameWithTemplate() throws Exception {
-		assertThat(testGenerator.withClassName("${class}Suffix").computeClassName(ClassDescriptor.of(MyClass.class))).isEqualTo("MyClassSuffix");
-		assertThat(testGenerator.withClassName("${counter}Suffix").computeClassName(ClassDescriptor.of(MyClass.class))).isEqualTo("0Suffix");
-		assertThat(testGenerator.withClassName("Prefix${millis}Suffix").computeClassName(ClassDescriptor.of(MyClass.class))).containsWildcardPattern("Prefix*Suffix");
+	public void testComputeClassNameWithTemplateClass() throws Exception {
+		testGenerator.classNameTemplate = "${class}Suffix";
+		assertThat(testGenerator.computeClassName(ClassDescriptor.of(MyClass.class))).isEqualTo("MyClassSuffix");
 	}
 
 	@Test
-	public void testWriteResults() throws Exception {
+	public void testComputeClassNameWithTemplateCounter() throws Exception {
+		testGenerator.classNameTemplate = "${counter}Suffix";
+		assertThat(testGenerator.computeClassName(ClassDescriptor.of(MyClass.class))).isEqualTo("0Suffix");
+	}
+
+	@Test
+	public void testComputeClassNameWithTemplateMillis() throws Exception {
+		testGenerator.classNameTemplate = "Prefix${millis}Suffix";
+		assertThat(testGenerator.computeClassName(ClassDescriptor.of(MyClass.class))).containsWildcardPattern("Prefix*Suffix");
+	}
+
+	@Test
+	public void testWriteResults(TemporaryFolder folder) throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));
@@ -248,73 +329,70 @@ public class ScheduledTestGeneratorTest {
 		testGenerator.accept(snapshot);
 
 		testGenerator.await();
-		testGenerator.writeResults(folder.getRoot().toPath());
+		testGenerator.writeResults(folder.getRoot());
 
-		assertThat(Files.exists(folder.getRoot().toPath().resolve("net/amygdalum/testrecorder/ScheduledTestGeneratorTestRecordedTest.java"))).isTrue();
+		assertThat(Files.exists(folder.resolve("net/amygdalum/testrecorder/ScheduledTestGeneratorTestRecordedTest.java"))).isTrue();
 	}
 
 	@Test
-	public void testWithDumpOnTimeInterval() throws Exception {
-		testGenerator
-			.withDumpMaximum(5)
-			.withDumpTo(folder.getRoot().toPath())
-			.withClassName("${counter}Test")
-			.withDumpOnTimeInterval(1000);
+	public void testWithDumpOnTimeInterval(TemporaryFolder folder) throws Exception {
+		testGenerator.counterMaximum = 5;
+		testGenerator.classNameTemplate = "${counter}Test";
+		testGenerator.timeInterval = 1000;
+		testGenerator.generateTo = folder.getRoot();
 
 		testGenerator.accept(newSnapshot());
 		testGenerator.await();
-		assertThat(files()).isEmpty();
+		assertThat(folder.fileNames()).isEmpty();
 		Thread.sleep(1000);
 		testGenerator.accept(newSnapshot());
 		testGenerator.await();
 
-		assertThat(files()).containsExactlyInAnyOrder("2Test.java");
+		assertThat(folder.fileNames()).containsExactlyInAnyOrder("0Test.java");
 
 		testGenerator.accept(newSnapshot());
 		testGenerator.accept(newSnapshot());
 		testGenerator.await();
-		assertThat(files()).containsExactlyInAnyOrder("2Test.java");
+		assertThat(folder.fileNames()).containsExactlyInAnyOrder("0Test.java");
 		Thread.sleep(1000);
 		testGenerator.accept(newSnapshot());
 		testGenerator.await();
-		assertThat(files()).containsExactlyInAnyOrder("2Test.java", "5Test.java");
+		assertThat(folder.fileNames()).containsExactlyInAnyOrder("0Test.java", "2Test.java");
 	}
 
 	@Test
-	public void testWithDumpOnCounterInterval() throws Exception {
-		testGenerator
-			.withDumpMaximum(5)
-			.withDumpTo(folder.getRoot().toPath())
-			.withClassName("${counter}Test")
-			.withDumpOnCounterInterval(2);
+	public void testWithDumpOnCounterInterval(TemporaryFolder folder) throws Exception {
+		testGenerator.counterMaximum = 5;
+		testGenerator.generateTo = folder.getRoot();
+		testGenerator.classNameTemplate = "${counter}Test";
+		testGenerator.counterInterval = 2;
 
 		testGenerator.accept(newSnapshot());
 		testGenerator.await();
-		assertThat(files()).isEmpty();
+		assertThat(folder.fileNames()).isEmpty();
 		testGenerator.accept(newSnapshot());
 		testGenerator.await();
-		assertThat(files()).containsExactlyInAnyOrder("2Test.java");
+		assertThat(folder.fileNames()).containsExactlyInAnyOrder("0Test.java");
 		testGenerator.accept(newSnapshot());
 		testGenerator.await();
-		assertThat(files()).containsExactlyInAnyOrder("2Test.java");
+		assertThat(folder.fileNames()).containsExactlyInAnyOrder("0Test.java");
 		testGenerator.accept(newSnapshot());
 		testGenerator.await();
-		assertThat(files()).containsExactlyInAnyOrder("2Test.java", "4Test.java");
+		assertThat(folder.fileNames()).containsExactlyInAnyOrder("0Test.java", "2Test.java");
 		testGenerator.accept(newSnapshot());
 		testGenerator.await();
-		assertThat(files()).containsExactlyInAnyOrder("2Test.java", "4Test.java");
+		assertThat(folder.fileNames()).containsExactlyInAnyOrder("0Test.java", "2Test.java");
 		testGenerator.accept(newSnapshot());
 		testGenerator.await();
-		assertThat(files()).containsExactlyInAnyOrder("2Test.java", "4Test.java");
+		assertThat(folder.fileNames()).containsExactlyInAnyOrder("0Test.java", "2Test.java");
 	}
 
 	@Test
-	public void testWithDumpOnShutDown() throws Exception {
-		testGenerator
-			.withDumpMaximum(5)
-			.withDumpTo(folder.getRoot().toPath())
-			.withClassName("${counter}Test")
-			.withDumpOnShutDown(true);
+	public void testWithDumpOnShutDown(TemporaryFolder folder) throws Exception {
+		testGenerator.counterMaximum = 5;
+		testGenerator.generateTo = folder.getRoot();
+		testGenerator.classNameTemplate = "${counter}Test";
+		testGenerator.dumpOnShutdown(true);
 
 		testGenerator.accept(newSnapshot());
 		testGenerator.accept(newSnapshot());
@@ -325,7 +403,7 @@ public class ScheduledTestGeneratorTest {
 		testGenerator.accept(newSnapshot());
 		testGenerator.accept(newSnapshot());
 		testGenerator.await();
-		assertThat(files()).isEmpty();
+		assertThat(folder.fileNames()).isEmpty();
 
 		Thread shutdown = shutdownHooks().entrySet().stream()
 			.filter(e -> e.getKey().getName().equals("$generate-shutdown"))
@@ -336,22 +414,21 @@ public class ScheduledTestGeneratorTest {
 
 		shutdown.join();
 
-		assertThat(files()).containsExactlyInAnyOrder("5Test.java");
+		assertThat(folder.fileNames()).containsExactlyInAnyOrder("0Test.java");
 	}
 
 	@Test
-	public void testWithDumpOnShutDownConcurrent() throws Exception {
-		testGenerator
-			.withDumpMaximum(2)
-			.withDumpTo(folder.getRoot().toPath())
-			.withClassName("${counter}Test")
-			.withDumpOnShutDown(true);
+	public void testWithDumpOnShutDownConcurrent(TemporaryFolder folder) throws Exception {
+		testGenerator.counterMaximum = 2;
+		testGenerator.generateTo = folder.getRoot();
+		testGenerator.classNameTemplate = "${counter}Test";
+		testGenerator.dumpOnShutdown(true);
 
-		ScheduledTestGenerator second = new ScheduledTestGenerator(config)
-			.withDumpMaximum(2)
-			.withDumpTo(folder.getRoot().toPath())
-			.withClassName("${counter}SecondTest")
-			.withDumpOnShutDown(true);
+		ScheduledTestGenerator second = new ScheduledTestGenerator(config);
+		second.counterMaximum = 2;
+		second.generateTo = folder.getRoot();
+		second.classNameTemplate = "${counter}SecondTest";
+		second.dumpOnShutdown(true);
 
 		testGenerator.accept(newSnapshot());
 		testGenerator.accept(newSnapshot());
@@ -359,7 +436,7 @@ public class ScheduledTestGeneratorTest {
 		second.accept(newSnapshot());
 		second.accept(newSnapshot());
 		second.accept(newSnapshot());
-		assertThat(files()).isEmpty();
+		assertThat(folder.fileNames()).isEmpty();
 
 		Thread shutdown = shutdownHooks().entrySet().stream()
 			.filter(e -> e.getKey().getName().equals("$generate-shutdown"))
@@ -369,19 +446,7 @@ public class ScheduledTestGeneratorTest {
 		shutdown.run();
 		shutdown.join();
 
-		assertThat(files()).containsExactlyInAnyOrder("2Test.java", "2SecondTest.java");
-	}
-
-	private List<String> files() {
-		try {
-			Path path = folder.getRoot().toPath();
-			return Files.walk(path)
-				.filter(p -> Files.isRegularFile(p))
-				.map(p -> p.getFileName().toString())
-				.collect(toList());
-		} catch (IOException e) {
-			return emptyList();
-		}
+		assertThat(folder.fileNames()).containsExactlyInAnyOrder("0Test.java", "0SecondTest.java");
 	}
 
 	private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {

@@ -36,6 +36,10 @@ public class Wrapped {
 		return o;
 	}
 
+	public <T> T value(Class<T> clazz) {
+		return clazz.cast(o);
+	}
+
 	public static Wrapped clazz(String name) {
 		Class<?> clazz = classForName(name);
 		if (clazz.isInterface() || clazz.isEnum()) {

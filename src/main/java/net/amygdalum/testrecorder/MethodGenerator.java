@@ -318,7 +318,7 @@ public class MethodGenerator {
 		return createAssertion(matcherExpression, expression).stream();
 	}
 
-	private Stream<String> generateThisAssert(TypeManager types, SerializedValue value, String expression, Boolean changed) {
+	private Stream<String> generateThisAssert(TypeManager types, SerializedValue value, String expression, boolean changed) {
 		if (value == null) {
 			return Stream.empty();
 		}
@@ -326,7 +326,7 @@ public class MethodGenerator {
 		return createAssertion(matcherExpression, expression, changed).stream();
 	}
 
-	private Stream<String> generateArgumentAssert(TypeManager types, AnnotatedValue value, String expression, Boolean changed) {
+	private Stream<String> generateArgumentAssert(TypeManager types, AnnotatedValue value, String expression, boolean changed) {
 		if (value == null || value.value instanceof SerializedLiteral || value.value instanceof SerializedImmutableType) {
 			return Stream.empty();
 		}
@@ -337,7 +337,7 @@ public class MethodGenerator {
 		return createAssertion(matcherExpression, expression, changed).stream();
 	}
 
-	private Stream<String> generateGlobalAssert(TypeManager types, SerializedField value, Boolean changed) {
+	private Stream<String> generateGlobalAssert(TypeManager types, SerializedField value, boolean changed) {
 		Computation matcherExpression = value.getValue().accept(matcher, new DefaultDeserializerContext(types, locals));
 		String expression = fieldAccess(types.getVariableTypeName(value.getDeclaringClass()), value.getName());
 		return createAssertion(matcherExpression, expression, changed).stream();
@@ -371,14 +371,12 @@ public class MethodGenerator {
 			|| !ec.getStatements().equals(sc.getStatements());
 	}
 
-	private List<String> createAssertion(Computation matcher, String exp, Boolean changed) {
+	private List<String> createAssertion(Computation matcher, String exp, boolean changed) {
 		List<String> statements = new ArrayList<>();
 
 		statements.addAll(matcher.getStatements());
 
-		if (changed == null) {
-			statements.add(callLocalMethodStatement("assertThat", exp, matcher.getValue()));
-		} else if (changed) {
+		if (changed) {
 			statements.add(callLocalMethodStatement("assertThat", asLiteral("expected change:"), exp, matcher.getValue()));
 		} else {
 			statements.add(callLocalMethodStatement("assertThat", asLiteral("expected no change, but was:"), exp, matcher.getValue()));

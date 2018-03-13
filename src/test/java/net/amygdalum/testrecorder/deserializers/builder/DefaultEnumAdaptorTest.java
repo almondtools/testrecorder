@@ -60,7 +60,7 @@ public class DefaultEnumAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements()).isEmpty();
-		assertThat(result.getValue()).contains("Wrapped.enumType(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenEnum\", \"VALUE2\").value()");
+		assertThat(result.getValue()).contains("Wrapped.enumType(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenEnum\", \"VALUE2\").value(Enum.class)");
 	}
 
 }

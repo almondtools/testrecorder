@@ -2,7 +2,6 @@ package net.amygdalum.testrecorder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.profile.ExcludeExplicitExcluded;
@@ -11,33 +10,17 @@ import net.amygdalum.testrecorder.profile.ExcludeStatic;
 
 public class DefaultSerializationProfileTest {
 
-    private DefaultSerializationProfile config;
-
-    @BeforeEach
-    public void before() throws Exception {
-        config = new DefaultSerializationProfile();
-    }
-    
     @Test
-    public void testGetFieldExclusions() throws Exception {
+    public void testConfig() throws Exception {
+    	DefaultSerializationProfile config = new DefaultSerializationProfile();
         assertThat(config.getFieldExclusions()).hasOnlyElementsOfTypes(
         	ExcludeExplicitExcluded.class, 
         	ExcludeGenerated.class,
             ExcludeStatic.class);
-    }
-
-    @Test
-    public void testGetClassExclusions() throws Exception {
         assertThat(config.getClassExclusions()).isEmpty();
-    }
-
-    @Test
-    public void testGetGlobalFields() throws Exception {
+        assertThat(config.getInputs()).isEmpty();
+        assertThat(config.getOutputs()).isEmpty();
         assertThat(config.getGlobalFields()).isEmpty();
-    }
-
-    @Test
-    public void testGetPackages() throws Exception {
         assertThat(config.getClasses()).isEmpty();
     }
 

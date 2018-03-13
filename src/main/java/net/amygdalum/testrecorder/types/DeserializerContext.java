@@ -18,17 +18,17 @@ public interface DeserializerContext {
 
 		@Override
 		public <T> DeserializerContext newWithHints(T[] hints) {
-			return null;
+			return NULL;
 		}
 
 		@Override
 		public <T> Optional<T> getHint(Class<T> clazz) {
-			return null;
+			return Optional.empty();
 		}
 
 		@Override
 		public <T> Stream<T> getHints(Class<T> clazz) {
-			return null;
+			return Stream.empty();
 		}
 
 		@Override
@@ -114,7 +114,7 @@ public interface DeserializerContext {
 
 		@Override
 		public Optional<SerializedValue> resolve(int id) {
-			return null;
+			return Optional.empty();
 		}
 
 	};

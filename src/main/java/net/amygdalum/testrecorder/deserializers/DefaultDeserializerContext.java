@@ -210,12 +210,14 @@ public class DefaultDeserializerContext implements DeserializerContext {
 
 	@Override
 	public String adapt(String expression, Type resultType, Type type) {
-		if (baseType(resultType) != Wrapped.class && type == Wrapped.class) {
-			expression = callMethod(expression, "value");
-			type = Object.class;
-		} else if (baseType(resultType) != Wrapped.class && types.isHidden(type)) {
-			expression = callMethod(expression, "value");
-			type = Object.class;
+		if (needsUnwrapping(resultType, type)) {
+			if (types.isHidden(resultType) || baseType(resultType) == Object.class) {
+				type = Object.class;
+				expression = callMethod(expression, "value");
+			} else {
+				type = baseType(resultType);
+				expression = callMethod(expression, "value", types.getRawClass(type));
+			}
 		}
 		if ((!assignableTypes(resultType, type) || types.isHidden(type))
 			&& !boxingEquivalentTypes(resultType, type)
@@ -226,6 +228,11 @@ public class DefaultDeserializerContext implements DeserializerContext {
 			expression = cast(types.getVariableTypeName(resultType), expression);
 		}
 		return expression;
+	}
+
+	private boolean needsUnwrapping(Type resultType, Type type) {
+		return (baseType(resultType) != Wrapped.class && type == Wrapped.class)
+			|| (baseType(resultType) != Wrapped.class && types.isHidden(type));
 	}
 
 	@Override
