@@ -29,16 +29,24 @@ Testrecorder follows a well known paradigm to simulate output/input - verifying 
 
 To capture the input, for mocking it in the later test cases, there are two variants:
 * mark the method that produces input with the `@SerializationProfile.Input` annotation
-* Use a `SerializationProfile` implementing the method `getInputs()` and return the method that produces input
+* Use a Testrecorder configuration implementing the method `getInputs()` and return the method that produces input
 
 Whatever variant you choose, the result and the arguments of the method will be interpreted as input data.
+
+Note that both variants do not work on classes/methods of the java standard api (packages beginning with "java"). These classes are protected from mocking, so you will have to use the workaround which is explained below.
 
 ## Output
 
 To capture output, for verifying it in the later test cases, there are two variants:
 * mark the method that produces input with the `@SerializationProfile.Output` annotation
-* Use a `SerializationProfile` implementing the method `getOutputs()` and return the method that transfers output
+* Use a Testrecorder configuration implementing the method `getOutputs()` and return the method that transfers output
 
-Whatever variant you choose, the result and the arguments of the method will be interpreted as output data.
+Whatever variant you choose, the result and the arguments of the method will be interpreted as input data.
 
+Note that both variants do not work on classes/methods of the java standard api (packages beginning with `java`). These classes are protected from mocking, so you will have to use the workaround which is explained below.
 
+## Managing Input/Output in protected packages
+
+As explained above: Input/Output capturing is not possible for classes in the java standard api. This is quite hard because most IO is probably done with classes in the standard api.
+
+Yet the best solution to this problem known to me, is to wrap the input/output call in another method (which is not in a package starting with `java`) and to annotate/configure this method to be input/output.

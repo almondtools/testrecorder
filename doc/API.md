@@ -3,19 +3,15 @@ Using the Testrecorder API
 
 Besides from generating Tests from running code one may also utilize Testrecorder to serialize certain objects to code by API.
 
-The advantage of using the API is to be more flexibel and more precise. The Testrecorder tool will capture almost all reachable state and serialize it to the test. There are certain situations where a small subset of the state is sufficient. And the API will give you the flexibility to serialize exacly those objects you want at the time you want.
+The advantage of using the API is to be more flexibel and more precise. The Testrecorder tool will capture almost all reachable state and serialize it to the test. There are certain situations where a small subset of the state is sufficient. And the API will give you the flexibility to serialize exactly those objects you want at the time you want.
 
-The disadvantage is that many features the Testrecorder tool takes care of must be implemented by hand, such as:
+The disadvantage is that many features the Testrecorder tool takes care of must be implemented manually. One will have to find the reachable state, the possible exceptions and the mocking of input and output.
 
-- find the reachable state
-- handle exceptions
-- handle IO
-
-The next sections will give you an overview how to do Object Serialization with the Testrecorder API.
+Now find out how to generate setup or verification code manually:
 
 ## Runtime Object Serialization - the Basics
 
-In this section we give you an impression how code can be serialized and directly deserialized to code. The following examples will use the following `ExampleObject`:
+How can we generate builders and matchers for existing code, just by inserting API-call to testrecorder? The following code will serve as example:
 
     public class ExampleObject {
         private String name;
@@ -43,20 +39,20 @@ The string `code` will then contain:
 
     ExampleObject exampleObject1 = new ExampleObject();
     exampleObject1.setName("Testrecorder");
-    ExampleObject serializedObject1 = exampleObject1;
 
+Feel free to modify the example code to find out the power of the testrecorder code generator:
+
+* it is quite clever in finding the best way how to build an object
+* it is not limited to bean style java objects
+* it does not rely on conventions (instead it uses conventions as heuristics, but validates their correctness)
 
 ### Serializing any Object as Hamcrest Matcher Code
 
 Serializing an object to matcher code  is done like this:
 
-    SerializationProfile profile = new DefaultTestRecorderAgentConfig();
-    SerializerFacade facade = new ConfigurableSerializerFacade(profile);
-    DeserializerFactory factory = new MatcherGenerators.Factory();
-
-    CodeSerializer codeSerializer = new CodeSerializer("", facade, factory);
-    codeSerializer.getTypes().registerTypes(Matcher.class, ExampleObject.class); // optional
-    String code = codeSerializer.serialize(exampleObject);
+    CodeSerializer codeSerializer = new CodeSerializer("", ConfigurableSerializerFacade::new, MatcherGenerators::new);
+        codeSerializer.getTypes().registerTypes(Matcher.class);
+        String code = codeSerializer.serialize(exampleObject);
 
 The string `code` will then contain:
 
@@ -64,3 +60,4 @@ The string `code` will then contain:
         String name = "Testrecorder";
     }.matching(ExampleObject.class);
 
+The matcher generation is mostly straight forward, just validating the structural properties of an object with some special extensions for aggregations. 

@@ -11,15 +11,12 @@ __Testrecorder__ is a tool for recording runtime behavior of java programs. The 
 
 __Testrecorder__ uses an api to serialize objects to executable java code or hamcrest matchers.
 
-
 Basic Usage
 ===========
 
 ## 1. Annotate the method to record
 Annotate the method to record with `@Recorded`. For example you want to record this simple example
 
-    package fizzbuzz;
-    
     public class FizzBuzz {
         @Recorded
         public String fizzBuzz(int i) {
@@ -36,57 +33,48 @@ Annotate the method to record with `@Recorded`. For example you want to record t
     }
 
 ## 2. Configure the test serialization
-Create a directory `agentconfig` (either on your classpath or in the directory you run from). This directory should contain at least two files:
+Write a java configuration file that implements `TestRecorderAgentConfig`. For example:
 
-* `net.amygdalum.testrecorder.SerializationProfile` containing a single line:
-
-    fizzbuzz.SerializationProfile
- 
-* `net.amygdalum.testrecorder.SnapshotConsumer` containing a single line:
-
-    fizzbuzz.TestGenerator
-
-These files refer two the configuration classes. A `SerializationProfile` configures which classes/methods/fields should be analyzed, included or excluded from recording. A `SnapshotConsumer` is notified if some recorded `ContextSnapshot` is available. Typically we want to generate Tests from the snapshot, so we plug in a configured instance of `ScheduledTestGenerator`.
-
-Now implement the two configuration classes:
-
-    package fizzbuzz;
-     
-    public class SerializationProfile extends DefaultSerializationProfile {
-    
+    public class AgentConfig extends DefaultTestRecorderAgentConfig {
+        
         @Override
-        public List<Classes> getClasses() {
-            return asList(Classes.byPackage("fizzbuzz"));
+        public SnapshotConsumer getSnapshotConsumer() {
+            return new ScheduledTestGenerator()
+                .withDumpOnShutDown(true)                       
+                .withDumpTo(Paths.get("target/generated"));     
+        }
+        
+        @Override
+        public long getTimeoutInMillis() {
+            return 100_000;
+        }
+        
+        @Override
+        public List<Packages> getPackages() {
+            return asList(Packages.byName("com.almondtools.testrecorder.examples"));
         }
     
     }
 
-`getClasses` defines all classes that are analyzed. Any method of an analyzed class may be recorded.
+Now some explanations:
 
-    package fizzbuzz;
-    
-    public class TestGenerator extends ScheduledTestGenerator {
-    
-        public TestGenerator(AgentConfiguration config) {
-            super(config);
-            this.generateTo = Paths.get("target/generated");
-            this.dumpOnShutdown(true);
-        }
-    
-    }
+`getSnapshotConsumer` should return the client that generates your test. You can use any class implementing `SnapshotConsumer` yet there are two default implementations:
 
-We use a typical `ScheduledTestGenerator` modifying it two have following properties:
+* `TestGenerator` is a low level implementation. It can collect tests but will write them only driven by API calls. Actually you should use this class only as super class for your own implementations. Such sub classes are not limited when and where to write tests.
+* `ScheduledTestGenerator` is a simple `TestGenerator` implementation allowing you to specify when to write tests to the file system. As you can see in the example you can specify to write tests at program shutdown (with `withDumpOnShutDown(true)`) and you should specify the directory where serialized tests should be stored (with `withDumpTo([directory])`)
 
-* all tests will be generated to the directory `target/generated`
-* shutdown of the host program should trigger test generation
-   
+`getTimeoutInMillis` will be the limit for the recording time. This threshold is built in to skip unexpectedly long (possibly infinite) serializations. The value of `100_000` will actually only stop such long serializations. 
+
+`getPackages` should return a list of java packages that should be analyzed. Only methods in these packages are recorded (`@Recorded`-Annotations that are in packages not specified here will not have any effect)
 
 ## 3. Run your program with TestRecorderAgent
 To run your program with test recording activated you have to call ist with an agent
 
-`-javaagent:testrecorder-[version]-jar-with-dependencies.jar`
+`-javaagent:testrecorder-[version]-jar-with-dependencies.jar=AgentConfig`
 
 `testrecorder-[version]-jar-with-dependencies.jar` is an artifact provided by the maven build (available in maven repository).
+
+`AgentConfig` is your configuration class from the former step.
 
 ## 4. Interact with the program and check results
 You may now interact with your program and every call to a `@Recorded` method will be captured. After shutdown of your program all captured recordings will be transformed to executable JUnit tests, e.g.
@@ -129,8 +117,7 @@ TestRecorder serialization (for values and tests) does not cover all of an objec
 * static fields
 * synthetic fields (e.g. added by some bytecode rewriting framework)
 * native state
-* proxies
-* state that influences object access (e.g. modification counter in collections) 
+* state that influences object access (e.g. modification counter in collections)
 
 Examples
 ========
