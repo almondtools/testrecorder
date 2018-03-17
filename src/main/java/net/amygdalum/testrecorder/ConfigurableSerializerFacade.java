@@ -34,6 +34,7 @@ import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.util.Lambdas;
+import net.amygdalum.testrecorder.util.Logger;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedNull;
@@ -68,6 +69,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 			Classes.byDescription(SerializerFacade.class),
 			Classes.byDescription(ConfigurableSerializerFacade.class),
 			Classes.byDescription(Profile.class),
+			Classes.byDescription(Logger.class),
 			Classes.byPackage("net.amygdalum.testrecorder.values"));
 	}
 

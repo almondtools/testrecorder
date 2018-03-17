@@ -17,8 +17,10 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.Type;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -49,6 +51,9 @@ import net.bytebuddy.agent.ByteBuddyAgent;
 
 public class SnapshotManager {
 
+	private static final StackTraceValidator STACKTRACE_VALIDATOR = new StackTraceValidator()
+		.invalidate(Logger.class);
+	
 	public static volatile SnapshotManager MANAGER;
 
 	private ExecutorService snapshotExecutor;
@@ -215,7 +220,7 @@ public class SnapshotManager {
 	public int inputVariables(Object object, String method, Type resultType, Type[] paramTypes) {
 		try {
 			boolean aquired = lock.acquire();
-			if (!aquired || isNestedIO()) {
+			if (!aquired || isNestedIO() || isInvalidStacktrace()) {
 				return 0;
 			}
 			Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
@@ -234,7 +239,7 @@ public class SnapshotManager {
 	public void inputArguments(int id, Object... arguments) {
 		try {
 			boolean aquired = lock.acquire();
-			if (!aquired) {
+			if (!aquired || id == 0) {
 				return;
 			}
 			current().to((facade, snapshot) -> {
@@ -250,7 +255,7 @@ public class SnapshotManager {
 	public void inputResult(int id, Object result) {
 		try {
 			boolean aquired = lock.acquire();
-			if (!aquired) {
+			if (!aquired || id == 0) {
 				return;
 			}
 			current().to((facade, snapshot) -> {
@@ -266,7 +271,7 @@ public class SnapshotManager {
 	public void inputVoidResult(int id) {
 		try {
 			boolean aquired = lock.acquire();
-			if (!aquired) {
+			if (!aquired || id == 0) {
 				return;
 			}
 			current().to((facade, snapshot) -> {
@@ -282,7 +287,7 @@ public class SnapshotManager {
 	public int outputVariables(Object object, String method, Type resultType, Type[] paramTypes) {
 		try {
 			boolean aquired = lock.acquire();
-			if (!aquired || isNestedIO()) {
+			if (!aquired || isNestedIO() || isInvalidStacktrace()) {
 				return 0;
 			}
 			Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
@@ -301,7 +306,7 @@ public class SnapshotManager {
 	public void outputArguments(int id, Object... arguments) {
 		try {
 			boolean aquired = lock.acquire();
-			if (!aquired) {
+			if (!aquired || id == 0) {
 				return;
 			}
 			current().to((facade, snapshot) -> {
@@ -317,7 +322,7 @@ public class SnapshotManager {
 	public void outputResult(int id, Object result) {
 		try {
 			boolean aquired = lock.acquire();
-			if (!aquired) {
+			if (!aquired || id == 0) {
 				return;
 			}
 			current().to((facade, snapshot) -> {
@@ -333,7 +338,7 @@ public class SnapshotManager {
 	public void outputVoidResult(int id) {
 		try {
 			boolean aquired = lock.acquire();
-			if (!aquired) {
+			if (!aquired || id == 0) {
 				return;
 			}
 			current().to((facade, snapshot) -> {
@@ -415,6 +420,15 @@ public class SnapshotManager {
 				snapshotConsumer.accept(snapshot);
 			}
 		}
+	}
+
+	public boolean isInvalidStacktrace() {
+		for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
+			if (STACKTRACE_VALIDATOR.isInvalid(element)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public boolean isNestedIO() {
@@ -507,4 +521,22 @@ public class SnapshotManager {
 		void serialize(SerializerFacade facade, ContextSnapshot snapshot);
 	}
 
+	private static class StackTraceValidator {
+
+		private Set<String> classNames;
+
+		public StackTraceValidator() {
+			classNames = new HashSet<>();
+		}
+
+		public boolean isInvalid(StackTraceElement element) {
+			return classNames.contains(element.getClassName());
+		}
+
+		public StackTraceValidator invalidate(Class<?> clazz) {
+			classNames.add(clazz.getName());
+			return this;
+		}
+		
+	}
 }
