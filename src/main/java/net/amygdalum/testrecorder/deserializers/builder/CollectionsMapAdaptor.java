@@ -94,7 +94,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 		    mapValueType = wildcard();
 		}
         Type resultType = parameterized(Map.class, null, mapKeyType, mapValueType);
-		return context.forVariable(value, resultType, local -> {
+		return context.forVariable(value, local -> {
 
 			String decoratingStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod(factoryMethod));
 
@@ -117,7 +117,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
             mapValueType = wildcard();
         }
         Type resultType = parameterized(Map.class, null, mapKeyType, mapValueType);
-		return context.forVariable(value, resultType, local -> {
+		return context.forVariable(value, local -> {
 
 			Entry<SerializedValue, SerializedValue> entry = value.entrySet().iterator().next();
 			List<String> statements = new LinkedList<>();
@@ -152,7 +152,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
             mapValueType = wildcard();
         }
 		Type resultType = parameterized(Map.class, null, mapKeyType, mapValueType);
-		return context.forVariable(value, resultType, local -> {
+		return context.forVariable(value, local -> {
 
 			Computation computation = createOrdinaryMap(value, generator, context);
 			List<String> statements = new LinkedList<>(computation.getStatements());
@@ -180,7 +180,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
             mapValueType = wildcard();
         }
 		Type resultType = parameterized(Map.class, null, mapKeyType, mapValueType);
-		return context.forVariable(value, resultType, local -> {
+		return context.forVariable(value, local -> {
 
 			Computation computation = createOrdinaryMap(value, generator, context);
 			List<String> statements = new LinkedList<>(computation.getStatements());
@@ -208,7 +208,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
             throw new DeserializationException("cannot deserialize checked map with hidden value type: " + types.getVariableTypeName(mapValueType));
         }
 		Type resultType = parameterized(Map.class, null, mapKeyType, mapValueType);
-		return context.forVariable(value, resultType, local -> {
+		return context.forVariable(value, local -> {
 
 			Computation computation = createOrdinaryMap(value, generator, context);
 			List<String> statements = new LinkedList<>(computation.getStatements());

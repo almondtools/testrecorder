@@ -122,7 +122,7 @@ public class DeserializerTypeManagerTest {
 
     @Test
     public void testGetVariableTypeNameWithoutImport() throws Exception {
-        assertThat(types.getVariableTypeName(List.class)).isEqualTo("java.util.List<?>");
+        assertThat(types.getVariableTypeName(List.class)).isEqualTo("java.util.List");
     }
 
     @Test
@@ -146,7 +146,7 @@ public class DeserializerTypeManagerTest {
 
         assertThat(types.getVariableTypeName(array(parameterized(List.class, null, String.class)))).isEqualTo("List<String>[]");
         assertThat(types.getVariableTypeName(array(parameterized(List.class, null, Date.class)))).isEqualTo("List<java.util.Date>[]");
-        assertThat(types.getVariableTypeName(array(List.class))).isEqualTo("List<?>[]");
+        assertThat(types.getVariableTypeName(array(List.class))).isEqualTo("List[]");
     }
 
     @Test
@@ -154,8 +154,8 @@ public class DeserializerTypeManagerTest {
         types.registerType(List.class);
         types.registerType(Map.class);
 
-        assertThat(types.getVariableTypeName(List.class)).isEqualTo("List<?>");
-        assertThat(types.getVariableTypeName(Map.class)).isEqualTo("Map<?, ?>");
+        assertThat(types.getVariableTypeName(List.class)).isEqualTo("List");
+        assertThat(types.getVariableTypeName(Map.class)).isEqualTo("Map");
         assertThat(types.getConstructorTypeName(parameterized(List.class, null, parameterized(List.class, null, wildcard())))).isEqualTo("List<List<?>>");
         assertThat(types.getVariableTypeName(parameterized(List.class, null, String.class))).isEqualTo("List<String>");
         assertThat(types.getVariableTypeName(parameterized(List.class, null, Date.class))).isEqualTo("List<java.util.Date>");

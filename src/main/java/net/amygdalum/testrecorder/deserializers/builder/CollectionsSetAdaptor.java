@@ -87,7 +87,7 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
 		    componentType = wildcard();
 		}
         Type resultType = parameterized(Set.class, null, componentType);
-		return context.forVariable(value, resultType, local -> {
+		return context.forVariable(value, local -> {
 
 			String decoratingStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod(factoryMethod));
 
@@ -106,7 +106,7 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
             componentType = wildcard();
         }
         Type resultType = parameterized(Set.class, null, componentType);
-		return context.forVariable(value, resultType, local -> {
+		return context.forVariable(value, local -> {
 
 			Computation computation = value.iterator().next().accept(generator, context);
 			List<String> statements = new LinkedList<>(computation.getStatements());
@@ -130,7 +130,7 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
             componentType = wildcard();
         }
         Type resultType = parameterized(Set.class, null, componentType);
-		return context.forVariable(value, resultType, local -> {
+		return context.forVariable(value, local -> {
 
 			Computation computation = createOrdinarySet(value, generator, context);
 			List<String> statements = new LinkedList<>(computation.getStatements());
@@ -153,7 +153,7 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
             componentType = wildcard();
         }
         Type resultType = parameterized(Set.class, null, componentType);
-		return context.forVariable(value, resultType, local -> {
+		return context.forVariable(value, local -> {
 
 			Computation computation = createOrdinarySet(value, generator, context);
 			List<String> statements = new LinkedList<>(computation.getStatements());
@@ -176,7 +176,7 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
             throw new DeserializationException("cannot deserialize checked set with hidden element type: " + types.getVariableTypeName(componentType));
         }
         Type resultType = parameterized(Set.class, null, componentType);
-		return context.forVariable(value, resultType, local -> {
+		return context.forVariable(value, local -> {
 
 			Computation computation = createOrdinarySet(value, generator, context);
 			List<String> statements = new LinkedList<>(computation.getStatements());

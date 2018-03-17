@@ -5,7 +5,6 @@ import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenSe
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -87,11 +86,11 @@ public class DefaultSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSequence(
-			"LinkedHashSet<Integer> set1 = new LinkedHashSet<Integer>()",
-			"set1.add(0)",
-			"set1.add(8)",
-			"set1.add(15)");
-		assertThat(result.getValue()).isEqualTo("set1");
+			"LinkedHashSet<Integer> linkedHashSet1 = new LinkedHashSet<Integer>()",
+			"linkedHashSet1.add(0)",
+			"linkedHashSet1.add(8)",
+			"linkedHashSet1.add(15)");
+		assertThat(result.getValue()).isEqualTo("linkedHashSet1");
 	}
 
 	@Test
@@ -110,8 +109,8 @@ public class DefaultSetAdaptorTest {
 			"temp1.add(0)",
 			"temp1.add(8)",
 			"temp1.add(15)",
-			"OrthogonalInterface set1 = temp1;");
-		assertThat(result.getValue()).isEqualTo("set1");
+			"OrthogonalInterface orthogonalInterface1 = temp1;");
+		assertThat(result.getValue()).isEqualTo("orthogonalInterface1");
 	}
 
 	@Test
@@ -130,8 +129,8 @@ public class DefaultSetAdaptorTest {
 			"temp1.add(0)",
 			"temp1.add(8)",
 			"temp1.add(15)",
-			"OrthogonalInterface set1 = (OrthogonalInterface) temp1;");
-		assertThat(result.getValue()).isEqualTo("set1");
+			"OrthogonalInterface orthogonalInterface1 = (OrthogonalInterface) temp1;");
+		assertThat(result.getValue()).isEqualTo("orthogonalInterface1");
 	}
 
 	@Test
@@ -147,11 +146,11 @@ public class DefaultSetAdaptorTest {
 
 		assertThat(result.getStatements().toString()).doesNotContain("new net.amygdalum.testrecorder.util.testobjects.Hidden.HiddenSet");
 		assertThat(result.getStatements().toString()).containsSequence(
-			"LinkedHashSet<Integer> set1 = clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenSet\").value(LinkedHashSet.class);",
-			"set1.add(0)",
-			"set1.add(8)",
-			"set1.add(15)");
-		assertThat(result.getValue()).isEqualTo("set1");
+			"LinkedHashSet<Integer> linkedHashSet1 = clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenSet\").value(LinkedHashSet.class);",
+			"linkedHashSet1.add(0)",
+			"linkedHashSet1.add(8)",
+			"linkedHashSet1.add(15)");
+		assertThat(result.getValue()).isEqualTo("linkedHashSet1");
 	}
 
 	@Test
@@ -165,9 +164,9 @@ public class DefaultSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, new DefaultDeserializerContext() {
 			@Override
-			public Computation forVariable(SerializedValue value, Type type, LocalVariableDefinition computation) {
+			public Computation forVariable(SerializedValue value, LocalVariableDefinition computation) {
 				LocalVariable local = new LocalVariable("forwarded");
-				local.define(type);
+				local.define(value.getType());
 				return computation.define(local);
 			}
 		});

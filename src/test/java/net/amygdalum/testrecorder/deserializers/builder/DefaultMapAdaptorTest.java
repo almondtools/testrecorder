@@ -5,7 +5,6 @@ import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenMa
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -81,10 +80,10 @@ public class DefaultMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSequence(
-			"LinkedHashMap<Integer, Integer> map1 = new LinkedHashMap<Integer, Integer>()",
-			"map1.put(8, 15)",
-			"map1.put(47, 11)");
-		assertThat(result.getValue()).isEqualTo("map1");
+			"LinkedHashMap<Integer, Integer> linkedHashMap1 = new LinkedHashMap<Integer, Integer>()",
+			"linkedHashMap1.put(8, 15)",
+			"linkedHashMap1.put(47, 11)");
+		assertThat(result.getValue()).isEqualTo("linkedHashMap1");
 	}
 
 	@Test
@@ -101,8 +100,8 @@ public class DefaultMapAdaptorTest {
 			"PublicMap<Integer, Integer> temp1 = new PublicMap<Integer, Integer>()",
 			"temp1.put(8, 15)",
 			"temp1.put(47, 11)",
-			"OrthogonalInterface map1 = temp1;");
-		assertThat(result.getValue()).isEqualTo("map1");
+			"OrthogonalInterface orthogonalInterface1 = temp1;");
+		assertThat(result.getValue()).isEqualTo("orthogonalInterface1");
 	}
 
 	@Test
@@ -119,8 +118,8 @@ public class DefaultMapAdaptorTest {
 			"Map temp1 = clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenMap\").value(Map.class);",
 			"temp1.put(8, 15)",
 			"temp1.put(47, 11)",
-			"OrthogonalInterface map1 = (OrthogonalInterface) temp1;");
-		assertThat(result.getValue()).isEqualTo("map1");
+			"OrthogonalInterface orthogonalInterface1 = (OrthogonalInterface) temp1;");
+		assertThat(result.getValue()).isEqualTo("orthogonalInterface1");
 	}
 
 	@Test
@@ -135,10 +134,10 @@ public class DefaultMapAdaptorTest {
 
 		assertThat(result.getStatements().toString()).doesNotContain("new net.amygdalum.testrecorder.util.testobjects.Hidden.HiddenMap");
 		assertThat(result.getStatements().toString()).containsSequence(
-			"LinkedHashMap<Integer, Integer> map1 = clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenMap\").value(LinkedHashMap.class);",
-			"map1.put(8, 15)",
-			"map1.put(47, 11)");
-		assertThat(result.getValue()).isEqualTo("map1");
+			"LinkedHashMap<Integer, Integer> linkedHashMap1 = clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenMap\").value(LinkedHashMap.class);",
+			"linkedHashMap1.put(8, 15)",
+			"linkedHashMap1.put(47, 11)");
+		assertThat(result.getValue()).isEqualTo("linkedHashMap1");
 	}
 
 	@Test
@@ -151,9 +150,9 @@ public class DefaultMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, new DefaultDeserializerContext() {
 			@Override
-			public Computation forVariable(SerializedValue value, Type type, LocalVariableDefinition computation) {
+			public Computation forVariable(SerializedValue value, LocalVariableDefinition computation) {
 				LocalVariable local = new LocalVariable("forwarded");
-				local.define(type);
+				local.define(value.getType());
 				return computation.define(local);
 			}
 		});

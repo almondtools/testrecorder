@@ -5,7 +5,6 @@ import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenLi
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -85,11 +84,11 @@ public class DefaultListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSequence(
-			"ArrayList<Integer> list1 = new ArrayList<Integer>()",
-			"list1.add(0)",
-			"list1.add(8)",
-			"list1.add(15)");
-		assertThat(result.getValue()).isEqualTo("list1");
+			"ArrayList<Integer> arrayList1 = new ArrayList<Integer>()",
+			"arrayList1.add(0)",
+			"arrayList1.add(8)",
+			"arrayList1.add(15)");
+		assertThat(result.getValue()).isEqualTo("arrayList1");
 	}
 
 	@Test
@@ -108,8 +107,8 @@ public class DefaultListAdaptorTest {
 			"temp1.add(0)",
 			"temp1.add(8)",
 			"temp1.add(15)",
-			"OrthogonalInterface list1 = temp1;");
-		assertThat(result.getValue()).isEqualTo("list1");
+			"OrthogonalInterface orthogonalInterface1 = temp1;");
+		assertThat(result.getValue()).isEqualTo("orthogonalInterface1");
 	}
 
 	@Test
@@ -128,8 +127,8 @@ public class DefaultListAdaptorTest {
 			"temp1.add(0)",
 			"temp1.add(8)",
 			"temp1.add(15)",
-			"OrthogonalInterface list1 = (OrthogonalInterface) temp1;");
-		assertThat(result.getValue()).isEqualTo("list1");
+			"OrthogonalInterface orthogonalInterface1 = (OrthogonalInterface) temp1;");
+		assertThat(result.getValue()).isEqualTo("orthogonalInterface1");
 	}
 
 	@Test
@@ -145,11 +144,11 @@ public class DefaultListAdaptorTest {
 
 		assertThat(result.getStatements().toString()).doesNotContain("new net.amygdalum.testrecorder.util.testobjects.Hidden.HiddenList");
 		assertThat(result.getStatements().toString()).containsSequence(
-			"ArrayList<Integer> list1 = clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenList\").value(ArrayList.class);",
-			"list1.add(0)",
-			"list1.add(8)",
-			"list1.add(15)");
-		assertThat(result.getValue()).isEqualTo("list1");
+			"ArrayList<Integer> arrayList1 = clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenList\").value(ArrayList.class);",
+			"arrayList1.add(0)",
+			"arrayList1.add(8)",
+			"arrayList1.add(15)");
+		assertThat(result.getValue()).isEqualTo("arrayList1");
 	}
 
 	@Test
@@ -163,9 +162,9 @@ public class DefaultListAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, new DefaultDeserializerContext() {
 			@Override
-			public Computation forVariable(SerializedValue value, Type type, LocalVariableDefinition computation) {
+			public Computation forVariable(SerializedValue value, LocalVariableDefinition computation) {
 				LocalVariable local = new LocalVariable("forwarded");
-				local.define(type);
+				local.define(value.getType());
 				return computation.define(local);
 			}
 		});

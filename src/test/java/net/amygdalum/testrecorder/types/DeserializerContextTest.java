@@ -25,10 +25,10 @@ public class DeserializerContextTest {
 		assertThat(DeserializerContext.NULL.defines(literal(1))).isFalse();
 		assertThat(DeserializerContext.NULL.getDefinition(literal(1))).isNull();
 		assertThat(DeserializerContext.NULL.needsAdaptation(Object.class, Object.class)).isFalse();
-		assertThat(DeserializerContext.NULL.forVariable(literal(1), Object.class, null)).isNull();
+		assertThat(DeserializerContext.NULL.forVariable(literal(1), null)).isNull();
 		assertThat(DeserializerContext.NULL.temporaryLocal()).isNull();
 		assertThat(DeserializerContext.NULL.newLocal("var")).isNull();
-		assertThat(DeserializerContext.NULL.localVariable(literal(1), Object.class)).isNull();
+		assertThat(DeserializerContext.NULL.localVariable(literal(1))).isNull();
 		assertThatCode(()->DeserializerContext.NULL.resetVariable(literal(1))).doesNotThrowAnyException();;
 		assertThatCode(()->DeserializerContext.NULL.finishVariable(literal(1))).doesNotThrowAnyException();;
 		assertThat(DeserializerContext.NULL.getLocals()).isNull();

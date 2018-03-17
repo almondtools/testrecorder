@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import net.amygdalum.testrecorder.TestGenerator;
+import net.amygdalum.testrecorder.util.Debug;
 import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 
@@ -39,7 +40,7 @@ public class LambdasTest {
 		assertThat(result).isEqualTo(42);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Lambdas.class)).satisfies(testsRun());
+		assertThat(Debug.print(testGenerator.renderTest(Lambdas.class))).satisfies(testsRun());
 	}
 
 	@Test

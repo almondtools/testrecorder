@@ -198,11 +198,11 @@ public class CollectionsListAdaptorTest {
 	private List<String> listDecoratedBy(String factory, int... elements) {
 		List<String> matchers = new ArrayList<>();
 
-		matchers.add("ArrayList<Integer> list2 = new ArrayList<Integer>()");
+		matchers.add("ArrayList<Integer> arrayList1 = new ArrayList<Integer>()");
 		for (int element : elements) {
-			matchers.add("list2.add(" + element + ")");
+			matchers.add("arrayList1.add(" + element + ")");
 		}
-		matchers.add("List<Integer> list1 = " + factory + "(list2)");
+		matchers.add("List<Integer> list1 = " + factory + "(arrayList1)");
 
 		return matchers;
 	}
@@ -210,11 +210,11 @@ public class CollectionsListAdaptorTest {
 	private List<String> rawListDecoratedBy(String factory, int... elements) {
 		List<String> matchers = new ArrayList<>();
 
-		matchers.add("ArrayList<Object> list2 = new ArrayList<Object>()");
+		matchers.add("ArrayList<Object> arrayList1 = new ArrayList<Object>()");
 		for (int element : elements) {
-			matchers.add("list2.add(" + element + ")");
+			matchers.add("arrayList1.add(" + element + ")");
 		}
-		matchers.add("List<Object> list1 = " + factory + "(list2)");
+		matchers.add("List<Object> list1 = " + factory + "(arrayList1)");
 
 		return matchers;
 	}
@@ -222,11 +222,11 @@ public class CollectionsListAdaptorTest {
 	private List<String> wildcardListDecoratedBy(String factory, int... elements) {
 		List<String> matchers = new ArrayList<>();
 
-		matchers.add("ArrayList list2 = new ArrayList<>()");
+		matchers.add("ArrayList arrayList1 = new ArrayList<>()");
 		for (int element : elements) {
-			matchers.add("list2.add(" + element + ")");
+			matchers.add("arrayList1.add(" + element + ")");
 		}
-		matchers.add("List<?> list1 = " + factory + "(list2)");
+		matchers.add("List<?> list1 = " + factory + "(arrayList1)");
 
 		return matchers;
 	}
@@ -234,11 +234,11 @@ public class CollectionsListAdaptorTest {
 	private List<String> listDecoratedBy(String factory, Class<?> clazz, int... elements) {
 		List<String> matchers = new ArrayList<>();
 
-		matchers.add("ArrayList<Integer> list2 = new ArrayList<Integer>()");
+		matchers.add("ArrayList<Integer> arrayList1 = new ArrayList<Integer>()");
 		for (int element : elements) {
-			matchers.add("list2.add(" + element + ")");
+			matchers.add("arrayList1.add(" + element + ")");
 		}
-		matchers.add("List<Integer> list1 = " + factory + "(list2, " + clazz.getSimpleName() + ".class)");
+		matchers.add("List<Integer> list1 = " + factory + "(arrayList1, " + clazz.getSimpleName() + ".class)");
 
 		return matchers;
 	}

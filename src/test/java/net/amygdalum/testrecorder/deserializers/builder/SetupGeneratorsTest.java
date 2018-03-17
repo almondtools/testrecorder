@@ -58,8 +58,8 @@ public class SetupGeneratorsTest {
 
 		Computation result = setupCode.visitField(new SerializedField(ContainingList.class, "list", type, value), context);
 
-		assertThat(result.getStatements().toString()).containsWildcardPattern("ArrayList<String> list1 = new ArrayList*");
-		assertThat(result.getValue()).isEqualTo("ArrayList<String> list = list1;");
+		assertThat(result.getStatements().toString()).containsWildcardPattern("ArrayList<String> arrayList1 = new ArrayList*");
+		assertThat(result.getValue()).isEqualTo("ArrayList<String> list = arrayList1;");
 	}
 
 	@Test
@@ -76,18 +76,18 @@ public class SetupGeneratorsTest {
 
 		Computation result = setupCode.visitField(new SerializedField(ContainingList.class, "list", parameterized(List.class, null, String.class), value), context);
 
-		assertThat(result.getStatements().toString()).containsWildcardPattern("List hiddenList2 = new GenericObject*.as(clazz(*HiddenList*)*.value(List.class)");
-		assertThat(result.getValue()).isEqualTo("List<String> list = hiddenList2;");
+		assertThat(result.getStatements().toString()).containsWildcardPattern("List list2 = new GenericObject*.as(clazz(*HiddenList*)*.value(List.class)");
+		assertThat(result.getValue()).isEqualTo("List<String> list = list2;");
 	}
 
 	@Test
 	public void testVisitFieldWithHiddenTypeAndHiddenResult() throws Exception {
 		SerializedObject value = values.object(parameterized(classOfHiddenList(), null, String.class), hiddenList("Foo", "Bar"));
 
-		Computation result = setupCode.visitField(new SerializedField(ContainingList.class, "list", parameterized(classOfHiddenList(), null, String.class), value), context);
+		Computation result = setupCode.visitField(new SerializedField(ContainingList.class, "list", parameterized(List.class, null, String.class), value), context);
 
-		assertThat(result.getStatements().toString()).containsWildcardPattern("ArrayList hiddenList2 = *new GenericObject*value(ArrayList.class)");
-		assertThat(result.getValue()).isEqualTo("ArrayList<?> list = hiddenList2;");
+		assertThat(result.getStatements().toString()).containsWildcardPattern("List list2 = *new GenericObject*value(List.class)");
+		assertThat(result.getValue()).isEqualTo("List<String> list = list2;");
 	}
 
 	@Test

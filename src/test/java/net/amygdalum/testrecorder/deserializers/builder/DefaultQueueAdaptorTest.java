@@ -5,7 +5,6 @@ import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenQu
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.lang.reflect.Type;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
@@ -69,8 +68,8 @@ public class DefaultQueueAdaptorTest {
 			"temp1.add(0)",
 			"temp1.add(8)",
 			"temp1.add(15)",
-			"List<Integer> queue1 = temp1;");
-		assertThat(result.getValue()).isEqualTo("queue1");
+			"List<Integer> list1 = temp1;");
+		assertThat(result.getValue()).isEqualTo("list1");
 	}
 
 	@Test
@@ -85,11 +84,11 @@ public class DefaultQueueAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSequence(
-			"LinkedList<Integer> queue1 = new LinkedList<Integer>()",
-			"queue1.add(0)",
-			"queue1.add(8)",
-			"queue1.add(15)");
-		assertThat(result.getValue()).isEqualTo("queue1");
+			"LinkedList<Integer> linkedList1 = new LinkedList<Integer>()",
+			"linkedList1.add(0)",
+			"linkedList1.add(8)",
+			"linkedList1.add(15)");
+		assertThat(result.getValue()).isEqualTo("linkedList1");
 	}
 
 	@Test
@@ -108,8 +107,8 @@ public class DefaultQueueAdaptorTest {
 			"temp1.add(0)",
 			"temp1.add(8)",
 			"temp1.add(15)",
-			"OrthogonalInterface queue1 = temp1;");
-		assertThat(result.getValue()).isEqualTo("queue1");
+			"OrthogonalInterface orthogonalInterface1 = temp1;");
+		assertThat(result.getValue()).isEqualTo("orthogonalInterface1");
 	}
 
 	@Test
@@ -128,8 +127,8 @@ public class DefaultQueueAdaptorTest {
 			"temp1.add(0)",
 			"temp1.add(8)",
 			"temp1.add(15)",
-			"OrthogonalInterface queue1 = (OrthogonalInterface) temp1;");
-		assertThat(result.getValue()).isEqualTo("queue1");
+			"OrthogonalInterface orthogonalInterface1 = (OrthogonalInterface) temp1;");
+		assertThat(result.getValue()).isEqualTo("orthogonalInterface1");
 	}
 
 	@Test
@@ -145,11 +144,11 @@ public class DefaultQueueAdaptorTest {
 
 		assertThat(result.getStatements().toString()).doesNotContain("new net.amygdalum.testrecorder.util.testobjects.Hidden.HiddenQueue");
 		assertThat(result.getStatements().toString()).containsSequence(
-			"LinkedList<Integer> queue1 = clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenQueue\").value(LinkedList.class);",
-			"queue1.add(0)",
-			"queue1.add(8)",
-			"queue1.add(15)");
-		assertThat(result.getValue()).isEqualTo("queue1");
+			"LinkedList<Integer> linkedList1 = clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenQueue\").value(LinkedList.class);",
+			"linkedList1.add(0)",
+			"linkedList1.add(8)",
+			"linkedList1.add(15)");
+		assertThat(result.getValue()).isEqualTo("linkedList1");
 	}
 
 	@Test
@@ -163,9 +162,9 @@ public class DefaultQueueAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, new DefaultDeserializerContext() {
 			@Override
-			public Computation forVariable(SerializedValue value, Type type, LocalVariableDefinition computation) {
+			public Computation forVariable(SerializedValue value, LocalVariableDefinition computation) {
 				LocalVariable local = new LocalVariable("forwarded");
-				local.define(type);
+				local.define(value.getType());
 				return computation.define(local);
 			}
 		});

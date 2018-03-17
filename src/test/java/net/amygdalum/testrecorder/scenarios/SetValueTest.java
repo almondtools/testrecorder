@@ -22,9 +22,9 @@ public class SetValueTest {
 		m.add("bar");
 
 		assertThat(codeSerializer.serialize(m)).contains(
-			"HashSet set1 = new HashSet<>();",
-			"set1.add(\"foo\");",
-			"set1.add(\"bar\");");
+			"HashSet hashSet1 = new HashSet<>();",
+			"hashSet1.add(\"foo\");",
+			"hashSet1.add(\"bar\");");
 	}
 
 	@Test

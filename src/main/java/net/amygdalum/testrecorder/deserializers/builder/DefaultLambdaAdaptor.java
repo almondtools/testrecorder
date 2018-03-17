@@ -3,6 +3,7 @@ package net.amygdalum.testrecorder.deserializers.builder;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
+import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
 import static net.amygdalum.testrecorder.util.Literals.asLiteral;
 import static net.amygdalum.testrecorder.util.Literals.classOf;
 import static net.amygdalum.testrecorder.util.Types.baseType;
@@ -35,8 +36,7 @@ public class DefaultLambdaAdaptor extends DefaultSetupGenerator<SerializedLambda
 		types.registerImport(LambdaSignature.class);
 		types.registerTypes(value.getUsedTypes());
 		
-		Type usedType = types.mostSpecialOf(value.getUsedTypes()).orElse(Object.class);
-		return context.forVariable(value, usedType, local -> {
+		return context.forVariable(value, local -> {
 			LambdaSignature signature = value.getSignature();
 
 			Class<?> functionalInterfaceType = baseType(local.getType());
@@ -58,7 +58,7 @@ public class DefaultLambdaAdaptor extends DefaultSetupGenerator<SerializedLambda
 				.flatMap(template -> template.getStatements().stream())
 				.forEach(statements::add);
 
-			String lambda = "new LambdaSignature()";
+			String lambda = newObject(types.getConstructorTypeName(LambdaSignature.class));
 			lambda = callMethod(lambda, "withCapturingClass", asLiteral(signature.getCapturingClass()));
 			lambda = callMethod(lambda, "withInstantiatedMethodType", asLiteral(signature.getInstantiatedMethodType()));
 			lambda = callMethod(lambda, "withFunctionalInterface",

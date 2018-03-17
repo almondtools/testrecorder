@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.runtime.Wrapped;
@@ -110,13 +109,7 @@ public class DeserializerTypeManager implements TypeManager {
 				clazz = clazz.getComponentType();
 			}
 			String base = isNotImported(clazz) ? clazz.getCanonicalName() : clazz.getSimpleName();
-			String generics = clazz.getTypeParameters().length > 0
-				? IntStream.range(0, clazz.getTypeParameters().length)
-					.mapToObj(i -> (Type) wildcard())
-					.map(argtype -> getVariableTypeName(argtype))
-					.collect(joining(", ", "<", ">"))
-				: "";
-			return base + generics + array;
+			return base + array;
 		} else if (type instanceof GenericArrayType) {
 			return getVariableTypeName(((GenericArrayType) type).getGenericComponentType()) + "[]";
 		} else if (type instanceof ParameterizedType) {

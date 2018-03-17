@@ -234,44 +234,44 @@ public class CollectionsSetAdaptorTest {
 
 	private List<String> setDecoratedBy(String factory, int... elements) {
 		List<String> matchers = new ArrayList<>();
-		matchers.add("LinkedHashSet<Integer> set2 = new LinkedHashSet<Integer>()");
+		matchers.add("LinkedHashSet<Integer> linkedHashSet1 = new LinkedHashSet<Integer>()");
 		for (int element : elements) {
-			matchers.add("set2.add(" + element + "");
+			matchers.add("linkedHashSet1.add(" + element + "");
 		}
-		matchers.add("Set<Integer> set1 = " + factory + "(set2)");
+		matchers.add("Set<Integer> set1 = " + factory + "(linkedHashSet1)");
 
 		return matchers;
 	}
 
 	private List<String> rawSetDecoratedBy(String factory, int... elements) {
 		List<String> matchers = new ArrayList<>();
-		matchers.add("LinkedHashSet<Object> set2 = new LinkedHashSet<Object>()");
+		matchers.add("LinkedHashSet<Object> linkedHashSet1 = new LinkedHashSet<Object>()");
 		for (int element : elements) {
-			matchers.add("set2.add(" + element + "");
+			matchers.add("linkedHashSet1.add(" + element + "");
 		}
-		matchers.add("Set<Object> set1 = " + factory + "(set2)");
+		matchers.add("Set<Object> set1 = " + factory + "(linkedHashSet1)");
 
 		return matchers;
 	}
 
 	private List<String> wildcardSetDecoratedBy(String factory, int... elements) {
 		List<String> matchers = new ArrayList<>();
-		matchers.add("LinkedHashSet set2 = new LinkedHashSet<>()");
+		matchers.add("LinkedHashSet linkedHashSet1 = new LinkedHashSet<>()");
 		for (int element : elements) {
-			matchers.add("set2.add(" + element + "");
+			matchers.add("linkedHashSet1.add(" + element + "");
 		}
-		matchers.add("Set<?> set1 = " + factory + "(set2)");
+		matchers.add("Set<?> set1 = " + factory + "(linkedHashSet1)");
 
 		return matchers;
 	}
 
 	private List<String> setDecoratedBy(String factory, Class<?> clazz, int... elements) {
 		List<String> matchers = new ArrayList<>();
-		matchers.add("LinkedHashSet<Integer> set2 = new LinkedHashSet<Integer>()");
+		matchers.add("LinkedHashSet<Integer> linkedHashSet1 = new LinkedHashSet<Integer>()");
 		for (int element : elements) {
-			matchers.add("set2.add(" + element + "");
+			matchers.add("linkedHashSet1.add(" + element + "");
 		}
-		matchers.add("Set<Integer> set1 = " + factory + "(set2, " + clazz.getSimpleName() + ".class)");
+		matchers.add("Set<Integer> set1 = " + factory + "(linkedHashSet1, " + clazz.getSimpleName() + ".class)");
 
 		return matchers;
 	}

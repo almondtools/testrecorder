@@ -62,7 +62,7 @@ public abstract class DefaultGenericMapAdaptor<T extends SerializedReferenceType
 
         types.registerTypes(effectiveResultType, temporaryType, type, keyResultType, valueResultType);
 
-        return context.forVariable(value, matchingType, definition -> {
+        return context.forVariable(value, definition -> {
 
             List<Pair<Computation, Computation>> elementTemplates = entries(value)
                 .map(entry -> new Pair<>(
@@ -108,12 +108,20 @@ public abstract class DefaultGenericMapAdaptor<T extends SerializedReferenceType
                 return variable(definition.getName(), definition.getType(), statements);
             } else if (context.needsAdaptation(effectiveResultType, temporaryType)) {
                 tempVar = context.adapt(tempVar, effectiveResultType, temporaryType);
-                statements.add(assignLocalVariableStatement(types.getVariableTypeName(effectiveResultType), definition.getName(), tempVar));
+				String resultName = definition.getType() == effectiveResultType
+					? definition.getName()
+					: context.getLocals().fetchName(effectiveResultType);
+                statements.add(assignLocalVariableStatement(types.getVariableTypeName(effectiveResultType), resultName, tempVar));
+				return variable(resultName, effectiveResultType, statements);
             } else if (!equalTypes(effectiveResultType, temporaryType)) {
-                statements.add(assignLocalVariableStatement(types.getVariableTypeName(effectiveResultType), definition.getName(), tempVar));
+				String resultName = definition.getType() == effectiveResultType
+					? definition.getName()
+					: context.getLocals().fetchName(effectiveResultType);
+                statements.add(assignLocalVariableStatement(types.getVariableTypeName(effectiveResultType), resultName, tempVar));
+				return variable(resultName, effectiveResultType, statements);
+            } else {
+            	return variable(definition.getName(), effectiveResultType, statements);
             }
-
-            return variable(definition.getName(), effectiveResultType, statements);
         });
     }
 

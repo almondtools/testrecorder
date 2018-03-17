@@ -32,7 +32,7 @@ public class DefaultObjectAdaptor extends DefaultSetupGenerator<SerializedObject
 
         Type type = value.getType();
         Type usedType = types.mostSpecialOf(value.getUsedTypes()).orElse(Object.class);
-        return context.forVariable(value, type, definition -> {
+        return context.forVariable(value, definition -> {
 
             List<Computation> elementTemplates = ensureUniqueNames(value.getFields()).stream()
                 .sorted()

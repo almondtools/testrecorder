@@ -276,10 +276,6 @@ public final class Types {
 			} else {
 				return 0;
 			}
-		} else if (type1 instanceof Class<?>) {
-			return -1;
-		} else if (type2 instanceof Class<?>) {
-			return 1;
 		} else {
 			int compare = byMostConcrete(baseType(type1), baseType(type2));
 			if (compare == 0 && type1 instanceof ParameterizedType && type2 instanceof ParameterizedType) {

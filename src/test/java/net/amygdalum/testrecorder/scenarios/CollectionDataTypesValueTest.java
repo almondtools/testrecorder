@@ -26,10 +26,10 @@ public class CollectionDataTypesValueTest {
 		CodeSerializer codeSerializer = new CodeSerializer();
 
 		assertThat(codeSerializer.serialize(createArrayList(1, 2, 3))).containsSequence(
-			"list1 = new ArrayList<>()",
-			"list1.add(1)",
-			"list1.add(2)",
-			"list1.add(3)");
+			"arrayList1 = new ArrayList<>()",
+			"arrayList1.add(1)",
+			"arrayList1.add(2)",
+			"arrayList1.add(3)");
 	}
 
 	@Test
@@ -37,10 +37,10 @@ public class CollectionDataTypesValueTest {
 		CodeSerializer codeSerializer = new CodeSerializer();
 
 		assertThat(codeSerializer.serialize(createLinkedList(1, 2, 3))).containsSequence(
-			"list1 = new LinkedList<>()",
-			"list1.add(1)",
-			"list1.add(2)",
-			"list1.add(3)");
+			"linkedList1 = new LinkedList<>()",
+			"linkedList1.add(1)",
+			"linkedList1.add(2)",
+			"linkedList1.add(3)");
 	}
 
 	@Test
@@ -48,10 +48,10 @@ public class CollectionDataTypesValueTest {
 		CodeSerializer codeSerializer = new CodeSerializer();
 
 		assertThat(codeSerializer.serialize(createHashSet(1, 2, 3))).containsSequence(
-			"set1 = new HashSet<>()",
-			"set1.add(1)",
-			"set1.add(2)",
-			"set1.add(3)");
+			"hashSet1 = new HashSet<>()",
+			"hashSet1.add(1)",
+			"hashSet1.add(2)",
+			"hashSet1.add(3)");
 	}
 
 	@Test
@@ -59,10 +59,10 @@ public class CollectionDataTypesValueTest {
 		CodeSerializer codeSerializer = new CodeSerializer();
 
 		assertThat(codeSerializer.serialize(createLinkedHashSet(1, 2, 3))).containsSequence(
-			"set1 = new LinkedHashSet<>()",
-			"set1.add(1)",
-			"set1.add(2)",
-			"set1.add(3)");
+			"linkedHashSet1 = new LinkedHashSet<>()",
+			"linkedHashSet1.add(1)",
+			"linkedHashSet1.add(2)",
+			"linkedHashSet1.add(3)");
 	}
 
 	@Test
@@ -70,10 +70,10 @@ public class CollectionDataTypesValueTest {
 		CodeSerializer codeSerializer = new CodeSerializer();
 
 		assertThat(codeSerializer.serialize(createHashMap(1, 2, 3))).containsSequence(
-			"map1 = new HashMap<>()",
-			"map1.put(1, 2)",
-			"map1.put(2, 4)",
-			"map1.put(3, 6)");
+			"hashMap1 = new HashMap<>()",
+			"hashMap1.put(1, 2)",
+			"hashMap1.put(2, 4)",
+			"hashMap1.put(3, 6)");
 	}
 
 	@Test
@@ -81,10 +81,10 @@ public class CollectionDataTypesValueTest {
 		CodeSerializer codeSerializer = new CodeSerializer();
 
 		assertThat(codeSerializer.serialize(createLinkedHashMap(1, 2, 3))).containsSequence(
-			"map1 = new LinkedHashMap<>()",
-			"map1.put(1, 2)",
-			"map1.put(2, 4)",
-			"map1.put(3, 6)");
+			"linkedHashMap1 = new LinkedHashMap<>()",
+			"linkedHashMap1.put(1, 2)",
+			"linkedHashMap1.put(2, 4)",
+			"linkedHashMap1.put(3, 6)");
 	}
 
 	private List<Integer> createArrayList(int... elements) {

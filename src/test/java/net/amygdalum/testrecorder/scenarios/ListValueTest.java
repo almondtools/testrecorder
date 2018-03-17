@@ -21,9 +21,9 @@ public class ListValueTest {
 		m.add("bar");
 
 		assertThat(codeSerializer.serialize(m)).containsWildcardPattern(""
-			+ "ArrayList list1 = new ArrayList<>();*"
-			+ "list1.add(\"foo\");*"
-			+ "list1.add(\"bar\");");
+			+ "ArrayList arrayList1 = new ArrayList<>();*"
+			+ "arrayList1.add(\"foo\");*"
+			+ "arrayList1.add(\"bar\");");
 	}
 
 	@Test

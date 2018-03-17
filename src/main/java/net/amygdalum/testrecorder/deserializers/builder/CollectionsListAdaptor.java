@@ -86,7 +86,7 @@ public class CollectionsListAdaptor implements SetupGenerator<SerializedList> {
             componentType = wildcard();
         }
         Type resultType = parameterized(List.class, null, componentType);
-        return context.forVariable(value, resultType, local -> {
+        return context.forVariable(value, local -> {
 
             String decoratingStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod(factoryMethod));
 
@@ -105,7 +105,7 @@ public class CollectionsListAdaptor implements SetupGenerator<SerializedList> {
             componentType = wildcard();
         }
         Type resultType = parameterized(List.class, null, componentType);
-        return context.forVariable(value, resultType, local -> {
+        return context.forVariable(value, local -> {
 
             Computation computation = value.get(0).accept(generator, context);
             List<String> statements = new LinkedList<>(computation.getStatements());
@@ -128,7 +128,7 @@ public class CollectionsListAdaptor implements SetupGenerator<SerializedList> {
             componentType = wildcard();
         }
         Type resultType = parameterized(List.class, null, componentType);
-        return context.forVariable(value, resultType, local -> {
+        return context.forVariable(value, local -> {
 
             Computation computation = createOrdinaryList(value, generator, context);
             List<String> statements = new LinkedList<>(computation.getStatements());
@@ -151,7 +151,7 @@ public class CollectionsListAdaptor implements SetupGenerator<SerializedList> {
             componentType = wildcard();
         }
         Type resultType = parameterized(List.class, null, componentType);
-        return context.forVariable(value, resultType, local -> {
+        return context.forVariable(value, local -> {
 
             Computation computation = createOrdinaryList(value, generator, context);
             List<String> statements = new LinkedList<>(computation.getStatements());
@@ -175,7 +175,7 @@ public class CollectionsListAdaptor implements SetupGenerator<SerializedList> {
             throw new DeserializationException("cannot deserialize checked list with hidden element type: " + types.getVariableTypeName(componentType));
         }
         Type resultType = parameterized(List.class, null, componentType);
-        return context.forVariable(value, resultType, local -> {
+        return context.forVariable(value, local -> {
 
             Computation computation = createOrdinaryList(value, generator, context);
             List<String> statements = new LinkedList<>(computation.getStatements());

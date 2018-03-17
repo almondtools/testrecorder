@@ -35,10 +35,10 @@ public class HiddenInnerClassTest {
 		assertThat(testGenerator.testsFor(HiddenInnerClass.class))
 			.hasSize(1)
 			.first().satisfies(test -> assertThat(test)
-				.containsWildcardPattern("Object hidden? = *new GenericObject() {*"
+				.containsWildcardPattern("Object object? = *new GenericObject() {*"
 					+ "String name = \"hidden name\";*"
 					+ "}.as(clazz(\"net.amygdalum.testrecorder.scenarios.HiddenInnerClass$Hidden\")).value();")
-				.containsWildcardPattern("HiddenInnerClass hiddenInnerClass? = new GenericObject() {*Object o = hidden2;*}.as(HiddenInnerClass.class)")
+				.containsWildcardPattern("HiddenInnerClass hiddenInnerClass? = new GenericObject() {*Object o = object?;*}.as(HiddenInnerClass.class)")
 				.containsWildcardPattern("new GenericMatcher() {*"
 					+ "Matcher<?> o = new GenericMatcher() {*"
 					+ "String name = \"hidden name\";*"

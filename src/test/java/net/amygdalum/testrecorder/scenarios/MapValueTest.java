@@ -21,8 +21,8 @@ public class MapValueTest {
 		m.put("bar", new Integer(21));
 
 		assertThat(codeSerializer.serialize(m)).containsWildcardPattern(""
-			+ "HashMap map1 = new HashMap<>();*"
-			+ "map1.put(\"bar\", 21);");
+			+ "HashMap hashMap1 = new HashMap<>();*"
+			+ "hashMap1.put(\"bar\", 21);");
 	}
 
 	@Test

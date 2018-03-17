@@ -65,7 +65,7 @@ public class ArraysListAdaptor implements SetupGenerator<SerializedList> {
         Type resultType = types.isHidden(componentType)
             ? parameterized(List.class, null, wildcard())
             : parameterized(List.class, null, componentType);
-        return context.forVariable(value, resultType, local -> {
+        return context.forVariable(value, local -> {
 
             Computation computation = adaptor.tryDeserialize(baseValue, generator, context);
             List<String> statements = new LinkedList<>(computation.getStatements());
