@@ -2,7 +2,6 @@ package net.amygdalum.testrecorder;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -43,24 +42,12 @@ public class TestGeneratorContext {
 		return testName;
 	}
 	
-	public String getPackage() {
-		return types.getPackage();
-	}
-	
 	public TypeManager getTypes() {
 		return types;
 	}
 	
-	public Map<String, String> getSetups() {
-		return setups;
-	}
-
 	public synchronized Set<String> getTests() {
 		return tests;
-	}
-
-	public List<String> getImports() {
-		return types.getImports();
 	}
 
 	public synchronized int size() {

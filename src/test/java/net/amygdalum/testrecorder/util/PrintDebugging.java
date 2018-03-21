@@ -25,6 +25,14 @@ public class PrintDebugging {
 	}
 
 	@Test
+	public void testDebugPrintWitMapping(@LogLevel("info") ByteArrayOutputStream info) throws Exception {
+		String result = Debug.print("text", s -> s + s);
+
+		assertThat(result).isEqualTo("text");
+		assertThat(info.toString()).contains("texttext");
+	}
+
+	@Test
 	public void testByteCodePrint(@LogLevel("info") ByteArrayOutputStream info) throws Exception {
 		InsnNode insn = new InsnNode(POP);
 

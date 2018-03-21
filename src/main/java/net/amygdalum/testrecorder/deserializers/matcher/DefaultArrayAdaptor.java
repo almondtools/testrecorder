@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.deserializers.Templates.arrayContainingMatcher;
 import static net.amygdalum.testrecorder.deserializers.Templates.arrayEmptyMatcher;
 import static net.amygdalum.testrecorder.deserializers.Templates.primitiveArrayContainingMatcher;
+import static net.amygdalum.testrecorder.deserializers.Templates.primitiveArrayEmptyMatcher;
 import static net.amygdalum.testrecorder.types.Computation.expression;
 import static net.amygdalum.testrecorder.util.Types.isPrimitive;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
@@ -32,31 +33,38 @@ public class DefaultArrayAdaptor extends DefaultMatcherGenerator<SerializedArray
 
 	@Override
 	public Computation tryDeserialize(SerializedArray value, MatcherGenerators generator, DeserializerContext context) {
-	    Type componentType = value.getComponentType();
+		Type componentType = value.getComponentType();
 
-	    TypeManager types = context.getTypes();
-        if (types.isHidden(componentType)) {
-            componentType = Object.class;
-        }
+		TypeManager types = context.getTypes();
+		if (types.isHidden(componentType)) {
+			componentType = Object.class;
+		}
 
 		if (isPrimitive(componentType)) {
 			String name = componentType.getTypeName();
-			types.staticImport(PrimitiveArrayMatcher.class, name + "ArrayContaining");
+			if (value.getArrayAsList().isEmpty()) {
+				types.staticImport(PrimitiveArrayMatcher.class, name + "EmptyArray");
 
-			List<Computation> elements = Stream.of(value.getArray())
-				.map(element -> generator.simpleMatcher(element, context))
-				.collect(toList());
+				String arrayEmptyMatcher = primitiveArrayEmptyMatcher(name);
+				return expression(arrayEmptyMatcher, parameterized(Matcher.class, null, wildcard()));
+			} else {
+				types.staticImport(PrimitiveArrayMatcher.class, name + "ArrayContaining");
 
-			List<String> elementComputations = elements.stream()
-				.flatMap(element -> element.getStatements().stream())
-				.collect(toList());
+				List<Computation> elements = Stream.of(value.getArray())
+					.map(element -> generator.simpleMatcher(element, context))
+					.collect(toList());
 
-			String[] elementValues = elements.stream()
-				.map(element -> element.getValue())
-				.toArray(String[]::new);
+				List<String> elementComputations = elements.stream()
+					.flatMap(element -> element.getStatements().stream())
+					.collect(toList());
 
-			String primitiveArrayContainingMatcher = primitiveArrayContainingMatcher(name, elementValues);
-			return expression(primitiveArrayContainingMatcher, parameterized(Matcher.class, null, wildcard()), elementComputations);
+				String[] elementValues = elements.stream()
+					.map(element -> element.getValue())
+					.toArray(String[]::new);
+
+				String primitiveArrayContainingMatcher = primitiveArrayContainingMatcher(name, elementValues);
+				return expression(primitiveArrayContainingMatcher, parameterized(Matcher.class, null, wildcard()), elementComputations);
+			}
 		} else {
 			if (value.getArrayAsList().isEmpty()) {
 				types.staticImport(IsArrayWithSize.class, "emptyArray");

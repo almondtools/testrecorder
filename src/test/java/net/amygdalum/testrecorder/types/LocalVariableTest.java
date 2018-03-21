@@ -1,12 +1,21 @@
 package net.amygdalum.testrecorder.types;
 
+import static net.amygdalum.extensions.assertj.conventions.DefaultEnum.defaultEnum;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.types.LocalVariable;
-
 public class LocalVariableTest {
+
+	@Test
+	public void testLocalVariable() throws Exception {
+		LocalVariable var = new LocalVariable("var", Object.class);
+		
+		assertThat(var.getName()).isEqualTo("var");
+		assertThat(var.getType()).isEqualTo(Object.class);
+	}
 
 	@Test
 	public void testLocalVariableIsAllocated() throws Exception {
@@ -34,6 +43,15 @@ public class LocalVariableTest {
 			.finish();
 		assertThat(define.isDefined()).isTrue();
 		assertThat(define.isReady()).isTrue();
+	}
+
+	@Test
+	public void testProgress() throws Exception {
+		Class<?> progress = Arrays.stream(LocalVariable.class.getDeclaredClasses())
+			.filter(clazz -> clazz.isEnum())
+			.findFirst().orElse(null);
+		
+		assertThat(progress).satisfies(defaultEnum().withElements(3).conventions());
 	}
 
 }

@@ -9,15 +9,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import net.amygdalum.testrecorder.TestGenerator;
-import net.amygdalum.testrecorder.util.Debug;
 import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 
 @ExtendWith(TestRecorderAgentExtension.class)
 @Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.Lambdas" }, serializeLambdas = true)
 public class LambdasTest {
-
-	
 
 	@Test
 	public void testLambdaFieldCompilable() throws Exception {
@@ -40,7 +37,7 @@ public class LambdasTest {
 		assertThat(result).isEqualTo(42);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(Debug.print(testGenerator.renderTest(Lambdas.class))).satisfies(testsRun());
+		assertThat(testGenerator.renderTest(Lambdas.class)).satisfies(testsRun());
 	}
 
 	@Test

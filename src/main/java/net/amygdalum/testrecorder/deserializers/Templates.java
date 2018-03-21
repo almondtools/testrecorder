@@ -28,7 +28,6 @@ public final class Templates {
 	private static final String ASSIGN_FIELD_STMT = "<base>.<field> = <value>;";
 	private static final String ASSIGN_LOCAL_VARIABLE_STMT = "<if(type)><type> <endif><name> = <value>;";
 	private static final String CALL_METHOD_STMT = "<base>.<method>(<arguments; separator=\", \">);";
-	private static final String CALL_METHOD_CHAIN_STMT = "<base>.<methods;separator=\".\">;";
 	private static final String CALL_LOCAL_METHOD_STMT = "<method>(<arguments; separator=\", \">);";
 	private static final String RETURN_STMT = "return <value>;";
 
@@ -179,15 +178,6 @@ public final class Templates {
 		return assign.render();
 	}
 	
-	public static String assignLocalVariableStatement(String name, String value) {
-		ST assign = new ST(ASSIGN_LOCAL_VARIABLE_STMT);
-		assign.add("type", null);
-		assign.add("name", name);
-		assign.add("value", value);
-		
-		return assign.render();
-	}
-	
 	public static String assignFieldStatement(String base, String field, String value) {
 		ST assign = new ST(ASSIGN_FIELD_STMT);
 		assign.add("base", base);
@@ -214,14 +204,6 @@ public final class Templates {
 		return call.render();
 	}
 
-	public static String callMethodChainStatement(String base, List<String> methods) {
-		ST call = new ST(CALL_METHOD_CHAIN_STMT);
-		call.add("base", base);
-		call.add("methods", methods);
-		
-		return call.render();
-	}
-	
 	public static String callLocalMethodStatement(String method, String... arguments) {
 		return callLocalMethodStatement(method, asList(arguments));
 	}

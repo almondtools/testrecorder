@@ -18,7 +18,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import net.amygdalum.testrecorder.deserializers.TestComputationValueVisitor;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
-import net.amygdalum.testrecorder.util.Debug;
 import net.amygdalum.testrecorder.util.ExtensibleClassLoader;
 import net.amygdalum.testrecorder.util.TemporaryFolder;
 import net.amygdalum.testrecorder.util.TemporaryFolderExtension;
@@ -92,7 +91,7 @@ public class TestGeneratorTest {
 		testGenerator.accept(snapshot);
 
 		testGenerator.await();
-		assertThat(Debug.print(testGenerator.renderTest(TestGeneratorTest.class).getTestCode()))
+		assertThat(testGenerator.renderTest(TestGeneratorTest.class).getTestCode())
 			.containsSequence(
 				"@Before",
 				"public void initialize() throws Exception {",
@@ -115,7 +114,7 @@ public class TestGeneratorTest {
 		testGenerator.accept(snapshot);
 
 		testGenerator.await();
-		assertThat(Debug.print(testGenerator.renderTest(TestGeneratorTest.class).getTestCode()))
+		assertThat(testGenerator.renderTest(TestGeneratorTest.class).getTestCode())
 			.containsSequence(
 				"@Before",
 				"@After",
@@ -139,7 +138,7 @@ public class TestGeneratorTest {
 		testGenerator.accept(snapshot);
 
 		testGenerator.await();
-		assertThat(Debug.print(testGenerator.renderTest(TestGeneratorTest.class).getTestCode()))
+		assertThat(testGenerator.renderTest(TestGeneratorTest.class).getTestCode())
 			.containsSequence(
 				"@Before",
 				"@After",
