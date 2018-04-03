@@ -30,6 +30,8 @@ main {
     font-size: 1.75em; }
   .info-card h4 {
     font-size: 1.5em; }
+  .info-card ul {
+    padding-left: 2em; }
 
 div pre code {
   min-width: 600px; }

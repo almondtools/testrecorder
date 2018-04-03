@@ -10,7 +10,7 @@
               <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.0.0/styles/default.min.css"/>
                   <title>Testrecorder - Generate Test Fixtures from Runnable Java Code</title>
       <meta name="description" content="Record Test Fixtures from Runnable Java Code"/>
-      <meta name="keywords" content="testing,recorder,code generator,test generator,generate tests,Java,JUnit,unit test,characterization test"/>
+      <meta name="keywords" content="testing,recorder,code generator,test generator,generate tests,Java,JUnit,unit test,characterization test,capture,replay"/>
       <link rel="canonical" href="http://testrecorder.amygdalum.net"/>
   </head>
             <body>
@@ -57,13 +57,8 @@
                   <section class="page-section">
               <div class="row">
                   <div class="col-lg-8">
-                    <p><strong>Testrecorder</strong> is a tool for recording runtime behavior of java programs. The results of such a recording are executable JUnit-tests replaying the recorded behavior.</p>
-<ul>
-<li>You can use these tests as part of your characterization tests</li>
-<li>Or you can refactor them (they are pure java) to make up proper unit tests</li>
-<li>Even without reusing the generated code it could give valuable insights for code understanding</li>
-</ul>
-<p><strong>Testrecorder</strong> uses an api to serialize objects to executable java code or hamcrest matchers.</p>
+                    <p><strong>You have code</strong>, <strong>you have a running system</strong> - and <strong>you have no tests</strong>. This is where <strong>Testrecorder</strong> jumps in. The most relevant tests of a system are those, that resemble the workflow of the users of the system. <strong>Testrecorder</strong> records every user interaction a selected method is involved in and generates executable JUnit-Tests for this interaction.</p>
+<p><strong>testrecorder</strong> is as capture-replay test generator. In contrast to most other capture-replay test generators <strong>testrecorder</strong> does not generate gui/web integration tests but pure Java unit tests.</p>
 <h1>Basic Usage</h1>
 <h2>1. Annotate the method to record</h2>
 <p>Annotate the method to record with <code>@Recorded</code>. For example you want to record this simple example</p>
@@ -155,6 +150,17 @@ public void testFizzBuzz0() throws Exception {
               <div class="col-lg-4">
                           <div class="card info-card">
               <div class="card-header">
+      <h4>Benefits</h4>
+  </div>
+          <div class="card-body">
+                        <p>Use the generated tests as <strong>characterization tests</strong> for test regression. Many refactoring will directly adjust the test, few will need some manual corrections and none will force you to dig in xml (or java serialization code) to correct the data of the test.</p>
+<p>The generated test can also give you <strong>insights about what is changed</strong> in the tested scenario - involving not only primitive arguments and results, but also side effects on arguments, global variables and exceptions.</p>
+<p>And if you think testrecording is cool, but byte code instrumetation is not: the <strong>api of testrecorder is open</strong>. You may generate setup code (the code that generates a given object) and matcher code (the code that validates a given object) as part of your debugging (or runtime system).</p>
+
+  </div>
+  </div>
+                      <div class="card info-card">
+              <div class="card-header">
       <h4>Advanced Topics</h4>
   </div>
           <div class="card-body">
@@ -174,7 +180,7 @@ public void testFizzBuzz0() throws Exception {
       <h4>Limitations</h4>
   </div>
           <div class="card-body">
-                        <p>TestRecorder serialization (for values and tests) does not cover all of an objects properties. Problems might occur with:</p>
+                                                <p>TestRecorder serialization (for values and tests) does not cover all of an objects properties. Problems might occur with:</p>
 <ul>
 <li>static fields</li>
 <li>synthetic fields (e.g. added by some bytecode rewriting framework)</li>
@@ -182,6 +188,7 @@ public void testFizzBuzz0() throws Exception {
 <li>proxies</li>
 <li>state that influences object access (e.g. modification counter in collections)</li>
 </ul>
+<p>Such scenarios should be solved with <a href="https://github.com/almondtools/testrecorder/blob/master/doc/Extending.md">custom serializers and/or custom desersializers</a>.</p>
 
   </div>
   </div>
@@ -191,16 +198,6 @@ public void testFizzBuzz0() throws Exception {
   </div>
           <div class="card-body">
                         <p>Examples can be found at <a href="https://github.com/almondtools/testrecorder-examples">testrecorder-examples</a></p>
-
-  </div>
-  </div>
-                      <div class="card info-card">
-              <div class="card-header">
-      <h4>Roadmap</h4>
-  </div>
-          <div class="card-body">
-                        <p>The objective of Testrecorder is to provide an interface that is powerful, clean and extensible. To achieve this we will provide more and more configuration settings to extend the core framework. The fact that tests are generated automatically might rise wrong expectations: Testrecorder will probably always be an experts tool, meaning strong programming and debug skills are recommended to find the correct configuration and the necessary custom extensions.</p>
-<p>Testrecorder was not yet tested on a large set of code examples. Some classes are not as easy to serialize as others, so if you encounter problems, try to write an issue. Hopefully - most fixes to such problems should be solvable with custom serializers or custom deserializers.</p>
 
   </div>
   </div>
