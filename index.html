@@ -5,7 +5,7 @@
               <meta name="google-site-verification" content="zi2eDd9lPMxUKII5BagZe7uZLJdM-xwB3MYmn7At8m4"/>
               <meta name="google-site-verification" content="1tr9mxi3jNPA21quNokfjk011xmqU4KEYwxceZ4nPQg"/>
               <meta name="msvalidate.01" content="126AC9C6E2D2542FF635FD81D91FBF19"/>
-              <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"/>
+              <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
               <link rel="stylesheet" href="custom.css"/>
               <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.0.0/styles/default.min.css"/>
                   <title>Testrecorder - Generate Test Fixtures from Runnable Java Code</title>
@@ -14,53 +14,54 @@
       <link rel="canonical" href="http://testrecorder.amygdalum.net"/>
   </head>
             <body>
-                            <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+                    <header>
+                              <nav class="navbar navbar-dark bg-dark navbar-expand-sm" role="navigation">
       <div class="container-fluid">
                   <div class="navbar-header">
-              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                  <span class="sr-only">Toggle navigation</span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
+              <button type="button" class="navbar-toggler" data-toggle="collapse" data-target=".navbar-collapse">
+                  <span class="navbar-toggler-icon"></span>
   </button>
           <a href="download.html" class="navbar-brand">
     Testrecorder
   </a>
   </div>
               <div class="collapse navbar-collapse">
-      <ul class="nav navbar-nav">
-              <li class="active">  <a href="index.html">
+      <ul class="navbar-nav">
+              <li class="nav-item active">  <a class="nav-link" href="index.html">
     Home
   </a></li>
-          <li >  <a href="download.html">
+          <li class="nav-item">  <a class="nav-link" href="download.html">
     Get it!
   </a></li>
-          <li >  <a href="license.html">
+          <li class="nav-item">  <a class="nav-link" href="license.html">
     License
   </a></li>
   </ul>
   </div>
   </div>
   </nav>
-                      <div class="jumbotron">
+                        <div class="jumbotron">
       <div class="container">
               <h1>Testrecorder</h1>
           <p>Record Test Fixtures from Runnable Java Code</p>
           <p>  <a href="download.html" class="btn btn-primary">
     Get Testrecorder
-  </a>   <a href="https://github.com/almondtools/testrecorder" class="btn btn-default">
+  </a>   <a href="https://github.com/almondtools/testrecorder" class="btn btn-light">
     Github
   </a></p>
   </div>
   </div>
-              <div class="container">
-                  <div class="row">
-              <div class="col-md-8">
-                <p><strong>Testrecorder</strong> is a tool for recording runtime behavior of java programs. The results of such a recording are executable JUnit-tests replaying the recorded behavior.</p>
+  </header>
+              <main>
+      <div class="container">
+                  <section class="page-section">
+              <div class="row">
+                  <div class="col-lg-8">
+                    <p><strong>Testrecorder</strong> is a tool for recording runtime behavior of java programs. The results of such a recording are executable JUnit-tests replaying the recorded behavior.</p>
 <ul>
-  <li>You can use these tests as part of your characterization tests</li>
-  <li>Or you can refactor them (they are pure java) to make up proper unit tests</li>
-  <li>Even without reusing the generated code it could give valuable insights for code understanding</li>
+<li>You can use these tests as part of your characterization tests</li>
+<li>Or you can refactor them (they are pure java) to make up proper unit tests</li>
+<li>Even without reusing the generated code it could give valuable insights for code understanding</li>
 </ul>
 <p><strong>Testrecorder</strong> uses an api to serialize objects to executable java code or hamcrest matchers.</p>
 <h1>Basic Usage</h1>
@@ -86,19 +87,19 @@ public class FizzBuzz {
 <h2>2. Configure the test serialization</h2>
 <p>Create a directory <code>agentconfig</code> (either on your classpath or in the directory you run from). This directory should contain at least two files:</p>
 <ul>
-  <li>
-    <p><code>net.amygdalum.testrecorder.SerializationProfile</code> containing a single line:</p>
-    <p>fizzbuzz.SerializationProfile</p>
-  </li>
-  <li>
-    <p><code>net.amygdalum.testrecorder.SnapshotConsumer</code> containing a single line:</p>
-    <p>fizzbuzz.TestGenerator</p>
-  </li>
+<li>
+<p><code>net.amygdalum.testrecorder.SerializationProfile</code> containing a single line:</p>
+<p>fizzbuzz.SerializationProfile</p>
+</li>
+<li>
+<p><code>net.amygdalum.testrecorder.SnapshotConsumer</code> containing a single line:</p>
+<p>fizzbuzz.TestGenerator</p>
+</li>
 </ul>
 <p>These files refer two the configuration classes. A <code>SerializationProfile</code> configures which classes/methods/fields should be analyzed, included or excluded from recording. A <code>SnapshotConsumer</code> is notified if some recorded <code>ContextSnapshot</code> is available. Typically we want to generate Tests from the snapshot, so we plug in a configured instance of <code>ScheduledTestGenerator</code>.</p>
 <p>Now implement the two configuration classes:</p>
 <pre><code>package fizzbuzz;
-
+ 
 public class SerializationProfile extends DefaultSerializationProfile {
 
     @Override
@@ -123,8 +124,8 @@ public class TestGenerator extends ScheduledTestGenerator {
 </code></pre>
 <p>We use a typical <code>ScheduledTestGenerator</code> modifying it two have following properties:</p>
 <ul>
-  <li>all tests will be generated to the directory <code>target/generated</code></li>
-  <li>shutdown of the host program should trigger test generation</li>
+<li>all tests will be generated to the directory <code>target/generated</code></li>
+<li>shutdown of the host program should trigger test generation</li>
 </ul>
 <h2>3. Run your program with TestRecorderAgent</h2>
 <p>To run your program with test recording activated you have to call ist with an agent</p>
@@ -137,10 +138,10 @@ public void testFizzBuzz0() throws Exception {
 
     //Arrange
     FizzBuzz fizzBuzz1 = new FizzBuzz();
-
+    
     //Act
     String string1 = fizzBuzz1.fizzBuzz(1);
-
+    
     //Assert
     assertThat(string1, equalTo(&quot;1&quot;));
     assertThat(fizzBuzz1, new GenericMatcher() {
@@ -149,63 +150,69 @@ public void testFizzBuzz0() throws Exception {
 
 ...
 </code></pre>
+
   </div>
-          <div class="col-md-4">
-                      <div class="panel panel-default">
-              <div class="panel-heading">
+              <div class="col-lg-4">
+                          <div class="card info-card">
+              <div class="card-header">
       <h4>Advanced Topics</h4>
   </div>
-          <div class="panel-body">
-                                        <p>Following subjects could be of further interest:</p>
+          <div class="card-body">
+                                                <p>Following subjects could be of further interest:</p>
 <ul>
-  <li><a href="https://github.com/almondtools/testrecorder/blob/master/doc/Architecture.md">An Introduction to the Testrecorder Architecture</a></li>
-  <li><a href="https://github.com/almondtools/testrecorder/blob/master/doc/RecordingIO.md">Recording Input/Output with Testrecorder</a></li>
-  <li><a href="https://github.com/almondtools/testrecorder/blob/master/doc/API.md">Using the Testrecorder-API to serialize data and generate code</a></li>
-  <li><a href="https://github.com/almondtools/testrecorder/blob/master/doc/Extending.md">Extending Testrecorder with Custom Components</a></li>
-  <li><a href="https://github.com/almondtools/testrecorder/blob/master/doc/TuningOutput.md">Tuning the Output of Testrecorder</a></li>
+<li><a href="https://github.com/almondtools/testrecorder/blob/master/doc/Architecture.md">An Introduction to the Testrecorder Architecture</a></li>
+<li><a href="https://github.com/almondtools/testrecorder/blob/master/doc/RecordingIO.md">Recording Input/Output with Testrecorder</a></li>
+<li><a href="https://github.com/almondtools/testrecorder/blob/master/doc/API.md">Using the Testrecorder-API to serialize data and generate code</a></li>
+<li><a href="https://github.com/almondtools/testrecorder/blob/master/doc/Extending.md">Extending Testrecorder with Custom Components</a></li>
+<li><a href="https://github.com/almondtools/testrecorder/blob/master/doc/TuningOutput.md">Tuning the Output of Testrecorder</a></li>
 </ul>
+
   </div>
   </div>
-                  <div class="panel panel-default">
-              <div class="panel-heading">
+                      <div class="card info-card">
+              <div class="card-header">
       <h4>Limitations</h4>
   </div>
-          <div class="panel-body">
-                    <p>TestRecorder serialization (for values and tests) does not cover all of an objects properties. Problems might occur with:</p>
+          <div class="card-body">
+                        <p>TestRecorder serialization (for values and tests) does not cover all of an objects properties. Problems might occur with:</p>
 <ul>
-  <li>static fields</li>
-  <li>synthetic fields (e.g. added by some bytecode rewriting framework)</li>
-  <li>native state</li>
-  <li>proxies</li>
-  <li>state that influences object access (e.g. modification counter in collections)</li>
+<li>static fields</li>
+<li>synthetic fields (e.g. added by some bytecode rewriting framework)</li>
+<li>native state</li>
+<li>proxies</li>
+<li>state that influences object access (e.g. modification counter in collections)</li>
 </ul>
+
   </div>
   </div>
-                  <div class="panel panel-default">
-              <div class="panel-heading">
+                      <div class="card info-card">
+              <div class="card-header">
       <h4>Examples</h4>
   </div>
-          <div class="panel-body">
-                    <p>Examples can be found at <a href="https://github.com/almondtools/testrecorder-examples">testrecorder-examples</a> </p>
+          <div class="card-body">
+                        <p>Examples can be found at <a href="https://github.com/almondtools/testrecorder-examples">testrecorder-examples</a></p>
+
   </div>
   </div>
-                  <div class="panel panel-default">
-              <div class="panel-heading">
+                      <div class="card info-card">
+              <div class="card-header">
       <h4>Roadmap</h4>
   </div>
-          <div class="panel-body">
-                    <p>The objective of Testrecorder is to provide an interface that is powerful, clean and extensible. To achieve this we will provide more and more configuration settings to extend the core framework. The fact that tests are generated automatically might rise wrong expectations: Testrecorder will probably always be an experts tool, meaning strong programming and debug skills are recommended to find the correct configuration and the necessary custom extensions.</p>
-<p>Testrecorder was not yet tested on a large set of code examples. Some classes are not as easy to serialize as others, so if you encounter problems, try to write an issue. Hopefully - most fixes to such problems should be solvable with custom serializers or custom deserializers. </p>
+          <div class="card-body">
+                        <p>The objective of Testrecorder is to provide an interface that is powerful, clean and extensible. To achieve this we will provide more and more configuration settings to extend the core framework. The fact that tests are generated automatically might rise wrong expectations: Testrecorder will probably always be an experts tool, meaning strong programming and debug skills are recommended to find the correct configuration and the necessary custom extensions.</p>
+<p>Testrecorder was not yet tested on a large set of code examples. Some classes are not as easy to serialize as others, so if you encounter problems, try to write an issue. Hopefully - most fixes to such problems should be solvable with custom serializers or custom deserializers.</p>
+
   </div>
   </div>
   </div>
   </div>
-              <section>
+  </section>
+              <section class="page-section">
               <div class="row">
-                  <div class="col-md-push-8 col-md-4">
+                  <div class="order-2 col-lg-4">
                 
   </div>
-              <div class="col-md-pull-4 col-md-8">
+              <div class="order-1 col-lg-8">
                       <h2>Authors</h2>
                   <p>  <a href="http://www.amygdalum.net">
     Stefan Mandel
@@ -214,8 +221,9 @@ public void testFizzBuzz0() throws Exception {
   </div>
   </section>
   </div>
+  </main>
               <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-              <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+              <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
               <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.0.0/highlight.min.js"></script>
               <script>hljs.initHighlightingOnLoad()</script>
   </body>
