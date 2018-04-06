@@ -15,7 +15,7 @@ import java.util.Objects;
 
 import org.hamcrest.Matcher;
 
-import net.amygdalum.testrecorder.testing.hamcrest.GenericMatcher;
+import net.amygdalum.testrecorder.runtime.GenericMatcher;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.TypeManager;

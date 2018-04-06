@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.ioscenarios;
 
-import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRun;
+import static net.amygdalum.testrecorder.test.TestsRun.testsRun;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;

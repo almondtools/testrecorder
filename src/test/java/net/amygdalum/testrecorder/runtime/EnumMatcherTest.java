@@ -1,6 +1,6 @@
-package net.amygdalum.testrecorder.testing.hamcrest;
+package net.amygdalum.testrecorder.runtime;
 
-import static net.amygdalum.testrecorder.testing.hamcrest.EnumMatcher.matchingEnum;
+import static net.amygdalum.testrecorder.runtime.EnumMatcher.matchingEnum;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.hamcrest.StringDescription;

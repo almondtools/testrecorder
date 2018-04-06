@@ -17,8 +17,8 @@ import java.util.stream.Stream;
 import org.hamcrest.Matcher;
 import org.hamcrest.collection.IsArrayWithSize;
 
-import net.amygdalum.testrecorder.testing.hamcrest.ArrayMatcher;
-import net.amygdalum.testrecorder.testing.hamcrest.PrimitiveArrayMatcher;
+import net.amygdalum.testrecorder.runtime.ArrayMatcher;
+import net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.TypeManager;

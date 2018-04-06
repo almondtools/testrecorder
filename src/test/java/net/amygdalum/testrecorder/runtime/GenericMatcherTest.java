@@ -1,7 +1,7 @@
-package net.amygdalum.testrecorder.testing.hamcrest;
+package net.amygdalum.testrecorder.runtime;
 
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
-import static net.amygdalum.testrecorder.testing.hamcrest.GenericMatcher.recursive;
+import static net.amygdalum.testrecorder.runtime.GenericMatcher.recursive;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.containsString;
@@ -10,7 +10,9 @@ import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.runtime.GenericMatcher;
 import net.amygdalum.testrecorder.runtime.GenericObject;
+import net.amygdalum.testrecorder.runtime.RecursiveMatcher;
 import net.amygdalum.testrecorder.runtime.Wrapped;
 import net.amygdalum.testrecorder.util.testobjects.Complex;
 import net.amygdalum.testrecorder.util.testobjects.DoubleShadowingObject;

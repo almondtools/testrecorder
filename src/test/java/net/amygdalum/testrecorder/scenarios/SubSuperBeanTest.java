@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.scenarios;
 import static net.amygdalum.extensions.assertj.iterables.IterableConditions.containingExactly;
 import static net.amygdalum.extensions.assertj.strings.StringConditions.containing;
 import static net.amygdalum.extensions.assertj.strings.StringConditions.containingWildcardPattern;
-import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRun;
+import static net.amygdalum.testrecorder.test.TestsRun.testsRun;
 import static org.assertj.core.api.Assertions.allOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.not;

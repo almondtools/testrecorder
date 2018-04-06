@@ -1,14 +1,14 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import static net.amygdalum.testrecorder.testing.hamcrest.EnumMatcher.matchingEnum;
+import static net.amygdalum.testrecorder.runtime.EnumMatcher.matchingEnum;
 import static org.junit.Assert.assertThat;
 
 import org.hamcrest.Matcher;
 import org.junit.Test;
 
+import net.amygdalum.testrecorder.runtime.GenericMatcher;
 import net.amygdalum.testrecorder.runtime.GenericObject;
 import net.amygdalum.testrecorder.runtime.Wrapped;
-import net.amygdalum.testrecorder.testing.hamcrest.GenericMatcher;
 
 
 

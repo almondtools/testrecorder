@@ -16,8 +16,8 @@ import java.lang.reflect.Type;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
-import net.amygdalum.testrecorder.testing.hamcrest.EnumMatcher;
-import net.amygdalum.testrecorder.testing.hamcrest.WideningMatcher;
+import net.amygdalum.testrecorder.runtime.EnumMatcher;
+import net.amygdalum.testrecorder.runtime.WideningMatcher;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.TypeManager;

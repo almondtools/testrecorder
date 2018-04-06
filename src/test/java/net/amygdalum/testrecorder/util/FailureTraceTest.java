@@ -1,14 +1,14 @@
 package net.amygdalum.testrecorder.util;
 
 import static java.util.Arrays.asList;
-import static net.amygdalum.testrecorder.testing.hamcrest.ContainsMatcher.contains;
+import static net.amygdalum.testrecorder.runtime.ContainsMatcher.contains;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.testing.hamcrest.GenericMatcher;
+import net.amygdalum.testrecorder.runtime.GenericMatcher;
 import net.amygdalum.testrecorder.util.testobjects.Complex;
 import net.amygdalum.testrecorder.util.testobjects.ContainingList;
 import net.amygdalum.testrecorder.util.testobjects.ContainingSet;

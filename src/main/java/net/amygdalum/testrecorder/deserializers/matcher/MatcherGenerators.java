@@ -15,7 +15,7 @@ import org.hamcrest.Matcher;
 import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.hints.SkipChecks;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
-import net.amygdalum.testrecorder.testing.hamcrest.GenericMatcher;
+import net.amygdalum.testrecorder.runtime.GenericMatcher;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.types.DeserializerContext;

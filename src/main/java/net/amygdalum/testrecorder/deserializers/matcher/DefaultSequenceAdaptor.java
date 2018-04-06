@@ -15,7 +15,7 @@ import java.util.List;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
-import net.amygdalum.testrecorder.testing.hamcrest.ContainsInOrderMatcher;
+import net.amygdalum.testrecorder.runtime.ContainsInOrderMatcher;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.TypeManager;

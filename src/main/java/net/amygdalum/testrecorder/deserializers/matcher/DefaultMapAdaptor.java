@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 
 import org.hamcrest.Matcher;
 
-import net.amygdalum.testrecorder.testing.hamcrest.MapMatcher;
+import net.amygdalum.testrecorder.runtime.MapMatcher;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.SerializedValue;

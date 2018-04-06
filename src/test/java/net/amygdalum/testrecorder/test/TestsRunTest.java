@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.testing.assertj;
+package net.amygdalum.testrecorder.test;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -7,6 +7,7 @@ import org.assertj.core.api.SoftAssertionError;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.dynamiccompile.RenderedTest;
+import net.amygdalum.testrecorder.test.TestsRun;
 
 public class TestsRunTest {
 

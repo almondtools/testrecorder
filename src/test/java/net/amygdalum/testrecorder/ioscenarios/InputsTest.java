@@ -2,9 +2,9 @@ package net.amygdalum.testrecorder.ioscenarios;
 
 import static java.util.stream.Collectors.joining;
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
-import static net.amygdalum.testrecorder.testing.assertj.Compiles.compiles;
-import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRun;
-import static net.amygdalum.testrecorder.testing.assertj.TestsRun.testsRunWith;
+import static net.amygdalum.testrecorder.test.Compiles.compiles;
+import static net.amygdalum.testrecorder.test.TestsRun.testsRun;
+import static net.amygdalum.testrecorder.test.TestsRun.testsRunWith;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Files;
@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import net.amygdalum.testrecorder.TestGenerator;
-import net.amygdalum.testrecorder.testing.assertj.Compiles;
+import net.amygdalum.testrecorder.test.Compiles;
 import net.amygdalum.testrecorder.util.Instrumented;
 import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 

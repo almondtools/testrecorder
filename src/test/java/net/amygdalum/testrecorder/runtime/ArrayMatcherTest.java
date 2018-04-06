@@ -1,7 +1,7 @@
-package net.amygdalum.testrecorder.testing.hamcrest;
+package net.amygdalum.testrecorder.runtime;
 
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
-import static net.amygdalum.testrecorder.testing.hamcrest.ArrayMatcher.arrayContaining;
+import static net.amygdalum.testrecorder.runtime.ArrayMatcher.arrayContaining;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.core.IsNull.nullValue;

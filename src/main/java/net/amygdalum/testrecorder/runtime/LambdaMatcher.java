@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.testing.hamcrest;
+package net.amygdalum.testrecorder.runtime;
 
 import java.lang.invoke.SerializedLambda;
 
