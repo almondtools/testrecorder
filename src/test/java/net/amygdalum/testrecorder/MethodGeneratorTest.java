@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder;
 
 import static java.util.Arrays.asList;
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
-import static net.amygdalum.testrecorder.util.TestAgentConfiguration.defaultConfig;
+import static net.amygdalum.testrecorder.profile.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 
 import java.lang.annotation.Annotation;

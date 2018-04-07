@@ -9,8 +9,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import net.amygdalum.testrecorder.CodeSerializer;
 import net.amygdalum.testrecorder.TestGenerator;
-import net.amygdalum.testrecorder.util.Instrumented;
-import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
+import net.amygdalum.testrecorder.profile.Instrumented;
+import net.amygdalum.testrecorder.profile.TestRecorderAgentExtension;
 
 @ExtendWith(TestRecorderAgentExtension.class)
 @Instrumented(classes = {

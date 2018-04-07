@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import net.amygdalum.testrecorder.TestRecorderAgentInitializer;
+import net.amygdalum.testrecorder.runtime.TestRecorderAgentInitializer;
 
 public class GlobalsInitializer implements TestRecorderAgentInitializer {
 

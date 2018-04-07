@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder;
 
 import static net.amygdalum.testrecorder.SnapshotManager.DummyContextSnapshotTransaction.INVALID;
-import static net.amygdalum.testrecorder.util.TestAgentConfiguration.defaultConfig;
+import static net.amygdalum.testrecorder.profile.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.xrayinterface.XRayInterface.xray;
 import static org.assertj.core.api.Assertions.assertThat;

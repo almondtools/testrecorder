@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.util.testobjects;
+package net.amygdalum.testrecorder.values;
 
 import static java.util.Collections.emptyList;
 import static net.amygdalum.xrayinterface.XRayInterface.xray;

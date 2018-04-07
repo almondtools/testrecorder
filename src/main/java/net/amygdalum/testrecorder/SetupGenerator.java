@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.stringtemplate.v4.ST;
 
+import net.amygdalum.testrecorder.runtime.TestRecorderAgentInitializer;
 import net.amygdalum.testrecorder.types.TypeManager;
 
 public class SetupGenerator {

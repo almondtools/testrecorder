@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.deserializers.builder;
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.extensions.assertj.iterables.IterableConditions.containingExactly;
 import static net.amygdalum.extensions.assertj.strings.StringConditions.containingWildcardPattern;
-import static net.amygdalum.testrecorder.util.TestAgentConfiguration.defaultConfig;
+import static net.amygdalum.testrecorder.profile.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.testobjects.Collections.arrayList;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenList;
@@ -28,13 +28,13 @@ import net.amygdalum.testrecorder.util.testobjects.ContainingList;
 import net.amygdalum.testrecorder.util.testobjects.Cycle;
 import net.amygdalum.testrecorder.util.testobjects.Dubble;
 import net.amygdalum.testrecorder.util.testobjects.GenericCycle;
-import net.amygdalum.testrecorder.util.testobjects.SerializedValues;
 import net.amygdalum.testrecorder.util.testobjects.Simple;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 import net.amygdalum.testrecorder.values.SerializedList;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedObject;
+import net.amygdalum.testrecorder.values.SerializedValues;
 
 public class SetupGeneratorsTest {
 

@@ -68,7 +68,7 @@ Now some explanations:
 `getPackages` should return a list of java packages that should be analyzed. Only methods in these packages are recorded (`@Recorded`-Annotations that are in packages not specified here will not have any effect)
 
 ## 3. Run your program with TestRecorderAgent
-To run your program with test recording activated you have to call ist with an agent
+To run your program with test recording activated you have to call it with an agent
 
 `-javaagent:testrecorder-[version]-jar-with-dependencies.jar=AgentConfig`
 

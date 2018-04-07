@@ -3,13 +3,22 @@ package net.amygdalum.testrecorder.asm;
 import static net.amygdalum.extensions.assertj.conventions.UtilityClass.utilityClass;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.POP;
+
+import java.io.ByteArrayOutputStream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
+import net.amygdalum.testrecorder.util.LogLevel;
+import net.amygdalum.testrecorder.util.LoggerExtension;
 import net.amygdalum.testrecorder.util.testobjects.Complex;
 import net.amygdalum.testrecorder.util.testobjects.PublicEnum;
 import net.amygdalum.testrecorder.util.testobjects.Simple;
@@ -185,4 +194,27 @@ public class ByteCodeTest {
 		assertThat(ByteCode.resultTypeFrom("(IC)Ljava/lang/String;")).isEqualTo(String.class);
 	}
 
+	@ExtendWith(LoggerExtension.class)
+	@Test
+	public void testByteCodePrint(@LogLevel("info") ByteArrayOutputStream info) throws Exception {
+		InsnNode insn = new InsnNode(POP);
+
+		InsnNode result = ByteCode.print(insn);
+
+		assertThat(result).isEqualTo(insn);
+		assertThat(info.toString()).contains("POP");
+	}
+
+	@ExtendWith(LoggerExtension.class)
+	@Test
+	public void testByteCodePrintList(@LogLevel("info") ByteArrayOutputStream info) throws Exception {
+		InsnList list = new InsnList();
+		list.add(new InsnNode(DUP));
+		
+		InsnList result = ByteCode.print(list);
+		
+		assertThat(result).isEqualTo(list);
+		assertThat(info.toString()).contains("[DUP]");
+	}
+	
 }

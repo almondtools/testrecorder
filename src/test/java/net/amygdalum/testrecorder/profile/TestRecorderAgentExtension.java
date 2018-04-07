@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.util;
+package net.amygdalum.testrecorder.profile;
 
 import static java.util.stream.Collectors.toList;
 
@@ -25,6 +25,7 @@ import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.Classes;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.profile.SerializationProfile;
+import net.amygdalum.testrecorder.util.Logger;
 import net.bytebuddy.agent.ByteBuddyAgent;
 
 public class TestRecorderAgentExtension implements BeforeEachCallback, BeforeAllCallback, AfterAllCallback, ParameterResolver {

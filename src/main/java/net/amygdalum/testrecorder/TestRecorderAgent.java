@@ -5,6 +5,7 @@ import java.lang.instrument.Instrumentation;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.profile.SerializationProfile;
+import net.amygdalum.testrecorder.runtime.TestRecorderAgentInitializer;
 import net.amygdalum.testrecorder.util.AttachableClassFileTransformer;
 import net.amygdalum.testrecorder.util.Logger;
 

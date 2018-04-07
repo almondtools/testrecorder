@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.util.testobjects.SerializedValues.ASerializedReferenceType;
+import net.amygdalum.testrecorder.values.SerializedValues.ASerializedReferenceType;
 
 public class AbstractSerializedReferenceTypeTest {
 

@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import net.amygdalum.testrecorder.TestGenerator;
+import net.amygdalum.testrecorder.profile.Instrumented;
+import net.amygdalum.testrecorder.profile.TestRecorderAgentExtension;
 import net.amygdalum.testrecorder.scenarios.ConstructorsWithEnums.ChainedEnum;
 import net.amygdalum.testrecorder.scenarios.ConstructorsWithEnums.InnerEnum;
-import net.amygdalum.testrecorder.util.Instrumented;
-import net.amygdalum.testrecorder.util.TestRecorderAgentExtension;
 
 @ExtendWith(TestRecorderAgentExtension.class)
 @Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.ConstructorsWithEnums" })

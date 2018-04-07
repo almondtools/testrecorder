@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.evaluator;
 
 import static java.util.Arrays.asList;
-import static net.amygdalum.testrecorder.util.TestAgentConfiguration.defaultConfig;
+import static net.amygdalum.testrecorder.profile.TestAgentConfiguration.defaultConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
