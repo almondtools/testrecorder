@@ -12,7 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.SerializedImmutableType;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
@@ -26,7 +25,7 @@ public class ValuePrinterTest {
 	@BeforeEach
 	public void before() throws Exception {
 		printer = new ValuePrinter();
-		context = new DefaultDeserializerContext();
+		context = Mockito.mock(DeserializerContext.class);
 	}
 
 	@Test

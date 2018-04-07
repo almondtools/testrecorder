@@ -7,7 +7,6 @@ import org.assertj.core.api.SoftAssertionError;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.dynamiccompile.RenderedTest;
-import net.amygdalum.testrecorder.test.Compiles;
 
 public class CompilesTest {
 

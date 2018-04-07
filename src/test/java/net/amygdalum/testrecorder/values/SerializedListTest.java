@@ -21,8 +21,8 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
 import net.amygdalum.testrecorder.types.SerializedValue;
+import net.amygdalum.testrecorder.types.TestValueVisitor;
 
 public class SerializedListTest {
 

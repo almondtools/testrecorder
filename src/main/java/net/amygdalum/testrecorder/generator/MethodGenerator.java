@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder;
+package net.amygdalum.testrecorder.generator;
 
 import static java.lang.Character.toUpperCase;
 import static java.util.Arrays.asList;
@@ -34,6 +34,8 @@ import java.util.stream.Stream;
 import org.junit.Assert;
 import org.stringtemplate.v4.ST;
 
+import net.amygdalum.testrecorder.ContextSnapshot;
+import net.amygdalum.testrecorder.MockedInteractions;
 import net.amygdalum.testrecorder.ContextSnapshot.AnnotatedValue;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.deserializers.TreeAnalyzer;

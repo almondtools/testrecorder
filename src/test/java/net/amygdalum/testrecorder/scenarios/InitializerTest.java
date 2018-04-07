@@ -7,10 +7,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import net.amygdalum.testrecorder.TestGenerator;
-import net.amygdalum.testrecorder.profile.Instrumented;
-import net.amygdalum.testrecorder.profile.TestAgentConfiguration;
-import net.amygdalum.testrecorder.profile.TestRecorderAgentExtension;
+import net.amygdalum.testrecorder.TestAgentConfiguration;
+import net.amygdalum.testrecorder.generator.TestGenerator;
+import net.amygdalum.testrecorder.integration.Instrumented;
+import net.amygdalum.testrecorder.integration.TestRecorderAgentExtension;
 import net.amygdalum.testrecorder.util.ClasspathResourceExtension;
 import net.amygdalum.testrecorder.util.ExtensibleClassLoader;
 

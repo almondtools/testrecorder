@@ -12,8 +12,6 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.types.LocalVariableNameGenerator;
-
 public class LocalVariableNameGeneratorTest {
 
 	private LocalVariableNameGenerator nameGenerator;

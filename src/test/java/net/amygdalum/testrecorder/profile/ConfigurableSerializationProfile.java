@@ -3,11 +3,6 @@ package net.amygdalum.testrecorder.profile;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.amygdalum.testrecorder.profile.Classes;
-import net.amygdalum.testrecorder.profile.Fields;
-import net.amygdalum.testrecorder.profile.Methods;
-import net.amygdalum.testrecorder.profile.SerializationProfile;
-
 public class ConfigurableSerializationProfile implements SerializationProfile {
 
 	private List<Fields> fieldExclusions;

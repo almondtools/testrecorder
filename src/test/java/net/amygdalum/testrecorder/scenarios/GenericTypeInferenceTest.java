@@ -16,9 +16,9 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import net.amygdalum.testrecorder.TestGenerator;
-import net.amygdalum.testrecorder.profile.Instrumented;
-import net.amygdalum.testrecorder.profile.TestRecorderAgentExtension;
+import net.amygdalum.testrecorder.generator.TestGenerator;
+import net.amygdalum.testrecorder.integration.Instrumented;
+import net.amygdalum.testrecorder.integration.TestRecorderAgentExtension;
 
 @ExtendWith(TestRecorderAgentExtension.class)
 @Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.GenericTypeInference" })

@@ -10,7 +10,7 @@ import java.lang.annotation.Annotation;
 
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
+import net.amygdalum.testrecorder.types.TestValueVisitor;
 import net.amygdalum.testrecorder.util.testobjects.Annotated;
 import net.amygdalum.testrecorder.util.testobjects.AnnotatedField;
 import net.amygdalum.testrecorder.util.testobjects.MyAnnotation;

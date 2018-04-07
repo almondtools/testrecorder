@@ -1,11 +1,4 @@
-package net.amygdalum.testrecorder.deserializers;
-
-import net.amygdalum.testrecorder.types.Deserializer;
-import net.amygdalum.testrecorder.types.DeserializerContext;
-import net.amygdalum.testrecorder.types.SerializedFieldType;
-import net.amygdalum.testrecorder.types.SerializedImmutableType;
-import net.amygdalum.testrecorder.types.SerializedReferenceType;
-import net.amygdalum.testrecorder.types.SerializedValueType;
+package net.amygdalum.testrecorder.types;
 
 public class TestValueVisitor implements Deserializer<String> {
 

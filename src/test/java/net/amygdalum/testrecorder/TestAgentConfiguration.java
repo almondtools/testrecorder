@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.profile;
+package net.amygdalum.testrecorder;
 
 import net.amygdalum.testrecorder.DefaultPerformanceProfile;
 import net.amygdalum.testrecorder.DefaultSerializationProfile;

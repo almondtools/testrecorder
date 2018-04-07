@@ -4,8 +4,8 @@ import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.CodeSerializer;
 import net.amygdalum.testrecorder.ConfigurableSerializerFacade;
+import net.amygdalum.testrecorder.codeserializer.CodeSerializer;
 import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerators;
 
 public class SubSuperBeanMatcherTest {

@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder;
+package net.amygdalum.testrecorder.ioscenarios;
 
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -12,9 +12,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.ioscenarios.Inputs;
-import net.amygdalum.testrecorder.ioscenarios.Outputs;
-import net.amygdalum.testrecorder.ioscenarios.StandardLibInputOutput;
+import net.amygdalum.testrecorder.FakeIO;
 import net.amygdalum.testrecorder.runtime.Aspect;
 import net.amygdalum.testrecorder.runtime.Throwables;
 import net.amygdalum.testrecorder.util.testobjects.Bean;

@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder;
+package net.amygdalum.testrecorder.codeserializer;
 
 import static java.util.stream.Collectors.joining;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
@@ -8,6 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+import net.amygdalum.testrecorder.ConfigurableSerializerFacade;
+import net.amygdalum.testrecorder.DefaultPerformanceProfile;
+import net.amygdalum.testrecorder.DefaultSerializationProfile;
+import net.amygdalum.testrecorder.DefaultSnapshotConsumer;
+import net.amygdalum.testrecorder.SnapshotConsumer;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.deserializers.DeserializerTypeManager;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;

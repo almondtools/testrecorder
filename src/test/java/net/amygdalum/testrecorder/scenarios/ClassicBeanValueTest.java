@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.CodeSerializer;
+import net.amygdalum.testrecorder.codeserializer.CodeSerializer;
 
 public class ClassicBeanValueTest {
 

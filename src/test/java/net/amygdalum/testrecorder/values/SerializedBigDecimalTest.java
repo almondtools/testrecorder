@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.deserializers.TestValueVisitor;
+import net.amygdalum.testrecorder.types.TestValueVisitor;
 
 public class SerializedBigDecimalTest {
 

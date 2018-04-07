@@ -9,7 +9,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.CodeSerializer;
+import net.amygdalum.testrecorder.codeserializer.CodeSerializer;
 
 public class MapValueTest {
 

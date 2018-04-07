@@ -1,8 +1,8 @@
-package net.amygdalum.testrecorder;
+package net.amygdalum.testrecorder.generator;
 
 import static java.util.Arrays.asList;
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
-import static net.amygdalum.testrecorder.profile.TestAgentConfiguration.defaultConfig;
+import static net.amygdalum.testrecorder.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 
 import java.lang.annotation.Annotation;
@@ -12,9 +12,12 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.ContextSnapshot;
+import net.amygdalum.testrecorder.MethodSignature;
 import net.amygdalum.testrecorder.deserializers.DeserializerTypeManager;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
 import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerators;
+import net.amygdalum.testrecorder.generator.MethodGenerator;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.util.testobjects.Bean;

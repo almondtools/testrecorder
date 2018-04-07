@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.profile;
+package net.amygdalum.testrecorder.integration;
 
 import static java.util.stream.Collectors.toList;
 
@@ -19,10 +19,12 @@ import net.amygdalum.testrecorder.DefaultPerformanceProfile;
 import net.amygdalum.testrecorder.DefaultSerializationProfile;
 import net.amygdalum.testrecorder.DefaultSnapshotConsumer;
 import net.amygdalum.testrecorder.SnapshotConsumer;
-import net.amygdalum.testrecorder.TestGenerator;
+import net.amygdalum.testrecorder.TestAgentConfiguration;
 import net.amygdalum.testrecorder.TestRecorderAgent;
+import net.amygdalum.testrecorder.generator.TestGenerator;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.Classes;
+import net.amygdalum.testrecorder.profile.ConfigurableSerializationProfile;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.profile.SerializationProfile;
 import net.amygdalum.testrecorder.util.Logger;

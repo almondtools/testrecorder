@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.deserializers.builder;
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.extensions.assertj.iterables.IterableConditions.containingExactly;
 import static net.amygdalum.extensions.assertj.strings.StringConditions.containingWildcardPattern;
-import static net.amygdalum.testrecorder.profile.TestAgentConfiguration.defaultConfig;
+import static net.amygdalum.testrecorder.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.testobjects.Collections.arrayList;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenList;
@@ -19,6 +19,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.SerializedValues;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
@@ -34,7 +35,6 @@ import net.amygdalum.testrecorder.values.SerializedImmutable;
 import net.amygdalum.testrecorder.values.SerializedList;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedObject;
-import net.amygdalum.testrecorder.values.SerializedValues;
 
 public class SetupGeneratorsTest {
 

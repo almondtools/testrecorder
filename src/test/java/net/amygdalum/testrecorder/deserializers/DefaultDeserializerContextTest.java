@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
+
 public class DefaultDeserializerContextTest {
 
 	@Test

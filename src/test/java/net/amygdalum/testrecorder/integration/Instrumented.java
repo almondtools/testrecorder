@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.profile;
+package net.amygdalum.testrecorder.integration;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import net.amygdalum.testrecorder.util.testobjects.Annotated;
 import net.amygdalum.testrecorder.util.testobjects.MyAnnotation;
 import net.amygdalum.testrecorder.util.testobjects.NoAnnotation;
-import net.amygdalum.testrecorder.values.SerializedValues.ASerializedValue;
 
 public class AbstractSerializedValueTest {
 
