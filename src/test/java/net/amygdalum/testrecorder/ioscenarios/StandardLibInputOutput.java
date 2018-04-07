@@ -6,7 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import net.amygdalum.testrecorder.Recorded;
+import net.amygdalum.testrecorder.profile.Recorded;
 
 public class StandardLibInputOutput {
 

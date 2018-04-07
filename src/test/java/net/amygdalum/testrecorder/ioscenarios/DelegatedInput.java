@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.ioscenarios;
 
-import net.amygdalum.testrecorder.Recorded;
+import net.amygdalum.testrecorder.profile.Recorded;
 import net.amygdalum.testrecorder.profile.SerializationProfile.Input;
 
 public class DelegatedInput {

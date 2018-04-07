@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.scenarios;
 
 import static java.util.Arrays.asList;
 
-import net.amygdalum.testrecorder.Recorded;
+import net.amygdalum.testrecorder.profile.Recorded;
 
 public class Imports {
 

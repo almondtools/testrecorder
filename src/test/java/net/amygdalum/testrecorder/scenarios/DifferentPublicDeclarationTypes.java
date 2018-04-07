@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.scenarios;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import net.amygdalum.testrecorder.Recorded;
+import net.amygdalum.testrecorder.profile.Recorded;
 
 @SuppressWarnings("unused")
 public class DifferentPublicDeclarationTypes {

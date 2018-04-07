@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.scenarios;
 
 import java.util.Set;
 
-import net.amygdalum.testrecorder.Recorded;
+import net.amygdalum.testrecorder.profile.Recorded;
 
 public class GenericFields {
 

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import net.amygdalum.testrecorder.Recorded;
+import net.amygdalum.testrecorder.profile.Recorded;
 import net.amygdalum.testrecorder.profile.SerializationProfile.Excluded;
 import net.amygdalum.testrecorder.profile.SerializationProfile.Input;
 

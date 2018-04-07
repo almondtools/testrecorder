@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
-import net.amygdalum.testrecorder.Recorded;
 import net.amygdalum.testrecorder.hints.SkipChecks;
+import net.amygdalum.testrecorder.profile.Recorded;
 
 public class ExcludedFromChecking {
 

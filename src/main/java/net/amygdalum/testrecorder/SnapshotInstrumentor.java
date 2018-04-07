@@ -57,6 +57,7 @@ import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.Classes;
 import net.amygdalum.testrecorder.profile.Fields;
 import net.amygdalum.testrecorder.profile.Methods;
+import net.amygdalum.testrecorder.profile.Recorded;
 import net.amygdalum.testrecorder.profile.SerializationProfile;
 import net.amygdalum.testrecorder.profile.SerializationProfile.Global;
 import net.amygdalum.testrecorder.profile.SerializationProfile.Input;

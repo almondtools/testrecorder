@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.scenarios;
 import java.util.Arrays;
 import java.util.List;
 
-import net.amygdalum.testrecorder.Recorded;
+import net.amygdalum.testrecorder.profile.Recorded;
 
 public class ArraysDecorators {
 
