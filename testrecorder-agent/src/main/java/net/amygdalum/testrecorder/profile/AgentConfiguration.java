@@ -136,7 +136,7 @@ public class AgentConfiguration {
 					.map(this::logLoad)
 					.forEach(configurations::add);
 			} catch (FileNotFoundException | NoSuchFileException e) {
-				Logger.info("did not find configuration file " + lookupPath + ", skipping");
+				Logger.debug("did not find configuration file " + lookupPath + ", skipping");
 			} catch (IOException e) {
 				Logger.error("cannot load configuration file: " + lookupPath);
 			}
@@ -152,7 +152,7 @@ public class AgentConfiguration {
 						.map(this::logLoad)
 						.forEach(configurations::add);
 				} catch (FileNotFoundException | NoSuchFileException e) {
-					Logger.info("did not find configuration file " + lookupPath + ", skipping");
+					Logger.debug("did not find configuration file " + lookupPath + ", skipping");
 				} catch (IOException e) {
 					Logger.error("cannot load configuration file: " + lookupPath);
 				}
@@ -168,7 +168,7 @@ public class AgentConfiguration {
 					.map(this::logLoad)
 					.forEach(configurations::add);
 			} catch (FileNotFoundException | NoSuchFileException e) {
-				Logger.info("did not find configuration file " + lookupPath + ", skipping");
+				Logger.debug("did not find configuration file " + lookupPath + ", skipping");
 			} catch (IOException e) {
 				Logger.error("cannot load configuration file: " + lookupPath);
 			}

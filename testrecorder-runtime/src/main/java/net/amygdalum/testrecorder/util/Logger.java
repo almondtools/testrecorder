@@ -4,6 +4,7 @@ import java.io.PrintStream;
 
 public class Logger {
 
+	private static Logger DEBUG = new Logger(System.out);
 	private static Logger INFO = new Logger(System.out);
 	private static Logger WARN = new Logger(System.out);
 	private static Logger ERROR = new Logger(System.err);
@@ -12,6 +13,20 @@ public class Logger {
 
 	public Logger(PrintStream out) {
 		this.out = out;
+	}
+
+	public static void setDEBUG(Logger debug) {
+		DEBUG = debug;
+	}
+	
+	public static void resetDEBUG() {
+		DEBUG = new Logger(System.out);
+	}
+
+	public static void debug(Object... msgs) {
+		for (Object msg : msgs) {
+			DEBUG.log(msg);
+		}
 	}
 
 	public static void setINFO(Logger info) {

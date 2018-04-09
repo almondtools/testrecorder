@@ -12,15 +12,18 @@ import org.junit.jupiter.api.extension.ParameterResolver;
 
 public class LoggerExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
 
+	private ByteArrayOutputStream debug;
 	private ByteArrayOutputStream info;
 	private ByteArrayOutputStream warn;
 	private ByteArrayOutputStream error;
 
 	@Override
 	public void beforeEach(ExtensionContext context) throws Exception {
+		debug = new ByteArrayOutputStream();
 		info = new ByteArrayOutputStream();
 		warn = new ByteArrayOutputStream();
 		error = new ByteArrayOutputStream();
+		Logger.setDEBUG(new Logger(new PrintStream(debug)));
 		Logger.setINFO(new Logger(new PrintStream(info)));
 		Logger.setWARN(new Logger(new PrintStream(warn)));
 		Logger.setERROR(new Logger(new PrintStream(error)));
@@ -28,6 +31,7 @@ public class LoggerExtension implements BeforeEachCallback, AfterEachCallback, P
 
 	@Override
 	public void afterEach(ExtensionContext context) throws Exception {
+		Logger.resetDEBUG();
 		Logger.resetINFO();
 		Logger.resetWARN();
 		Logger.resetERROR();
@@ -42,8 +46,10 @@ public class LoggerExtension implements BeforeEachCallback, AfterEachCallback, P
 		case "warn":
 			return warn;
 		case "info":
-		default:
 			return info;
+		case "debug":
+		default:
+			return debug;
 		}
 
 	}
