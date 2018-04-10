@@ -20,16 +20,19 @@ import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
+import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.SerializedList;
 
 public class DefaultQueueSerializerTest {
 
 	private SerializerFacade facade;
+	private SerializerSession session;
 	private Serializer<SerializedList> serializer;
 
 	@BeforeEach
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
+		session = mock(SerializerSession.class);
 		serializer = new DefaultQueueSerializer(facade);
 	}
 
@@ -43,7 +46,7 @@ public class DefaultQueueSerializerTest {
 	public void testGenerate() throws Exception {
 		Type priorityBlockingQueueOfString = parameterized(PriorityBlockingQueue.class, null, String.class);
 
-		SerializedList value = serializer.generate(PriorityBlockingQueue.class);
+		SerializedList value = serializer.generate(PriorityBlockingQueue.class, session);
 		value.useAs(priorityBlockingQueueOfString);
 
 		assertThat(value.getUsedTypes()).containsExactly(priorityBlockingQueueOfString);
@@ -55,13 +58,13 @@ public class DefaultQueueSerializerTest {
 	public void testPopulate() throws Exception {
 		SerializedValue foo = literal("Foo");
 		SerializedValue bar = literal("Bar");
-		when(facade.serialize(String.class, "Foo")).thenReturn(foo);
-		when(facade.serialize(String.class, "Bar")).thenReturn(bar);
+		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
+		when(facade.serialize(String.class, "Bar", session)).thenReturn(bar);
 		Type linkedBlockingQueueOfString = parameterized(LinkedBlockingQueue.class, null, String.class);
-		SerializedList value = serializer.generate(linkedBlockingQueueOfString);
+		SerializedList value = serializer.generate(linkedBlockingQueueOfString, session);
 		value.useAs(LinkedBlockingQueue.class);
 
-		serializer.populate(value, new LinkedBlockingQueue<>(asList("Foo", "Bar")));
+		serializer.populate(value, new LinkedBlockingQueue<>(asList("Foo", "Bar")), session);
 
 		assertThat(value).containsExactly(foo, bar);
 	}

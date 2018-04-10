@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.util.Reflections;
 import net.amygdalum.testrecorder.values.SerializedList;
 
@@ -32,18 +33,18 @@ public class CollectionsListSerializer extends HiddenInnerClassSerializer<Serial
 	}
 
 	@Override
-	public SerializedList generate(Type type) {
+	public SerializedList generate(Type type, SerializerSession session) {
 		return new SerializedList(type);
 	}
 
 	@Override
-	public void populate(SerializedList serializedObject, Object object) {
+	public void populate(SerializedList serializedObject, Object object, SerializerSession session) {
 		Type componentType = computeComponentType(serializedObject, object);
 
 		for (Object element : (List<?>) object) {
 			Type elementType = visibleType(element, componentType);
 
-			serializedObject.add(facade.serialize(elementType, element));
+			serializedObject.add(facade.serialize(elementType, element, session));
 		}
 		Type newType = parameterized(List.class, null, componentType);
 		serializedObject.useAs(newType);

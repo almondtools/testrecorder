@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import net.amygdalum.testrecorder.types.Serializer;
+import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.SerializedMap;
 
 public class DefaultMapSerializer implements Serializer<SerializedMap> {
@@ -26,18 +27,18 @@ public class DefaultMapSerializer implements Serializer<SerializedMap> {
 	}
 
 	@Override
-	public SerializedMap generate(Type type) {
+	public SerializedMap generate(Type type, SerializerSession session) {
 		return new SerializedMap(type);
 	}
 
 	@Override
-	public void populate(SerializedMap serializedObject, Object object) {
+	public void populate(SerializedMap serializedObject, Object object, SerializerSession session) {
 		Type keyType = serializedObject.getMapKeyType();
 		Type valueType = serializedObject.getMapValueType();
 		for (Map.Entry<?, ?> entry : ((Map<?, ?>) object).entrySet()) {
 			Object key = entry.getKey();
 			Object value = entry.getValue();
-			serializedObject.put(facade.serialize(keyType, key), facade.serialize(valueType, value));
+			serializedObject.put(facade.serialize(keyType, key, session), facade.serialize(valueType, value, session));
 		}
 	}
 

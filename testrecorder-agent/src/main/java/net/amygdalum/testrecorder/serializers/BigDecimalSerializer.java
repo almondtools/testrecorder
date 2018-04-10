@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import net.amygdalum.testrecorder.types.Serializer;
+import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 
 public class BigDecimalSerializer implements Serializer<SerializedImmutable<BigDecimal>> {
@@ -20,12 +21,12 @@ public class BigDecimalSerializer implements Serializer<SerializedImmutable<BigD
 	}
 
 	@Override
-	public SerializedImmutable<BigDecimal> generate(Type type) {
+	public SerializedImmutable<BigDecimal> generate(Type type, SerializerSession session) {
 		return new SerializedImmutable<>(type);
 	}
 
 	@Override
-	public void populate(SerializedImmutable<BigDecimal> serializedObject, Object object) {
+	public void populate(SerializedImmutable<BigDecimal> serializedObject, Object object, SerializerSession session) {
 		serializedObject.setValue((BigDecimal) object);
 	}
 

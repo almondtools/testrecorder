@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.util.Reflections;
 import net.amygdalum.testrecorder.values.SerializedMap;
 
@@ -33,12 +34,12 @@ public class CollectionsMapSerializer extends HiddenInnerClassSerializer<Seriali
 	}
 
 	@Override
-	public SerializedMap generate(Type type) {
+	public SerializedMap generate(Type type, SerializerSession session) {
 		return new SerializedMap(type);
 	}
 
 	@Override
-	public void populate(SerializedMap serializedObject, Object object) {
+	public void populate(SerializedMap serializedObject, Object object, SerializerSession session) {
 		Type[] componentTypes = computeComponentType(serializedObject, object);
 
 		for (Map.Entry<?, ?> element : ((Map<?, ?>) object).entrySet()) {
@@ -46,7 +47,7 @@ public class CollectionsMapSerializer extends HiddenInnerClassSerializer<Seriali
 			Object value = element.getValue();
 			Type keyType = visibleType(key, componentTypes[0]);
 			Type valueType = visibleType(value, componentTypes[1]);
-			serializedObject.put(facade.serialize(keyType, key), facade.serialize(valueType, value));
+			serializedObject.put(facade.serialize(keyType, key, session), facade.serialize(valueType, value, session));
 		}
 		Type newType = parameterized(Map.class, null, componentTypes);
 		serializedObject.useAs(newType);

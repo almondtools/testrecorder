@@ -9,16 +9,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.types.Serializer;
+import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 
 public class BigDecimalSerializerTest {
 
 	private SerializerFacade facade;
+	private SerializerSession session;
 	private Serializer<SerializedImmutable<BigDecimal>> serializer;
 
 	@BeforeEach
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
+		session = mock(SerializerSession.class);
 		serializer = new BigDecimalSerializer(facade);
 	}
 
@@ -29,7 +32,7 @@ public class BigDecimalSerializerTest {
 
 	@Test
 	public void testGenerate() throws Exception {
-		SerializedImmutable<BigDecimal> value = serializer.generate(BigDecimal.class);
+		SerializedImmutable<BigDecimal> value = serializer.generate(BigDecimal.class, session);
 		value.useAs(BigDecimal.class);
 
 		assertThat(value.getUsedTypes()).containsExactly(BigDecimal.class);
@@ -38,10 +41,10 @@ public class BigDecimalSerializerTest {
 
 	@Test
 	public void testPopulate() throws Exception {
-		SerializedImmutable<BigDecimal> value = serializer.generate(BigDecimal.class);
+		SerializedImmutable<BigDecimal> value = serializer.generate(BigDecimal.class, session);
 		value.useAs(BigDecimal.class);
 
-		serializer.populate(value, BigDecimal.valueOf(2222, 2));
+		serializer.populate(value, BigDecimal.valueOf(2222, 2), session);
 
 		assertThat(value.getValue()).isEqualTo(BigDecimal.valueOf(2222, 2));
 	}

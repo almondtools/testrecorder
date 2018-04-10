@@ -18,16 +18,19 @@ import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
+import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.SerializedMap;
 
 public class DefaultMapSerializerTest {
 
 	private SerializerFacade facade;
+	private SerializerSession session;
 	private Serializer<SerializedMap> serializer;
 
 	@BeforeEach
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
+		session = mock(SerializerSession.class);
 		serializer = new DefaultMapSerializer(facade);
 	}
 
@@ -40,7 +43,7 @@ public class DefaultMapSerializerTest {
 	public void testGenerate() throws Exception {
 		Type hashMapOfStringInteger = parameterized(HashMap.class, null, String.class, Integer.class);
 
-		SerializedMap value = serializer.generate(HashMap.class);
+		SerializedMap value = serializer.generate(HashMap.class, session);
 		value.useAs(hashMapOfStringInteger);
 
 		assertThat(value.getUsedTypes()).containsExactly(hashMapOfStringInteger);
@@ -53,13 +56,13 @@ public class DefaultMapSerializerTest {
 	public void testPopulate() throws Exception {
 		SerializedValue foo = literal("Foo");
 		SerializedValue i42 = literal(Integer.class, 42);
-		when(facade.serialize(String.class, "Foo")).thenReturn(foo);
-		when(facade.serialize(Integer.class, 42)).thenReturn(i42);
+		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
+		when(facade.serialize(Integer.class, 42, session)).thenReturn(i42);
 		Type hashMapOfStringInteger = parameterized(HashMap.class, null, String.class, Integer.class);
-		SerializedMap value = serializer.generate(hashMapOfStringInteger);
+		SerializedMap value = serializer.generate(hashMapOfStringInteger, session);
 		value.useAs(HashMap.class);
 
-		serializer.populate(value, singletonMap("Foo", 42));
+		serializer.populate(value, singletonMap("Foo", 42), session);
 
 		assertThat(value).containsExactly(entry(foo, i42));
 	}

@@ -17,16 +17,19 @@ import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
+import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.SerializedList;
 
 public class ArraysListSerializerTest {
 
 	private SerializerFacade facade;
+	private SerializerSession session;
 	private Serializer<SerializedList> serializer;
 
 	@BeforeEach
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
+		session = mock(SerializerSession.class);
 		serializer = new ArraysListSerializer(facade);
 	}
 
@@ -40,7 +43,7 @@ public class ArraysListSerializerTest {
 		Type arrayListOfString = parameterized(innerType(Arrays.class, "ArrayList"), null, String.class);
 		Type listOfString = parameterized(List.class, null, String.class);
 
-		SerializedList value = serializer.generate(arrayListOfString);
+		SerializedList value = serializer.generate(arrayListOfString, session);
 		value.useAs(listOfString);
 
 		assertThat(value.getUsedTypes()).containsExactly(listOfString);
@@ -52,14 +55,14 @@ public class ArraysListSerializerTest {
 	public void testPopulate() throws Exception {
 		SerializedValue foo = literal("Foo");
 		SerializedValue bar = literal("Bar");
-		when(facade.serialize(String.class, "Foo")).thenReturn(foo);
-		when(facade.serialize(String.class, "Bar")).thenReturn(bar);
+		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
+		when(facade.serialize(String.class, "Bar", session)).thenReturn(bar);
 		Type arrayListOfString = parameterized(innerType(Arrays.class, "ArrayList"), null, String.class);
 		Type listOfString = parameterized(List.class, null, String.class);
-		SerializedList value = serializer.generate(listOfString);
+		SerializedList value = serializer.generate(listOfString, session);
 		value.useAs(arrayListOfString);
 
-		serializer.populate(value, asList("Foo", "Bar"));
+		serializer.populate(value, asList("Foo", "Bar"), session);
 
 		assertThat(value).containsExactly(foo, bar);
 	}

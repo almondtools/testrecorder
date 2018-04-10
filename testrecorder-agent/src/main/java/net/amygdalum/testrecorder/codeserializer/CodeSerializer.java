@@ -11,6 +11,7 @@ import java.util.function.Function;
 import net.amygdalum.testrecorder.ConfigurableSerializerFacade;
 import net.amygdalum.testrecorder.DefaultPerformanceProfile;
 import net.amygdalum.testrecorder.DefaultSerializationProfile;
+import net.amygdalum.testrecorder.DefaultSerializerSession;
 import net.amygdalum.testrecorder.DefaultSnapshotConsumer;
 import net.amygdalum.testrecorder.SnapshotConsumer;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
@@ -30,6 +31,7 @@ public class CodeSerializer {
 
 	private AgentConfiguration config;
 	private SerializerFacade facade;
+	private DefaultSerializerSession session;
 	private TypeManager types;
 	private Deserializer<Computation> deserializer;
 
@@ -48,6 +50,7 @@ public class CodeSerializer {
 			.withDefaultValue(PerformanceProfile.class, DefaultPerformanceProfile::new)
 			.withDefaultValue(SnapshotConsumer.class, DefaultSnapshotConsumer::new);
 		this.facade = facade.apply(config);
+		this.session = new DefaultSerializerSession();
 		this.deserializer = deserializer.apply(config);
 	}
 
@@ -60,7 +63,7 @@ public class CodeSerializer {
 	}
 
 	public String serialize(Type type, Object value) {
-		SerializedValue serializedValue = facade.serialize(type, value);
+		SerializedValue serializedValue = facade.serialize(type, value, session);
 
 		return new Generator(serializedValue).generateCode();
 	}

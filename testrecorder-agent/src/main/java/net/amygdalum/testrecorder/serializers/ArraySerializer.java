@@ -7,6 +7,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 import net.amygdalum.testrecorder.types.Serializer;
+import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.SerializedArray;
 
 public class ArraySerializer implements Serializer<SerializedArray> {
@@ -23,14 +24,14 @@ public class ArraySerializer implements Serializer<SerializedArray> {
 	}
 
 	@Override
-	public SerializedArray generate(Type type) {
+	public SerializedArray generate(Type type, SerializerSession session) {
 		return new SerializedArray(type);
 	}
 
 	@Override
-	public void populate(SerializedArray serializedObject, Object object) {
+	public void populate(SerializedArray serializedObject, Object object, SerializerSession session) {
 		for (int i = 0; i < Array.getLength(object); i++) {
-			serializedObject.add(facade.serialize(serializedObject.getComponentType(), Array.get(object, i)));
+			serializedObject.add(facade.serialize(serializedObject.getComponentType(), Array.get(object, i), session));
 		}
 	}
 

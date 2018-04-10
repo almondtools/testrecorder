@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Vector;
 
 import net.amygdalum.testrecorder.types.Serializer;
+import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.SerializedList;
 
 public class DefaultListSerializer implements Serializer<SerializedList> {
@@ -25,15 +26,15 @@ public class DefaultListSerializer implements Serializer<SerializedList> {
 	}
 
 	@Override
-	public SerializedList generate(Type type) {
+	public SerializedList generate(Type type, SerializerSession session) {
 		return new SerializedList(type);
 	}
 
 	@Override
-	public void populate(SerializedList serializedObject, Object object) {
+	public void populate(SerializedList serializedObject, Object object, SerializerSession session) {
 		Type resultType = serializedObject.getComponentType();
 		for (Object element : (List<?>) object) {
-			serializedObject.add(facade.serialize(resultType, element));
+			serializedObject.add(facade.serialize(resultType, element, session));
 		}
 	}
 

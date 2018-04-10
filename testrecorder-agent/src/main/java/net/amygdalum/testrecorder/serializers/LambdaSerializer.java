@@ -10,6 +10,7 @@ import java.util.stream.IntStream;
 
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
+import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.LambdaSignature;
 import net.amygdalum.testrecorder.values.SerializedLambdaObject;
 
@@ -27,12 +28,12 @@ public class LambdaSerializer implements Serializer<SerializedLambdaObject> {
 	}
 
 	@Override
-	public SerializedLambdaObject generate(Type type) {
+	public SerializedLambdaObject generate(Type type, SerializerSession session) {
 		return new SerializedLambdaObject(type);
 	}
 
 	@Override
-	public void populate(SerializedLambdaObject serializedLambda, Object object) {
+	public void populate(SerializedLambdaObject serializedLambda, Object object, SerializerSession session) {
 		if (!(object instanceof SerializedLambda)) {
 			return;
 		}
@@ -49,7 +50,7 @@ public class LambdaSerializer implements Serializer<SerializedLambdaObject> {
 
 		List<SerializedValue> arguments = IntStream.range(0, lambda.getCapturedArgCount())
 			.mapToObj(lambda::getCapturedArg)
-			.map(o -> facade.serialize(o.getClass(), o))
+			.map(o -> facade.serialize(o.getClass(), o, session))
 			.collect(toList());
 		serializedLambda.setCapturedArguments(arguments);
 	}

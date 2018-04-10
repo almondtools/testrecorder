@@ -19,16 +19,19 @@ import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
+import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.SerializedSet;
 
 public class CollectionsSetSerializerTest {
 
 	private SerializerFacade facade;
+	private SerializerSession session;
 	private Serializer<SerializedSet> serializer;
 
 	@BeforeEach
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
+		session = mock(SerializerSession.class);
 		serializer = new CollectionsSetSerializer(facade);
 	}
 
@@ -53,7 +56,7 @@ public class CollectionsSetSerializerTest {
 		Type unmodifiableSetOfString = parameterized(innerType(Collections.class, "UnmodifiableSet"), null, String.class);
 		Type setOfString = parameterized(Set.class, null, String.class);
 
-		SerializedSet value = serializer.generate(unmodifiableSetOfString);
+		SerializedSet value = serializer.generate(unmodifiableSetOfString, session);
 		value.useAs(setOfString);
 
 		assertThat(value.getUsedTypes()).containsExactly(setOfString);
@@ -65,14 +68,14 @@ public class CollectionsSetSerializerTest {
 	public void testPopulate() throws Exception {
 		SerializedValue foo = literal("Foo");
 		SerializedValue bar = literal("Bar");
-		when(facade.serialize(String.class, "Foo")).thenReturn(foo);
-		when(facade.serialize(String.class, "Bar")).thenReturn(bar);
+		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
+		when(facade.serialize(String.class, "Bar", session)).thenReturn(bar);
 		Type unmodifiableSetOfString = parameterized(innerType(Collections.class, "UnmodifiableSet"), null, String.class);
 		Type setOfString = parameterized(Set.class, null, String.class);
-		SerializedSet value = serializer.generate(setOfString);
+		SerializedSet value = serializer.generate(setOfString, session);
 		value.useAs(unmodifiableSetOfString);
 
-		serializer.populate(value, new HashSet<>(asList("Foo", "Bar")));
+		serializer.populate(value, new HashSet<>(asList("Foo", "Bar")), session);
 
 		assertThat(value).containsExactlyInAnyOrder(foo, bar);
 	}
@@ -80,14 +83,14 @@ public class CollectionsSetSerializerTest {
 	@Test
 	public void testPopulateNull() throws Exception {
 		SerializedValue foo = literal("Foo");
-		when(facade.serialize(String.class, "Foo")).thenReturn(foo);
-		when(facade.serialize(String.class, null)).thenReturn(nullInstance(String.class));
+		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
+		when(facade.serialize(String.class, null, session)).thenReturn(nullInstance(String.class));
 		Type unmodifiableSetOfString = parameterized(innerType(Collections.class, "UnmodifiableSet"), null, String.class);
 		Type setOfString = parameterized(Set.class, null, String.class);
-		SerializedSet value = serializer.generate(setOfString);
+		SerializedSet value = serializer.generate(setOfString, session);
 		value.useAs(unmodifiableSetOfString);
 
-		serializer.populate(value, new HashSet<>(asList("Foo", null)));
+		serializer.populate(value, new HashSet<>(asList("Foo", null)), session);
 
 		assertThat(value).containsExactlyInAnyOrder(foo, nullInstance(String.class));
 	}

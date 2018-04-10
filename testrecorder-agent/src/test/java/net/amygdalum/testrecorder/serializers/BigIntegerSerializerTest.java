@@ -9,16 +9,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.types.Serializer;
+import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 
 public class BigIntegerSerializerTest {
 
 	private SerializerFacade facade;
+	private SerializerSession session;
 	private Serializer<SerializedImmutable<BigInteger>> serializer;
 
 	@BeforeEach
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
+		session = mock(SerializerSession.class);
 		serializer = new BigIntegerSerializer(facade);
 	}
 
@@ -29,7 +32,7 @@ public class BigIntegerSerializerTest {
 
 	@Test
 	public void testGenerate() throws Exception {
-		SerializedImmutable<BigInteger> value = serializer.generate(BigInteger.class);
+		SerializedImmutable<BigInteger> value = serializer.generate(BigInteger.class, session);
 		value.useAs(BigInteger.class);
 
 		assertThat(value.getUsedTypes()).containsExactly(BigInteger.class);
@@ -38,10 +41,10 @@ public class BigIntegerSerializerTest {
 
 	@Test
 	public void testPopulate() throws Exception {
-		SerializedImmutable<BigInteger> value = serializer.generate(BigInteger.class);
+		SerializedImmutable<BigInteger> value = serializer.generate(BigInteger.class, session);
 		value.useAs(BigInteger.class);
 
-		serializer.populate(value, BigInteger.valueOf(22));
+		serializer.populate(value, BigInteger.valueOf(22), session);
 
 		assertThat(value.getValue()).isEqualTo(BigInteger.valueOf(22));
 	}

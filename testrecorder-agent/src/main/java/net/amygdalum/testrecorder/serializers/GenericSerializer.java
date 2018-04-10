@@ -9,6 +9,7 @@ import java.util.List;
 
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.Serializer;
+import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.SerializedNull;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
@@ -26,7 +27,7 @@ public class GenericSerializer implements Serializer<SerializedReferenceType> {
 	}
 
 	@Override
-	public SerializedReferenceType generate(Type type) {
+	public SerializedReferenceType generate(Type type, SerializerSession session) {
 		if (facade.excludes(baseType(type))) {
 			return SerializedNull.nullInstance(type);
 		} else {
@@ -35,7 +36,7 @@ public class GenericSerializer implements Serializer<SerializedReferenceType> {
 	}
 
 	@Override
-	public void populate(SerializedReferenceType serializedValue, Object object) {
+	public void populate(SerializedReferenceType serializedValue, Object object, SerializerSession session) {
 		if (!(serializedValue instanceof SerializedObject)) {
 			return;
 		}
@@ -44,7 +45,7 @@ public class GenericSerializer implements Serializer<SerializedReferenceType> {
 		while (objectClass != Object.class && !facade.excludes(objectClass)) {
 			for (Field f : objectClass.getDeclaredFields()) {
 				if (!facade.excludes(f)) {
-					serializedObject.addField(facade.serialize(f, object));
+					serializedObject.addField(facade.serialize(f, object, session));
 				}
 			}
 			objectClass = objectClass.getSuperclass();

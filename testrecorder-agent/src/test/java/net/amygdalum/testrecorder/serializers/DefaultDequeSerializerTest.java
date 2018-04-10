@@ -17,16 +17,19 @@ import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
+import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.SerializedList;
 
 public class DefaultDequeSerializerTest {
 
 	private SerializerFacade facade;
+	private SerializerSession session;
 	private Serializer<SerializedList> serializer;
 
 	@BeforeEach
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
+		session = mock(SerializerSession.class);
 		serializer = new DefaultDequeSerializer(facade);
 	}
 
@@ -39,7 +42,7 @@ public class DefaultDequeSerializerTest {
 	public void testGenerate() throws Exception {
 		Type arrayDequeOfString = parameterized(ArrayDeque.class, null, String.class);
 
-		SerializedList value = serializer.generate(ArrayDeque.class);
+		SerializedList value = serializer.generate(ArrayDeque.class, session);
 		value.useAs(arrayDequeOfString);
 
 		assertThat(value.getUsedTypes()).containsExactly(arrayDequeOfString);
@@ -51,13 +54,13 @@ public class DefaultDequeSerializerTest {
 	public void testPopulate() throws Exception {
 		SerializedValue foo = literal("Foo");
 		SerializedValue bar = literal("Bar");
-		when(facade.serialize(String.class, "Foo")).thenReturn(foo);
-		when(facade.serialize(String.class, "Bar")).thenReturn(bar);
+		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
+		when(facade.serialize(String.class, "Bar", session)).thenReturn(bar);
 		Type linkedBlockingDequeOfString = parameterized(LinkedBlockingDeque.class, null, String.class);
-		SerializedList value = serializer.generate(linkedBlockingDequeOfString);
+		SerializedList value = serializer.generate(linkedBlockingDequeOfString, session);
 		value.useAs(LinkedBlockingDeque.class);
 
-		serializer.populate(value, new LinkedBlockingDeque<>(asList("Foo", "Bar")));
+		serializer.populate(value, new LinkedBlockingDeque<>(asList("Foo", "Bar")), session);
 
 		assertThat(value).containsExactly(foo, bar);
 	}

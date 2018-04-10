@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
+import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedNull;
 import net.amygdalum.testrecorder.values.SerializedObject;
@@ -26,11 +27,13 @@ import net.amygdalum.testrecorder.values.SerializedSet;
 public class GenericSerializerTest {
 
 	private SerializerFacade facade;
+	private SerializerSession session;
 	private Serializer<SerializedReferenceType> serializer;
 
 	@BeforeEach
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
+		session = mock(SerializerSession.class);
 		serializer = new GenericSerializer(facade);
 	}
 
@@ -41,7 +44,7 @@ public class GenericSerializerTest {
 
 	@Test
 	public void testGenerate() throws Exception {
-		SerializedReferenceType value = serializer.generate(GenericObject.class);
+		SerializedReferenceType value = serializer.generate(GenericObject.class, session);
 		value.useAs(GenericObject.class);
 
 		assertThat(value.getUsedTypes()).containsExactly(GenericObject.class);
@@ -51,7 +54,7 @@ public class GenericSerializerTest {
 	@Test
 	public void testGenerateOnExcludedType() throws Exception {
 		when(facade.excludes(Random.class)).thenReturn(true);
-		SerializedReferenceType value = serializer.generate(Random.class);
+		SerializedReferenceType value = serializer.generate(Random.class, session);
 		value.useAs(Random.class);
 
 		assertThat(value).isInstanceOf(SerializedNull.class);
@@ -64,12 +67,12 @@ public class GenericSerializerTest {
 		SerializedValue bar = literal(int.class, 1);
 		SerializedField barField = new SerializedField(GenericObject.class, "intField", int.class, bar);
 		when(facade.excludes(any(Field.class))).thenAnswer(field -> ((Field) field.getArguments()[0]).isSynthetic());
-		when(facade.serialize(eq(GenericObject.class.getDeclaredField("stringField")), any())).thenReturn(fooField);
-		when(facade.serialize(eq(GenericObject.class.getDeclaredField("intField")), any())).thenReturn(barField);
-		SerializedObject value = (SerializedObject) serializer.generate(GenericObject.class);
+		when(facade.serialize(eq(GenericObject.class.getDeclaredField("stringField")), any(), any(SerializerSession.class))).thenReturn(fooField);
+		when(facade.serialize(eq(GenericObject.class.getDeclaredField("intField")), any(), any(SerializerSession.class))).thenReturn(barField);
+		SerializedObject value = (SerializedObject) serializer.generate(GenericObject.class, session);
 		value.useAs(GenericObject.class);
 
-		serializer.populate(value, new GenericObject("Foo", 1));
+		serializer.populate(value, new GenericObject("Foo", 1), session);
 
 		assertThat(value.getFields()).containsExactlyInAnyOrder(fooField, barField);
 	}
@@ -78,7 +81,7 @@ public class GenericSerializerTest {
 	public void testPopulateOtherNullType() throws Exception {
 		SerializedNull nullValue = SerializedNull.nullInstance(String.class);
 
-		serializer.populate(nullValue, "Element");
+		serializer.populate(nullValue, "Element", session);
 
 		assertThat(nullValue.getType()).isEqualTo(String.class);
 	}
@@ -87,7 +90,7 @@ public class GenericSerializerTest {
 	public void testPopulateOtherReferenceTypes() throws Exception {
 		SerializedSet set = new SerializedSet(HashSet.class);
 
-		serializer.populate(set, singleton("Element"));
+		serializer.populate(set, singleton("Element"), session);
 
 		assertThat(set).isEmpty();
 	}

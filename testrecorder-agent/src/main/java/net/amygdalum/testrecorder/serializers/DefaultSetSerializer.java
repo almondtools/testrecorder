@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import net.amygdalum.testrecorder.types.Serializer;
+import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.SerializedSet;
 
 public class DefaultSetSerializer implements Serializer<SerializedSet> {
@@ -26,15 +27,15 @@ public class DefaultSetSerializer implements Serializer<SerializedSet> {
 	}
 
 	@Override
-	public SerializedSet generate(Type type) {
+	public SerializedSet generate(Type type, SerializerSession session) {
 		return new SerializedSet(type);
 	}
 
 	@Override
-	public void populate(SerializedSet serializedObject, Object object) {
+	public void populate(SerializedSet serializedObject, Object object, SerializerSession session) {
 		Type resultType = serializedObject.getComponentType();
 		for (Object element : (Set<?>) object) {
-			serializedObject.add(facade.serialize(resultType, element));
+			serializedObject.add(facade.serialize(resultType, element, session));
 		}
 	}
 

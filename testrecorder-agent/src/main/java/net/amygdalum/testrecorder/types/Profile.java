@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.serializers;
+package net.amygdalum.testrecorder.types;
 
 public class Profile implements Comparable<Profile> {
 

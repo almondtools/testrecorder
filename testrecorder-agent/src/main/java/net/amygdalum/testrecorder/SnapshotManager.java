@@ -38,9 +38,10 @@ import java.util.jar.Manifest;
 import net.amygdalum.testrecorder.bridge.BridgedSnapshotManager;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
-import net.amygdalum.testrecorder.serializers.Profile;
 import net.amygdalum.testrecorder.serializers.SerializerFacade;
+import net.amygdalum.testrecorder.types.Profile;
 import net.amygdalum.testrecorder.types.SerializedInteraction;
+import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.util.CircularityLock;
 import net.amygdalum.testrecorder.util.Logger;
 import net.amygdalum.testrecorder.values.SerializedField;
@@ -67,7 +68,7 @@ public class SnapshotManager {
 	private SnapshotConsumer snapshotConsumer;
 	private long timeoutInMillis;
 
-	private ThreadLocal<ConfigurableSerializerFacade> facade;
+	private ConfigurableSerializerFacade facade;
 
 	static {
 		Instrumentation inst = ByteBuddyAgent.install();
@@ -78,7 +79,7 @@ public class SnapshotManager {
 		this.snapshotConsumer = config.loadConfiguration(SnapshotConsumer.class, config);
 
 		this.current = ThreadLocal.withInitial(() -> newStack());
-		this.facade = ThreadLocal.withInitial(() -> new ConfigurableSerializerFacade(config));
+		this.facade = new ConfigurableSerializerFacade(config);
 
 		PerformanceProfile performanceProfile = config.loadConfiguration(PerformanceProfile.class);
 		
@@ -203,13 +204,13 @@ public class SnapshotManager {
 			if (!aquired || !matches(self, signature)) {
 				return;
 			}
-			push(signature).to((facade, snapshot) -> {
+			push(signature).to((facade, session, snapshot) -> {
 				if (self != null) {
-					snapshot.setSetupThis(facade.serialize(self.getClass(), self));
+					snapshot.setSetupThis(facade.serialize(self.getClass(), self, session));
 				}
-				snapshot.setSetupArgs(facade.serialize(snapshot.getArgumentTypes(), args));
+				snapshot.setSetupArgs(facade.serialize(snapshot.getArgumentTypes(), args, session));
 				snapshot.setSetupGlobals(globalContext.globals().stream()
-					.map(field -> facade.serialize(field, null))
+					.map(field -> facade.serialize(field, null, session))
 					.toArray(SerializedField[]::new));
 			});
 		} finally {
@@ -242,9 +243,9 @@ public class SnapshotManager {
 			if (!aquired || id == 0) {
 				return;
 			}
-			current().to((facade, snapshot) -> {
+			current().to((facade, session, snapshot) -> {
 				snapshot.streamInput().filter(in -> in.id() == id).forEach(in -> {
-					in.updateArguments(facade.serialize(in.getTypes(), arguments));
+					in.updateArguments(facade.serialize(in.getTypes(), arguments, session));
 				});
 			});
 		} finally {
@@ -258,9 +259,9 @@ public class SnapshotManager {
 			if (!aquired || id == 0) {
 				return;
 			}
-			current().to((facade, snapshot) -> {
+			current().to((facade, session, snapshot) -> {
 				snapshot.streamInput().filter(in -> in.id() == id).forEach(in -> {
-					in.updateResult(facade.serialize(in.getResultType(), result));
+					in.updateResult(facade.serialize(in.getResultType(), result, session));
 				});
 			});
 		} finally {
@@ -274,7 +275,7 @@ public class SnapshotManager {
 			if (!aquired || id == 0) {
 				return;
 			}
-			current().to((facade, snapshot) -> {
+			current().to((facade, session, snapshot) -> {
 				snapshot.streamInput().filter(in -> in.id() == id).forEach(in -> {
 					in.updateResult(SerializedNull.VOID);
 				});
@@ -309,9 +310,9 @@ public class SnapshotManager {
 			if (!aquired || id == 0) {
 				return;
 			}
-			current().to((facade, snapshot) -> {
+			current().to((facade, session, snapshot) -> {
 				snapshot.streamOutput().filter(out -> out.id() == id).forEach(out -> {
-					out.updateArguments(facade.serialize(out.getTypes(), arguments));
+					out.updateArguments(facade.serialize(out.getTypes(), arguments, session));
 				});
 			});
 		} finally {
@@ -325,9 +326,9 @@ public class SnapshotManager {
 			if (!aquired || id == 0) {
 				return;
 			}
-			current().to((facade, snapshot) -> {
+			current().to((facade, session, snapshot) -> {
 				snapshot.streamOutput().filter(out -> out.id() == id).forEach(out -> {
-					out.updateResult(facade.serialize(out.getResultType(), result));
+					out.updateResult(facade.serialize(out.getResultType(), result, session));
 				});
 			});
 		} finally {
@@ -341,7 +342,7 @@ public class SnapshotManager {
 			if (!aquired || id == 0) {
 				return;
 			}
-			current().to((facade, snapshot) -> {
+			current().to((facade, session, snapshot) -> {
 				snapshot.streamOutput().filter(out -> out.id() == id).forEach(out -> {
 					out.updateResult(SerializedNull.VOID);
 				});
@@ -357,14 +358,14 @@ public class SnapshotManager {
 			if (!aquired || !matches(self, signature)) {
 				return;
 			}
-			pop(signature).to((facade, snapshot) -> {
+			pop(signature).to((facade, session, snapshot) -> {
 				if (self != null) {
-					snapshot.setExpectThis(facade.serialize(self.getClass(), self));
+					snapshot.setExpectThis(facade.serialize(self.getClass(), self, session));
 				}
-				snapshot.setExpectResult(facade.serialize(snapshot.getResultType(), result));
-				snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
+				snapshot.setExpectResult(facade.serialize(snapshot.getResultType(), result, session));
+				snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args, session));
 				snapshot.setExpectGlobals(globalContext.globals().stream()
-					.map(field -> facade.serialize(field, null))
+					.map(field -> facade.serialize(field, null, session))
 					.toArray(SerializedField[]::new));
 			}).andConsume(this::consume);
 		} finally {
@@ -378,13 +379,13 @@ public class SnapshotManager {
 			if (!aquired || !matches(self, signature)) {
 				return;
 			}
-			pop(signature).to((facade, snapshot) -> {
+			pop(signature).to((facade, session, snapshot) -> {
 				if (self != null) {
-					snapshot.setExpectThis(facade.serialize(self.getClass(), self));
+					snapshot.setExpectThis(facade.serialize(self.getClass(), self, session));
 				}
-				snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
+				snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args, session));
 				snapshot.setExpectGlobals(globalContext.globals().stream()
-					.map(field -> facade.serialize(field, null))
+					.map(field -> facade.serialize(field, null, session))
 					.toArray(SerializedField[]::new));
 			}).andConsume(this::consume);
 			;
@@ -399,14 +400,14 @@ public class SnapshotManager {
 			if (!aquired || !matches(self, signature)) {
 				return;
 			}
-			pop(signature).to((facade, snapshot) -> {
+			pop(signature).to((facade, session, snapshot) -> {
 				if (self != null) {
-					snapshot.setExpectThis(facade.serialize(self.getClass(), self));
+					snapshot.setExpectThis(facade.serialize(self.getClass(), self, session));
 				}
-				snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args));
-				snapshot.setExpectException(facade.serialize(throwable.getClass(), throwable));
+				snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args, session));
+				snapshot.setExpectException(facade.serialize(throwable.getClass(), throwable, session));
 				snapshot.setExpectGlobals(globalContext.globals().stream()
-					.map(field -> facade.serialize(field, null))
+					.map(field -> facade.serialize(field, null, session))
 					.toArray(SerializedField[]::new));
 			}).andConsume(this::consume);
 		} finally {
@@ -476,11 +477,11 @@ public class SnapshotManager {
 
 		private ExecutorService snapshotExecutor;
 		private long timeoutInMillis;
-		private ThreadLocal<ConfigurableSerializerFacade> facade;
+		private ConfigurableSerializerFacade facade;
 
 		private ContextSnapshot snapshot;
 
-		public ValidContextSnapshotTransaction(ExecutorService snapshotExecutor, long timeoutInMillis, ThreadLocal<ConfigurableSerializerFacade> facade, ContextSnapshot snapshot) {
+		public ValidContextSnapshotTransaction(ExecutorService snapshotExecutor, long timeoutInMillis, ConfigurableSerializerFacade facade, ContextSnapshot snapshot) {
 			this.snapshotExecutor = snapshotExecutor;
 			this.timeoutInMillis = timeoutInMillis;
 			this.facade = facade;
@@ -492,22 +493,20 @@ public class SnapshotManager {
 			if (!snapshot.isValid()) {
 				return this;
 			}
-			ConfigurableSerializerFacade currentFacade = facade.get();
+			DefaultSerializerSession session = new DefaultSerializerSession();
 			try {
 				Future<?> future = snapshotExecutor.submit(() -> {
-					task.serialize(currentFacade, snapshot);
+					task.serialize(facade, session, snapshot);
 				});
 				future.get(timeoutInMillis, TimeUnit.MILLISECONDS);
 				return this;
 			} catch (InterruptedException | ExecutionException | TimeoutException | CancellationException e) {
 				snapshot.invalidate();
-				String profile = currentFacade.dumpProfiles().stream()
+				String profile = session.dumpProfiles().stream()
 					.map(Profile::toString)
 					.collect(joining("\n\t", "\n\t", ""));
 				Logger.error("failed serializing " + snapshot + ", most time consuming types are:" + profile, e);
 				return this;
-			} finally {
-				currentFacade.reset();
 			}
 		}
 
@@ -518,7 +517,7 @@ public class SnapshotManager {
 	}
 
 	public interface SerializationTask {
-		void serialize(SerializerFacade facade, ContextSnapshot snapshot);
+		void serialize(SerializerFacade facade, SerializerSession session, ContextSnapshot snapshot);
 	}
 
 	private static class StackTraceValidator {

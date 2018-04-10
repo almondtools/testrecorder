@@ -7,6 +7,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 import net.amygdalum.testrecorder.types.Serializer;
+import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.SerializedEnum;
 
 public class EnumSerializer implements Serializer<SerializedEnum> {
@@ -20,7 +21,7 @@ public class EnumSerializer implements Serializer<SerializedEnum> {
 	}
 
 	@Override
-	public SerializedEnum generate(Type type) {
+	public SerializedEnum generate(Type type, SerializerSession session) {
 		while (!baseType(type).isEnum()) {
 			type = baseType(type).getSuperclass();
 		}
@@ -28,7 +29,7 @@ public class EnumSerializer implements Serializer<SerializedEnum> {
 	}
 
 	@Override
-	public void populate(SerializedEnum serializedEnum, Object object) {
+	public void populate(SerializedEnum serializedEnum, Object object, SerializerSession session) {
 		Enum<?> e = (Enum<?>) object;
 		serializedEnum.setName(e.name());
 	}

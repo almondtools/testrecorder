@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.serializers;
+package net.amygdalum.testrecorder.types;
 
 import static net.amygdalum.extensions.assertj.conventions.DefaultEquality.defaultEquality;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+
+import net.amygdalum.testrecorder.types.Profile;
 
 public class ProfileTest {
 

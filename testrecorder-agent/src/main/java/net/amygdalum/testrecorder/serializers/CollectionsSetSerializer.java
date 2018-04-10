@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.util.Reflections;
 import net.amygdalum.testrecorder.values.SerializedSet;
 
@@ -33,18 +34,18 @@ public class CollectionsSetSerializer extends HiddenInnerClassSerializer<Seriali
 	}
 
 	@Override
-	public SerializedSet generate(Type type) {
+	public SerializedSet generate(Type type, SerializerSession session) {
 		return new SerializedSet(type);
 	}
 
 	@Override
-	public void populate(SerializedSet serializedObject, Object object) {
+	public void populate(SerializedSet serializedObject, Object object, SerializerSession session) {
 		Type componentType = computeComponentType(serializedObject, object);
 
 		for (Object element : (Set<?>) object) {
 			Type elementType = visibleType(element, componentType);
 
-			serializedObject.add(facade.serialize(elementType, element));
+			serializedObject.add(facade.serialize(elementType, element, session));
 		}
 		Type newType = parameterized(Set.class, null, componentType);
 		serializedObject.useAs(newType);

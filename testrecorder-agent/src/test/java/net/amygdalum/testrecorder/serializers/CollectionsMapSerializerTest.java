@@ -17,16 +17,19 @@ import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
+import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.SerializedMap;
 
 public class CollectionsMapSerializerTest {
 
 	private SerializerFacade facade;
+	private SerializerSession session;
 	private Serializer<SerializedMap> serializer;
 
 	@BeforeEach
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
+		session = mock(SerializerSession.class);
 		serializer = new CollectionsMapSerializer(facade);
 	}
 
@@ -51,7 +54,7 @@ public class CollectionsMapSerializerTest {
 		Type unmodifiableMapOfString = parameterized(innerType(Collections.class, "UnmodifiableMap"), null, String.class, Integer.class);
 		Type setOfString = parameterized(Map.class, null, String.class);
 
-		SerializedMap value = serializer.generate(unmodifiableMapOfString);
+		SerializedMap value = serializer.generate(unmodifiableMapOfString, session);
 		value.useAs(setOfString);
 
 		assertThat(value.getUsedTypes()).containsExactly(setOfString);
@@ -63,14 +66,14 @@ public class CollectionsMapSerializerTest {
 	@Test
 	public void testPopulate() throws Exception {
 		SerializedValue foo = literal("Foo");
-		when(facade.serialize(String.class, "Foo")).thenReturn(foo);
-		when(facade.serialize(Integer.class, 47)).thenReturn(literal(47));
+		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
+		when(facade.serialize(Integer.class, 47, session)).thenReturn(literal(47));
 		Type unmodifiableMapOfString = parameterized(innerType(Collections.class, "UnmodifiableMap"), null, String.class, Integer.class);
 		Type mapOfStringInteger = parameterized(Map.class, null, String.class, Integer.class);
-		SerializedMap value = serializer.generate(mapOfStringInteger);
+		SerializedMap value = serializer.generate(mapOfStringInteger, session);
 		value.useAs(unmodifiableMapOfString);
 
-		serializer.populate(value, Collections.singletonMap("Foo", 47));
+		serializer.populate(value, Collections.singletonMap("Foo", 47), session);
 
 		assertThat(value.keySet()).containsExactlyInAnyOrder(foo);
 		assertThat(value.values()).containsExactlyInAnyOrder(literal(47));
@@ -78,14 +81,14 @@ public class CollectionsMapSerializerTest {
 
 	@Test
 	public void testPopulateWithNullKey() throws Exception {
-		when(facade.serialize(String.class, null)).thenReturn(nullInstance(String.class));
-		when(facade.serialize(Integer.class, 47)).thenReturn(literal(47));
+		when(facade.serialize(String.class, null, session)).thenReturn(nullInstance(String.class));
+		when(facade.serialize(Integer.class, 47, session)).thenReturn(literal(47));
 		Type unmodifiableMapOfString = parameterized(innerType(Collections.class, "UnmodifiableMap"), null, String.class, Integer.class);
 		Type mapOfStringInteger = parameterized(Map.class, null, String.class, Integer.class);
-		SerializedMap value = serializer.generate(mapOfStringInteger);
+		SerializedMap value = serializer.generate(mapOfStringInteger, session);
 		value.useAs(unmodifiableMapOfString);
 
-		serializer.populate(value, Collections.singletonMap(null, 47));
+		serializer.populate(value, Collections.singletonMap(null, 47), session);
 
 		assertThat(value.keySet()).containsExactlyInAnyOrder(nullInstance(String.class));
 		assertThat(value.values()).containsExactlyInAnyOrder(literal(47));
@@ -94,14 +97,14 @@ public class CollectionsMapSerializerTest {
 	@Test
 	public void testPopulateWithNullValue() throws Exception {
 		SerializedValue foo = literal("Foo");
-		when(facade.serialize(String.class, "Foo")).thenReturn(foo);
-		when(facade.serialize(Integer.class, null)).thenReturn(nullInstance(Integer.class));
+		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
+		when(facade.serialize(Integer.class, null, session)).thenReturn(nullInstance(Integer.class));
 		Type unmodifiableMapOfString = parameterized(innerType(Collections.class, "UnmodifiableMap"), null, String.class, Integer.class);
 		Type mapOfStringInteger = parameterized(Map.class, null, String.class, Integer.class);
-		SerializedMap value = serializer.generate(mapOfStringInteger);
+		SerializedMap value = serializer.generate(mapOfStringInteger, session);
 		value.useAs(unmodifiableMapOfString);
 
-		serializer.populate(value, Collections.singletonMap("Foo", null));
+		serializer.populate(value, Collections.singletonMap("Foo", null), session);
 
 		assertThat(value.keySet()).containsExactlyInAnyOrder(foo);
 		assertThat(value.values()).containsExactlyInAnyOrder(nullInstance(Integer.class));

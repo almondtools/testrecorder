@@ -7,16 +7,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.types.Serializer;
+import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.SerializedEnum;
 
 public class EnumSerializerTest {
 
 	private SerializerFacade facade;
+	private SerializerSession session;
 	private Serializer<SerializedEnum> serializer;
 
 	@BeforeEach
 	public void before() throws Exception {
 		facade = mock(SerializerFacade.class);
+		session = mock(SerializerSession.class);
 		serializer = new EnumSerializer(facade);
 	}
 
@@ -27,7 +30,7 @@ public class EnumSerializerTest {
 
 	@Test
 	public void testGenerate() throws Exception {
-		SerializedEnum value = serializer.generate(MyEnum.class);
+		SerializedEnum value = serializer.generate(MyEnum.class, session);
 		value.useAs(MyInterface.class);
 
 		assertThat(value.getUsedTypes()).containsExactly(MyInterface.class);
@@ -36,7 +39,7 @@ public class EnumSerializerTest {
 
 	@Test
 	public void testGenerateWithExtendedEnum() throws Exception {
-		SerializedEnum value = serializer.generate(ExtendedEnum.VALUE1.getClass());
+		SerializedEnum value = serializer.generate(ExtendedEnum.VALUE1.getClass(), session);
 		value.useAs(MyInterface.class);
 
 		assertThat(value.getUsedTypes()).containsExactly(MyInterface.class);
@@ -45,10 +48,10 @@ public class EnumSerializerTest {
 
 	@Test
 	public void testPopulate() throws Exception {
-		SerializedEnum value = serializer.generate(MyEnum.class);
+		SerializedEnum value = serializer.generate(MyEnum.class, session);
 		value.useAs(MyInterface.class);
 
-		serializer.populate(value, MyEnum.VALUE1);
+		serializer.populate(value, MyEnum.VALUE1, session);
 
 		assertThat(value.getName()).isEqualTo("VALUE1");
 	}

@@ -6,6 +6,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 import net.amygdalum.testrecorder.types.Serializer;
+import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 
 public class ClassSerializer implements Serializer<SerializedImmutable<Class<?>>> {
@@ -19,12 +20,12 @@ public class ClassSerializer implements Serializer<SerializedImmutable<Class<?>>
 	}
 
 	@Override
-	public SerializedImmutable<Class<?>> generate(Type type) {
+	public SerializedImmutable<Class<?>> generate(Type type, SerializerSession session) {
 		return new SerializedImmutable<>(type);
 	}
 
 	@Override
-	public void populate(SerializedImmutable<Class<?>> serializedObject, Object object) {
+	public void populate(SerializedImmutable<Class<?>> serializedObject, Object object, SerializerSession session) {
 		serializedObject.setValue((Class<?>) object);
 	}
 
