@@ -5,6 +5,7 @@ import net.amygdalum.testrecorder.profile.Recorded;
 public class AlmostBean {
 
 	private String string;
+	private String other;
 	
 	public AlmostBean() {
 	}
@@ -15,6 +16,14 @@ public class AlmostBean {
 	
 	public String getSTRING() {
 		return string;
+	}
+
+	public void setOther(String other) {
+		this.other = other;
+	}
+	
+	public String getOther() {
+		return other;
 	}
 
 	@Recorded
