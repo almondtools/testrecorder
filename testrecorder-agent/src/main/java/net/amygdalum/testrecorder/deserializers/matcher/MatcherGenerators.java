@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.matcher;
 
-import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
+import static net.amygdalum.testrecorder.deserializers.Templates.fieldDeclaration;
 import static net.amygdalum.testrecorder.deserializers.Templates.recursiveMatcher;
 import static net.amygdalum.testrecorder.types.Computation.expression;
 import static net.amygdalum.testrecorder.util.Literals.asLiteral;
@@ -61,10 +61,12 @@ public class MatcherGenerators implements Deserializer<Computation> {
 		if (ctx.getHint(SkipChecks.class).isPresent()) {
 			return null;
 		} else if (isSimpleValue(fieldValue)) {
-			types.registerImport(baseType(field.getType()));
+			Type fieldType = field.getType();
+			Type fieldResultType = types.bestType(fieldType, Object.class);
+			types.registerImport(baseType(fieldResultType));
 			Computation value = simpleMatcher(fieldValue, ctx);
 
-			String assignField = assignLocalVariableStatement(types.getRawTypeName(field.getType()), field.getName(), value.getValue());
+			String assignField = fieldDeclaration(null, types.getRawTypeName(fieldResultType), field.getName(), value.getValue());
 			return expression(assignField, null, value.getStatements());
 		} else {
 			types.registerImport(Matcher.class);
@@ -72,7 +74,7 @@ public class MatcherGenerators implements Deserializer<Computation> {
 
 			String genericType = types.getVariableTypeName(parameterized(Matcher.class, null, wildcard()));
 
-			String assignField = assignLocalVariableStatement(genericType, field.getName(), value.getValue());
+			String assignField = fieldDeclaration(null, genericType, field.getName(), value.getValue());
 			return expression(assignField, null, value.getStatements());
 		}
 	}

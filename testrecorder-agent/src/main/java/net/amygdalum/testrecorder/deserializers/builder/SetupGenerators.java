@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.deserializers.builder;
 
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
+import static net.amygdalum.testrecorder.deserializers.Templates.fieldDeclaration;
 import static net.amygdalum.testrecorder.types.Computation.expression;
 import static net.amygdalum.testrecorder.types.Computation.variable;
 
@@ -51,7 +52,7 @@ public class SetupGenerators implements Deserializer<Computation> {
 
 		expression = context.adapt(expression, fieldResultType, valueTemplate.getType());
 
-		String assignField = assignLocalVariableStatement(types.getVariableTypeName(fieldResultType), field.getName(), expression);
+		String assignField = fieldDeclaration(null, types.getVariableTypeName(fieldResultType), field.getName(), expression);
 		return expression(assignField, null, statements);
 	}
 
