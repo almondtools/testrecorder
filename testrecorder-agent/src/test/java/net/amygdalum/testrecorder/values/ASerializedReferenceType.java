@@ -11,7 +11,12 @@ import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.values.AbstractSerializedReferenceType;
 
 public class ASerializedReferenceType extends AbstractSerializedReferenceType {
+
 	public ASerializedReferenceType(Type type) {
+		super(type);
+	}
+
+	public ASerializedReferenceType(Type type, int id) {
 		super(type);
 	}
 

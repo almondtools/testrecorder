@@ -11,6 +11,7 @@ import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ import net.amygdalum.testrecorder.serializers.EnumSerializer;
 import net.amygdalum.testrecorder.serializers.GenericSerializer;
 import net.amygdalum.testrecorder.serializers.LambdaSerializer;
 import net.amygdalum.testrecorder.serializers.SerializerFacade;
+import net.amygdalum.testrecorder.types.OverrideSerializer;
 import net.amygdalum.testrecorder.types.Profile;
 import net.amygdalum.testrecorder.types.SerializationException;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
@@ -78,10 +80,33 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 		IdentityHashMap<Class<?>, Serializer<?>> serializers = new IdentityHashMap<>();
 		for (Serializer<?> serializer : config.loadConfigurations(Serializer.class, facade)) {
 			for (Class<?> clazz : serializer.getMatchingClasses()) {
-				serializers.put(clazz, serializer);
+				Serializer<?> existing = serializers.putIfAbsent(clazz, serializer);
+				if (existing != null) {
+					if (compare(serializer, existing) > 0) {
+						serializers.put(clazz, serializer);
+					}
+				}
 			}
 		}
 		return serializers;
+	}
+
+	private static int compare(Serializer<?> serializer1, Serializer<?> serializer2) {
+		OverrideSerializer[] overrides1 = serializer1.getClass().getDeclaredAnnotationsByType(OverrideSerializer.class);
+		OverrideSerializer[] overrides2 = serializer2.getClass().getDeclaredAnnotationsByType(OverrideSerializer.class);
+		if (Arrays.stream(overrides1)
+			.filter(o -> o.value() == serializer2.getClass())
+			.findAny()
+			.isPresent()) {
+			return 1;
+		} else if (Arrays.stream(overrides2)
+			.filter(o -> o.value() == serializer1.getClass())
+			.findAny()
+			.isPresent()) {
+			return -1;
+		} else {
+			return 0;
+		}
 	}
 
 	@Override
