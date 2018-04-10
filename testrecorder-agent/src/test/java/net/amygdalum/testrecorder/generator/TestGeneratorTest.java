@@ -83,7 +83,7 @@ public class TestGeneratorTest {
 
 	@Test
 	public void testAcceptWithInitializer() throws Exception {
-		loader.defineResource("agentconfig/net.amygdalum.testrecorder.runtime.TestRecorderAgentInitializer", "net.amygdalum.testrecorder.util.AgentInitializer".getBytes());
+		loader.defineResource("agentconfig/net.amygdalum.testrecorder.runtime.TestRecorderAgentInitializer", "net.amygdalum.testrecorder.runtime.AgentInitializer".getBytes());
 		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));

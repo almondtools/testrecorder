@@ -48,7 +48,7 @@ public class TestRecorderAgentTest {
 	@ExtendWith(ClasspathResourceExtension.class)
 	@Test
 	public void testInitialize(ExtensibleClassLoader loader, @LogLevel("info") ByteArrayOutputStream info, @LogLevel("error") ByteArrayOutputStream error) throws Exception {
-		loader.defineResource("agentconfig/net.amygdalum.testrecorder.runtime.TestRecorderAgentInitializer", "net.amygdalum.testrecorder.util.AgentInitializer".getBytes());
+		loader.defineResource("agentconfig/net.amygdalum.testrecorder.runtime.TestRecorderAgentInitializer", "net.amygdalum.testrecorder.runtime.AgentInitializer".getBytes());
 		AgentConfiguration agentconfig = TestRecorderAgent.loadConfig(null);
 		TestRecorderAgent agent = new TestRecorderAgent(Mockito.mock(Instrumentation.class), agentconfig);
 
@@ -62,7 +62,7 @@ public class TestRecorderAgentTest {
 	@ExtendWith(ClasspathResourceExtension.class)
 	@Test
 	public void testInitializeWithInitializationFailure(ExtensibleClassLoader loader, @LogLevel("info") ByteArrayOutputStream info, @LogLevel("error") ByteArrayOutputStream error) throws Exception {
-		loader.defineResource("agentconfig/net.amygdalum.testrecorder.runtime.TestRecorderAgentInitializer", "net.amygdalum.testrecorder.util.BrokenAgentInitializer".getBytes());
+		loader.defineResource("agentconfig/net.amygdalum.testrecorder.runtime.TestRecorderAgentInitializer", "net.amygdalum.testrecorder.runtime.BrokenAgentInitializer".getBytes());
 		AgentConfiguration agentconfig = TestRecorderAgent.loadConfig(null);
 		TestRecorderAgent agent = new TestRecorderAgent(Mockito.mock(Instrumentation.class), agentconfig);
 
