@@ -3,12 +3,14 @@ package net.amygdalum.testrecorder.deserializers.builder;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
 import static net.amygdalum.testrecorder.util.Types.baseType;
+import static net.amygdalum.testrecorder.util.Types.resolve;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -20,6 +22,7 @@ import java.util.Queue;
 import java.util.Set;
 
 import net.amygdalum.testrecorder.deserializers.SimpleDeserializer;
+import net.amygdalum.testrecorder.hints.Setter;
 import net.amygdalum.testrecorder.runtime.DefaultValue;
 import net.amygdalum.testrecorder.runtime.GenericComparison;
 import net.amygdalum.testrecorder.runtime.NonDefaultValue;
@@ -137,39 +140,31 @@ public class Construction {
 	}
 
 	private void fillOrigins(TypeManager types) {
-		List<Object> bases = new ArrayList<>();
-		bases.add(buildFromStandardConstructor(types));
-		bases.addAll(buildFromConstructors(types));
-		bases.removeIf(Objects::isNull);
-		applySetters(bases);
+		addStandardConstructor(types);
+		addSuitableConstructors(types);
+		applySetters(types);
 		removeSelfRecursiveConstructions();
 	}
 
-	private Object buildFromStandardConstructor(TypeManager types) {
+	private void addStandardConstructor(TypeManager types) {
 		try {
 			Constructor<?> constructor = Types.getDeclaredConstructor(baseType(serialized.getType()));
 			if (types.isHidden(constructor)) {
-				return null;
+				return;
 			}
 			constructor.setAccessible(true);
 			constructors.put(constructor, new ArrayList<>());
-			return constructor.newInstance();
 		} catch (ReflectiveOperationException e) {
-			return null;
+			return;
 		}
 	}
 
-	private List<Object> buildFromConstructors(TypeManager types) {
-		List<Object> objects = new ArrayList<>();
-
+	private void addSuitableConstructors(TypeManager types) {
 		for (SerializedField field : serialized.getFields()) {
 			String fieldName = field.getName();
 			Object fieldValue = field.getValue().accept(deserializer, context);
 
-			for (Constructor<?> constructor : baseType(serialized.getType()).getConstructors()) {
-				if (types.isHidden(constructor)) {
-					continue;
-				}
+			for (Constructor<?> constructor : getParameterConstructors(types, serialized.getType())) {
 
 				List<ConstructorParam> params = constructors.computeIfAbsent(constructor, key -> new ArrayList<>());
 				Class<?>[] parameterTypes = constructor.getParameterTypes();
@@ -190,49 +185,79 @@ public class Construction {
 						}
 					}
 				}
-				Object[] arguments = createArguments(params, parameterTypes);
-				try {
-					Object result = constructor.newInstance(arguments);
-					objects.add(result);
-				} catch (ReflectiveOperationException e) {
-					continue;
-				}
 			}
 		}
-		return objects;
 	}
 
-	private void applySetters(List<Object> bases) {
+	private List<Constructor<?>> getParameterConstructors(TypeManager types, Type type) {
+		return Arrays.stream(baseType(type).getConstructors())
+			.filter(constructor -> !types.isHidden(constructor))
+			.collect(toList());
+	}
+
+	private List<Object> createBases() {
+		return constructors.entrySet().stream()
+			.map(entry -> createBase(entry.getKey(), entry.getValue()))
+			.filter(Objects::nonNull)
+			.collect(toList());
+	}
+
+	private Object createBase(Constructor<?> constructor, List<ConstructorParam> params) {
+		Object[] arguments = createArguments(params, constructor.getParameterTypes());
+		try {
+			return constructor.newInstance(arguments);
+		} catch (ReflectiveOperationException e) {
+			return null;
+		}
+	}
+
+	private void applySetters(TypeManager types) {
 		for (SerializedField field : serialized.getFields()) {
 			String fieldName = field.getName();
 			Object fieldValue = field.getValue().accept(deserializer, context);
 
-			nextmethod: for (Method method : baseType(serialized.getType()).getMethods()) {
-				if (method.getName().startsWith("set")) {
-					Class<?>[] parameterTypes = method.getParameterTypes();
-					if (parameterTypes.length == 1 && matches(parameterTypes[0], fieldValue)) {
-						for (Object base : bases) {
-							try {
-								if (isSet(base, fieldName, fieldValue)) {
-									//default value is already matching, no need to apply a setter
-									continue nextmethod;
-								}
-								method.invoke(base, fieldValue);
-								if (!isSet(base, fieldName, fieldValue)) {
-									//did not set the correct value
-									continue nextmethod;
-								}
-							} catch (ReflectiveOperationException e) {
-								//unexpected exception on setting value
-								continue nextmethod;
-							}
+			nextmethod: for (Method method : getSetterMethods(types, serialized.getType(), fieldValue)) {
+				for (Object base : createBases()) {
+					try {
+						if (isSet(base, fieldName, fieldValue)) {
+							//default value is already matching, no need to apply a setter
+							continue nextmethod;
 						}
-						Type type = Types.resolve(method.getGenericParameterTypes()[0], baseType(serialized.getType()));
-						setters.add(new SetterParam(method, type, field, fieldValue));
+						method.invoke(base, fieldValue);
+						if (!isSet(base, fieldName, fieldValue)) {
+							//did not set the correct value
+							continue nextmethod;
+						}
+					} catch (ReflectiveOperationException e) {
+						//unexpected exception on setting value
+						continue nextmethod;
 					}
 				}
+				Type type = resolve(method.getGenericParameterTypes()[0], baseType(serialized.getType()));
+				setters.add(new SetterParam(method, type, field, fieldValue));
 			}
 		}
+	}
+
+	private List<Method> getSetterMethods(TypeManager types, Type type, Object value) {
+		return Arrays.stream(baseType(type).getMethods())
+			.filter(method -> !types.isHidden(method))
+			.filter(method -> qualifiesAsSetter(method, value))
+			.collect(toList());
+	}
+
+	private boolean qualifiesAsSetter(Method method, Object value) {
+		if (!method.getName().startsWith("set") && !method.isAnnotationPresent(Setter.class)) {
+			return false;
+		}
+		Class<?>[] parameterTypes = method.getParameterTypes();
+		if (parameterTypes.length != 1) {
+			return false;
+		}
+		if (!matches(parameterTypes[0], value)) {
+			return false;
+		}
+		return true;
 	}
 
 	private void removeSelfRecursiveConstructions() {

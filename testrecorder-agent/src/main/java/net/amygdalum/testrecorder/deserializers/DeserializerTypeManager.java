@@ -7,6 +7,7 @@ import static net.amygdalum.testrecorder.util.Types.wildcard;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -191,6 +192,11 @@ public class DeserializerTypeManager implements TypeManager {
 	@Override
 	public boolean isHidden(Constructor<?> constructor) {
 		return Types.isHidden(constructor, pkg);
+	}
+
+	@Override
+	public boolean isHidden(Method method) {
+		return Types.isHidden(method, pkg);
 	}
 
 	@Override

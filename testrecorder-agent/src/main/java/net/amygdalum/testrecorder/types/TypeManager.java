@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.types;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +31,8 @@ public interface TypeManager {
 	String getRawClass(Type type);
 
 	boolean isHidden(Constructor<?> constructor);
+
+	boolean isHidden(Method method);
 
 	boolean isHidden(Type type);
 

@@ -510,6 +510,16 @@ public final class Types {
 		}
 	}
 
+	public static boolean isHidden(Method method, String pkg) {
+		int modifiers = method.getModifiers();
+		if (isPrivate(modifiers)) {
+			return true;
+		} else {
+			return isHidden(method.getDeclaringClass(), pkg)
+				|| (method.getDeclaringClass().getEnclosingClass() != null && !isPublic(modifiers));
+		}
+	}
+
 	public static boolean isBoxedPrimitive(Type type) {
 		if (!(type instanceof Class<?>)) {
 			return false;
