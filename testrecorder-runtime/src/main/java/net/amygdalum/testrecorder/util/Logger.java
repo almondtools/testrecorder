@@ -4,23 +4,39 @@ import java.io.PrintStream;
 
 public class Logger {
 
-	private static Logger DEBUG = new Logger(System.out);
-	private static Logger INFO = new Logger(System.out);
-	private static Logger WARN = new Logger(System.out);
-	private static Logger ERROR = new Logger(System.err);
+	private static Logger DEBUG = debugLogger();
+	private static Logger INFO = infoLogger();
+	private static Logger WARN = warnLogger();
+	private static Logger ERROR = errorLogger();
 
-	private PrintStream out;
+	private PrintStream[] out;
 
-	public Logger(PrintStream out) {
+	public Logger(PrintStream... out) {
 		this.out = out;
+	}
+
+	private static Logger debugLogger() {
+		return new Logger();
+	}
+
+	private static Logger infoLogger() {
+		return new Logger(System.out);
+	}
+
+	private static Logger warnLogger() {
+		return new Logger(System.out);
+	}
+
+	private static Logger errorLogger() {
+		return new Logger(System.err);
 	}
 
 	public static void setDEBUG(Logger debug) {
 		DEBUG = debug;
 	}
-	
+
 	public static void resetDEBUG() {
-		DEBUG = new Logger(System.out);
+		DEBUG = warnLogger();
 	}
 
 	public static void debug(Object... msgs) {
@@ -34,7 +50,7 @@ public class Logger {
 	}
 
 	public static void resetINFO() {
-		INFO = new Logger(System.out);
+		INFO = warnLogger();
 	}
 
 	public static void info(Object... msgs) {
@@ -48,7 +64,7 @@ public class Logger {
 	}
 
 	public static void resetWARN() {
-		WARN = new Logger(System.out);
+		WARN = warnLogger();
 	}
 
 	public static void warn(Object... msgs) {
@@ -62,7 +78,7 @@ public class Logger {
 	}
 
 	public static void resetERROR() {
-		ERROR = new Logger(System.err);
+		ERROR = errorLogger();
 	}
 
 	public static void error(Object... msgs) {
@@ -72,9 +88,11 @@ public class Logger {
 	}
 
 	public void log(Object msg) {
-		out.println(msg);
-		if (msg instanceof Exception) {
-			((Exception) msg).printStackTrace(out);
+		for (int i = 0; i < out.length; i++) {
+			out[i].println(msg);
+			if (msg instanceof Exception) {
+				((Exception) msg).printStackTrace(out[i]);
+			}
 		}
 	}
 
