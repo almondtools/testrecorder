@@ -10,9 +10,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.ConfigurableSerializerFacade;
-import net.amygdalum.testrecorder.DefaultSerializerSession;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.SerializedValue;
+import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.util.testobjects.Complex;
 import net.amygdalum.testrecorder.util.testobjects.Simple;
 
@@ -20,13 +20,13 @@ public class SerializedValueEvaluatorTest {
 
 	private AgentConfiguration config;
     private ConfigurableSerializerFacade facade;
-	private DefaultSerializerSession session;
+	private SerializerSession session;
 
     @BeforeEach
     public void before() throws Exception {
         config = defaultConfig();
-        session = new DefaultSerializerSession();
 		facade = new ConfigurableSerializerFacade(config);
+		session = facade.newSession();
     }
 
     @Test

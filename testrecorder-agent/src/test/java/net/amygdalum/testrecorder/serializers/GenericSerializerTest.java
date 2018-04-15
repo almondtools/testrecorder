@@ -53,7 +53,7 @@ public class GenericSerializerTest {
 
 	@Test
 	public void testGenerateOnExcludedType() throws Exception {
-		when(facade.excludes(Random.class)).thenReturn(true);
+		when(session.excludes(Random.class)).thenReturn(true);
 		SerializedReferenceType value = serializer.generate(Random.class, session);
 		value.useAs(Random.class);
 
@@ -66,7 +66,7 @@ public class GenericSerializerTest {
 		SerializedField fooField = new SerializedField(GenericObject.class, "stringField", String.class, foo);
 		SerializedValue bar = literal(int.class, 1);
 		SerializedField barField = new SerializedField(GenericObject.class, "intField", int.class, bar);
-		when(facade.excludes(any(Field.class))).thenAnswer(field -> ((Field) field.getArguments()[0]).isSynthetic());
+		when(session.excludes(any(Field.class))).thenAnswer(field -> ((Field) field.getArguments()[0]).isSynthetic());
 		when(facade.serialize(eq(GenericObject.class.getDeclaredField("stringField")), any(), any(SerializerSession.class))).thenReturn(fooField);
 		when(facade.serialize(eq(GenericObject.class.getDeclaredField("intField")), any(), any(SerializerSession.class))).thenReturn(barField);
 		SerializedObject value = (SerializedObject) serializer.generate(GenericObject.class, session);

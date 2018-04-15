@@ -8,6 +8,7 @@ import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.serializers.BigIntegerSerializer;
 import net.amygdalum.testrecorder.serializers.DefaultListSerializer;
 import net.amygdalum.testrecorder.serializers.GenericSerializer;
+import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 import net.amygdalum.testrecorder.values.SerializedList;
 import net.amygdalum.testrecorder.values.SerializedObject;
@@ -15,11 +16,11 @@ import net.amygdalum.testrecorder.values.SerializedObject;
 public class SerializedValues {
 
 	private ConfigurableSerializerFacade facade;
-	private DefaultSerializerSession session;
+	private SerializerSession session;
 
 	public SerializedValues(AgentConfiguration config) {
 		facade = new ConfigurableSerializerFacade(config);
-		session = new DefaultSerializerSession();
+		session = facade.newSession();
 	}
 
 	public SerializedList list(Type type, List<?> values) {

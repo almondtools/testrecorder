@@ -5,9 +5,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import net.amygdalum.testrecorder.profile.SerializationProfile.Input;
-import net.amygdalum.testrecorder.profile.SerializationProfile.Output;
-
 /**
  * Annotating a method with {@link Recorded} specifies a method to be an recorded. 
  * 

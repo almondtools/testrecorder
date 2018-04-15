@@ -5,12 +5,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerator;
+
 /**
- * Annotating a type field, method result or param with this hint will instruct the deserializer
- * - to skip the generation of a matcher for this entity (e.g. if this entity is known not to be relevant for the result)
+ * This annotation is a hint for the {@link MatcherGenerator}:
+ * - to skip the generation of a matcher for this entity
  * 
+ * Use this annotation to keep tests concise, not generating matchers for fields that are irrelevant for the result
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
+@Target({ ElementType.TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER })
 public @interface SkipChecks {
 }

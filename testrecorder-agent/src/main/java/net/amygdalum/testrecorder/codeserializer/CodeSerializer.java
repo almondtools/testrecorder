@@ -11,7 +11,6 @@ import java.util.function.Function;
 import net.amygdalum.testrecorder.ConfigurableSerializerFacade;
 import net.amygdalum.testrecorder.DefaultPerformanceProfile;
 import net.amygdalum.testrecorder.DefaultSerializationProfile;
-import net.amygdalum.testrecorder.DefaultSerializerSession;
 import net.amygdalum.testrecorder.DefaultSnapshotConsumer;
 import net.amygdalum.testrecorder.SnapshotConsumer;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
@@ -25,13 +24,14 @@ import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.types.LocalVariableNameGenerator;
 import net.amygdalum.testrecorder.types.SerializedValue;
+import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.types.TypeManager;
 
 public class CodeSerializer {
 
 	private AgentConfiguration config;
 	private SerializerFacade facade;
-	private DefaultSerializerSession session;
+	private SerializerSession session;
 	private TypeManager types;
 	private Deserializer<Computation> deserializer;
 
@@ -50,7 +50,7 @@ public class CodeSerializer {
 			.withDefaultValue(PerformanceProfile.class, DefaultPerformanceProfile::new)
 			.withDefaultValue(SnapshotConsumer.class, DefaultSnapshotConsumer::new);
 		this.facade = facade.apply(config);
-		this.session = new DefaultSerializerSession();
+		this.session = this.facade.newSession();
 		this.deserializer = deserializer.apply(config);
 	}
 

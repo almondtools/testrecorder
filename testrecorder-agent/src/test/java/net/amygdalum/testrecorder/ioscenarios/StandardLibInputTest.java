@@ -11,7 +11,9 @@ import net.amygdalum.testrecorder.integration.Instrumented;
 import net.amygdalum.testrecorder.integration.TestRecorderAgentExtension;
 
 @ExtendWith(TestRecorderAgentExtension.class)
-@Instrumented(classes = { "net.amygdalum.testrecorder.ioscenarios.StandardLibInputOutput", "java.lang.System",
+@Instrumented(classes = {
+	"net.amygdalum.testrecorder.ioscenarios.StandardLibInputOutput",
+	"java.lang.System",
 	"java.io.FileInputStream" }, config = StandardLibInputOutputTestRecorderAgentConfig.class)
 public class StandardLibInputTest {
 

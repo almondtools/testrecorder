@@ -28,7 +28,7 @@ public class GenericSerializer implements Serializer<SerializedReferenceType> {
 
 	@Override
 	public SerializedReferenceType generate(Type type, SerializerSession session) {
-		if (facade.excludes(baseType(type))) {
+		if (session.excludes(baseType(type))) {
 			return SerializedNull.nullInstance(type);
 		} else {
 			return new SerializedObject(type);
@@ -41,14 +41,16 @@ public class GenericSerializer implements Serializer<SerializedReferenceType> {
 			return;
 		}
 		SerializedObject serializedObject = (SerializedObject) serializedValue;
-		Class<?> objectClass = object.getClass();
-		while (objectClass != Object.class && !facade.excludes(objectClass)) {
-			for (Field f : objectClass.getDeclaredFields()) {
-				if (!facade.excludes(f)) {
-					serializedObject.addField(facade.serialize(f, object, session));
+		if (!session.facades(object)) {
+			Class<?> objectClass = object.getClass();
+			while (objectClass != Object.class && !session.excludes(objectClass)) {
+				for (Field f : objectClass.getDeclaredFields()) {
+					if (!session.excludes(f)) {
+						serializedObject.addField(facade.serialize(f, object, session));
+					}
 				}
+				objectClass = objectClass.getSuperclass();
 			}
-			objectClass = objectClass.getSuperclass();
 		}
 	}
 

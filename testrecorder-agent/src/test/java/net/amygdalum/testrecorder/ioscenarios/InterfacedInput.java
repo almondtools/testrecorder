@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.ioscenarios;
 
-import net.amygdalum.testrecorder.profile.SerializationProfile.Input;
+import net.amygdalum.testrecorder.profile.Input;
 
 public interface InterfacedInput {
 

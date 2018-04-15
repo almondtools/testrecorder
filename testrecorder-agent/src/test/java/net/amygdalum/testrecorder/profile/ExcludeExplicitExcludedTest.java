@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.profile.SerializationProfile.Excluded;
-
 public class ExcludeExplicitExcludedTest {
 
 	@Test

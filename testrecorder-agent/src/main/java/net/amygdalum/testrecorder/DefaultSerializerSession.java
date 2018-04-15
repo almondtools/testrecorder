@@ -1,14 +1,23 @@
 package net.amygdalum.testrecorder;
 
 import static java.util.stream.Collectors.toList;
+import static net.amygdalum.testrecorder.util.Lambdas.isSerializableLambda;
+import static net.amygdalum.testrecorder.util.Reflections.accessing;
 import static net.amygdalum.testrecorder.util.Types.baseType;
+import static net.amygdalum.testrecorder.util.Types.isLiteral;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.amygdalum.testrecorder.profile.Classes;
+import net.amygdalum.testrecorder.profile.Excluded;
+import net.amygdalum.testrecorder.profile.Facade;
+import net.amygdalum.testrecorder.profile.Fields;
 import net.amygdalum.testrecorder.types.Profile;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.SerializerSession;
@@ -18,9 +27,40 @@ public class DefaultSerializerSession implements SerializerSession {
 	private Map<Object, SerializedValue> serialized;
 	private Map<Class<?>, Profile> profiles;
 
+	private List<Classes> classExclusions;
+	private List<Classes> classFacades;
+	private List<Fields> fieldExclusions;
+	private List<Fields> fieldFacades;
+	private Map<Object, Object> facaded;
+
 	public DefaultSerializerSession() {
 		serialized = new IdentityHashMap<>();
 		profiles = new LinkedHashMap<>();
+		facaded = new IdentityHashMap<>();
+		classExclusions = new ArrayList<>();
+		classFacades = new ArrayList<>();
+		fieldExclusions = new ArrayList<>();
+		fieldFacades = new ArrayList<>();
+	}
+
+	public DefaultSerializerSession withClassExclusions(List<Classes> classExclusions) {
+		this.classExclusions.addAll(classExclusions);
+		return this;
+	}
+
+	public DefaultSerializerSession withClassFacades(List<Classes> classFacades) {
+		this.classFacades.addAll(classFacades);
+		return this;
+	}
+
+	public DefaultSerializerSession withFieldExclusions(List<Fields> fieldExclusions) {
+		this.fieldExclusions.addAll(fieldExclusions);
+		return this;
+	}
+
+	public DefaultSerializerSession withFieldFacades(List<Fields> fieldFacades) {
+		this.fieldFacades.addAll(fieldFacades);
+		return this;
 	}
 
 	@Override
@@ -37,7 +77,7 @@ public class DefaultSerializerSession implements SerializerSession {
 		profiles = new LinkedHashMap<>();
 		return dump;
 	}
-	
+
 	@Override
 	public SerializedValue find(Object object) {
 		return serialized.get(object);
@@ -46,5 +86,78 @@ public class DefaultSerializerSession implements SerializerSession {
 	@Override
 	public void resolve(Object object, SerializedValue value) {
 		serialized.put(object, value);
+	}
+
+	@Override
+	public boolean excludes(Field field) {
+		if (field.isAnnotationPresent(Excluded.class)) {
+			return true;
+		}
+		boolean excluded = fieldExclusions.stream()
+			.anyMatch(exclusion -> exclusion.matches(field));
+		if (!excluded) {
+			Class<?> type = field.getType();
+			excluded = classExclusions.stream()
+				.anyMatch(exclusion -> exclusion.matches(type));
+		}
+		return excluded;
+	}
+
+	public void analyze(Object object) {
+		if (object == null) {
+			return;
+		} else if (isLiteral(object.getClass())) {
+			return;
+		} else if (isSerializableLambda(object.getClass())) {
+			return;
+		}
+		if (facades(object.getClass())) {
+			facaded.put(object, object);
+		}
+		Class<?> objectClass = object.getClass();
+		while (objectClass != Object.class) {
+			for (Field field : objectClass.getDeclaredFields()) {
+				if (facades(field)) {
+					try {
+						Object obj = accessing(field).call(f -> f.get(object));
+						facaded.put(obj, obj);
+					} catch (ReflectiveOperationException e) {
+						continue;
+					}
+				}
+			}
+			objectClass = objectClass.getSuperclass();
+		}
+			
+	}
+
+	private boolean facades(Field field) {
+		if (field.isAnnotationPresent(Facade.class)) {
+			return true;
+		}
+		return fieldFacades.stream()
+			.anyMatch(facade -> facade.matches(field));
+	}
+
+	private boolean facades(Class<?> clazz) {
+		if (clazz.isAnnotationPresent(Facade.class)) {
+			return true;
+		}
+		return classFacades.stream()
+			.anyMatch(facade -> facade.matches(clazz));
+	}
+
+	@Override
+	public boolean excludes(Class<?> clazz) {
+		if (clazz.isAnnotationPresent(Excluded.class)) {
+			return true;
+		}
+		return classExclusions.stream()
+			.anyMatch(exclusion -> exclusion.matches(clazz));
+	}
+
+	@Override
+	public boolean facades(Object object) {
+		return facaded.containsKey(object);
 	}
 }

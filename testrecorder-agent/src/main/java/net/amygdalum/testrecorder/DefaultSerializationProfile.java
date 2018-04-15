@@ -19,8 +19,10 @@ public class DefaultSerializationProfile implements SerializationProfile {
         new ExcludeExplicitExcluded(),
         new ExcludeGenerated(),
         new ExcludeStatic());
+    public static final List<Fields> DEFAULT_FIELD_FACADES = emptyList();
 
     public static final List<Classes> DEFAULT_CLASS_EXCLUSIONS = emptyList();
+    public static final List<Classes> DEFAULT_CLASS_FACADES = emptyList();
 
     public static final List<Fields> DEFAULT_GLOBAL_FIELDS = emptyList();
     public static final List<Methods> INPUT = emptyList();
@@ -30,10 +32,20 @@ public class DefaultSerializationProfile implements SerializationProfile {
     public List<Fields> getFieldExclusions() {
         return DEFAULT_FIELD_EXCLUDES;
     }
+    
+    @Override
+    public List<Fields> getFieldFacades() {
+    	return DEFAULT_FIELD_FACADES;
+    }
 
     @Override
     public List<Classes> getClassExclusions() {
         return DEFAULT_CLASS_EXCLUSIONS;
+    }
+
+    @Override
+    public List<Classes> getClassFacades() {
+        return DEFAULT_CLASS_FACADES;
     }
 
     @Override

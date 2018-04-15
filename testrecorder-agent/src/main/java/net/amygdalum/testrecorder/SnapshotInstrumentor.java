@@ -56,12 +56,12 @@ import net.amygdalum.testrecorder.bridge.BridgedSnapshotManager;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.Classes;
 import net.amygdalum.testrecorder.profile.Fields;
+import net.amygdalum.testrecorder.profile.Global;
+import net.amygdalum.testrecorder.profile.Input;
 import net.amygdalum.testrecorder.profile.Methods;
+import net.amygdalum.testrecorder.profile.Output;
 import net.amygdalum.testrecorder.profile.Recorded;
 import net.amygdalum.testrecorder.profile.SerializationProfile;
-import net.amygdalum.testrecorder.profile.SerializationProfile.Global;
-import net.amygdalum.testrecorder.profile.SerializationProfile.Input;
-import net.amygdalum.testrecorder.profile.SerializationProfile.Output;
 import net.amygdalum.testrecorder.util.AttachableClassFileTransformer;
 import net.amygdalum.testrecorder.util.Logger;
 

@@ -15,8 +15,6 @@ public interface SerializerFacade {
 
 	SerializedField serialize(Field f, Object obj, SerializerSession session);
 
-	boolean excludes(Field field);
-
-	boolean excludes(Class<?> clazz);
+	SerializerSession newSession();
 
 }

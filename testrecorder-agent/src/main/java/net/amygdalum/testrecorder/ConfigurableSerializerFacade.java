@@ -21,7 +21,6 @@ import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.Classes;
 import net.amygdalum.testrecorder.profile.Fields;
 import net.amygdalum.testrecorder.profile.SerializationProfile;
-import net.amygdalum.testrecorder.profile.SerializationProfile.Excluded;
 import net.amygdalum.testrecorder.serializers.ArraySerializer;
 import net.amygdalum.testrecorder.serializers.EnumSerializer;
 import net.amygdalum.testrecorder.serializers.GenericSerializer;
@@ -44,12 +43,16 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 
 	private Map<Class<?>, Serializer<?>> serializers;
 	private List<Classes> classExclusions;
+	private List<Classes> classFacades;
 	private List<Fields> fieldExclusions;
+	private List<Fields> fieldFacades;
 
 	public ConfigurableSerializerFacade(AgentConfiguration config) {
 		serializers = setupSerializers(config, this);
 		classExclusions = classExclusions(config);
+		classFacades = classFacades(config);
 		fieldExclusions = fieldExclusions(config);
+		fieldFacades = fieldFacades(config);
 	}
 
 	private static List<Classes> classExclusions(AgentConfiguration config) {
@@ -59,12 +62,21 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 		return excluded;
 	}
 
+	private static List<Classes> classFacades(AgentConfiguration config) {
+		List<Classes> facades = new ArrayList<>(config.loadConfiguration(SerializationProfile.class)
+			.getClassFacades());
+		facades.addAll(testrecorderClasses());
+		return facades;
+	}
+
 	private static List<Classes> testrecorderClasses() {
 		return asList(
 			Classes.byDescription(SnapshotManager.class),
 			Classes.byDescription(ContextSnapshot.class),
 			Classes.byDescription(SerializerFacade.class),
 			Classes.byDescription(ConfigurableSerializerFacade.class),
+			Classes.byDescription(SerializerSession.class),
+			Classes.byDescription(DefaultSerializerSession.class),
 			Classes.byDescription(Profile.class),
 			Classes.byDescription(Logger.class),
 			Classes.byPackage("net.amygdalum.testrecorder.values"));
@@ -74,6 +86,12 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 		List<Fields> excluded = new ArrayList<>(config.loadConfiguration(SerializationProfile.class)
 			.getFieldExclusions());
 		return excluded;
+	}
+
+	private static List<Fields> fieldFacades(AgentConfiguration config) {
+		List<Fields> facades = new ArrayList<>(config.loadConfiguration(SerializationProfile.class)
+			.getFieldFacades());
+		return facades;
 	}
 
 	private static Map<Class<?>, Serializer<?>> setupSerializers(AgentConfiguration config, SerializerFacade facade) {
@@ -111,6 +129,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 
 	@Override
 	public SerializedValue serialize(Type type, Object object, SerializerSession session) {
+		session.analyze(object);
 		if (object == null) {
 			return SerializedNull.nullInstance(type);
 		} else if (isLiteral(object.getClass()) && baseType(type).isPrimitive()) {
@@ -141,7 +160,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 					serializedReferenceType.setId(identityHashCode(object));
 				}
 				serializer.populate(serializedObject, serializedLambda, session);
-			} catch (RuntimeException e) {
+			} catch (Throwable e) {
 				throw new SerializationException(e);
 			}
 		}
@@ -154,15 +173,19 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 		Profile serialization = session.log(type);
 		SerializedValue serializedObject = session.find(object);
 		if (serializedObject == null) {
-			Serializer serializer = fetchSerializer(object.getClass());
-			serializedObject = serializer.generate(object.getClass(), session);
-			session.resolve(object, serializedObject);
-			if (serializedObject instanceof SerializedReferenceType) {
-				SerializedReferenceType serializedReferenceType = (SerializedReferenceType) serializedObject;
-				serializedReferenceType.setId(identityHashCode(object));
-				serializedReferenceType.useAs(type);
+			try {
+				Serializer serializer = fetchSerializer(object.getClass());
+				serializedObject = serializer.generate(object.getClass(), session);
+				session.resolve(object, serializedObject);
+				if (serializedObject instanceof SerializedReferenceType) {
+					SerializedReferenceType serializedReferenceType = (SerializedReferenceType) serializedObject;
+					serializedReferenceType.setId(identityHashCode(object));
+					serializedReferenceType.useAs(type);
+				}
+				serializer.populate(serializedObject, object, session);
+			} catch (Throwable e) {
+				throw new SerializationException(e);
 			}
-			serializer.populate(serializedObject, object, session);
 		} else if (serializedObject instanceof SerializedReferenceType) {
 			SerializedReferenceType serializedReferenceType = (SerializedReferenceType) serializedObject;
 			serializedReferenceType.useAs(type);
@@ -208,34 +231,20 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 		Class<?> declaringClass = field.getDeclaringClass();
 		String name = field.getName();
 		Type type = field.getGenericType();
-		SerializedValue serializedObject = serialize(type, field.get(obj), session);
+		Object object = field.get(obj);
+		SerializedValue serializedObject = serialize(type, object, session);
 		SerializedField serializedField = new SerializedField(declaringClass, name, type, serializedObject);
 
 		return serializedField;
 	}
 
 	@Override
-	public boolean excludes(Field field) {
-		if (field.isAnnotationPresent(Excluded.class)) {
-			return true;
-		}
-		boolean excluded = fieldExclusions.stream()
-			.anyMatch(exclusion -> exclusion.matches(field));
-		if (!excluded) {
-			Class<?> type = field.getType();
-			excluded = classExclusions.stream()
-				.anyMatch(exclusion -> exclusion.matches(type));
-		}
-		return excluded;
+	public SerializerSession newSession() {
+		return new DefaultSerializerSession()
+			.withClassExclusions(classExclusions)
+			.withFieldExclusions(fieldExclusions)
+			.withClassFacades(classFacades)
+			.withFieldFacades(fieldFacades);
 	}
-
-	@Override
-	public boolean excludes(Class<?> clazz) {
-		if (clazz.isAnnotationPresent(Excluded.class)) {
-			return true;
-		}
-		return classExclusions.stream()
-			.anyMatch(exclusion -> exclusion.matches(clazz));
-	}
-
+	
 }

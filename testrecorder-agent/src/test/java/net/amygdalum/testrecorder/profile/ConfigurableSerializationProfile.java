@@ -6,7 +6,9 @@ import java.util.List;
 public class ConfigurableSerializationProfile implements SerializationProfile {
 
 	private List<Fields> fieldExclusions;
+	private List<Fields> fieldFacades;
 	private List<Classes> classExclusions;
+	private List<Classes> classFacades;
 	private List<Fields> globalFields;
 	private List<Methods> inputs;
 	private List<Methods> outputs;
@@ -15,7 +17,9 @@ public class ConfigurableSerializationProfile implements SerializationProfile {
 
 	public ConfigurableSerializationProfile(SerializationProfile base) {
 		this.fieldExclusions = new ArrayList<>(base.getFieldExclusions());
+		this.fieldFacades = new ArrayList<>(base.getFieldFacades());
 		this.classExclusions = new ArrayList<>(base.getClassExclusions());
+		this.classFacades = new ArrayList<>(base.getClassFacades());
 		this.globalFields = new ArrayList<>(base.getGlobalFields());
 		this.inputs = new ArrayList<>(base.getInputs());
 		this.outputs = new ArrayList<>(base.getOutputs());
@@ -35,10 +39,20 @@ public class ConfigurableSerializationProfile implements SerializationProfile {
 	public List<Fields> getFieldExclusions() {
 		return fieldExclusions;
 	}
+	
+	@Override
+	public List<Fields> getFieldFacades() {
+		return fieldFacades;
+	}
 
 	@Override
 	public List<Classes> getClassExclusions() {
 		return classExclusions;
+	}
+	
+	@Override
+	public List<Classes> getClassFacades() {
+		return classFacades;
 	}
 
 	@Override

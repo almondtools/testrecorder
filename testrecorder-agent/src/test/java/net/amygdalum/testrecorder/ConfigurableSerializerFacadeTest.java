@@ -33,7 +33,7 @@ public class ConfigurableSerializerFacadeTest {
 			.loading(Serializer.class, args -> new TestSerializer(TestClass.class, new ASerializedValue(TestClass.class, 1)))
 			.loading(Serializer.class, args -> new TestSerializer(OtherClass.class, new ASerializedValue(OtherClass.class, 2))));
 
-		DefaultSerializerSession session = session();
+		SerializerSession session = facade.newSession();
 
 		assertThat(facade.serialize(TestClass.class, new TestClass(), session))
 			.isInstanceOf(ASerializedValue.class)
@@ -51,7 +51,7 @@ public class ConfigurableSerializerFacadeTest {
 			.loading(Serializer.class, args -> new TestSerializer(TestClass.class, new ASerializedValue(TestClass.class, 1)))
 			.loading(Serializer.class, args -> new TestSerializer(TestClass.class, new ASerializedValue(TestClass.class, 2))));
 
-		DefaultSerializerSession session = session();
+		SerializerSession session = facade.newSession();
 
 		assertThat(facade.serialize(TestClass.class, new TestClass(), session))
 			.isInstanceOf(ASerializedValue.class)
@@ -65,7 +65,7 @@ public class ConfigurableSerializerFacadeTest {
 			.loading(Serializer.class, args -> new TestSerializer(TestClass.class, new ASerializedValue(TestClass.class, 1)))
 			.loading(Serializer.class, args -> new OverridingSerializer(TestClass.class, new ASerializedValue(TestClass.class, 2))));
 
-		DefaultSerializerSession session = session();
+		SerializerSession session = facade.newSession();
 
 		assertThat(facade.serialize(TestClass.class, new TestClass(), session))
 			.isInstanceOf(ASerializedValue.class)
@@ -79,7 +79,7 @@ public class ConfigurableSerializerFacadeTest {
 			.loading(Serializer.class, args -> new OverridingSerializer(TestClass.class, new ASerializedValue(TestClass.class, 2)))
 			.loading(Serializer.class, args -> new TestSerializer(TestClass.class, new ASerializedValue(TestClass.class, 1))));
 		
-		DefaultSerializerSession session = session();
+		SerializerSession session = facade.newSession();
 		
 		assertThat(facade.serialize(TestClass.class, new TestClass(), session))
 		.isInstanceOf(ASerializedValue.class)
@@ -91,16 +91,16 @@ public class ConfigurableSerializerFacadeTest {
 	public void testSerializeOnNull() throws Exception {
 		ConfigurableSerializerFacade facade = new ConfigurableSerializerFacade(defaultConfig());
 
-		assertThat(facade.serialize(String.class, null, session())).isEqualTo(SerializedNull.nullInstance(String.class));
+		assertThat(facade.serialize(String.class, null, facade.newSession())).isEqualTo(SerializedNull.nullInstance(String.class));
 	}
 
 	@Test
 	public void testSerializeOnLiteral() throws Exception {
 		ConfigurableSerializerFacade facade = new ConfigurableSerializerFacade(defaultConfig());
 
-		assertThat(facade.serialize(String.class, "strliteral", session())).isEqualTo(SerializedLiteral.literal("strliteral"));
-		assertThat(facade.serialize(int.class, 22, session())).isEqualTo(SerializedLiteral.literal(int.class, 22));
-		assertThat(facade.serialize(Integer.class, 22, session())).isEqualTo(SerializedLiteral.literal(Integer.class, 22));
+		assertThat(facade.serialize(String.class, "strliteral", facade.newSession())).isEqualTo(SerializedLiteral.literal("strliteral"));
+		assertThat(facade.serialize(int.class, 22, facade.newSession())).isEqualTo(SerializedLiteral.literal(int.class, 22));
+		assertThat(facade.serialize(Integer.class, 22, facade.newSession())).isEqualTo(SerializedLiteral.literal(Integer.class, 22));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -111,7 +111,7 @@ public class ConfigurableSerializerFacadeTest {
 		ConfigurableSerializerFacade facade = new ConfigurableSerializerFacade(defaultConfig()
 			.loading(Serializer.class, args -> serializer));
 
-		DefaultSerializerSession session = session();
+		SerializerSession session = facade.newSession();
 		SerializedObject expectedResult = new SerializedObject(TestClass.class);
 
 		when(serializer.generate(TestClass.class, session)).thenReturn(expectedResult);
@@ -127,7 +127,7 @@ public class ConfigurableSerializerFacadeTest {
 	public void testSerializeArrayOnEmpty() throws Exception {
 		ConfigurableSerializerFacade facade = new ConfigurableSerializerFacade(defaultConfig());
 
-		SerializedValue[] serialize = facade.serialize(new Type[0], new Object[0], session());
+		SerializedValue[] serialize = facade.serialize(new Type[0], new Object[0], facade.newSession());
 
 		assertThat(serialize).isEmpty();
 	}
@@ -136,7 +136,7 @@ public class ConfigurableSerializerFacadeTest {
 	public void testSerializeArray() throws Exception {
 		ConfigurableSerializerFacade facade = new ConfigurableSerializerFacade(defaultConfig());
 
-		SerializedValue[] serialize = facade.serialize(new Type[] { String.class }, new Object[] { "str" }, session());
+		SerializedValue[] serialize = facade.serialize(new Type[] { String.class }, new Object[] { "str" }, facade.newSession());
 
 		assertThat(serialize).containsExactly(SerializedLiteral.literal(String.class, "str"));
 	}
@@ -145,16 +145,12 @@ public class ConfigurableSerializerFacadeTest {
 	public void testSerializeFieldObject() throws Exception {
 		ConfigurableSerializerFacade facade = new ConfigurableSerializerFacade(defaultConfig());
 
-		SerializedField serialized = facade.serialize(getDeclaredField(TestClass.class, "testField"), new TestClass(), session());
+		SerializedField serialized = facade.serialize(getDeclaredField(TestClass.class, "testField"), new TestClass(), facade.newSession());
 
 		assertThat(serialized.getName()).isEqualTo("testField");
 		assertThat(serialized.getDeclaringClass()).isEqualTo(TestClass.class);
 		assertThat(serialized.getType()).isEqualTo(int.class);
 		assertThat(serialized.getValue()).isEqualTo(literal(int.class, 42));
-	}
-
-	private DefaultSerializerSession session() {
-		return new DefaultSerializerSession();
 	}
 
 	public static class OtherClass {

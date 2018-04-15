@@ -7,10 +7,15 @@ import java.util.List;
 import net.amygdalum.testrecorder.DefaultSerializationProfile;
 import net.amygdalum.testrecorder.profile.Classes;
 
-public class ScenarioAgentConfig extends DefaultSerializationProfile {
+public class ThreadExcludingProfile extends DefaultSerializationProfile {
 
 	@Override
 	public List<Classes> getClasses() {
 		return asList(Classes.byPackage("net.amygdalum.testrecorder.scenarios"));
+	}
+
+	@Override
+	public List<Classes> getClassExclusions() {
+		return asList(Classes.byDescription(Thread.class));
 	}
 }

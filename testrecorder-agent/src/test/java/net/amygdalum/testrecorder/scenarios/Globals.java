@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
+import net.amygdalum.testrecorder.profile.Global;
 import net.amygdalum.testrecorder.profile.Recorded;
-import net.amygdalum.testrecorder.profile.SerializationProfile.Global;
 
 public class Globals {
 	

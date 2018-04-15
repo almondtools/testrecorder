@@ -493,7 +493,7 @@ public class SnapshotManager {
 			if (!snapshot.isValid()) {
 				return this;
 			}
-			DefaultSerializerSession session = new DefaultSerializerSession();
+			SerializerSession session = facade.newSession();
 			try {
 				Future<?> future = snapshotExecutor.submit(() -> {
 					task.serialize(facade, session, snapshot);

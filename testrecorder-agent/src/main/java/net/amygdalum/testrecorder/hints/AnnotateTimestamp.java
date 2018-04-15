@@ -5,15 +5,18 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * Annotating a method with this hint will instruct the deserializer
- * - to decorate a rendered test with all timestamps the corresponding test could be recorded
- * 
- * This is a future feature.
- */
+import net.amygdalum.testrecorder.types.Serializer;
 
+/**
+ * This annotation is a hint for the {@link Serializer}:
+ * - to record and persist the time stamp of the recording
+ * 
+ * This annotation is planned for the future
+ * 
+ * Use this annotation to provide filter attributes for the generation phase.
+ */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD})
+@Target({ ElementType.METHOD })
 public @interface AnnotateTimestamp {
-    String format() default "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+	String format() default "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 }
