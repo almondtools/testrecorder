@@ -13,14 +13,14 @@ import net.amygdalum.testrecorder.integration.TestRecorderAgentExtension;
 
 @ExtendWith(TestRecorderAgentExtension.class)
 @Instrumented(classes = {
-	"net.amygdalum.testrecorder.scenarios.FacadeContainer",
-	"net.amygdalum.testrecorder.scenarios.FacadeExample"
+	"net.amygdalum.testrecorder.scenarios.FacadeFieldContainer",
+	"net.amygdalum.testrecorder.scenarios.FacadeFieldExample"
 }, config = ThreadExcludingProfile.class)
-public class FacadeTest {
+public class FacadeFieldTest {
 
 	@Test
 	public void testCompilesAndRuns() throws Exception {
-		FacadeContainer container = new FacadeContainer();
+		FacadeFieldContainer container = new FacadeFieldContainer();
 
 		container.writeToFacade("hello");
 		container.writeToFacade("world");
@@ -32,13 +32,13 @@ public class FacadeTest {
 		assertThat(world).isEqualTo("world");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(FacadeContainer.class)).hasSize(4);
-		assertThat(testGenerator.renderTest(FacadeContainer.class)).satisfies(testsRun());
+		assertThat(testGenerator.testsFor(FacadeFieldContainer.class)).hasSize(4);
+		assertThat(testGenerator.renderTest(FacadeFieldContainer.class)).satisfies(testsRun());
 	}
 
 	@Test
 	public void testInput() throws Exception {
-		FacadeContainer container = new FacadeContainer("hello", "world");
+		FacadeFieldContainer container = new FacadeFieldContainer("hello", "world");
 
 		String hello = container.readFromFacade();
 		String world = container.readFromFacade();
@@ -47,35 +47,35 @@ public class FacadeTest {
 		assertThat(world).isEqualTo("world");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(FacadeContainer.class)).hasSize(2);
-		assertThat(testGenerator.testsFor(FacadeContainer.class))
+		assertThat(testGenerator.testsFor(FacadeFieldContainer.class)).hasSize(2);
+		assertThat(testGenerator.testsFor(FacadeFieldContainer.class))
 			.allSatisfy(test -> {
 				assertThat(test)
 					.doesNotContain("BufferedReader")
 					.doesNotContain("BufferedWriter")
 					.doesNotContain("PipedReader")
 					.doesNotContain("PipedWriter")
-					.containsWildcardPattern("new GenericObject() {*}.as(FacadeExample.class)");
+					.containsWildcardPattern("new GenericObject() {*}.as(FacadeFieldExample.class)");
 			});
 	}
 
 	@Test
 	public void testOutput() throws Exception {
-		FacadeContainer container = new FacadeContainer();
+		FacadeFieldContainer container = new FacadeFieldContainer();
 
 		container.writeToFacade("hello");
 		container.writeToFacade("world");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(FacadeContainer.class)).hasSize(2);
-		assertThat(testGenerator.testsFor(FacadeContainer.class))
+		assertThat(testGenerator.testsFor(FacadeFieldContainer.class)).hasSize(2);
+		assertThat(testGenerator.testsFor(FacadeFieldContainer.class))
 			.allSatisfy(test -> {
 				assertThat(test)
 					.doesNotContain("BufferedReader")
 					.doesNotContain("BufferedWriter")
 					.doesNotContain("PipedReader")
 					.doesNotContain("PipedWriter")
-					.containsWildcardPattern("new GenericObject() {*}.as(FacadeExample.class)");
+					.containsWildcardPattern("new GenericObject() {*}.as(FacadeFieldExample.class)");
 			});
 	}
 

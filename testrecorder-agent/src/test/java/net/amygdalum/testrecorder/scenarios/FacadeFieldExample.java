@@ -9,12 +9,12 @@ import java.io.PipedWriter;
 import net.amygdalum.testrecorder.profile.Input;
 import net.amygdalum.testrecorder.profile.Output;
 
-public class FacadeExample {
+public class FacadeFieldExample {
 
 	private BufferedWriter out;
 	private BufferedReader in;
 	
-	public FacadeExample(String ... values) throws IOException {
+	public FacadeFieldExample(String ... values) throws IOException {
 		PipedWriter out = new PipedWriter();
 		PipedReader in = new PipedReader(out);
 		this.out = new BufferedWriter(out); 

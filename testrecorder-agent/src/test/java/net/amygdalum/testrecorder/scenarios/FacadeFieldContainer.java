@@ -5,13 +5,13 @@ import java.io.IOException;
 import net.amygdalum.testrecorder.profile.Facade;
 import net.amygdalum.testrecorder.profile.Recorded;
 
-public class FacadeContainer {
+public class FacadeFieldContainer {
 
 	@Facade
-	private FacadeExample facade;
+	private FacadeFieldExample facade;
 	
-	public FacadeContainer(String... values) throws IOException {
-		this.facade = new FacadeExample(values);
+	public FacadeFieldContainer(String... values) throws IOException {
+		this.facade = new FacadeFieldExample(values);
 	}
 
 	@Recorded
