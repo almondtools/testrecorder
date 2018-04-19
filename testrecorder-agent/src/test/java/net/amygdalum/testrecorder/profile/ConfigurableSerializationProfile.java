@@ -79,32 +79,32 @@ public class ConfigurableSerializationProfile implements SerializationProfile {
 		}
 
 		public Builder withClasses(List<Classes> classes) {
-			agent.classes = classes;
+			agent.classes.addAll(classes);
 			return this;
 		}
 
 		public Builder withFieldExclusions(List<Fields> fieldExclusions) {
-			agent.fieldExclusions = fieldExclusions;
+			agent.fieldExclusions.addAll(fieldExclusions);
 			return this;
 		}
 
 		public Builder withClassExclusions(List<Classes> classExclusions) {
-			agent.classExclusions = classExclusions;
+			agent.classExclusions.addAll(classExclusions);
 			return this;
 		}
 
 		public Builder withGlobalFields(List<Fields> globalFields) {
-			agent.globalFields = globalFields;
+			agent.globalFields.addAll(globalFields);
 			return this;
 		}
 
 		public Builder withInputs(List<Methods> inputs) {
-			agent.inputs = inputs;
+			agent.inputs.addAll(inputs);
 			return this;
 		}
 
 		public Builder withOutputs(List<Methods> outputs) {
-			agent.outputs = outputs;
+			agent.outputs.addAll(outputs);
 			return this;
 		}
 

@@ -54,7 +54,7 @@ public class SnapshotManager {
 
 	private static final StackTraceValidator STACKTRACE_VALIDATOR = new StackTraceValidator()
 		.invalidate(Logger.class);
-	
+
 	public static volatile SnapshotManager MANAGER;
 
 	private ExecutorService snapshotExecutor;
@@ -82,13 +82,13 @@ public class SnapshotManager {
 		this.facade = new ConfigurableSerializerFacade(config);
 
 		PerformanceProfile performanceProfile = config.loadConfiguration(PerformanceProfile.class);
-		
+
 		this.timeoutInMillis = performanceProfile.getTimeoutInMillis();
 		this.snapshotExecutor = new ThreadPoolExecutor(0, 1, performanceProfile.getIdleTime(), TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new TestrecorderThreadFactory("$snapshot"));
 		this.methodContext = new MethodContext();
 		this.globalContext = new GlobalContext();
 	}
-	
+
 	private static void installBridge(Instrumentation inst) {
 		try {
 			inst.appendToBootstrapClassLoaderSearch(jarfile());
@@ -224,8 +224,8 @@ public class SnapshotManager {
 			if (!aquired || isNestedIO() || isInvalidStacktrace()) {
 				return 0;
 			}
-			Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
-			int id = object instanceof Class<?> ? SerializedInteraction.STATIC : identityHashCode(object);
+			Class<?> clazz = toClass(object);
+			int id = toId(object);
 
 			SerializedInput in = new SerializedInput(id, clazz, method, resultType, paramTypes);
 			for (ContextSnapshot snapshot : all()) {
@@ -291,8 +291,8 @@ public class SnapshotManager {
 			if (!aquired || isNestedIO() || isInvalidStacktrace()) {
 				return 0;
 			}
-			Class<?> clazz = object instanceof Class<?> ? (Class<?>) object : object.getClass();
-			int id = object instanceof Class<?> ? 0 : identityHashCode(object);
+			Class<?> clazz = toClass(object);
+			int id = toId(object);
 
 			SerializedOutput out = new SerializedOutput(id, clazz, method, resultType, paramTypes);
 			for (ContextSnapshot snapshot : all()) {
@@ -350,6 +350,18 @@ public class SnapshotManager {
 		} finally {
 			lock.release();
 		}
+	}
+
+	private Class<?> toClass(Object object) {
+		if (object instanceof Class<?>) {
+			return (Class<?>) object;
+
+		}
+		return object.getClass();
+	}
+
+	private int toId(Object object) {
+		return object instanceof Class<?> ? SerializedInteraction.STATIC : identityHashCode(object);
 	}
 
 	public void expectVariables(Object self, String signature, Object result, Object... args) {
@@ -536,6 +548,6 @@ public class SnapshotManager {
 			classNames.add(clazz.getName());
 			return this;
 		}
-		
+
 	}
 }

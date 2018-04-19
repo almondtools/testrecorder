@@ -37,7 +37,7 @@ import java.util.stream.Stream;
 public final class Types {
 
 	private static final String SYNTHETIC_INDICATOR = "$";
-	private static final String[] HANDLED_SYNTHETIC_PREFIXES = { "this$" };
+	private static final String[] HANDLED_SYNTHETIC_PREFIXES = { "this$", "val$" };
 
 	private Types() {
 	}

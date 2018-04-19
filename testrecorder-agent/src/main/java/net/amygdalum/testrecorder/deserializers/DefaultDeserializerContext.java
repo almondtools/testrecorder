@@ -104,6 +104,11 @@ public class DefaultDeserializerContext implements DeserializerContext {
 		Type type = types.isHidden(value.getType())
 			? types.mostSpecialOf(value.getUsedTypes()).orElse(Object.class)
 			: value.getType();
+		return localVariable(value, type);
+	}
+
+	@Override
+	public LocalVariable localVariable(SerializedValue value, Type type) {
 		String name = locals.fetchName(type);
 		LocalVariable definition = new LocalVariable(name, type);
 		defined.put(value, definition);
@@ -256,6 +261,19 @@ public class DefaultDeserializerContext implements DeserializerContext {
 	@Override
 	public Computation forVariable(SerializedValue value, LocalVariableDefinition computation) {
 		LocalVariable local = localVariable(value);
+		try {
+			Computation definition = computation.define(local);
+			finishVariable(value);
+			return definition;
+		} catch (DeserializationException e) {
+			resetVariable(value);
+			throw e;
+		}
+	}
+
+	@Override
+	public Computation forVariable(SerializedValue value, Type type, LocalVariableDefinition computation) {
+		LocalVariable local = localVariable(value, type);
 		try {
 			Computation definition = computation.define(local);
 			finishVariable(value);

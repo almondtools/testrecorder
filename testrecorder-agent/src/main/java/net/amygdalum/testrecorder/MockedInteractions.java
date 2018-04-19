@@ -13,6 +13,7 @@ import static net.amygdalum.testrecorder.deserializers.Templates.newAnonymousCla
 import static net.amygdalum.testrecorder.deserializers.Templates.returnStatement;
 import static net.amygdalum.testrecorder.types.Computation.variable;
 
+import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -79,7 +80,17 @@ public class MockedInteractions {
 		for (Map.Entry<Class<?>, List<SerializedInteraction>> entry : ioByClass.entrySet()) {
 			Class<?> clazz = entry.getKey();
 			List<SerializedInteraction> interactions = entry.getValue();
-			String val = callMethod(fakeIOType, "fake", types.getRawClass(clazz));
+
+			String[] fakeArgs = new String[] { types.getRawClass(clazz) };
+			if (isProxy(clazz)) {
+				fakeArgs = interactions.stream()
+					.map(interaction -> context.resolve(interaction.getId()))
+					.map(value -> value.get().accept(setup, context))
+					.peek(computation -> statements.addAll(computation.getStatements()))
+					.map(computation -> computation.getValue())
+					.toArray(String[]::new);
+			}
+			String val = callMethod(fakeIOType, "fake", fakeArgs);
 
 			Map<String, List<SerializedInteraction>> interactionsByAspect = new LinkedHashMap<>();
 			for (SerializedInteraction interaction : interactions) {
@@ -108,9 +119,9 @@ public class MockedInteractions {
 				String aspect = aspectInteractions.getKey();
 				methods.add(aspect);
 				for (SerializedInteraction interaction : aspectInteractions.getValue()) {
-					Deserializer<Computation> deserializer = deserializerFor(interaction, setup, matcher);			
+					Deserializer<Computation> deserializer = deserializerFor(interaction, setup, matcher);
 					List<String> arguments = new ArrayList<>();
-					
+
 					if (!interaction.isStatic()) {
 						Optional<SerializedValue> value = context.resolve(interaction.getId());
 						if (value.isPresent()) {
@@ -156,6 +167,11 @@ public class MockedInteractions {
 		}
 
 		return statements;
+	}
+
+	private boolean isProxy(Class<?> clazz) {
+		return Proxy.isProxyClass(clazz)
+			|| clazz == Proxy.class;
 	}
 
 	private Deserializer<Computation> deserializerFor(SerializedInteraction interaction, Deserializer<Computation> setup, Deserializer<Computation> matcher) {

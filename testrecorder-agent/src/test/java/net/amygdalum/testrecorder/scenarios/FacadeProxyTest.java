@@ -55,7 +55,7 @@ public class FacadeProxyTest {
 					.doesNotContain("BufferedWriter")
 					.doesNotContain("PipedReader")
 					.doesNotContain("PipedWriter")
-					.containsWildcardPattern("new GenericObject() {*}.as(FacadeImplementationExample.class)");
+					.containsWildcardPattern("Proxy.newProxyInstance(this.getClass().getClassLoader(),*new Class[]{*FacadeInterfaceExample.class*},*invocationHandler?)");
 			});
 	}
 
@@ -75,7 +75,7 @@ public class FacadeProxyTest {
 					.doesNotContain("BufferedWriter")
 					.doesNotContain("PipedReader")
 					.doesNotContain("PipedWriter")
-					.containsWildcardPattern("new GenericObject() {*}.as(FacadeImplementationExample.class)");
+					.containsWildcardPattern("Proxy.newProxyInstance(this.getClass().getClassLoader(),*new Class[]{*FacadeInterfaceExample.class*},*invocationHandler?)");
 			});
 	}
 

@@ -19,6 +19,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -31,6 +32,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+import java.util.stream.Stream;
 
 import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
@@ -73,6 +75,16 @@ public class FakeIO {
 		return clazz;
 	}
 
+	public static FakeIO fake(Object... instances) {
+		Stream<Class<?>> classes = Arrays.stream(instances)
+			.map(instance -> instance.getClass());
+		Class<?> clazz = classes
+			.distinct()
+			.findFirst()
+			.orElse(Proxy.class);
+		return faked.computeIfAbsent(clazz.getName(), key -> new FakeIO(clazz));
+	}
+	
 	public static FakeIO fake(Class<?> clazz) {
 		return faked.computeIfAbsent(clazz.getName(), key -> new FakeIO(clazz));
 	}

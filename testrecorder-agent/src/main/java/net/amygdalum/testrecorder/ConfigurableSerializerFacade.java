@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder;
 
 import static java.lang.System.identityHashCode;
+import static java.lang.reflect.Proxy.isProxyClass;
 import static java.util.Arrays.asList;
 import static net.amygdalum.testrecorder.asm.ByteCode.classFrom;
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
@@ -25,6 +26,7 @@ import net.amygdalum.testrecorder.serializers.ArraySerializer;
 import net.amygdalum.testrecorder.serializers.EnumSerializer;
 import net.amygdalum.testrecorder.serializers.GenericSerializer;
 import net.amygdalum.testrecorder.serializers.LambdaSerializer;
+import net.amygdalum.testrecorder.serializers.ProxySerializer;
 import net.amygdalum.testrecorder.serializers.SerializerFacade;
 import net.amygdalum.testrecorder.types.OverrideSerializer;
 import net.amygdalum.testrecorder.types.Profile;
@@ -35,6 +37,7 @@ import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.util.Lambdas;
 import net.amygdalum.testrecorder.util.Logger;
+import net.amygdalum.testrecorder.values.SerializedArray;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedNull;
@@ -42,6 +45,12 @@ import net.amygdalum.testrecorder.values.SerializedNull;
 public class ConfigurableSerializerFacade implements SerializerFacade {
 
 	private Map<Class<?>, Serializer<?>> serializers;
+	private Serializer<SerializedArray> arraySerializer;
+	private EnumSerializer enumSerializer;
+	private LambdaSerializer lambdaSerializer;
+	private ProxySerializer proxySerializer;
+	private GenericSerializer genericSerializer;
+
 	private List<Classes> classExclusions;
 	private List<Classes> classFacades;
 	private List<Fields> fieldExclusions;
@@ -49,6 +58,11 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 
 	public ConfigurableSerializerFacade(AgentConfiguration config) {
 		serializers = setupSerializers(config, this);
+		arraySerializer = new ArraySerializer(this);
+		enumSerializer = new EnumSerializer(this);
+		lambdaSerializer = new LambdaSerializer(this);
+		proxySerializer = new ProxySerializer(this);
+		genericSerializer = new GenericSerializer(this);
 		classExclusions = classExclusions(config);
 		classFacades = classFacades(config);
 		fieldExclusions = fieldExclusions(config);
@@ -200,15 +214,16 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 			return serializer;
 		}
 		if (clazz.isArray()) {
-			serializer = new ArraySerializer(this);
+			return arraySerializer;
 		} else if (clazz.isEnum() || (clazz.getSuperclass() != null && clazz.getSuperclass().isEnum())) {
-			serializer = new EnumSerializer(this);
+			return enumSerializer;
 		} else if (SerializedLambda.class == clazz) {
-			serializer = new LambdaSerializer(this);
+			return lambdaSerializer;
+		} else if (isProxyClass(clazz)) {
+			return proxySerializer;
 		} else {
-			serializer = new GenericSerializer(this);
+			return genericSerializer;
 		}
-		return serializer;
 	}
 
 	@Override

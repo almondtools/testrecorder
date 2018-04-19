@@ -16,9 +16,11 @@ import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Set;
 
 import org.objectweb.asm.ClassWriter;
@@ -70,13 +72,13 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 	private SerializationProfile profile;
 	private ClassNodeManager classes = new ClassNodeManager();
 	private IOManager io = new IOManager();
-	private Set<String> instrumentedClassNames;
+	private Map<String, ClassLoader> instrumentedClassPrototypes;
 	private Set<Class<?>> instrumentedClasses;
 
 	public SnapshotInstrumentor(AgentConfiguration config) {
 		this.profile = config.loadConfiguration(SerializationProfile.class);
 		this.classes = new ClassNodeManager();
-		this.instrumentedClassNames = new LinkedHashSet<>();
+		this.instrumentedClassPrototypes = new LinkedHashMap<>();
 		this.instrumentedClasses = new LinkedHashSet<>();
 		SnapshotManager.init(config);
 	}
@@ -99,8 +101,8 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		Set<Class<?>> classesToRetransform = new LinkedHashSet<>();
 		classesToRetransform.addAll(instrumentedClasses);
 
-		for (String className : instrumentedClassNames) {
-			classesToRetransform.add(classFrom(className));
+		for (Map.Entry<String,ClassLoader> classPrototype : instrumentedClassPrototypes.entrySet()) {
+			classesToRetransform.add(classFrom(classPrototype.getKey(), classPrototype.getValue()));
 		}
 
 		return classesToRetransform;
@@ -123,8 +125,9 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 					byte[] instrument = instrument(classfileBuffer, classBeingRedefined);
 					if (classBeingRedefined != null) {
 						instrumentedClasses.add(classBeingRedefined);
+						instrumentedClassPrototypes.remove(Type.getObjectType(classBeingRedefined.getName()).getClassName());
 					} else {
-						instrumentedClassNames.add(className);
+						instrumentedClassPrototypes.put(className, loader);
 					}
 
 					return instrument;

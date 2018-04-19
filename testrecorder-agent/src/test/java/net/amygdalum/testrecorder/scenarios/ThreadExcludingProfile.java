@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
 import static java.util.Arrays.asList;
+import static net.amygdalum.testrecorder.profile.ProxyClasses.proxies;
 
 import java.util.List;
 
@@ -11,7 +12,7 @@ public class ThreadExcludingProfile extends DefaultSerializationProfile {
 
 	@Override
 	public List<Classes> getClasses() {
-		return asList(Classes.byPackage("net.amygdalum.testrecorder.scenarios"));
+		return asList(proxies());
 	}
 
 	@Override
