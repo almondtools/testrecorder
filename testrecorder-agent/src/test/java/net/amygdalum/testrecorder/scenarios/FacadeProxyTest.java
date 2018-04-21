@@ -37,6 +37,24 @@ public class FacadeProxyTest {
 	}
 
 	@Test
+	public void testPrimitivesCompilesAndRuns() throws Exception {
+		FacadeProxyContainer container = new FacadeProxyContainer();
+		
+		container.writeIntToFacade(47);
+		container.writeIntToFacade(11);
+		
+		int i1 = container.readIntFromFacade();
+		int i2 = container.readIntFromFacade();
+		
+		assertThat(i1).isEqualTo(47);
+		assertThat(i2).isEqualTo(11);
+		
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.testsFor(FacadeProxyContainer.class)).hasSize(4);
+		assertThat(testGenerator.renderTest(FacadeProxyContainer.class)).satisfies(testsRun());
+	}
+	
+	@Test
 	public void testInput() throws Exception {
 		FacadeProxyContainer container = new FacadeProxyContainer("hello", "world");
 

@@ -34,5 +34,15 @@ public class FacadeImplementationExample implements FacadeInterfaceExample {
 		out.newLine();
 		out.flush();
 	}
+	
+	@Override
+	public int readInt() throws IOException {
+		return Integer.parseInt(read());
+	}
+	
+	@Override
+	public void writeInt(int value) throws IOException {
+		write(String.valueOf(value));
+	}
 
 }

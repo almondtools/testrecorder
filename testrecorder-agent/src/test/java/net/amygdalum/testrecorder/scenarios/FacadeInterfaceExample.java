@@ -13,4 +13,9 @@ public interface FacadeInterfaceExample {
 	@Output
 	void write(String value) throws IOException;
 
+	@Input
+	int readInt() throws IOException;
+
+	@Output
+	void writeInt(int value) throws IOException;
 }
