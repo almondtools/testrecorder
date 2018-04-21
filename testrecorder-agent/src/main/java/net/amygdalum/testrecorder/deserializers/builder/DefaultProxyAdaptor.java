@@ -15,6 +15,7 @@ import java.util.List;
 
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 import net.amygdalum.testrecorder.values.SerializedProxy;
@@ -43,9 +44,9 @@ public class DefaultProxyAdaptor extends DefaultSetupGenerator<SerializedProxy> 
 
 		return context.forVariable(value, Object.class, local -> {
 			List<String> statements = new ArrayList<>();
-			
+
 			String classLoader = callMethodChainExpression("this", asList(callLocalMethod("getClass"), callLocalMethod("getClassLoader")));
-			
+
 			List<String> interfaceList = new ArrayList<>();
 			for (SerializedImmutable<Class<?>> interfaceClass : value.getInterfaces()) {
 				Computation interfaceComputation = interfaceClass.accept(generator, context);
@@ -54,10 +55,11 @@ public class DefaultProxyAdaptor extends DefaultSetupGenerator<SerializedProxy> 
 			}
 			String interfaces = arrayLiteral(types.getVariableTypeName(Class[].class), interfaceList);
 
-			Computation invocationHandler = value.getInvocationHandler().accept(generator, context);
-			statements.addAll(invocationHandler.getStatements());
-			String handler = invocationHandler.getValue();
-			
+			SerializedValue invocationHandler = value.getInvocationHandler();
+			Computation invocationHandlerComputation = invocationHandler.accept(generator, context);
+			statements.addAll(invocationHandlerComputation.getStatements());
+			String handler = invocationHandlerComputation.getValue();
+
 			statements.add(assignLocalVariableStatement(types.getVariableTypeName(local.getType()), local.getName(), callMethod("Proxy", "newProxyInstance", classLoader, interfaces, handler)));
 			return Computation.variable(local.getName(), local.getType(), statements);
 		});

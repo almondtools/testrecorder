@@ -42,12 +42,14 @@ public class ProxySerializer implements Serializer<SerializedProxy> {
 			.map(interfaceClass -> (SerializedImmutable<Class<?>>) (SerializedImmutable) new SerializedImmutable<>(Class.class).withValue(interfaceClass))
 			.collect(toList());
 		serializedProxy.setInterfaces(serializedInterfaces);
-		
+
 		InvocationHandler invocationHandler = Proxy.getInvocationHandler(object);
-		SerializedValue serializedInvocationHandler = facade.serialize(InvocationHandler.class, invocationHandler, session);
-		serializedProxy.setInvocationHandler(serializedInvocationHandler);
-		
-		if (!session.facades(object)) {
+		if (session.facades(object)) {
+			serializedProxy.setInvocationHandler(facade.serializePlaceholder(InvocationHandler.class, invocationHandler, session));
+		} else {
+			SerializedValue serializedInvocationHandler = facade.serialize(InvocationHandler.class, invocationHandler, session);
+			serializedProxy.setInvocationHandler(serializedInvocationHandler);
+
 			Class<?> objectClass = object.getClass();
 			while (objectClass != Proxy.class && objectClass != Object.class && !session.excludes(objectClass)) {
 				for (Field f : objectClass.getDeclaredFields()) {

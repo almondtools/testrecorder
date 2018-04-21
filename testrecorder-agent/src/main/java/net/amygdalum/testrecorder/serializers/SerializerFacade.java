@@ -15,6 +15,9 @@ public interface SerializerFacade {
 
 	SerializedField serialize(Field f, Object obj, SerializerSession session);
 
+	SerializedValue serializePlaceholder(Type type, Object object, SerializerSession session);
+
 	SerializerSession newSession();
+
 
 }

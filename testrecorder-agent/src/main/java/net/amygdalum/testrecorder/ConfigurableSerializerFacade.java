@@ -41,6 +41,7 @@ import net.amygdalum.testrecorder.values.SerializedArray;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedNull;
+import net.amygdalum.testrecorder.values.SerializedPlaceholder;
 
 public class ConfigurableSerializerFacade implements SerializerFacade {
 
@@ -157,6 +158,21 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 		}
 	}
 
+	@Override
+	public SerializedValue serializePlaceholder(Type type, Object object, SerializerSession session) {
+		if (object == null) {
+			return SerializedNull.nullInstance(type);
+		} else if (isLiteral(object.getClass()) && baseType(type).isPrimitive()) {
+			return SerializedLiteral.literal(type, object);
+		} else if (isLiteral(object.getClass())) {
+			return SerializedLiteral.literal(object);
+		} else if (Lambdas.isSerializableLambda(object.getClass())) {
+			return createLambdaObject(type, object, session);
+		} else {
+			return createPlaceholder(type, object, session);
+		}
+	}
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private SerializedValue createLambdaObject(Type type, Object object, SerializerSession session) {
 		Profile serialization = session.log(type);
@@ -208,6 +224,29 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 		return serializedObject;
 	}
 
+	private SerializedValue createPlaceholder(Type type, Object object, SerializerSession session) {
+		Profile serialization = session.log(type);
+		SerializedValue serializedObject = session.find(object);
+		if (serializedObject == null) {
+			try {
+				serializedObject = new SerializedPlaceholder(object.getClass());
+				session.resolve(object, serializedObject);
+				if (serializedObject instanceof SerializedReferenceType) {
+					SerializedReferenceType serializedReferenceType = (SerializedReferenceType) serializedObject;
+					serializedReferenceType.setId(identityHashCode(object));
+					serializedReferenceType.useAs(type);
+				}
+			} catch (Throwable e) {
+				throw new SerializationException(e);
+			}
+		} else if (serializedObject instanceof SerializedReferenceType) {
+			SerializedReferenceType serializedReferenceType = (SerializedReferenceType) serializedObject;
+			serializedReferenceType.useAs(type);
+		}
+		serialization.stop();
+		return serializedObject;
+	}
+	
 	private Serializer<?> fetchSerializer(Class<?> clazz) {
 		Serializer<?> serializer = serializers.get(clazz);
 		if (serializer != null) {

@@ -85,6 +85,7 @@ public class MockedInteractions {
 			if (isProxy(clazz)) {
 				fakeArgs = interactions.stream()
 					.map(interaction -> context.resolve(interaction.getId()))
+					.filter(Optional::isPresent)
 					.map(value -> value.get().accept(setup, context))
 					.peek(computation -> statements.addAll(computation.getStatements()))
 					.map(computation -> computation.getValue())
