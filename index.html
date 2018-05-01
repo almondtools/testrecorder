@@ -124,8 +124,8 @@ public class TestGenerator extends ScheduledTestGenerator {
 </ul>
 <h3>3. Run your program with TestRecorderAgent</h3>
 <p>To run your program with test recording activated you have to call it with an agent</p>
-<p><code>-javaagent:testrecorder-[version]-jar-with-dependencies.jar</code></p>
-<p><code>testrecorder-[version]-jar-with-dependencies.jar</code> is an artifact provided by the maven build (available in maven repository).</p>
+<p><code>-javaagent:testrecorder-agent-[version]-agent.jar</code></p>
+<p><code>testrecorder-agent-[version]-agent.jar</code> is an artifact provided by the maven build (available in maven repository).</p>
 <h3>4. Interact with the program and check results</h3>
 <p>You may now interact with your program and every call to a <code>@Recorded</code> method will be captured. After shutdown of your program all captured recordings will be transformed to executable JUnit tests, e.g.</p>
 <pre><code>@Test
