@@ -26,6 +26,6 @@ Here is a list of classes that indirectly reference a large part of the jvm runt
 
 To solve the problem, try to apply following strategies:
 
-* exclude the critical classes from recording (this does only work when generated tests do not depend on them)
+* consider excluding the critical classes (fine if they do not contain relevant state)
+* consider recording with [mocked dependencies](RecordingEE.md)
 * write a [custom serializer/deserializer](Extending.md) for these classes
-* make use of [Facades](facades.md) 

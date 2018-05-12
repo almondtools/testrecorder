@@ -1,5 +1,5 @@
-Recording IO with Testrecorder
-==============================
+Recording Input and Output
+==========================
 
 Before discussing how IO could be captured with Testrecorder, let us have a look on typical IO, to understand why IO cannot be captured in the same way as common variable state.
 
