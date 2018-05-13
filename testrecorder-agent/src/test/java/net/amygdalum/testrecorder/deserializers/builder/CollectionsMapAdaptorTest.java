@@ -61,7 +61,7 @@ public class CollectionsMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(mapDecoratedBy("unmodifiableMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
+		assertThat(result.getStatements().toString()).containsSubsequence(mapDecoratedBy("unmodifiableMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
@@ -72,7 +72,7 @@ public class CollectionsMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(mapDecoratedBy("unmodifiableMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
+		assertThat(result.getStatements().toString()).containsSubsequence(mapDecoratedBy("unmodifiableMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
@@ -83,7 +83,7 @@ public class CollectionsMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(mapDecoratedBy("unmodifiableMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
+		assertThat(result.getStatements().toString()).containsSubsequence(mapDecoratedBy("unmodifiableMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
@@ -94,7 +94,7 @@ public class CollectionsMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(mapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
+		assertThat(result.getStatements().toString()).containsSubsequence(mapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
@@ -105,7 +105,7 @@ public class CollectionsMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(rawMapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
+		assertThat(result.getStatements().toString()).containsSubsequence(rawMapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
@@ -116,7 +116,7 @@ public class CollectionsMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(wildcardMapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
+		assertThat(result.getStatements().toString()).containsSubsequence(wildcardMapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
@@ -127,7 +127,7 @@ public class CollectionsMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(mapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
+		assertThat(result.getStatements().toString()).containsSubsequence(mapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
@@ -138,7 +138,7 @@ public class CollectionsMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(mapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
+		assertThat(result.getStatements().toString()).containsSubsequence(mapDecoratedBy("synchronizedMap", new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
@@ -149,7 +149,7 @@ public class CollectionsMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(mapDecoratedBy("checkedMap", Integer.class, Integer.class, new int[] { 8, 15 }, new int[] { 47, 11 }));
+		assertThat(result.getStatements().toString()).containsSubsequence(mapDecoratedBy("checkedMap", Integer.class, Integer.class, new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
@@ -160,7 +160,7 @@ public class CollectionsMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(mapDecoratedBy("checkedMap", Integer.class, Integer.class, new int[] { 8, 15 }, new int[] { 47, 11 }));
+		assertThat(result.getStatements().toString()).containsSubsequence(mapDecoratedBy("checkedMap", Integer.class, Integer.class, new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
@@ -171,7 +171,7 @@ public class CollectionsMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(mapDecoratedBy("checkedMap", Integer.class, Integer.class, new int[] { 8, 15 }, new int[] { 47, 11 }));
+		assertThat(result.getStatements().toString()).containsSubsequence(mapDecoratedBy("checkedMap", Integer.class, Integer.class, new int[] { 8, 15 }, new int[] { 47, 11 }));
 		assertThat(result.getValue()).isEqualTo("map1");
 	}
 

@@ -89,7 +89,7 @@ public class ScheduledTestGeneratorTest {
 			.hasSize(1)
 			.anySatisfy(test -> {
 				assertThat(test)
-					.containsSequence(
+					.containsSubsequence(
 						"int field = 12;",
 						"intMethod(16);",
 						"equalTo(22)",
@@ -113,7 +113,7 @@ public class ScheduledTestGeneratorTest {
 
 		testGenerator.await();
 		assertThat(testGenerator.renderTest(ScheduledTestGeneratorTest.class).getTestCode())
-			.containsSequence(
+			.containsSubsequence(
 				"@Before",
 				"public void initialize() throws Exception {",
 				"new AgentInitializer().run();",
@@ -136,7 +136,7 @@ public class ScheduledTestGeneratorTest {
 
 		testGenerator.await();
 		assertThat(testGenerator.renderTest(ScheduledTestGeneratorTest.class).getTestCode())
-			.containsSequence(
+			.containsSubsequence(
 				"@Before",
 				"@After",
 				"public void resetFakeIO() throws Exception {",
@@ -160,7 +160,7 @@ public class ScheduledTestGeneratorTest {
 
 		testGenerator.await();
 		assertThat(testGenerator.renderTest(ScheduledTestGeneratorTest.class).getTestCode())
-			.containsSequence(
+			.containsSubsequence(
 				"@Before",
 				"@After",
 				"public void resetFakeIO() throws Exception {",
@@ -182,7 +182,7 @@ public class ScheduledTestGeneratorTest {
 		testGenerator.accept(snapshot);
 
 		testGenerator.await();
-		assertThat(testGenerator.renderTest(MyClass.class).getTestCode()).containsSequence("@SuppressWarnings(\"unused\")" + System.lineSeparator() + "public class");
+		assertThat(testGenerator.renderTest(MyClass.class).getTestCode()).containsSubsequence("@SuppressWarnings(\"unused\")" + System.lineSeparator() + "public class");
 	}
 
 	@Test
@@ -203,7 +203,7 @@ public class ScheduledTestGeneratorTest {
 		assertThat(testGenerator.testsFor(ScheduledTestGeneratorTest.class))
 			.hasSize(1)
 			.anySatisfy(test -> {
-				assertThat(test).containsSequence(
+				assertThat(test).containsSubsequence(
 					"(net.amygdalum.testrecorder.generator.ScheduledTestGeneratorTest$MyClass/",
 					"int field: 12",
 					"intMethod((16))",
@@ -230,7 +230,7 @@ public class ScheduledTestGeneratorTest {
 		assertThat(testGenerator.testsFor(ScheduledTestGeneratorTest.class))
 			.hasSize(1)
 			.anySatisfy(test -> {
-				assertThat(test).containsSequence(
+				assertThat(test).containsSubsequence(
 					"int field = 12;",
 					"intMethod(16);",
 					"(22)",
@@ -285,7 +285,7 @@ public class ScheduledTestGeneratorTest {
 		testGenerator.accept(snapshot2);
 
 		testGenerator.await();
-		assertThat(testGenerator.renderTest(ScheduledTestGeneratorTest.class).getTestCode()).containsSequence(
+		assertThat(testGenerator.renderTest(ScheduledTestGeneratorTest.class).getTestCode()).containsSubsequence(
 			"int field = 12;",
 			"intMethod(16);",
 			"equalTo(22)",

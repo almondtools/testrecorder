@@ -61,7 +61,7 @@ public class DefaultMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(
+		assertThat(result.getStatements().toString()).containsSubsequence(
 			"LinkedHashMap<Integer, Integer> temp1 = new LinkedHashMap<Integer, Integer>()",
 			"temp1.put(8, 15)",
 			"temp1.put(47, 11)",
@@ -79,7 +79,7 @@ public class DefaultMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(
+		assertThat(result.getStatements().toString()).containsSubsequence(
 			"LinkedHashMap<Integer, Integer> linkedHashMap1 = new LinkedHashMap<Integer, Integer>()",
 			"linkedHashMap1.put(8, 15)",
 			"linkedHashMap1.put(47, 11)");
@@ -96,7 +96,7 @@ public class DefaultMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(
+		assertThat(result.getStatements().toString()).containsSubsequence(
 			"PublicMap<Integer, Integer> temp1 = new PublicMap<Integer, Integer>()",
 			"temp1.put(8, 15)",
 			"temp1.put(47, 11)",
@@ -114,7 +114,7 @@ public class DefaultMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(
+		assertThat(result.getStatements().toString()).containsSubsequence(
 			"Map temp1 = clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenMap\").value(Map.class);",
 			"temp1.put(8, 15)",
 			"temp1.put(47, 11)",
@@ -133,7 +133,7 @@ public class DefaultMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).doesNotContain("new net.amygdalum.testrecorder.util.testobjects.Hidden.HiddenMap");
-		assertThat(result.getStatements().toString()).containsSequence(
+		assertThat(result.getStatements().toString()).containsSubsequence(
 			"LinkedHashMap<Integer, Integer> linkedHashMap1 = clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenMap\").value(LinkedHashMap.class);",
 			"linkedHashMap1.put(8, 15)",
 			"linkedHashMap1.put(47, 11)");
@@ -157,7 +157,7 @@ public class DefaultMapAdaptorTest {
 			}
 		});
 
-		assertThat(result.getStatements().toString()).containsSequence(
+		assertThat(result.getStatements().toString()).containsSubsequence(
 			"LinkedHashMap<Integer, Integer> temp1 = new LinkedHashMap<Integer, Integer>()",
 			"temp1.put(8, 15)",
 			"temp1.put(47, 11)",

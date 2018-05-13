@@ -25,7 +25,6 @@ public class PairTest {
 			.conventions());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testZip() throws Exception {
 		Pair<String, Integer>[] zipped = Pair.zip(new String[] { "s1", "s2" }, new Integer[] { 1, 2 });

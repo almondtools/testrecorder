@@ -13,7 +13,7 @@ public class SubSuperBeanValueTest {
 		CodeSerializer codeSerializer = new CodeSerializer();
 
 		assertThat(codeSerializer.serialize(createSimpleBean()))
-			.containsSequence(
+			.containsSubsequence(
 				"subBean1 = new SubBean()",
 				"subBean1.setI(53)")
 			.doesNotContain("subBean1.setO");

@@ -63,7 +63,7 @@ public class DefaultListAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(
+		assertThat(result.getStatements().toString()).containsSubsequence(
 			"ArrayList<Integer> temp1 = new ArrayList<Integer>()",
 			"temp1.add(0)",
 			"temp1.add(8)",
@@ -83,7 +83,7 @@ public class DefaultListAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(
+		assertThat(result.getStatements().toString()).containsSubsequence(
 			"ArrayList<Integer> arrayList1 = new ArrayList<Integer>()",
 			"arrayList1.add(0)",
 			"arrayList1.add(8)",
@@ -102,7 +102,7 @@ public class DefaultListAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(
+		assertThat(result.getStatements().toString()).containsSubsequence(
 			"PublicList<Integer> temp1 = new PublicList<Integer>()",
 			"temp1.add(0)",
 			"temp1.add(8)",
@@ -122,7 +122,7 @@ public class DefaultListAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(
+		assertThat(result.getStatements().toString()).containsSubsequence(
 			"java.util.List temp1 = clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenList\").value(java.util.List.class);",
 			"temp1.add(0)",
 			"temp1.add(8)",
@@ -143,7 +143,7 @@ public class DefaultListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).doesNotContain("new net.amygdalum.testrecorder.util.testobjects.Hidden.HiddenList");
-		assertThat(result.getStatements().toString()).containsSequence(
+		assertThat(result.getStatements().toString()).containsSubsequence(
 			"ArrayList<Integer> arrayList1 = clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenList\").value(ArrayList.class);",
 			"arrayList1.add(0)",
 			"arrayList1.add(8)",
@@ -169,7 +169,7 @@ public class DefaultListAdaptorTest {
 			}
 		});
 
-		assertThat(result.getStatements().toString()).containsSequence(
+		assertThat(result.getStatements().toString()).containsSubsequence(
 			"ArrayList<Integer> temp1 = new ArrayList<Integer>()",
 			"temp1.add(0)",
 			"temp1.add(8)",

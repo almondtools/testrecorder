@@ -23,7 +23,7 @@ public class StandardLibInputTest {
 		io.getTimestamp();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(StandardLibInputOutput.class).getTestCode()).containsSequence(
+		assertThat(testGenerator.renderTest(StandardLibInputOutput.class).getTestCode()).containsSubsequence(
 			"FakeIO",
 			"fakeInput");
 		assertThat(testGenerator.renderTest(StandardLibInputOutput.class)).satisfies(testsRun());
@@ -38,7 +38,7 @@ public class StandardLibInputTest {
 		assertThat(result).isEqualTo(42);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(StandardLibInputOutput.class).getTestCode()).containsSequence(
+		assertThat(testGenerator.renderTest(StandardLibInputOutput.class).getTestCode()).containsSubsequence(
 			"FakeIO",
 			"fakeInput");
 		assertThat(testGenerator.renderTest(StandardLibInputOutput.class)).satisfies(testsRun());

@@ -186,7 +186,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 				session.resolve(object, serializedObject);
 				if (serializedObject instanceof SerializedReferenceType) {
 					SerializedReferenceType serializedReferenceType = (SerializedReferenceType) serializedObject;
-					serializedReferenceType.useAs(type);
+					serializedReferenceType.useAs(functionalInterfaceType);
 					serializedReferenceType.setId(identityHashCode(object));
 				}
 				serializer.populate(serializedObject, serializedLambda, session);

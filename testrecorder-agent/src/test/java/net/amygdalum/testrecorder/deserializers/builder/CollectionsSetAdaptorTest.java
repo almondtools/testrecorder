@@ -61,7 +61,7 @@ public class CollectionsSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(setDecoratedBy("unmodifiableSet", 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSubsequence(setDecoratedBy("unmodifiableSet", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
@@ -72,7 +72,7 @@ public class CollectionsSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(setDecoratedBy("unmodifiableSet", 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSubsequence(setDecoratedBy("unmodifiableSet", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
@@ -83,7 +83,7 @@ public class CollectionsSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(setDecoratedBy("unmodifiableSet", 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSubsequence(setDecoratedBy("unmodifiableSet", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
@@ -94,7 +94,7 @@ public class CollectionsSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(setDecoratedBy("synchronizedSet", 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSubsequence(setDecoratedBy("synchronizedSet", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
@@ -105,7 +105,7 @@ public class CollectionsSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(rawSetDecoratedBy("synchronizedSet", 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSubsequence(rawSetDecoratedBy("synchronizedSet", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
@@ -116,7 +116,7 @@ public class CollectionsSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(wildcardSetDecoratedBy("synchronizedSet", 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSubsequence(wildcardSetDecoratedBy("synchronizedSet", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
@@ -127,7 +127,7 @@ public class CollectionsSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(setDecoratedBy("synchronizedSet", 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSubsequence(setDecoratedBy("synchronizedSet", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
@@ -138,7 +138,7 @@ public class CollectionsSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(setDecoratedBy("synchronizedSet", 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSubsequence(setDecoratedBy("synchronizedSet", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
@@ -149,7 +149,7 @@ public class CollectionsSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(setDecoratedBy("checkedSet", Integer.class, 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSubsequence(setDecoratedBy("checkedSet", Integer.class, 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
@@ -160,7 +160,7 @@ public class CollectionsSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(setDecoratedBy("checkedSet", Integer.class, 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSubsequence(setDecoratedBy("checkedSet", Integer.class, 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
@@ -171,7 +171,7 @@ public class CollectionsSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(setDecoratedBy("checkedSet", Integer.class, 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSubsequence(setDecoratedBy("checkedSet", Integer.class, 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
 	}
 

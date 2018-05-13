@@ -27,7 +27,6 @@ public class TripleTest {
 			.conventions());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testZip() throws Exception {
 		Triple<String, Integer, Float>[] zipped = Triple.zip(new String[] { "s1", "s2" }, new Integer[] { 1, 2 }, new Float[] { 0.1f, 0.2f });

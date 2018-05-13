@@ -8,11 +8,11 @@ import static org.objectweb.asm.Opcodes.POP;
 
 import java.io.ByteArrayOutputStream;
 
-import org.assertj.core.internal.asm.Type;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
@@ -674,7 +674,7 @@ public class SnapshotInstrumentorTest {
 		InstrumentationMethod unit = instrumentMethod(Annotations.class, "output");
 		io.registerOutput(Type.getInternalName(Annotations.class), "output", "()V");
 		SnapshotInstrumentor.DefaultTask task = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode);
-		
+
 		assertThat(task.isOutputMethod(unit.classNode, unit.methodNode)).isTrue();
 	}
 
@@ -683,7 +683,7 @@ public class SnapshotInstrumentorTest {
 		InstrumentationMethod unit = instrumentMethod(Annotations.class, "outputRecorded");
 		io.registerOutput(Type.getInternalName(Annotations.class), "outputRecorded", "()V");
 		SnapshotInstrumentor.DefaultTask task = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode);
-		
+
 		assertThat(task.isOutputMethod(unit.classNode, unit.methodNode)).isFalse();
 		assertThat(warn.toString()).contains("found annotation @Output on method already annotated with @Recorded or @Input outputRecorded()V, skipping");
 	}
@@ -693,7 +693,7 @@ public class SnapshotInstrumentorTest {
 		InstrumentationMethod unit = instrumentMethod(Annotations.class, "input");
 		io.registerInput(Type.getInternalName(Annotations.class), "input", "()V");
 		SnapshotInstrumentor.DefaultTask task = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode);
-		
+
 		assertThat(task.isInputMethod(unit.classNode, unit.methodNode)).isTrue();
 	}
 
@@ -702,7 +702,7 @@ public class SnapshotInstrumentorTest {
 		InstrumentationMethod unit = instrumentMethod(Annotations.class, "inputRecorded");
 		io.registerInput(Type.getInternalName(Annotations.class), "inputRecorded", "()V");
 		SnapshotInstrumentor.DefaultTask task = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode);
-		
+
 		assertThat(task.isInputMethod(unit.classNode, unit.methodNode)).isFalse();
 		assertThat(warn.toString()).contains("found annotation @Input on method already annotated with @Recorded or @Output inputRecorded()V, skipping");
 	}
@@ -713,14 +713,14 @@ public class SnapshotInstrumentorTest {
 		io.registerInput(Type.getInternalName(Annotations.class), "bothInputAndOutput", "()V");
 		io.registerOutput(Type.getInternalName(Annotations.class), "bothInputAndOutput", "()V");
 		SnapshotInstrumentor.DefaultTask task = new SnapshotInstrumentor.DefaultTask(config, classes, io, unit.classNode);
-		
+
 		assertThat(task.isInputMethod(unit.classNode, unit.methodNode)).isFalse();
 		assertThat(task.isOutputMethod(unit.classNode, unit.methodNode)).isFalse();
 		assertThat(warn.toString())
-		.contains("found annotation @Output on method already annotated with @Recorded or @Input bothInputAndOutput()V, skipping")
-		.contains("found annotation @Input on method already annotated with @Recorded or @Output bothInputAndOutput()V, skipping");
+			.contains("found annotation @Output on method already annotated with @Recorded or @Input bothInputAndOutput()V, skipping")
+			.contains("found annotation @Input on method already annotated with @Recorded or @Output bothInputAndOutput()V, skipping");
 	}
-	
+
 	@Test
 	public void testIsGlobalField() throws Exception {
 		InstrumentationField unit = instrumentField(Annotations.class, "global");

@@ -47,7 +47,7 @@ public class DefaultObjectAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(
+		assertThat(result.getStatements().toString()).containsSubsequence(
 			"Simple simple1 = new GenericObject",
 			"String str = \"Hello World\"",
 			"as(Simple.class)");

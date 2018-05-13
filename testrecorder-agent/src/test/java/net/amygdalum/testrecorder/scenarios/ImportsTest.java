@@ -46,7 +46,7 @@ public class ImportsTest {
 					+ "}.matching(net.amygdalum.testrecorder.scenarios.Imports.List.class);*"
 					+ "}.matching(Imports.class)"));
 		assertThat(testGenerator.renderTest(Imports.class).getTestCode())
-			.containsSequence("import java.util.List;")
+			.containsSubsequence("import java.util.List;")
 			.doesNotContain("import net.amygdalum.testrecorder.scenarios.Imports.List;");
 	}
 }

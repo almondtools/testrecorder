@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.types;
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.Optional;
  * The equals method of a serialized value must return true if both values are the same (==) and false otherwise (default equal should be fine)
  *
  */
-public interface SerializedValue {
+public interface SerializedValue extends Serializable {
 
 	<T> T accept(Deserializer<T> visitor, DeserializerContext context);
 

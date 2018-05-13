@@ -25,7 +25,7 @@ public class CollectionDataTypesValueTest {
 	public void testCodeSerializerArrayList() throws Exception {
 		CodeSerializer codeSerializer = new CodeSerializer();
 
-		assertThat(codeSerializer.serialize(createArrayList(1, 2, 3))).containsSequence(
+		assertThat(codeSerializer.serialize(createArrayList(1, 2, 3))).containsSubsequence(
 			"arrayList1 = new ArrayList<>()",
 			"arrayList1.add(1)",
 			"arrayList1.add(2)",
@@ -36,7 +36,7 @@ public class CollectionDataTypesValueTest {
 	public void testCodeSerializerLinkedList() throws Exception {
 		CodeSerializer codeSerializer = new CodeSerializer();
 
-		assertThat(codeSerializer.serialize(createLinkedList(1, 2, 3))).containsSequence(
+		assertThat(codeSerializer.serialize(createLinkedList(1, 2, 3))).containsSubsequence(
 			"linkedList1 = new LinkedList<>()",
 			"linkedList1.add(1)",
 			"linkedList1.add(2)",
@@ -47,7 +47,7 @@ public class CollectionDataTypesValueTest {
 	public void testCodeSerializerHashSet() throws Exception {
 		CodeSerializer codeSerializer = new CodeSerializer();
 
-		assertThat(codeSerializer.serialize(createHashSet(1, 2, 3))).containsSequence(
+		assertThat(codeSerializer.serialize(createHashSet(1, 2, 3))).containsSubsequence(
 			"hashSet1 = new HashSet<>()",
 			"hashSet1.add(1)",
 			"hashSet1.add(2)",
@@ -58,7 +58,7 @@ public class CollectionDataTypesValueTest {
 	public void testCodeSerializerLinkedHashSet() throws Exception {
 		CodeSerializer codeSerializer = new CodeSerializer();
 
-		assertThat(codeSerializer.serialize(createLinkedHashSet(1, 2, 3))).containsSequence(
+		assertThat(codeSerializer.serialize(createLinkedHashSet(1, 2, 3))).containsSubsequence(
 			"linkedHashSet1 = new LinkedHashSet<>()",
 			"linkedHashSet1.add(1)",
 			"linkedHashSet1.add(2)",
@@ -69,7 +69,7 @@ public class CollectionDataTypesValueTest {
 	public void testCodeSerializerHashMap() throws Exception {
 		CodeSerializer codeSerializer = new CodeSerializer();
 
-		assertThat(codeSerializer.serialize(createHashMap(1, 2, 3))).containsSequence(
+		assertThat(codeSerializer.serialize(createHashMap(1, 2, 3))).containsSubsequence(
 			"hashMap1 = new HashMap<>()",
 			"hashMap1.put(1, 2)",
 			"hashMap1.put(2, 4)",
@@ -80,7 +80,7 @@ public class CollectionDataTypesValueTest {
 	public void testCodeSerializerLinkedHashMap() throws Exception {
 		CodeSerializer codeSerializer = new CodeSerializer();
 
-		assertThat(codeSerializer.serialize(createLinkedHashMap(1, 2, 3))).containsSequence(
+		assertThat(codeSerializer.serialize(createLinkedHashMap(1, 2, 3))).containsSubsequence(
 			"linkedHashMap1 = new LinkedHashMap<>()",
 			"linkedHashMap1.put(1, 2)",
 			"linkedHashMap1.put(2, 4)",

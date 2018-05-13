@@ -13,7 +13,7 @@ public class ClassicBeanValueTest {
 		CodeSerializer codeSerializer = new CodeSerializer();
 
 		assertThat(codeSerializer.serialize(createSimpleBean()))
-			.containsSequence(
+			.containsSubsequence(
 				"classicBean1 = new ClassicBean()",
 				"classicBean1.setI(22)")
 			.doesNotContain("classicBean1.setO");
@@ -23,7 +23,7 @@ public class ClassicBeanValueTest {
 	public void testCodeSerializerString() throws Exception {
 		CodeSerializer codeSerializer = new CodeSerializer();
 
-		assertThat(codeSerializer.serialize(createStringBean())).containsSequence(
+		assertThat(codeSerializer.serialize(createStringBean())).containsSubsequence(
 			"classicBean1 = new ClassicBean()",
 			"classicBean1.setI(22)",
 			"classicBean1.setO(\"33\")");
@@ -33,7 +33,9 @@ public class ClassicBeanValueTest {
 	public void testCodeSerializerNested() throws Exception {
 		CodeSerializer codeSerializer = new CodeSerializer();
 
-		assertThat(codeSerializer.serialize(createNestedBean())).containsSequence(
+		ClassicBean createNestedBean = createNestedBean();
+		String serialize = codeSerializer.serialize(createNestedBean);
+		assertThat(serialize).containsSubsequence(
 			"classicBean1 = new ClassicBean()",
 			"classicBean1.setI(22)",
 			"classicBean1.setO(classicBean2)");
@@ -43,7 +45,7 @@ public class ClassicBeanValueTest {
 	public void testCodeSerializerRecursive() throws Exception {
 		CodeSerializer codeSerializer = new CodeSerializer();
 
-		assertThat(codeSerializer.serialize(createRecursiveBean())).containsSequence(
+		assertThat(codeSerializer.serialize(createRecursiveBean())).containsSubsequence(
 			"classicBean1 = new ClassicBean()",
 			"classicBean1.setI(22)",
 			"classicBean1.setO(classicBean1)");

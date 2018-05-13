@@ -65,7 +65,7 @@ public class DefaultSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(
+		assertThat(result.getStatements().toString()).containsSubsequence(
 			"LinkedHashSet<Integer> temp1 = new LinkedHashSet<Integer>()",
 			"temp1.add(0)",
 			"temp1.add(8)",
@@ -85,7 +85,7 @@ public class DefaultSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(
+		assertThat(result.getStatements().toString()).containsSubsequence(
 			"LinkedHashSet<Integer> linkedHashSet1 = new LinkedHashSet<Integer>()",
 			"linkedHashSet1.add(0)",
 			"linkedHashSet1.add(8)",
@@ -104,7 +104,7 @@ public class DefaultSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(
+		assertThat(result.getStatements().toString()).containsSubsequence(
 			"PublicSet<Integer> temp1 = new PublicSet<Integer>()",
 			"temp1.add(0)",
 			"temp1.add(8)",
@@ -124,7 +124,7 @@ public class DefaultSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(
+		assertThat(result.getStatements().toString()).containsSubsequence(
 			"java.util.Set temp1 = clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenSet\").value(java.util.Set.class);",
 			"temp1.add(0)",
 			"temp1.add(8)",
@@ -145,7 +145,7 @@ public class DefaultSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).doesNotContain("new net.amygdalum.testrecorder.util.testobjects.Hidden.HiddenSet");
-		assertThat(result.getStatements().toString()).containsSequence(
+		assertThat(result.getStatements().toString()).containsSubsequence(
 			"LinkedHashSet<Integer> linkedHashSet1 = clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenSet\").value(LinkedHashSet.class);",
 			"linkedHashSet1.add(0)",
 			"linkedHashSet1.add(8)",
@@ -171,7 +171,7 @@ public class DefaultSetAdaptorTest {
 			}
 		});
 
-		assertThat(result.getStatements().toString()).containsSequence(
+		assertThat(result.getStatements().toString()).containsSubsequence(
 			"LinkedHashSet<Integer> temp1 = new LinkedHashSet<Integer>()",
 			"temp1.add(0)",
 			"temp1.add(8)",

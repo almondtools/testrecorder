@@ -46,7 +46,7 @@ public class ArraysListAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(
+		assertThat(result.getStatements().toString()).containsSubsequence(
 			"Integer[] integerArray1 = new Integer[]{0, 8, 15}",
 			"List<Integer> list1 = asList(integerArray1)");
 		assertThat(result.getValue()).isEqualTo("list1");

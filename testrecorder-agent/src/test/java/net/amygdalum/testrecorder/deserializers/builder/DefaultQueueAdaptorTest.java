@@ -63,7 +63,7 @@ public class DefaultQueueAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(
+		assertThat(result.getStatements().toString()).containsSubsequence(
 			"LinkedList<Integer> temp1 = new LinkedList<Integer>()",
 			"temp1.add(0)",
 			"temp1.add(8)",
@@ -83,7 +83,7 @@ public class DefaultQueueAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(
+		assertThat(result.getStatements().toString()).containsSubsequence(
 			"LinkedList<Integer> linkedList1 = new LinkedList<Integer>()",
 			"linkedList1.add(0)",
 			"linkedList1.add(8)",
@@ -102,7 +102,7 @@ public class DefaultQueueAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(
+		assertThat(result.getStatements().toString()).containsSubsequence(
 			"PublicQueue<Integer> temp1 = new PublicQueue<Integer>()",
 			"temp1.add(0)",
 			"temp1.add(8)",
@@ -122,7 +122,7 @@ public class DefaultQueueAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(
+		assertThat(result.getStatements().toString()).containsSubsequence(
 			"java.util.Queue temp1 = clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenQueue\").value(java.util.Queue.class);",
 			"temp1.add(0)",
 			"temp1.add(8)",
@@ -143,7 +143,7 @@ public class DefaultQueueAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).doesNotContain("new net.amygdalum.testrecorder.util.testobjects.Hidden.HiddenQueue");
-		assertThat(result.getStatements().toString()).containsSequence(
+		assertThat(result.getStatements().toString()).containsSubsequence(
 			"LinkedList<Integer> linkedList1 = clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenQueue\").value(LinkedList.class);",
 			"linkedList1.add(0)",
 			"linkedList1.add(8)",
@@ -169,7 +169,7 @@ public class DefaultQueueAdaptorTest {
 			}
 		});
 
-		assertThat(result.getStatements().toString()).containsSequence(
+		assertThat(result.getStatements().toString()).containsSubsequence(
 			"LinkedList<Integer> temp1 = new LinkedList<Integer>()",
 			"temp1.add(0)",
 			"temp1.add(8)",

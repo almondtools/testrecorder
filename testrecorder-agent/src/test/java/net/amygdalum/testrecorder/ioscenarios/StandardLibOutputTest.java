@@ -24,7 +24,7 @@ public class StandardLibOutputTest {
 		io.store("My Output");
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(StandardLibInputOutput.class).getTestCode()).containsSequence(
+		assertThat(testGenerator.renderTest(StandardLibInputOutput.class).getTestCode()).containsSubsequence(
 			"FakeIO",
 			"fakeOutput");
 		assertThat(testGenerator.renderTest(StandardLibInputOutput.class)).satisfies(TestsRun.testsRun());
@@ -36,7 +36,7 @@ public class StandardLibOutputTest {
 		io.sleep();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(StandardLibInputOutput.class).getTestCode()).containsSequence(
+		assertThat(testGenerator.renderTest(StandardLibInputOutput.class).getTestCode()).containsSubsequence(
 			"FakeIO",
 			"fakeOutput");
 		assertThat(testGenerator.renderTest(StandardLibInputOutput.class)).satisfies(testsRun());

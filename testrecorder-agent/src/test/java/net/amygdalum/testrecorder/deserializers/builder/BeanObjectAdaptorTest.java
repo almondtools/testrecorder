@@ -61,7 +61,7 @@ public class BeanObjectAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, new DefaultDeserializerContext());
 
-		assertThat(result.getStatements().toString()).containsSequence(
+		assertThat(result.getStatements().toString()).containsSubsequence(
 			"Bean bean1 = new Bean()",
 			"bean1.setAttribute(\"Hello World\")");
 		assertThat(result.getValue()).isEqualTo("bean1");

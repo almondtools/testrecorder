@@ -3,6 +3,7 @@ package net.amygdalum.testrecorder.values;
 import static net.amygdalum.testrecorder.asm.ByteCode.argumentTypesFrom;
 import static net.amygdalum.testrecorder.asm.ByteCode.classFrom;
 
+import java.io.Serializable;
 import java.lang.invoke.CallSite;
 import java.lang.invoke.LambdaMetafactory;
 import java.lang.invoke.MethodHandle;
@@ -13,7 +14,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-public class LambdaSignature {
+public class LambdaSignature implements Serializable {
 
 	private String capturingClass;
 

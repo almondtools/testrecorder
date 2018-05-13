@@ -57,7 +57,7 @@ public class CollectionsListAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(listDecoratedBy("unmodifiableList", 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSubsequence(listDecoratedBy("unmodifiableList", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("list1");
 	}
 
@@ -68,7 +68,7 @@ public class CollectionsListAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(listDecoratedBy("unmodifiableList", 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSubsequence(listDecoratedBy("unmodifiableList", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("list1");
 	}
 
@@ -79,7 +79,7 @@ public class CollectionsListAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(listDecoratedBy("synchronizedList", 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSubsequence(listDecoratedBy("synchronizedList", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("list1");
 	}
 
@@ -90,7 +90,7 @@ public class CollectionsListAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(rawListDecoratedBy("synchronizedList", 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSubsequence(rawListDecoratedBy("synchronizedList", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("list1");
 	}
 
@@ -101,7 +101,7 @@ public class CollectionsListAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(wildcardListDecoratedBy("synchronizedList", 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSubsequence(wildcardListDecoratedBy("synchronizedList", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("list1");
 	}
 
@@ -112,7 +112,7 @@ public class CollectionsListAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(listDecoratedBy("synchronizedList", 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSubsequence(listDecoratedBy("synchronizedList", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("list1");
 	}
 
@@ -123,7 +123,7 @@ public class CollectionsListAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(listDecoratedBy("checkedList", Integer.class, 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSubsequence(listDecoratedBy("checkedList", Integer.class, 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("list1");
 	}
 
@@ -134,7 +134,7 @@ public class CollectionsListAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
-		assertThat(result.getStatements().toString()).containsSequence(listDecoratedBy("checkedList", Integer.class, 0, 8, 15));
+		assertThat(result.getStatements().toString()).containsSubsequence(listDecoratedBy("checkedList", Integer.class, 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("list1");
 	}
 
