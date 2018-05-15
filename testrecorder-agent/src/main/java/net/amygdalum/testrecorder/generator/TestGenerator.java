@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder.generator;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
-import static java.util.Arrays.asList;
 import static java.util.Collections.synchronizedMap;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 
@@ -13,7 +12,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -22,24 +20,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
-import org.junit.Before;
-
 import net.amygdalum.testrecorder.ClassDescriptor;
 import net.amygdalum.testrecorder.ContextSnapshot;
-import net.amygdalum.testrecorder.SetupGenerator;
 import net.amygdalum.testrecorder.SnapshotConsumer;
 import net.amygdalum.testrecorder.SnapshotManager;
-import net.amygdalum.testrecorder.TestGeneratorContext;
 import net.amygdalum.testrecorder.TestrecorderThreadFactory;
-import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
-import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerators;
 import net.amygdalum.testrecorder.dynamiccompile.RenderedTest;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
-import net.amygdalum.testrecorder.runtime.TestRecorderAgentInitializer;
-import net.amygdalum.testrecorder.types.Computation;
-import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.util.Logger;
 
 public class TestGenerator implements SnapshotConsumer {
@@ -51,18 +39,12 @@ public class TestGenerator implements SnapshotConsumer {
 	private volatile CompletableFuture<Void> pipeline;
 
 	private AgentConfiguration config;
-	private Deserializer<Computation> setup;
-	private Deserializer<Computation> matcher;
-	private Map<ClassDescriptor, TestGeneratorContext> tests;
-
+	private Map<ClassDescriptor, ClassGenerator> tests;
 
 	public TestGenerator(AgentConfiguration config) {
 		this.config = config;
 		PerformanceProfile performanceProfile = config.loadConfiguration(PerformanceProfile.class);
 		this.executor = new ThreadPoolExecutor(0, 1, performanceProfile.getIdleTime(), TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new TestrecorderThreadFactory("$consume"));
-
-		this.setup = new SetupGenerators(config);
-		this.matcher = new MatcherGenerators(config);
 
 		this.tests = synchronizedMap(new LinkedHashMap<>());
 		this.pipeline = CompletableFuture.runAsync(() -> {
@@ -70,41 +52,25 @@ public class TestGenerator implements SnapshotConsumer {
 		}, executor);
 	}
 
-	public void setSetup(Deserializer<Computation> setup) {
-		this.setup = setup;
-	}
-
-	public void setMatcher(Deserializer<Computation> matcher) {
-		this.matcher = matcher;
+	public static TestGenerator fromRecorded() {
+		SnapshotConsumer consumer = SnapshotManager.MANAGER.getMethodConsumer();
+		if (!(consumer instanceof TestGenerator)) {
+			return null;
+		}
+		TestGenerator testGenerator = (TestGenerator) consumer;
+		return testGenerator.await();
 	}
 
 	@Override
 	public synchronized void accept(ContextSnapshot snapshot) {
-		pipeline = this.pipeline.thenRunAsync(() -> {
-			Class<?> thisType = baseType(snapshot.getThisType());
-			while (thisType.getEnclosingClass() != null) {
-				thisType = thisType.getEnclosingClass();
-			}
-			ClassDescriptor baseType = ClassDescriptor.of(thisType);
-			TestGeneratorContext context = getContext(baseType);
-
-			if (!snapshot.getSetupInput().isEmpty() || !snapshot.getExpectOutput().isEmpty()) {
-				SetupGenerator setupGenerator = new SetupGenerator(context.getTypes(), "resetFakeIO", asList(Before.class, After.class))
-					.generateReset();
-				context.addSetup("resetFakeIO", setupGenerator.generateSetup());
-			}
-
-			MethodGenerator methodGenerator = new MethodGenerator(context.size(), context.getTypes(), setup, matcher)
-				.analyze(snapshot)
-				.generateArrange()
-				.generateAct()
-				.generateAssert();
-
-			context.add(methodGenerator.generateTest());
-		}, executor).exceptionally(e -> {
+		pipeline = this.pipeline.thenRunAsync(() -> generatorFor(snapshot).generate(snapshot), executor).exceptionally(e -> {
 			Logger.error("failed generating test for " + snapshot.getMethodName() + ": " + e.getClass().getSimpleName() + " " + e.getMessage(), e);
 			return null;
 		});
+	}
+
+	public String computeClassName(ClassDescriptor clazz) {
+		return clazz.getSimpleName() + RECORDED_TEST;
 	}
 
 	public void writeResults(Path dir) {
@@ -127,13 +93,13 @@ public class TestGenerator implements SnapshotConsumer {
 	public void clearResults() {
 		this.tests.clear();
 		this.pipeline = CompletableFuture.runAsync(() -> {
-			Logger.info("starting code generation");
+			Logger.info("listening for snapshots");
 		}, executor);
 	}
 
 	private Path locateTestFile(Path dir, ClassDescriptor clazz) throws IOException {
 		String pkg = clazz.getPackage();
-		String className = computeClassName(clazz);
+		String className = generatorFor(clazz).getTestName();
 		Path testpackage = dir.resolve(pkg.replace('.', '/'));
 
 		Files.createDirectories(testpackage);
@@ -146,27 +112,25 @@ public class TestGenerator implements SnapshotConsumer {
 	}
 
 	public Set<String> testsFor(ClassDescriptor clazz) {
-		TestGeneratorContext context = getContext(clazz);
-		return context.getTests();
+		ClassGenerator generator = generatorFor(clazz);
+		return generator.getTests();
 	}
 
-	public TestGeneratorContext getContext(ClassDescriptor clazz) {
-		return tests.computeIfAbsent(clazz, this::newContext);
-	}
-
-	public TestGeneratorContext newContext(ClassDescriptor clazz) {
-		TestGeneratorContext context = new TestGeneratorContext(clazz, computeClassName(clazz));
-		List<TestRecorderAgentInitializer> initializers = config.loadConfigurations(TestRecorderAgentInitializer.class);
-		if (!initializers.isEmpty()) {
-			SetupGenerator setupGenerator = new SetupGenerator(context.getTypes(), "initialize", asList(Before.class));
-		
-			for (TestRecorderAgentInitializer initializer : initializers) {
-				setupGenerator = setupGenerator.generateInitialize(initializer);
-			}
-		
-			context.addSetup("initialize", setupGenerator.generateSetup());
+	public ClassGenerator generatorFor(ContextSnapshot snapshot) {
+		Class<?> thisType = baseType(snapshot.getThisType());
+		while (thisType.getEnclosingClass() != null) {
+			thisType = thisType.getEnclosingClass();
 		}
-		return context;
+		ClassDescriptor baseType = ClassDescriptor.of(thisType);
+		return generatorFor(baseType);
+	}
+
+	public ClassGenerator generatorFor(ClassDescriptor clazz) {
+		return tests.computeIfAbsent(clazz, this::newGenerator);
+	}
+
+	public ClassGenerator newGenerator(ClassDescriptor clazz) {
+		return new ClassGenerator(config, clazz.getPackage(), computeClassName(clazz));
 	}
 
 	public RenderedTest renderTest(Class<?> clazz) {
@@ -174,22 +138,8 @@ public class TestGenerator implements SnapshotConsumer {
 	}
 
 	private String renderTest(ClassDescriptor clazz) {
-		TestGeneratorContext context = getContext(clazz);
-		return context.render();
-
-	}
-
-	public String computeClassName(ClassDescriptor clazz) {
-		return clazz.getSimpleName() + RECORDED_TEST;
-	}
-
-	public static TestGenerator fromRecorded() {
-		SnapshotConsumer consumer = SnapshotManager.MANAGER.getMethodConsumer();
-		if (!(consumer instanceof TestGenerator)) {
-			return null;
-		}
-		TestGenerator testGenerator = (TestGenerator) consumer;
-		return testGenerator.await();
+		ClassGenerator generator = generatorFor(clazz);
+		return generator.render();
 	}
 
 	public TestGenerator await() {

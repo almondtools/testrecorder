@@ -23,8 +23,6 @@ import net.amygdalum.testrecorder.ClassDescriptor;
 import net.amygdalum.testrecorder.ContextSnapshot;
 import net.amygdalum.testrecorder.MethodSignature;
 import net.amygdalum.testrecorder.SnapshotManager;
-import net.amygdalum.testrecorder.deserializers.TestComputationValueVisitor;
-import net.amygdalum.testrecorder.generator.ScheduledTestGenerator;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.util.ExtensibleClassLoader;
 import net.amygdalum.testrecorder.util.TemporaryFolder;
@@ -183,60 +181,6 @@ public class ScheduledTestGeneratorTest {
 
 		testGenerator.await();
 		assertThat(testGenerator.renderTest(MyClass.class).getTestCode()).containsSubsequence("@SuppressWarnings(\"unused\")" + System.lineSeparator() + "public class");
-	}
-
-	@Test
-	public void testSetSetup() throws Exception {
-		testGenerator.setSetup(new TestComputationValueVisitor());
-		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
-		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
-		snapshot.setSetupArgs(literal(int.class, 16));
-		snapshot.setSetupGlobals(new SerializedField[0]);
-		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 8))));
-		snapshot.setExpectArgs(literal(int.class, 16));
-		snapshot.setExpectResult(literal(int.class, 22));
-		snapshot.setExpectGlobals(new SerializedField[0]);
-
-		testGenerator.accept(snapshot);
-
-		testGenerator.await();
-		assertThat(testGenerator.testsFor(ScheduledTestGeneratorTest.class))
-			.hasSize(1)
-			.anySatisfy(test -> {
-				assertThat(test).containsSubsequence(
-					"(net.amygdalum.testrecorder.generator.ScheduledTestGeneratorTest$MyClass/",
-					"int field: 12",
-					"intMethod((16))",
-					"equalTo(22)",
-					"int field = 8;");
-			});
-	}
-
-	@Test
-	public void testSetMatcher() throws Exception {
-		testGenerator.setMatcher(new TestComputationValueVisitor());
-		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
-		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
-		snapshot.setSetupArgs(literal(int.class, 16));
-		snapshot.setSetupGlobals(new SerializedField[0]);
-		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 8))));
-		snapshot.setExpectArgs(literal(int.class, 16));
-		snapshot.setExpectResult(literal(int.class, 22));
-		snapshot.setExpectGlobals(new SerializedField[0]);
-
-		testGenerator.accept(snapshot);
-
-		testGenerator.await();
-		assertThat(testGenerator.testsFor(ScheduledTestGeneratorTest.class))
-			.hasSize(1)
-			.anySatisfy(test -> {
-				assertThat(test).containsSubsequence(
-					"int field = 12;",
-					"intMethod(16);",
-					"(22)",
-					"(net.amygdalum.testrecorder.generator.ScheduledTestGeneratorTest$MyClass/",
-					"int field: 8");
-			});
 	}
 
 	@Test
