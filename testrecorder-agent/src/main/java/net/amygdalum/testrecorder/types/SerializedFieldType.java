@@ -1,10 +1,11 @@
 package net.amygdalum.testrecorder.types;
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-public interface SerializedFieldType extends Comparable<SerializedFieldType> {
+public interface SerializedFieldType extends Comparable<SerializedFieldType>, Serializable {
 
 	Class<?> getDeclaringClass();
 

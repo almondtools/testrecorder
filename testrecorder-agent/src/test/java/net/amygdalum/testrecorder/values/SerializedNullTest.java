@@ -29,7 +29,7 @@ public class SerializedNullTest {
 	public void testAccept() throws Exception {
 		SerializedNull value = nullInstance(String.class);
 
-		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("SerializedNull");
+		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("ReferenceType:SerializedNull");
 	}
 
 	@Test

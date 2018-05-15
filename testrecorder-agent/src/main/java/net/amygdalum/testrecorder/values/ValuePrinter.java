@@ -59,6 +59,12 @@ public class ValuePrinter implements Deserializer<String> {
 			} else {
 				return value.getType() + "/" + System.identityHashCode(value);
 			}
+		} else if (rt instanceof SerializedProxy) {
+			SerializedProxy value = (SerializedProxy) rt;
+			return value.getType().toString().replace("class", "proxy") + "/" + System.identityHashCode(value);
+		} else if (rt instanceof SerializedPlaceholder) {
+			SerializedPlaceholder value = (SerializedPlaceholder) rt;
+			return value.getType().toString().replace("class", "placeholder") + "/" + System.identityHashCode(value);
 		} else if (rt instanceof SerializedList) {
 			SerializedList value = (SerializedList) rt;
 			return value.stream()

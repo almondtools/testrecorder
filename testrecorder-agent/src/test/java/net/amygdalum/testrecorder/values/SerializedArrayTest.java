@@ -75,7 +75,7 @@ public class SerializedArrayTest {
 	public void testAccept() throws Exception {
 		SerializedArray array = new SerializedArray(String[].class);
 
-		assertThat(array.accept(new TestValueVisitor(), NULL)).isEqualTo("SerializedArray");
+		assertThat(array.accept(new TestValueVisitor(), NULL)).isEqualTo("ReferenceType:SerializedArray");
 	}
 
 	@Test

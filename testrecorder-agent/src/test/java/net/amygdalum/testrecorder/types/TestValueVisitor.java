@@ -9,16 +9,16 @@ public class TestValueVisitor implements Deserializer<String> {
 	
 	@Override
 	public String visitReferenceType(SerializedReferenceType value, DeserializerContext context) {
-		return value.getClass().getSimpleName();
+		return "ReferenceType:" + value.getClass().getSimpleName();
 	}
 	
 	@Override
 	public String visitImmutableType(SerializedImmutableType value, DeserializerContext context) {
-		return value.getClass().getSimpleName();
+		return "ImmutableType:" + value.getClass().getSimpleName();
 	}
 	
 	@Override
 	public String visitValueType(SerializedValueType value, DeserializerContext context) {
-		return value.getClass().getSimpleName();
+		return "ValueType:" + value.getClass().getSimpleName();
 	}
 }

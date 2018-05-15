@@ -22,7 +22,7 @@ public class SerializedBigDecimalTest {
 	public void testAccept() throws Exception {
 		SerializedImmutable<BigDecimal> value = new SerializedImmutable<BigDecimal>(BigDecimal.class);
 
-		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("SerializedImmutable");
+		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("ImmutableType:SerializedImmutable");
 	}
 
 }

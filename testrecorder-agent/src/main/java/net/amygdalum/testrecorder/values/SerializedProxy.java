@@ -70,4 +70,9 @@ public class SerializedProxy extends AbstractSerializedReferenceType implements 
 		return referencedValues;
 	}
 
+	@Override
+	public String toString() {
+		return ValuePrinter.print(this);
+	}
+
 }

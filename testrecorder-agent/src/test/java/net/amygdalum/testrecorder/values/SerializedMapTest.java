@@ -267,7 +267,7 @@ public class SerializedMapTest {
 	public void testAccept() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(Map.class);
-		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("SerializedMap");
+		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("ReferenceType:SerializedMap");
 	}
 
 }

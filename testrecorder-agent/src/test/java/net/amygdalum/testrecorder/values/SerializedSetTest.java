@@ -299,7 +299,7 @@ public class SerializedSetTest {
 	public void testAccept() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(Set.class);
-		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("SerializedSet");
+		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("ReferenceType:SerializedSet");
 	}
 
 }

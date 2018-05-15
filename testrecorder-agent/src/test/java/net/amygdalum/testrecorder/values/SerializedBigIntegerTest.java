@@ -22,7 +22,7 @@ public class SerializedBigIntegerTest {
 	public void testAccept() throws Exception {
 		SerializedImmutable<BigInteger> value = new SerializedImmutable<BigInteger>(BigInteger.class);
 
-		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("SerializedImmutable");
+		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("ImmutableType:SerializedImmutable");
 	}
 
 }

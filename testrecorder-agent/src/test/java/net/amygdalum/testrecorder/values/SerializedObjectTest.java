@@ -50,7 +50,7 @@ public class SerializedObjectTest {
 	public void testAccept() throws Exception {
 		SerializedObject serializedObject = new SerializedObject(Object.class);
 
-		assertThat(serializedObject.accept(new TestValueVisitor(), NULL)).isEqualTo("SerializedObject");
+		assertThat(serializedObject.accept(new TestValueVisitor(), NULL)).isEqualTo("ReferenceType:SerializedObject");
 	}
 
 	@Test

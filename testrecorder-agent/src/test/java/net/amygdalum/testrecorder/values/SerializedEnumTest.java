@@ -21,7 +21,7 @@ public class SerializedEnumTest {
 	public void testAccept() throws Exception {
 		SerializedEnum value = new SerializedEnum(MyEnum.class);
 
-		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("SerializedEnum");
+		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("ImmutableType:SerializedEnum");
 	}
 
 	@Test

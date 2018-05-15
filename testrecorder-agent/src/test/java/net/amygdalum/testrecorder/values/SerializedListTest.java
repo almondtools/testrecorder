@@ -431,7 +431,7 @@ public class SerializedListTest {
 	public void testAccept() throws Exception {
 		SerializedList value = new SerializedList(ArrayList.class);
 		value.useAs(List.class);
-		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("SerializedList");
+		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("ReferenceType:SerializedList");
 	}
 
 }

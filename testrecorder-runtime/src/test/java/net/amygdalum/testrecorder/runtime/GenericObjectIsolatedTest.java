@@ -30,7 +30,7 @@ public class GenericObjectIsolatedTest {
         }).execute(() -> {
             Throwable captured = Throwables.capture(() -> GenericObject.newInstance(NonSerializableConstructor.class));
 
-            assertThat(captured.getMessage()).containsSequence(
+            assertThat(captured.getMessage()).containsSubsequence(
 "NonSerializableConstructor(null)",
 "NonSerializableConstructor(\"\")",
 "NonSerializableConstructor(\"String\")");

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -17,10 +19,30 @@
 			<artifactId>testrecorder-runtime</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>6.1.1</version>
+        </dependency>
 		<dependency>
 			<groupId>org.ow2.asm</groupId>
-			<artifactId>asm-debug-all</artifactId>
-			<version>5.2</version>
+			<artifactId>asm-tree</artifactId>
+			<version>6.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.ow2.asm</groupId>
+			<artifactId>asm-commons</artifactId>
+			<version>6.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.ow2.asm</groupId>
+			<artifactId>asm-analysis</artifactId>
+			<version>6.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.ow2.asm</groupId>
+			<artifactId>asm-util</artifactId>
+			<version>6.1.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.objenesis</groupId>
@@ -116,9 +138,9 @@
 						<id>make-agent</id>
 						<phase>package</phase>
 						<configuration>
-                            <descriptors>
-                                <descriptor>src/main/assembly/agent.xml</descriptor>
-                            </descriptors>
+							<descriptors>
+								<descriptor>src/main/assembly/agent.xml</descriptor>
+							</descriptors>
 							<archive>
 								<index>true</index>
 								<manifest>

@@ -226,7 +226,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 		public void logSkippedSnapshotMethods() {
 			for (MethodNode methodNode : getSkippedSnapshotMethods()) {
-				Logger.warn("method " + Type.getMethodType(methodNode.desc).getDescriptor() + " in " + Type.getType(classNode.name) + " is not accessible, skipping");
+				Logger.warn("method " + Type.getMethodType(methodNode.desc).getDescriptor() + " in " + Type.getObjectType(classNode.name) + " is not accessible, skipping");
 			}
 		}
 
@@ -479,7 +479,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 				if (insn instanceof MethodInsnNode) {
 					MethodInsnNode methodinsn = (MethodInsnNode) insn;
 					try {
-						Type type = Type.getType(methodinsn.owner);
+						Type type = Type.getObjectType(methodinsn.owner);
 						if (ByteCode.isPrimitive(type) || ByteCode.isArray(type)) {
 							continue;
 						}
@@ -504,7 +504,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 				if (insn instanceof MethodInsnNode) {
 					MethodInsnNode methodinsn = (MethodInsnNode) insn;
 					try {
-						Type type = Type.getType(methodinsn.owner);
+						Type type = Type.getObjectType(methodinsn.owner);
 						if (ByteCode.isPrimitive(type) || ByteCode.isArray(type)) {
 							continue;
 						}

@@ -36,7 +36,7 @@ public class SerializedLiteralTest {
 	public void testAccept() throws Exception {
 		SerializedLiteral value = literal("string");
 
-		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("SerializedLiteral");
+		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("ValueType:SerializedLiteral");
 	}
 
 	@Test
