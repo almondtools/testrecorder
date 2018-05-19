@@ -109,7 +109,7 @@ public class ValuePrinterTest {
 	@Test
 	public void testVisitOtherReferenceType() throws Exception {
 		SerializedReferenceType object = Mockito.mock(SerializedReferenceType.class);
-		assertThat(printer.visitReferenceType(object, context)).isEqualTo("");
+		assertThat(printer.visitReferenceType(object, context)).isEqualTo("?");
 	}
 
 	@Test

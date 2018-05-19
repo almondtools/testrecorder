@@ -47,49 +47,75 @@ public class ValuePrinter implements Deserializer<String> {
 
 	@Override
 	public String visitReferenceType(SerializedReferenceType rt, DeserializerContext context) {
-		if (rt instanceof SerializedObject) {
+		boolean inserted = known.add(rt);
+		if (!inserted) {
+			return rt.getType() + "/" + System.identityHashCode(rt);
+		} else if (rt instanceof SerializedObject) {
 			SerializedObject value = (SerializedObject) rt;
-			boolean inserted = known.add(value);
-			if (inserted) {
-				return value.getType().getTypeName() + "/" + System.identityHashCode(value) + " "
-					+ value.getFields().stream()
-						.sorted()
-						.map(field -> field.accept(this, context))
-						.collect(joining(",\n", "{\n", "\n}"));
-			} else {
-				return value.getType() + "/" + System.identityHashCode(value);
-			}
+			return printObject(context, value); 
 		} else if (rt instanceof SerializedProxy) {
 			SerializedProxy value = (SerializedProxy) rt;
-			return value.getType().toString().replace("class", "proxy") + "/" + System.identityHashCode(value);
+			return printProxy(context, value);
 		} else if (rt instanceof SerializedPlaceholder) {
 			SerializedPlaceholder value = (SerializedPlaceholder) rt;
-			return value.getType().toString().replace("class", "placeholder") + "/" + System.identityHashCode(value);
+			return printPlaceholder(context, value);
 		} else if (rt instanceof SerializedList) {
 			SerializedList value = (SerializedList) rt;
-			return value.stream()
-				.map(element -> element.accept(this, context))
-				.collect(joining(", ", "[", "]"));
+			return printList(context, value);
 		} else if (rt instanceof SerializedMap) {
 			SerializedMap value = (SerializedMap) rt;
-			return value.entrySet().stream()
-				.map(element -> element.getKey().accept(this, context) + ":" + element.getValue().accept(this, context))
-				.collect(joining(",", "{", "}"));
+			return printMap(context, value);
 		} else if (rt instanceof SerializedSet) {
 			SerializedSet value = (SerializedSet) rt;
-			return value.stream()
-				.map(element -> element.accept(this, context))
-				.collect(joining(", ", "{", "}"));
+			return printSet(context, value);
 		} else if (rt instanceof SerializedArray) {
 			SerializedArray value = (SerializedArray) rt;
-			return Stream.of(value.getArray())
-				.map(element -> element.accept(this, context))
-				.collect(joining(", ", "<", ">"));
+			return printArray(context, value);
 		} else if (rt instanceof SerializedNull) {
 			return "null";
 		} else {
-			return "";
+			return "?";
 		}
+	}
+
+	private String printPlaceholder(DeserializerContext context, SerializedPlaceholder value) {
+		return value.getType().toString().replace("class", "placeholder") + "/" + System.identityHashCode(value);
+	}
+
+	private String printProxy(DeserializerContext context, SerializedProxy value) {
+		return value.getType().toString().replace("class", "proxy") + "/" + System.identityHashCode(value);
+	}
+
+	private String printObject(DeserializerContext context, SerializedObject value) {
+		return value.getType().getTypeName() + "/" + System.identityHashCode(value) + " "
+			+ value.getFields().stream()
+				.sorted()
+				.map(field -> field.accept(this, context))
+				.collect(joining(",\n", "{\n", "\n}"));
+	}
+
+	private String printList(DeserializerContext context, SerializedList value) {
+		return value.stream()
+			.map(element -> element.accept(this, context))
+			.collect(joining(", ", "[", "]"));
+	}
+
+	private String printSet(DeserializerContext context, SerializedSet value) {
+		return value.stream()
+			.map(element -> element.accept(this, context))
+			.collect(joining(", ", "{", "}"));
+	}
+
+	private String printMap(DeserializerContext context, SerializedMap value) {
+		return value.entrySet().stream()
+			.map(element -> element.getKey().accept(this, context) + ":" + element.getValue().accept(this, context))
+			.collect(joining(",", "{", "}"));
+	}
+
+	private String printArray(DeserializerContext context, SerializedArray value) {
+		return Stream.of(value.getArray())
+			.map(element -> element.accept(this, context))
+			.collect(joining(", ", "<", ">"));
 	}
 
 	@Override
