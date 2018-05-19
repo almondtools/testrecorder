@@ -120,7 +120,7 @@ public class ExtensibleClassLoader extends URLClassLoader implements RedefiningC
 		}
 	}
 
-	private byte[] getBytesForClass(String name) throws IOException {
+	protected byte[] getBytesForClass(String name) throws IOException {
 		InputStream input = ClassLoader.getSystemResourceAsStream(name.replace('.', '/') + ".class");
 		byte[] buffer = new byte[8192];
 		int bytesRead;
