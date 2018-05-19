@@ -15,7 +15,7 @@ public class MethodContext {
 		factories.put(signature, new ContextSnapshotFactory(signature, className, methodName, methodDesc));
 	}
 
-	public ContextSnapshot createSnapshot(String signature) {
+	public RecordingContextSnapshot createSnapshot(String signature) {
 		ContextSnapshotFactory factory = factories.getOrDefault(signature, ContextSnapshotFactory.NULL);
 		return factory.createSnapshot();
 	}

@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import net.amygdalum.testrecorder.ClassDescriptor;
-import net.amygdalum.testrecorder.ContextSnapshot;
+import net.amygdalum.testrecorder.RecordingContextSnapshot;
 import net.amygdalum.testrecorder.MethodSignature;
 import net.amygdalum.testrecorder.SnapshotManager;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
@@ -57,7 +57,7 @@ public class TestGeneratorTest {
 
 	@Test
 	public void testAccept() throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
+		RecordingContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));
 		snapshot.setSetupGlobals(new SerializedField[0]);
@@ -82,7 +82,7 @@ public class TestGeneratorTest {
 	@Test
 	public void testAcceptWithInitializer() throws Exception {
 		loader.defineResource("agentconfig/net.amygdalum.testrecorder.runtime.TestRecorderAgentInitializer", "net.amygdalum.testrecorder.runtime.AgentInitializer".getBytes());
-		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
+		RecordingContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));
 		snapshot.setSetupGlobals(new SerializedField[0]);
@@ -104,7 +104,7 @@ public class TestGeneratorTest {
 
 	@Test
 	public void testAcceptWithInput() throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
+		RecordingContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));
 		snapshot.setSetupGlobals(new SerializedField[0]);
@@ -128,7 +128,7 @@ public class TestGeneratorTest {
 
 	@Test
 	public void testAcceptWithOutput() throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
+		RecordingContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));
 		snapshot.setSetupGlobals(new SerializedField[0]);
@@ -152,7 +152,7 @@ public class TestGeneratorTest {
 
 	@Test
 	public void testSuppressesWarnings() throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
+		RecordingContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));
 		snapshot.setSetupGlobals(new SerializedField[0]);
@@ -174,7 +174,7 @@ public class TestGeneratorTest {
 
 	@Test
 	public void testTestsForAfterClear() throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
+		RecordingContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));
 		snapshot.setSetupGlobals(new SerializedField[0]);
@@ -191,7 +191,7 @@ public class TestGeneratorTest {
 
 	@Test
 	public void testRenderCode() throws Exception {
-		ContextSnapshot snapshot1 = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
+		RecordingContextSnapshot snapshot1 = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot1.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot1.setSetupArgs(literal(int.class, 16));
 		snapshot1.setSetupGlobals(new SerializedField[0]);
@@ -199,7 +199,7 @@ public class TestGeneratorTest {
 		snapshot1.setExpectArgs(literal(int.class, 16));
 		snapshot1.setExpectResult(literal(int.class, 22));
 		snapshot1.setExpectGlobals(new SerializedField[0]);
-		ContextSnapshot snapshot2 = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
+		RecordingContextSnapshot snapshot2 = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot2.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 13))));
 		snapshot2.setSetupArgs(literal(int.class, 17));
 		snapshot2.setSetupGlobals(new SerializedField[0]);
@@ -230,7 +230,7 @@ public class TestGeneratorTest {
 
 	@Test
 	public void testWriteResults(TemporaryFolder folder) throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
+		RecordingContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));
 		snapshot.setSetupGlobals(new SerializedField[0]);
@@ -247,8 +247,8 @@ public class TestGeneratorTest {
 		assertThat(Files.exists(folder.resolve("net/amygdalum/testrecorder/generator/TestGeneratorTestRecordedTest.java"))).isTrue();
 	}
 
-	private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
-		return new ContextSnapshot(0, "key", new MethodSignature(declaringClass, new Annotation[0], resultType, methodName, new Annotation[0][0], argumentTypes));
+	private RecordingContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
+		return new RecordingContextSnapshot(0, "key", new MethodSignature(declaringClass, new Annotation[0], resultType, methodName, new Annotation[0][0], argumentTypes));
 	}
 
 	private SerializedObject objectOf(Class<MyClass> type, SerializedField... fields) {

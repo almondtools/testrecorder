@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder;
 import static java.lang.System.identityHashCode;
 import static java.lang.Thread.currentThread;
 import static java.util.stream.Collectors.joining;
-import static net.amygdalum.testrecorder.ContextSnapshot.INVALID;
+import static net.amygdalum.testrecorder.RecordingContextSnapshot.INVALID;
 import static net.amygdalum.testrecorder.TestrecorderThreadFactory.RECORDING;
 
 import java.io.File;
@@ -63,7 +63,7 @@ public class SnapshotManager {
 	private MethodContext methodContext;
 	private GlobalContext globalContext;
 
-	private ThreadLocal<Deque<ContextSnapshot>> current;
+	private ThreadLocal<Deque<RecordingContextSnapshot>> current;
 
 	private SnapshotConsumer snapshotConsumer;
 	private long timeoutInMillis;
@@ -163,15 +163,15 @@ public class SnapshotManager {
 	}
 
 	public ContextSnapshotTransaction push(String signature) {
-		ContextSnapshot snapshot = methodContext.createSnapshot(signature);
+		RecordingContextSnapshot snapshot = methodContext.createSnapshot(signature);
 		current.get().push(snapshot);
 		return new ValidContextSnapshotTransaction(snapshotExecutor, timeoutInMillis, facade, snapshot);
 	}
 
 	public ContextSnapshotTransaction pop(String signature) {
-		Deque<ContextSnapshot> snapshots = current.get();
+		Deque<RecordingContextSnapshot> snapshots = current.get();
 		while (!snapshots.isEmpty()) {
-			ContextSnapshot snapshot = snapshots.pop();
+			RecordingContextSnapshot snapshot = snapshots.pop();
 			if (snapshot.matches(signature)) {
 				return new ValidContextSnapshotTransaction(snapshotExecutor, timeoutInMillis, facade, snapshot);
 			}
@@ -181,20 +181,20 @@ public class SnapshotManager {
 	}
 
 	public ContextSnapshotTransaction current() {
-		Deque<ContextSnapshot> stack = current.get();
+		Deque<RecordingContextSnapshot> stack = current.get();
 		if (stack.isEmpty()) {
 			return DummyContextSnapshotTransaction.INVALID;
 		} else {
-			ContextSnapshot snapshot = stack.peek();
+			RecordingContextSnapshot snapshot = stack.peek();
 			return new ValidContextSnapshotTransaction(snapshotExecutor, timeoutInMillis, facade, snapshot);
 		}
 	}
 
-	public Queue<ContextSnapshot> all() {
+	public Queue<RecordingContextSnapshot> all() {
 		return current.get();
 	}
 
-	public Optional<ContextSnapshot> peek() {
+	public Optional<RecordingContextSnapshot> peek() {
 		return Optional.ofNullable(current.get().peek());
 	}
 
@@ -228,7 +228,7 @@ public class SnapshotManager {
 			int id = toId(object);
 
 			SerializedInput in = new SerializedInput(id, clazz, method, resultType, paramTypes);
-			for (ContextSnapshot snapshot : all()) {
+			for (RecordingContextSnapshot snapshot : all()) {
 				snapshot.addInput(in);
 			}
 			return in.id();
@@ -295,7 +295,7 @@ public class SnapshotManager {
 			int id = toId(object);
 
 			SerializedOutput out = new SerializedOutput(id, clazz, method, resultType, paramTypes);
-			for (ContextSnapshot snapshot : all()) {
+			for (RecordingContextSnapshot snapshot : all()) {
 				snapshot.addOutput(out);
 			}
 			return out.id();
@@ -427,7 +427,7 @@ public class SnapshotManager {
 		}
 	}
 
-	protected void consume(ContextSnapshot snapshot) {
+	protected void consume(RecordingContextSnapshot snapshot) {
 		if (snapshot.isValid()) {
 			if (snapshotConsumer != null) {
 				snapshotConsumer.accept(snapshot);
@@ -454,7 +454,7 @@ public class SnapshotManager {
 			.orElse(false);
 	}
 
-	private static Deque<ContextSnapshot> newStack() {
+	private static Deque<RecordingContextSnapshot> newStack() {
 		if (currentThread().getThreadGroup() == RECORDING) {
 			return new PassiveDeque<>(INVALID);
 		} else {
@@ -466,7 +466,7 @@ public class SnapshotManager {
 
 		ContextSnapshotTransaction to(SerializationTask task);
 
-		void andConsume(Consumer<ContextSnapshot> consumer);
+		void andConsume(Consumer<RecordingContextSnapshot> consumer);
 
 	}
 
@@ -480,7 +480,7 @@ public class SnapshotManager {
 		}
 
 		@Override
-		public void andConsume(Consumer<ContextSnapshot> consumer) {
+		public void andConsume(Consumer<RecordingContextSnapshot> consumer) {
 		}
 
 	}
@@ -491,9 +491,9 @@ public class SnapshotManager {
 		private long timeoutInMillis;
 		private ConfigurableSerializerFacade facade;
 
-		private ContextSnapshot snapshot;
+		private RecordingContextSnapshot snapshot;
 
-		public ValidContextSnapshotTransaction(ExecutorService snapshotExecutor, long timeoutInMillis, ConfigurableSerializerFacade facade, ContextSnapshot snapshot) {
+		public ValidContextSnapshotTransaction(ExecutorService snapshotExecutor, long timeoutInMillis, ConfigurableSerializerFacade facade, RecordingContextSnapshot snapshot) {
 			this.snapshotExecutor = snapshotExecutor;
 			this.timeoutInMillis = timeoutInMillis;
 			this.facade = facade;
@@ -523,13 +523,13 @@ public class SnapshotManager {
 		}
 
 		@Override
-		public void andConsume(Consumer<ContextSnapshot> consumer) {
+		public void andConsume(Consumer<RecordingContextSnapshot> consumer) {
 			consumer.accept(snapshot);
 		}
 	}
 
 	public interface SerializationTask {
-		void serialize(SerializerFacade facade, SerializerSession session, ContextSnapshot snapshot);
+		void serialize(SerializerFacade facade, SerializerSession session, RecordingContextSnapshot snapshot);
 	}
 
 	private static class StackTraceValidator {

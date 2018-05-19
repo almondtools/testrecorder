@@ -54,7 +54,7 @@ public class SnapshotManagerTest {
 
 		snapshotManager.setupVariables(self, "setAttribute(Ljava/lang/String;)V", "mystr");
 
-		ContextSnapshot snapshot = snapshotManager.peek().get();
+		RecordingContextSnapshot snapshot = snapshotManager.peek().get();
 
 		assertThat(snapshot.getSetupThis())
 			.isInstanceOf(SerializedObject.class)
@@ -74,7 +74,7 @@ public class SnapshotManagerTest {
 
 		snapshotManager.setupVariables(self, "method(I)I", 1);
 
-		Optional<ContextSnapshot> snapshot = snapshotManager.peek();
+		Optional<RecordingContextSnapshot> snapshot = snapshotManager.peek();
 		assertThat(snapshot).isNotPresent();
 	}
 
@@ -105,7 +105,7 @@ public class SnapshotManagerTest {
 		snapshotManager.registerRecordedMethod("setAttribute(Ljava/lang/String;)V", "net/amygdalum/testrecorder/util/testobjects/Bean", "setAttribute", "(Ljava/lang/String;)V");
 		Bean self = new Bean();
 		snapshotManager.setupVariables(self, "setAttribute(Ljava/lang/String;)V", "mystr");
-		ContextSnapshot snapshot = snapshotManager.peek().get();
+		RecordingContextSnapshot snapshot = snapshotManager.peek().get();
 
 		self.setAttribute("hasbeenset");
 		snapshotManager.expectVariables(self, "setAttribute(Ljava/lang/String;)V", new Object[] { "mystr" });
@@ -169,7 +169,7 @@ public class SnapshotManagerTest {
 		snapshotManager.registerRecordedMethod("method(I)I", "net/amygdalum/testrecorder/util/testobjects/Overridden", "method", "(I)I");
 		Overridden self = new Overridden();
 		snapshotManager.setupVariables(self, "method(I)I", new Object[] { 1 });
-		ContextSnapshot snapshot = snapshotManager.peek().get();
+		RecordingContextSnapshot snapshot = snapshotManager.peek().get();
 
 		snapshotManager.expectVariables(self, "method(I)I", 2, new Object[] { 1 });
 
@@ -231,7 +231,7 @@ public class SnapshotManagerTest {
 		snapshotManager.registerRecordedMethod("method(I)I", "net/amygdalum/testrecorder/util/testobjects/Overridden", "method", "(I)I");
 		Overridden self = new Overridden();
 		snapshotManager.setupVariables(self, "method(I)I", new Object[] { 1 });
-		ContextSnapshot snapshot = snapshotManager.peek().get();
+		RecordingContextSnapshot snapshot = snapshotManager.peek().get();
 
 		snapshotManager.throwVariables(new RuntimeException("thrown by test"), self, "method(I)I", new Object[] { 1 });
 
@@ -301,7 +301,7 @@ public class SnapshotManagerTest {
 
 		snapshotManager.push("signature");
 
-		Optional<ContextSnapshot> snapshot = snapshotManager.peek();
+		Optional<RecordingContextSnapshot> snapshot = snapshotManager.peek();
 
 		assertThat(snapshot).isPresent();
 
@@ -318,7 +318,7 @@ public class SnapshotManagerTest {
 
 		ContextSnapshotTransaction ta = snapshotManager.pop("signature");
 
-		Optional<ContextSnapshot> snapshot = snapshotManager.peek();
+		Optional<RecordingContextSnapshot> snapshot = snapshotManager.peek();
 
 		assertThat(ta).isSameAs(DummyContextSnapshotTransaction.INVALID);
 		assertThat(snapshot).isNotPresent();

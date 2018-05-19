@@ -31,8 +31,8 @@ public class ContextSnapshotFactory {
 		return signature;
     }
 
-	public ContextSnapshot createSnapshot() {
-		return new ContextSnapshot(System.currentTimeMillis(), key, signature());
+	public RecordingContextSnapshot createSnapshot() {
+		return new RecordingContextSnapshot(System.currentTimeMillis(), key, signature());
 	}
 
 }

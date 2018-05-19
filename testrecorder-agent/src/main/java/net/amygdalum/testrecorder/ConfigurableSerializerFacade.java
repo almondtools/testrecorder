@@ -87,7 +87,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 	private static List<Classes> testrecorderClasses() {
 		return asList(
 			Classes.byDescription(SnapshotManager.class),
-			Classes.byDescription(ContextSnapshot.class),
+			Classes.byDescription(RecordingContextSnapshot.class),
 			Classes.byDescription(SerializerFacade.class),
 			Classes.byDescription(ConfigurableSerializerFacade.class),
 			Classes.byDescription(SerializerSession.class),
