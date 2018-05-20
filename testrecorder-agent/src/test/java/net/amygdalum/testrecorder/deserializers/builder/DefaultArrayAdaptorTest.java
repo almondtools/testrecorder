@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
@@ -43,12 +44,16 @@ public class DefaultArrayAdaptorTest {
 		value.add(literal(int.class, 0));
 		value.add(literal(int.class, 8));
 		value.add(literal(int.class, 15));
-		SetupGenerators generator = new SetupGenerators(config);
+		SetupGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).contains("int[] intArray1 = new int[]{0, 8, 15}");
 		assertThat(result.getValue()).isEqualTo("intArray1");
+	}
+
+	private SetupGenerators generator() {
+		return new SetupGenerators(new Adaptors<SetupGenerators>(config).load(SetupGenerator.class));
 	}
 
 }

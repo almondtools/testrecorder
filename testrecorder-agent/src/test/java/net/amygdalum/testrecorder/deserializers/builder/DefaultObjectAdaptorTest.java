@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
@@ -43,7 +44,7 @@ public class DefaultObjectAdaptorTest {
 	public void testTryDeserializeWithNonBean() throws Exception {
 		SerializedObject value = new SerializedObject(Simple.class);
 		value.addField(new SerializedField(String.class, "str", String.class, SerializedLiteral.literal("Hello World")));
-		SetupGenerators generator = new SetupGenerators(config);
+		SetupGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -52,6 +53,10 @@ public class DefaultObjectAdaptorTest {
 			"String str = \"Hello World\"",
 			"as(Simple.class)");
 		assertThat(result.getValue()).isEqualTo("simple1");
+	}
+
+	private SetupGenerators generator() {
+		return new SetupGenerators(new Adaptors<SetupGenerators>(config).load(SetupGenerator.class));
 	}
 
 }

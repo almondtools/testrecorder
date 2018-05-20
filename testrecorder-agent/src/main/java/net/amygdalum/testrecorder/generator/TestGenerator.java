@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -25,9 +26,15 @@ import net.amygdalum.testrecorder.ContextSnapshot;
 import net.amygdalum.testrecorder.SnapshotConsumer;
 import net.amygdalum.testrecorder.SnapshotManager;
 import net.amygdalum.testrecorder.TestrecorderThreadFactory;
+import net.amygdalum.testrecorder.deserializers.Adaptors;
+import net.amygdalum.testrecorder.deserializers.builder.SetupGenerator;
+import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
+import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerator;
+import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerators;
 import net.amygdalum.testrecorder.dynamiccompile.RenderedTest;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
+import net.amygdalum.testrecorder.runtime.TestRecorderAgentInitializer;
 import net.amygdalum.testrecorder.util.Logger;
 
 public class TestGenerator implements SnapshotConsumer {
@@ -130,7 +137,11 @@ public class TestGenerator implements SnapshotConsumer {
 	}
 
 	public ClassGenerator newGenerator(ClassDescriptor clazz) {
-		return new ClassGenerator(config, clazz.getPackage(), computeClassName(clazz));
+		SetupGenerators setup = new SetupGenerators(new Adaptors<SetupGenerators>(config).load(SetupGenerator.class));
+		MatcherGenerators matcher = new MatcherGenerators(new Adaptors<MatcherGenerators>(config).load(MatcherGenerator.class));
+		List<TestRecorderAgentInitializer> initializer = config.loadConfigurations(TestRecorderAgentInitializer.class);
+
+		return new ClassGenerator(setup, matcher, initializer, clazz.getPackage(), computeClassName(clazz));
 	}
 
 	public RenderedTest renderTest(Class<?> clazz) {

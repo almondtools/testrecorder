@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
@@ -43,7 +44,7 @@ public class DefaultEnumAdaptorTest {
 	public void testTryDeserialize() throws Exception {
 		SerializedEnum value = new SerializedEnum(PublicEnum.class);
 		value.setName("VALUE1");
-		MatcherGenerators generator = new MatcherGenerators(config);
+		MatcherGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -55,7 +56,7 @@ public class DefaultEnumAdaptorTest {
 	public void testTryDeserializeHidden() throws Exception {
 		SerializedEnum value = new SerializedEnum(classOfHiddenEnum());
 		value.setName("VALUE2");
-		MatcherGenerators generator = new MatcherGenerators(config);
+		MatcherGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -68,12 +69,16 @@ public class DefaultEnumAdaptorTest {
 		SerializedEnum value = new SerializedEnum(classOfHiddenEnum());
 		value.useAs(Object.class);
 		value.setName("VALUE2");
-		MatcherGenerators generator = new MatcherGenerators(config);
+		MatcherGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("widening(matchingEnum(\"VALUE2\"))");
+	}
+
+	private MatcherGenerators generator() {
+		return new MatcherGenerators(new Adaptors<MatcherGenerators>(config).load(MatcherGenerator.class));
 	}
 
 }

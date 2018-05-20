@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.generator;
 
+import static java.util.Collections.emptyList;
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
@@ -11,9 +12,14 @@ import java.lang.reflect.Type;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.RecordingContextSnapshot;
 import net.amygdalum.testrecorder.MethodSignature;
+import net.amygdalum.testrecorder.RecordingContextSnapshot;
+import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.TestComputationValueVisitor;
+import net.amygdalum.testrecorder.deserializers.builder.SetupGenerator;
+import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
+import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerator;
+import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerators;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.util.ExtensibleClassLoader;
 import net.amygdalum.testrecorder.values.SerializedField;
@@ -23,13 +29,17 @@ public class ClassGeneratorTest {
 
 	private ExtensibleClassLoader loader;
 	private AgentConfiguration config;
+	private SetupGenerators setup;
+	private MatcherGenerators matcher;
 	private ClassGenerator testGenerator;
 
 	@BeforeEach
 	public void before() throws Exception {
 		loader = new ExtensibleClassLoader(TestGenerator.class.getClassLoader());
 		config = defaultConfig().withLoader(loader);
-		testGenerator = new ClassGenerator(config, MyClass.class.getPackage().getName(), MyClass.class.getSimpleName());
+		setup = new SetupGenerators(new Adaptors<SetupGenerators>(config).load(SetupGenerator.class));
+		matcher = new MatcherGenerators(new Adaptors<MatcherGenerators>(config).load(MatcherGenerator.class));
+		testGenerator = new ClassGenerator(setup, matcher, emptyList(), MyClass.class.getPackage().getName(), MyClass.class.getSimpleName());
 	}
 	
 	@Test

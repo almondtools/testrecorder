@@ -12,6 +12,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
@@ -53,7 +54,7 @@ public class CollectionsListAdaptorTest {
 	@Test
 	public void testTryDeserializeUnmodifiable() throws Exception {
 		SerializedList value = listOf("java.util.Collections$UnmodifiableList", 0, 8, 15);
-		SetupGenerators generator = new SetupGenerators(config);
+		SetupGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -64,7 +65,7 @@ public class CollectionsListAdaptorTest {
 	@Test
 	public void testTryDeserializeUnmodifiableRandomAccess() throws Exception {
 		SerializedList value = listOf("java.util.Collections$UnmodifiableRandomAccessList", 0, 8, 15);
-		SetupGenerators generator = new SetupGenerators(config);
+		SetupGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -75,7 +76,7 @@ public class CollectionsListAdaptorTest {
 	@Test
 	public void testTryDeserializeSynchronized() throws Exception {
 		SerializedList value = listOf("java.util.Collections$SynchronizedList", 0, 8, 15);
-		SetupGenerators generator = new SetupGenerators(config);
+		SetupGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -86,7 +87,7 @@ public class CollectionsListAdaptorTest {
 	@Test
 	public void testTryDeserializeSynchronizedRawType() throws Exception {
 		SerializedList value = listOfRaw("java.util.Collections$SynchronizedList", 0, 8, 15);
-		SetupGenerators generator = new SetupGenerators(config);
+		SetupGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -97,7 +98,7 @@ public class CollectionsListAdaptorTest {
 	@Test
 	public void testTryDeserializeSynchronizedWildcardType() throws Exception {
 		SerializedList value = listOfWildcard("java.util.Collections$SynchronizedList", 0, 8, 15);
-		SetupGenerators generator = new SetupGenerators(config);
+		SetupGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -108,7 +109,7 @@ public class CollectionsListAdaptorTest {
 	@Test
 	public void testTryDeserializeSynchronizedRandomAccess() throws Exception {
 		SerializedList value = listOf("java.util.Collections$SynchronizedRandomAccessList", 0, 8, 15);
-		SetupGenerators generator = new SetupGenerators(config);
+		SetupGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -119,7 +120,7 @@ public class CollectionsListAdaptorTest {
 	@Test
 	public void testTryDeserializeChecked() throws Exception {
 		SerializedList value = listOf("java.util.Collections$CheckedList", 0, 8, 15);
-		SetupGenerators generator = new SetupGenerators(config);
+		SetupGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -130,7 +131,7 @@ public class CollectionsListAdaptorTest {
 	@Test
 	public void testTryDeserializeCheckedRandomAccess() throws Exception {
 		SerializedList value = listOf("java.util.Collections$CheckedRandomAccessList", 0, 8, 15);
-		SetupGenerators generator = new SetupGenerators(config);
+		SetupGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -141,7 +142,7 @@ public class CollectionsListAdaptorTest {
 	@Test
 	public void testTryDeserializeEmpty() throws Exception {
 		SerializedList value = listOf("java.util.Collections$EmptyList");
-		SetupGenerators generator = new SetupGenerators(config);
+		SetupGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -152,7 +153,7 @@ public class CollectionsListAdaptorTest {
 	@Test
 	public void testTryDeserializeSingleton() throws Exception {
 		SerializedList value = listOf("java.util.Collections$SingletonList", 0);
-		SetupGenerators generator = new SetupGenerators(config);
+		SetupGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -163,7 +164,7 @@ public class CollectionsListAdaptorTest {
 	@Test
 	public void testTryDeserializeOther() throws Exception {
 		SerializedList value = listOf("java.lang.Object");
-		SetupGenerators generator = new SetupGenerators(config);
+		SetupGenerators generator = generator();
 
 		assertThrows(DeserializationException.class, () -> adaptor.tryDeserialize(value, generator, context));
 	}
@@ -241,6 +242,10 @@ public class CollectionsListAdaptorTest {
 		matchers.add("List<Integer> list1 = " + factory + "(arrayList1, " + clazz.getSimpleName() + ".class)");
 
 		return matchers;
+	}
+
+	private SetupGenerators generator() {
+		return new SetupGenerators(new Adaptors<SetupGenerators>(config).load(SetupGenerator.class));
 	}
 
 }

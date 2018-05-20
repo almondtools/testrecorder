@@ -14,6 +14,7 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
@@ -55,7 +56,7 @@ public class DefaultMapAdaptorTest {
 		value.useAs(parameterized(Map.class, null, Integer.class, Integer.class));
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
-		MatcherGenerators generator = new MatcherGenerators(config);
+		MatcherGenerators generator = generator();
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements()).isEmpty();
@@ -68,7 +69,7 @@ public class DefaultMapAdaptorTest {
 	@Test
 	public void testTryDeserializeEmptyMap() throws Exception {
 		SerializedMap value = new SerializedMap(BigInteger[].class);
-		MatcherGenerators generator = new MatcherGenerators(config);
+		MatcherGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -83,7 +84,7 @@ public class DefaultMapAdaptorTest {
 		value.put(new SerializedList(String.class).with(literal("str2"), literal("str3")), new SerializedSet(String.class).with(literal("str2"), literal("str3")));
 		value.put(new SerializedList(String.class), new SerializedSet(String.class));
 
-		MatcherGenerators generator = new MatcherGenerators(config);
+		MatcherGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -100,7 +101,7 @@ public class DefaultMapAdaptorTest {
 		SerializedMap value = new SerializedMap(parameterized(LinkedHashMap.class, null, Hidden.classOfCompletelyHidden(), Hidden.classOfCompletelyHidden()));
 		value.put(new SerializedObject(Hidden.classOfCompletelyHidden()), new SerializedObject(Hidden.classOfCompletelyHidden()));
 
-		MatcherGenerators generator = new MatcherGenerators(config);
+		MatcherGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -110,6 +111,10 @@ public class DefaultMapAdaptorTest {
 			+ ".entry("
 			+ "new GenericMatcher() {*}.matching(clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$CompletelyHidden\")),*"
 			+ "new GenericMatcher() {*}.matching(clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$CompletelyHidden\")))");
+	}
+
+	private MatcherGenerators generator() {
+		return new MatcherGenerators(new Adaptors<MatcherGenerators>(config).load(MatcherGenerator.class));
 	}
 
 }

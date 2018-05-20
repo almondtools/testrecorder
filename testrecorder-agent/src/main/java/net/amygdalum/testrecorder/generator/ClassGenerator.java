@@ -16,9 +16,6 @@ import org.stringtemplate.v4.ST;
 import net.amygdalum.testrecorder.ContextSnapshot;
 import net.amygdalum.testrecorder.SetupGenerator;
 import net.amygdalum.testrecorder.deserializers.DeserializerTypeManager;
-import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
-import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerators;
-import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.runtime.TestRecorderAgentInitializer;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.Deserializer;
@@ -41,31 +38,30 @@ public class ClassGenerator {
 	private Deserializer<Computation> setup;
 	private Deserializer<Computation> matcher;
 	private TypeManager types;
-	private Map<String,String> setups;
+	private Map<String, String> setups;
 	private Set<String> tests;
-	
-	public ClassGenerator(AgentConfiguration config, String pkg, String testName) {
+
+	public ClassGenerator(Deserializer<Computation> setup, Deserializer<Computation> matcher, List<TestRecorderAgentInitializer> initializers, String pkg, String testName) {
 		this.testName = testName;
-		this.setup = new SetupGenerators(config);
-		this.matcher = new MatcherGenerators(config);
+		this.setup = setup;
+		this.matcher = matcher;
 		this.types = new DeserializerTypeManager(pkg);
 		this.setups = new LinkedHashMap<>();
 		this.tests = new LinkedHashSet<>();
 
 		types.registerTypes(Test.class);
-		
-		List<TestRecorderAgentInitializer> initializers = config.loadConfigurations(TestRecorderAgentInitializer.class);
+
 		if (!initializers.isEmpty()) {
 			SetupGenerator setupGenerator = new SetupGenerator(types, "initialize", asList(Before.class));
-		
+
 			for (TestRecorderAgentInitializer initializer : initializers) {
 				setupGenerator = setupGenerator.generateInitialize(initializer);
 			}
-		
+
 			addSetup("initialize", setupGenerator.generateSetup());
 		}
 	}
-	
+
 	public void setSetup(Deserializer<Computation> setup) {
 		this.setup = setup;
 	}
@@ -77,11 +73,11 @@ public class ClassGenerator {
 	public String getTestName() {
 		return testName;
 	}
-	
+
 	public TypeManager getTypes() {
 		return types;
 	}
-	
+
 	public synchronized Set<String> getTests() {
 		return tests;
 	}

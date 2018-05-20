@@ -11,6 +11,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
@@ -51,7 +52,7 @@ public class DefaultSequenceAdaptorTest {
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(0)));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(8)));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(15)));
-		MatcherGenerators generator = new MatcherGenerators(config);
+		MatcherGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -67,7 +68,7 @@ public class DefaultSequenceAdaptorTest {
 	public void testTryDeserializeEmptyList() throws Exception {
 		SerializedList value = new SerializedList(parameterized(List.class, null, BigInteger.class));
 
-		MatcherGenerators generator = new MatcherGenerators(config);
+		MatcherGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -82,7 +83,7 @@ public class DefaultSequenceAdaptorTest {
 		value.add(new SerializedList(String.class).with(literal("str2"), literal("str3")));
 		value.add(new SerializedList(String.class));
 
-		MatcherGenerators generator = new MatcherGenerators(config);
+		MatcherGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -99,7 +100,7 @@ public class DefaultSequenceAdaptorTest {
 		SerializedList value = new SerializedList(parameterized(List.class, null, Hidden.classOfCompletelyHidden()));
 		value.add(new SerializedObject(Hidden.classOfCompletelyHidden()));
 
-		MatcherGenerators generator = new MatcherGenerators(config);
+		MatcherGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -107,6 +108,10 @@ public class DefaultSequenceAdaptorTest {
 		assertThat(result.getValue()).containsWildcardPattern(""
 			+ "containsInOrder(Object.class, "
 			+ "new GenericMatcher() {*}.matching(clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$CompletelyHidden\")))");
+	}
+
+	private MatcherGenerators generator() {
+		return new MatcherGenerators(new Adaptors<MatcherGenerators>(config).load(MatcherGenerator.class));
 	}
 
 }

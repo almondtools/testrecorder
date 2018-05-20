@@ -9,6 +9,7 @@ import java.lang.reflect.Constructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.deserializers.DeserializerTypeManager;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
@@ -54,7 +55,7 @@ public class ConstructorParamTest {
 
 	@Test
 	public void testCompile() throws Exception {
-		SetupGenerators compiler = new SetupGenerators(config);
+		SetupGenerators compiler = generator();
 		TypeManager types = new DeserializerTypeManager();
 
 		DeserializerContext context = new DefaultDeserializerContext();
@@ -76,6 +77,10 @@ public class ConstructorParamTest {
 		assertThat(new ConstructorParam(constructor, 0, new SerializedField(Simple.class, "field", String.class, nullInstance(String.class)), null)
 			.assertType(String.class)
 			.compile(types, compiler, context).getValue()).isEqualTo("null");
+	}
+
+	private SetupGenerators generator() {
+		return new SetupGenerators(new Adaptors<SetupGenerators>(config).load(SetupGenerator.class));
 	}
 
 }

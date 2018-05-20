@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
@@ -23,7 +24,7 @@ public class DefaultObjectAdaptorTest {
 
 	@BeforeEach
 	public void before() throws Exception {
-    	config = new AgentConfiguration();
+		config = new AgentConfiguration();
 		adaptor = new DefaultObjectAdaptor();
 		context = new DefaultDeserializerContext();
 	}
@@ -44,12 +45,16 @@ public class DefaultObjectAdaptorTest {
 	public void testTryDeserialize() throws Exception {
 		SerializedObject value = new SerializedObject(Simple.class);
 		value.addField(new SerializedField(String.class, "str", String.class, SerializedLiteral.literal("Hello World")));
-		MatcherGenerators generator = new MatcherGenerators(config);
+		MatcherGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).containsWildcardPattern("new GenericMatcher() {*String str = \"Hello World\";*}.matching(Simple.class)");
+	}
+
+	private MatcherGenerators generator() {
+		return new MatcherGenerators(new Adaptors<MatcherGenerators>(config).load(MatcherGenerator.class));
 	}
 
 }

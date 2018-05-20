@@ -14,6 +14,7 @@ import java.util.TreeSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
@@ -61,7 +62,7 @@ public class DefaultSetAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		SetupGenerators generator = new SetupGenerators(config);
+		SetupGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -81,7 +82,7 @@ public class DefaultSetAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		SetupGenerators generator = new SetupGenerators(config);
+		SetupGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -100,7 +101,7 @@ public class DefaultSetAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		SetupGenerators generator = new SetupGenerators(config);
+		SetupGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -120,7 +121,7 @@ public class DefaultSetAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		SetupGenerators generator = new SetupGenerators(config);
+		SetupGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -140,7 +141,7 @@ public class DefaultSetAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		SetupGenerators generator = new SetupGenerators(config);
+		SetupGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -160,7 +161,7 @@ public class DefaultSetAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		SetupGenerators generator = new SetupGenerators(config);
+		SetupGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, new DefaultDeserializerContext() {
 			@Override
@@ -178,6 +179,10 @@ public class DefaultSetAdaptorTest {
 			"temp1.add(15)",
 			"forwarded.addAll(temp1);");
 		assertThat(result.getValue()).isEqualTo("forwarded");
+	}
+
+	private SetupGenerators generator() {
+		return new SetupGenerators(new Adaptors<SetupGenerators>(config).load(SetupGenerator.class));
 	}
 
 }

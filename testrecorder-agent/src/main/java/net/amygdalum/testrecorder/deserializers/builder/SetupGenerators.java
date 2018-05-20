@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.amygdalum.testrecorder.deserializers.Adaptors;
-import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.runtime.GenericObject;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.Deserializer;
@@ -28,8 +27,8 @@ public class SetupGenerators implements Deserializer<Computation> {
 
 	private Adaptors<SetupGenerators> adaptors;
 
-	public SetupGenerators(AgentConfiguration config) {
-		this.adaptors = new Adaptors<SetupGenerators>(config).load(SetupGenerator.class);
+	public SetupGenerators(Adaptors<SetupGenerators> adaptors) {
+		this.adaptors = adaptors;
 	}
 
 	@Override

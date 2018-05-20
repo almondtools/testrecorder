@@ -11,6 +11,7 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
@@ -52,7 +53,7 @@ public class DefaultSetAdaptorTest {
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(8)));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(15)));
 
-		MatcherGenerators generator = new MatcherGenerators(config);
+		MatcherGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -67,7 +68,7 @@ public class DefaultSetAdaptorTest {
 	@Test
 	public void testTryDeserializeEmptySet() throws Exception {
 		SerializedSet value = new SerializedSet(parameterized(Set.class, null, BigInteger.class));
-		MatcherGenerators generator = new MatcherGenerators(config);
+		MatcherGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -82,7 +83,7 @@ public class DefaultSetAdaptorTest {
 		value.add(new SerializedSet(String.class).with(literal("str2"), literal("str3")));
 		value.add(new SerializedSet(String.class));
 
-		MatcherGenerators generator = new MatcherGenerators(config);
+		MatcherGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -99,7 +100,7 @@ public class DefaultSetAdaptorTest {
 		SerializedSet value = new SerializedSet(parameterized(Set.class, null, Hidden.classOfCompletelyHidden()));
 		value.add(new SerializedObject(Hidden.classOfCompletelyHidden()));
 
-		MatcherGenerators generator = new MatcherGenerators(config);
+		MatcherGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -107,6 +108,10 @@ public class DefaultSetAdaptorTest {
 		assertThat(result.getValue()).containsWildcardPattern(""
 			+ "contains(Object.class, "
 			+ "new GenericMatcher() {*}.matching(clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$CompletelyHidden\")))");
+	}
+
+	private MatcherGenerators generator() {
+		return new MatcherGenerators(new Adaptors<MatcherGenerators>(config).load(MatcherGenerator.class));
 	}
 
 }

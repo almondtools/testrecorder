@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
@@ -43,7 +44,7 @@ public class DefaultNullAdaptorTest {
 	@Test
 	public void testTryDeserialize() throws Exception {
 		SerializedNull value = nullInstance(String.class);
-		MatcherGenerators generator = new MatcherGenerators(config);
+		MatcherGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -56,7 +57,7 @@ public class DefaultNullAdaptorTest {
 		SerializedNull value = nullInstance(classOfPartiallyHidden());
 		value.useAs(Hidden.VisibleInterface.class);
 
-		MatcherGenerators generator = new MatcherGenerators(config);
+		MatcherGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -70,12 +71,16 @@ public class DefaultNullAdaptorTest {
 		SerializedNull value = nullInstance(classOfCompletelyHidden());
 		value.useAs(classOfCompletelyHidden());
 
-		MatcherGenerators generator = new MatcherGenerators(config);
+		MatcherGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("nullValue()");
+	}
+
+	private MatcherGenerators generator() {
+		return new MatcherGenerators(new Adaptors<MatcherGenerators>(config).load(MatcherGenerator.class));
 	}
 
 }

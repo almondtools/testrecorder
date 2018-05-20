@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.deserializers.DeserializerTypeManager;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
@@ -48,7 +49,7 @@ public class BeanObjectAdaptorTest {
 		SerializedObject value = new SerializedObject(Simple.class);
 		value.addField(new SerializedField(String.class, "attribute", String.class, SerializedLiteral.literal("Hello World")));
 		TypeManager types = new DeserializerTypeManager();
-		SetupGenerators generator = new SetupGenerators(config);
+		SetupGenerators generator = generator();
 
 		assertThrows(DeserializationException.class, () -> adaptor.tryDeserialize(value, generator, new DefaultDeserializerContext(types, new LocalVariableNameGenerator())));
 	}
@@ -57,7 +58,7 @@ public class BeanObjectAdaptorTest {
 	public void testTryDeserializeWithBean() throws Exception {
 		SerializedObject value = new SerializedObject(Bean.class);
 		value.addField(new SerializedField(String.class, "attribute", String.class, literal("Hello World")));
-		SetupGenerators generator = new SetupGenerators(config);
+		SetupGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, new DefaultDeserializerContext());
 
@@ -65,6 +66,10 @@ public class BeanObjectAdaptorTest {
 			"Bean bean1 = new Bean()",
 			"bean1.setAttribute(\"Hello World\")");
 		assertThat(result.getValue()).isEqualTo("bean1");
+	}
+
+	private SetupGenerators generator() {
+		return new SetupGenerators(new Adaptors<SetupGenerators>(config).load(SetupGenerator.class));
 	}
 
 }

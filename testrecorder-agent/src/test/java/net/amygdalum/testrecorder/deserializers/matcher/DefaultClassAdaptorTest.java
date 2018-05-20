@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
@@ -41,12 +42,16 @@ public class DefaultClassAdaptorTest {
 	public void testTryDeserialize() throws Exception {
 		SerializedImmutable<Class<?>> value = new SerializedImmutable<>(Class.class);
 		value.setValue(BigDecimal.class);
-		MatcherGenerators generator = new MatcherGenerators(config);
+		MatcherGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("equalTo(java.math.BigDecimal.class)");
+	}
+
+	private MatcherGenerators generator() {
+		return new MatcherGenerators(new Adaptors<MatcherGenerators>(config).load(MatcherGenerator.class));
 	}
 
 }

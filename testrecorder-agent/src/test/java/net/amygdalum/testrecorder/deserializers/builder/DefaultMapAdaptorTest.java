@@ -12,6 +12,7 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
@@ -57,7 +58,7 @@ public class DefaultMapAdaptorTest {
 		value.useAs(parameterized(Map.class, null, Integer.class, Integer.class));
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
-		SetupGenerators generator = new SetupGenerators(config);
+		SetupGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -75,7 +76,7 @@ public class DefaultMapAdaptorTest {
 		value.useAs(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class));
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
-		SetupGenerators generator = new SetupGenerators(config);
+		SetupGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -92,7 +93,7 @@ public class DefaultMapAdaptorTest {
 		value.useAs(OrthogonalInterface.class);
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
-		SetupGenerators generator = new SetupGenerators(config);
+		SetupGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -110,7 +111,7 @@ public class DefaultMapAdaptorTest {
 		value.useAs(OrthogonalInterface.class);
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
-		SetupGenerators generator = new SetupGenerators(config);
+		SetupGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -128,7 +129,7 @@ public class DefaultMapAdaptorTest {
 		value.useAs(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class));
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
-		SetupGenerators generator = new SetupGenerators(config);
+		SetupGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
@@ -146,7 +147,7 @@ public class DefaultMapAdaptorTest {
 		value.useAs(parameterized(Map.class, null, Integer.class, Integer.class));
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
-		SetupGenerators generator = new SetupGenerators(config);
+		SetupGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, new DefaultDeserializerContext() {
 			@Override
@@ -163,6 +164,10 @@ public class DefaultMapAdaptorTest {
 			"temp1.put(47, 11)",
 			"forwarded.putAll(temp1);");
 		assertThat(result.getValue()).isEqualTo("forwarded");
+	}
+
+	private SetupGenerators generator() {
+		return new SetupGenerators(new Adaptors<SetupGenerators>(config).load(SetupGenerator.class));
 	}
 
 }

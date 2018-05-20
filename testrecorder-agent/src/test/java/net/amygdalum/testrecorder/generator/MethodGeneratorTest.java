@@ -12,12 +12,14 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.RecordingContextSnapshot;
 import net.amygdalum.testrecorder.MethodSignature;
+import net.amygdalum.testrecorder.RecordingContextSnapshot;
+import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DeserializerTypeManager;
+import net.amygdalum.testrecorder.deserializers.builder.SetupGenerator;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
+import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerator;
 import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerators;
-import net.amygdalum.testrecorder.generator.MethodGenerator;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.util.testobjects.Bean;
@@ -36,8 +38,8 @@ public class MethodGeneratorTest {
 	public void before() throws Exception {
 		config = defaultConfig();
 		types = new DeserializerTypeManager();
-		setup = new SetupGenerators(config);
-		matcher = new MatcherGenerators(config);
+		setup = new SetupGenerators(new Adaptors<SetupGenerators>(config).load(SetupGenerator.class));
+		matcher = new MatcherGenerators(new Adaptors<MatcherGenerators>(config).load(MatcherGenerator.class));
 	}
 	
 	@Test
