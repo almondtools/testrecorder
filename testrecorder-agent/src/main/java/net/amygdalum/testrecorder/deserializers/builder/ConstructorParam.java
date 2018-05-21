@@ -3,6 +3,7 @@ package net.amygdalum.testrecorder.deserializers.builder;
 import static net.amygdalum.testrecorder.deserializers.Templates.cast;
 import static net.amygdalum.testrecorder.util.Types.equalGenericTypes;
 import static net.amygdalum.testrecorder.util.Types.isLiteral;
+import static net.amygdalum.testrecorder.util.Types.serializableOf;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 
@@ -67,7 +68,7 @@ public class ConstructorParam {
             } else if (isLiteral(type)) {
                 return literal(type, value);
             } else {
-                return nullInstance(type);
+                return nullInstance(serializableOf(type));
             }
         } else {
             return field.getValue();

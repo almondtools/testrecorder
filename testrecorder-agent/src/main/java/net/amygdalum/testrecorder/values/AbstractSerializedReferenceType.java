@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.values;
 
 import static java.util.Comparator.comparing;
 
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 
@@ -37,6 +38,7 @@ public abstract class AbstractSerializedReferenceType extends AbstractSerialized
 
     @Override
     public void useAs(Type type) {
+    	assert type instanceof Serializable;
     	if (usedTypes == null) {
     		usedTypes = new Type[] {type};
     		return;

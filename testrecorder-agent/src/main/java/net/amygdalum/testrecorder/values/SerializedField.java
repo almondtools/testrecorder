@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.values;
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Optional;
@@ -18,7 +19,8 @@ public class SerializedField implements SerializedFieldType {
     private Class<?> clazz;
 
     public SerializedField(Class<?> clazz, String name, Type type, SerializedValue value) {
-        this.clazz = clazz;
+    	assert type instanceof Serializable;
+    	this.clazz = clazz;
         this.name = name;
         this.type = type;
         this.value = value;
@@ -29,9 +31,6 @@ public class SerializedField implements SerializedFieldType {
         return clazz;
     }
 
-    /* (non-Javadoc)
-	 * @see net.amygdalum.testrecorder.values.SerializedFieldType#getName()
-	 */
     @Override
 	public String getName() {
         return name;

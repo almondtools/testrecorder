@@ -12,6 +12,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.types.TestValueVisitor;
+import net.amygdalum.testrecorder.util.Types;
 
 public class SerializedArrayTest {
 
@@ -41,7 +42,7 @@ public class SerializedArrayTest {
 
 	@Test
 	public void testGetComponentTypeOnGenericArray() throws Exception {
-		SerializedArray array = new SerializedArray(SerializedArrayTest.class.getDeclaredField("genericArray").getGenericType());
+		SerializedArray array = new SerializedArray(Types.serializableOf(SerializedArrayTest.class.getDeclaredField("genericArray").getGenericType()));
 		assertThat(array.getComponentType()).isEqualTo(parameterized(List.class, null, String.class));
 	}
 

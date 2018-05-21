@@ -5,6 +5,7 @@ import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
 import static net.amygdalum.testrecorder.deserializers.Templates.fieldDeclaration;
 import static net.amygdalum.testrecorder.types.Computation.expression;
 import static net.amygdalum.testrecorder.types.Computation.variable;
+import static net.amygdalum.testrecorder.util.Types.serializableOf;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class SetupGenerators implements Deserializer<Computation> {
 
 		SerializedValue value = field.getValue();
 		if (value instanceof SerializedReferenceType) {
-			((SerializedReferenceType) value).useAs(fieldResultType);
+			((SerializedReferenceType) value).useAs(serializableOf(fieldResultType));
 		}
 		Computation valueTemplate = value.accept(this, context.newWithHints(field.getAnnotations()));
 

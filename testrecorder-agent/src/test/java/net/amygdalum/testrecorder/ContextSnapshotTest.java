@@ -13,11 +13,11 @@ import org.junit.jupiter.api.Test;
 import net.amygdalum.testrecorder.values.SerializedList;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
-public class RecordingContextSnapshotTest {
+public class ContextSnapshotTest {
 
 	@Test
 	public void testMethodSnapshot() throws Exception {
-		RecordingContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
 		assertThat(snapshot.isValid()).isTrue();
 		assertThat(snapshot.getDeclaringClass()).isEqualTo(ArrayList.class);
@@ -28,7 +28,7 @@ public class RecordingContextSnapshotTest {
 
 	@Test
 	public void testInvalidate() throws Exception {
-		RecordingContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
 		snapshot.invalidate();
 
@@ -37,7 +37,7 @@ public class RecordingContextSnapshotTest {
 
 	@Test
 	public void testGetThisType() throws Exception {
-		RecordingContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		SerializedList setupThis = new SerializedList(ArrayList.class);
 		setupThis.useAs(List.class);
 		setupThis.add(literal("setup"));
@@ -49,7 +49,7 @@ public class RecordingContextSnapshotTest {
 
 	@Test
 	public void testSetGetSetupThis() throws Exception {
-		RecordingContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		SerializedList setupThis = new SerializedList(ArrayList.class);
 		setupThis.useAs(List.class);
 		setupThis.add(literal("setup"));
@@ -61,7 +61,7 @@ public class RecordingContextSnapshotTest {
 
 	@Test
 	public void testSetGetExpectThis() throws Exception {
-		RecordingContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		SerializedList expectedThis = new SerializedList(ArrayList.class);
 		expectedThis.useAs(List.class);
 		expectedThis.add(literal("expected"));
@@ -73,7 +73,7 @@ public class RecordingContextSnapshotTest {
 
 	@Test
 	public void testSetGetSetupArgs() throws Exception {
-		RecordingContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
 		snapshot.setSetupArgs(literal("a"), literal("b"));
 
@@ -82,7 +82,7 @@ public class RecordingContextSnapshotTest {
 
 	@Test
 	public void testSetGetExpectArgs() throws Exception {
-		RecordingContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
 		snapshot.setExpectArgs(literal("c"), literal("d"));
 
@@ -91,7 +91,7 @@ public class RecordingContextSnapshotTest {
 
 	@Test
 	public void testSetGetExpectResult() throws Exception {
-		RecordingContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
 		snapshot.setExpectResult(literal(boolean.class, true));
 
@@ -100,7 +100,7 @@ public class RecordingContextSnapshotTest {
 
 	@Test
 	public void testSetGetExpectException() throws Exception {
-		RecordingContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		SerializedObject expectException = new SerializedObject(NullPointerException.class);
 
 		snapshot.setExpectException(expectException);
@@ -110,13 +110,13 @@ public class RecordingContextSnapshotTest {
 
 	@Test
 	public void testGetTime() throws Exception {
-		assertThat(new RecordingContextSnapshot(0l, "key", new MethodSignature(Object.class, new Annotation[0], Object.class, "method", new Annotation[0][0], new Type[0])).getTime()).isEqualTo(0l);
-		assertThat(new RecordingContextSnapshot(1l, "key", new MethodSignature(Object.class, new Annotation[0], Object.class, "method", new Annotation[0][0], new Type[0])).getTime()).isEqualTo(1l);
+		assertThat(new ContextSnapshot(0l, "key", new MethodSignature(Object.class, new Annotation[0], Object.class, "method", new Annotation[0][0], new Type[0])).getTime()).isEqualTo(0l);
+		assertThat(new ContextSnapshot(1l, "key", new MethodSignature(Object.class, new Annotation[0], Object.class, "method", new Annotation[0][0], new Type[0])).getTime()).isEqualTo(1l);
 	}
 
 	@Test
 	public void testGetAnnotation() throws Exception {
-		RecordingContextSnapshot snapshot = new RecordingContextSnapshot(0l, "key", new MethodSignature(
+		ContextSnapshot snapshot = new ContextSnapshot(0l, "key", new MethodSignature(
 			Object.class,
 			new Annotation[] { anno("result") },
 			Object.class,
@@ -139,7 +139,7 @@ public class RecordingContextSnapshotTest {
 
 	@Test
 	public void testGetAnnotatedSetupArgs() throws Exception {
-		RecordingContextSnapshot snapshot = new RecordingContextSnapshot(0l, "key", new MethodSignature(
+		ContextSnapshot snapshot = new ContextSnapshot(0l, "key", new MethodSignature(
 			Object.class,
 			new Annotation[] { anno("result") },
 			String.class,
@@ -157,7 +157,7 @@ public class RecordingContextSnapshotTest {
 
 	@Test
 	public void testGetAnnotatedExpectArgs() throws Exception {
-		RecordingContextSnapshot snapshot = new RecordingContextSnapshot(0l, "key", new MethodSignature(
+		ContextSnapshot snapshot = new ContextSnapshot(0l, "key", new MethodSignature(
 			Object.class,
 			new Annotation[] { anno("result") },
 			String.class,
@@ -175,13 +175,13 @@ public class RecordingContextSnapshotTest {
 
 	@Test
 	public void testToString() throws Exception {
-		RecordingContextSnapshot snapshot = contextSnapshot(Object.class, String.class, "method", Integer.class);
+		ContextSnapshot snapshot = contextSnapshot(Object.class, String.class, "method", Integer.class);
 
 		assertThat(snapshot.toString()).contains("Object", "String", "method", "Integer");
 	}
 
-	private RecordingContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
-		return new RecordingContextSnapshot(0, "key", new MethodSignature(declaringClass, new Annotation[0], resultType, methodName, new Annotation[0][0], argumentTypes));
+	private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
+		return new ContextSnapshot(0, "key", new MethodSignature(declaringClass, new Annotation[0], resultType, methodName, new Annotation[0][0], argumentTypes));
 	}
 
 	private Anno anno(String value) {

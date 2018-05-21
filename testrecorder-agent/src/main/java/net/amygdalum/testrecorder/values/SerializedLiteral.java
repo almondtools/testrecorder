@@ -22,10 +22,10 @@ public class SerializedLiteral extends AbstractSerializedValue implements Serial
     private static final Map<Object, SerializedLiteral> KNOWN_PRIMITIVE_LITERALS = new HashMap<>();
     private static final Map<Object, SerializedLiteral> KNOWN_LITERALS = new HashMap<>();
 
-    private Type resultType;
+    private Class<?> resultType;
     private Object value;
 
-    private SerializedLiteral(Type type, Object value) {
+    private SerializedLiteral(Class<?> type, Object value) {
         super(value.getClass());
         this.resultType = type;
         this.value = value;
@@ -37,9 +37,9 @@ public class SerializedLiteral extends AbstractSerializedValue implements Serial
 
     public static SerializedLiteral literal(Type type, Object value) {
         if (baseType(type).isPrimitive()) {
-            return KNOWN_PRIMITIVE_LITERALS.computeIfAbsent(value, val -> new SerializedLiteral(type, val));
+            return KNOWN_PRIMITIVE_LITERALS.computeIfAbsent(value, val -> new SerializedLiteral(baseType(type), val));
         } else {
-            return KNOWN_LITERALS.computeIfAbsent(value, val -> new SerializedLiteral(type, val));
+            return KNOWN_LITERALS.computeIfAbsent(value, val -> new SerializedLiteral(baseType(type), val));
         }
     }
 

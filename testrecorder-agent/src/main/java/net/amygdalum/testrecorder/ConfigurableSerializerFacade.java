@@ -7,6 +7,7 @@ import static net.amygdalum.testrecorder.asm.ByteCode.classFrom;
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.isLiteral;
+import static net.amygdalum.testrecorder.util.Types.serializableOf;
 
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Field;
@@ -39,8 +40,10 @@ import net.amygdalum.testrecorder.util.Lambdas;
 import net.amygdalum.testrecorder.util.Logger;
 import net.amygdalum.testrecorder.values.SerializedArray;
 import net.amygdalum.testrecorder.values.SerializedField;
+import net.amygdalum.testrecorder.values.SerializedInput;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedNull;
+import net.amygdalum.testrecorder.values.SerializedOutput;
 import net.amygdalum.testrecorder.values.SerializedPlaceholder;
 
 public class ConfigurableSerializerFacade implements SerializerFacade {
@@ -87,7 +90,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 	private static List<Classes> testrecorderClasses() {
 		return asList(
 			Classes.byDescription(SnapshotManager.class),
-			Classes.byDescription(RecordingContextSnapshot.class),
+			Classes.byDescription(ContextSnapshot.class),
 			Classes.byDescription(SerializerFacade.class),
 			Classes.byDescription(ConfigurableSerializerFacade.class),
 			Classes.byDescription(SerializerSession.class),
@@ -146,9 +149,9 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 	public SerializedValue serialize(Type type, Object object, SerializerSession session) {
 		session.analyze(object);
 		if (object == null) {
-			return SerializedNull.nullInstance(type);
+			return SerializedNull.nullInstance(serializableOf(type));
 		} else if (isLiteral(object.getClass()) && baseType(type).isPrimitive()) {
-			return SerializedLiteral.literal(type, object);
+			return SerializedLiteral.literal(baseType(type), object);
 		} else if (isLiteral(object.getClass())) {
 			return SerializedLiteral.literal(object);
 		} else if (Lambdas.isSerializableLambda(object.getClass())) {
@@ -161,9 +164,9 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 	@Override
 	public SerializedValue serializePlaceholder(Type type, Object object, SerializerSession session) {
 		if (object == null) {
-			return SerializedNull.nullInstance(type);
+			return SerializedNull.nullInstance(serializableOf(type));
 		} else if (isLiteral(object.getClass()) && baseType(type).isPrimitive()) {
-			return SerializedLiteral.literal(type, object);
+			return SerializedLiteral.literal(baseType(type), object);
 		} else if (isLiteral(object.getClass())) {
 			return SerializedLiteral.literal(object);
 		} else if (Lambdas.isSerializableLambda(object.getClass())) {
@@ -182,11 +185,11 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 			try {
 				Class<?> functionalInterfaceType = classFrom(serializedLambda.getFunctionalInterfaceClass());
 				Serializer serializer = fetchSerializer(serializedLambda.getClass());
-				serializedObject = serializer.generate(functionalInterfaceType, session);
+				serializedObject = serializer.generate(serializableOf(functionalInterfaceType), session);
 				session.resolve(object, serializedObject);
 				if (serializedObject instanceof SerializedReferenceType) {
 					SerializedReferenceType serializedReferenceType = (SerializedReferenceType) serializedObject;
-					serializedReferenceType.useAs(functionalInterfaceType);
+					serializedReferenceType.useAs(serializableOf(functionalInterfaceType));
 					serializedReferenceType.setId(identityHashCode(object));
 				}
 				serializer.populate(serializedObject, serializedLambda, session);
@@ -205,12 +208,12 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 		if (serializedObject == null) {
 			try {
 				Serializer serializer = fetchSerializer(object.getClass());
-				serializedObject = serializer.generate(object.getClass(), session);
+				serializedObject = serializer.generate(serializableOf(object.getClass()), session);
 				session.resolve(object, serializedObject);
 				if (serializedObject instanceof SerializedReferenceType) {
 					SerializedReferenceType serializedReferenceType = (SerializedReferenceType) serializedObject;
 					serializedReferenceType.setId(identityHashCode(object));
-					serializedReferenceType.useAs(type);
+					serializedReferenceType.useAs(serializableOf(type));
 				}
 				serializer.populate(serializedObject, object, session);
 			} catch (Throwable e) {
@@ -218,7 +221,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 			}
 		} else if (serializedObject instanceof SerializedReferenceType) {
 			SerializedReferenceType serializedReferenceType = (SerializedReferenceType) serializedObject;
-			serializedReferenceType.useAs(type);
+			serializedReferenceType.useAs(serializableOf(type));
 		}
 		serialization.stop();
 		return serializedObject;
@@ -234,14 +237,14 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 				if (serializedObject instanceof SerializedReferenceType) {
 					SerializedReferenceType serializedReferenceType = (SerializedReferenceType) serializedObject;
 					serializedReferenceType.setId(identityHashCode(object));
-					serializedReferenceType.useAs(type);
+					serializedReferenceType.useAs(serializableOf(type));
 				}
 			} catch (Throwable e) {
 				throw new SerializationException(e);
 			}
 		} else if (serializedObject instanceof SerializedReferenceType) {
 			SerializedReferenceType serializedReferenceType = (SerializedReferenceType) serializedObject;
-			serializedReferenceType.useAs(type);
+			serializedReferenceType.useAs(serializableOf(type));
 		}
 		serialization.stop();
 		return serializedObject;
@@ -281,13 +284,23 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 		}
 	}
 
+	@Override
+	public SerializedOutput serializeOutput(int id, Class<?> clazz, String method, Type resultType, Type[] paramTypes) {
+		return new SerializedOutput(id, clazz, method, serializableOf(resultType), serializableOf(paramTypes));
+	}
+	
+	@Override
+	public SerializedInput serializeInput(int id, Class<?> clazz, String method, Type resultType, Type[] paramTypes) {
+		return new SerializedInput(id, clazz, method, serializableOf(resultType), serializableOf(paramTypes));
+	}
+
 	private SerializedField createField(Field field, Object obj, SerializerSession session) throws IllegalAccessException {
 		Class<?> declaringClass = field.getDeclaringClass();
 		String name = field.getName();
 		Type type = field.getGenericType();
 		Object object = field.get(obj);
 		SerializedValue serializedObject = serialize(type, object, session);
-		SerializedField serializedField = new SerializedField(declaringClass, name, type, serializedObject);
+		SerializedField serializedField = new SerializedField(declaringClass, name, serializableOf(type), serializedObject);
 
 		return serializedField;
 	}
@@ -300,5 +313,5 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 			.withClassFacades(classFacades)
 			.withFieldFacades(fieldFacades);
 	}
-	
+
 }

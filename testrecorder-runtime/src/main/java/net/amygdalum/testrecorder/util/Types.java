@@ -4,7 +4,6 @@ import static java.lang.reflect.Modifier.isPrivate;
 import static java.lang.reflect.Modifier.isPublic;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
-import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 import java.lang.reflect.Array;
@@ -27,7 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
@@ -38,6 +36,8 @@ public final class Types {
 
 	private static final String SYNTHETIC_INDICATOR = "$";
 	private static final String[] HANDLED_SYNTHETIC_PREFIXES = { "this$", "val$" };
+
+	private static Map<Type, Type> serializables = new HashMap<>();
 
 	private Types() {
 	}
@@ -421,7 +421,7 @@ public final class Types {
 
 	public static boolean boxingEquivalentTypes(Type type1, Type type2) {
 		if (type1 instanceof Class<?> && type2 instanceof Class<?>) {
-			return boxedType(type1).equals(boxedType(type2));	
+			return boxedType(type1).equals(boxedType(type2));
 		}
 		return false;
 	}
@@ -566,24 +566,36 @@ public final class Types {
 		if (componentType instanceof Class<?>) {
 			return Array.newInstance((Class<?>) componentType, 0).getClass();
 		} else {
-			return new GenericArrayTypeImplementation(componentType);
+			return genericArray(componentType);
 		}
 	}
 
+	public static SerializableGenericArrayType genericArray(Type componentType) {
+		return new SerializableGenericArrayType(serializableOf(componentType));
+	}
+
 	public static ParameterizedType parameterized(Type raw, Type owner, Type... typeArgs) {
-		return new ParameterizedTypeImplementation(raw, owner, typeArgs);
+		return new SerializableParameterizedType(serializableOf(raw), serializableOf(owner), serializableOf(typeArgs));
 	}
 
 	public static WildcardType wildcard() {
-		return new WildcardTypeImplementation();
+		return new SerializableWildcardType(new Type[0], new Type[0]);
+	}
+
+	public static WildcardType wildcard(Type[] upperBounds, Type[] lowerBounds) {
+		return new SerializableWildcardType(serializableOf(upperBounds), serializableOf(lowerBounds));
 	}
 
 	public static WildcardType wildcardExtends(Type... bounds) {
-		return new WildcardTypeImplementation().extending(bounds);
+		return new SerializableWildcardType(serializableOf(bounds), new Type[0]);
 	}
 
 	public static WildcardType wildcardSuper(Type... bounds) {
-		return new WildcardTypeImplementation().limiting(bounds);
+		return new SerializableWildcardType(new Type[0], serializableOf(bounds));
+	}
+
+	public static <D extends GenericDeclaration> TypeVariable<D> typeVariable(String name, D genericDeclaration, Type[] bounds) {
+		return new SerializableTypeVariable<>(name, genericDeclaration, serializableOf(bounds));
 	}
 
 	public static List<Field> allFields(Class<?> clazz) {
@@ -735,198 +747,42 @@ public final class Types {
 		return reloadedReturnType;
 	}
 
-	private static final class GenericArrayTypeImplementation implements GenericArrayType {
-
-		private Type componentType;
-
-		public GenericArrayTypeImplementation(Type componentType) {
-			this.componentType = componentType;
+	public static Type[] serializableOf(Type[] types) {
+		Type[] serializableTypes = new Type[types.length];
+		for (int i = 0; i < serializableTypes.length; i++) {
+			serializableTypes[i] = serializableOf(types[i]);
 		}
-
-		@Override
-		public Type getGenericComponentType() {
-			return componentType;
-		}
-
-		@Override
-		public String getTypeName() {
-			StringBuilder buffer = new StringBuilder();
-			buffer.append(componentType.getTypeName());
-			buffer.append("[]");
-			return buffer.toString();
-		}
-
-		@Override
-		public int hashCode() {
-			return componentType.hashCode() + 19;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-			GenericArrayTypeImplementation that = (GenericArrayTypeImplementation) obj;
-			return this.componentType.equals(that.componentType);
-		}
-
-		@Override
-		public String toString() {
-			return getTypeName();
-		}
-
+		return serializableTypes;
 	}
 
-	private static final class ParameterizedTypeImplementation implements ParameterizedType {
-
-		private Type raw;
-		private Type owner;
-		private Type[] typeArgs;
-
-		public ParameterizedTypeImplementation(Type raw, Type owner, Type... typeArgs) {
-			this.raw = raw;
-			this.owner = owner;
-			this.typeArgs = typeArgs;
+	public static Type serializableOf(Type type) {
+		if (type == null) {
+			return null;
 		}
-
-		@Override
-		public Type getRawType() {
-			return raw;
+		Type serializableType = serializables.get(type);
+		if (serializableType == null) {
+			serializableType = newSerializableType(type);
+			serializables.put(type, serializableType);
 		}
-
-		@Override
-		public Type getOwnerType() {
-			return owner;
-		}
-
-		@Override
-		public Type[] getActualTypeArguments() {
-			return typeArgs;
-		}
-
-		@Override
-		public String getTypeName() {
-			StringBuilder buffer = new StringBuilder();
-			buffer.append(raw.getTypeName());
-			buffer.append('<');
-			if (typeArgs != null && typeArgs.length > 0) {
-				buffer.append(Stream.of(typeArgs)
-					.map(type -> type.getTypeName())
-					.collect(joining(", ")));
-			}
-			buffer.append('>');
-			return buffer.toString();
-		}
-
-		@Override
-		public int hashCode() {
-			return raw.hashCode() * 3 + (owner == null ? 0 : owner.hashCode() * 5) + Arrays.hashCode(typeArgs) * 7 + 13;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-			ParameterizedTypeImplementation that = (ParameterizedTypeImplementation) obj;
-			return this.raw.equals(that.raw)
-				&& Objects.equals(this.owner, that.owner)
-				&& Arrays.equals(this.typeArgs, that.typeArgs);
-		}
-
-		@Override
-		public String toString() {
-			return getTypeName();
-		}
-
+		return serializableType;
 	}
 
-	private static final class WildcardTypeImplementation implements WildcardType {
-
-		private Type[] upperBounds;
-		private Type[] lowerBounds;
-
-		public WildcardTypeImplementation() {
-			upperBounds = new Type[0];
-			lowerBounds = new Type[0];
+	private static Type newSerializableType(Type type) {
+		if (type instanceof WildcardType) {
+			WildcardType wildcardtype = (WildcardType) type;
+			return wildcard(wildcardtype.getUpperBounds(), wildcardtype.getLowerBounds());
+		} else if (type instanceof ParameterizedType) {
+			ParameterizedType parameterizedType = (ParameterizedType) type;
+			return parameterized(parameterizedType.getRawType(), parameterizedType.getOwnerType(), parameterizedType.getActualTypeArguments());
+		} else if (type instanceof GenericArrayType) {
+			GenericArrayType genericArrayType = (GenericArrayType) type;
+			return genericArray(genericArrayType.getGenericComponentType());
+		} else if (type instanceof TypeVariable<?>) {
+			TypeVariable<?> typeVariable = (TypeVariable<?>) type;
+			return typeVariable(typeVariable.getName(), typeVariable.getGenericDeclaration(), typeVariable.getBounds());
+		} else {
+			return Types.baseType(type);
 		}
-
-		public WildcardTypeImplementation extending(Type... bounds) {
-			this.upperBounds = bounds;
-			return this;
-		}
-
-		public WildcardTypeImplementation limiting(Type... bounds) {
-			this.lowerBounds = bounds;
-			return this;
-		}
-
-		@Override
-		public Type[] getUpperBounds() {
-			return upperBounds;
-		}
-
-		@Override
-		public Type[] getLowerBounds() {
-			return lowerBounds;
-		}
-
-		@Override
-		public String getTypeName() {
-			StringBuilder buffer = new StringBuilder();
-			buffer.append("?");
-			if (lowerBounds.length > 0) {
-				buffer.append(" super ").append(Stream.of(lowerBounds)
-					.map(type -> type.getTypeName())
-					.collect(joining(", ")));
-			}
-			if (upperBounds.length > 0) {
-				buffer.append(" extends ").append(Stream.of(upperBounds)
-					.filter(type -> type != Object.class)
-					.map(type -> type.getTypeName())
-					.collect(joining(", ")));
-			}
-			return buffer.toString();
-		}
-
-		@Override
-		public int hashCode() {
-			return Arrays.hashCode(upperBounds) * 5 + Arrays.hashCode(lowerBounds) * 7 + 23;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-			WildcardTypeImplementation that = (WildcardTypeImplementation) obj;
-			return Arrays.equals(this.upperBounds, that.upperBounds)
-				&& Arrays.equals(this.lowerBounds, that.lowerBounds);
-		}
-
-		@Override
-		public String toString() {
-			return getTypeName();
-		}
-
 	}
 
 }

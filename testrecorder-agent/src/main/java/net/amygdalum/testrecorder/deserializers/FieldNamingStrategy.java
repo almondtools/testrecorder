@@ -3,6 +3,7 @@ package net.amygdalum.testrecorder.deserializers;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
+import static net.amygdalum.testrecorder.util.Types.serializableOf;
 
 import java.util.List;
 import java.util.function.Function;
@@ -31,7 +32,7 @@ public final class FieldNamingStrategy {
     private static  List<SerializedField> applyStrategys(List<SerializedField> equalfields) {
         for (Function<SerializedField, String> naming : NAMING_STRATEGIES) {
             List<SerializedField> qualified = equalfields.stream()
-                .map(field -> new SerializedField(field.getDeclaringClass(), naming.apply(field), field.getType(), field.getValue()))
+                .map(field -> new SerializedField(field.getDeclaringClass(), naming.apply(field), serializableOf(field.getType()), field.getValue()))
                 .collect(toList());
             if (containsUniqueNames(qualified)) {
                 return qualified;

@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.values;
 
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +21,8 @@ public abstract class AbstractSerializedInteraction implements SerializedInterac
 	protected SerializedValue[] arguments;
 
 	public AbstractSerializedInteraction(int id, Class<?> clazz, String name, Type resultType, Type[] types) {
+		assert resultType instanceof Serializable;
+		assert Arrays.stream(types).allMatch(type -> type instanceof Serializable);
 		this.id = id;
 		this.clazz = clazz;
 		this.name = name;
