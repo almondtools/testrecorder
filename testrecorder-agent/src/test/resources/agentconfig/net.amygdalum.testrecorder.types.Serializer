@@ -1,0 +1,3 @@
+net.amygdalum.testrecorder.scenarios.CustomListSerializer
+net.amygdalum.testrecorder.scenarios.CustomSetSerializer
+net.amygdalum.testrecorder.scenarios.CustomMapSerializer

@@ -36,37 +36,20 @@ public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> im
 
 	@Override
 	public Computation tryDeserialize(SerializedMap value, MatcherGenerators generator, DeserializerContext context) {
-		Type mapKeyType = value.getMapKeyType();
-		Type mapValueType = value.getMapValueType();
-
-		TypeManager types = context.getTypes();
-		if (types.isHidden(mapKeyType)) {
-			mapKeyType = Object.class;
-		}
-		if (types.isHidden(mapValueType)) {
-			mapValueType = Object.class;
-		}
-
-		String keyType = types.getRawClass(mapKeyType);
-		if (isGeneric(mapKeyType)) {
-			keyType = context.adapt(keyType, parameterized(Class.class, null, mapKeyType), parameterized(Class.class, null, wildcard()));
-		}
-		String valueType = types.getRawClass(mapValueType);
-		if (isGeneric(mapValueType)) {
-			valueType = context.adapt(valueType, parameterized(Class.class, null, mapValueType), parameterized(Class.class, null, wildcard()));
-		}
-
 		if (value.isEmpty()) {
+			TypeManager types = context.getTypes();
 			types.staticImport(MapMatcher.class, "noEntries");
+			types.registerTypes(mapKeyType(types, value), mapValueType(types, value));
 
-			String noEntriesMatcher = noEntriesMatcher(keyType, valueType);
+			String noEntriesMatcher = matchEmpty(context, value);
 
 			return expression(noEntriesMatcher, parameterized(Matcher.class, null, wildcard()), emptyList());
 		} else {
+			TypeManager types = context.getTypes();
 			types.staticImport(MapMatcher.class, "containsEntries");
-			types.registerTypes(mapKeyType, mapValueType);
+			types.registerTypes(mapKeyType(types, value), mapValueType(types, value));
 
-			EntryDeserializer deserializer = new EntryDeserializer(generator, context, mapKeyType, mapValueType);
+			EntryDeserializer deserializer = new EntryDeserializer(generator, context, mapKeyType(types, value), mapValueType(types, value));
 			List<Pair<Computation, Computation>> elements = value.entrySet().stream()
 				.map(deserializer::computeKeyValues)
 				.collect(toList());
@@ -79,9 +62,74 @@ public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> im
 				.map(pair -> new Pair<>(pair.getElement1().getValue(), pair.getElement2().getValue()))
 				.collect(toList());
 
-			String containsEntriesMatcher = containsEntriesMatcher(keyType, valueType, entryValues);
+			String containsEntriesMatcher = matchElements(context, value, entryValues);
 			return expression(containsEntriesMatcher, parameterized(Matcher.class, null, wildcard()), entryStatements);
 		}
+	}
+
+	private String matchElements(DeserializerContext context, SerializedMap value, List<Pair<String, String>> entryValues) {
+		TypeManager types = context.getTypes();
+		if (hasErasedType(types, value)) {
+			return containsEntriesMatcher(null, null, entryValues);
+		} else {
+			String keyType = keyType(context, value);
+			String valueType = valueType(context, value);
+			return containsEntriesMatcher(keyType, valueType, entryValues);
+		}
+	}
+
+	private String matchEmpty(DeserializerContext context, SerializedMap value) {
+		TypeManager types = context.getTypes();
+		if (hasErasedType(types, value)) {
+			return noEntriesMatcher(null, null);
+		} else {
+			String keyType = keyType(context, value);
+			String valueType = valueType(context, value);
+			return noEntriesMatcher(keyType, valueType);
+		}
+	}
+
+	private String valueType(DeserializerContext context, SerializedMap value) {
+		TypeManager types = context.getTypes();
+		Type mapValueType = mapValueType(types, value);
+		String valueType = types.getRawClass(mapValueType);
+		if (isGeneric(mapValueType)) {
+			valueType = context.adapt(valueType, parameterized(Class.class, null, mapValueType), parameterized(Class.class, null, wildcard()));
+		}
+		return valueType;
+	}
+
+	private String keyType(DeserializerContext context, SerializedMap value) {
+		TypeManager types = context.getTypes();
+		Type mapKeyType = mapKeyType(types, value);
+		String keyType = types.getRawClass(mapKeyType);
+		if (isGeneric(mapKeyType)) {
+			keyType = context.adapt(keyType, parameterized(Class.class, null, mapKeyType), parameterized(Class.class, null, wildcard()));
+		}
+		return keyType;
+	}
+
+	private Type mapValueType(TypeManager types, SerializedMap value) {
+		Type mapValueType = value.getMapValueType();
+		if (types.isHidden(mapValueType)) {
+			mapValueType = Object.class;
+		}
+		return mapValueType;
+	}
+
+	private Type mapKeyType(TypeManager types, SerializedMap value) {
+		Type mapKeyType = value.getMapKeyType();
+		if (types.isHidden(mapKeyType)) {
+			mapKeyType = Object.class;
+		}
+		return mapKeyType;
+	}
+
+	private boolean hasErasedType(TypeManager types, SerializedMap value) {
+		Type collectionType = types.mostSpecialOf(value.getUsedTypes()).orElse(value.getType());
+		return mapKeyType(types, value) == Object.class
+			&& mapValueType(types, value) == Object.class
+			&& collectionType instanceof Class<?>;
 	}
 
 	private static class EntryDeserializer {

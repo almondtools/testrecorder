@@ -52,7 +52,7 @@ public class GenericFieldsTest {
 			.first().satisfies(test -> assertThat(test)
 				.containsWildcardPattern("genericFields?.setSet(set?)")
 				.contains("equalTo(0)")
-				.contains("empty()"));
+				.contains("empty(String.class)"));
 	}
 
 	@Test

@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.deserializers.matcher;
 import static java.util.Collections.emptyList;
 import static net.amygdalum.testrecorder.deserializers.Templates.equalToMatcher;
 import static net.amygdalum.testrecorder.types.Computation.expression;
-import static net.amygdalum.testrecorder.util.Types.equalTypes;
+import static net.amygdalum.testrecorder.util.Types.equalBaseTypes;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 
 import java.lang.reflect.Type;
@@ -26,7 +26,7 @@ public class DefaultClassAdaptor extends DefaultMatcherGenerator<SerializedImmut
 
 	@Override
 	public boolean matches(Type type) {
-		return equalTypes(type, Class.class);
+		return equalBaseTypes(type, Class.class);
 	}
 
 	@Override

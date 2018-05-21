@@ -53,7 +53,7 @@ public class DefaultMapAdaptorTest {
 	}
 
 	@Test
-	public void testTryDeserialize() throws Exception {
+	public void testTryDeserializeExplicitelyTyped() throws Exception {
 		SerializedMap value = new SerializedMap(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class));
 		value.useAs(parameterized(Map.class, null, Integer.class, Integer.class));
 		value.put(literal(8), literal(15));
@@ -70,6 +70,24 @@ public class DefaultMapAdaptorTest {
 		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
+	@Test
+	public void testTryDeserialize() throws Exception {
+		SerializedMap value = new SerializedMap(LinkedHashMap.class);
+		value.useAs(parameterized(Map.class, null, Integer.class, Integer.class));
+		value.put(literal(8), literal(15));
+		value.put(literal(47), literal(11));
+		SetupGenerators generator = generator();
+		
+		Computation result = adaptor.tryDeserialize(value, generator, context);
+		
+		assertThat(result.getStatements().toString()).containsSubsequence(
+			"LinkedHashMap temp1 = new LinkedHashMap<>()",
+			"temp1.put(8, 15)",
+			"temp1.put(47, 11)",
+			"Map<Integer, Integer> map1 = temp1;");
+		assertThat(result.getValue()).isEqualTo("map1");
+	}
+	
 	@Test
 	public void testTryDeserializeSameResultTypes() throws Exception {
 		SerializedMap value = new SerializedMap(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class));

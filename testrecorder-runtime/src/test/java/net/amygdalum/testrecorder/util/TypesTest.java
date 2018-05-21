@@ -11,7 +11,7 @@ import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.boxedType;
 import static net.amygdalum.testrecorder.util.Types.boxingEquivalentTypes;
 import static net.amygdalum.testrecorder.util.Types.component;
-import static net.amygdalum.testrecorder.util.Types.equalTypes;
+import static net.amygdalum.testrecorder.util.Types.equalBaseTypes;
 import static net.amygdalum.testrecorder.util.Types.getDeclaredConstructor;
 import static net.amygdalum.testrecorder.util.Types.getDeclaredField;
 import static net.amygdalum.testrecorder.util.Types.getDeclaredMethod;
@@ -149,11 +149,11 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testEqualTypes() throws Exception {
-		assertThat(equalTypes(parameterized(List.class, List.class, String.class), List.class)).isTrue();
-		assertThat(equalTypes(parameterized(Set.class, Set.class, String.class), List.class)).isFalse();
-		assertThat(equalTypes(parameterized(Set.class, Set.class, String.class), parameterized(Set.class, Set.class, Object.class))).isTrue();
-	}
+		public void testEqualBaseTypes() throws Exception {
+			assertThat(equalBaseTypes(parameterized(List.class, List.class, String.class), List.class)).isTrue();
+			assertThat(equalBaseTypes(parameterized(Set.class, Set.class, String.class), List.class)).isFalse();
+			assertThat(equalBaseTypes(parameterized(Set.class, Set.class, String.class), parameterized(Set.class, Set.class, Object.class))).isTrue();
+		}
 
 	@Test
 	public void testBoxingEquivalentTypes() throws Exception {

@@ -6,7 +6,7 @@ import static net.amygdalum.testrecorder.deserializers.Templates.callMethodState
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
 import static net.amygdalum.testrecorder.types.Computation.variable;
 import static net.amygdalum.testrecorder.util.Types.baseType;
-import static net.amygdalum.testrecorder.util.Types.equalTypes;
+import static net.amygdalum.testrecorder.util.Types.equalBaseTypes;
 import static net.amygdalum.testrecorder.util.Types.typeArgument;
 import static net.amygdalum.testrecorder.util.Types.typeArguments;
 
@@ -83,7 +83,7 @@ public abstract class DefaultGenericMapAdaptor<T extends SerializedReferenceType
                 .collect(toList());
 
             String tempVar = definition.getName();
-            if (!equalTypes(effectiveResultType, temporaryType)) {
+            if (!equalBaseTypes(effectiveResultType, temporaryType)) {
                 tempVar = context.temporaryLocal();
             }
 
@@ -113,7 +113,7 @@ public abstract class DefaultGenericMapAdaptor<T extends SerializedReferenceType
 					: context.getLocals().fetchName(effectiveResultType);
                 statements.add(assignLocalVariableStatement(types.getVariableTypeName(effectiveResultType), resultName, tempVar));
 				return variable(resultName, effectiveResultType, statements);
-            } else if (!equalTypes(effectiveResultType, temporaryType)) {
+            } else if (!equalBaseTypes(effectiveResultType, temporaryType)) {
 				String resultName = definition.getType() == effectiveResultType
 					? definition.getName()
 					: context.getLocals().fetchName(effectiveResultType);

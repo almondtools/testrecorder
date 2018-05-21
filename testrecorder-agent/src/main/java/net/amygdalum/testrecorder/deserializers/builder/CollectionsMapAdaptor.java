@@ -5,7 +5,7 @@ import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVari
 import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethod;
 import static net.amygdalum.testrecorder.types.Computation.variable;
 import static net.amygdalum.testrecorder.util.TypeFilters.startingWith;
-import static net.amygdalum.testrecorder.util.Types.equalTypes;
+import static net.amygdalum.testrecorder.util.Types.equalBaseTypes;
 import static net.amygdalum.testrecorder.util.Types.innerClasses;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
@@ -48,7 +48,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 		return innerClasses(Collections.class).stream()
 			.filter(startingWith("Unmodifiable", "Synchronized", "Checked", "Empty", "Singleton"))
 			.filter(element -> Map.class.isAssignableFrom(element))
-			.anyMatch(element -> equalTypes(element, type));
+			.anyMatch(element -> equalBaseTypes(element, type));
 	}
 
 	@Override

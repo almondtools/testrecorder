@@ -15,14 +15,27 @@ import net.amygdalum.testrecorder.integration.TestRecorderAgentExtension;
 public class GenericDataTypesTest {
 	
 	@Test
-	public void testCompilable() throws Exception {
+	public void testIntegerCompilable() throws Exception {
 		StringBuilder buffer = new StringBuilder();
 		
-		GenericDataTypes dataTypes = new GenericDataTypes();
+		GenericDataTypes<Integer> dataTypes = new GenericDataTypes<>();
 		for (int i = 1; i <= 10; i++) {
 			dataTypes.objects(buffer, i);
 		}
 
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(GenericDataTypes.class)).satisfies(testsRun());
+	}
+
+	@Test
+	public void testStringCompilable() throws Exception {
+		StringBuilder buffer = new StringBuilder();
+		
+		GenericDataTypes<String> dataTypes = new GenericDataTypes<>();
+		for (int i = 1; i <= 10; i++) {
+			dataTypes.objects(buffer, "string " + i);
+		}
+		
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(GenericDataTypes.class)).satisfies(testsRun());
 	}

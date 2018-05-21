@@ -129,6 +129,11 @@ public class ContainsMatcher<T> extends TypeSafeMatcher<Collection<? extends T>>
         return new ContainsMatcher<>(type);
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	public static ContainsMatcher empty() {
+        return new ContainsMatcher(Object.class);
+    }
+
     @SuppressWarnings("unchecked")
     @SafeVarargs
     public static <T> ContainsMatcher<T> contains(Class<T> key, Object... elements) {
@@ -141,6 +146,20 @@ public class ContainsMatcher<T> extends TypeSafeMatcher<Collection<? extends T>>
             }
         }
         return set;
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SafeVarargs
+    public static ContainsMatcher contains(Object... elements) {
+    	ContainsMatcher set = new ContainsMatcher(Object.class);
+    	for (Object element : elements) {
+    		if (element instanceof Matcher) {
+    			set.and((Matcher) element);
+    		} else {
+    			set.and(element);
+    		}
+    	}
+    	return set;
     }
 
 }

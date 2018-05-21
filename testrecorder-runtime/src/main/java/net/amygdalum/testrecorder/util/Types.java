@@ -415,7 +415,7 @@ public final class Types {
 		return type1.equals(type2) || type2.equals(type1);
 	}
 
-	public static boolean equalTypes(Type type1, Type type2) {
+	public static boolean equalBaseTypes(Type type1, Type type2) {
 		return baseType(type1).equals(baseType(type2));
 	}
 

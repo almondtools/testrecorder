@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder.deserializers.builder;
 import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
 import static net.amygdalum.testrecorder.types.Computation.expression;
 import static net.amygdalum.testrecorder.util.Literals.asLiteral;
-import static net.amygdalum.testrecorder.util.Types.equalTypes;
+import static net.amygdalum.testrecorder.util.Types.equalBaseTypes;
 
 import java.lang.reflect.Type;
 import java.math.BigInteger;
@@ -24,7 +24,7 @@ public class DefaultBigIntegerAdaptor extends DefaultSetupGenerator<SerializedIm
 
 	@Override
 	public boolean matches(Type type) {
-		return equalTypes(type, BigInteger.class);
+		return equalBaseTypes(type, BigInteger.class);
 	}
 
 	@Override

@@ -54,7 +54,7 @@ public class DefaultListAdaptorTest {
 	}
 
 	@Test
-	public void testTryDeserialize() throws Exception {
+	public void testTryDeserializeExplicitelyTyped() throws Exception {
 		SerializedList value = new SerializedList(parameterized(ArrayList.class, null, Integer.class));
 		value.useAs(parameterized(List.class, null, Integer.class));
 		value.add(literal(0));
@@ -73,6 +73,26 @@ public class DefaultListAdaptorTest {
 		assertThat(result.getValue()).isEqualTo("list1");
 	}
 
+	@Test
+	public void testTryDeserialize() throws Exception {
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(parameterized(List.class, null, Integer.class));
+		value.add(literal(0));
+		value.add(literal(8));
+		value.add(literal(15));
+		SetupGenerators generator = generator();
+		
+		Computation result = adaptor.tryDeserialize(value, generator, context);
+		
+		assertThat(result.getStatements().toString()).containsSubsequence(
+			"ArrayList temp1 = new ArrayList<>()",
+			"temp1.add(0)",
+			"temp1.add(8)",
+			"temp1.add(15)",
+			"List<Integer> list1 = temp1;");
+		assertThat(result.getValue()).isEqualTo("list1");
+	}
+	
 	@Test
 	public void testTryDeserializeSameResultTypes() throws Exception {
 		SerializedList value = new SerializedList(parameterized(ArrayList.class, null, Integer.class));

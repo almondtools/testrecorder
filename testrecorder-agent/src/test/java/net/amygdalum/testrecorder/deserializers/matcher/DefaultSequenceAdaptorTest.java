@@ -47,7 +47,7 @@ public class DefaultSequenceAdaptorTest {
 	}
 
 	@Test
-	public void testTryDeserializeList() throws Exception {
+	public void testTryDeserializeExplicitelyTypedList() throws Exception {
 		SerializedList value = new SerializedList(parameterized(List.class, null, BigInteger.class));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(0)));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(8)));
@@ -58,15 +58,63 @@ public class DefaultSequenceAdaptorTest {
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo(""
-			+ "containsInOrder(java.math.BigInteger.class, "
+			+ "containsInOrder(BigInteger.class, "
 			+ "equalTo(new BigInteger(\"0\")), "
 			+ "equalTo(new BigInteger(\"8\")), "
 			+ "equalTo(new BigInteger(\"15\")))");
 	}
 
 	@Test
+	public void testTryDeserializeList() throws Exception {
+		SerializedList value = new SerializedList(List.class);
+		value.useAs(parameterized(List.class, null, BigInteger.class));
+		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(0)));
+		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(8)));
+		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(15)));
+		MatcherGenerators generator = generator();
+
+		Computation result = adaptor.tryDeserialize(value, generator, context);
+
+		assertThat(result.getStatements()).isEmpty();
+		assertThat(result.getValue()).isEqualTo(""
+			+ "containsInOrder(BigInteger.class, "
+			+ "equalTo(new BigInteger(\"0\")), "
+			+ "equalTo(new BigInteger(\"8\")), "
+			+ "equalTo(new BigInteger(\"15\")))");
+	}
+
+	@Test
+	public void testTryDeserializeRawList() throws Exception {
+		SerializedList value = new SerializedList(List.class);
+		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(0)));
+		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(8)));
+		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(15)));
+		MatcherGenerators generator = generator();
+		
+		Computation result = adaptor.tryDeserialize(value, generator, context);
+		
+		assertThat(result.getStatements()).isEmpty();
+		assertThat(result.getValue()).isEqualTo(""
+			+ "containsInOrder("
+			+ "equalTo(new BigInteger(\"0\")), "
+			+ "equalTo(new BigInteger(\"8\")), "
+			+ "equalTo(new BigInteger(\"15\")))");
+	}
+	
+	@Test
 	public void testTryDeserializeEmptyList() throws Exception {
 		SerializedList value = new SerializedList(parameterized(List.class, null, BigInteger.class));
+
+		MatcherGenerators generator = generator();
+
+		Computation result = adaptor.tryDeserialize(value, generator, context);
+
+		assertThat(result.getStatements()).isEmpty();
+		assertThat(result.getValue()).isEqualTo("empty(BigInteger.class)");
+	}
+
+	public void testTryDeserializeEmptyRawList() throws Exception {
+		SerializedList value = new SerializedList(List.class);
 
 		MatcherGenerators generator = generator();
 
@@ -79,9 +127,9 @@ public class DefaultSequenceAdaptorTest {
 	@Test
 	public void testTryDeserializeGenericComponents() throws Exception {
 		SerializedList value = new SerializedList(parameterized(List.class, null, parameterized(List.class, null, String.class)));
-		value.add(new SerializedList(String.class).with(literal("str1")));
-		value.add(new SerializedList(String.class).with(literal("str2"), literal("str3")));
-		value.add(new SerializedList(String.class));
+		value.add(new SerializedList(parameterized(List.class, null, String.class)).with(literal("str1")));
+		value.add(new SerializedList(parameterized(List.class, null, String.class)).with(literal("str2"), literal("str3")));
+		value.add(new SerializedList(parameterized(List.class, null, String.class)));
 
 		MatcherGenerators generator = generator();
 
@@ -89,10 +137,10 @@ public class DefaultSequenceAdaptorTest {
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo(""
-			+ "containsInOrder((Class<java.util.List<String>>) (Class) java.util.List.class, "
-			+ "containsInOrder(Object.class, \"str1\"), "
-			+ "containsInOrder(Object.class, \"str2\", \"str3\"), "
-			+ "empty())");
+			+ "containsInOrder((Class<List<String>>) (Class) List.class, "
+			+ "containsInOrder(String.class, \"str1\"), "
+			+ "containsInOrder(String.class, \"str2\", \"str3\"), "
+			+ "empty(String.class))");
 	}
 
 	@Test

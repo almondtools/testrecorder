@@ -23,14 +23,6 @@ public final class SerializableGenericArrayType implements GenericArrayType, Ser
 	}
 
 	@Override
-	public String getTypeName() {
-		StringBuilder buffer = new StringBuilder();
-		buffer.append(componentType.getTypeName());
-		buffer.append("[]");
-		return buffer.toString();
-	}
-
-	@Override
 	public int hashCode() {
 		return componentType.hashCode() + 19;
 	}
@@ -52,7 +44,10 @@ public final class SerializableGenericArrayType implements GenericArrayType, Ser
 
 	@Override
 	public String toString() {
-		return getTypeName();
+		StringBuilder buffer = new StringBuilder();
+		buffer.append(componentType.getTypeName());
+		buffer.append("[]");
+		return buffer.toString();
 	}
 
 }

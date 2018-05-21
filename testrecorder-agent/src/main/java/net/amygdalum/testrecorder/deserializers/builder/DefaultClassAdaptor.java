@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static net.amygdalum.testrecorder.types.Computation.expression;
-import static net.amygdalum.testrecorder.util.Types.equalTypes;
+import static net.amygdalum.testrecorder.util.Types.equalBaseTypes;
 
 import java.lang.reflect.Type;
 
@@ -21,7 +21,7 @@ public class DefaultClassAdaptor extends DefaultSetupGenerator<SerializedImmutab
 
 	@Override
 	public boolean matches(Type type) {
-		return equalTypes(type, Class.class);
+		return equalBaseTypes(type, Class.class);
 	}
 
 	@Override

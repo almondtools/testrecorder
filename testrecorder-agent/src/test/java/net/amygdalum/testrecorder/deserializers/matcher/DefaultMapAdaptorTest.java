@@ -51,9 +51,8 @@ public class DefaultMapAdaptorTest {
 	}
 
 	@Test
-	public void testTryDeserializeMap() throws Exception {
+	public void testTryDeserializeExplicitelyTypedMap() throws Exception {
 		SerializedMap value = new SerializedMap(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class));
-		value.useAs(parameterized(Map.class, null, Integer.class, Integer.class));
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
 		MatcherGenerators generator = generator();
@@ -67,22 +66,65 @@ public class DefaultMapAdaptorTest {
 	}
 
 	@Test
+	public void testTryDeserializeMap() throws Exception {
+		SerializedMap value = new SerializedMap(LinkedHashMap.class);
+		value.useAs(parameterized(Map.class, null, Integer.class, Integer.class));
+		value.put(literal(8), literal(15));
+		value.put(literal(47), literal(11));
+		MatcherGenerators generator = generator();
+		Computation result = adaptor.tryDeserialize(value, generator, context);
+		
+		assertThat(result.getStatements()).isEmpty();
+		assertThat(result.getValue()).isEqualTo(""
+			+ "containsEntries(Integer.class, Integer.class)"
+			+ ".entry(8, 15)"
+			+ ".entry(47, 11)");
+	}
+	
+	@Test
+	public void testTryDeserializeRawMap() throws Exception {
+		SerializedMap value = new SerializedMap(LinkedHashMap.class);
+		value.put(literal(8), literal(15));
+		value.put(literal(47), literal(11));
+		MatcherGenerators generator = generator();
+		Computation result = adaptor.tryDeserialize(value, generator, context);
+
+		assertThat(result.getStatements()).isEmpty();
+		assertThat(result.getValue()).isEqualTo(""
+			+ "containsEntries()"
+			+ ".entry(8, 15)"
+			+ ".entry(47, 11)");
+	}
+
+	@Test
 	public void testTryDeserializeEmptyMap() throws Exception {
-		SerializedMap value = new SerializedMap(BigInteger[].class);
+		SerializedMap value = new SerializedMap(parameterized(Map.class, null, BigInteger.class, String.class));
 		MatcherGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements()).isEmpty();
-		assertThat(result.getValue()).isEqualTo("noEntries(Object.class, Object.class)");
+		assertThat(result.getValue()).isEqualTo("noEntries(BigInteger.class, String.class)");
 	}
 
 	@Test
+	public void testTryDeserializeEmptyRawMap() throws Exception {
+		SerializedMap value = new SerializedMap(Map.class);
+		MatcherGenerators generator = generator();
+		
+		Computation result = adaptor.tryDeserialize(value, generator, context);
+		
+		assertThat(result.getStatements()).isEmpty();
+		assertThat(result.getValue()).isEqualTo("noEntries()");
+	}
+	
+	@Test
 	public void testTryDeserializeGenericComponents() throws Exception {
 		SerializedMap value = new SerializedMap(parameterized(LinkedHashMap.class, null, parameterized(List.class, null, String.class), parameterized(Set.class, null, String.class)));
-		value.put(new SerializedList(String.class).with(literal("str1")), new SerializedSet(String.class).with(literal("str1")));
-		value.put(new SerializedList(String.class).with(literal("str2"), literal("str3")), new SerializedSet(String.class).with(literal("str2"), literal("str3")));
-		value.put(new SerializedList(String.class), new SerializedSet(String.class));
+		value.put(new SerializedList(parameterized(List.class, null, String.class)).with(literal("str1")), new SerializedSet(parameterized(Set.class, null, String.class)).with(literal("str1")));
+		value.put(new SerializedList(parameterized(List.class, null, String.class)).with(literal("str2"), literal("str3")),
+			new SerializedSet(parameterized(Set.class, null, String.class)).with(literal("str2"), literal("str3")));
+		value.put(new SerializedList(parameterized(List.class, null, String.class)), new SerializedSet(parameterized(Set.class, null, String.class)));
 
 		MatcherGenerators generator = generator();
 
@@ -90,10 +132,10 @@ public class DefaultMapAdaptorTest {
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo(""
-			+ "containsEntries((Class<java.util.List<String>>) (Class) java.util.List.class, (Class<java.util.Set<String>>) (Class) java.util.Set.class)"
-			+ ".entry(containsInOrder(Object.class, \"str1\"), contains(Object.class, \"str1\"))"
-			+ ".entry(containsInOrder(Object.class, \"str2\", \"str3\"), contains(Object.class, \"str2\", \"str3\"))"
-			+ ".entry(empty(), empty())");
+			+ "containsEntries((Class<List<String>>) (Class) List.class, (Class<Set<String>>) (Class) Set.class)"
+			+ ".entry(containsInOrder(String.class, \"str1\"), contains(String.class, \"str1\"))"
+			+ ".entry(containsInOrder(String.class, \"str2\", \"str3\"), contains(String.class, \"str2\", \"str3\"))"
+			+ ".entry(empty(String.class), empty(String.class))");
 	}
 
 	@Test

@@ -42,20 +42,6 @@ public final class SerializableParameterizedType implements ParameterizedType, S
 	}
 
 	@Override
-	public String getTypeName() {
-		StringBuilder buffer = new StringBuilder();
-		buffer.append(raw.getTypeName());
-		buffer.append('<');
-		if (typeArgs != null && typeArgs.length > 0) {
-			buffer.append(Stream.of(typeArgs)
-				.map(type -> type.getTypeName())
-				.collect(joining(", ")));
-		}
-		buffer.append('>');
-		return buffer.toString();
-	}
-
-	@Override
 	public int hashCode() {
 		return raw.hashCode() * 3 + (owner == null ? 0 : owner.hashCode() * 5) + Arrays.hashCode(typeArgs) * 7 + 13;
 	}
@@ -79,7 +65,16 @@ public final class SerializableParameterizedType implements ParameterizedType, S
 
 	@Override
 	public String toString() {
-		return getTypeName();
+		StringBuilder buffer = new StringBuilder();
+		buffer.append(raw.getTypeName());
+		buffer.append('<');
+		if (typeArgs != null && typeArgs.length > 0) {
+			buffer.append(Stream.of(typeArgs)
+				.map(type -> type.getTypeName())
+				.collect(joining(", ")));
+		}
+		buffer.append('>');
+		return buffer.toString();
 	}
 
 }

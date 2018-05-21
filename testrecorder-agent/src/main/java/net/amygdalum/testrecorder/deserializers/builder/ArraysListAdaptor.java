@@ -5,7 +5,7 @@ import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethod
 import static net.amygdalum.testrecorder.types.Computation.variable;
 import static net.amygdalum.testrecorder.util.TypeFilters.in;
 import static net.amygdalum.testrecorder.util.Types.array;
-import static net.amygdalum.testrecorder.util.Types.equalTypes;
+import static net.amygdalum.testrecorder.util.Types.equalBaseTypes;
 import static net.amygdalum.testrecorder.util.Types.innerClasses;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
@@ -45,7 +45,7 @@ public class ArraysListAdaptor implements SetupGenerator<SerializedList> {
         return innerClasses(Arrays.class).stream()
             .filter(in("ArrayList"))
             .filter(element -> List.class.isAssignableFrom(element))
-            .anyMatch(element -> equalTypes(element, type));
+            .anyMatch(element -> equalBaseTypes(element, type));
     }
 
     @Override

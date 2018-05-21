@@ -34,24 +34,6 @@ public final class SerializableWildcardType implements WildcardType, Serializabl
 	}
 
 	@Override
-	public String getTypeName() {
-		StringBuilder buffer = new StringBuilder();
-		buffer.append("?");
-		if (lowerBounds.length > 0) {
-			buffer.append(" super ").append(Stream.of(lowerBounds)
-				.map(type -> type.getTypeName())
-				.collect(joining(", ")));
-		}
-		if (upperBounds.length > 0) {
-			buffer.append(" extends ").append(Stream.of(upperBounds)
-				.filter(type -> type != Object.class)
-				.map(type -> type.getTypeName())
-				.collect(joining(", ")));
-		}
-		return buffer.toString();
-	}
-
-	@Override
 	public int hashCode() {
 		return Arrays.hashCode(upperBounds) * 5 + Arrays.hashCode(lowerBounds) * 7 + 23;
 	}
@@ -74,7 +56,20 @@ public final class SerializableWildcardType implements WildcardType, Serializabl
 
 	@Override
 	public String toString() {
-		return getTypeName();
+		StringBuilder buffer = new StringBuilder();
+		buffer.append("?");
+		if (lowerBounds.length > 0) {
+			buffer.append(" super ").append(Stream.of(lowerBounds)
+				.map(type -> type.getTypeName())
+				.collect(joining(", ")));
+		}
+		if (upperBounds.length > 0) {
+			buffer.append(" extends ").append(Stream.of(upperBounds)
+				.filter(type -> type != Object.class)
+				.map(type -> type.getTypeName())
+				.collect(joining(", ")));
+		}
+		return buffer.toString();
 	}
 
 }

@@ -56,7 +56,7 @@ public class DefaultSetAdaptorTest {
 	}
 
 	@Test
-	public void testTryDeserialize() throws Exception {
+	public void testTryDeserializeExplicitelyTyped() throws Exception {
 		SerializedSet value = new SerializedSet(parameterized(LinkedHashSet.class, null, Integer.class));
 		value.useAs(parameterized(Set.class, null, Integer.class));
 		value.add(literal(0));
@@ -75,6 +75,26 @@ public class DefaultSetAdaptorTest {
 		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
+	@Test
+	public void testTryDeserialize() throws Exception {
+		SerializedSet value = new SerializedSet(LinkedHashSet.class);
+		value.useAs(parameterized(Set.class, null, Integer.class));
+		value.add(literal(0));
+		value.add(literal(8));
+		value.add(literal(15));
+		SetupGenerators generator = generator();
+		
+		Computation result = adaptor.tryDeserialize(value, generator, context);
+		
+		assertThat(result.getStatements().toString()).containsSubsequence(
+			"LinkedHashSet temp1 = new LinkedHashSet<>()",
+			"temp1.add(0)",
+			"temp1.add(8)",
+			"temp1.add(15)",
+			"Set<Integer> set1 = temp1;");
+		assertThat(result.getValue()).isEqualTo("set1");
+	}
+	
 	@Test
 	public void testTryDeserializeSameResultTypes() throws Exception {
 		SerializedSet value = new SerializedSet(parameterized(LinkedHashSet.class, null, Integer.class));

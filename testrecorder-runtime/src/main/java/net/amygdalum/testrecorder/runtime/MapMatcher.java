@@ -173,4 +173,14 @@ public class MapMatcher<K, V> extends TypeSafeMatcher<Map<K, V>> {
         return new MapMatcher<>(key, value);
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public static MapMatcher noEntries() {
+        return new MapMatcher(Object.class, Object.class);
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static MapMatcher containsEntries() {
+        return new MapMatcher(Object.class, Object.class);
+    }
+
 }

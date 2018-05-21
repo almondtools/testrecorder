@@ -47,7 +47,7 @@ public class DefaultSetAdaptorTest {
 	}
 
 	@Test
-	public void testTryDeserializeSet() throws Exception {
+	public void testTryDeserializeExplicitelyTypedSet() throws Exception {
 		SerializedSet value = new SerializedSet(parameterized(Set.class, null, BigInteger.class));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(0)));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(8)));
@@ -59,15 +59,65 @@ public class DefaultSetAdaptorTest {
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo(""
-			+ "contains(java.math.BigInteger.class, "
+			+ "contains(BigInteger.class, "
 			+ "equalTo(new BigInteger(\"0\")), "
 			+ "equalTo(new BigInteger(\"8\")), "
 			+ "equalTo(new BigInteger(\"15\")))");
 	}
 
 	@Test
+	public void testTryDeserializeSet() throws Exception {
+		SerializedSet value = new SerializedSet(Set.class);
+		value.useAs(parameterized(Set.class, null, BigInteger.class));
+		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(0)));
+		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(8)));
+		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(15)));
+		
+		MatcherGenerators generator = generator();
+		
+		Computation result = adaptor.tryDeserialize(value, generator, context);
+		
+		assertThat(result.getStatements()).isEmpty();
+		assertThat(result.getValue()).isEqualTo(""
+			+ "contains(BigInteger.class, "
+			+ "equalTo(new BigInteger(\"0\")), "
+			+ "equalTo(new BigInteger(\"8\")), "
+			+ "equalTo(new BigInteger(\"15\")))");
+	}
+	
+	@Test
+	public void testTryDeserializeRawSet() throws Exception {
+		SerializedSet value = new SerializedSet(Set.class);
+		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(0)));
+		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(8)));
+		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(15)));
+		
+		MatcherGenerators generator = generator();
+		
+		Computation result = adaptor.tryDeserialize(value, generator, context);
+		
+		assertThat(result.getStatements()).isEmpty();
+		assertThat(result.getValue()).isEqualTo(""
+			+ "contains("
+			+ "equalTo(new BigInteger(\"0\")), "
+			+ "equalTo(new BigInteger(\"8\")), "
+			+ "equalTo(new BigInteger(\"15\")))");
+	}
+	
+	@Test
 	public void testTryDeserializeEmptySet() throws Exception {
 		SerializedSet value = new SerializedSet(parameterized(Set.class, null, BigInteger.class));
+		MatcherGenerators generator = generator();
+
+		Computation result = adaptor.tryDeserialize(value, generator, context);
+
+		assertThat(result.getStatements()).isEmpty();
+		assertThat(result.getValue()).isEqualTo("empty(BigInteger.class)");
+	}
+
+	@Test
+	public void testTryDeserializeEmptyRawSet() throws Exception {
+		SerializedSet value = new SerializedSet(Set.class);
 		MatcherGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
@@ -79,9 +129,9 @@ public class DefaultSetAdaptorTest {
 	@Test
 	public void testTryDeserializeGenericComponents() throws Exception {
 		SerializedSet value = new SerializedSet(parameterized(Set.class, null, parameterized(Set.class, null, String.class)));
-		value.add(new SerializedSet(String.class).with(literal("str1")));
-		value.add(new SerializedSet(String.class).with(literal("str2"), literal("str3")));
-		value.add(new SerializedSet(String.class));
+		value.add(new SerializedSet(parameterized(Set.class, null, String.class)).with(literal("str1")));
+		value.add(new SerializedSet(parameterized(Set.class, null, String.class)).with(literal("str2"), literal("str3")));
+		value.add(new SerializedSet(parameterized(Set.class, null, String.class)));
 
 		MatcherGenerators generator = generator();
 
@@ -89,10 +139,10 @@ public class DefaultSetAdaptorTest {
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo(""
-			+ "contains((Class<java.util.Set<String>>) (Class) java.util.Set.class, "
-			+ "contains(Object.class, \"str1\"), "
-			+ "contains(Object.class, \"str2\", \"str3\"), "
-			+ "empty())");
+			+ "contains((Class<Set<String>>) (Class) Set.class, "
+			+ "contains(String.class, \"str1\"), "
+			+ "contains(String.class, \"str2\", \"str3\"), "
+			+ "empty(String.class))");
 	}
 
 	@Test
