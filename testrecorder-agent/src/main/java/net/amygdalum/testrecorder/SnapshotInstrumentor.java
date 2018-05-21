@@ -101,7 +101,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		Set<Class<?>> classesToRetransform = new LinkedHashSet<>();
 		classesToRetransform.addAll(instrumentedClasses);
 
-		for (Map.Entry<String,ClassLoader> classPrototype : instrumentedClassPrototypes.entrySet()) {
+		for (Map.Entry<String, ClassLoader> classPrototype : instrumentedClassPrototypes.entrySet()) {
 			classesToRetransform.add(classFrom(classPrototype.getKey(), classPrototype.getValue()));
 		}
 
@@ -428,8 +428,8 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 		private List<MethodNode> getSkippedSnapshotMethods() {
 			return classNode.methods.stream()
-				.filter(method -> isSnapshotMethod(method))
-				.filter(method -> !isVisible(classNode) || !isVisible(method))
+				.filter(methodNode -> isSnapshotMethod(classNode, methodNode))
+				.filter(methodNode -> !isVisible(classNode) || !isVisible(methodNode))
 				.collect(toList());
 		}
 
@@ -448,8 +448,8 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 				return Collections.emptyList();
 			}
 			return classNode.methods.stream()
-				.filter(method -> isSnapshotMethod(method))
-				.filter(method -> isVisible(method))
+				.filter(methodNode -> isSnapshotMethod(classNode, methodNode))
+				.filter(methodNode -> isVisible(methodNode))
 				.collect(toList());
 		}
 
@@ -458,7 +458,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 				return Collections.emptyList();
 			}
 			return classNode.methods.stream()
-				.filter(method -> isJavaInputMethod(classNode, method))
+				.filter(methodNode -> isJavaInputMethod(classNode, methodNode))
 				.collect(toList());
 		}
 
@@ -533,12 +533,14 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 			return global;
 		}
 
-		protected boolean isSnapshotMethod(MethodNode methodNode) {
+		protected boolean isSnapshotMethod(ClassNode classNode, MethodNode methodNode) {
 			if (methodNode.visibleAnnotations == null) {
 				return false;
 			}
-			return methodNode.visibleAnnotations.stream()
-				.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Recorded.class)));
+			return profile.getRecorded().stream()
+				.anyMatch(method -> matches(method, classNode.name, methodNode.name, methodNode.desc))
+				|| methodNode.visibleAnnotations.stream()
+					.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Recorded.class)));
 		}
 
 		protected boolean isJavaInputMethod(ClassNode classNode, MethodNode methodNode) {
@@ -553,7 +555,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 		protected boolean isInputMethod(ClassNode classNode, MethodNode methodNode) {
 			boolean input = isQualifiedInputMethod(classNode, methodNode);
-			if (input && (isQualifiedOutputMethod(classNode, methodNode) || isSnapshotMethod(methodNode))) {
+			if (input && (isQualifiedOutputMethod(classNode, methodNode) || isSnapshotMethod(classNode, methodNode))) {
 				Logger.warn("found annotation @Input on method already annotated with @Recorded or @Output " + methodNode.name + methodNode.desc + ", skipping");
 				return false;
 			}
@@ -579,7 +581,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 		protected boolean isOutputMethod(ClassNode classNode, MethodNode methodNode) {
 			boolean output = isQualifiedOutputMethod(classNode, methodNode);
-			if (output && (isQualifiedInputMethod(classNode, methodNode) || isSnapshotMethod(methodNode))) {
+			if (output && (isQualifiedInputMethod(classNode, methodNode) || isSnapshotMethod(classNode, methodNode))) {
 				Logger.warn("found annotation @Output on method already annotated with @Recorded or @Input " + methodNode.name + methodNode.desc + ", skipping");
 				return false;
 			}

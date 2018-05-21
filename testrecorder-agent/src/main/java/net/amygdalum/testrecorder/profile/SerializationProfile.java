@@ -86,4 +86,14 @@ public interface SerializationProfile {
 	 */
 	List<Methods> getOutputs();
 
+	/**
+	 * Configuring {@link #getRecorded()} enables to extend serialization by recorded methods.
+	 * 
+	 * {@link net.amygdalum.testrecorder.profile.Methods} provides some default predicates to specify methods that provide input.
+	 *  
+	 * @see Recorded
+	 * @return a list of Methods/Predicates describing the methods that should be recorded.
+	 */
+	List<Methods> getRecorded();
+
 }

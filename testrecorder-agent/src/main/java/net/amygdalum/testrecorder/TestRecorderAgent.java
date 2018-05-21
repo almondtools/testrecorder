@@ -53,8 +53,8 @@ public class TestRecorderAgent {
 	}
 
 	public void prepareInstrumentations() {
-		snapshotInstrumentor = new SnapshotInstrumentor(config).attach(inst);
 		lambdaTransformer = new AllLambdasSerializableTransformer().attach(inst);
+		snapshotInstrumentor = new SnapshotInstrumentor(config).attach(inst);
 
 		initialize();
 	}

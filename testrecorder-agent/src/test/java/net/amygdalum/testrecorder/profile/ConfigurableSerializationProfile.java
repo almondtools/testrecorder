@@ -12,6 +12,7 @@ public class ConfigurableSerializationProfile implements SerializationProfile {
 	private List<Fields> globalFields;
 	private List<Methods> inputs;
 	private List<Methods> outputs;
+	private List<Methods> recorded;
 
 	private List<Classes> classes;
 
@@ -23,6 +24,7 @@ public class ConfigurableSerializationProfile implements SerializationProfile {
 		this.globalFields = new ArrayList<>(base.getGlobalFields());
 		this.inputs = new ArrayList<>(base.getInputs());
 		this.outputs = new ArrayList<>(base.getOutputs());
+		this.recorded = new ArrayList<>(base.getOutputs());
 		this.classes = new ArrayList<>(base.getClasses());
 	}
 
@@ -68,6 +70,11 @@ public class ConfigurableSerializationProfile implements SerializationProfile {
 	@Override
 	public List<Methods> getOutputs() {
 		return outputs;
+	}
+	
+	@Override
+	public List<Methods> getRecorded() {
+		return recorded;
 	}
 
 	public static class Builder {

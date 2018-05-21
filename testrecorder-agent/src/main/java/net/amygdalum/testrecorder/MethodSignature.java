@@ -3,6 +3,7 @@ package net.amygdalum.testrecorder;
 import static net.amygdalum.testrecorder.asm.ByteCode.argumentTypesFrom;
 import static net.amygdalum.testrecorder.asm.ByteCode.classFrom;
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -14,7 +15,7 @@ import java.util.Set;
 import net.amygdalum.testrecorder.types.SerializationException;
 import net.amygdalum.testrecorder.util.Types;
 
-public class MethodSignature {
+public class MethodSignature implements Serializable {
 
 	public static final MethodSignature NULL = new MethodSignature() {
 		@Override
@@ -40,6 +41,8 @@ public class MethodSignature {
 	}
 
 	public MethodSignature(Class<?> declaringClass, Annotation[] resultAnnotation, Type resultType, String methodName, Annotation[][] argumentAnnotations, Type[] argumentTypes) {
+		assert resultType instanceof Serializable;
+		assert Arrays.stream(argumentTypes).allMatch(type -> type instanceof Serializable);
 		this.declaringClass = declaringClass;
 		this.resultAnnotation = resultAnnotation;
 		this.resultType = resultType;
@@ -56,7 +59,12 @@ public class MethodSignature {
 			Class<?> clazz = classFrom(className);
 			Method method = Types.getDeclaredMethod(clazz, methodName, argumentTypesFrom(methodDesc));
 
-			return new MethodSignature(clazz, method.getAnnotations(), method.getGenericReturnType(), method.getName(), method.getParameterAnnotations(), method.getGenericParameterTypes());
+			Annotation[] annotations = method.getAnnotations();
+			Type genericReturnType = Types.serializableOf(method.getGenericReturnType());
+			String name = method.getName();
+			Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+			Type[] genericParameterTypes = Types.serializableOf(method.getGenericParameterTypes());
+			return new MethodSignature(clazz, annotations, genericReturnType, name, parameterAnnotations, genericParameterTypes);
 		} catch (RuntimeException | ReflectiveOperationException e) {
 			throw new SerializationException(e);
 		}
