@@ -59,16 +59,25 @@ public class MethodSignature implements Serializable {
 			Class<?> clazz = classFrom(className);
 			Method method = Types.getDeclaredMethod(clazz, methodName, argumentTypesFrom(methodDesc));
 
-			Annotation[] annotations = method.getAnnotations();
-			Type genericReturnType = Types.serializableOf(method.getGenericReturnType());
-			String name = method.getName();
-			Annotation[][] parameterAnnotations = method.getParameterAnnotations();
-			Type[] genericParameterTypes = Types.serializableOf(method.getGenericParameterTypes());
-			return new MethodSignature(clazz, annotations, genericReturnType, name, parameterAnnotations, genericParameterTypes);
+			return fromDescriptor(clazz, method);
 		} catch (RuntimeException | ReflectiveOperationException e) {
 			throw new SerializationException(e);
 		}
 
+	}
+
+	public static MethodSignature fromDescriptor(Method method) {
+		return fromDescriptor(method.getDeclaringClass(), method);
+	}
+
+	public static MethodSignature fromDescriptor(Class<?> clazz, Method method) {
+		Annotation[] annotations = method.getAnnotations();
+		Type genericReturnType = Types.serializableOf(method.getGenericReturnType());
+		String name = method.getName();
+		Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+		Type[] genericParameterTypes = Types.serializableOf(method.getGenericParameterTypes());
+		
+		return new MethodSignature(clazz, annotations, genericReturnType, name, parameterAnnotations, genericParameterTypes);
 	}
 
 	public synchronized boolean validIn(Class<?> clazz) {
