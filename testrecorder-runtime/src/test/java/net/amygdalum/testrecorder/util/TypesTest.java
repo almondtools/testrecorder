@@ -149,11 +149,11 @@ public class TypesTest {
 	}
 
 	@Test
-		public void testEqualBaseTypes() throws Exception {
-			assertThat(equalBaseTypes(parameterized(List.class, List.class, String.class), List.class)).isTrue();
-			assertThat(equalBaseTypes(parameterized(Set.class, Set.class, String.class), List.class)).isFalse();
-			assertThat(equalBaseTypes(parameterized(Set.class, Set.class, String.class), parameterized(Set.class, Set.class, Object.class))).isTrue();
-		}
+	public void testEqualBaseTypes() throws Exception {
+		assertThat(equalBaseTypes(parameterized(List.class, List.class, String.class), List.class)).isTrue();
+		assertThat(equalBaseTypes(parameterized(Set.class, Set.class, String.class), List.class)).isFalse();
+		assertThat(equalBaseTypes(parameterized(Set.class, Set.class, String.class), parameterized(Set.class, Set.class, Object.class))).isTrue();
+	}
 
 	@Test
 	public void testBoxingEquivalentTypes() throws Exception {
@@ -534,7 +534,9 @@ public class TypesTest {
 			.isEqualTo(Types.parameterized(BiGeneric.class, null, freeType, Types.wildcardSuper(Sub.class)));
 		assertThat(Types.resolve(boundAndWildcardType, PartlyBoundBiGeneric.class))
 			.isEqualTo(Types.parameterized(BiGeneric.class, null, ((ParameterizedType) boundAndWildcardType).getActualTypeArguments()[0], Sub.class));
-		assertThat(Types.resolve(unboundAndWildcardType, PartlyBoundBiGeneric.class))
+		System.out.println(Types.resolve(unboundAndWildcardType, PartlyBoundBiGeneric.class));
+		System.out.println(Types.parameterized(BiGeneric.class, null, freeType, ((ParameterizedType) unboundAndWildcardType).getActualTypeArguments()[1]));
+		assertThat(Types.serializableOf(Types.resolve(unboundAndWildcardType, PartlyBoundBiGeneric.class)))
 			.isEqualTo(Types.parameterized(BiGeneric.class, null, freeType, ((ParameterizedType) unboundAndWildcardType).getActualTypeArguments()[1]));
 	}
 
@@ -592,16 +594,19 @@ public class TypesTest {
 	@SuppressWarnings("unused")
 	public static class NestedConstructors {
 		public NestedConstructors(int i) {
-			
+
 		}
+
 		protected NestedConstructors(char c) {
-			
+
 		}
+
 		NestedConstructors(boolean b) {
-			
+
 		}
+
 		private NestedConstructors() {
-			
+
 		}
 	}
 

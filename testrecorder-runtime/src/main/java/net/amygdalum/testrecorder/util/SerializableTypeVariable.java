@@ -84,12 +84,13 @@ public class SerializableTypeVariable<D extends GenericDeclaration> implements T
 	@Override
 	public String toString() {
 		StringBuilder buffer = new StringBuilder();
-		buffer.append("name");
-		if (bounds.length > 0) {
-			buffer.append(" extends ").append(Stream.of(bounds)
-				.filter(type -> type != Object.class)
-				.map(type -> type.getTypeName())
-				.collect(joining(", ")));
+		buffer.append(name);
+		String boundsStr = Stream.of(bounds)
+			.filter(type -> type != Object.class)
+			.map(type -> type.getTypeName())
+			.collect(joining(", "));
+		if (!boundsStr.isEmpty()) {
+			buffer.append(" extends ").append(boundsStr);
 		}
 		return buffer.toString();
 	}

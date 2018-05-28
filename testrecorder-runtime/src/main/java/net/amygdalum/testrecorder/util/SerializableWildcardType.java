@@ -58,16 +58,18 @@ public final class SerializableWildcardType implements WildcardType, Serializabl
 	public String toString() {
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("?");
-		if (lowerBounds.length > 0) {
-			buffer.append(" super ").append(Stream.of(lowerBounds)
-				.map(type -> type.getTypeName())
-				.collect(joining(", ")));
+		String lowerBoundsStr = Stream.of(lowerBounds)
+			.map(type -> type.getTypeName())
+			.collect(joining(", "));
+		if (!lowerBoundsStr.isEmpty()) {
+			buffer.append(" super ").append(lowerBoundsStr);
 		}
-		if (upperBounds.length > 0) {
-			buffer.append(" extends ").append(Stream.of(upperBounds)
-				.filter(type -> type != Object.class)
-				.map(type -> type.getTypeName())
-				.collect(joining(", ")));
+		String upperBoundsStr = Stream.of(upperBounds)
+			.filter(type -> type != Object.class)
+			.map(type -> type.getTypeName())
+			.collect(joining(", "));
+		if (!upperBoundsStr.isEmpty()) {
+			buffer.append(" extends ").append(upperBoundsStr);
 		}
 		return buffer.toString();
 	}

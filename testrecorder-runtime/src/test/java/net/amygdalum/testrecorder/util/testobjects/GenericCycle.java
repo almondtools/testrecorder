@@ -19,4 +19,11 @@ public class GenericCycle<T> {
         return a;
     }
 
+    public boolean insert(GenericCycle<T> element) {
+    	GenericCycle<T> temp = next;
+    	this.next = element;
+    	element.next = temp;
+    	return element == this;
+    }
+    
 }

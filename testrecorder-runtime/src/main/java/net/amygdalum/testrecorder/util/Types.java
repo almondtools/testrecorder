@@ -748,6 +748,9 @@ public final class Types {
 	}
 
 	public static Type[] serializableOf(Type[] types) {
+		if (types == null) {
+			return null;
+		}
 		Type[] serializableTypes = new Type[types.length];
 		for (int i = 0; i < serializableTypes.length; i++) {
 			serializableTypes[i] = serializableOf(types[i]);
