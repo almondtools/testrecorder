@@ -14,6 +14,7 @@ import java.util.List;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.SelfDescribing;
+import org.hamcrest.StringDescription;
 import org.hamcrest.TypeSafeMatcher;
 
 import net.amygdalum.testrecorder.util.WorkSet;
@@ -163,11 +164,13 @@ public class GenericMatcher extends GenericObject {
 		}
 
 		private void describe(Description description, Object value) {
+			StringDescription subdescription = new StringDescription();
 			if (value instanceof SelfDescribing) {
-				description.appendDescriptionOf((SelfDescribing) value);
+				subdescription.appendDescriptionOf((SelfDescribing) value);
 			} else {
-				description.appendValue(value);
+				subdescription.appendValue(value);
 			}
+			description.appendText(subdescription.toString().replace("\n", "\n\t"));
 		}
 
 	}
