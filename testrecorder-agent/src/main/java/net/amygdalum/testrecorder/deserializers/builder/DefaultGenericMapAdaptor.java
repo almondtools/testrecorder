@@ -79,7 +79,6 @@ public abstract class DefaultGenericMapAdaptor<T extends SerializedReferenceType
 
             List<String> statements = elementTemplates.stream()
                 .flatMap(pair -> Stream.concat(pair.getElement1().getStatements().stream(), pair.getElement2().getStatements().stream()))
-                .distinct()
                 .collect(toList());
 
             String tempVar = definition.getName();
