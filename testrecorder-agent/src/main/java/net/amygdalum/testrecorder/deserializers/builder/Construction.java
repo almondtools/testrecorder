@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
 import static java.util.stream.Collectors.toList;
+import static net.amygdalum.testrecorder.runtime.SelectedFieldsComparisonStrategy.comparingFields;
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.resolve;
@@ -67,7 +68,7 @@ public class Construction {
 
 		return computeConstructionPlans().stream()
 			.map(plan -> plan.disambiguate(constructors.keySet()))
-			.filter(plan -> GenericComparison.equals("", plan.execute(), value, fields))
+			.filter(plan -> GenericComparison.equals("", plan.execute(), value, comparingFields(fields)))
 			.sorted()
 			.findFirst()
 			.map(plan -> plan.compute(types, generator, context))

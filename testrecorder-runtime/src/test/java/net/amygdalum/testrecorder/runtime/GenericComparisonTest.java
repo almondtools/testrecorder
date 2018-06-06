@@ -1,10 +1,10 @@
 package net.amygdalum.testrecorder.runtime;
 
-import static java.util.Arrays.asList;
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.MATCH;
 import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.MISMATCH;
 import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.NOT_APPLYING;
+import static net.amygdalum.testrecorder.runtime.SelectedFieldsComparisonStrategy.comparingFields;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -143,12 +143,12 @@ public class GenericComparisonTest {
 		Node node21 = new Node("name2", new Node[] { node1 });
 		Node node22 = new Node("name2", new Node[] { node2 });
 
-		assertThat(GenericComparison.equals("root", node1, node1, asList("name"))).isTrue();
-		assertThat(GenericComparison.equals("root", node1, node2, asList("name"))).isFalse();
-		assertThat(GenericComparison.equals("root", node11, node11, asList("name"))).isTrue();
-		assertThat(GenericComparison.equals("root", node11, node12, asList("name"))).isTrue();
-		assertThat(GenericComparison.equals("root", node11, node21, asList("name"))).isFalse();
-		assertThat(GenericComparison.equals("root", node11, node22, asList("name"))).isFalse();
+		assertThat(GenericComparison.equals("root", node1, node1, comparingFields("name"))).isTrue();
+		assertThat(GenericComparison.equals("root", node1, node2, comparingFields("name"))).isFalse();
+		assertThat(GenericComparison.equals("root", node11, node11, comparingFields("name"))).isTrue();
+		assertThat(GenericComparison.equals("root", node11, node12, comparingFields("name"))).isTrue();
+		assertThat(GenericComparison.equals("root", node11, node21, comparingFields("name"))).isFalse();
+		assertThat(GenericComparison.equals("root", node11, node22, comparingFields("name"))).isFalse();
 	}
 
 	@Test
@@ -282,7 +282,7 @@ public class GenericComparisonTest {
 
 		when(c.compare(any(GenericComparison.class), eq(todo))).thenReturn(NOT_APPLYING);
 
-		new GenericComparison(null, node1, node2, asList("name")).eval(c, todo);
+		new GenericComparison(null, node1, node2, comparingFields("name")).eval(c, todo);
 
 		assertThat(todo).containsExactly(
 			new GenericComparison("name", node1.name, node2.name));
