@@ -27,11 +27,9 @@ public class SelectedFieldsComparisonStrategy implements ComparisonStrategy {
 	}
 
 	@Override
-	public List<GenericComparison> extend(GenericComparison comparison) {
+	public List<GenericComparison> extend(GenericComparison comparison) throws ComparisonException {
 		List<GenericComparison> todo = new ArrayList<>();
-		Class<?> clazz = comparison.getLeft() != null
-			? comparison.getLeft().getClass()
-			: comparison.getRight().getClass();
+		Class<?> clazz = comparison.requireSameClass();
 		for (Field field : allFields(clazz)) {
 			String fieldName = field.getName();
 			if (!fields.contains(fieldName)) {

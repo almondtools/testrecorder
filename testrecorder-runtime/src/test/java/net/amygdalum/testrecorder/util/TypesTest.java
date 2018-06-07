@@ -14,9 +14,12 @@ import static net.amygdalum.testrecorder.util.Types.component;
 import static net.amygdalum.testrecorder.util.Types.equalBaseTypes;
 import static net.amygdalum.testrecorder.util.Types.getDeclaredConstructor;
 import static net.amygdalum.testrecorder.util.Types.getDeclaredField;
+import static net.amygdalum.testrecorder.util.Types.getDeclaredFields;
 import static net.amygdalum.testrecorder.util.Types.getDeclaredMethod;
+import static net.amygdalum.testrecorder.util.Types.getDeclaredMethods;
 import static net.amygdalum.testrecorder.util.Types.inferType;
 import static net.amygdalum.testrecorder.util.Types.innerType;
+import static net.amygdalum.testrecorder.util.Types.isBound;
 import static net.amygdalum.testrecorder.util.Types.isBoxedPrimitive;
 import static net.amygdalum.testrecorder.util.Types.isFinal;
 import static net.amygdalum.testrecorder.util.Types.isHidden;
@@ -26,13 +29,16 @@ import static net.amygdalum.testrecorder.util.Types.isStatic;
 import static net.amygdalum.testrecorder.util.Types.isUnhandledSynthetic;
 import static net.amygdalum.testrecorder.util.Types.needsCast;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
+import static net.amygdalum.testrecorder.util.Types.serializableOf;
 import static net.amygdalum.testrecorder.util.Types.typeArgument;
+import static net.amygdalum.testrecorder.util.Types.typeVariable;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
 import static net.amygdalum.testrecorder.util.Types.wildcardExtends;
 import static net.amygdalum.testrecorder.util.Types.wildcardSuper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
@@ -62,8 +68,12 @@ import net.amygdalum.testrecorder.util.testobjects.ElevatingToPublic;
 import net.amygdalum.testrecorder.util.testobjects.Final;
 import net.amygdalum.testrecorder.util.testobjects.Generic;
 import net.amygdalum.testrecorder.util.testobjects.GenericCycle;
+import net.amygdalum.testrecorder.util.testobjects.Overridden;
+import net.amygdalum.testrecorder.util.testobjects.Overriding;
 import net.amygdalum.testrecorder.util.testobjects.PartlyBoundBiGeneric;
 import net.amygdalum.testrecorder.util.testobjects.PseudoSynthetic;
+import net.amygdalum.testrecorder.util.testobjects.ShadowedObject;
+import net.amygdalum.testrecorder.util.testobjects.ShadowingObject;
 import net.amygdalum.testrecorder.util.testobjects.Simple;
 import net.amygdalum.testrecorder.util.testobjects.Static;
 import net.amygdalum.testrecorder.util.testobjects.Sub;
@@ -75,44 +85,44 @@ import net.amygdalum.testrecorder.util.testobjects.Super;
 public class TypesTest {
 
 	@Test
-	public void testTypes() throws Exception {
+	void testTypes() throws Exception {
 		assertThat(Types.class).satisfies(utilityClass().conventions());
 	}
 
 	@Test
-	public void testBaseTypeOnSimpleTypes() throws Exception {
+	void testBaseTypeOnSimpleTypes() throws Exception {
 		assertThat(baseType(Object.class)).isEqualTo(Object.class);
 		assertThat(baseType(String.class)).isEqualTo(String.class);
 		assertThat(baseType(StringTokenizer.class)).isEqualTo(StringTokenizer.class);
 	}
 
 	@Test
-	public void testBaseTypeOnPrimitiveTypes() throws Exception {
+	void testBaseTypeOnPrimitiveTypes() throws Exception {
 		assertThat(baseType(int.class)).isEqualTo(int.class);
 		assertThat(baseType(void.class)).isEqualTo(void.class);
 	}
 
 	@Test
-	public void testBaseTypeOnParameterizedTypes() throws Exception {
+	void testBaseTypeOnParameterizedTypes() throws Exception {
 		assertThat(baseType(parameterized(List.class, List.class, String.class))).isEqualTo(List.class);
 		assertThat(baseType(parameterized(Map.class, Map.class, String.class, Object.class))).isEqualTo(Map.class);
 	}
 
 	@Test
-	public void testBaseTypeOnGenericArrayTypes() throws Exception {
+	void testBaseTypeOnGenericArrayTypes() throws Exception {
 		assertThat(baseType(array(parameterized(List.class, List.class, String.class)))).isEqualTo(List[].class);
 		assertThat(baseType(array(parameterized(Map.class, Map.class, String.class, Object.class)))).isEqualTo(Map[].class);
 	}
 
 	@Test
-	public void testBaseTypeOnOtherTypes() throws Exception {
+	void testBaseTypeOnOtherTypes() throws Exception {
 		assertThat(baseType(wildcard())).isEqualTo(Object.class);
 		assertThat(baseType(wildcardExtends(String.class))).isEqualTo(Object.class);
 		assertThat(baseType(wildcardSuper(String.class))).isEqualTo(Object.class);
 	}
 
 	@Test
-	public void testBoxedType() throws Exception {
+	void testBoxedType() throws Exception {
 		assertThat(boxedType(byte.class)).isEqualTo(Byte.class);
 		assertThat(boxedType(short.class)).isEqualTo(Short.class);
 		assertThat(boxedType(int.class)).isEqualTo(Integer.class);
@@ -130,7 +140,7 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testComponent() throws Exception {
+	void testComponent() throws Exception {
 		assertThat(component(int[].class)).isEqualTo(int.class);
 		assertThat(component(Integer[].class)).isEqualTo(Integer.class);
 
@@ -141,7 +151,7 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testAssignableTypes() throws Exception {
+	void testAssignableTypes() throws Exception {
 		assertThat(assignableTypes(String.class, String.class)).isTrue();
 		assertThat(assignableTypes(Object.class, String.class)).isTrue();
 		assertThat(assignableTypes(String.class, Object.class)).isFalse();
@@ -149,14 +159,14 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testEqualBaseTypes() throws Exception {
+	void testEqualBaseTypes() throws Exception {
 		assertThat(equalBaseTypes(parameterized(List.class, List.class, String.class), List.class)).isTrue();
 		assertThat(equalBaseTypes(parameterized(Set.class, Set.class, String.class), List.class)).isFalse();
 		assertThat(equalBaseTypes(parameterized(Set.class, Set.class, String.class), parameterized(Set.class, Set.class, Object.class))).isTrue();
 	}
 
 	@Test
-	public void testBoxingEquivalentTypes() throws Exception {
+	void testBoxingEquivalentTypes() throws Exception {
 		assertThat(boxingEquivalentTypes(byte.class, Byte.class)).isTrue();
 		assertThat(boxingEquivalentTypes(short.class, Short.class)).isTrue();
 		assertThat(boxingEquivalentTypes(int.class, Integer.class)).isTrue();
@@ -164,7 +174,7 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testInferType() throws Exception {
+	void testInferType() throws Exception {
 		assertThat(inferType(ArrayList.class)).isEqualTo(List.class);
 		assertThat(inferType(ArrayList.class, Collection.class)).isEqualTo(Collection.class);
 		assertThat(inferType(List.class, Set.class)).isEqualTo(Collection.class);
@@ -177,7 +187,7 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testIsBoxedPrimitive() throws Exception {
+	void testIsBoxedPrimitive() throws Exception {
 		assertThat(isBoxedPrimitive(Byte.class)).isTrue();
 		assertThat(isBoxedPrimitive(Short.class)).isTrue();
 		assertThat(isBoxedPrimitive(Integer.class)).isTrue();
@@ -195,7 +205,7 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testIsPrimitive() throws Exception {
+	void testIsPrimitive() throws Exception {
 		assertThat(isPrimitive(byte.class)).isTrue();
 		assertThat(isPrimitive(short.class)).isTrue();
 		assertThat(isPrimitive(int.class)).isTrue();
@@ -221,7 +231,7 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testIsLiteral() throws Exception {
+	void testIsLiteral() throws Exception {
 		assertThat(isLiteral(byte.class)).isTrue();
 		assertThat(isLiteral(short.class)).isTrue();
 		assertThat(isLiteral(int.class)).isTrue();
@@ -249,7 +259,14 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testTypeArgument() throws Exception {
+	void testIsBound() throws Exception {
+		assertThat(isBound(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class))).isFalse();
+		assertThat(isBound(wildcard())).isFalse();
+		assertThat(isBound(Object.class)).isTrue();
+	}
+
+	@Test
+	void testTypeArgument() throws Exception {
 		assertThat(typeArgument(parameterized(List.class, null, String.class), 0).get()).isEqualTo(String.class);
 		assertThat(typeArgument(parameterized(Map.class, null, String.class, Object.class), 0).get()).isEqualTo(String.class);
 		assertThat(typeArgument(parameterized(Map.class, null, String.class, Object.class), 1).get()).isEqualTo(Object.class);
@@ -260,17 +277,17 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testInnerType() throws Exception {
+	void testInnerType() throws Exception {
 		assertThat(innerType(TypesTest.class, "NestedPublic")).isEqualTo(NestedPublic.class);
 	}
 
 	@Test
-	public void testInnerTypeNotResolved() throws Exception {
+	void testInnerTypeNotResolved() throws Exception {
 		assertThatThrownBy(() -> innerType(TypesTest.class, "NotExistent")).isInstanceOf(TypeNotPresentException.class);
 	}
 
 	@Test
-	public void testIsHiddenType() throws Exception {
+	void testIsHiddenType() throws Exception {
 		assertThat(isHidden(TypesTest.class, "any")).isFalse();
 		assertThat(isHidden(new NestedPrivate() {
 		}.getClass(), "any")).isTrue();
@@ -287,7 +304,7 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testIsHiddenForArrays() throws Exception {
+	void testIsHiddenForArrays() throws Exception {
 		assertThat(Types.isHidden(TypesPublic[].class, "any")).isFalse();
 		assertThat(Types.isHidden(TypesPackagePrivate[].class, "net.amygdalum.testrecorder.util")).isFalse();
 		assertThat(Types.isHidden(TypesPackagePrivate[].class, "other")).isTrue();
@@ -297,7 +314,7 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testIsHiddenConstructor() throws Exception {
+	void testIsHiddenConstructor() throws Exception {
 		assertThat(isHidden(getDeclaredConstructor(TypesTest.class), "any")).isFalse();
 		assertThat(isHidden(getDeclaredConstructor(NestedPrivate.class), "any")).isTrue();
 		assertThat(isHidden(getDeclaredConstructor(NestedPackagePrivate.class), "any")).isTrue();
@@ -307,15 +324,32 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testIsHiddenTrueForConstructorsOfNestedTypes() throws Exception {
-		assertThat(Types.isHidden(getDeclaredConstructor(NestedConstructors.class), "any")).isTrue();
-		assertThat(Types.isHidden(getDeclaredConstructor(NestedConstructors.class, int.class), "any")).isFalse();
-		assertThat(Types.isHidden(getDeclaredConstructor(NestedConstructors.class, boolean.class), "any")).isTrue();
-		assertThat(Types.isHidden(getDeclaredConstructor(NestedConstructors.class, char.class), "any")).isTrue();
+	void testIsHiddenTrueForConstructorsOfNestedTypes() throws Exception {
+		assertThat(isHidden(getDeclaredConstructor(NestedConstructors.class), "any")).isTrue();
+		assertThat(isHidden(getDeclaredConstructor(NestedConstructors.class, int.class), "any")).isFalse();
+		assertThat(isHidden(getDeclaredConstructor(NestedConstructors.class, boolean.class), "any")).isTrue();
+		assertThat(isHidden(getDeclaredConstructor(NestedConstructors.class, char.class), "any")).isTrue();
 	}
 
 	@Test
-	public void testGetDeclaredField() throws Exception {
+	public void testIsHiddenMethod() throws Exception {
+		assertThat(isHidden(getDeclaredMethod(NestedPrivate.class, "method"), "any")).isTrue();
+		assertThat(isHidden(getDeclaredMethod(NestedPackagePrivate.class, "method"), "any")).isTrue();
+		assertThat(isHidden(getDeclaredMethod(NestedPackagePrivate.class, "method"), "net.amygdalum.testrecorder.util")).isTrue();
+		assertThat(isHidden(getDeclaredMethod(TypesPackagePrivate.class, "method"), "any")).isTrue();
+		assertThat(isHidden(getDeclaredMethod(TypesPackagePrivate.class, "method"), "net.amygdalum.testrecorder.util")).isFalse();
+	}
+
+	@Test
+	public void testIsHiddenMethodOfNestedTypes() throws Exception {
+		assertThat(isHidden(getDeclaredMethod(NestedMethods.class, "method"), "any")).isTrue();
+		assertThat(isHidden(getDeclaredMethod(NestedMethods.class, "method", int.class), "any")).isFalse();
+		assertThat(isHidden(getDeclaredMethod(NestedMethods.class, "method", boolean.class), "any")).isTrue();
+		assertThat(isHidden(getDeclaredMethod(NestedMethods.class, "method", char.class), "any")).isTrue();
+	}
+
+	@Test
+	void testGetDeclaredField() throws Exception {
 		assertThat(getDeclaredField(Sub1.class, "subAttr")).isEqualTo(Sub1.class.getDeclaredField("subAttr"));
 		assertThat(getDeclaredField(Sub1.class, "str")).isEqualTo(Super.class.getDeclaredField("str"));
 		assertThat(getDeclaredField(Sub2.class, "subAttr")).isEqualTo(Sub2.class.getDeclaredField("subAttr"));
@@ -323,7 +357,7 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testGetDeclaredMethod() throws Exception {
+	void testGetDeclaredMethod() throws Exception {
 		assertThat(getDeclaredMethod(Sub1.class, "getSubAttr")).isEqualTo(Sub1.class.getDeclaredMethod("getSubAttr"));
 		assertThat(getDeclaredMethod(Sub1.class, "getStr")).isEqualTo(Super.class.getDeclaredMethod("getStr"));
 		assertThat(getDeclaredMethod(Sub2.class, "setSubAttr", boolean.class)).isEqualTo(Sub2.class.getDeclaredMethod("setSubAttr", boolean.class));
@@ -338,7 +372,7 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testAllFields() throws Exception {
+	void testAllFields() throws Exception {
 		List<Field> sub1Fields = allFields(Sub1.class);
 		assertThat(sub1Fields).containsExactly(Sub1.class.getDeclaredField("subAttr"), Super.class.getDeclaredField("str"));
 		List<Field> sub2Fields = allFields(Sub2.class);
@@ -352,7 +386,7 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testAllMethods() throws Exception {
+	void testAllMethods() throws Exception {
 		List<Method> sub1Methods = allMethods(Sub1.class);
 		assertThat(sub1Methods).containsExactly(Sub1.class.getDeclaredMethod("getSubAttr"), Super.class.getDeclaredMethod("getStr"));
 		List<Method> sub2Methods = allMethods(Sub2.class);
@@ -360,7 +394,7 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testNeedsCast() throws Exception {
+	void testNeedsCast() throws Exception {
 		assertThat(needsCast(Object.class, String.class)).isFalse();
 		assertThat(needsCast(List.class, parameterized(List.class, null, String.class))).isFalse();
 		assertThat(needsCast(int.class, int.class)).isFalse();
@@ -373,28 +407,28 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testIsFinal() throws Exception {
+	void testIsFinal() throws Exception {
 		assertThat(isFinal(Super.class.getDeclaredField("str"))).isFalse();
 		assertThat(isFinal(Final.class.getDeclaredField("attr"))).isTrue();
 		assertThat(isFinal(Static.class.getDeclaredField("CONSTANT"))).isTrue();
 	}
 
 	@Test
-	public void testIsStatic() throws Exception {
+	void testIsStatic() throws Exception {
 		assertThat(isStatic(Super.class.getDeclaredField("str"))).isFalse();
 		assertThat(isStatic(Static.class.getDeclaredField("global"))).isTrue();
 		assertThat(isStatic(Static.class.getDeclaredField("CONSTANT"))).isTrue();
 	}
 
 	@Test
-	public void testIsUnhandledSynthetic() throws Exception {
+	void testIsUnhandledSynthetic() throws Exception {
 		assertThat(isUnhandledSynthetic(Super.class.getDeclaredField("str"))).isFalse();
 		assertThat(isUnhandledSynthetic(NestedTypeField.class.getDeclaredField("this$0"))).isFalse();
 		assertThat(isUnhandledSynthetic(PseudoSynthetic.class.getDeclaredField("$attr"))).isTrue();
 	}
 
 	@Test
-	public void testArray() throws Exception {
+	void testArray() throws Exception {
 		assertThat(array(String.class)).isSameAs(String[].class);
 		assertThat(array(parameterized(List.class, null, String.class)).getTypeName()).isEqualTo("java.util.List<java.lang.String>[]");
 		assertThat(array(parameterized(List.class, null, String.class)).toString()).isEqualTo("java.util.List<java.lang.String>[]");
@@ -407,7 +441,7 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testParameterized() throws Exception {
+	void testParameterized() throws Exception {
 		assertThat(parameterized(List.class, null, String.class).getRawType()).isEqualTo(List.class);
 		assertThat(parameterized(List.class, null, String.class).getOwnerType()).isNull();
 		assertThat(parameterized(List.class, null, String.class).getActualTypeArguments()).containsExactly(String.class);
@@ -424,7 +458,7 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testWildcard() throws Exception {
+	void testWildcard() throws Exception {
 		assertThat(wildcard().getTypeName()).isEqualTo("?");
 		assertThat(wildcard().getLowerBounds()).hasSize(0);
 		assertThat(wildcard().getUpperBounds()).hasSize(0);
@@ -442,24 +476,48 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testInnerClasses() throws Exception {
+	void testTypeVariable() throws Exception {
+		assertThat(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class).getName()).isEqualTo("T");
+		assertThat(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class).getGenericDeclaration()).isEqualTo(GenericWithTypeVariable.class);
+		assertThat(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class).getBounds()).contains(CharSequence.class);
+		assertThat(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class).getAnnotations()).isEmpty();
+		assertThat(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class).getDeclaredAnnotations()).isEmpty();
+		assertThat(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class).getAnnotatedBounds()).isEmpty();
+		assertThat(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class).getAnnotation(MyAnnotation.class)).isNull();
+		assertThat(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class).getTypeName()).isEqualTo("T extends java.lang.CharSequence");
+		assertThat(typeVariable("T", GenericWithTypeVariable.class).toString()).isEqualTo("T");
+		assertThat(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class).toString()).isEqualTo("T extends java.lang.CharSequence");
+		assertThat(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class, Serializable.class).toString()).isEqualTo("T extends java.lang.CharSequence, java.io.Serializable");
+
+		assertThat(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class)).satisfies(DefaultEquality.defaultEquality()
+			.andEqualTo(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class))
+			.andNotEqualTo(typeVariable("T", null, CharSequence.class))
+			.andNotEqualTo(typeVariable("S", GenericWithTypeVariable.class, CharSequence.class))
+			.andNotEqualTo(typeVariable("S", GenericWithTypeVariable.class, CharSequence.class, Serializable.class))
+			.andNotEqualTo(typeVariable("T", Object.class, CharSequence.class))
+			.andNotEqualTo(typeVariable("T", GenericWithTypeVariable.class))
+			.conventions());
+	}
+
+	@Test
+	void testInnerClasses() throws Exception {
 		assertThat(Types.innerClasses(getClass())).contains(NestedPublic.class, NestedPrivate.class, NestedPackagePrivate.class);
 	}
 
 	@Test
-	public void testSortByMostConcreteSubBeforeSuper() throws Exception {
+	void testSortByMostConcreteSubBeforeSuper() throws Exception {
 		assertThat(Stream.of(Super.class, Sub.class).sorted(Types::byMostConcrete).collect(toList())).containsExactly(Sub.class, Super.class);
 		assertThat(Stream.of(Sub.class, Super.class).sorted(Types::byMostConcrete).collect(toList())).containsExactly(Sub.class, Super.class);
 	}
 
 	@Test
-	public void testSortByMostConcreteUnrelatedTypes() throws Exception {
+	void testSortByMostConcreteUnrelatedTypes() throws Exception {
 		assertThat(Stream.of(Simple.class, Complex.class).sorted(Types::byMostConcrete).collect(toList())).containsExactlyInAnyOrder(Simple.class,
 			Complex.class);
 	}
 
 	@Test
-	public void testSortByMostConcreteClassesBeforeGenericTypes() throws Exception {
+	void testSortByMostConcreteClassesBeforeGenericTypes() throws Exception {
 		WildcardType wildcard = Types.wildcard();
 
 		assertThat(Stream.of(Simple.class, wildcard).sorted(Types::byMostConcrete).collect(toList())).containsExactly(Simple.class, wildcard);
@@ -467,7 +525,7 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testSortByMostConcreteOrderableBaseTypes() throws Exception {
+	void testSortByMostConcreteOrderableBaseTypes() throws Exception {
 		ParameterizedType generic = Types.parameterized(Generic.class, null, Sub.class);
 		ParameterizedType subGeneric = Types.parameterized(SubGeneric.class, null, Super.class);
 
@@ -476,7 +534,7 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testSortByMostConcreteUnrelatedBaseTypes() throws Exception {
+	void testSortByMostConcreteUnrelatedBaseTypes() throws Exception {
 		ParameterizedType generic = Types.parameterized(Generic.class, null, Sub.class);
 		ParameterizedType otherGeneric = Types.parameterized(GenericCycle.class, null, Super.class);
 
@@ -484,33 +542,33 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testResolveOnNonGenericType() throws Exception {
+	void testResolveOnNonGenericType() throws Exception {
 		assertThat(Types.resolve(Simple.class, Generic.class)).isEqualTo(Simple.class);
 	}
 
 	@Test
-	public void testResolveOnUnboundWildcard() throws Exception {
+	void testResolveOnUnboundWildcard() throws Exception {
 		Type unboundWildcard = Types.getDeclaredField(Generic.class, "starx").getGenericType();
 
 		assertThat(Types.resolve(unboundWildcard, Generic.class)).isEqualTo(unboundWildcard);
 	}
 
 	@Test
-	public void testResolveOnFreeGenericArray() throws Exception {
+	void testResolveOnFreeGenericArray() throws Exception {
 		Type genericArrayType = Types.getDeclaredField(Generic.class, "vs").getGenericType();
 
 		assertThat(Types.resolve(genericArrayType, Generic.class)).isEqualTo(genericArrayType);
 	}
 
 	@Test
-	public void testResolveOnBoundGenericArray() throws Exception {
+	void testResolveOnBoundGenericArray() throws Exception {
 		Type genericArrayType = Types.getDeclaredField(Generic.class, "vs").getGenericType();
 
 		assertThat(Types.resolve(genericArrayType, BoundGeneric.class)).isEqualTo(Sub[].class);
 	}
 
 	@Test
-	public void testResolveOnPartlyBound() throws Exception {
+	void testResolveOnPartlyBound() throws Exception {
 		Type freeType = Types.getDeclaredField(BiGeneric.class, "k").getGenericType();
 		Type boundType = Types.getDeclaredField(BiGeneric.class, "v").getGenericType();
 		Type partlyBoundType = Types.getDeclaredField(BiGeneric.class, "vx").getGenericType();
@@ -541,7 +599,7 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testResolveOnPartlyBoundGenericArray() throws Exception {
+	void testResolveOnPartlyBoundGenericArray() throws Exception {
 		Type freeType = Types.getDeclaredField(BiGeneric.class, "ks").getGenericType();
 		Type boundType = Types.getDeclaredField(BiGeneric.class, "vs").getGenericType();
 
@@ -550,7 +608,7 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testClassFrom() throws Exception {
+	void testClassFrom() throws Exception {
 		ClassLoader classLoader = new ExtensibleClassLoader(ClassLoader.getSystemClassLoader(), Complex.class.getPackage().getName());
 		Class<?> clazz = Types.classFrom(Complex.class, classLoader);
 
@@ -559,7 +617,25 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testParameterTypesFrom() throws Exception {
+	void testClassFromArray() throws Exception {
+		ClassLoader classLoader = new ExtensibleClassLoader(ClassLoader.getSystemClassLoader(), Complex.class.getPackage().getName());
+		Class<?> clazz = Types.classFrom(Complex[].class, classLoader);
+
+		assertThat(clazz.getName()).isEqualTo(Complex[].class.getName());
+		assertThat(clazz.getClassLoader()).isSameAs(classLoader);
+	}
+
+	@Test
+	void testClassFromPrimitive() throws Exception {
+		ClassLoader classLoader = new ExtensibleClassLoader(ClassLoader.getSystemClassLoader(), Complex.class.getPackage().getName());
+		Class<?> clazz = Types.classFrom(int.class, classLoader);
+
+		assertThat(clazz.getName()).isEqualTo(int.class.getName());
+		assertThat(clazz.getClassLoader()).isNull();
+	}
+
+	@Test
+	void testParameterTypesFrom() throws Exception {
 		ClassLoader classLoader = new ExtensibleClassLoader(ClassLoader.getSystemClassLoader(), Methods.class.getPackage().getName());
 		Method method = Methods.class.getDeclaredMethod("params", NestedPublic.class, NestedPackagePrivate.class);
 		Class<?>[] parameterTypes = Types.parameterTypesFrom(method, classLoader);
@@ -568,7 +644,7 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testReturnTypeFrom() throws Exception {
+	void testReturnTypeFrom() throws Exception {
 		ClassLoader classLoader = new ExtensibleClassLoader(ClassLoader.getSystemClassLoader(), Methods.class.getPackage().getName());
 		Method method = Methods.class.getDeclaredMethod("result");
 		Class<?> returnType = Types.returnTypeFrom(method, classLoader);
@@ -576,19 +652,69 @@ public class TypesTest {
 		assertThat(returnType.getClassLoader()).isSameAs(classLoader);
 	}
 
+	@Test
+	void testSerializableOfType() throws Exception {
+		assertThat(serializableOf(wildcard())).isInstanceOf(Serializable.class);
+		assertThat(serializableOf(Fields.wildcard())).isInstanceOf(Serializable.class);
+		assertThat(serializableOf(parameterized(List.class, null, String.class))).isInstanceOf(Serializable.class);
+		assertThat(serializableOf(Fields.parameterized())).isInstanceOf(Serializable.class);
+		assertThat(serializableOf(array(parameterized(List.class, null, String.class)))).isInstanceOf(Serializable.class);
+		assertThat(serializableOf(Fields.genericArray())).isInstanceOf(Serializable.class);
+		assertThat(serializableOf(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class))).isInstanceOf(Serializable.class);
+		assertThat(serializableOf(GenericWithTypeVariable.class.getTypeParameters()[0])).isInstanceOf(Serializable.class);
+		assertThat(serializableOf(TypesPackagePrivate.class)).isInstanceOf(Serializable.class);
+	}
+
+	@Test
+	void testGetDeclaredFields() throws Exception {
+		assertThat(getDeclaredField(ShadowedObject.class, "field").getName()).isEqualTo("field");
+		assertThat(getDeclaredFields(ShadowedObject.class, "field")).hasSize(1);
+		assertThat(getDeclaredFields(ShadowingObject.class, "field")).hasSize(2);
+		assertThat(getDeclaredFields(ShadowingObject.class, "nofield")).isEmpty();
+		assertThatThrownBy(() -> getDeclaredField(Object.class, "field")).isInstanceOf(NoSuchFieldException.class);
+	}
+
+	@Test
+	void testGetDeclaredMethods() throws Exception {
+		assertThat(getDeclaredMethod(Overridden.class, "method", int.class).getName()).isEqualTo("method");
+		assertThat(getDeclaredMethods(Overridden.class, "method")).hasSize(2);
+		assertThat(getDeclaredMethods(Overriding.class, "method")).hasSize(4);
+		assertThat(getDeclaredMethods(Overriding.class, "nomethod")).isEmpty();
+		assertThat(getDeclaredMethod(Object.class, "toString").getName()).isEqualTo("toString");
+		assertThatThrownBy(() -> getDeclaredMethod(Object.class, "method")).isInstanceOf(NoSuchMethodException.class);
+	}
+
+	@MyAnnotation
+	public class GenericWithTypeVariable<T extends CharSequence> {
+
+	}
+
+	public @interface MyAnnotation {
+
+	}
+
 	public class NestedTypeField {
 	}
 
 	public static class NestedPublic {
+		void method() {
+		}
 	}
 
+	@SuppressWarnings("unused")
 	private static class NestedPrivate {
+		void method() {
+		}
 	}
 
 	static class NestedPackagePrivate {
+		void method() {
+		}
 	}
 
 	protected static class NestedProtected {
+		void method() {
+		}
 	}
 
 	@SuppressWarnings("unused")
@@ -610,6 +736,46 @@ public class TypesTest {
 		}
 	}
 
+	@SuppressWarnings("unused")
+	public static class NestedMethods {
+		public void method(int i) {
+
+		}
+
+		protected void method(char c) {
+
+		}
+
+		void method(boolean b) {
+
+		}
+
+		private void method() {
+
+		}
+	}
+
+	@SuppressWarnings("unused")
+	public static class Fields {
+
+		private List<?> wildcard;
+		private List<String> parameterized;
+		private List<String>[] genericArray;
+
+		public static Type wildcard() throws ReflectiveOperationException {
+			return ((ParameterizedType) Fields.class.getDeclaredField("wildcard").getGenericType()).getActualTypeArguments()[0];
+		}
+
+		public static Type parameterized() throws ReflectiveOperationException {
+			return Fields.class.getDeclaredField("parameterized").getGenericType();
+		}
+
+		public static Type genericArray() throws ReflectiveOperationException {
+			return Fields.class.getDeclaredField("genericArray").getGenericType();
+		}
+
+	}
+
 	public static class Methods {
 		public NestedPublic result() {
 			return new NestedPublic();
@@ -626,5 +792,8 @@ class TypesPackagePrivate {
 	NestedPublic publicAccessIsAllowedFromPackage;
 	NestedPackagePrivate packagePrivateAccessIsAllowedFromPackage;
 	NestedProtected protectedAccessIsAllowedFromPackage;
+
+	void method() {
+	}
 
 }

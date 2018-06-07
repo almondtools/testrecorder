@@ -594,7 +594,7 @@ public final class Types {
 		return new SerializableWildcardType(new Type[0], serializableOf(bounds));
 	}
 
-	public static <D extends GenericDeclaration> TypeVariable<D> typeVariable(String name, D genericDeclaration, Type[] bounds) {
+	public static <D extends GenericDeclaration> TypeVariable<D> typeVariable(String name, D genericDeclaration, Type... bounds) {
 		return new SerializableTypeVariable<>(name, genericDeclaration, serializableOf(bounds));
 	}
 

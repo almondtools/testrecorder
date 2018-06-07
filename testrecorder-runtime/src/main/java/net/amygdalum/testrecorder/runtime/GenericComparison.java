@@ -73,6 +73,16 @@ public class GenericComparison {
 		return true;
 	}
 
+	public Class<?> requireSameClass() throws ComparisonException {
+		Class<?> leftClass = left != null ? left.getClass() : Object.class;
+		Class<?> rightClass = right != null ? right.getClass() : Object.class;
+		if (leftClass == rightClass) {
+			return leftClass;
+		} else {
+			throw new ComparisonException();
+		}
+	}
+
 	public boolean eval(WorkSet<GenericComparison> todo) {
 		if (left == right) {
 			return true;

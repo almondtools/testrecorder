@@ -19,15 +19,10 @@ public class ListEnabledComparisonStrategy implements ComparisonStrategy {
 	@Override
 	public List<GenericComparison> extend(GenericComparison comparison) throws ComparisonException {
 		List<GenericComparison> todo = new ArrayList<>();
-		Class<?> clazz = comparison.getLeft() != null
-			? comparison.getLeft().getClass()
-			: comparison.getRight().getClass();
+		Class<?> clazz = comparison.requireSameClass();
 		if (List.class.isAssignableFrom(clazz)) {
 			List<?> left = (List<?>) comparison.getLeft();
 			List<?> right = (List<?>) comparison.getRight();
-			if (left.size() != right.size()) {
-				throw new ComparisonException();
-			}
 			Iterator<?> li = left.iterator();
 			Iterator<?> ri = right.iterator();
 			int index = 0;

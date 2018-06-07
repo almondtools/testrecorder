@@ -16,11 +16,9 @@ public class DefaultComparisonStrategy implements ComparisonStrategy {
 	}
 	
 	@Override
-	public List<GenericComparison> extend(GenericComparison comparison) {
+	public List<GenericComparison> extend(GenericComparison comparison) throws ComparisonException {
 		List<GenericComparison> todo = new ArrayList<>();
-		Class<?> clazz = comparison.getLeft() != null
-			? comparison.getLeft().getClass()
-			: comparison.getRight().getClass();
+		Class<?> clazz = comparison.requireSameClass();
 		for (Field field : allFields(clazz)) {
 			String fieldName = field.getName();
 			todo.add(comparison.newComparison(fieldName));

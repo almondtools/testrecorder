@@ -12,6 +12,8 @@ public final class Literals {
 			buffer.append("\\n");
 		} else if (c == '\r') {
 			buffer.append("\\r");
+		} else if (c == '\t') {
+			buffer.append("\\t");
 		} else if (c == '\\') {
 			buffer.append("\\\\");
 		} else if (c == '\'') {
@@ -45,6 +47,8 @@ public final class Literals {
 				buffer.append("\\n");
 			} else if (c == '\r') {
 				buffer.append("\\r");
+			} else if (c == '\t') {
+				buffer.append("\\t");
 			} else if (c == '\\') {
 				buffer.append("\\\\");
 			} else if (c == '"') {
