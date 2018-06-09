@@ -1,8 +1,8 @@
 package net.amygdalum.testrecorder.runtime;
 
+import static net.amygdalum.extensions.assertj.Assertions.*;
 import static java.util.Arrays.asList;
 import static net.amygdalum.testrecorder.runtime.ContainsMatcher.contains;
-import static org.assertj.core.api.Assertions.assertThat;
 
 import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
@@ -44,7 +44,9 @@ public class FailureTraceTest {
 			public Matcher<?> set = contains(String.class, "first", "second");
 		}.matching(ContainingSet.class);
 
-		assertThat(describeMismatch(matcher, new ContainingSet(asList("first", "notsecond")))).contains("set: containing [<\"first\">, <\"second\">] != <[first, notsecond]>");
+		assertThat(describeMismatch(matcher, new ContainingSet(asList("first", "notsecond"))))
+			.containsWildcardPattern("set*found 1 elements surplus [was \"notsecond\"]")
+			.containsWildcardPattern("set*missing 1 elements [\"second\"]");
 	}
 
 	@Test
@@ -53,7 +55,9 @@ public class FailureTraceTest {
 			public Matcher<?> list = contains(String.class, "first", "second");
 		}.matching(ContainingList.class);
 
-		assertThat(describeMismatch(matcher, new ContainingList(asList("first", "notsecond")))).contains("list: containing [<\"first\">, <\"second\">] != <[first, notsecond]>");
+		assertThat(describeMismatch(matcher, new ContainingList(asList("first", "notsecond"))))
+			.containsWildcardPattern("list*found 1 elements surplus [was \"notsecond\"]")
+			.containsWildcardPattern("list*missing 1 elements [\"second\"]");
 	}
 
 	private <T> String describeMismatch(Matcher<T> matcher, T object) {

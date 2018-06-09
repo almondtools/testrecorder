@@ -29,10 +29,25 @@ public class ContainsInOrderMatcherTest {
 		assertThat(containsInOrder(String.class, equalTo("A")).matchesSafely(emptyList())).isFalse();
 	}
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testErasedMatchesSafelyMatchers() throws Exception {
+		assertThat(containsInOrder(equalTo("A")).matchesSafely(asList("A"))).isTrue();
+		assertThat(containsInOrder(equalTo("A")).matchesSafely(asList("b"))).isFalse();
+		assertThat(containsInOrder(equalTo("A")).matchesSafely(emptyList())).isFalse();
+	}
+
 	@Test
 	public void testMatchesSafelyWithSuccess() throws Exception {
 		assertThat(containsInOrder(String.class, "A", "b").matchesSafely(asList("A", "b"))).isTrue();
 		assertThat(containsInOrder(String.class, "A", null).matchesSafely(asList("A", null))).isTrue();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testErasedMatchesSafelyWithSuccess() throws Exception {
+		assertThat(containsInOrder("A", "b").matchesSafely(asList("A", "b"))).isTrue();
+		assertThat(containsInOrder("A", null).matchesSafely(asList("A", null))).isTrue();
 	}
 
 	@Test
@@ -42,6 +57,14 @@ public class ContainsInOrderMatcherTest {
 		assertThat(containsInOrder(String.class, "A", "b").matchesSafely(asList("A", "b", "C"))).isFalse();
 	}
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testErasedMatchesSafelyWithFailure() throws Exception {
+		assertThat(containsInOrder("A", "b").matchesSafely(asList("A"))).isFalse();
+		assertThat(containsInOrder("A", "b").matchesSafely(asList("a", "b"))).isFalse();
+		assertThat(containsInOrder("A", "b").matchesSafely(asList("A", "b", "C"))).isFalse();
+	}
+	
 	@Test
 	public void testDescribeMismatchSafelyNotEqual() throws Exception {
 		StringDescription description = new StringDescription();

@@ -6,6 +6,7 @@ import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.MISMATC
 import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.NOT_APPLYING;
 import static net.amygdalum.testrecorder.runtime.SelectedFieldsComparisonStrategy.comparingFields;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -15,6 +16,8 @@ import org.mockito.Mockito;
 
 import net.amygdalum.extensions.assertj.conventions.DefaultEquality;
 import net.amygdalum.testrecorder.util.WorkSet;
+import net.amygdalum.testrecorder.util.testobjects.Complex;
+import net.amygdalum.testrecorder.util.testobjects.Simple;
 
 public class GenericComparisonTest {
 
@@ -298,6 +301,65 @@ public class GenericComparisonTest {
 		new GenericComparison(null, new String[] { "s" }, new String[] { "s" }).eval(c, todo);
 
 		assertThat(todo).containsExactly(new GenericComparison("[0]", "s", "s"));
+	}
+
+	@Test
+	public void testEvalWorkSetWithComparisonException() throws Exception {
+		WorkSet<GenericComparison> remainder = new WorkSet<>();
+		ComparisonStrategy strategy = Mockito.mock(ComparisonStrategy.class);
+		when(strategy.extend(Mockito.any(GenericComparison.class))).thenThrow(new ComparisonException());
+
+		assertThat(new GenericComparison(null, new Node("node1"), new Node("node2"), strategy).eval(remainder)).isFalse();
+		assertThat(remainder).isEmpty();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testEvalWorkSetCustomComparatorWithComparisonException() throws Exception {
+		WorkSet<GenericComparison> remainder = new WorkSet<>();
+		ComparisonStrategy strategy = Mockito.mock(ComparisonStrategy.class);
+		when(strategy.extend(Mockito.any(GenericComparison.class))).thenThrow(new ComparisonException());
+		GenericComparator comparator = Mockito.mock(GenericComparator.class);
+		when(comparator.compare(any(GenericComparison.class), any(WorkSet.class))).thenReturn(GenericComparatorResult.NOT_APPLYING);
+
+		assertThat(new GenericComparison(null, new Node("node1"), new Node("node2"), strategy).eval(comparator, remainder)).isFalse();
+		assertThat(remainder).isEmpty();
+	}
+
+	@Test
+	public void testNewComparisonForArray() throws Exception {
+		Object a = new String[] {"strA"};
+		Object b = new String[] {"strB"};
+		GenericComparison comparison = new GenericComparison("@", a, b);
+
+		GenericComparison indexComparison = comparison.newComparison(0);
+		
+		assertThat(indexComparison.getRoot()).isEqualTo("@[0]");
+		assertThat(indexComparison.isMismatch()).isFalse();
+		assertThat(indexComparison.getLeft()).isEqualTo("strA");
+		assertThat(indexComparison.getRight()).isEqualTo("strB");
+		assertThat(comparison.newComparison(1).getRoot()).isEqualTo("<error>");
+	}
+
+	@Test
+	public void testNewComparisonForObject() throws Exception {
+		Object a = new Simple("strA");
+		Object b = new Simple("strB");
+		GenericComparison comparison = new GenericComparison("@", a, b);
+
+		GenericComparison fieldComparison = comparison.newComparison("str");
+		
+		assertThat(fieldComparison.getRoot()).isEqualTo("@.str");
+		assertThat(fieldComparison.isMismatch()).isFalse();
+		assertThat(fieldComparison.getLeft()).isEqualTo("strA");
+		assertThat(fieldComparison.getRight()).isEqualTo("strB");
+		assertThat(comparison.newComparison("notexistingfield").getRoot()).isEqualTo("<error>");
+	}
+
+	@Test
+	public void testRequireSameClass() throws Exception {
+		assertThat(new GenericComparison("@", new Simple(), new Simple()).requireSameClass()).isSameAs(Simple.class);
+		assertThatThrownBy(() -> new GenericComparison("@", new Simple(), new Complex()).requireSameClass()).isInstanceOf(ComparisonException.class);
 	}
 
 	@Test

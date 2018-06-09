@@ -183,17 +183,6 @@ public class GenericComparison {
 		}
 	}
 
-	public GenericComparison newComparison(Field lfield, Field rfield) {
-		try {
-			Object f1 = getValue(lfield, left);
-			Object f2 = getValue(rfield, right);
-			String newRoot = root == null ? lfield.getName() : root + '.' + lfield.getName();
-			return new GenericComparison(newRoot, f1, f2, strategy);
-		} catch (ReflectiveOperationException e) {
-			return GenericComparison.NULL;
-		}
-	}
-
 	public static GenericComparison from(String root, int index, Object leftArray, Object rightArray) {
 		try {
 			String suffix = "[" + index + "]";

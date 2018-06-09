@@ -91,6 +91,15 @@ public class PrimitiveArrayMatcherTest {
 	}
 
 	@Test
+	void testDescribeToEmpty() throws Exception {
+		StringDescription description = new StringDescription();
+
+		booleanArrayContaining().describeTo(description);
+
+		assertThat(description.toString()).isEqualTo("an empty array of type <boolean>");
+	}
+
+	@Test
 	void testDescribeMismatchSafelyOnNonArray() throws Exception {
 		StringDescription description = new StringDescription();
 
@@ -99,6 +108,15 @@ public class PrimitiveArrayMatcherTest {
 		assertThat(description.toString()).isEqualTo("not an array");
 	}
 
+	@Test
+	void testDescribeMismatchSafelyOnEmptyArray() throws Exception {
+		StringDescription description = new StringDescription();
+		
+		booleanArrayContaining().describeMismatch(new boolean[0], description);
+		
+		assertThat(description.toString()).isEqualTo("with no items");
+	}
+	
 	@Test
 	void testDescribeMismatchSafelyOnNonPrimitiveArray() throws Exception {
 		StringDescription description = new StringDescription();

@@ -1,6 +1,8 @@
 package net.amygdalum.testrecorder.runtime;
 
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
+import static net.amygdalum.testrecorder.runtime.ContainsInOrderMatcher.containsInOrder;
+import static net.amygdalum.testrecorder.runtime.ContainsMatcher.empty;
 import static net.amygdalum.testrecorder.runtime.GenericMatcher.recursive;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -10,16 +12,13 @@ import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.runtime.GenericMatcher;
-import net.amygdalum.testrecorder.runtime.GenericObject;
-import net.amygdalum.testrecorder.runtime.RecursiveMatcher;
-import net.amygdalum.testrecorder.runtime.Wrapped;
 import net.amygdalum.testrecorder.util.testobjects.Complex;
 import net.amygdalum.testrecorder.util.testobjects.DoubleShadowingObject;
 import net.amygdalum.testrecorder.util.testobjects.ShadowingObject;
 import net.amygdalum.testrecorder.util.testobjects.Simple;
 import net.amygdalum.testrecorder.util.testobjects.Sub;
 import net.amygdalum.testrecorder.util.testobjects.Super;
+import net.amygdalum.testrecorder.util.testobjects.TreeNode;
 
 @SuppressWarnings("unused")
 public class GenericMatcherTest {
@@ -352,6 +351,106 @@ public class GenericMatcherTest {
 		assertThat(description.toString()).containsWildcardPattern("net.amygdalum.testrecorder.util.testobjects.Simple {*String str: a string containing \"st\";*}");
 	}
 
+	@Test
+	public void testDescribeMismatchComplexMatch() throws Exception {
+		Matcher<TreeNode> matcher = new GenericMatcher() {
+			Matcher<?> children = containsInOrder(TreeNode.class)
+				.element(new GenericMatcher() {
+					Matcher<?> children = empty();
+					Object payload = "leaf1";
+				}.matching(TreeNode.class))
+				.element(new GenericMatcher() {
+					Matcher<?> children = empty();
+					Object payload = "leaf2";
+				}.matching(TreeNode.class));
+			Object payload = "root";
+		}.matching(TreeNode.class);
+
+		TreeNode matching = new TreeNode().setPayload("root")
+			.addChild(new TreeNode().setPayload("leaf1"))
+			.addChild(new TreeNode().setPayload("leaf2"));
+		
+		StringDescription desc = new StringDescription();
+		matcher.describeMismatch(matching, desc);
+
+		assertThat(desc.toString()).isEqualTo("");
+	}
+
+	@Test
+	public void testDescribeMismatchComplexMismatchMissing() throws Exception {
+		Matcher<TreeNode> matcher = new GenericMatcher() {
+			Matcher<?> children = containsInOrder(TreeNode.class)
+				.element(new GenericMatcher() {
+					Matcher<?> children = empty();
+					Object payload = "leaf1";
+				}.matching(TreeNode.class))
+				.element(new GenericMatcher() {
+					Matcher<?> children = empty();
+					Object payload = "leaf2";
+				}.matching(TreeNode.class));
+			Object payload = "root";
+		}.matching(TreeNode.class);
+
+		TreeNode matching = new TreeNode().setPayload("root")
+			.addChild(new TreeNode().setPayload("leaf1"));
+		
+		StringDescription desc = new StringDescription();
+		matcher.describeMismatch(matching, desc);
+
+		assertThat(desc.toString()).containsWildcardPattern("missing 1 elements*leaf2");
+	}
+
+	@Test
+	public void testDescribeMismatchComplexMismatchSurplus() throws Exception {
+		Matcher<TreeNode> matcher = new GenericMatcher() {
+			Matcher<?> children = containsInOrder(TreeNode.class)
+				.element(new GenericMatcher() {
+					Matcher<?> children = empty();
+					Object payload = "leaf1";
+				}.matching(TreeNode.class))
+				.element(new GenericMatcher() {
+					Matcher<?> children = empty();
+					Object payload = "leaf2";
+				}.matching(TreeNode.class));
+			Object payload = "root";
+		}.matching(TreeNode.class);
+		
+		TreeNode matching = new TreeNode().setPayload("root")
+			.addChild(new TreeNode().setPayload("leaf1"))
+			.addChild(new TreeNode().setPayload("leaf2"))
+			.addChild(new TreeNode().setPayload("leaf3"));
+		
+		StringDescription desc = new StringDescription();
+		matcher.describeMismatch(matching, desc);
+		
+		assertThat(desc.toString()).containsWildcardPattern("found 1 elements surplus*leaf3");
+	}
+	
+	@Test
+	public void testDescribeMismatchComplexMismatchUnexpected() throws Exception {
+		Matcher<TreeNode> matcher = new GenericMatcher() {
+			Matcher<?> children = containsInOrder(TreeNode.class)
+				.element(new GenericMatcher() {
+					Matcher<?> children = empty();
+					Object payload = "leaf1";
+				}.matching(TreeNode.class))
+				.element(new GenericMatcher() {
+					Matcher<?> children = empty();
+					Object payload = "leaf2";
+				}.matching(TreeNode.class));
+			Object payload = "root";
+		}.matching(TreeNode.class);
+		
+		TreeNode matching = new TreeNode().setPayload("root")
+			.addChild(new TreeNode().setPayload("leaf1"))
+			.addChild(new TreeNode().setPayload("leaf3"));
+		
+		StringDescription desc = new StringDescription();
+		matcher.describeMismatch(matching, desc);
+		
+		assertThat(desc.toString()).contains("\"leaf2\" != \"leaf3\"");
+	}
+	
 	interface Functional {
 		int func(int x);
 	}

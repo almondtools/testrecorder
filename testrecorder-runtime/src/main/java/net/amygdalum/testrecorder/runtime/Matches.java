@@ -34,7 +34,7 @@ public class Matches<T> implements SelfDescribing {
 	public Matches<T> match() {
 		Matching<T>  peek = matches.peek();
 		if (peek instanceof Match<?>) {
-			((Match<?>) peek).inc();;
+			((Match<?>) peek).inc();
 		} else {
 			matches.add(new Match<T>());
 		}

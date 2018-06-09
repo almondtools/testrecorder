@@ -21,6 +21,7 @@ import static net.amygdalum.testrecorder.util.Types.inferType;
 import static net.amygdalum.testrecorder.util.Types.innerType;
 import static net.amygdalum.testrecorder.util.Types.isBound;
 import static net.amygdalum.testrecorder.util.Types.isBoxedPrimitive;
+import static net.amygdalum.testrecorder.util.Types.isErasureHidden;
 import static net.amygdalum.testrecorder.util.Types.isFinal;
 import static net.amygdalum.testrecorder.util.Types.isHidden;
 import static net.amygdalum.testrecorder.util.Types.isLiteral;
@@ -35,6 +36,7 @@ import static net.amygdalum.testrecorder.util.Types.typeVariable;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
 import static net.amygdalum.testrecorder.util.Types.wildcardExtends;
 import static net.amygdalum.testrecorder.util.Types.wildcardSuper;
+import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfCompletelyHidden;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -349,6 +351,14 @@ public class TypesTest {
 	}
 
 	@Test
+	void testIsErasureHidden() throws Exception {
+		assertThat(isErasureHidden(Simple.class, "any")).isFalse();
+		assertThat(isErasureHidden(parameterized(Generic.class, null, Simple.class), "any")).isFalse();
+		assertThat(isErasureHidden(parameterized(Generic.class, null, (Class<?>) null), "any")).isFalse();
+		assertThat(isErasureHidden(parameterized(Generic.class, null, classOfCompletelyHidden()), "any")).isTrue();
+	}
+
+	@Test
 	void testGetDeclaredField() throws Exception {
 		assertThat(getDeclaredField(Sub1.class, "subAttr")).isEqualTo(Sub1.class.getDeclaredField("subAttr"));
 		assertThat(getDeclaredField(Sub1.class, "str")).isEqualTo(Super.class.getDeclaredField("str"));
@@ -526,8 +536,8 @@ public class TypesTest {
 
 	@Test
 	void testSortByMostConcreteOrderableBaseTypes() throws Exception {
-		ParameterizedType generic = Types.parameterized(Generic.class, null, Sub.class);
-		ParameterizedType subGeneric = Types.parameterized(SubGeneric.class, null, Super.class);
+		ParameterizedType generic = parameterized(Generic.class, null, Sub.class);
+		ParameterizedType subGeneric = parameterized(SubGeneric.class, null, Super.class);
 
 		assertThat(Stream.of(generic, subGeneric).sorted(Types::byMostConcrete).collect(toList())).containsExactly(subGeneric, generic);
 		assertThat(Stream.of(subGeneric, generic).sorted(Types::byMostConcrete).collect(toList())).containsExactly(subGeneric, generic);
@@ -535,8 +545,8 @@ public class TypesTest {
 
 	@Test
 	void testSortByMostConcreteUnrelatedBaseTypes() throws Exception {
-		ParameterizedType generic = Types.parameterized(Generic.class, null, Sub.class);
-		ParameterizedType otherGeneric = Types.parameterized(GenericCycle.class, null, Super.class);
+		ParameterizedType generic = parameterized(Generic.class, null, Sub.class);
+		ParameterizedType otherGeneric = parameterized(GenericCycle.class, null, Super.class);
 
 		assertThat(Stream.of(generic, otherGeneric).sorted(Types::byMostConcrete).collect(toList())).containsExactlyInAnyOrder(generic, otherGeneric);
 	}

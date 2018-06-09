@@ -158,9 +158,13 @@ public class GenericMatcher extends GenericObject {
 		private void describeMismatch(Description description, GenericComparison mismatch) {
 			description.appendText("\n\t")
 				.appendText(mismatch.getRoot()).appendText(": ");
-			describe(description, mismatch.getLeft());
-			description.appendText(" != ");
-			describe(description, mismatch.getRight());
+			if (mismatch.getLeft() instanceof Matcher<?>) {
+				((Matcher<?>) mismatch.getLeft()).describeMismatch(mismatch.getRight(), description);
+			} else {
+				describe(description, mismatch.getLeft());
+				description.appendText(" != ");
+				describe(description, mismatch.getRight());
+			}
 		}
 
 		private void describe(Description description, Object value) {

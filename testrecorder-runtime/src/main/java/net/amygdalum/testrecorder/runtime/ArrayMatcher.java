@@ -7,17 +7,13 @@ import static org.hamcrest.core.IsNull.nullValue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.hamcrest.StringDescription;
-import org.hamcrest.TypeSafeMatcher;
 import org.hamcrest.core.IsNull;
 
-public class ArrayMatcher<T> extends TypeSafeMatcher<T[]> {
+public class ArrayMatcher<T> extends AbstractIterableMatcher<T, T[]> {
 
 	private Class<T> type;
 	private List<Matcher<T>> elements;
@@ -45,6 +41,16 @@ public class ArrayMatcher<T> extends TypeSafeMatcher<T[]> {
 	}
 
 	@Override
+	protected Matcher<T> bestMatcher() {
+		for (Matcher<T> matcher : elements) {
+			if (matcher.getClass() != IsNull.class) {
+				return matcher;
+			}
+		}
+		return equalTo(null);
+	}
+
+	@Override
 	public void describeTo(Description description) {
 		description.appendText("containing ").appendValueList("[", ", ", "]", elements);
 	}
@@ -65,59 +71,17 @@ public class ArrayMatcher<T> extends TypeSafeMatcher<T[]> {
 			}
 		}
 		if (elementIterator.hasNext()) {
-			int count = count(elementIterator);
-			matches.mismatch("missing " + count + " elements");
+			List<Matcher<T>> matchers = remainder(elementIterator);
+			matches.mismatch("missing " + matchers.size() + " elements " + toExpectedSet(matchers));
 		}
 		if (itemIterator.hasNext()) {
-			List<T> items = collect(itemIterator);
-			matches.mismatch("found " + items.size() + " elements surplus " + toDescriptionSet(items));
+			List<T> items = remainder(itemIterator);
+			matches.mismatch("found " + items.size() + " elements surplus " + toFoundSet(items));
 		}
 
 		if (matches.containsMismatches()) {
 			mismatchDescription.appendText("mismatching elements ").appendDescriptionOf(matches);
 		}
-	}
-
-	private int count(Iterator<?> iterator) {
-		int count = 0;
-		while (iterator.hasNext()) {
-			iterator.next();
-			count++;
-		}
-		return count;
-	}
-
-	private List<T> collect(Iterator<? extends T> iterator) {
-		List<T> collected = new ArrayList<>();
-		while (iterator.hasNext()) {
-			collected.add(iterator.next());
-		}
-		return collected;
-	}
-
-	private Set<String> toDescriptionSet(List<T> elements) {
-		Matcher<T> matcher = bestMatcher();
-		Set<String> set = new LinkedHashSet<>();
-		for (T element : elements) {
-			String desc = descriptionOf(matcher, element);
-			set.add(desc);
-		}
-		return set;
-	}
-
-	private Matcher<T> bestMatcher() {
-		for (Matcher<T> matcher : elements) {
-			if (matcher.getClass() != IsNull.class) {
-				return matcher;
-			}
-		}
-		return equalTo(null);
-	}
-
-	private <S> String descriptionOf(Matcher<S> matcher, S value) {
-		StringDescription description = new StringDescription();
-		matcher.describeMismatch(value, description);
-		return description.toString();
 	}
 
 	@Override
