@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder;
 
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.asm.ByteCode.classFrom;
 import static net.amygdalum.testrecorder.asm.ByteCode.isNative;
@@ -26,6 +27,7 @@ import java.util.Set;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.InsnList;
@@ -187,11 +189,11 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 	}
 
 	private void analyzeMethod(ClassNode classNode, MethodNode methodNode) {
-		if (methodNode.visibleAnnotations != null && methodNode.visibleAnnotations.stream()
+		if (annotations(methodNode).stream()
 			.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Input.class)))) {
 			io.registerInput(classNode.name, methodNode.name, methodNode.desc);
 		}
-		if (methodNode.visibleAnnotations != null && methodNode.visibleAnnotations.stream()
+		if (annotations(methodNode).stream()
 			.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Output.class)))) {
 			io.registerOutput(classNode.name, methodNode.name, methodNode.desc);
 		}
@@ -206,6 +208,20 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 			return true;
 		}
 		return false;
+	}
+
+	private static List<AnnotationNode> annotations(FieldNode node) {
+		if (node.visibleAnnotations == null) {
+			return emptyList();
+		}
+		return node.visibleAnnotations;
+	}
+
+	private static List<AnnotationNode> annotations(MethodNode node) {
+		if (node.visibleAnnotations == null) {
+			return emptyList();
+		}
+		return node.visibleAnnotations;
 	}
 
 	public static abstract class Task {
@@ -522,7 +538,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		}
 
 		protected boolean isGlobalField(String className, FieldNode fieldNode) {
-			boolean global = fieldNode.visibleAnnotations != null && fieldNode.visibleAnnotations.stream()
+			boolean global = annotations(fieldNode).stream()
 				.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Global.class)))
 				|| profile.getGlobalFields().stream()
 					.anyMatch(field -> matches(field, className, fieldNode.name, fieldNode.desc));
@@ -534,13 +550,10 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		}
 
 		protected boolean isSnapshotMethod(ClassNode classNode, MethodNode methodNode) {
-			if (methodNode.visibleAnnotations == null) {
-				return false;
-			}
-			return profile.getRecorded().stream()
-				.anyMatch(method -> matches(method, classNode.name, methodNode.name, methodNode.desc))
-				|| methodNode.visibleAnnotations.stream()
-					.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Recorded.class)));
+			return annotations(methodNode).stream()
+				.anyMatch(annotation -> annotation.desc.equals(Type.getDescriptor(Recorded.class)))
+				|| profile.getRecorded().stream()
+					.anyMatch(method -> matches(method, classNode.name, methodNode.name, methodNode.desc));
 		}
 
 		protected boolean isJavaInputMethod(ClassNode classNode, MethodNode methodNode) {

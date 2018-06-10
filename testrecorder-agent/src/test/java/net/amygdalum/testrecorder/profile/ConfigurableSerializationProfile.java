@@ -24,7 +24,7 @@ public class ConfigurableSerializationProfile implements SerializationProfile {
 		this.globalFields = new ArrayList<>(base.getGlobalFields());
 		this.inputs = new ArrayList<>(base.getInputs());
 		this.outputs = new ArrayList<>(base.getOutputs());
-		this.recorded = new ArrayList<>(base.getOutputs());
+		this.recorded = new ArrayList<>(base.getRecorded());
 		this.classes = new ArrayList<>(base.getClasses());
 	}
 
