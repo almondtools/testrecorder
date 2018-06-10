@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers;
 
+import static net.amygdalum.testrecorder.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.xrayinterface.XRayInterface.xray;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,7 +26,7 @@ public class AdaptorsTest {
 
 	@BeforeEach
 	public void before() throws Exception {
-		config = new AgentConfiguration();
+		config = defaultConfig();
 		adaptors = new Adaptors<>(config);
 		openadaptors = xray(adaptors).to(OpenAdaptors.class);
 	}

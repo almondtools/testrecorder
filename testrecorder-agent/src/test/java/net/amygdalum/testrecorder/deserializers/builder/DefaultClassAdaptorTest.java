@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
+import static net.amygdalum.testrecorder.TestAgentConfiguration.defaultConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigInteger;
@@ -22,7 +23,7 @@ public class DefaultClassAdaptorTest {
 
 	@BeforeEach
 	public void before() throws Exception {
-		config = new AgentConfiguration();
+		config = defaultConfig();
 		adaptor = new DefaultClassAdaptor();
 		context = new DefaultDeserializerContext();
 	}

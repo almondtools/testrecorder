@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
+import static net.amygdalum.testrecorder.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,7 +22,7 @@ public class DefaultNullAdaptorTest {
 
 	@BeforeEach
 	public void before() throws Exception {
-		config = new AgentConfiguration();
+		config = defaultConfig();
 		adaptor = new DefaultNullAdaptor();
 		context = new DefaultDeserializerContext();
 	}

@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
+import static net.amygdalum.testrecorder.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,7 +27,7 @@ public class ConstructorParamTest {
 
 	@BeforeEach
 	public void before() throws Exception {
-		config = new AgentConfiguration();
+		config = defaultConfig();
 		constructor = Simple.class.getDeclaredConstructor(String.class);
 		constructorParam = new ConstructorParam(constructor, 0, new SerializedField(Simple.class, "field", String.class, literal("value")), "value");
 	}

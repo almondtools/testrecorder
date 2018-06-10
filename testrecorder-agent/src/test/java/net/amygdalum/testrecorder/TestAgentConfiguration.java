@@ -8,6 +8,8 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.profile.ClassPathConfigurationLoader;
+import net.amygdalum.testrecorder.profile.DefaultConfigurationLoader;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.profile.SerializationProfile;
 
@@ -15,13 +17,13 @@ public class TestAgentConfiguration extends AgentConfiguration {
 
 	private Map<Class<?>, List<Function<Object[], ?>>> configs;
 	
-	public TestAgentConfiguration(String... agentargs) {
-		super(agentargs);
+	public TestAgentConfiguration() {
+		super(new ClassPathConfigurationLoader(), new DefaultConfigurationLoader());
 		configs = new HashMap<>();
 	}
 
-	public TestAgentConfiguration(ClassLoader loader, String... agentargs) {
-		super(loader, agentargs);
+	public TestAgentConfiguration(ClassLoader loader) {
+		super(new ClassPathConfigurationLoader(loader), new DefaultConfigurationLoader(loader));
 		configs = new HashMap<>();
 	}
 
@@ -30,7 +32,7 @@ public class TestAgentConfiguration extends AgentConfiguration {
 	}
 
 	public TestAgentConfiguration withLoader(ClassLoader loader) {
-		setLoader(loader);
+		setConfigurationLoaders(new ClassPathConfigurationLoader(loader), new DefaultConfigurationLoader(loader));
 		return this;
 	}
 	

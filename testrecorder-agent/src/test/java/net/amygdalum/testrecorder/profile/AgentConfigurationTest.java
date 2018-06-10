@@ -11,7 +11,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -24,25 +23,26 @@ import net.amygdalum.testrecorder.util.TemporaryFolderExtension;
 @ExtendWith(TemporaryFolderExtension.class)
 public class AgentConfigurationTest {
 
-	private AgentConfiguration agentConfiguration;
-
-	@BeforeEach
-	public void before(TemporaryFolder folder) throws Exception {
-		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigNoArguments", "net.amygdalum.testrecorder.profile.DefaultConfigNoArguments\nnet.amygdalum.testrecorder.profile.OtherConfigNoArguments".getBytes());
+	@Test
+	void testLoadConfiguration(TemporaryFolder folder) throws Exception {
+		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigNoArguments",
+			"net.amygdalum.testrecorder.profile.DefaultConfigNoArguments\nnet.amygdalum.testrecorder.profile.OtherConfigNoArguments".getBytes());
 		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigWithArguments", "net.amygdalum.testrecorder.profile.DefaultConfigWithArguments".getBytes());
 
-		agentConfiguration = new AgentConfiguration(folder.getRoot().toString());
-	}
-
-	@Test
-	void testLoadConfiguration() throws Exception {
+		AgentConfiguration agentConfiguration = new AgentConfiguration(new PathConfigurationLoader(folder.getRoot()));
 		ConfigNoArguments config = agentConfiguration.loadConfiguration(ConfigNoArguments.class);
 
 		assertThat(config).isInstanceOf(DefaultConfigNoArguments.class);
 	}
 
 	@Test
-	void testLoadConfigurationWithArguments() throws Exception {
+	void testLoadConfigurationWithArguments(TemporaryFolder folder) throws Exception {
+		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigNoArguments",
+			"net.amygdalum.testrecorder.profile.DefaultConfigNoArguments\nnet.amygdalum.testrecorder.profile.OtherConfigNoArguments".getBytes());
+		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigWithArguments", "net.amygdalum.testrecorder.profile.DefaultConfigWithArguments".getBytes());
+
+		AgentConfiguration agentConfiguration = new AgentConfiguration(new PathConfigurationLoader(folder.getRoot()));
+
 		ConfigWithArguments loaded1 = agentConfiguration.loadConfiguration(ConfigWithArguments.class, "string");
 		ConfigWithArguments loaded2 = agentConfiguration.loadConfiguration(ConfigWithArguments.class, "string");
 
@@ -52,14 +52,26 @@ public class AgentConfigurationTest {
 	}
 
 	@Test
-	void testLoadConfigurationIsolated() throws Exception {
+	void testLoadConfigurationIsolated(TemporaryFolder folder) throws Exception {
+		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigNoArguments",
+			"net.amygdalum.testrecorder.profile.DefaultConfigNoArguments\nnet.amygdalum.testrecorder.profile.OtherConfigNoArguments".getBytes());
+		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigWithArguments", "net.amygdalum.testrecorder.profile.DefaultConfigWithArguments".getBytes());
+
+		AgentConfiguration agentConfiguration = new AgentConfiguration(new PathConfigurationLoader(folder.getRoot()));
+
 		ConfigIsolated config = agentConfiguration.loadConfiguration(ConfigIsolated.class);
 
 		assertThat(config).isNull();
 	}
 
 	@Test
-	void testLoadConfigurationDefault() throws Exception {
+	void testLoadConfigurationDefault(TemporaryFolder folder) throws Exception {
+		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigNoArguments",
+			"net.amygdalum.testrecorder.profile.DefaultConfigNoArguments\nnet.amygdalum.testrecorder.profile.OtherConfigNoArguments".getBytes());
+		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigWithArguments", "net.amygdalum.testrecorder.profile.DefaultConfigWithArguments".getBytes());
+
+		AgentConfiguration agentConfiguration = new AgentConfiguration(new PathConfigurationLoader(folder.getRoot()));
+
 		agentConfiguration.withDefaultValue(ConfigIsolated.class, () -> new ConfigIsolated() {
 		});
 		ConfigIsolated config = agentConfiguration.loadConfiguration(ConfigIsolated.class);
@@ -68,7 +80,13 @@ public class AgentConfigurationTest {
 	}
 
 	@Test
-	void testLoadCachedConfiguration() throws Exception {
+	void testLoadCachedConfiguration(TemporaryFolder folder) throws Exception {
+		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigNoArguments",
+			"net.amygdalum.testrecorder.profile.DefaultConfigNoArguments\nnet.amygdalum.testrecorder.profile.OtherConfigNoArguments".getBytes());
+		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigWithArguments", "net.amygdalum.testrecorder.profile.DefaultConfigWithArguments".getBytes());
+
+		AgentConfiguration agentConfiguration = new AgentConfiguration(new PathConfigurationLoader(folder.getRoot()));
+
 		ConfigNoArguments loaded1 = agentConfiguration.loadConfiguration(ConfigNoArguments.class);
 		ConfigNoArguments loaded2 = agentConfiguration.loadConfiguration(ConfigNoArguments.class);
 
@@ -76,7 +94,13 @@ public class AgentConfigurationTest {
 	}
 
 	@Test
-	void testLoadCachedClearedConfiguration() throws Exception {
+	void testLoadCachedClearedConfiguration(TemporaryFolder folder) throws Exception {
+		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigNoArguments",
+			"net.amygdalum.testrecorder.profile.DefaultConfigNoArguments\nnet.amygdalum.testrecorder.profile.OtherConfigNoArguments".getBytes());
+		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigWithArguments", "net.amygdalum.testrecorder.profile.DefaultConfigWithArguments".getBytes());
+
+		AgentConfiguration agentConfiguration = new AgentConfiguration(new PathConfigurationLoader(folder.getRoot()));
+
 		ConfigNoArguments loaded1 = agentConfiguration.loadConfiguration(ConfigNoArguments.class);
 		agentConfiguration.reset();
 
@@ -86,14 +110,26 @@ public class AgentConfigurationTest {
 	}
 
 	@Test
-	void testLoadConfigurations() throws Exception {
+	void testLoadConfigurations(TemporaryFolder folder) throws Exception {
+		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigNoArguments",
+			"net.amygdalum.testrecorder.profile.DefaultConfigNoArguments\nnet.amygdalum.testrecorder.profile.OtherConfigNoArguments".getBytes());
+		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigWithArguments", "net.amygdalum.testrecorder.profile.DefaultConfigWithArguments".getBytes());
+
+		AgentConfiguration agentConfiguration = new AgentConfiguration(new PathConfigurationLoader(folder.getRoot()));
+
 		List<ConfigNoArguments> configs = agentConfiguration.loadConfigurations(ConfigNoArguments.class);
 
 		assertThat(configs).hasSize(2);
 	}
 
 	@Test
-	void testLoadConfigurationsWithArguments() throws Exception {
+	void testLoadConfigurationsWithArguments(TemporaryFolder folder) throws Exception {
+		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigNoArguments",
+			"net.amygdalum.testrecorder.profile.DefaultConfigNoArguments\nnet.amygdalum.testrecorder.profile.OtherConfigNoArguments".getBytes());
+		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigWithArguments", "net.amygdalum.testrecorder.profile.DefaultConfigWithArguments".getBytes());
+
+		AgentConfiguration agentConfiguration = new AgentConfiguration(new PathConfigurationLoader(folder.getRoot()));
+
 		List<ConfigWithArguments> loaded1 = agentConfiguration.loadConfigurations(ConfigWithArguments.class, "string");
 		List<ConfigWithArguments> loaded2 = agentConfiguration.loadConfigurations(ConfigWithArguments.class, "string");
 
@@ -103,7 +139,13 @@ public class AgentConfigurationTest {
 	}
 
 	@Test
-	void testLoadCachedConfigurations() throws Exception {
+	void testLoadCachedConfigurations(TemporaryFolder folder) throws Exception {
+		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigNoArguments",
+			"net.amygdalum.testrecorder.profile.DefaultConfigNoArguments\nnet.amygdalum.testrecorder.profile.OtherConfigNoArguments".getBytes());
+		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigWithArguments", "net.amygdalum.testrecorder.profile.DefaultConfigWithArguments".getBytes());
+
+		AgentConfiguration agentConfiguration = new AgentConfiguration(new PathConfigurationLoader(folder.getRoot()));
+
 		List<ConfigNoArguments> loaded1 = agentConfiguration.loadConfigurations(ConfigNoArguments.class);
 		List<ConfigNoArguments> loaded2 = agentConfiguration.loadConfigurations(ConfigNoArguments.class);
 
@@ -111,7 +153,13 @@ public class AgentConfigurationTest {
 	}
 
 	@Test
-	void testLoadCachedClearedConfigurations() throws Exception {
+	void testLoadCachedClearedConfigurations(TemporaryFolder folder) throws Exception {
+		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigNoArguments",
+			"net.amygdalum.testrecorder.profile.DefaultConfigNoArguments\nnet.amygdalum.testrecorder.profile.OtherConfigNoArguments".getBytes());
+		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigWithArguments", "net.amygdalum.testrecorder.profile.DefaultConfigWithArguments".getBytes());
+
+		AgentConfiguration agentConfiguration = new AgentConfiguration(new PathConfigurationLoader(folder.getRoot()));
+
 		List<ConfigNoArguments> loaded1 = agentConfiguration.loadConfigurations(ConfigNoArguments.class);
 		agentConfiguration.reset();
 
@@ -124,11 +172,11 @@ public class AgentConfigurationTest {
 	@ExtendWith(TemporaryFolderExtension.class)
 	@Test
 	public void testLoadWithBrokenFilesOnConfigPath(TemporaryFolder folder, @LogLevel("info") ByteArrayOutputStream info, @LogLevel("error") ByteArrayOutputStream error) throws Exception {
-		AgentConfiguration agentConfiguration = new AgentConfiguration(folder.getRoot().toString()) {
+		AgentConfiguration agentConfiguration = new AgentConfiguration(new PathConfigurationLoader(folder.getRoot()) {
 			protected <T> java.util.stream.Stream<T> configsFrom(Path path, java.lang.Class<T> clazz, Object[] args) throws IOException {
 				throw new IOException();
 			};
-		};
+		});
 
 		agentConfiguration.load(ConfigNoArguments.class);
 
@@ -141,17 +189,12 @@ public class AgentConfigurationTest {
 	public void testLoadWithBrokenFilesOnClassPath(@LogLevel("info") ByteArrayOutputStream info, @LogLevel("error") ByteArrayOutputStream error) throws Exception {
 		ExtensibleClassLoader loader = new ExtensibleClassLoader(AgentConfigurationTest.class.getClassLoader());
 		loader.defineResource("agentconfig/net.amygdalum.testrecorder.profile.ConfigNoArguments", "net.amygdalum.testrecorder.profile.DefaultConfigNoArguments".getBytes());
-		AgentConfiguration agentConfiguration = new AgentConfiguration(loader) {
-			int count = 0;
+		AgentConfiguration agentConfiguration = new AgentConfiguration(new ClassPathConfigurationLoader(loader) {
 
 			protected <T> Stream<T> configsFrom(Path path, Class<T> clazz, Object[] args) throws IOException {
-				if (count == 0) {
-					count++;
-					throw new IOException();
-				}
-				return Stream.empty();
+				throw new IOException();
 			};
-		};
+		});
 
 		agentConfiguration.load(ConfigNoArguments.class);
 
@@ -161,20 +204,16 @@ public class AgentConfigurationTest {
 
 	@ExtendWith(LoggerExtension.class)
 	@Test
-	public void testLoadWithMissingFilesOnClassPath(@LogLevel("debug") ByteArrayOutputStream debug, @LogLevel("info") ByteArrayOutputStream info, @LogLevel("error") ByteArrayOutputStream error) throws Exception {
+	public void testLoadWithMissingFilesOnClassPath(@LogLevel("debug") ByteArrayOutputStream debug, @LogLevel("info") ByteArrayOutputStream info, @LogLevel("error") ByteArrayOutputStream error)
+		throws Exception {
 		ExtensibleClassLoader loader = new ExtensibleClassLoader(AgentConfigurationTest.class.getClassLoader());
 		loader.defineResource("agentconfig/net.amygdalum.testrecorder.profile.ConfigNoArguments", "net.amygdalum.testrecorder.profile.DefaultConfigNoArguments".getBytes());
-		AgentConfiguration agentConfiguration = new AgentConfiguration(loader) {
-			int count = 0;
+		AgentConfiguration agentConfiguration = new AgentConfiguration(new ClassPathConfigurationLoader(loader) {
 
 			protected <T> Stream<T> configsFrom(Path path, Class<T> clazz, Object[] args) throws IOException {
-				if (count == 0) {
-					count++;
-					throw new NoSuchFileException(path.toString());
-				}
-				return Stream.empty();
+				throw new NoSuchFileException(path.toString());
 			};
-		};
+		});
 
 		agentConfiguration.load(ConfigNoArguments.class);
 
@@ -188,7 +227,7 @@ public class AgentConfigurationTest {
 	public void testLoadWithSuccessOnClassPath(@LogLevel("info") ByteArrayOutputStream info, @LogLevel("error") ByteArrayOutputStream error) throws Exception {
 		ExtensibleClassLoader loader = new ExtensibleClassLoader(AgentConfigurationTest.class.getClassLoader());
 		loader.defineResource("agentconfig/net.amygdalum.testrecorder.profile.ConfigNoArguments", "net.amygdalum.testrecorder.profile.DefaultConfigNoArguments".getBytes());
-		AgentConfiguration agentConfiguration = new AgentConfiguration(loader);
+		AgentConfiguration agentConfiguration = new AgentConfiguration(new ClassPathConfigurationLoader(loader), new DefaultConfigurationLoader(loader));
 
 		ConfigNoArguments loaded = agentConfiguration.load(ConfigNoArguments.class).findFirst().orElse(null);
 
@@ -201,11 +240,11 @@ public class AgentConfigurationTest {
 	@Test
 	public void testLoadWithBrokenFilesOnDefaultPath(@LogLevel("info") ByteArrayOutputStream info, @LogLevel("error") ByteArrayOutputStream error) throws Exception {
 		ExtensibleClassLoader loader = new ExtensibleClassLoader(AgentConfigurationTest.class.getClassLoader());
-		AgentConfiguration agentConfiguration = new AgentConfiguration(loader) {
+		AgentConfiguration agentConfiguration = new AgentConfiguration(new DefaultConfigurationLoader(loader) {
 			protected <T> Stream<T> configsFrom(Path path, Class<T> clazz, Object[] args) throws IOException {
 				throw new IOException();
 			};
-		};
+		});
 
 		agentConfiguration.load(ConfigNoArguments.class);
 
@@ -215,13 +254,14 @@ public class AgentConfigurationTest {
 
 	@ExtendWith(LoggerExtension.class)
 	@Test
-	public void testLoadWithMissingFilesOnDefaultPath(@LogLevel("debug") ByteArrayOutputStream debug, @LogLevel("info") ByteArrayOutputStream info, @LogLevel("error") ByteArrayOutputStream error) throws Exception {
+	public void testLoadWithMissingFilesOnDefaultPath(@LogLevel("debug") ByteArrayOutputStream debug, @LogLevel("info") ByteArrayOutputStream info, @LogLevel("error") ByteArrayOutputStream error)
+		throws Exception {
 		ExtensibleClassLoader loader = new ExtensibleClassLoader(AgentConfigurationTest.class.getClassLoader());
-		AgentConfiguration agentConfiguration = new AgentConfiguration(loader) {
+		AgentConfiguration agentConfiguration = new AgentConfiguration(new DefaultConfigurationLoader(loader) {
 			protected <T> Stream<T> configsFrom(Path path, Class<T> clazz, Object[] args) throws IOException {
 				throw new NoSuchFileException(path.toString());
 			};
-		};
+		});
 
 		agentConfiguration.load(ConfigNoArguments.class);
 
@@ -239,7 +279,7 @@ public class AgentConfigurationTest {
 				throw new IOException();
 			}
 		};
-		AgentConfiguration agentConfiguration = new AgentConfiguration(loader);
+		AgentConfiguration agentConfiguration = new AgentConfiguration(new ClassPathConfigurationLoader(loader));
 
 		agentConfiguration.load(ConfigNoArguments.class);
 
@@ -247,94 +287,4 @@ public class AgentConfigurationTest {
 		assertThat(error.toString()).contains("cannot load configuration from classpath");
 	}
 
-	@Test
-	public void testConfigNoArgsFromWithSuccess() throws Exception {
-		AgentConfiguration agentConfiguration = new AgentConfiguration();
-
-		ConfigNoArguments config = agentConfiguration.configFrom("net.amygdalum.testrecorder.profile.DefaultConfigNoArguments", ConfigNoArguments.class, new Object[0]);
-
-		assertThat(config).isInstanceOf(DefaultConfigNoArguments.class);
-	}
-
-	@ExtendWith(LoggerExtension.class)
-	@Test
-	public void testConfigWithArgsFromTooManyArgs(@LogLevel("info") ByteArrayOutputStream info, @LogLevel("error") ByteArrayOutputStream error) throws Exception {
-		AgentConfiguration agentConfiguration = new AgentConfiguration();
-
-		ConfigWithArguments config = agentConfiguration.configFrom("net.amygdalum.testrecorder.profile.DefaultConfigWithArguments", ConfigWithArguments.class, new Object[] { "arg1", "arg2" });
-
-		assertThat(config).isNull();
-		assertThat(info.toString()).isEmpty();
-		assertThat(error.toString()).contains("failed loading DefaultConfigWithArguments because no constructor matching (String, String)");
-	}
-
-	@ExtendWith(LoggerExtension.class)
-	@Test
-	public void testConfigWithArgsFromTooFewArgs(@LogLevel("info") ByteArrayOutputStream info, @LogLevel("error") ByteArrayOutputStream error) throws Exception {
-		AgentConfiguration agentConfiguration = new AgentConfiguration();
-
-		ConfigWithArguments config = agentConfiguration.configFrom("net.amygdalum.testrecorder.profile.DefaultConfigWithArguments", ConfigWithArguments.class, new Object[0]);
-
-		assertThat(config).isNull();
-		assertThat(info.toString()).isEmpty();
-		assertThat(error.toString()).contains("failed loading DefaultConfigWithArguments because no constructor matching ()");
-	}
-
-	@ExtendWith(LoggerExtension.class)
-	@Test
-	public void testConfigWithArgsFromMismatchingArgs(@LogLevel("info") ByteArrayOutputStream info, @LogLevel("error") ByteArrayOutputStream error) throws Exception {
-		AgentConfiguration agentConfiguration = new AgentConfiguration();
-
-		ConfigWithArguments config = agentConfiguration.configFrom("net.amygdalum.testrecorder.profile.DefaultConfigWithArguments", ConfigWithArguments.class, new Object[] { 1 });
-
-		assertThat(config).isNull();
-		assertThat(info.toString()).isEmpty();
-		assertThat(error.toString()).contains("failed loading DefaultConfigWithArguments because no constructor matching (Integer)");
-	}
-
-	@Test
-	public void testConfigWithArgsFromWithSuccess() throws Exception {
-		AgentConfiguration agentConfiguration = new AgentConfiguration();
-
-		ConfigWithArguments config = agentConfiguration.configFrom("net.amygdalum.testrecorder.profile.DefaultConfigWithArguments", ConfigWithArguments.class, new Object[] { "arg" });
-
-		assertThat(config).isInstanceOf(DefaultConfigWithArguments.class);
-	}
-
-	@ExtendWith(LoggerExtension.class)
-	@Test
-	public void testConfigNoArgsFromClassNotFound(@LogLevel("info") ByteArrayOutputStream info, @LogLevel("error") ByteArrayOutputStream error) throws Exception {
-		AgentConfiguration agentConfiguration = new AgentConfiguration();
-
-		ConfigNoArguments config = agentConfiguration.configFrom("net.amygdalum.testrecorder.profile.NotExisting", ConfigNoArguments.class, new Object[0]);
-
-		assertThat(config).isNull();
-		assertThat(info.toString()).isEmpty();
-		assertThat(error.toString()).contains("failed loading NotExisting from classpath");
-	}
-
-	@ExtendWith(LoggerExtension.class)
-	@Test
-	public void testConfigNoArgsFromClassCastException(@LogLevel("info") ByteArrayOutputStream info, @LogLevel("error") ByteArrayOutputStream error) throws Exception {
-		AgentConfiguration agentConfiguration = new AgentConfiguration();
-		
-		ConfigWithArguments config = agentConfiguration.configFrom("net.amygdalum.testrecorder.profile.DefaultConfigNoArguments", ConfigWithArguments.class, new Object[0]);
-		
-		assertThat(config).isNull();
-		assertThat(info.toString()).isEmpty();
-		assertThat(error.toString()).contains("loaded class DefaultConfigNoArguments is not a subclass of ConfigWithArguments");
-	}
-
-	@ExtendWith(LoggerExtension.class)
-	@Test
-	public void testConfigNoArgsFromOtherException(@LogLevel("info") ByteArrayOutputStream info, @LogLevel("error") ByteArrayOutputStream error) throws Exception {
-		AgentConfiguration agentConfiguration = new AgentConfiguration();
-		
-		ConfigNoArguments config = agentConfiguration.configFrom("net.amygdalum.testrecorder.profile.BrokenConfigNoArguments", ConfigNoArguments.class, new Object[0]);
-		
-		assertThat(config).isNull();
-		assertThat(info.toString()).isEmpty();
-		assertThat(error.toString()).contains("failed instantiating BrokenConfigNoArguments");
-	}
-	
 }

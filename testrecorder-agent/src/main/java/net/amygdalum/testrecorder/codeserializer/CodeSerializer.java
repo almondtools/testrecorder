@@ -19,6 +19,8 @@ import net.amygdalum.testrecorder.deserializers.DeserializerTypeManager;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerator;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.profile.ClassPathConfigurationLoader;
+import net.amygdalum.testrecorder.profile.DefaultConfigurationLoader;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.profile.SerializationProfile;
 import net.amygdalum.testrecorder.serializers.SerializerFacade;
@@ -51,7 +53,8 @@ public class CodeSerializer {
 
 	public CodeSerializer(String pkg, Function<AgentConfiguration, SerializerFacade> facade, Function<AgentConfiguration, Deserializer<Computation>> deserializer) {
 		this.types = new DeserializerTypeManager(pkg);
-		this.config = new AgentConfiguration()
+		
+		this.config = new AgentConfiguration(new ClassPathConfigurationLoader(), new DefaultConfigurationLoader())
 			.withDefaultValue(SerializationProfile.class, DefaultSerializationProfile::new)
 			.withDefaultValue(PerformanceProfile.class, DefaultPerformanceProfile::new)
 			.withDefaultValue(SnapshotConsumer.class, DefaultSnapshotConsumer::new);
