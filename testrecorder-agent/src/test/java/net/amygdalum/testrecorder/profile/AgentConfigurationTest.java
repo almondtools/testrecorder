@@ -227,7 +227,7 @@ public class AgentConfigurationTest {
 	public void testLoadWithSuccessOnClassPath(@LogLevel("info") ByteArrayOutputStream info, @LogLevel("error") ByteArrayOutputStream error) throws Exception {
 		ExtensibleClassLoader loader = new ExtensibleClassLoader(AgentConfigurationTest.class.getClassLoader());
 		loader.defineResource("agentconfig/net.amygdalum.testrecorder.profile.ConfigNoArguments", "net.amygdalum.testrecorder.profile.DefaultConfigNoArguments".getBytes());
-		AgentConfiguration agentConfiguration = new AgentConfiguration(new ClassPathConfigurationLoader(loader), new DefaultConfigurationLoader(loader));
+		AgentConfiguration agentConfiguration = new AgentConfiguration(new ClassPathConfigurationLoader(loader), new DefaultPathConfigurationLoader(loader));
 
 		ConfigNoArguments loaded = agentConfiguration.load(ConfigNoArguments.class).findFirst().orElse(null);
 
@@ -240,7 +240,7 @@ public class AgentConfigurationTest {
 	@Test
 	public void testLoadWithBrokenFilesOnDefaultPath(@LogLevel("info") ByteArrayOutputStream info, @LogLevel("error") ByteArrayOutputStream error) throws Exception {
 		ExtensibleClassLoader loader = new ExtensibleClassLoader(AgentConfigurationTest.class.getClassLoader());
-		AgentConfiguration agentConfiguration = new AgentConfiguration(new DefaultConfigurationLoader(loader) {
+		AgentConfiguration agentConfiguration = new AgentConfiguration(new DefaultPathConfigurationLoader(loader) {
 			protected <T> Stream<T> configsFrom(Path path, Class<T> clazz, Object[] args) throws IOException {
 				throw new IOException();
 			};
@@ -257,7 +257,7 @@ public class AgentConfigurationTest {
 	public void testLoadWithMissingFilesOnDefaultPath(@LogLevel("debug") ByteArrayOutputStream debug, @LogLevel("info") ByteArrayOutputStream info, @LogLevel("error") ByteArrayOutputStream error)
 		throws Exception {
 		ExtensibleClassLoader loader = new ExtensibleClassLoader(AgentConfigurationTest.class.getClassLoader());
-		AgentConfiguration agentConfiguration = new AgentConfiguration(new DefaultConfigurationLoader(loader) {
+		AgentConfiguration agentConfiguration = new AgentConfiguration(new DefaultPathConfigurationLoader(loader) {
 			protected <T> Stream<T> configsFrom(Path path, Class<T> clazz, Object[] args) throws IOException {
 				throw new NoSuchFileException(path.toString());
 			};

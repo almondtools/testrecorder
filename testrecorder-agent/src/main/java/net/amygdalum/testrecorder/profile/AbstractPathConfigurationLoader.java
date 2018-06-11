@@ -2,7 +2,6 @@ package net.amygdalum.testrecorder.profile;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.joining;
-import static net.amygdalum.testrecorder.util.Types.boxedType;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,10 +28,6 @@ public abstract class AbstractPathConfigurationLoader implements ConfigurationLo
 
 	protected ClassLoader loader;
 
-	public AbstractPathConfigurationLoader() {
-		this(defaultClassLoader());
-	}
-
 	public AbstractPathConfigurationLoader(ClassLoader loader) {
 		this.loader = loader;
 	}
@@ -42,19 +37,6 @@ public abstract class AbstractPathConfigurationLoader implements ConfigurationLo
 			Logger.info("loading " + object.getClass().getSimpleName());
 		}
 		return object;
-	}
-
-	protected boolean matches(Constructor<?> constructor, Object[] args) {
-		Class<?>[] parameterTypes = constructor.getParameterTypes();
-		if (parameterTypes.length != args.length) {
-			return false;
-		}
-		for (int i = 0; i < parameterTypes.length; i++) {
-			if (args[i] != null && !boxedType(parameterTypes[i]).isInstance(args[i])) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	protected <T> Stream<T> configsFrom(Path path, Class<T> clazz, Object[] args) throws IOException {
@@ -110,17 +92,6 @@ public abstract class AbstractPathConfigurationLoader implements ConfigurationLo
 		} catch (URISyntaxException e) {
 			throw new IOException(e);
 		}
-	}
-
-	protected static ClassLoader defaultClassLoader() {
-		ClassLoader loader = Thread.currentThread().getContextClassLoader();
-		if (loader == null) {
-			loader = AgentConfiguration.class.getClassLoader();
-		}
-		if (loader == null) {
-			loader = ClassLoader.getSystemClassLoader();
-		}
-		return loader;
 	}
 
 }

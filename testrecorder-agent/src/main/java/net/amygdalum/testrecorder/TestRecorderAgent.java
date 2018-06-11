@@ -10,7 +10,7 @@ import java.util.List;
 
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.ClassPathConfigurationLoader;
-import net.amygdalum.testrecorder.profile.DefaultConfigurationLoader;
+import net.amygdalum.testrecorder.profile.DefaultPathConfigurationLoader;
 import net.amygdalum.testrecorder.profile.PathConfigurationLoader;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.profile.SerializationProfile;
@@ -49,15 +49,15 @@ public class TestRecorderAgent {
 	protected static AgentConfiguration loadConfig(String agentArgs) {
 		if (agentArgs != null) {
 			List<Path> paths = Arrays.stream(agentArgs.split(";"))
-			.map(path -> Paths.get(path))
-			.collect(toList());
-			
-			return new AgentConfiguration(new PathConfigurationLoader(paths),new ClassPathConfigurationLoader(), new DefaultConfigurationLoader())
+				.map(path -> Paths.get(path))
+				.collect(toList());
+
+			return new AgentConfiguration(new PathConfigurationLoader(paths), new ClassPathConfigurationLoader(), new DefaultPathConfigurationLoader())
 				.withDefaultValue(SerializationProfile.class, DefaultSerializationProfile::new)
 				.withDefaultValue(PerformanceProfile.class, DefaultPerformanceProfile::new)
 				.withDefaultValue(SnapshotConsumer.class, DefaultSnapshotConsumer::new);
 		} else {
-			return new AgentConfiguration(new ClassPathConfigurationLoader(), new DefaultConfigurationLoader())
+			return new AgentConfiguration(new ClassPathConfigurationLoader(), new DefaultPathConfigurationLoader())
 				.withDefaultValue(SerializationProfile.class, DefaultSerializationProfile::new)
 				.withDefaultValue(PerformanceProfile.class, DefaultPerformanceProfile::new)
 				.withDefaultValue(SnapshotConsumer.class, DefaultSnapshotConsumer::new);

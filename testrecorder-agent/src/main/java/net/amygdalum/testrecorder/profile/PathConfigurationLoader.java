@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.profile;
 
 import static java.util.Arrays.asList;
+import static net.amygdalum.testrecorder.profile.ConfigurationLoader.defaultClassLoader;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -17,11 +18,11 @@ public class PathConfigurationLoader extends AbstractPathConfigurationLoader imp
 	private List<Path> configurationPaths;
 
 	public PathConfigurationLoader(Path... configurationPaths) {
-		this(asList(configurationPaths));
+		this(defaultClassLoader(PathConfigurationLoader.class), asList(configurationPaths));
 	}
 
 	public PathConfigurationLoader(List<Path> configurationPaths) {
-		this.configurationPaths = configurationPaths;
+		this(defaultClassLoader(PathConfigurationLoader.class), configurationPaths);
 	}
 
 	public PathConfigurationLoader(ClassLoader loader, Path... configurationPaths) {

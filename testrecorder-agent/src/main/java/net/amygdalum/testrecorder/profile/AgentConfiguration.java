@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.profile;
 
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
 import java.util.IdentityHashMap;
@@ -14,20 +15,28 @@ import net.amygdalum.testrecorder.util.Logger;
 
 public class AgentConfiguration {
 
-	private ConfigurationLoader[] configurationLoaders;
+	private List<ConfigurationLoader> configurationLoaders;
 	private Map<Class<?>, Supplier<?>> defaultValues;
 	private Map<Class<?>, Object> singleValues;
 	private Map<Class<?>, List<?>> multiValues;
 
 
 	public AgentConfiguration(ConfigurationLoader... configurationLoaders) {
+		this(asList(configurationLoaders));
+	}
+	
+	public AgentConfiguration(List<ConfigurationLoader> configurationLoaders) {
 		this.configurationLoaders = configurationLoaders;
 		this.defaultValues = new IdentityHashMap<>();
 		this.singleValues = new IdentityHashMap<>();
 		this.multiValues = new IdentityHashMap<>();
 	}
 	
-	public void setConfigurationLoaders(ConfigurationLoader... configurationLoaders) {
+	public List<ConfigurationLoader> getConfigurationLoaders() {
+		return configurationLoaders;
+	}
+	
+	public void setConfigurationLoaders(List<ConfigurationLoader> configurationLoaders) {
 		this.configurationLoaders = configurationLoaders;
 	}
 
@@ -50,7 +59,7 @@ public class AgentConfiguration {
 			}
 		}
 		Optional<T> matchingConfig = load(clazz, args).findFirst();
-		T config = matchingConfig.isPresent() ? matchingConfig.get() : loadDefault(clazz);
+		T config = matchingConfig.orElseGet(() -> loadDefault(clazz));
 		if (args.length == 0) {
 			singleValues.put(clazz, config);
 		}

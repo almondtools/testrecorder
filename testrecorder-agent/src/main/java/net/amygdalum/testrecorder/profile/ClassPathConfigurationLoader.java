@@ -1,5 +1,7 @@
 package net.amygdalum.testrecorder.profile;
 
+import static net.amygdalum.testrecorder.profile.ConfigurationLoader.defaultClassLoader;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
@@ -14,6 +16,7 @@ import net.amygdalum.testrecorder.util.Logger;
 public class ClassPathConfigurationLoader extends AbstractPathConfigurationLoader implements ConfigurationLoader {
 
 	public ClassPathConfigurationLoader() {
+		this(defaultClassLoader(ClassPathConfigurationLoader.class));
 	}
 
 	public ClassPathConfigurationLoader(ClassLoader loader) {

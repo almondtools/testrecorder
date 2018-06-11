@@ -1,5 +1,7 @@
 package net.amygdalum.testrecorder;
 
+import static java.util.Arrays.asList;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,7 +11,7 @@ import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.ClassPathConfigurationLoader;
-import net.amygdalum.testrecorder.profile.DefaultConfigurationLoader;
+import net.amygdalum.testrecorder.profile.DefaultPathConfigurationLoader;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.profile.SerializationProfile;
 
@@ -18,12 +20,12 @@ public class TestAgentConfiguration extends AgentConfiguration {
 	private Map<Class<?>, List<Function<Object[], ?>>> configs;
 	
 	public TestAgentConfiguration() {
-		super(new ClassPathConfigurationLoader(), new DefaultConfigurationLoader());
+		super(new ClassPathConfigurationLoader(), new DefaultPathConfigurationLoader());
 		configs = new HashMap<>();
 	}
 
 	public TestAgentConfiguration(ClassLoader loader) {
-		super(new ClassPathConfigurationLoader(loader), new DefaultConfigurationLoader(loader));
+		super(new ClassPathConfigurationLoader(loader), new DefaultPathConfigurationLoader(loader));
 		configs = new HashMap<>();
 	}
 
@@ -32,7 +34,7 @@ public class TestAgentConfiguration extends AgentConfiguration {
 	}
 
 	public TestAgentConfiguration withLoader(ClassLoader loader) {
-		setConfigurationLoaders(new ClassPathConfigurationLoader(loader), new DefaultConfigurationLoader(loader));
+		setConfigurationLoaders(asList(new ClassPathConfigurationLoader(loader), new DefaultPathConfigurationLoader(loader)));
 		return this;
 	}
 	
