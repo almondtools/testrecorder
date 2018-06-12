@@ -90,6 +90,11 @@ public class ConfigurableSerializationProfile implements SerializationProfile {
 			return this;
 		}
 
+		public Builder withRecorded(List<Methods> methods) {
+			agent.recorded.addAll(methods);
+			return this;
+		}
+
 		public Builder withFieldExclusions(List<Fields> fieldExclusions) {
 			agent.fieldExclusions.addAll(fieldExclusions);
 			return this;
