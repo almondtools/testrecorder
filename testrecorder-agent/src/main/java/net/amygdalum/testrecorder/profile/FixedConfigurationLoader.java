@@ -47,7 +47,7 @@ public class FixedConfigurationLoader implements ConfigurationLoader {
 				Logger.error("loaded class " + simpleName + " is not a subclass of " + clazz.getSimpleName() + ", skipping");
 				return null;
 			}
-		} catch (IllegalArgumentException e) {
+		} catch (RuntimeException e) {
 			Logger.error("failed to provide " + clazz.getSimpleName() + ": ", e);
 			return null;
 		}

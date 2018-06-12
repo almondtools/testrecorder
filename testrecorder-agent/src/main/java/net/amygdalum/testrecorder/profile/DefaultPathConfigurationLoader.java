@@ -2,46 +2,16 @@ package net.amygdalum.testrecorder.profile;
 
 import static net.amygdalum.testrecorder.profile.ConfigurationLoader.defaultClassLoader;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.stream.Stream;
-import java.util.stream.Stream.Builder;
 
-import net.amygdalum.testrecorder.util.Logger;
-
-public class DefaultPathConfigurationLoader extends AbstractPathConfigurationLoader implements ConfigurationLoader {
+public class DefaultPathConfigurationLoader extends PathConfigurationLoader implements ConfigurationLoader {
 
 	public DefaultPathConfigurationLoader() {
 		this(defaultClassLoader(DefaultPathConfigurationLoader.class));
 	}
 
 	public DefaultPathConfigurationLoader(ClassLoader loader) {
-		super(loader);
+		super(loader, Paths.get("agentconfig"));
 	}
 	
-	public static Path defaultConfigPath() {
-		return Paths.get("agentconfig");
-	}
-
-	@Override
-	public <T> Stream<T> load(Class<T> clazz, Object... args) {
-		Builder<T> configurations = Stream.<T> builder();
-
-		Path lookupPath = defaultConfigPath().resolve(clazz.getName());
-		try {
-			configsFrom(lookupPath, clazz, args)
-				.map(this::logLoad)
-				.forEach(configurations::add);
-		} catch (FileNotFoundException | NoSuchFileException e) {
-			Logger.debug("did not find configuration file " + lookupPath + ", skipping");
-		} catch (IOException e) {
-			Logger.error("cannot load configuration file: " + lookupPath);
-		}
-		
-		return configurations.build();
-	}
-
 }
