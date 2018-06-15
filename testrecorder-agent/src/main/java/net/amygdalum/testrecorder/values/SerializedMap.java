@@ -1,14 +1,18 @@
 package net.amygdalum.testrecorder.values;
 
+import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.mostSpecialOf;
 import static net.amygdalum.testrecorder.util.Types.typeArgument;
+import static net.amygdalum.testrecorder.util.Types.typeArguments;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import net.amygdalum.testrecorder.types.Deserializer;
@@ -28,7 +32,7 @@ public class SerializedMap extends AbstractSerializedReferenceType implements Se
 
 	private Map<SerializedValue, SerializedValue> map;
 
-	public SerializedMap(Type type) {
+	public SerializedMap(Class<?> type) {
 		super(type);
 		this.map = new LinkedHashMap<>();
 	}
@@ -39,15 +43,41 @@ public class SerializedMap extends AbstractSerializedReferenceType implements Se
 	}
 
 	public Type getMapKeyType() {
-		return typeArgument(getType(), 0)
-			.orElse(typeArgument(mostSpecialOf(getUsedTypes()).orElse(Object.class), 0)
-				.orElse(Object.class));
+		Type[] candidates = Arrays.stream(getUsedTypes())
+			.filter(type -> typeArguments(type).count() == 2)
+			.map(type -> typeArgument(type, 0))
+			.filter(Optional::isPresent)
+			.map(Optional::get)
+			.filter(this::satisfiesKeyType)
+			.toArray(Type[]::new);
+		return mostSpecialOf(candidates)
+			.orElse(Object.class);
 	}
 
 	public Type getMapValueType() {
-		return typeArgument(getType(), 1)
-			.orElse(typeArgument(mostSpecialOf(getUsedTypes()).orElse(Object.class), 1)
-				.orElse(Object.class));
+		Type[] candidates = Arrays.stream(getUsedTypes())
+			.filter(type -> typeArguments(type).count() == 2)
+			.map(type -> typeArgument(type, 1))
+			.filter(Optional::isPresent)
+			.map(Optional::get)
+			.filter(this::satisfiesValueType)
+			.toArray(Type[]::new);
+		return mostSpecialOf(candidates)
+			.orElse(Object.class);
+	}
+
+	public boolean satisfiesKeyType(Type type) {
+		Class<?> baseType = baseType(type);
+		return map.keySet().stream()
+			.filter(value -> value.getType() != null)
+			.allMatch(value -> baseType.isAssignableFrom(value.getType()));
+	}
+
+	public boolean satisfiesValueType(Type type) {
+		Class<?> baseType = baseType(type);
+		return map.values().stream()
+			.filter(value -> value.getType() != null)
+			.allMatch(value -> baseType.isAssignableFrom(value.getType()));
 	}
 
 	@Override

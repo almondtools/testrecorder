@@ -149,7 +149,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 	public SerializedValue serialize(Type type, Object object, SerializerSession session) {
 		session.analyze(object);
 		if (object == null) {
-			return SerializedNull.nullInstance(serializableOf(type));
+			return SerializedNull.nullInstance(type == null ? null : baseType(type));
 		} else if (isLiteral(object.getClass()) && baseType(type).isPrimitive()) {
 			return SerializedLiteral.literal(baseType(type), object);
 		} else if (isLiteral(object.getClass())) {
@@ -164,7 +164,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 	@Override
 	public SerializedValue serializePlaceholder(Type type, Object object, SerializerSession session) {
 		if (object == null) {
-			return SerializedNull.nullInstance(serializableOf(type));
+			return SerializedNull.nullInstance(type == null ? null : baseType(type));
 		} else if (isLiteral(object.getClass()) && baseType(type).isPrimitive()) {
 			return SerializedLiteral.literal(baseType(type), object);
 		} else if (isLiteral(object.getClass())) {
@@ -185,7 +185,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 			try {
 				Class<?> functionalInterfaceType = classFrom(serializedLambda.getFunctionalInterfaceClass());
 				Serializer serializer = fetchSerializer(serializedLambda.getClass());
-				serializedObject = serializer.generate(serializableOf(functionalInterfaceType), session);
+				serializedObject = serializer.generate(functionalInterfaceType, session);
 				session.resolve(object, serializedObject);
 				if (serializedObject instanceof SerializedReferenceType) {
 					SerializedReferenceType serializedReferenceType = (SerializedReferenceType) serializedObject;
@@ -208,7 +208,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 		if (serializedObject == null) {
 			try {
 				Serializer serializer = fetchSerializer(object.getClass());
-				serializedObject = serializer.generate(serializableOf(object.getClass()), session);
+				serializedObject = serializer.generate(object.getClass(), session);
 				session.resolve(object, serializedObject);
 				if (serializedObject instanceof SerializedReferenceType) {
 					SerializedReferenceType serializedReferenceType = (SerializedReferenceType) serializedObject;

@@ -6,7 +6,6 @@ import static java.util.stream.Collectors.toList;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,7 +29,7 @@ public class ProxySerializer implements Serializer<SerializedProxy> {
 	}
 
 	@Override
-	public SerializedProxy generate(Type type, SerializerSession session) {
+	public SerializedProxy generate(Class<?> type, SerializerSession session) {
 		return new SerializedProxy(type);
 	}
 

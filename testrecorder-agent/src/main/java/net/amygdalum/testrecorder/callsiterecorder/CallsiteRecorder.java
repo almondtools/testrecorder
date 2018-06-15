@@ -32,7 +32,7 @@ import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.profile.SerializationProfile;
 import net.bytebuddy.agent.ByteBuddyAgent;
 
-public class CallsiteRecorder implements SnapshotConsumer {
+public class CallsiteRecorder implements SnapshotConsumer, AutoCloseable {
 
 	public static Instrumentation inst = ByteBuddyAgent.install();
 
@@ -41,6 +41,8 @@ public class CallsiteRecorder implements SnapshotConsumer {
 	private ThreadPoolExecutor executor;
 
 	private CompletableFuture<List<ContextSnapshot>> snapshots;
+
+	private TestRecorderAgent agent;
 
 
 	public CallsiteRecorder(Method... methods) {
@@ -67,7 +69,7 @@ public class CallsiteRecorder implements SnapshotConsumer {
 				.withDefaultValue(PerformanceProfile.class, DefaultPerformanceProfile::new)
 				.withDefaultValue(SnapshotConsumer.class, DefaultSnapshotConsumer::new);
 		
-		TestRecorderAgent agent = new TestRecorderAgent(inst, config);
+		agent = new TestRecorderAgent(inst, config);
 		agent.prepareInstrumentations();
 		try {
 			Class<?>[] classes = Arrays.stream(methods)
@@ -102,6 +104,13 @@ public class CallsiteRecorder implements SnapshotConsumer {
 			list.add(snapshot);
 			return list;
 		});
+	}
+
+	@Override
+	public void close() throws Exception {
+		if (agent != null) {
+			agent.clearInstrumentations();
+		}
 	}
 
 }

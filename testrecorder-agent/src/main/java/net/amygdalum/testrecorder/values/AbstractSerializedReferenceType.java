@@ -13,7 +13,7 @@ public abstract class AbstractSerializedReferenceType extends AbstractSerialized
     private int id;
     private Type[] usedTypes;
 
-    public AbstractSerializedReferenceType(Type type) {
+    public AbstractSerializedReferenceType(Class<?> type) {
         super(type);
     }
     

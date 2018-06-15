@@ -56,9 +56,9 @@ public class DefaultDequeSerializerTest {
 		SerializedValue bar = literal("Bar");
 		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
 		when(facade.serialize(String.class, "Bar", session)).thenReturn(bar);
-		Type linkedBlockingDequeOfString = parameterized(LinkedBlockingDeque.class, null, String.class);
-		SerializedList value = serializer.generate(linkedBlockingDequeOfString, session);
-		value.useAs(LinkedBlockingDeque.class);
+
+		SerializedList value = serializer.generate(LinkedBlockingDeque.class, session);
+		value.useAs(parameterized(LinkedBlockingDeque.class, null, String.class));
 
 		serializer.populate(value, new LinkedBlockingDeque<>(asList("Foo", "Bar")), session);
 

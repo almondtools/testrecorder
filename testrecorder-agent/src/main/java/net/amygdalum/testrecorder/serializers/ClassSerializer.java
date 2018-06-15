@@ -2,7 +2,6 @@ package net.amygdalum.testrecorder.serializers;
 
 import static java.util.Arrays.asList;
 
-import java.lang.reflect.Type;
 import java.util.List;
 
 import net.amygdalum.testrecorder.types.Serializer;
@@ -20,7 +19,7 @@ public class ClassSerializer implements Serializer<SerializedImmutable<Class<?>>
 	}
 
 	@Override
-	public SerializedImmutable<Class<?>> generate(Type type, SerializerSession session) {
+	public SerializedImmutable<Class<?>> generate(Class<?> type, SerializerSession session) {
 		return new SerializedImmutable<>(type);
 	}
 

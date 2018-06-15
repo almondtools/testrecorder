@@ -36,10 +36,9 @@ public class SetValueTest {
 		m.add("bar");
 
 		assertThat(codeSerializer.serialize(parameterized(Set.class, null, String.class), m)).containsWildcardPattern(""
-			+ "LinkedHashSet temp1 = new LinkedHashSet<>();*"
-			+ "temp1.add(\"foo\");*"
-			+ "temp1.add(\"bar\");*"
-			+ "Set<String> set1 = temp1;");
+			+ "Set<String> linkedHashSet1 = new LinkedHashSet<>();*"
+			+ "linkedHashSet1.add(\"foo\");*"
+			+ "linkedHashSet1.add(\"bar\");*");
 	}
 
 }

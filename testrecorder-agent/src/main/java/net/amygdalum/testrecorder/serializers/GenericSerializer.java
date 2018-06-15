@@ -2,10 +2,8 @@ package net.amygdalum.testrecorder.serializers;
 
 import static java.util.Collections.emptyList;
 import static net.amygdalum.testrecorder.util.Types.baseType;
-import static net.amygdalum.testrecorder.util.Types.serializableOf;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 import java.util.List;
 
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
@@ -28,9 +26,9 @@ public class GenericSerializer implements Serializer<SerializedReferenceType> {
 	}
 
 	@Override
-	public SerializedReferenceType generate(Type type, SerializerSession session) {
+	public SerializedReferenceType generate(Class<?> type, SerializerSession session) {
 		if (session.excludes(baseType(type))) {
-			return SerializedNull.nullInstance(serializableOf(type));
+			return SerializedNull.nullInstance(type);
 		} else {
 			return new SerializedObject(type);
 		}

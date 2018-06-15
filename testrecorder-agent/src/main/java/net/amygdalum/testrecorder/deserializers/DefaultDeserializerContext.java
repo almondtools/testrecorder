@@ -317,11 +317,7 @@ public class DefaultDeserializerContext implements DeserializerContext {
 		}
 
 		@Override
-		public void setType(Type type) {
-		}
-
-		@Override
-		public Type getType() {
+		public Class<?> getType() {
 			return Class.class;
 		}
 

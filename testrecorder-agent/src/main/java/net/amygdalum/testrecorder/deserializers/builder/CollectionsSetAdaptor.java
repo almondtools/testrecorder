@@ -72,7 +72,8 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
 	}
 
 	private Computation createOrdinarySet(SerializedSet value, SetupGenerators generator, DeserializerContext context) {
-		SerializedSet baseValue = new SerializedSet(parameterized(LinkedHashSet.class, null, value.getComponentType()));
+		SerializedSet baseValue = new SerializedSet(LinkedHashSet.class);
+		baseValue.useAs(parameterized(LinkedHashSet.class, null, value.getComponentType()));
 		baseValue.addAll(value);
 		return adaptor.tryDeserialize(baseValue, generator, context);
 	}

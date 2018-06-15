@@ -27,7 +27,7 @@ public class DefaultSetSerializer implements Serializer<SerializedSet> {
 	}
 
 	@Override
-	public SerializedSet generate(Type type, SerializerSession session) {
+	public SerializedSet generate(Class<?> type, SerializerSession session) {
 		return new SerializedSet(type);
 	}
 

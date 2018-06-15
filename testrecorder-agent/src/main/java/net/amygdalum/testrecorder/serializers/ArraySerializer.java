@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder.serializers;
 import static java.util.Collections.emptyList;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Type;
 import java.util.List;
 
 import net.amygdalum.testrecorder.types.Serializer;
@@ -24,7 +23,7 @@ public class ArraySerializer implements Serializer<SerializedArray> {
 	}
 
 	@Override
-	public SerializedArray generate(Type type, SerializerSession session) {
+	public SerializedArray generate(Class<?> type, SerializerSession session) {
 		return new SerializedArray(type);
 	}
 

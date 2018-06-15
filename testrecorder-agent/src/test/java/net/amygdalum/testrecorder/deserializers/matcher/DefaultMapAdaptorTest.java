@@ -2,11 +2,14 @@ package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.TestAgentConfiguration.defaultConfig;
+import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.lang.reflect.Type;
 import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +56,8 @@ public class DefaultMapAdaptorTest {
 
 	@Test
 	public void testTryDeserializeExplicitelyTypedMap() throws Exception {
-		SerializedMap value = new SerializedMap(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class));
+		SerializedMap value = new SerializedMap(LinkedHashMap.class);
+		value.useAs(parameterized(Map.class, null, Integer.class, Integer.class));
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
 		MatcherGenerators generator = generator();
@@ -74,14 +78,14 @@ public class DefaultMapAdaptorTest {
 		value.put(literal(47), literal(11));
 		MatcherGenerators generator = generator();
 		Computation result = adaptor.tryDeserialize(value, generator, context);
-		
+
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo(""
 			+ "containsEntries(Integer.class, Integer.class)"
 			+ ".entry(8, 15)"
 			+ ".entry(47, 11)");
 	}
-	
+
 	@Test
 	public void testTryDeserializeRawMap() throws Exception {
 		SerializedMap value = new SerializedMap(LinkedHashMap.class);
@@ -99,7 +103,8 @@ public class DefaultMapAdaptorTest {
 
 	@Test
 	public void testTryDeserializeEmptyMap() throws Exception {
-		SerializedMap value = new SerializedMap(parameterized(Map.class, null, BigInteger.class, String.class));
+		SerializedMap value = new SerializedMap(HashMap.class);
+		value.useAs(parameterized(Map.class, null, BigInteger.class, String.class));
 		MatcherGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
@@ -112,20 +117,23 @@ public class DefaultMapAdaptorTest {
 	public void testTryDeserializeEmptyRawMap() throws Exception {
 		SerializedMap value = new SerializedMap(Map.class);
 		MatcherGenerators generator = generator();
-		
+
 		Computation result = adaptor.tryDeserialize(value, generator, context);
-		
+
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("noEntries()");
 	}
-	
+
 	@Test
 	public void testTryDeserializeGenericComponents() throws Exception {
-		SerializedMap value = new SerializedMap(parameterized(LinkedHashMap.class, null, parameterized(List.class, null, String.class), parameterized(Set.class, null, String.class)));
-		value.put(new SerializedList(parameterized(List.class, null, String.class)).with(literal("str1")), new SerializedSet(parameterized(Set.class, null, String.class)).with(literal("str1")));
-		value.put(new SerializedList(parameterized(List.class, null, String.class)).with(literal("str2"), literal("str3")),
-			new SerializedSet(parameterized(Set.class, null, String.class)).with(literal("str2"), literal("str3")));
-		value.put(new SerializedList(parameterized(List.class, null, String.class)), new SerializedSet(parameterized(Set.class, null, String.class)));
+		SerializedMap value = new SerializedMap(LinkedHashMap.class);
+		value.useAs(parameterized(LinkedHashMap.class, null, parameterized(List.class, null, String.class), parameterized(Set.class, null, String.class)));
+		value.put(list(parameterized(List.class, null, String.class)).with(literal("str1")), 
+			set(parameterized(Set.class, null, String.class)).with(literal("str1")));
+		value.put(list(parameterized(List.class, null, String.class)).with(literal("str2"), literal("str3")),
+			set(parameterized(Set.class, null, String.class)).with(literal("str2"), literal("str3")));
+		value.put(list(parameterized(List.class, null, String.class)), 
+			set(parameterized(Set.class, null, String.class)));
 
 		MatcherGenerators generator = generator();
 
@@ -141,7 +149,8 @@ public class DefaultMapAdaptorTest {
 
 	@Test
 	public void testTryDeserializeHiddenComponents() throws Exception {
-		SerializedMap value = new SerializedMap(parameterized(LinkedHashMap.class, null, Hidden.classOfCompletelyHidden(), Hidden.classOfCompletelyHidden()));
+		SerializedMap value = new SerializedMap(LinkedHashMap.class);
+		value.useAs(parameterized(LinkedHashMap.class, null, Hidden.classOfCompletelyHidden(), Hidden.classOfCompletelyHidden()));
 		value.put(new SerializedObject(Hidden.classOfCompletelyHidden()), new SerializedObject(Hidden.classOfCompletelyHidden()));
 
 		MatcherGenerators generator = generator();
@@ -154,6 +163,18 @@ public class DefaultMapAdaptorTest {
 			+ ".entry("
 			+ "new GenericMatcher() {*}.matching(clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$CompletelyHidden\")),*"
 			+ "new GenericMatcher() {*}.matching(clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$CompletelyHidden\")))");
+	}
+	
+	private SerializedList list(Type type) {
+		SerializedList list = new SerializedList(baseType(type));
+		list.useAs(type);
+		return list;
+	}
+
+	private SerializedSet set(Type type) {
+		SerializedSet set = new SerializedSet(baseType(type));
+		set.useAs(type);
+		return set;
 	}
 
 	private MatcherGenerators generator() {

@@ -60,9 +60,9 @@ public class DefaultQueueSerializerTest {
 		SerializedValue bar = literal("Bar");
 		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
 		when(facade.serialize(String.class, "Bar", session)).thenReturn(bar);
-		Type linkedBlockingQueueOfString = parameterized(LinkedBlockingQueue.class, null, String.class);
-		SerializedList value = serializer.generate(linkedBlockingQueueOfString, session);
-		value.useAs(LinkedBlockingQueue.class);
+
+		SerializedList value = serializer.generate(LinkedBlockingQueue.class, session);
+		value.useAs(parameterized(LinkedBlockingQueue.class, null, String.class));
 
 		serializer.populate(value, new LinkedBlockingQueue<>(asList("Foo", "Bar")), session);
 

@@ -16,7 +16,11 @@ public class SerializedInput extends AbstractSerializedInteraction implements Se
 	}
 
 	public SerializedInput updateArguments(SerializedValue... arguments) {
-		this.arguments = arguments;
+		if (arguments != null) {
+			this.arguments = arguments;
+		} else {
+			this.arguments = new SerializedValue[0];
+		}
 		return this;
 	}
 

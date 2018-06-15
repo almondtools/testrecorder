@@ -34,7 +34,7 @@ public class CollectionsSetSerializer extends HiddenInnerClassSerializer<Seriali
 	}
 
 	@Override
-	public SerializedSet generate(Type type, SerializerSession session) {
+	public SerializedSet generate(Class<?> type, SerializerSession session) {
 		return new SerializedSet(type);
 	}
 

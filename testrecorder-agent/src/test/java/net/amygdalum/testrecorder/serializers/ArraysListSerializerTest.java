@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -40,14 +41,13 @@ public class ArraysListSerializerTest {
 
 	@Test
 	public void testGenerate() throws Exception {
-		Type arrayListOfString = parameterized(innerType(Arrays.class, "ArrayList"), null, String.class);
 		Type listOfString = parameterized(List.class, null, String.class);
 
-		SerializedList value = serializer.generate(arrayListOfString, session);
+		SerializedList value = serializer.generate(ArrayList.class, session);
 		value.useAs(listOfString);
 
 		assertThat(value.getUsedTypes()).containsExactly(listOfString);
-		assertThat(value.getType()).isEqualTo(arrayListOfString);
+		assertThat(value.getType()).isEqualTo(ArrayList.class);
 		assertThat(value.getComponentType()).isEqualTo(String.class);
 	}
 
@@ -58,8 +58,7 @@ public class ArraysListSerializerTest {
 		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
 		when(facade.serialize(String.class, "Bar", session)).thenReturn(bar);
 		Type arrayListOfString = parameterized(innerType(Arrays.class, "ArrayList"), null, String.class);
-		Type listOfString = parameterized(List.class, null, String.class);
-		SerializedList value = serializer.generate(listOfString, session);
+		SerializedList value = serializer.generate(ArrayList.class, session);
 		value.useAs(arrayListOfString);
 
 		serializer.populate(value, asList("Foo", "Bar"), session);

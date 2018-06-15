@@ -56,9 +56,9 @@ public class DefaultListSerializerTest {
 		SerializedValue bar = literal("Bar");
 		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
 		when(facade.serialize(String.class, "Bar", session)).thenReturn(bar);
-		Type linkedListOfString = parameterized(LinkedList.class, null, String.class);
-		SerializedList value = serializer.generate(linkedListOfString, session);
-		value.useAs(LinkedList.class);
+
+		SerializedList value = serializer.generate(LinkedList.class, session);
+		value.useAs(parameterized(LinkedList.class, null, String.class));
 
 		serializer.populate(value, asList("Foo", "Bar"), session);
 

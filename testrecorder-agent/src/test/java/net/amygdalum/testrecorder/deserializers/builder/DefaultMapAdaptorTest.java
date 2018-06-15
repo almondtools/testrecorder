@@ -3,6 +3,7 @@ package net.amygdalum.testrecorder.deserializers.builder;
 import static java.util.Arrays.asList;
 import static net.amygdalum.testrecorder.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
+import static net.amygdalum.testrecorder.util.Types.wildcard;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenMap;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,7 +60,7 @@ public class DefaultMapAdaptorTest {
 
 	@Test
 	public void testTryDeserializeExplicitelyTyped() throws Exception {
-		SerializedMap value = new SerializedMap(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class));
+		SerializedMap value = new SerializedMap(LinkedHashMap.class);
 		value.useAs(parameterized(Map.class, null, Integer.class, Integer.class));
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
@@ -68,16 +69,16 @@ public class DefaultMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
-			"LinkedHashMap<Integer, Integer> temp1 = new LinkedHashMap<Integer, Integer>()",
-			"temp1.put(8, 15)",
-			"temp1.put(47, 11)",
-			"Map<Integer, Integer> map1 = temp1;");
-		assertThat(result.getValue()).isEqualTo("map1");
+			"Map<Integer, Integer> linkedHashMap1 = new LinkedHashMap<>()",
+			"linkedHashMap1.put(8, 15)",
+			"linkedHashMap1.put(47, 11)");
+		assertThat(result.getValue()).isEqualTo("linkedHashMap1");
 	}
 
 	@Test
 	public void testTryDeserialize() throws Exception {
 		SerializedMap value = new SerializedMap(LinkedHashMap.class);
+		value.useAs(parameterized(Map.class, null, wildcard(), wildcard()));
 		value.useAs(parameterized(Map.class, null, Integer.class, Integer.class));
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
@@ -95,8 +96,8 @@ public class DefaultMapAdaptorTest {
 
 	@Test
 	public void testTryDeserializeSameResultTypes() throws Exception {
-		SerializedMap value = new SerializedMap(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class));
-		value.useAs(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class));
+		SerializedMap value = new SerializedMap(LinkedHashMap.class);
+		value.useAs(LinkedHashMap.class);
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
 		SetupGenerators generator = generator();
@@ -104,15 +105,15 @@ public class DefaultMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
-			"LinkedHashMap<Integer, Integer> linkedHashMap1 = new LinkedHashMap<Integer, Integer>()",
+			"LinkedHashMap linkedHashMap1 = new LinkedHashMap<>()",
 			"linkedHashMap1.put(8, 15)",
 			"linkedHashMap1.put(47, 11)");
 		assertThat(result.getValue()).isEqualTo("linkedHashMap1");
 	}
 
 	@Test
-	public void testTryDeserializeNonListResult() throws Exception {
-		SerializedMap value = new SerializedMap(parameterized(PublicMap.class, null, Integer.class, Integer.class));
+	public void testTryDeserializeNonMapResult() throws Exception {
+		SerializedMap value = new SerializedMap(PublicMap.class);
 		value.useAs(OrthogonalInterface.class);
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
@@ -121,7 +122,7 @@ public class DefaultMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
-			"PublicMap<Integer, Integer> temp1 = new PublicMap<Integer, Integer>()",
+			"PublicMap temp1 = new PublicMap<>()",
 			"temp1.put(8, 15)",
 			"temp1.put(47, 11)",
 			"OrthogonalInterface orthogonalInterface1 = temp1;");
@@ -130,7 +131,7 @@ public class DefaultMapAdaptorTest {
 
 	@Test
 	public void testTryDeserializeNeedingAdaptation() throws Exception {
-		SerializedMap value = new SerializedMap(parameterized(classOfHiddenMap(), null, Integer.class, Integer.class));
+		SerializedMap value = new SerializedMap(classOfHiddenMap());
 		value.useAs(OrthogonalInterface.class);
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
@@ -148,7 +149,7 @@ public class DefaultMapAdaptorTest {
 
 	@Test
 	public void testTryDeserializeHiddenType() throws Exception {
-		SerializedMap value = new SerializedMap(parameterized(classOfHiddenMap(), null, Integer.class, Integer.class));
+		SerializedMap value = new SerializedMap(classOfHiddenMap());
 		value.useAs(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class));
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
@@ -166,7 +167,7 @@ public class DefaultMapAdaptorTest {
 
 	@Test
 	public void testTryDeserializeForwarded() throws Exception {
-		SerializedMap value = new SerializedMap(parameterized(LinkedHashMap.class, null, Integer.class, Integer.class));
+		SerializedMap value = new SerializedMap(LinkedHashMap.class);
 		value.useAs(parameterized(Map.class, null, Integer.class, Integer.class));
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
@@ -182,10 +183,9 @@ public class DefaultMapAdaptorTest {
 		});
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
-			"LinkedHashMap<Integer, Integer> temp1 = new LinkedHashMap<Integer, Integer>()",
-			"temp1.put(8, 15)",
-			"temp1.put(47, 11)",
-			"forwarded.putAll(temp1);");
+			"Map<Integer, Integer> forwarded = new LinkedHashMap<>()",
+			"forwarded.put(8, 15)",
+			"forwarded.put(47, 11)");
 		assertThat(result.getValue()).isEqualTo("forwarded");
 	}
 
@@ -201,27 +201,26 @@ public class DefaultMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
-			"ArrayList<Integer> temp1 = new ArrayList<Integer>();",
+			"ArrayList temp1 = new ArrayList<>();",
 			"temp1.add(15);",
-			"List<Integer> list1 = (List<Integer>) (List) temp1;",
-			"ArrayList<Integer> temp2 = new ArrayList<Integer>();",
+			"List<Integer> list1 = (List<Integer>) temp1;",
+			"ArrayList temp2 = new ArrayList<>();",
 			"temp2.add(11);",
 			"temp2.add(11);",
-			"List<Integer> list2 = (List<Integer>) (List) temp2;",
-			"ArrayList<Integer> temp3 = new ArrayList<Integer>();",
+			"List<Integer> list2 = (List<Integer>) temp2;",
+			"ArrayList temp3 = new ArrayList<>();",
 			"temp3.add(15);",
 			"temp3.add(47);",
-			"List<Integer> list3 = (List<Integer>) (List) temp3;",
-			"LinkedHashMap temp4 = new LinkedHashMap<>()",
-			"temp4.put(8, list1)",
-			"temp4.put(47, list2)",
-			"temp4.put(11, list3)",
-			"Map<Integer, List<Integer>> map1 = temp4;");
-		assertThat(result.getValue()).isEqualTo("map1");
+			"List<Integer> list3 = (List<Integer>) temp3;",
+			"Map<Integer, List<Integer>> linkedHashMap1 = new LinkedHashMap<>()",
+			"linkedHashMap1.put(8, list1)",
+			"linkedHashMap1.put(47, list2)",
+			"linkedHashMap1.put(11, list3)");
+		assertThat(result.getValue()).isEqualTo("linkedHashMap1");
 	}
 
 	private SerializedList listOf(Class<?> type, SerializedValue... values) {
-		SerializedList list = new SerializedList(parameterized(ArrayList.class, null, type));
+		SerializedList list = new SerializedList(ArrayList.class);
 		list.useAs(parameterized(List.class, null, type));
 		list.addAll(asList(values));
 		return list;

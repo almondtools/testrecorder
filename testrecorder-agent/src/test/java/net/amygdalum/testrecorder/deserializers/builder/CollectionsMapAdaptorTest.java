@@ -237,7 +237,7 @@ public class CollectionsMapAdaptorTest {
 	private List<String> mapDecoratedBy(String factory, int[]... elements) {
 		List<String> matchers = new ArrayList<>();
 
-		matchers.add("LinkedHashMap<Integer, Integer> linkedHashMap1 = new LinkedHashMap<Integer, Integer>()");
+		matchers.add("LinkedHashMap<Integer, Integer> linkedHashMap1 = new LinkedHashMap<>()");
 		for (int[] element : elements) {
 			matchers.add("linkedHashMap1.put(" + element[0] + ", " + element[1] + "");
 		}
@@ -249,7 +249,7 @@ public class CollectionsMapAdaptorTest {
 	private List<String> rawMapDecoratedBy(String factory, int[]... elements) {
 		List<String> matchers = new ArrayList<>();
 
-		matchers.add("LinkedHashMap<Object, Object> linkedHashMap1 = new LinkedHashMap<Object, Object>()");
+		matchers.add("LinkedHashMap<Object, Object> linkedHashMap1 = new LinkedHashMap<>()");
 		for (int[] element : elements) {
 			matchers.add("linkedHashMap1.put(" + element[0] + ", " + element[1] + "");
 		}
@@ -273,7 +273,7 @@ public class CollectionsMapAdaptorTest {
 	private List<String> mapDecoratedBy(String factory, Class<?> keyClazz, Class<?> valueClazz, int[]... elements) {
 		List<String> matchers = new ArrayList<>();
 
-		matchers.add("LinkedHashMap<Integer, Integer> linkedHashMap1 = new LinkedHashMap<Integer, Integer>()");
+		matchers.add("LinkedHashMap<Integer, Integer> linkedHashMap1 = new LinkedHashMap<>()");
 		for (int element[] : elements) {
 			matchers.add("linkedHashMap1.put(" + element[0] + ", " + element[1] + "");
 		}

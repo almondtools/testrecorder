@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.deserializers.builder;
 
 import static net.amygdalum.testrecorder.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
+import static net.amygdalum.testrecorder.util.Types.wildcard;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenQueue;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,7 +57,7 @@ public class DefaultQueueAdaptorTest {
 
 	@Test
 	public void testTryDeserializeExplicitelyTyped() throws Exception {
-		SerializedList value = new SerializedList(parameterized(LinkedList.class, null, Integer.class));
+		SerializedList value = new SerializedList(LinkedList.class);
 		value.useAs(parameterized(List.class, null, Integer.class));
 		value.add(literal(0));
 		value.add(literal(8));
@@ -66,18 +67,18 @@ public class DefaultQueueAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
-			"LinkedList<Integer> temp1 = new LinkedList<Integer>()",
-			"temp1.add(0)",
-			"temp1.add(8)",
-			"temp1.add(15)",
-			"List<Integer> list1 = temp1;");
-		assertThat(result.getValue()).isEqualTo("list1");
+			"List<Integer> linkedList1 = new LinkedList<>()",
+			"linkedList1.add(0)",
+			"linkedList1.add(8)",
+			"linkedList1.add(15)");
+		assertThat(result.getValue()).isEqualTo("linkedList1");
 	}
 
 	@Test
 	public void testTryDeserialize() throws Exception {
 		SerializedList value = new SerializedList(LinkedList.class);
-		value.useAs(parameterized(List.class, null, Integer.class));
+		value.useAs(parameterized(Queue.class, null, wildcard()));
+		value.useAs(parameterized(Queue.class, null, Integer.class));
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
@@ -90,14 +91,14 @@ public class DefaultQueueAdaptorTest {
 			"temp1.add(0)",
 			"temp1.add(8)",
 			"temp1.add(15)",
-			"List<Integer> list1 = temp1;");
-		assertThat(result.getValue()).isEqualTo("list1");
+			"Queue<Integer> queue1 = temp1;");
+		assertThat(result.getValue()).isEqualTo("queue1");
 	}
 	
 	@Test
 	public void testTryDeserializeSameResultTypes() throws Exception {
-		SerializedList value = new SerializedList(parameterized(LinkedList.class, null, Integer.class));
-		value.useAs(parameterized(LinkedList.class, null, Integer.class));
+		SerializedList value = new SerializedList(LinkedList.class);
+		value.useAs(LinkedList.class);
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
@@ -106,7 +107,7 @@ public class DefaultQueueAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
-			"LinkedList<Integer> linkedList1 = new LinkedList<Integer>()",
+			"LinkedList linkedList1 = new LinkedList<>()",
 			"linkedList1.add(0)",
 			"linkedList1.add(8)",
 			"linkedList1.add(15)");
@@ -114,8 +115,8 @@ public class DefaultQueueAdaptorTest {
 	}
 
 	@Test
-	public void testTryDeserializeNonListResult() throws Exception {
-		SerializedList value = new SerializedList(parameterized(PublicQueue.class, null, Integer.class));
+	public void testTryDeserializeNonQueueResult() throws Exception {
+		SerializedList value = new SerializedList(PublicQueue.class);
 		value.useAs(OrthogonalInterface.class);
 		value.add(literal(0));
 		value.add(literal(8));
@@ -125,7 +126,7 @@ public class DefaultQueueAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
-			"PublicQueue<Integer> temp1 = new PublicQueue<Integer>()",
+			"PublicQueue temp1 = new PublicQueue<>()",
 			"temp1.add(0)",
 			"temp1.add(8)",
 			"temp1.add(15)",
@@ -135,7 +136,7 @@ public class DefaultQueueAdaptorTest {
 
 	@Test
 	public void testTryDeserializeNeedingAdaptation() throws Exception {
-		SerializedList value = new SerializedList(parameterized(classOfHiddenQueue(), null, Integer.class));
+		SerializedList value = new SerializedList(classOfHiddenQueue());
 		value.useAs(OrthogonalInterface.class);
 		value.add(literal(0));
 		value.add(literal(8));
@@ -155,7 +156,7 @@ public class DefaultQueueAdaptorTest {
 
 	@Test
 	public void testTryDeserializeHiddenType() throws Exception {
-		SerializedList value = new SerializedList(parameterized(classOfHiddenQueue(), null, Integer.class));
+		SerializedList value = new SerializedList(classOfHiddenQueue());
 		value.useAs(parameterized(LinkedList.class, null, Integer.class));
 		value.add(literal(0));
 		value.add(literal(8));
@@ -175,7 +176,7 @@ public class DefaultQueueAdaptorTest {
 
 	@Test
 	public void testTryDeserializeForwarded() throws Exception {
-		SerializedList value = new SerializedList(parameterized(LinkedList.class, null, Integer.class));
+		SerializedList value = new SerializedList(LinkedList.class);
 		value.useAs(parameterized(List.class, null, Integer.class));
 		value.add(literal(0));
 		value.add(literal(8));
@@ -192,11 +193,10 @@ public class DefaultQueueAdaptorTest {
 		});
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
-			"LinkedList<Integer> temp1 = new LinkedList<Integer>()",
-			"temp1.add(0)",
-			"temp1.add(8)",
-			"temp1.add(15)",
-			"forwarded.addAll(temp1);");
+			"List<Integer> forwarded = new LinkedList<>()",
+			"forwarded.add(0)",
+			"forwarded.add(8)",
+			"forwarded.add(15)");
 		assertThat(result.getValue()).isEqualTo("forwarded");
 	}
 

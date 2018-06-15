@@ -33,9 +33,8 @@ public class MapValueTest {
 		m.put("bar", new Integer(21));
 
 		assertThat(codeSerializer.serialize(parameterized(Map.class, null, String.class, Integer.class), m)).containsWildcardPattern(""
-			+ "LinkedHashMap temp1 = new LinkedHashMap<>();*"
-			+ "temp1.put(\"bar\", 21);*"
-			+ "Map<String, Integer> map1 = temp1;");
+			+ "Map<String, Integer> linkedHashMap1 = new LinkedHashMap<>();*"
+			+ "linkedHashMap1.put(\"bar\", 21);*");
 	}
 
 }

@@ -1,6 +1,5 @@
 package net.amygdalum.testrecorder.values;
 
-import java.lang.reflect.Type;
 import java.util.List;
 
 import net.amygdalum.testrecorder.types.Deserializer;
@@ -13,7 +12,7 @@ public class SerializedLambdaObject extends AbstractSerializedReferenceType impl
 	private LambdaSignature signature;
 	private List<SerializedValue> capturedArguments;
 
-	public SerializedLambdaObject(Type type) {
+	public SerializedLambdaObject(Class<?> type) {
 		super(type);
 	}
 

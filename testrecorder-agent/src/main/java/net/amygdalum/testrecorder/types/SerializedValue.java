@@ -23,9 +23,7 @@ public interface SerializedValue extends Serializable {
 
 	Type[] getUsedTypes();
 	
-	void setType(Type type);
-
-	Type getType();
+	Class<?> getType();
 
 	List<SerializedValue> referencedValues();
 

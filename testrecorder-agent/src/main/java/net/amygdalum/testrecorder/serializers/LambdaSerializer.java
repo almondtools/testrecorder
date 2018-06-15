@@ -4,7 +4,6 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 import java.lang.invoke.SerializedLambda;
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -28,7 +27,7 @@ public class LambdaSerializer implements Serializer<SerializedLambdaObject> {
 	}
 
 	@Override
-	public SerializedLambdaObject generate(Type type, SerializerSession session) {
+	public SerializedLambdaObject generate(Class<?> type, SerializerSession session) {
 		return new SerializedLambdaObject(type);
 	}
 

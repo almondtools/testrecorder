@@ -2,11 +2,14 @@ package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.TestAgentConfiguration.defaultConfig;
+import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.lang.reflect.Type;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -49,7 +52,8 @@ public class DefaultSequenceAdaptorTest {
 
 	@Test
 	public void testTryDeserializeExplicitelyTypedList() throws Exception {
-		SerializedList value = new SerializedList(parameterized(List.class, null, BigInteger.class));
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(parameterized(List.class, null, BigInteger.class));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(0)));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(8)));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(15)));
@@ -91,9 +95,9 @@ public class DefaultSequenceAdaptorTest {
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(8)));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(15)));
 		MatcherGenerators generator = generator();
-		
+
 		Computation result = adaptor.tryDeserialize(value, generator, context);
-		
+
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo(""
 			+ "containsInOrder("
@@ -101,10 +105,11 @@ public class DefaultSequenceAdaptorTest {
 			+ "equalTo(new BigInteger(\"8\")), "
 			+ "equalTo(new BigInteger(\"15\")))");
 	}
-	
+
 	@Test
 	public void testTryDeserializeEmptyList() throws Exception {
-		SerializedList value = new SerializedList(parameterized(List.class, null, BigInteger.class));
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(parameterized(List.class, null, BigInteger.class));
 
 		MatcherGenerators generator = generator();
 
@@ -127,10 +132,11 @@ public class DefaultSequenceAdaptorTest {
 
 	@Test
 	public void testTryDeserializeGenericComponents() throws Exception {
-		SerializedList value = new SerializedList(parameterized(List.class, null, parameterized(List.class, null, String.class)));
-		value.add(new SerializedList(parameterized(List.class, null, String.class)).with(literal("str1")));
-		value.add(new SerializedList(parameterized(List.class, null, String.class)).with(literal("str2"), literal("str3")));
-		value.add(new SerializedList(parameterized(List.class, null, String.class)));
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(parameterized(List.class, null, parameterized(List.class, null, String.class)));
+		value.add(list(parameterized(List.class, null, String.class)).with(literal("str1")));
+		value.add(list(parameterized(List.class, null, String.class)).with(literal("str2"), literal("str3")));
+		value.add(list(parameterized(List.class, null, String.class)));
 
 		MatcherGenerators generator = generator();
 
@@ -146,7 +152,8 @@ public class DefaultSequenceAdaptorTest {
 
 	@Test
 	public void testTryDeserializeHiddenComponents() throws Exception {
-		SerializedList value = new SerializedList(parameterized(List.class, null, Hidden.classOfCompletelyHidden()));
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(parameterized(List.class, null, Hidden.classOfCompletelyHidden()));
 		value.add(new SerializedObject(Hidden.classOfCompletelyHidden()));
 
 		MatcherGenerators generator = generator();
@@ -157,6 +164,12 @@ public class DefaultSequenceAdaptorTest {
 		assertThat(result.getValue()).containsWildcardPattern(""
 			+ "containsInOrder(Object.class, "
 			+ "new GenericMatcher() {*}.matching(clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$CompletelyHidden\")))");
+	}
+
+	private SerializedList list(Type type) {
+		SerializedList list = new SerializedList(baseType(type));
+		list.useAs(type);
+		return list;
 	}
 
 	private MatcherGenerators generator() {

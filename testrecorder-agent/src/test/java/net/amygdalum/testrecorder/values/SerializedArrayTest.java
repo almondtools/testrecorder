@@ -7,6 +7,7 @@ import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -42,7 +43,11 @@ public class SerializedArrayTest {
 
 	@Test
 	public void testGetComponentTypeOnGenericArray() throws Exception {
-		SerializedArray array = new SerializedArray(Types.serializableOf(SerializedArrayTest.class.getDeclaredField("genericArray").getGenericType()));
+		Field genericArrayField = SerializedArrayTest.class.getDeclaredField("genericArray");
+		
+		SerializedArray array = new SerializedArray(genericArrayField.getType());
+		array.useAs(Types.serializableOf(genericArrayField.getGenericType()));
+		
 		assertThat(array.getComponentType()).isEqualTo(parameterized(List.class, null, String.class));
 	}
 
@@ -61,7 +66,9 @@ public class SerializedArrayTest {
 
 	@Test
 	public void testGetRawTypeOnGenericArray() throws Exception {
-		SerializedArray array = new SerializedArray(array(parameterized(List.class, null, String.class)));
+		SerializedArray array = new SerializedArray(List[].class);
+		array.useAs(array(parameterized(List.class, null, String.class)));
+		
 		assertThat(array.getRawType()).isEqualTo(List.class);
 	}
 

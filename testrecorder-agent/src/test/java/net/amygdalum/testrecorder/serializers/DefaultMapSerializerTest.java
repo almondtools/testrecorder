@@ -58,9 +58,9 @@ public class DefaultMapSerializerTest {
 		SerializedValue i42 = literal(Integer.class, 42);
 		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
 		when(facade.serialize(Integer.class, 42, session)).thenReturn(i42);
-		Type hashMapOfStringInteger = parameterized(HashMap.class, null, String.class, Integer.class);
-		SerializedMap value = serializer.generate(hashMapOfStringInteger, session);
-		value.useAs(HashMap.class);
+
+		SerializedMap value = serializer.generate(HashMap.class, session);
+		value.useAs(parameterized(HashMap.class, null, String.class, Integer.class));
 
 		serializer.populate(value, singletonMap("Foo", 42), session);
 

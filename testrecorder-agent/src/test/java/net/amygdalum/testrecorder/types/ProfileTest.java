@@ -9,8 +9,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.types.Profile;
-
 public class ProfileTest {
 
 	@Test

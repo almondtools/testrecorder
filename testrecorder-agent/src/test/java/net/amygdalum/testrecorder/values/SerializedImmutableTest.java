@@ -2,8 +2,6 @@ package net.amygdalum.testrecorder.values;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.lang.reflect.Type;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -49,7 +47,7 @@ public class SerializedImmutableTest {
 	}
 
 	private static class AnImmutable extends SerializedImmutable<String> {
-		private AnImmutable(Type type) {
+		private AnImmutable(Class<?> type) {
 			super(type);
 		}
 

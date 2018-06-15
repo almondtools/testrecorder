@@ -2,7 +2,6 @@ package net.amygdalum.testrecorder.serializers;
 
 import static java.util.Arrays.asList;
 
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -21,7 +20,7 @@ public class BigDecimalSerializer implements Serializer<SerializedImmutable<BigD
 	}
 
 	@Override
-	public SerializedImmutable<BigDecimal> generate(Type type, SerializerSession session) {
+	public SerializedImmutable<BigDecimal> generate(Class<?> type, SerializerSession session) {
 		return new SerializedImmutable<>(type);
 	}
 

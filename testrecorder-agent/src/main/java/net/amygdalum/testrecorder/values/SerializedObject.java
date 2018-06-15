@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder.values;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +21,7 @@ public class SerializedObject extends AbstractSerializedReferenceType implements
 
 	private List<SerializedField> fields;
 
-	public SerializedObject(Type type) {
+	public SerializedObject(Class<?> type) {
 		super(type);
 		this.fields = new ArrayList<>();
 	}

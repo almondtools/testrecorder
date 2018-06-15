@@ -9,7 +9,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -53,14 +52,13 @@ public class CollectionsSetSerializerTest {
 
 	@Test
 	public void testGenerate() throws Exception {
-		Type unmodifiableSetOfString = parameterized(innerType(Collections.class, "UnmodifiableSet"), null, String.class);
-		Type setOfString = parameterized(Set.class, null, String.class);
+		Class<?> unmodifiableSet = innerType(Collections.class, "UnmodifiableSet");
+		
+		SerializedSet value = serializer.generate(unmodifiableSet, session);
+		value.useAs(parameterized(Set.class, null, String.class));
 
-		SerializedSet value = serializer.generate(unmodifiableSetOfString, session);
-		value.useAs(setOfString);
-
-		assertThat(value.getUsedTypes()).containsExactly(setOfString);
-		assertThat(value.getType()).isEqualTo(unmodifiableSetOfString);
+		assertThat(value.getUsedTypes()).containsExactly(parameterized(Set.class, null, String.class));
+		assertThat(value.getType()).isEqualTo(unmodifiableSet);
 		assertThat(value.getComponentType()).isEqualTo(String.class);
 	}
 
@@ -70,10 +68,9 @@ public class CollectionsSetSerializerTest {
 		SerializedValue bar = literal("Bar");
 		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
 		when(facade.serialize(String.class, "Bar", session)).thenReturn(bar);
-		Type unmodifiableSetOfString = parameterized(innerType(Collections.class, "UnmodifiableSet"), null, String.class);
-		Type setOfString = parameterized(Set.class, null, String.class);
-		SerializedSet value = serializer.generate(setOfString, session);
-		value.useAs(unmodifiableSetOfString);
+		Class<?> unmodifiableSet = innerType(Collections.class, "UnmodifiableSet");
+		SerializedSet value = serializer.generate(unmodifiableSet, session);
+		value.useAs(parameterized(Set.class, null, String.class));
 
 		serializer.populate(value, new HashSet<>(asList("Foo", "Bar")), session);
 
@@ -85,10 +82,9 @@ public class CollectionsSetSerializerTest {
 		SerializedValue foo = literal("Foo");
 		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
 		when(facade.serialize(String.class, null, session)).thenReturn(nullInstance(String.class));
-		Type unmodifiableSetOfString = parameterized(innerType(Collections.class, "UnmodifiableSet"), null, String.class);
-		Type setOfString = parameterized(Set.class, null, String.class);
-		SerializedSet value = serializer.generate(setOfString, session);
-		value.useAs(unmodifiableSetOfString);
+		Class<?> unmodifiableSet = innerType(Collections.class, "UnmodifiableSet");
+		SerializedSet value = serializer.generate(unmodifiableSet, session);
+		value.useAs(parameterized(Set.class, null, String.class));
 
 		serializer.populate(value, new HashSet<>(asList("Foo", null)), session);
 

@@ -2,7 +2,6 @@ package net.amygdalum.testrecorder.serializers;
 
 import static java.util.Arrays.asList;
 
-import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -21,7 +20,7 @@ public class BigIntegerSerializer implements Serializer<SerializedImmutable<BigI
 	}
 
 	@Override
-	public SerializedImmutable<BigInteger> generate(Type type, SerializerSession session) {
+	public SerializedImmutable<BigInteger> generate(Class<?> type, SerializerSession session) {
 		return new SerializedImmutable<>(type);
 	}
 

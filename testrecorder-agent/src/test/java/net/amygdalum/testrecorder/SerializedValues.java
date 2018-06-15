@@ -9,6 +9,7 @@ import net.amygdalum.testrecorder.serializers.BigIntegerSerializer;
 import net.amygdalum.testrecorder.serializers.DefaultListSerializer;
 import net.amygdalum.testrecorder.serializers.GenericSerializer;
 import net.amygdalum.testrecorder.types.SerializerSession;
+import net.amygdalum.testrecorder.util.Types;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 import net.amygdalum.testrecorder.values.SerializedList;
 import net.amygdalum.testrecorder.values.SerializedObject;
@@ -25,7 +26,7 @@ public class SerializedValues {
 
 	public SerializedList list(Type type, List<?> values) {
 		DefaultListSerializer serializer = new DefaultListSerializer(facade);
-		SerializedList value = serializer.generate(type, session);
+		SerializedList value = serializer.generate(Types.baseType(type), session);
 		value.useAs(type);
 		serializer.populate(value, values, session);
 		return value;

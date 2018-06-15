@@ -18,10 +18,10 @@ import net.amygdalum.testrecorder.types.SerializedValue;
  */
 public class SerializedNull extends AbstractSerializedReferenceType implements SerializedImmutableType {
 
-	private static final Map<Type, SerializedNull> KNOWN_LITERALS = new HashMap<>();
+	private static final Map<Class<?>, SerializedNull> KNOWN_LITERALS = new HashMap<>();
 	public static final SerializedNull VOID = nullInstance(void.class);
 
-	private SerializedNull(Type type) {
+	private SerializedNull(Class<?> type) {
 		super(type);
 	}
 	
@@ -35,7 +35,7 @@ public class SerializedNull extends AbstractSerializedReferenceType implements S
 		return visitor.visitReferenceType(this, context);
 	}
 
-	public static SerializedNull nullInstance(Type type) {
+	public static SerializedNull nullInstance(Class<?> type) {
 		return KNOWN_LITERALS.computeIfAbsent(type, typ -> new SerializedNull(typ));
 	}
 

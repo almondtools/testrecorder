@@ -12,6 +12,7 @@ import static net.amygdalum.testrecorder.util.Types.typeArguments;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -50,13 +51,14 @@ public abstract class DefaultGenericMapAdaptor<T extends SerializedReferenceType
 
         Type type = value.getType();
         Type usedType = types.mostSpecialOf(value.getUsedTypes()).orElse(Object.class);
+		boolean uniqueUsageType = value.getUsedTypes().length == 1 && Map.class.isAssignableFrom(baseType(usedType));
         Type mapKeyType = keyType(value);
         Type mapValueType = valueType(value);
 
         Class<?> matchingType = matchType(type).get();
 
         Type effectiveResultType = types.bestType(usedType, matchingType);
-        Type temporaryType = types.bestType(type, effectiveResultType, matchingType);
+        Type temporaryType = uniqueUsageType ? effectiveResultType : types.bestType(type, effectiveResultType, matchingType);
         Type keyResultType = types.isHidden(mapKeyType) ? typeArgument(temporaryType, 0).orElse(Object.class) : mapKeyType;
         Type valueResultType = types.isHidden(mapValueType) ? typeArgument(temporaryType, 1).orElse(Object.class) : mapValueType;
 

@@ -56,9 +56,9 @@ public class DefaultSetSerializerTest {
 		SerializedValue bar = literal("Bar");
 		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
 		when(facade.serialize(String.class, "Bar", session)).thenReturn(bar);
-		Type hashSetOfString = parameterized(HashSet.class, null, String.class);
-		SerializedSet value = serializer.generate(hashSetOfString, session);
-		value.useAs(HashSet.class);
+
+		SerializedSet value = serializer.generate(HashSet.class, session);
+		value.useAs(parameterized(HashSet.class, null, String.class));
 
 		serializer.populate(value, new HashSet<>(asList("Foo", "Bar")), session);
 

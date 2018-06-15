@@ -49,14 +49,14 @@ public class CollectionsListSerializerTest {
 
 	@Test
 	public void testGenerate() throws Exception {
-		Type unmodifiableListOfString = parameterized(innerType(Collections.class, "UnmodifiableList"), null, String.class);
+		Class<?> unmodifiableList = innerType(Collections.class, "UnmodifiableList");
 		Type listOfString = parameterized(List.class, null, String.class);
 
-		SerializedList value = serializer.generate(unmodifiableListOfString, session);
+		SerializedList value = serializer.generate(unmodifiableList, session);
 		value.useAs(listOfString);
 
 		assertThat(value.getUsedTypes()).containsExactly(listOfString);
-		assertThat(value.getType()).isEqualTo(unmodifiableListOfString);
+		assertThat(value.getType()).isEqualTo(unmodifiableList);
 		assertThat(value.getComponentType()).isEqualTo(String.class);
 	}
 
@@ -66,10 +66,8 @@ public class CollectionsListSerializerTest {
 		SerializedValue bar = literal("Bar");
 		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
 		when(facade.serialize(String.class, "Bar", session)).thenReturn(bar);
-		Type unmodifiableListOfString = parameterized(innerType(Collections.class, "UnmodifiableList"), null, String.class);
-		Type listOfString = parameterized(List.class, null, String.class);
-		SerializedList value = serializer.generate(listOfString, session);
-		value.useAs(unmodifiableListOfString);
+		Class<?> unmodifiableList = innerType(Collections.class, "UnmodifiableList");
+		SerializedList value = serializer.generate(unmodifiableList, session);
 
 		serializer.populate(value, asList("Foo", "Bar"), session);
 
@@ -81,10 +79,9 @@ public class CollectionsListSerializerTest {
 		SerializedValue foo = literal("Foo");
 		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
 		when(facade.serialize(String.class, null, session)).thenReturn(nullInstance(String.class));
-		Type unmodifiableListOfString = parameterized(innerType(Collections.class, "UnmodifiableList"), null, String.class);
-		Type listOfString = parameterized(List.class, null, String.class);
-		SerializedList value = serializer.generate(listOfString, session);
-		value.useAs(unmodifiableListOfString);
+		Class<?> unmodifiableList = innerType(Collections.class, "UnmodifiableList");
+		SerializedList value = serializer.generate(unmodifiableList, session);
+		value.useAs(parameterized(List.class, null, String.class));
 
 		serializer.populate(value, asList("Foo", null), session);
 

@@ -34,7 +34,7 @@ public class CollectionsMapSerializer extends HiddenInnerClassSerializer<Seriali
 	}
 
 	@Override
-	public SerializedMap generate(Type type, SerializerSession session) {
+	public SerializedMap generate(Class<?> type, SerializerSession session) {
 		return new SerializedMap(type);
 	}
 

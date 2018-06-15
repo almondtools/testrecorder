@@ -2,7 +2,6 @@ package net.amygdalum.testrecorder.values;
 
 import static java.util.Collections.emptyList;
 
-import java.lang.reflect.Type;
 import java.util.List;
 
 import net.amygdalum.testrecorder.types.Deserializer;
@@ -17,7 +16,7 @@ public class SerializedEnum extends AbstractSerializedReferenceType implements S
 
 	private String name;
 
-	public SerializedEnum(Type type) {
+	public SerializedEnum(Class<?> type) {
 		super(type);
 	}
 

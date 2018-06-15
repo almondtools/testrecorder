@@ -400,7 +400,6 @@ public class SnapshotManager {
 					.map(field -> facade.serialize(field, null, session))
 					.toArray(SerializedField[]::new));
 			}).andConsume(this::consume);
-			;
 		} finally {
 			lock.release();
 		}

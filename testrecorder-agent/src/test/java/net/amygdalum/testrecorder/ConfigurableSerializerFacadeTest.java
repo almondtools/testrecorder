@@ -190,7 +190,7 @@ public class ConfigurableSerializerFacadeTest {
 		}
 
 		@Override
-		public SerializedValue generate(Type type, SerializerSession session) {
+		public SerializedValue generate(Class<?> type, SerializerSession session) {
 			return value;
 		}
 

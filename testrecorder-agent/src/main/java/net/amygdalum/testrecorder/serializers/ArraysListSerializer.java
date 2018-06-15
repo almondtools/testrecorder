@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder.serializers;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.util.TypeFilters.in;
 
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 
@@ -25,7 +24,7 @@ public class ArraysListSerializer extends HiddenInnerClassSerializer<SerializedL
 	}
 
 	@Override
-	public SerializedList generate(Type type, SerializerSession session) {
+	public SerializedList generate(Class<?> type, SerializerSession session) {
 		return new SerializedList(type);
 	}
 

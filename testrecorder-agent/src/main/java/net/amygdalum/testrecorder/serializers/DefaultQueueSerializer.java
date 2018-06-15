@@ -30,7 +30,7 @@ public class DefaultQueueSerializer implements Serializer<SerializedList> {
 	}
 
 	@Override
-	public SerializedList generate(Type type, SerializerSession session) {
+	public SerializedList generate(Class<?> type, SerializerSession session) {
 		return new SerializedList(type);
 	}
 

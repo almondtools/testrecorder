@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.deserializers.builder;
 
 import static net.amygdalum.testrecorder.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
+import static net.amygdalum.testrecorder.util.Types.wildcard;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenSet;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,7 +59,7 @@ public class DefaultSetAdaptorTest {
 
 	@Test
 	public void testTryDeserializeExplicitelyTyped() throws Exception {
-		SerializedSet value = new SerializedSet(parameterized(LinkedHashSet.class, null, Integer.class));
+		SerializedSet value = new SerializedSet(LinkedHashSet.class);
 		value.useAs(parameterized(Set.class, null, Integer.class));
 		value.add(literal(0));
 		value.add(literal(8));
@@ -68,17 +69,17 @@ public class DefaultSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
-			"LinkedHashSet<Integer> temp1 = new LinkedHashSet<Integer>()",
-			"temp1.add(0)",
-			"temp1.add(8)",
-			"temp1.add(15)",
-			"Set<Integer> set1 = temp1;");
-		assertThat(result.getValue()).isEqualTo("set1");
+			"Set<Integer> linkedHashSet1 = new LinkedHashSet<>()",
+			"linkedHashSet1.add(0)",
+			"linkedHashSet1.add(8)",
+			"linkedHashSet1.add(15)");
+		assertThat(result.getValue()).isEqualTo("linkedHashSet1");
 	}
 
 	@Test
 	public void testTryDeserialize() throws Exception {
 		SerializedSet value = new SerializedSet(LinkedHashSet.class);
+		value.useAs(parameterized(Set.class, null, wildcard()));
 		value.useAs(parameterized(Set.class, null, Integer.class));
 		value.add(literal(0));
 		value.add(literal(8));
@@ -98,8 +99,8 @@ public class DefaultSetAdaptorTest {
 	
 	@Test
 	public void testTryDeserializeSameResultTypes() throws Exception {
-		SerializedSet value = new SerializedSet(parameterized(LinkedHashSet.class, null, Integer.class));
-		value.useAs(parameterized(LinkedHashSet.class, null, Integer.class));
+		SerializedSet value = new SerializedSet(LinkedHashSet.class);
+		value.useAs(LinkedHashSet.class);
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
@@ -108,7 +109,7 @@ public class DefaultSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
-			"LinkedHashSet<Integer> linkedHashSet1 = new LinkedHashSet<Integer>()",
+			"LinkedHashSet linkedHashSet1 = new LinkedHashSet<>()",
 			"linkedHashSet1.add(0)",
 			"linkedHashSet1.add(8)",
 			"linkedHashSet1.add(15)");
@@ -116,8 +117,8 @@ public class DefaultSetAdaptorTest {
 	}
 
 	@Test
-	public void testTryDeserializeNonListResult() throws Exception {
-		SerializedSet value = new SerializedSet(parameterized(PublicSet.class, null, Integer.class));
+	public void testTryDeserializeNonSetResult() throws Exception {
+		SerializedSet value = new SerializedSet(PublicSet.class);
 		value.useAs(OrthogonalInterface.class);
 		value.add(literal(0));
 		value.add(literal(8));
@@ -127,7 +128,7 @@ public class DefaultSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
-			"PublicSet<Integer> temp1 = new PublicSet<Integer>()",
+			"PublicSet temp1 = new PublicSet<>()",
 			"temp1.add(0)",
 			"temp1.add(8)",
 			"temp1.add(15)",
@@ -137,7 +138,7 @@ public class DefaultSetAdaptorTest {
 
 	@Test
 	public void testTryDeserializeNeedingAdaptation() throws Exception {
-		SerializedSet value = new SerializedSet(parameterized(classOfHiddenSet(), null, Integer.class));
+		SerializedSet value = new SerializedSet(classOfHiddenSet());
 		value.useAs(OrthogonalInterface.class);
 		value.add(literal(0));
 		value.add(literal(8));
@@ -157,7 +158,7 @@ public class DefaultSetAdaptorTest {
 
 	@Test
 	public void testTryDeserializeNeedingHiddenAdaptation() throws Exception {
-		SerializedSet value = new SerializedSet(parameterized(classOfHiddenSet(), null, Integer.class));
+		SerializedSet value = new SerializedSet(classOfHiddenSet());
 		value.useAs(parameterized(LinkedHashSet.class, null, Integer.class));
 		value.add(literal(0));
 		value.add(literal(8));
@@ -177,7 +178,7 @@ public class DefaultSetAdaptorTest {
 
 	@Test
 	public void testTryDeserializeForwarded() throws Exception {
-		SerializedSet value = new SerializedSet(parameterized(LinkedHashSet.class, null, Integer.class));
+		SerializedSet value = new SerializedSet(LinkedHashSet.class);
 		value.useAs(parameterized(Set.class, null, Integer.class));
 		value.add(literal(0));
 		value.add(literal(8));
@@ -194,11 +195,10 @@ public class DefaultSetAdaptorTest {
 		});
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
-			"LinkedHashSet<Integer> temp1 = new LinkedHashSet<Integer>()",
-			"temp1.add(0)",
-			"temp1.add(8)",
-			"temp1.add(15)",
-			"forwarded.addAll(temp1);");
+			"Set<Integer> forwarded = new LinkedHashSet<>()",
+			"forwarded.add(0)",
+			"forwarded.add(8)",
+			"forwarded.add(15)");
 		assertThat(result.getValue()).isEqualTo("forwarded");
 	}
 

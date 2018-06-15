@@ -2,12 +2,16 @@ package net.amygdalum.testrecorder.values;
 
 import static java.util.Arrays.asList;
 import static net.amygdalum.testrecorder.util.Types.baseType;
+import static net.amygdalum.testrecorder.util.Types.boxedType;
 import static net.amygdalum.testrecorder.util.Types.component;
+import static net.amygdalum.testrecorder.util.Types.mostSpecialOf;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.types.DeserializerContext;
@@ -21,7 +25,7 @@ public class SerializedArray extends AbstractSerializedReferenceType implements 
 
 	private List<SerializedValue> array;
 
-	public SerializedArray(Type type) {
+	public SerializedArray(Class<?> type) {
 		super(type);
 		this.array = new ArrayList<>();
 	}
@@ -36,7 +40,19 @@ public class SerializedArray extends AbstractSerializedReferenceType implements 
 	}
 
 	public Type getComponentType() {
-		return component(getType());
+		Type[] candidates = Stream.concat(Stream.of(getType()), Arrays.stream(getUsedTypes()))
+			.map(type -> component(type))
+			.filter(this::satisfiesComponentType)
+			.toArray(Type[]::new);
+		return mostSpecialOf(candidates)
+			.orElse(Object.class);
+	}
+
+	public boolean satisfiesComponentType(Type type) {
+		Class<?> baseType = boxedType(type);
+		return array.stream()
+			.filter(value -> value.getType() != null)
+			.allMatch(value -> baseType.isAssignableFrom(boxedType(value.getType())));
 	}
 
 	public Class<?> getRawType() {

@@ -5,6 +5,7 @@ import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethod
 import static net.amygdalum.testrecorder.types.Computation.variable;
 import static net.amygdalum.testrecorder.util.TypeFilters.in;
 import static net.amygdalum.testrecorder.util.Types.array;
+import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.equalBaseTypes;
 import static net.amygdalum.testrecorder.util.Types.innerClasses;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
@@ -57,7 +58,8 @@ public class ArraysListAdaptor implements SetupGenerator<SerializedList> {
         types.registerType(componentType);
 
         Type type = array(componentType);
-        SerializedArray baseValue = new SerializedArray(type);
+        SerializedArray baseValue = new SerializedArray(baseType(type));
+        baseValue.useAs(type);
         for (SerializedValue element : value) {
             baseValue.add(element);
         }

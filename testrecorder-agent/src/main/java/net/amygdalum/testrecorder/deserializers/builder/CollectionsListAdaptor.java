@@ -71,7 +71,8 @@ public class CollectionsListAdaptor implements SetupGenerator<SerializedList> {
     }
 
     private Computation createOrdinaryList(SerializedList value, SetupGenerators generator, DeserializerContext context) {
-        SerializedList baseValue = new SerializedList(parameterized(ArrayList.class, null, value.getComponentType()));
+        SerializedList baseValue = new SerializedList(ArrayList.class);
+		baseValue.useAs(parameterized(ArrayList.class, null, value.getComponentType()));
         baseValue.addAll(value);
         return adaptor.tryDeserialize(baseValue, generator, context);
     }

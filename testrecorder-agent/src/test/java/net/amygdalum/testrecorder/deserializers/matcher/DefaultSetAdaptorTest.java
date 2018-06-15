@@ -2,11 +2,14 @@ package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.TestAgentConfiguration.defaultConfig;
+import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.lang.reflect.Type;
 import java.math.BigInteger;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -49,7 +52,8 @@ public class DefaultSetAdaptorTest {
 
 	@Test
 	public void testTryDeserializeExplicitelyTypedSet() throws Exception {
-		SerializedSet value = new SerializedSet(parameterized(Set.class, null, BigInteger.class));
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(parameterized(Set.class, null, BigInteger.class));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(0)));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(8)));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(15)));
@@ -73,11 +77,11 @@ public class DefaultSetAdaptorTest {
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(0)));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(8)));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(15)));
-		
+
 		MatcherGenerators generator = generator();
-		
+
 		Computation result = adaptor.tryDeserialize(value, generator, context);
-		
+
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo(""
 			+ "contains(BigInteger.class, "
@@ -85,18 +89,18 @@ public class DefaultSetAdaptorTest {
 			+ "equalTo(new BigInteger(\"8\")), "
 			+ "equalTo(new BigInteger(\"15\")))");
 	}
-	
+
 	@Test
 	public void testTryDeserializeRawSet() throws Exception {
 		SerializedSet value = new SerializedSet(Set.class);
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(0)));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(8)));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(15)));
-		
+
 		MatcherGenerators generator = generator();
-		
+
 		Computation result = adaptor.tryDeserialize(value, generator, context);
-		
+
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo(""
 			+ "contains("
@@ -104,10 +108,11 @@ public class DefaultSetAdaptorTest {
 			+ "equalTo(new BigInteger(\"8\")), "
 			+ "equalTo(new BigInteger(\"15\")))");
 	}
-	
+
 	@Test
 	public void testTryDeserializeEmptySet() throws Exception {
-		SerializedSet value = new SerializedSet(parameterized(Set.class, null, BigInteger.class));
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(parameterized(Set.class, null, BigInteger.class));
 		MatcherGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
@@ -129,10 +134,11 @@ public class DefaultSetAdaptorTest {
 
 	@Test
 	public void testTryDeserializeGenericComponents() throws Exception {
-		SerializedSet value = new SerializedSet(parameterized(Set.class, null, parameterized(Set.class, null, String.class)));
-		value.add(new SerializedSet(parameterized(Set.class, null, String.class)).with(literal("str1")));
-		value.add(new SerializedSet(parameterized(Set.class, null, String.class)).with(literal("str2"), literal("str3")));
-		value.add(new SerializedSet(parameterized(Set.class, null, String.class)));
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(parameterized(Set.class, null, parameterized(Set.class, null, String.class)));
+		value.add(set(parameterized(Set.class, null, String.class)).with(literal("str1")));
+		value.add(set(parameterized(Set.class, null, String.class)).with(literal("str2"), literal("str3")));
+		value.add(set(parameterized(Set.class, null, String.class)));
 
 		MatcherGenerators generator = generator();
 
@@ -148,7 +154,8 @@ public class DefaultSetAdaptorTest {
 
 	@Test
 	public void testTryDeserializeHiddenComponents() throws Exception {
-		SerializedSet value = new SerializedSet(parameterized(Set.class, null, Hidden.classOfCompletelyHidden()));
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(parameterized(Set.class, null, Hidden.classOfCompletelyHidden()));
 		value.add(new SerializedObject(Hidden.classOfCompletelyHidden()));
 
 		MatcherGenerators generator = generator();
@@ -159,6 +166,12 @@ public class DefaultSetAdaptorTest {
 		assertThat(result.getValue()).containsWildcardPattern(""
 			+ "contains(Object.class, "
 			+ "new GenericMatcher() {*}.matching(clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$CompletelyHidden\")))");
+	}
+
+	private SerializedSet set(Type type) {
+		SerializedSet set = new SerializedSet(baseType(type));
+		set.useAs(type);
+		return set;
 	}
 
 	private MatcherGenerators generator() {

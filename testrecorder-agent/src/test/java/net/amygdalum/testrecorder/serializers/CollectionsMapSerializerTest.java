@@ -51,14 +51,13 @@ public class CollectionsMapSerializerTest {
 
 	@Test
 	public void testGenerate() throws Exception {
-		Type unmodifiableMapOfString = parameterized(innerType(Collections.class, "UnmodifiableMap"), null, String.class, Integer.class);
-		Type setOfString = parameterized(Map.class, null, String.class);
+		Class<?> unmodifiableMap = innerType(Collections.class, "UnmodifiableMap");
+		
+		SerializedMap value = serializer.generate(unmodifiableMap, session);
+		value.useAs(parameterized(Map.class, null, String.class, Integer.class));
 
-		SerializedMap value = serializer.generate(unmodifiableMapOfString, session);
-		value.useAs(setOfString);
-
-		assertThat(value.getUsedTypes()).containsExactly(setOfString);
-		assertThat(value.getType()).isEqualTo(unmodifiableMapOfString);
+		assertThat(value.getUsedTypes()).containsExactly(parameterized(Map.class, null, String.class, Integer.class));
+		assertThat(value.getType()).isEqualTo(unmodifiableMap);
 		assertThat(value.getMapKeyType()).isEqualTo(String.class);
 		assertThat(value.getMapValueType()).isEqualTo(Integer.class);
 	}
@@ -68,10 +67,9 @@ public class CollectionsMapSerializerTest {
 		SerializedValue foo = literal("Foo");
 		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
 		when(facade.serialize(Integer.class, 47, session)).thenReturn(literal(47));
-		Type unmodifiableMapOfString = parameterized(innerType(Collections.class, "UnmodifiableMap"), null, String.class, Integer.class);
-		Type mapOfStringInteger = parameterized(Map.class, null, String.class, Integer.class);
-		SerializedMap value = serializer.generate(mapOfStringInteger, session);
-		value.useAs(unmodifiableMapOfString);
+		Class<?> unmodifiableMap = innerType(Collections.class, "UnmodifiableMap");
+		SerializedMap value = serializer.generate(unmodifiableMap, session);
+		value.useAs(parameterized(Map.class, null, String.class, Integer.class));
 
 		serializer.populate(value, Collections.singletonMap("Foo", 47), session);
 
@@ -83,10 +81,10 @@ public class CollectionsMapSerializerTest {
 	public void testPopulateWithNullKey() throws Exception {
 		when(facade.serialize(String.class, null, session)).thenReturn(nullInstance(String.class));
 		when(facade.serialize(Integer.class, 47, session)).thenReturn(literal(47));
-		Type unmodifiableMapOfString = parameterized(innerType(Collections.class, "UnmodifiableMap"), null, String.class, Integer.class);
+		Class<?> unmodifiableMap = innerType(Collections.class, "UnmodifiableMap");
 		Type mapOfStringInteger = parameterized(Map.class, null, String.class, Integer.class);
-		SerializedMap value = serializer.generate(mapOfStringInteger, session);
-		value.useAs(unmodifiableMapOfString);
+		SerializedMap value = serializer.generate(unmodifiableMap, session);
+		value.useAs(mapOfStringInteger);
 
 		serializer.populate(value, Collections.singletonMap(null, 47), session);
 
@@ -99,10 +97,10 @@ public class CollectionsMapSerializerTest {
 		SerializedValue foo = literal("Foo");
 		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
 		when(facade.serialize(Integer.class, null, session)).thenReturn(nullInstance(Integer.class));
-		Type unmodifiableMapOfString = parameterized(innerType(Collections.class, "UnmodifiableMap"), null, String.class, Integer.class);
+		Class<?> unmodifiableMap = innerType(Collections.class, "UnmodifiableMap");
 		Type mapOfStringInteger = parameterized(Map.class, null, String.class, Integer.class);
-		SerializedMap value = serializer.generate(mapOfStringInteger, session);
-		value.useAs(unmodifiableMapOfString);
+		SerializedMap value = serializer.generate(unmodifiableMap, session);
+		value.useAs(mapOfStringInteger);
 
 		serializer.populate(value, Collections.singletonMap("Foo", null), session);
 

@@ -2,7 +2,6 @@ package net.amygdalum.testrecorder.values;
 
 import static java.util.Collections.emptyList;
 
-import java.lang.reflect.Type;
 import java.util.List;
 
 import net.amygdalum.testrecorder.types.Deserializer;
@@ -12,7 +11,7 @@ import net.amygdalum.testrecorder.types.SerializedValue;
 
 public class SerializedPlaceholder extends AbstractSerializedReferenceType implements SerializedReferenceType {
 
-	public SerializedPlaceholder(Type type) {
+	public SerializedPlaceholder(Class<?> type) {
 		super(type);
 	}
 

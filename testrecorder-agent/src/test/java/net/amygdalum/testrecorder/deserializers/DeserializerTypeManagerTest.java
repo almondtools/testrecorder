@@ -15,8 +15,6 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.deserializers.DeserializerTypeManager;
-
 public class DeserializerTypeManagerTest {
 
     private DeserializerTypeManager types;

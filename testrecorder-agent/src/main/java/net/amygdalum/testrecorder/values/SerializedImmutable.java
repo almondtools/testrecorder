@@ -2,7 +2,6 @@ package net.amygdalum.testrecorder.values;
 
 import static java.util.Collections.emptyList;
 
-import java.lang.reflect.Type;
 import java.util.List;
 
 import net.amygdalum.testrecorder.types.Deserializer;
@@ -20,7 +19,7 @@ public class SerializedImmutable<V> extends AbstractSerializedReferenceType impl
 
 	private V value;
 
-	public SerializedImmutable(Type type) {
+	public SerializedImmutable(Class<?> type) {
 		super(type);
 	}
 

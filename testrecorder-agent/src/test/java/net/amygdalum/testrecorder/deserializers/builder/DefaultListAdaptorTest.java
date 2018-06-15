@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.deserializers.builder;
 
 import static net.amygdalum.testrecorder.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
+import static net.amygdalum.testrecorder.util.Types.wildcard;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenList;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,7 +22,6 @@ import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.LocalVariable;
 import net.amygdalum.testrecorder.types.LocalVariableDefinition;
 import net.amygdalum.testrecorder.types.SerializedValue;
-import net.amygdalum.testrecorder.util.testobjects.Hidden;
 import net.amygdalum.testrecorder.util.testobjects.OrthogonalInterface;
 import net.amygdalum.testrecorder.util.testobjects.PublicList;
 import net.amygdalum.testrecorder.values.SerializedList;
@@ -56,7 +56,7 @@ public class DefaultListAdaptorTest {
 
 	@Test
 	public void testTryDeserializeExplicitelyTyped() throws Exception {
-		SerializedList value = new SerializedList(parameterized(ArrayList.class, null, Integer.class));
+		SerializedList value = new SerializedList(ArrayList.class);
 		value.useAs(parameterized(List.class, null, Integer.class));
 		value.add(literal(0));
 		value.add(literal(8));
@@ -66,17 +66,17 @@ public class DefaultListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
-			"ArrayList<Integer> temp1 = new ArrayList<Integer>()",
-			"temp1.add(0)",
-			"temp1.add(8)",
-			"temp1.add(15)",
-			"List<Integer> list1 = temp1;");
-		assertThat(result.getValue()).isEqualTo("list1");
+			"List<Integer> arrayList1 = new ArrayList<>()",
+			"arrayList1.add(0)",
+			"arrayList1.add(8)",
+			"arrayList1.add(15)");
+		assertThat(result.getValue()).isEqualTo("arrayList1");
 	}
 
 	@Test
 	public void testTryDeserialize() throws Exception {
 		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(parameterized(List.class, null, wildcard()));
 		value.useAs(parameterized(List.class, null, Integer.class));
 		value.add(literal(0));
 		value.add(literal(8));
@@ -96,8 +96,8 @@ public class DefaultListAdaptorTest {
 	
 	@Test
 	public void testTryDeserializeSameResultTypes() throws Exception {
-		SerializedList value = new SerializedList(parameterized(ArrayList.class, null, Integer.class));
-		value.useAs(parameterized(ArrayList.class, null, Integer.class));
+		SerializedList value = new SerializedList(ArrayList.class);
+		value.useAs(ArrayList.class);
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
@@ -106,7 +106,7 @@ public class DefaultListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
-			"ArrayList<Integer> arrayList1 = new ArrayList<Integer>()",
+			"ArrayList arrayList1 = new ArrayList<>()",
 			"arrayList1.add(0)",
 			"arrayList1.add(8)",
 			"arrayList1.add(15)");
@@ -115,7 +115,7 @@ public class DefaultListAdaptorTest {
 
 	@Test
 	public void testTryDeserializeNonListResult() throws Exception {
-		SerializedList value = new SerializedList(parameterized(PublicList.class, null, Integer.class));
+		SerializedList value = new SerializedList(PublicList.class);
 		value.useAs(OrthogonalInterface.class);
 		value.add(literal(0));
 		value.add(literal(8));
@@ -125,7 +125,7 @@ public class DefaultListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
-			"PublicList<Integer> temp1 = new PublicList<Integer>()",
+			"PublicList temp1 = new PublicList<>()",
 			"temp1.add(0)",
 			"temp1.add(8)",
 			"temp1.add(15)",
@@ -135,7 +135,7 @@ public class DefaultListAdaptorTest {
 
 	@Test
 	public void testTryDeserializeNeedingAdaptation() throws Exception {
-		SerializedList value = new SerializedList(parameterized(classOfHiddenList(), null, Integer.class));
+		SerializedList value = new SerializedList(classOfHiddenList());
 		value.useAs(OrthogonalInterface.class);
 		value.add(literal(0));
 		value.add(literal(8));
@@ -155,7 +155,7 @@ public class DefaultListAdaptorTest {
 
 	@Test
 	public void testTryDeserializeHiddenType() throws Exception {
-		SerializedList value = new SerializedList(parameterized(Hidden.classOfHiddenList(), null, Integer.class));
+		SerializedList value = new SerializedList(classOfHiddenList());
 		value.useAs(parameterized(ArrayList.class, null, Integer.class));
 		value.add(literal(0));
 		value.add(literal(8));
@@ -175,7 +175,7 @@ public class DefaultListAdaptorTest {
 
 	@Test
 	public void testTryDeserializeForwarded() throws Exception {
-		SerializedList value = new SerializedList(parameterized(ArrayList.class, null, Integer.class));
+		SerializedList value = new SerializedList(ArrayList.class);
 		value.useAs(parameterized(List.class, null, Integer.class));
 		value.add(literal(0));
 		value.add(literal(8));
@@ -192,11 +192,10 @@ public class DefaultListAdaptorTest {
 		});
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
-			"ArrayList<Integer> temp1 = new ArrayList<Integer>()",
-			"temp1.add(0)",
-			"temp1.add(8)",
-			"temp1.add(15)",
-			"forwarded.addAll(temp1);");
+			"List<Integer> forwarded = new ArrayList<>()",
+			"forwarded.add(0)",
+			"forwarded.add(8)",
+			"forwarded.add(15)");
 		assertThat(result.getValue()).isEqualTo("forwarded");
 	}
 

@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 
 public final class Types {
 
+	private static final Type[] NO_TYPES = new Type[0];
 	private static final String SYNTHETIC_INDICATOR = "$";
 	private static final String[] HANDLED_SYNTHETIC_PREFIXES = { "this$", "val$" };
 
@@ -276,12 +277,26 @@ public final class Types {
 			} else {
 				return 0;
 			}
+		} else if (type1 instanceof WildcardType && type2 instanceof WildcardType){
+			Type[] typeArguments1 = ((WildcardType) type1).getUpperBounds();
+			Type[] typeArguments2 = ((WildcardType) type2).getUpperBounds();
+			int compare = Integer.compare(typeArguments1.length, typeArguments2.length);
+			if (compare == 0) {
+				for (int i = 0; i < typeArguments1.length && i < typeArguments2.length; i++) {
+					compare += byMostConcrete(typeArguments1[i], typeArguments2[i]);
+				}
+			}
+			return compare;
+		} else if (type1 instanceof WildcardType){
+			return 1;
+		} else if (type2 instanceof WildcardType){
+			return -1;
 		} else {
 			int compare = byMostConcrete(baseType(type1), baseType(type2));
-			if (compare == 0 && type1 instanceof ParameterizedType && type2 instanceof ParameterizedType) {
-				Type[] typeArguments1 = ((ParameterizedType) type1).getActualTypeArguments();
-				Type[] typeArguments2 = ((ParameterizedType) type2).getActualTypeArguments();
-				compare = Integer.compare(typeArguments1.length, typeArguments2.length);
+			if (compare == 0) {
+				Type[] typeArguments1 = type1 instanceof ParameterizedType ? ((ParameterizedType) type1).getActualTypeArguments() : NO_TYPES;
+				Type[] typeArguments2 = type2 instanceof ParameterizedType ? ((ParameterizedType) type2).getActualTypeArguments() : NO_TYPES;
+				compare = Integer.compare(typeArguments2.length, typeArguments1.length);
 				if (compare == 0) {
 					for (int i = 0; i < typeArguments1.length && i < typeArguments2.length; i++) {
 						compare += byMostConcrete(typeArguments1[i], typeArguments2[i]);
@@ -579,7 +594,7 @@ public final class Types {
 	}
 
 	public static WildcardType wildcard() {
-		return new SerializableWildcardType(new Type[0], new Type[0]);
+		return new SerializableWildcardType(NO_TYPES, NO_TYPES);
 	}
 
 	public static WildcardType wildcard(Type[] upperBounds, Type[] lowerBounds) {
@@ -587,11 +602,11 @@ public final class Types {
 	}
 
 	public static WildcardType wildcardExtends(Type... bounds) {
-		return new SerializableWildcardType(serializableOf(bounds), new Type[0]);
+		return new SerializableWildcardType(serializableOf(bounds), NO_TYPES);
 	}
 
 	public static WildcardType wildcardSuper(Type... bounds) {
-		return new SerializableWildcardType(new Type[0], serializableOf(bounds));
+		return new SerializableWildcardType(NO_TYPES, serializableOf(bounds));
 	}
 
 	public static <D extends GenericDeclaration> TypeVariable<D> typeVariable(String name, D genericDeclaration, Type... bounds) {

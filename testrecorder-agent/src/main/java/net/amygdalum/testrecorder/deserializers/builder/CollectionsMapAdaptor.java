@@ -74,7 +74,8 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 	}
 
 	private Computation createOrdinaryMap(SerializedMap value, SetupGenerators generator, DeserializerContext context) {
-		SerializedMap baseValue = new SerializedMap(parameterized(LinkedHashMap.class, null, value.getMapKeyType(), value.getMapValueType()));
+		SerializedMap baseValue = new SerializedMap(LinkedHashMap.class);
+		baseValue.useAs(parameterized(LinkedHashMap.class, null, value.getMapKeyType(), value.getMapValueType()));
 		baseValue.putAll(value);
 		return adaptor.tryDeserialize(baseValue, generator, context);
 	}

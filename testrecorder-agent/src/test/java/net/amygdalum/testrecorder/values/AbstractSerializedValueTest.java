@@ -21,15 +21,6 @@ public class AbstractSerializedValueTest {
 	}
 
 	@Test
-	public void testSetType() throws Exception {
-		ASerializedValue value = new ASerializedValue(String.class);
-		value.setType(Object.class);
-
-		assertThat(value.getType()).isSameAs(Object.class);
-		assertThat(value.getUsedTypes()).containsExactly(Object.class);
-	}
-
-	@Test
 	public void testGetAnnotations() throws Exception {
 		ASerializedValue value = new ASerializedValue(Annotated.class);
 

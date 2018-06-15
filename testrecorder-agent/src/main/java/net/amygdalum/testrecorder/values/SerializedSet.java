@@ -1,15 +1,19 @@
 package net.amygdalum.testrecorder.values;
 
 import static java.util.Arrays.asList;
+import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.mostSpecialOf;
 import static net.amygdalum.testrecorder.util.Types.typeArgument;
+import static net.amygdalum.testrecorder.util.Types.typeArguments;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import net.amygdalum.testrecorder.types.Deserializer;
@@ -29,7 +33,7 @@ public class SerializedSet extends AbstractSerializedReferenceType implements Se
 
 	private Set<SerializedValue> set;
 
-	public SerializedSet(Type type) {
+	public SerializedSet(Class<?> type) {
 		super(type);
 		this.set = new LinkedHashSet<>();
 	}
@@ -44,9 +48,22 @@ public class SerializedSet extends AbstractSerializedReferenceType implements Se
 	}
 
 	public Type getComponentType() {
-		return typeArgument(getType(), 0)
-			.orElse(typeArgument(mostSpecialOf(getUsedTypes()).orElse(Object.class), 0)
-				.orElse(Object.class));
+		Type[] candidates = Arrays.stream(getUsedTypes())
+			.filter(type -> typeArguments(type).count() == 1)
+			.map(type -> typeArgument(type, 0))
+			.filter(Optional::isPresent)
+			.map(Optional::get)
+			.filter(this::satisfiesComponentType)
+			.toArray(Type[]::new);
+		return mostSpecialOf(candidates)
+			.orElse(Object.class);
+	}
+
+	public boolean satisfiesComponentType(Type type) {
+		Class<?> baseType = baseType(type);
+		return set.stream()
+			.filter(value -> value.getType() != null)
+			.allMatch(value -> baseType.isAssignableFrom(value.getType()));
 	}
 
 	@Override

@@ -236,7 +236,7 @@ public class CollectionsSetAdaptorTest {
 
 	private List<String> setDecoratedBy(String factory, int... elements) {
 		List<String> matchers = new ArrayList<>();
-		matchers.add("LinkedHashSet<Integer> linkedHashSet1 = new LinkedHashSet<Integer>()");
+		matchers.add("LinkedHashSet<Integer> linkedHashSet1 = new LinkedHashSet<>()");
 		for (int element : elements) {
 			matchers.add("linkedHashSet1.add(" + element + "");
 		}
@@ -247,7 +247,7 @@ public class CollectionsSetAdaptorTest {
 
 	private List<String> rawSetDecoratedBy(String factory, int... elements) {
 		List<String> matchers = new ArrayList<>();
-		matchers.add("LinkedHashSet<Object> linkedHashSet1 = new LinkedHashSet<Object>()");
+		matchers.add("LinkedHashSet<Object> linkedHashSet1 = new LinkedHashSet<>()");
 		for (int element : elements) {
 			matchers.add("linkedHashSet1.add(" + element + "");
 		}
@@ -269,7 +269,7 @@ public class CollectionsSetAdaptorTest {
 
 	private List<String> setDecoratedBy(String factory, Class<?> clazz, int... elements) {
 		List<String> matchers = new ArrayList<>();
-		matchers.add("LinkedHashSet<Integer> linkedHashSet1 = new LinkedHashSet<Integer>()");
+		matchers.add("LinkedHashSet<Integer> linkedHashSet1 = new LinkedHashSet<>()");
 		for (int element : elements) {
 			matchers.add("linkedHashSet1.add(" + element + "");
 		}

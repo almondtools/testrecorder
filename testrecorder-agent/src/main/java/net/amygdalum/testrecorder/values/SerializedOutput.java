@@ -15,7 +15,11 @@ public class SerializedOutput extends AbstractSerializedInteraction implements S
 	}
 
 	public SerializedOutput updateArguments(SerializedValue... arguments) {
-		this.arguments = arguments;
+		if (arguments != null) {
+			this.arguments = arguments;
+		} else {
+			this.arguments = new SerializedValue[0];
+		}
 		return this;
 	}
 

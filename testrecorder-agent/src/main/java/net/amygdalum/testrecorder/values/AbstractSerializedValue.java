@@ -1,7 +1,5 @@
 package net.amygdalum.testrecorder.values;
 
-import static net.amygdalum.testrecorder.util.Types.baseType;
-
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -11,9 +9,9 @@ import net.amygdalum.testrecorder.types.SerializedValue;
 
 public abstract class AbstractSerializedValue implements SerializedValue {
 
-    private Type type;
+    private Class<?> type;
 
-    public AbstractSerializedValue(Type type) {
+    public AbstractSerializedValue(Class<?> type) {
 		assert type == null || type instanceof Serializable;
         this.type = type;
     }
@@ -24,18 +22,13 @@ public abstract class AbstractSerializedValue implements SerializedValue {
     }
 
     @Override
-    public Type getType() {
+    public Class<?> getType() {
         return type;
     }
 
     @Override
-    public void setType(Type type) {
-        this.type = type;
-    }
-
-    @Override
     public Annotation[] getAnnotations() {
-        return baseType(type).getAnnotations();
+        return type.getAnnotations();
     }
 
     @Override

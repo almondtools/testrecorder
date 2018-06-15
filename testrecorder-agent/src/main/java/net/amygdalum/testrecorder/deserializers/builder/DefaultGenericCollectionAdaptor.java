@@ -11,6 +11,7 @@ import static net.amygdalum.testrecorder.util.Types.typeArgument;
 import static net.amygdalum.testrecorder.util.Types.typeArguments;
 
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -47,12 +48,14 @@ public abstract class DefaultGenericCollectionAdaptor<T extends SerializedRefere
 
 		Type type = value.getType();
 		Type usedType = types.mostSpecialOf(value.getUsedTypes()).orElse(Object.class);
+		boolean uniqueUsageType = value.getUsedTypes().length == 1 && Collection.class.isAssignableFrom(baseType(usedType));
 		Type componentType = componentType(value);
 
 		Class<?> matchingType = matchType(type).get();
 
 		Type effectiveResultType = types.bestType(usedType, matchingType);
-		Type temporaryType = types.bestType(type, effectiveResultType, matchingType);
+		
+		Type temporaryType = uniqueUsageType ? effectiveResultType : types.bestType(type, effectiveResultType, matchingType);
 		Type componentResultType = types.isHidden(componentType) ? typeArgument(temporaryType, 0).orElse(Object.class) : componentType;
 
 		types.registerTypes(effectiveResultType, type, componentResultType);

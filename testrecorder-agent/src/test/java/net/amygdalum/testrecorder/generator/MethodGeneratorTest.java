@@ -12,8 +12,8 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.MethodSignature;
 import net.amygdalum.testrecorder.ContextSnapshot;
+import net.amygdalum.testrecorder.MethodSignature;
 import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DeserializerTypeManager;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerator;

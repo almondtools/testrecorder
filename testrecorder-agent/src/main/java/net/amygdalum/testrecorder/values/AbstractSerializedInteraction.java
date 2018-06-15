@@ -28,12 +28,13 @@ public abstract class AbstractSerializedInteraction implements SerializedInterac
 		this.name = name;
 		this.resultType = resultType;
 		this.types = types;
+		this.arguments = new SerializedValue[0];
 	}
-
+	
 	public int id() {
 		return System.identityHashCode(this);
 	}
-	
+
 	@Override
 	public boolean isStatic() {
 		return id == STATIC;
@@ -49,14 +50,14 @@ public abstract class AbstractSerializedInteraction implements SerializedInterac
 		}
 		return true;
 	}
-	
+
 	@Override
 	public boolean hasResult() {
 		return resultType != null
 			&& resultType != void.class
 			&& result != null;
 	}
-	
+
 	@Override
 	public int getId() {
 		return id;
