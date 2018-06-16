@@ -5,7 +5,6 @@ import static net.amygdalum.testrecorder.util.TypeFilters.startingWith;
 import static net.amygdalum.testrecorder.util.Types.inferType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.typeArgument;
-import static net.amygdalum.testrecorder.util.Types.visibleType;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -21,8 +20,8 @@ import net.amygdalum.testrecorder.values.SerializedSet;
 
 public class CollectionsSetSerializer extends HiddenInnerClassSerializer<SerializedSet> {
 
-	public CollectionsSetSerializer(SerializerFacade facade) {
-		super(Collections.class, facade);
+	public CollectionsSetSerializer() {
+		super(Collections.class);
 	}
 
 	@Override
@@ -31,6 +30,11 @@ public class CollectionsSetSerializer extends HiddenInnerClassSerializer<Seriali
 			.filter(startingWith("Unmodifiable", "Synchronized", "Checked", "Empty", "Singleton"))
 			.filter(clazz -> Set.class.isAssignableFrom(clazz))
 			.collect(toList());
+	}
+
+	@Override
+	public Stream<?> components(Object object, SerializerSession session) {
+		return ((Set<?>) object).stream();
 	}
 
 	@Override
@@ -43,12 +47,9 @@ public class CollectionsSetSerializer extends HiddenInnerClassSerializer<Seriali
 		Type componentType = computeComponentType(serializedObject, object);
 
 		for (Object element : (Set<?>) object) {
-			Type elementType = visibleType(element, componentType);
-
-			serializedObject.add(facade.serialize(elementType, element, session));
+			serializedObject.add(serializedValueOf(session, componentType, element));
 		}
-		Type newType = parameterized(Set.class, null, componentType);
-		serializedObject.useAs(newType);
+		serializedObject.useAs(parameterized(Set.class, null, componentType));
 	}
 
 	private Type computeComponentType(SerializedSet serializedObject, Object object) {

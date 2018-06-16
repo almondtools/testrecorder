@@ -25,5 +25,10 @@ public class DefaultComparisonStrategy implements ComparisonStrategy {
 		}
 		return todo;
 	}
+	
+	@Override
+	public ComparisonStrategy next() {
+		return this;
+	}
 
 }

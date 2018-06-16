@@ -28,7 +28,12 @@ public class BeanObjectAdaptor implements SetupGenerator<SerializedObject> {
 	@Override
 	public Computation tryDeserialize(SerializedObject value, SetupGenerators generator, DeserializerContext context) throws DeserializationException {
 		TypeManager types = context.getTypes();
-		return context.forVariable(value, local -> {
+
+		Type type = types.isHidden(value.getType())
+			? types.mostSpecialOf(value.getUsedTypes()).orElse(Object.class)
+			: value.getType();
+
+		return context.forVariable(value, type, local -> {
 			try {
 				return new Construction(context, local, value).computeBest(types, generator);
 			} catch (ReflectiveOperationException | RuntimeException e) {

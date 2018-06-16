@@ -2,7 +2,6 @@ package net.amygdalum.testrecorder.serializers;
 
 import static java.util.Arrays.asList;
 
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -11,22 +10,25 @@ import java.util.concurrent.DelayQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.SerializedList;
 
-public class DefaultQueueSerializer implements Serializer<SerializedList> {
+public class DefaultQueueSerializer extends AbstractCompositeSerializer implements Serializer<SerializedList> {
 
-	private SerializerFacade facade;
-
-	public DefaultQueueSerializer(SerializerFacade facade) {
-		this.facade = facade;
+	public DefaultQueueSerializer() {
 	}
 
 	@Override
 	public List<Class<?>> getMatchingClasses() {
 		return asList(LinkedBlockingQueue.class, ArrayBlockingQueue.class, ConcurrentLinkedQueue.class, PriorityBlockingQueue.class, LinkedTransferQueue.class, DelayQueue.class);
+	}
+
+	@Override
+	public Stream<?> components(Object object, SerializerSession session) {
+		return ((Queue<?>) object).stream();
 	}
 
 	@Override
@@ -36,9 +38,8 @@ public class DefaultQueueSerializer implements Serializer<SerializedList> {
 
 	@Override
 	public void populate(SerializedList serializedObject, Object object, SerializerSession session) {
-		Type resultType = serializedObject.getComponentType();
 		for (Object element : (Queue<?>) object) {
-			serializedObject.add(facade.serialize(resultType, element, session));
+			serializedObject.add(serializedValueOf(session, serializedObject.getComponentType(), element));
 		}
 	}
 

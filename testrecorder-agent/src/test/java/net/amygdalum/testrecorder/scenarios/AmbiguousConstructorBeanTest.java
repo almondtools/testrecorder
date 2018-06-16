@@ -36,14 +36,14 @@ public class AmbiguousConstructorBeanTest {
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.testsFor(AmbiguousConstructorBean.class))
-		.hasSize(2)
-		.is(containingExactly(
-			allOf(
-				containingWildcardPattern("new AmbiguousConstructorBean(2, 4, null)"),
-				containing("equalTo(15)")),
-			allOf(
-				containingWildcardPattern("new AmbiguousConstructorBean(22, 0, ambiguousConstructorBean?)"),
-				containing("equalTo(217)"))));
+			.hasSize(2)
+			.is(containingExactly(
+				allOf(
+					containingWildcardPattern("new AmbiguousConstructorBean(2, 4, null)"),
+					containing("equalTo(15)")),
+				allOf(
+					containingWildcardPattern("new AmbiguousConstructorBean(22, 0, ambiguousConstructorBean?)"),
+					containing("equalTo(217)"))));
 	}
 
 }

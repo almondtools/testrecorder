@@ -2,7 +2,6 @@ package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static net.amygdalum.testrecorder.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfCompletelyHidden;
-import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfPartiallyHidden;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -44,7 +43,8 @@ public class DefaultNullAdaptorTest {
 
 	@Test
 	public void testTryDeserialize() throws Exception {
-		SerializedNull value = nullInstance(String.class);
+		SerializedNull value = nullInstance();
+		value.useAs(String.class);
 		MatcherGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
@@ -55,7 +55,7 @@ public class DefaultNullAdaptorTest {
 
 	@Test
 	public void testTryDeserializeOnHidden() throws Exception {
-		SerializedNull value = nullInstance(classOfPartiallyHidden());
+		SerializedNull value = nullInstance();
 		value.useAs(Hidden.VisibleInterface.class);
 
 		MatcherGenerators generator = generator();
@@ -69,7 +69,7 @@ public class DefaultNullAdaptorTest {
 
 	@Test
 	public void testTryDeserializeOnReallyHidden() throws Exception {
-		SerializedNull value = nullInstance(classOfCompletelyHidden());
+		SerializedNull value = nullInstance();
 		value.useAs(classOfCompletelyHidden());
 
 		MatcherGenerators generator = generator();

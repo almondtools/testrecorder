@@ -32,10 +32,7 @@ public class DefaultNullAdaptor extends DefaultMatcherGenerator<SerializedNull> 
 		types.staticImport(Matchers.class, "nullValue");
 
 		Optional<Type> usedType = types.mostSpecialOf(value.getUsedTypes());
-		if (!types.isHidden(value.getType())) {
-			String nullMatcher = nullMatcher(types.getRawClass(value.getType()));
-			return expression(nullMatcher, parameterized(Matcher.class, null, value.getType()), emptyList());
-		} else if (usedType.isPresent()) {
+		if (usedType.isPresent()) {
 			Type visibleUsedType = usedType.get();
 			String nullMatcher = nullMatcher(types.getRawClass(visibleUsedType));
 			return expression(nullMatcher, parameterized(Matcher.class, null, visibleUsedType), emptyList());

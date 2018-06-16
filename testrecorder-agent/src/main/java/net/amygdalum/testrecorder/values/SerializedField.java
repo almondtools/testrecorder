@@ -20,6 +20,7 @@ public class SerializedField implements SerializedFieldType {
 
     public SerializedField(Class<?> clazz, String name, Type type, SerializedValue value) {
     	assert type instanceof Serializable;
+    	assert value != null;
     	this.clazz = clazz;
         this.name = name;
         this.type = type;

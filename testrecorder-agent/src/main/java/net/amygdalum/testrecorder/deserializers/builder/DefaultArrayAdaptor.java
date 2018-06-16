@@ -31,7 +31,7 @@ public class DefaultArrayAdaptor extends DefaultSetupGenerator<SerializedArray> 
 		
 		Type usedType = types.mostSpecialOf(value.getUsedTypes()).orElse(Object[].class);
 		
-		return context.forVariable(value, local -> {
+		return context.forVariable(value, usedType, local -> {
 
 			List<Computation> elementTemplates = Stream.of(value.getArray())
 				.map(element -> element.accept(generator, context))
@@ -49,7 +49,7 @@ public class DefaultArrayAdaptor extends DefaultSetupGenerator<SerializedArray> 
 
 			statements.add(assignLocalVariableStatement(types.getVariableTypeName(usedType), local.getName(), arrayLiteral));
 
-			return variable(local.getName(), usedType, statements);
+			return variable(local.getName(), local.getType(), statements);
 		});
 	}
 

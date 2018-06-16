@@ -11,6 +11,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -366,7 +369,7 @@ public class GenericComparisonTest {
 	public void testCompare() throws Exception {
 		Node node1 = new Node("node1");
 		Node node2 = new Node("node2");
-		WorkSet<GenericComparison> todo = new WorkSet<>();
+		WorkSet<GenericComparison> todo = new WorkSet<>(new LinkedHashMap<>(), new LinkedList<>());
 		todo.add(new GenericComparison(null, node1, node2));
 		GenericComparison.compare(todo, (comparison, rem) -> comparison.eval(rem) ? GenericComparatorResult.NOT_APPLYING : GenericComparatorResult.MISMATCH);
 
@@ -384,7 +387,7 @@ public class GenericComparisonTest {
 		node1.children = new Node[] { node2 };
 		node2.children = new Node[] { node1 };
 
-		WorkSet<GenericComparison> todo = new WorkSet<>();
+		WorkSet<GenericComparison> todo = new WorkSet<>(new LinkedHashMap<>(), new LinkedList<>());
 		todo.add(new GenericComparison(null, node1, node2));
 		GenericComparison.compare(todo, (comparison, rem) -> comparison.eval(rem) ? GenericComparatorResult.NOT_APPLYING : GenericComparatorResult.MISMATCH);
 

@@ -18,7 +18,7 @@ public class DefaultNullAdaptor extends DefaultSetupGenerator<SerializedNull> im
 	public Computation tryDeserialize(SerializedNull value, SetupGenerators generator, DeserializerContext context) {
 		TypeManager types = context.getTypes();
 		
-		return expression("null", types.mostSpecialOf(value.getUsedTypes()).orElse(Object.class));
+		return expression("null", types.mostSpecialOf(value.getUsedTypes()).orElse(null));
 	}
 
 }

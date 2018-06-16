@@ -55,9 +55,9 @@ public class MatcherGeneratorsTest {
 
 	@Test
 	public void testNullIsSimpleValue() throws Exception {
-		assertThat(matcherCode.isSimpleValue(nullInstance(Object.class))).isTrue();
-		assertThat(matcherCode.simpleMatcher(nullInstance(Object.class), context).getStatements()).isEmpty();
-		assertThat(matcherCode.simpleMatcher(nullInstance(Object.class), context).getValue()).isEqualTo("null");
+		assertThat(matcherCode.isSimpleValue(nullInstance())).isTrue();
+		assertThat(matcherCode.simpleMatcher(nullInstance(), context).getStatements()).isEmpty();
+		assertThat(matcherCode.simpleMatcher(nullInstance(), context).getValue()).isEqualTo("null");
 	}
 
 	@Test
@@ -210,7 +210,7 @@ public class MatcherGeneratorsTest {
 
 	@Test
 	public void testSimpleMatcherSerializedValueNull() throws Exception {
-		Computation result = matcherCode.simpleMatcher(SerializedNull.nullInstance(String.class), context);
+		Computation result = matcherCode.simpleMatcher(SerializedNull.nullInstance(), context);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).as("generic matchers can match nulls and do not need matchers here").isEqualTo("null");

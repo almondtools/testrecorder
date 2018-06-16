@@ -25,59 +25,59 @@ import net.amygdalum.testrecorder.values.SerializedList;
 
 public class ArraysListAdaptor implements SetupGenerator<SerializedList> {
 
-    private DefaultArrayAdaptor adaptor;
+	private DefaultArrayAdaptor adaptor;
 
-    public ArraysListAdaptor() {
-        this.adaptor = new DefaultArrayAdaptor();
-    }
+	public ArraysListAdaptor() {
+		this.adaptor = new DefaultArrayAdaptor();
+	}
 
-    @Override
-    public Class<SerializedList> getAdaptedClass() {
-        return SerializedList.class;
-    }
+	@Override
+	public Class<SerializedList> getAdaptedClass() {
+		return SerializedList.class;
+	}
 
-    @Override
-    public Class<? extends SetupGenerator<SerializedList>> parent() {
-        return DefaultListAdaptor.class;
-    }
+	@Override
+	public Class<? extends SetupGenerator<SerializedList>> parent() {
+		return DefaultListAdaptor.class;
+	}
 
-    @Override
-    public boolean matches(Type type) {
-        return innerClasses(Arrays.class).stream()
-            .filter(in("ArrayList"))
-            .filter(element -> List.class.isAssignableFrom(element))
-            .anyMatch(element -> equalBaseTypes(element, type));
-    }
+	@Override
+	public boolean matches(Type type) {
+		return innerClasses(Arrays.class).stream()
+			.filter(in("ArrayList"))
+			.filter(element -> List.class.isAssignableFrom(element))
+			.anyMatch(element -> equalBaseTypes(element, type));
+	}
 
-    @Override
-    public Computation tryDeserialize(SerializedList value, SetupGenerators generator, DeserializerContext context) {
-        Type componentType = value.getComponentType();
+	@Override
+	public Computation tryDeserialize(SerializedList value, SetupGenerators generator, DeserializerContext context) {
+		Type componentType = value.getComponentType();
 
-        TypeManager types = context.getTypes();
-        types.staticImport(Arrays.class, "asList");
-        types.registerType(componentType);
+		TypeManager types = context.getTypes();
+		types.staticImport(Arrays.class, "asList");
+		types.registerType(componentType);
 
-        Type type = array(componentType);
-        SerializedArray baseValue = new SerializedArray(baseType(type));
-        baseValue.useAs(type);
-        for (SerializedValue element : value) {
-            baseValue.add(element);
-        }
+		Type type = array(componentType);
+		SerializedArray baseValue = new SerializedArray(baseType(type));
+		baseValue.useAs(type);
+		for (SerializedValue element : value) {
+			baseValue.add(element);
+		}
 
-        Type resultType = types.isHidden(componentType)
-            ? parameterized(List.class, null, wildcard())
-            : parameterized(List.class, null, componentType);
-        return context.forVariable(value, local -> {
+		Type resultType = types.isHidden(componentType)
+			? parameterized(List.class, null, wildcard())
+			: parameterized(List.class, null, componentType);
+		return context.forVariable(value, resultType, local -> {
 
-            Computation computation = adaptor.tryDeserialize(baseValue, generator, context);
-            List<String> statements = new LinkedList<>(computation.getStatements());
-            String resultArray = computation.getValue();
+			Computation computation = adaptor.tryDeserialize(baseValue, generator, context);
+			List<String> statements = new LinkedList<>(computation.getStatements());
+			String resultArray = computation.getValue();
 
-            String asListStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod("asList", resultArray));
-            statements.add(asListStatement);
+			String asListStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod("asList", resultArray));
+			statements.add(asListStatement);
 
-            return variable(local.getName(), resultType, statements);
-        });
-    }
+			return variable(local.getName(), local.getType(), statements);
+		});
+	}
 
 }

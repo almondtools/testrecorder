@@ -12,19 +12,37 @@ public class CollectionDataTypes {
 	}
 
 	@Recorded
-	public List<Integer> lists(List<Integer> ints, int i) {
+	public List<Object> listsO(List<Object> ints, int i) {
 		ints.add(i % 3);
 		return ints;
 	}
 
 	@Recorded
-	public Set<Integer> sets(Set<Integer> ints, int i) {
+	public List<Integer> listsI(List<Integer> ints, int i) {
 		ints.add(i % 3);
 		return ints;
 	}
 
 	@Recorded
-	public Map<Integer, Integer> maps(Map<Integer, Integer> ints, int i) {
+	public Set<Object> setsO(Set<Object> ints, int i) {
+		ints.add(i % 3);
+		return ints;
+	}
+
+	@Recorded
+	public Set<Integer> setsI(Set<Integer> ints, int i) {
+		ints.add(i % 3);
+		return ints;
+	}
+
+	@Recorded
+	public Map<Object, Object> mapsO(Map<Object, Object> ints, int i) {
+		ints.put(i, i % 3);
+		return ints;
+	}
+
+	@Recorded
+	public Map<Integer, Integer> mapsI(Map<Integer, Integer> ints, int i) {
 		ints.put(i, i % 3);
 		return ints;
 	}

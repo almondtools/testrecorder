@@ -2,9 +2,12 @@ package net.amygdalum.testrecorder.serializers;
 
 import static java.util.Collections.emptyList;
 import static net.amygdalum.testrecorder.util.Types.baseType;
+import static net.amygdalum.testrecorder.util.Types.isPrimitive;
 
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.stream.Stream;
+import java.util.stream.Stream.Builder;
 
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.Serializer;
@@ -12,12 +15,9 @@ import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.SerializedNull;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
-public class GenericSerializer implements Serializer<SerializedReferenceType> {
+public class GenericSerializer extends AbstractCompositeSerializer implements Serializer<SerializedReferenceType> {
 
-	private SerializerFacade facade;
-
-	public GenericSerializer(SerializerFacade facade) {
-		this.facade = facade;
+	public GenericSerializer() {
 	}
 
 	@Override
@@ -26,9 +26,28 @@ public class GenericSerializer implements Serializer<SerializedReferenceType> {
 	}
 
 	@Override
+	public Stream<?> components(Object object, SerializerSession session) {
+		Builder<Object> components = Stream.builder();
+		if (!session.facades(object)) {
+			Class<?> objectClass = object.getClass();
+			while (objectClass != Object.class && !session.excludes(objectClass)) {
+				for (Field f : objectClass.getDeclaredFields()) {
+					if (!session.excludes(f)) {
+						if (!isPrimitive(f.getType())) {
+							components.add(fieldOf(object, f));
+						}
+					}
+				}
+				objectClass = objectClass.getSuperclass();
+			}
+		}
+		return components.build();
+	}
+
+	@Override
 	public SerializedReferenceType generate(Class<?> type, SerializerSession session) {
 		if (session.excludes(baseType(type))) {
-			return SerializedNull.nullInstance(type);
+			return SerializedNull.nullInstance();
 		} else {
 			return new SerializedObject(type);
 		}
@@ -36,7 +55,7 @@ public class GenericSerializer implements Serializer<SerializedReferenceType> {
 
 	@Override
 	public void populate(SerializedReferenceType serializedValue, Object object, SerializerSession session) {
-		if (!(serializedValue instanceof SerializedObject)) {
+		if (!(serializedValue instanceof SerializedObject)  || session.facades(object)) {
 			return;
 		}
 		SerializedObject serializedObject = (SerializedObject) serializedValue;
@@ -45,7 +64,7 @@ public class GenericSerializer implements Serializer<SerializedReferenceType> {
 			while (objectClass != Object.class && !session.excludes(objectClass)) {
 				for (Field f : objectClass.getDeclaredFields()) {
 					if (!session.excludes(f)) {
-						serializedObject.addField(facade.serialize(f, object, session));
+						serializedObject.addField(serializedFieldOf(session, object, f));
 					}
 				}
 				objectClass = objectClass.getSuperclass();

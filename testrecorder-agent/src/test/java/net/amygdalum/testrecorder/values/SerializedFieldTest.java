@@ -51,13 +51,13 @@ public class SerializedFieldTest {
 
 	@Test
 	public void testGetAnnotations() throws Exception {
-		SerializedField fieldAnnotated = new SerializedField(AnnotatedField.class, "annotated", String.class, nullInstance(String.class));
+		SerializedField fieldAnnotated = new SerializedField(AnnotatedField.class, "annotated", String.class, nullInstance());
 
 		assertThat(fieldAnnotated.getAnnotations()).containsExactly((Annotation) Annotated.class.getAnnotation(MyAnnotation.class));
 		assertThat(fieldAnnotated.getAnnotation(MyAnnotation.class).get()).isEqualTo(Annotated.class.getAnnotation(MyAnnotation.class));
 		assertThat(fieldAnnotated.getAnnotation(NoAnnotation.class).isPresent()).isFalse();
 
-		SerializedField valueAnnotated = new SerializedField(AnnotatedField.class, "annotatedValue", Annotated.class, nullInstance(Annotated.class));
+		SerializedField valueAnnotated = new SerializedField(AnnotatedField.class, "annotatedValue", Annotated.class, nullInstance());
 
 		assertThat(valueAnnotated.getAnnotations()).isEmpty();
 		assertThat(valueAnnotated.getAnnotation(MyAnnotation.class).isPresent()).isFalse();

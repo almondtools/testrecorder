@@ -50,7 +50,7 @@ public class GenericFieldsTest {
 		assertThat(testGenerator.testsFor(GenericFields.class))
 			.hasSize(1)
 			.first().satisfies(test -> assertThat(test)
-				.containsWildcardPattern("genericFields?.setSet(hashSet?)")
+				.containsWildcardPattern("genericFields?.setSet(set?)")
 				.contains("equalTo(0)")
 				.contains("empty(String.class)"));
 	}

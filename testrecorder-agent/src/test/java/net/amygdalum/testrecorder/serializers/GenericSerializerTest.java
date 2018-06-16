@@ -4,7 +4,6 @@ import static java.util.Collections.singleton;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -26,15 +25,13 @@ import net.amygdalum.testrecorder.values.SerializedSet;
 
 public class GenericSerializerTest {
 
-	private SerializerFacade facade;
 	private SerializerSession session;
 	private Serializer<SerializedReferenceType> serializer;
 
 	@BeforeEach
 	public void before() throws Exception {
-		facade = mock(SerializerFacade.class);
 		session = mock(SerializerSession.class);
-		serializer = new GenericSerializer(facade);
+		serializer = new GenericSerializer();
 	}
 
 	@Test
@@ -63,27 +60,27 @@ public class GenericSerializerTest {
 	@Test
 	public void testPopulate() throws Exception {
 		SerializedValue foo = literal("Foo");
-		SerializedField fooField = new SerializedField(GenericObject.class, "stringField", String.class, foo);
 		SerializedValue bar = literal(int.class, 1);
-		SerializedField barField = new SerializedField(GenericObject.class, "intField", int.class, bar);
 		when(session.excludes(any(Field.class))).thenAnswer(field -> ((Field) field.getArguments()[0]).isSynthetic());
-		when(facade.serialize(eq(GenericObject.class.getDeclaredField("stringField")), any(), any(SerializerSession.class))).thenReturn(fooField);
-		when(facade.serialize(eq(GenericObject.class.getDeclaredField("intField")), any(), any(SerializerSession.class))).thenReturn(barField);
+		when(session.find("Foo")).thenReturn(foo);
+		when(session.find("Bar")).thenReturn(bar);
 		SerializedObject value = (SerializedObject) serializer.generate(GenericObject.class, session);
 		value.useAs(GenericObject.class);
 
 		serializer.populate(value, new GenericObject("Foo", 1), session);
 
+		SerializedField fooField = new SerializedField(GenericObject.class, "stringField", String.class, foo);
+		SerializedField barField = new SerializedField(GenericObject.class, "intField", int.class, bar);
 		assertThat(value.getFields()).containsExactlyInAnyOrder(fooField, barField);
 	}
 
 	@Test
 	public void testPopulateOtherNullType() throws Exception {
-		SerializedNull nullValue = SerializedNull.nullInstance(String.class);
+		SerializedNull nullValue = SerializedNull.nullInstance();
 
 		serializer.populate(nullValue, "Element", session);
 
-		assertThat(nullValue.getType()).isEqualTo(String.class);
+		assertThat(nullValue).isEqualTo(SerializedNull.nullInstance());
 	}
 
 	@Test

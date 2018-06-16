@@ -1,10 +1,10 @@
 package net.amygdalum.testrecorder.serializers;
 
 import static java.util.Arrays.asList;
+import static net.amygdalum.testrecorder.SerializedValues.nullValue;
 import static net.amygdalum.testrecorder.util.Types.innerType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
-import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -23,15 +23,13 @@ import net.amygdalum.testrecorder.values.SerializedList;
 
 public class CollectionsListSerializerTest {
 
-	private SerializerFacade facade;
 	private SerializerSession session;
 	private Serializer<SerializedList> serializer;
 
 	@BeforeEach
 	public void before() throws Exception {
-		facade = mock(SerializerFacade.class);
 		session = mock(SerializerSession.class);
-		serializer = new CollectionsListSerializer(facade);
+		serializer = new CollectionsListSerializer();
 	}
 
 	@Test
@@ -64,8 +62,8 @@ public class CollectionsListSerializerTest {
 	public void testPopulate() throws Exception {
 		SerializedValue foo = literal("Foo");
 		SerializedValue bar = literal("Bar");
-		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
-		when(facade.serialize(String.class, "Bar", session)).thenReturn(bar);
+		when(session.find("Foo")).thenReturn(foo);
+		when(session.find("Bar")).thenReturn(bar);
 		Class<?> unmodifiableList = innerType(Collections.class, "UnmodifiableList");
 		SerializedList value = serializer.generate(unmodifiableList, session);
 
@@ -77,15 +75,14 @@ public class CollectionsListSerializerTest {
 	@Test
 	public void testPopulateNull() throws Exception {
 		SerializedValue foo = literal("Foo");
-		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
-		when(facade.serialize(String.class, null, session)).thenReturn(nullInstance(String.class));
+		when(session.find("Foo")).thenReturn(foo);
 		Class<?> unmodifiableList = innerType(Collections.class, "UnmodifiableList");
 		SerializedList value = serializer.generate(unmodifiableList, session);
 		value.useAs(parameterized(List.class, null, String.class));
 
 		serializer.populate(value, asList("Foo", null), session);
 
-		assertThat(value).containsExactly(foo, nullInstance(String.class));
+		assertThat(value).containsExactly(foo, nullValue(String.class));
 	}
 
 }

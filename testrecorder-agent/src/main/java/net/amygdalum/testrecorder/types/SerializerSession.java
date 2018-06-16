@@ -10,7 +10,7 @@ public interface SerializerSession {
 
 	List<Profile> dumpProfiles();
 
-	SerializedValue find(Object object);
+	SerializedValue find(Object component);
 
 	void resolve(Object object, SerializedValue value);
 
@@ -18,7 +18,7 @@ public interface SerializerSession {
 
 	boolean excludes(Class<?> clazz);
 
-	void analyze(Object object);
+	AnalyzedObject analyze(Object object);
 
 	boolean facades(Object object);
 

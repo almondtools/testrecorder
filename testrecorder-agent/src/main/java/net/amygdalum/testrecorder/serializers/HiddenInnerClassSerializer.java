@@ -6,14 +6,12 @@ import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.util.Types;
 
-public abstract class HiddenInnerClassSerializer<T extends SerializedValue> implements Serializer<T> {
+public abstract class HiddenInnerClassSerializer<T extends SerializedValue> extends AbstractCompositeSerializer implements Serializer<T> {
 
 	private Class<?> clazz;
-	protected SerializerFacade facade;
 
-	public HiddenInnerClassSerializer(Class<?> clazz, SerializerFacade facade) {
+	public HiddenInnerClassSerializer(Class<?> clazz) {
 		this.clazz = clazz;
-		this.facade = facade;
 	}
 
 	public List<Class<?>> innerClasses() {

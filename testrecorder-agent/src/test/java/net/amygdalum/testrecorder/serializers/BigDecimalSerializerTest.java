@@ -14,15 +14,13 @@ import net.amygdalum.testrecorder.values.SerializedImmutable;
 
 public class BigDecimalSerializerTest {
 
-	private SerializerFacade facade;
 	private SerializerSession session;
 	private Serializer<SerializedImmutable<BigDecimal>> serializer;
 
 	@BeforeEach
 	public void before() throws Exception {
-		facade = mock(SerializerFacade.class);
 		session = mock(SerializerSession.class);
-		serializer = new BigDecimalSerializer(facade);
+		serializer = new BigDecimalSerializer();
 	}
 
 	@Test

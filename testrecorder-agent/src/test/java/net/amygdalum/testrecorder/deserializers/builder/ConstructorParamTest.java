@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
+import static net.amygdalum.testrecorder.SerializedValues.nullValue;
 import static net.amygdalum.testrecorder.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
@@ -43,9 +44,9 @@ public class ConstructorParamTest {
 
 	@Test
 	public void testConstructorParamWithoutField() throws Exception {
-		assertThat(new ConstructorParam(constructor, 0).computeSerializedValue()).isEqualTo(nullInstance(null));
-		assertThat(new ConstructorParam(constructor, 0).assertType(String.class).computeSerializedValue()).isEqualTo(nullInstance(String.class));
-		assertThat(new ConstructorParam(constructor, 0).assertType(Object.class).computeSerializedValue()).isEqualTo(nullInstance(Object.class));
+		assertThat(new ConstructorParam(constructor, 0).computeSerializedValue()).isEqualTo(nullValue(null));
+		assertThat(new ConstructorParam(constructor, 0).assertType(String.class).computeSerializedValue()).isEqualTo(nullValue(String.class));
+		assertThat(new ConstructorParam(constructor, 0).assertType(Object.class).computeSerializedValue()).isEqualTo(nullValue(Object.class));
 		assertThat(new ConstructorParam(constructor, 0).assertType(int.class).computeSerializedValue()).isEqualTo(literal(int.class, 0));
 	}
 
@@ -61,7 +62,10 @@ public class ConstructorParamTest {
 
 		DeserializerContext context = new DefaultDeserializerContext();
 		assertThat(new ConstructorParam(constructor, 0, new SerializedField(Simple.class, "field", String.class, literal("value")), "value")
-			.compile(types, compiler, context).getValue()).isEqualTo("(Object) \"value\"");
+			.compile(types, compiler, context).getValue()).isEqualTo("\"value\"");
+		assertThat(new ConstructorParam(constructor, 0, new SerializedField(Simple.class, "field", String.class, nullInstance()), null)
+			.assertType(String.class)
+			.compile(types, compiler, context).getValue()).isEqualTo("null");
 		assertThat(new ConstructorParam(constructor, 0)
 			.assertType(String.class)
 			.compile(types, compiler, context).getValue()).isEqualTo("null");
@@ -75,9 +79,6 @@ public class ConstructorParamTest {
 		assertThat(new ConstructorParam(constructor, 0, new SerializedField(Simple.class, "field", String.class, literal("value")), "value")
 			.assertType(String.class)
 			.compile(types, compiler, context).getValue()).isEqualTo("\"value\"");
-		assertThat(new ConstructorParam(constructor, 0, new SerializedField(Simple.class, "field", String.class, nullInstance(String.class)), null)
-			.assertType(String.class)
-			.compile(types, compiler, context).getValue()).isEqualTo("null");
 	}
 
 	private SetupGenerators generator() {

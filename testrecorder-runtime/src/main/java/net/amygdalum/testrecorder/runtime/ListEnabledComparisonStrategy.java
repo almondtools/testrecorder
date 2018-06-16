@@ -42,4 +42,8 @@ public class ListEnabledComparisonStrategy implements ComparisonStrategy {
 		return todo;
 	}
 
+	@Override
+	public ComparisonStrategy next() {
+		return this;
+	}
 }

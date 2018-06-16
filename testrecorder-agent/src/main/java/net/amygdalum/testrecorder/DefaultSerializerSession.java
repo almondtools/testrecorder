@@ -1,11 +1,13 @@
 package net.amygdalum.testrecorder;
 
 import static java.util.stream.Collectors.toList;
+import static net.amygdalum.testrecorder.asm.ByteCode.classFrom;
 import static net.amygdalum.testrecorder.util.Lambdas.isSerializableLambda;
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.isLiteral;
 
+import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -18,9 +20,11 @@ import net.amygdalum.testrecorder.profile.Classes;
 import net.amygdalum.testrecorder.profile.Excluded;
 import net.amygdalum.testrecorder.profile.Facade;
 import net.amygdalum.testrecorder.profile.Fields;
+import net.amygdalum.testrecorder.types.AnalyzedObject;
 import net.amygdalum.testrecorder.types.Profile;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.SerializerSession;
+import net.amygdalum.testrecorder.util.Lambdas;
 
 public class DefaultSerializerSession implements SerializerSession {
 
@@ -103,18 +107,23 @@ public class DefaultSerializerSession implements SerializerSession {
 		return excluded;
 	}
 
-	public void analyze(Object object) {
+	public AnalyzedObject analyze(Object object) {
 		if (object == null) {
-			return;
-		} else if (isLiteral(object.getClass())) {
-			return;
-		} else if (isSerializableLambda(object.getClass())) {
-			return;
+			return new AnalyzedObject(null);
 		}
-		if (facades(object.getClass())) {
+		Class<?> clazz = object.getClass();
+		if (isLiteral(clazz)) {
+			return new AnalyzedObject(clazz, object);
+		} 
+		if (isSerializableLambda(clazz)) {
+			SerializedLambda lambda = Lambdas.serializeLambda(object);
+			Class<?> type = classFrom(lambda.getFunctionalInterfaceClass());
+			return new AnalyzedObject(object, type, lambda);
+		}
+		if (facades(clazz)) {
 			facaded.put(object, object);
 		}
-		Class<?> objectClass = object.getClass();
+		Class<?> objectClass = clazz;
 		while (objectClass != Object.class) {
 			for (Field field : objectClass.getDeclaredFields()) {
 				if (facades(field)) {
@@ -128,7 +137,7 @@ public class DefaultSerializerSession implements SerializerSession {
 			}
 			objectClass = objectClass.getSuperclass();
 		}
-			
+		return new AnalyzedObject(clazz, object);
 	}
 
 	private boolean facades(Field field) {

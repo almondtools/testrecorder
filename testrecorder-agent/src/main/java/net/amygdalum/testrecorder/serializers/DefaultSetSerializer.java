@@ -2,28 +2,30 @@ package net.amygdalum.testrecorder.serializers;
 
 import static java.util.Arrays.asList;
 
-import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.SerializedSet;
 
-public class DefaultSetSerializer implements Serializer<SerializedSet> {
+public class DefaultSetSerializer extends AbstractCompositeSerializer implements Serializer<SerializedSet> {
 
-	private SerializerFacade facade;
-
-	public DefaultSetSerializer(SerializerFacade facade) {
-		this.facade = facade;
+	public DefaultSetSerializer() {
 	}
 
 	@Override
 	public List<Class<?>> getMatchingClasses() {
 		return asList(HashSet.class, LinkedHashSet.class, TreeSet.class);
+	}
+
+	@Override
+	public Stream<?> components(Object object, SerializerSession session) {
+		return ((Set<?>) object).stream();
 	}
 
 	@Override
@@ -33,9 +35,8 @@ public class DefaultSetSerializer implements Serializer<SerializedSet> {
 
 	@Override
 	public void populate(SerializedSet serializedObject, Object object, SerializerSession session) {
-		Type resultType = serializedObject.getComponentType();
 		for (Object element : (Set<?>) object) {
-			serializedObject.add(facade.serialize(resultType, element, session));
+			serializedObject.add(serializedValueOf(session, serializedObject.getComponentType(), element));
 		}
 	}
 

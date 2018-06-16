@@ -100,14 +100,6 @@ public class DefaultDeserializerContext implements DeserializerContext {
 	}
 
 	@Override
-	public LocalVariable localVariable(SerializedValue value) {
-		Type type = types.isHidden(value.getType())
-			? types.mostSpecialOf(value.getUsedTypes()).orElse(Object.class)
-			: value.getType();
-		return localVariable(value, type);
-	}
-
-	@Override
 	public LocalVariable localVariable(SerializedValue value, Type type) {
 		String name = locals.fetchName(type);
 		LocalVariable definition = new LocalVariable(name, type);
@@ -245,7 +237,9 @@ public class DefaultDeserializerContext implements DeserializerContext {
 
 	@Override
 	public boolean needsAdaptation(Type resultType, Type type) {
-		if (baseType(resultType) != Wrapped.class && type == Wrapped.class) {
+		if (resultType == null || type == null) {
+			return false;
+		} else if (baseType(resultType) != Wrapped.class && type == Wrapped.class) {
 			return true;
 		} else if (baseType(resultType) != Wrapped.class && types.isHidden(type)) {
 			return true;
@@ -256,19 +250,6 @@ public class DefaultDeserializerContext implements DeserializerContext {
 			return true;
 		}
 		return false;
-	}
-
-	@Override
-	public Computation forVariable(SerializedValue value, LocalVariableDefinition computation) {
-		LocalVariable local = localVariable(value);
-		try {
-			Computation definition = computation.define(local);
-			finishVariable(value);
-			return definition;
-		} catch (DeserializationException e) {
-			resetVariable(value);
-			throw e;
-		}
 	}
 
 	@Override

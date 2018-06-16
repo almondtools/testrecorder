@@ -31,7 +31,7 @@ public class CollectionDataTypesTest {
 
 		CollectionDataTypes dataTypes = new CollectionDataTypes();
 		for (int i = 1; i <= 10; i++) {
-			dataTypes.lists(list, i);
+			dataTypes.listsI(list, i);
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
@@ -45,7 +45,7 @@ public class CollectionDataTypesTest {
 		list.add(null);
 
 		CollectionDataTypes dataTypes = new CollectionDataTypes();
-		dataTypes.lists(list, 0);
+		dataTypes.listsI(list, 0);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(CollectionDataTypes.class)).satisfies(testsRun());
@@ -57,7 +57,7 @@ public class CollectionDataTypesTest {
 
 		CollectionDataTypes dataTypes = new CollectionDataTypes();
 		for (int i = 1; i <= 10; i++) {
-			dataTypes.lists(list, i);
+			dataTypes.listsI(list, i);
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
@@ -71,7 +71,7 @@ public class CollectionDataTypesTest {
 		list.add(null);
 
 		CollectionDataTypes dataTypes = new CollectionDataTypes();
-		dataTypes.lists(list, 0);
+		dataTypes.listsI(list, 0);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(CollectionDataTypes.class)).satisfies(testsRun());
@@ -83,7 +83,7 @@ public class CollectionDataTypesTest {
 
 		CollectionDataTypes dataTypes = new CollectionDataTypes();
 		for (int i = 1; i <= 10; i++) {
-			dataTypes.sets(set, i);
+			dataTypes.setsI(set, i);
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
@@ -97,7 +97,7 @@ public class CollectionDataTypesTest {
 		set.add(null);
 
 		CollectionDataTypes dataTypes = new CollectionDataTypes();
-		dataTypes.sets(set, 0);
+		dataTypes.setsI(set, 0);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(CollectionDataTypes.class)).satisfies(testsRun());
@@ -109,7 +109,7 @@ public class CollectionDataTypesTest {
 
 		CollectionDataTypes dataTypes = new CollectionDataTypes();
 		for (int i = 1; i <= 10; i++) {
-			dataTypes.sets(set, i);
+			dataTypes.setsI(set, i);
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
@@ -123,7 +123,7 @@ public class CollectionDataTypesTest {
 		set.add(null);
 
 		CollectionDataTypes dataTypes = new CollectionDataTypes();
-		dataTypes.sets(set, 0);
+		dataTypes.setsI(set, 0);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(CollectionDataTypes.class)).satisfies(testsRun());
@@ -135,7 +135,7 @@ public class CollectionDataTypesTest {
 
 		CollectionDataTypes dataTypes = new CollectionDataTypes();
 		for (int i = 1; i <= 10; i++) {
-			dataTypes.sets(set, i);
+			dataTypes.setsI(set, i);
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
@@ -149,7 +149,7 @@ public class CollectionDataTypesTest {
 
 		CollectionDataTypes dataTypes = new CollectionDataTypes();
 		for (int i = 1; i <= 10; i++) {
-			dataTypes.maps(map, i);
+			dataTypes.mapsI(map, i);
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
@@ -164,7 +164,7 @@ public class CollectionDataTypesTest {
 		map.put(null, 42);
 
 		CollectionDataTypes dataTypes = new CollectionDataTypes();
-		dataTypes.maps(map, 0);
+		dataTypes.mapsI(map, 0);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(CollectionDataTypes.class)).satisfies(testsRun());
@@ -176,7 +176,7 @@ public class CollectionDataTypesTest {
 
 		CollectionDataTypes dataTypes = new CollectionDataTypes();
 		for (int i = 1; i <= 10; i++) {
-			dataTypes.maps(map, i);
+			dataTypes.mapsI(map, i);
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
@@ -190,7 +190,7 @@ public class CollectionDataTypesTest {
 		map.put(42, null);
 
 		CollectionDataTypes dataTypes = new CollectionDataTypes();
-		dataTypes.maps(map, 0);
+		dataTypes.mapsI(map, 0);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(CollectionDataTypes.class)).satisfies(testsRun());
@@ -202,7 +202,7 @@ public class CollectionDataTypesTest {
 
 		CollectionDataTypes dataTypes = new CollectionDataTypes();
 		for (int i = 1; i <= 10; i++) {
-			dataTypes.maps(map, i);
+			dataTypes.mapsI(map, i);
 		}
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
@@ -217,9 +217,32 @@ public class CollectionDataTypesTest {
 		map.put(null, 42);
 
 		CollectionDataTypes dataTypes = new CollectionDataTypes();
-		dataTypes.maps(map, 0);
+		dataTypes.mapsI(map, 0);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class).getTestCode()).containsSubsequence(
+			"containsEntries(Integer.class, Integer.class)",
+			".entry(42, (Integer) null)",
+			".entry((Integer) null, 42)",
+			".entry(0, 0)");
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class)).satisfies(testsRun());
+	}
+
+	@Test
+	public void testLinkedHashMapObjectTypedNullValuesCompilesAndRuns() throws Exception {
+		Map<Object, Object> map = new LinkedHashMap<>();
+		map.put(42, null);
+		map.put(null, 42);
+		
+		CollectionDataTypes dataTypes = new CollectionDataTypes();
+		dataTypes.mapsO(map, 0);
+		
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(CollectionDataTypes.class).getTestCode()).containsSubsequence(
+			"containsEntries(Object.class, Object.class)",
+			".entry(42, (Object) null)",
+			".entry((Object) null, 42)",
+			".entry(0, 0)");
 		assertThat(testGenerator.renderTest(CollectionDataTypes.class)).satisfies(testsRun());
 	}
 }

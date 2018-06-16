@@ -75,11 +75,6 @@ public interface DeserializerContext {
 		}
 
 		@Override
-		public Computation forVariable(SerializedValue value, LocalVariableDefinition computation) {
-			return null;
-		}
-
-		@Override
 		public Computation forVariable(SerializedValue value, Type type, LocalVariableDefinition computation) {
 			return null;
 		}
@@ -94,11 +89,6 @@ public interface DeserializerContext {
 			return null;
 		}
 
-		@Override
-		public LocalVariable localVariable(SerializedValue value) {
-			return null;
-		}
-		
 		@Override
 		public LocalVariable localVariable(SerializedValue value, Type type) {
 			return null;
@@ -155,15 +145,11 @@ public interface DeserializerContext {
 
 	boolean needsAdaptation(Type resultType, Type type);
 
-	Computation forVariable(SerializedValue value, LocalVariableDefinition computation);
-	
 	Computation forVariable(SerializedValue value, Type type, LocalVariableDefinition computation);
 
 	String temporaryLocal();
 
 	String newLocal(String name);
-
-	LocalVariable localVariable(SerializedValue value);
 
 	LocalVariable localVariable(SerializedValue value, Type type);
 

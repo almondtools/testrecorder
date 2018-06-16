@@ -9,6 +9,7 @@ import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.awt.List;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -69,10 +70,10 @@ public class DefaultMapAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
-			"Map<Integer, Integer> linkedHashMap1 = new LinkedHashMap<>()",
-			"linkedHashMap1.put(8, 15)",
-			"linkedHashMap1.put(47, 11)");
-		assertThat(result.getValue()).isEqualTo("linkedHashMap1");
+			"Map<Integer, Integer> map1 = new LinkedHashMap<>()",
+			"map1.put(8, 15)",
+			"map1.put(47, 11)");
+		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
 	@Test
@@ -175,9 +176,9 @@ public class DefaultMapAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, new DefaultDeserializerContext() {
 			@Override
-			public Computation forVariable(SerializedValue value, LocalVariableDefinition computation) {
+			public Computation forVariable(SerializedValue value, Type type, LocalVariableDefinition computation) {
 				LocalVariable local = new LocalVariable("forwarded");
-				local.define(value.getType());
+				local.define(type);
 				return computation.define(local);
 			}
 		});
@@ -195,7 +196,7 @@ public class DefaultMapAdaptorTest {
 		value.useAs(parameterized(Map.class, null, Integer.class, parameterized(List.class, null, Integer.class)));
 		value.put(literal(8), listOf(Integer.class, literal(15)));
 		value.put(literal(47), listOf(Integer.class, literal(11), literal(11)));
-		value.put(literal(11), listOf(Integer.class, literal(15),literal(47)));
+		value.put(literal(11), listOf(Integer.class, literal(15), literal(47)));
 		SetupGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);
@@ -212,11 +213,11 @@ public class DefaultMapAdaptorTest {
 			"temp3.add(15);",
 			"temp3.add(47);",
 			"List<Integer> list3 = (List<Integer>) temp3;",
-			"Map<Integer, List<Integer>> linkedHashMap1 = new LinkedHashMap<>()",
-			"linkedHashMap1.put(8, list1)",
-			"linkedHashMap1.put(47, list2)",
-			"linkedHashMap1.put(11, list3)");
-		assertThat(result.getValue()).isEqualTo("linkedHashMap1");
+			"Map<Integer, List<Integer>> map1 = new LinkedHashMap<>()",
+			"map1.put(8, list1)",
+			"map1.put(47, list2)",
+			"map1.put(11, list3)");
+		assertThat(result.getValue()).isEqualTo("map1");
 	}
 
 	private SerializedList listOf(Class<?> type, SerializedValue... values) {

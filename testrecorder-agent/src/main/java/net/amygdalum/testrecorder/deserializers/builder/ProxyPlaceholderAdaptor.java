@@ -10,13 +10,13 @@ import net.amygdalum.testrecorder.runtime.PlaceHolderInvocationHandler;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.TypeManager;
-import net.amygdalum.testrecorder.values.SerializedPlaceholder;
+import net.amygdalum.testrecorder.values.SerializedObject;
 
-public class ProxyPlaceholderAdaptor extends DefaultSetupGenerator<SerializedPlaceholder> implements SetupGenerator<SerializedPlaceholder> {
+public class ProxyPlaceholderAdaptor extends DefaultSetupGenerator<SerializedObject> implements SetupGenerator<SerializedObject> {
 
 	@Override
-	public Class<SerializedPlaceholder> getAdaptedClass() {
-		return SerializedPlaceholder.class;
+	public Class<SerializedObject> getAdaptedClass() {
+		return SerializedObject.class;
 	}
 
 	@Override
@@ -25,7 +25,7 @@ public class ProxyPlaceholderAdaptor extends DefaultSetupGenerator<SerializedPla
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedPlaceholder value, SetupGenerators generator, DeserializerContext context) {
+	public Computation tryDeserialize(SerializedObject value, SetupGenerators generator, DeserializerContext context) {
 		TypeManager types = context.getTypes();
 		types.registerImport(PlaceHolderInvocationHandler.class);
 

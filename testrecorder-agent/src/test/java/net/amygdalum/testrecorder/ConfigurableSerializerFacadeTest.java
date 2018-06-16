@@ -2,14 +2,13 @@ package net.amygdalum.testrecorder;
 
 import static java.util.Arrays.asList;
 import static net.amygdalum.testrecorder.TestAgentConfiguration.defaultConfig;
-import static net.amygdalum.testrecorder.util.Types.getDeclaredField;
-import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -20,7 +19,6 @@ import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.ASerializedValue;
-import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedNull;
 import net.amygdalum.testrecorder.values.SerializedObject;
@@ -91,7 +89,7 @@ public class ConfigurableSerializerFacadeTest {
 	public void testSerializeOnNull() throws Exception {
 		ConfigurableSerializerFacade facade = new ConfigurableSerializerFacade(defaultConfig());
 
-		assertThat(facade.serialize(String.class, null, facade.newSession())).isEqualTo(SerializedNull.nullInstance(String.class));
+		assertThat(facade.serialize(String.class, null, facade.newSession())).isInstanceOf(SerializedNull.class);
 	}
 
 	@Test
@@ -141,18 +139,6 @@ public class ConfigurableSerializerFacadeTest {
 		assertThat(serialize).containsExactly(SerializedLiteral.literal(String.class, "str"));
 	}
 
-	@Test
-	public void testSerializeFieldObject() throws Exception {
-		ConfigurableSerializerFacade facade = new ConfigurableSerializerFacade(defaultConfig());
-
-		SerializedField serialized = facade.serialize(getDeclaredField(TestClass.class, "testField"), new TestClass(), facade.newSession());
-
-		assertThat(serialized.getName()).isEqualTo("testField");
-		assertThat(serialized.getDeclaringClass()).isEqualTo(TestClass.class);
-		assertThat(serialized.getType()).isEqualTo(int.class);
-		assertThat(serialized.getValue()).isEqualTo(literal(int.class, 42));
-	}
-
 	public static class OtherClass {
 
 	}
@@ -187,6 +173,11 @@ public class ConfigurableSerializerFacadeTest {
 		@Override
 		public List<Class<?>> getMatchingClasses() {
 			return asList(clazz);
+		}
+		
+		@Override
+		public Stream<?> components(Object object, SerializerSession session) {
+			return Stream.empty();
 		}
 
 		@Override

@@ -6,6 +6,7 @@ import static java.util.stream.Collectors.toList;
 import java.lang.invoke.SerializedLambda;
 import java.util.List;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
@@ -13,17 +14,26 @@ import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.LambdaSignature;
 import net.amygdalum.testrecorder.values.SerializedLambdaObject;
 
-public class LambdaSerializer implements Serializer<SerializedLambdaObject> {
+public class LambdaSerializer extends AbstractCompositeSerializer implements Serializer<SerializedLambdaObject> {
 
-	private SerializerFacade facade;
-
-	public LambdaSerializer(SerializerFacade facade) {
-		this.facade = facade;
+	public LambdaSerializer() {
 	}
 
 	@Override
 	public List<Class<?>> getMatchingClasses() {
 		return emptyList();
+	}
+
+	@Override
+	public Stream<?> components(Object object, SerializerSession session) {
+		if (!(object instanceof SerializedLambda)) {
+			return Stream.empty();
+		}
+
+		SerializedLambda lambda = (SerializedLambda) object;
+
+		return IntStream.range(0, lambda.getCapturedArgCount())
+			.mapToObj(lambda::getCapturedArg);
 	}
 
 	@Override
@@ -49,7 +59,7 @@ public class LambdaSerializer implements Serializer<SerializedLambdaObject> {
 
 		List<SerializedValue> arguments = IntStream.range(0, lambda.getCapturedArgCount())
 			.mapToObj(lambda::getCapturedArg)
-			.map(o -> facade.serialize(o.getClass(), o, session))
+			.map(o -> serializedValueOf(session, o.getClass(), o))
 			.collect(toList());
 		serializedLambda.setCapturedArguments(arguments);
 	}

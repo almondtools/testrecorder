@@ -32,7 +32,7 @@ public class DefaultObjectAdaptor extends DefaultSetupGenerator<SerializedObject
 
         Type type = value.getType();
         Type usedType = types.mostSpecialOf(value.getUsedTypes()).orElse(Object.class);
-        return context.forVariable(value, definition -> {
+        return context.forVariable(value, usedType, local -> {
 
             List<Computation> elementTemplates = ensureUniqueNames(value.getFields()).stream()
                 .sorted()
@@ -48,18 +48,18 @@ public class DefaultObjectAdaptor extends DefaultSetupGenerator<SerializedObject
                 .collect(toList());
 
             Type effectiveResultType = usedType;
-            if (definition.isDefined() && !definition.isReady()) {
-                effectiveResultType = definition.getType();
+            if (local.isDefined() && !local.isReady()) {
+                effectiveResultType = local.getType();
                 String genericObject = genericObject(types.getRawClass(type), elements);
-                statements.add(callMethodStatement(types.getVariableTypeName(GenericObject.class), "define", definition.getName(), genericObject));
+                statements.add(callMethodStatement(types.getVariableTypeName(GenericObject.class), "define", local.getName(), genericObject));
             } else {
                 effectiveResultType = types.wrapHidden(usedType);
                 String genericObject = genericObjectConverter(types.getRawClass(type), elements);
                 genericObject = context.adapt(genericObject, effectiveResultType, type);
-                statements.add(assignLocalVariableStatement(types.getRawTypeName(effectiveResultType), definition.getName(), genericObject));
+                statements.add(assignLocalVariableStatement(types.getRawTypeName(effectiveResultType), local.getName(), genericObject));
             }
 
-            return variable(definition.getName(), effectiveResultType, statements);
+            return variable(local.getName(), local.getType(), statements);
         });
     }
 

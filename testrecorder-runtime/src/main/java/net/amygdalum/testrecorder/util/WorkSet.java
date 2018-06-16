@@ -3,9 +3,8 @@ package net.amygdalum.testrecorder.util;
 import static java.util.stream.Collectors.joining;
 
 import java.util.Collection;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -15,13 +14,19 @@ public class WorkSet<T> implements Queue<T> {
     private Map<T,T> done;
     private Queue<T> elements;
 
+    public WorkSet(Map<T,T> done, Queue<T> elements) {
+        this.done = done;
+        this.elements = elements;
+    }
+    
     public WorkSet(Queue<T> base) {
-        this.done = new LinkedHashMap<>();
-        this.elements = base;
+        this.done = new IdentityHashMap<>();
+        this.elements = new WorkQueue<>(base);
     }
     
     public WorkSet() {
-        this(new LinkedList<T>());
+        this.done = new IdentityHashMap<>();
+        this.elements = new WorkQueue<>();
     }
 
     public Set<T> getDone() {

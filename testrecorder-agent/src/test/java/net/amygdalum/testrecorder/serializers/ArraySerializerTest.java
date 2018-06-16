@@ -15,15 +15,13 @@ import net.amygdalum.testrecorder.values.SerializedArray;
 
 public class ArraySerializerTest {
 
-	private SerializerFacade facade;
 	private SerializerSession session;
 	private Serializer<SerializedArray> serializer;
 
 	@BeforeEach
 	public void before() throws Exception {
-		facade = mock(SerializerFacade.class);
 		session = mock(SerializerSession.class);
-		serializer = new ArraySerializer(facade);
+		serializer = new ArraySerializer();
 	}
 
 	@Test
@@ -45,8 +43,8 @@ public class ArraySerializerTest {
 	public void testPopulate() throws Exception {
 		SerializedValue foo = literal("Foo");
 		SerializedValue bar = literal("Bar");
-		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
-		when(facade.serialize(String.class, "Bar", session)).thenReturn(bar);
+		when(session.find("Foo")).thenReturn(foo);
+		when(session.find("Bar")).thenReturn(bar);
 		SerializedArray value = serializer.generate(String[].class, session);
 		value.useAs(String[].class);
 

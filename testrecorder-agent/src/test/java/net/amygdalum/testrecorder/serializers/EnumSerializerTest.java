@@ -12,15 +12,13 @@ import net.amygdalum.testrecorder.values.SerializedEnum;
 
 public class EnumSerializerTest {
 
-	private SerializerFacade facade;
 	private SerializerSession session;
 	private Serializer<SerializedEnum> serializer;
 
 	@BeforeEach
 	public void before() throws Exception {
-		facade = mock(SerializerFacade.class);
 		session = mock(SerializerSession.class);
-		serializer = new EnumSerializer(facade);
+		serializer = new EnumSerializer();
 	}
 
 	@Test

@@ -9,6 +9,8 @@ import static net.amygdalum.testrecorder.util.Types.allFields;
 import static org.hamcrest.Matchers.instanceOf;
 
 import java.lang.reflect.Field;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.hamcrest.Description;
@@ -40,7 +42,7 @@ public class GenericMatcher extends GenericObject {
 	}
 
 	public List<GenericComparison> mismatchesWith(String root, Object o) {
-		WorkSet<GenericComparison> remainder = new WorkSet<>();
+		WorkSet<GenericComparison> remainder = new WorkSet<>(new LinkedHashMap<>(), new LinkedList<>());
 		for (Field field : getGenericFields(o.getClass())) {
 			GenericComparison comparison = getQualifiedField(o.getClass(), field.getName())
 				.map(qfield -> GenericComparison.from(root, field, this, qfield, o))

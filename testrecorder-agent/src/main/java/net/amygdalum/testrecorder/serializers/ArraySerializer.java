@@ -1,20 +1,34 @@
 package net.amygdalum.testrecorder.serializers;
 
 import static java.util.Collections.emptyList;
+import static net.amygdalum.testrecorder.util.Types.isPrimitive;
 
 import java.lang.reflect.Array;
 import java.util.List;
+import java.util.stream.Stream;
+import java.util.stream.Stream.Builder;
 
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.SerializedArray;
 
-public class ArraySerializer implements Serializer<SerializedArray> {
+public class ArraySerializer extends AbstractCompositeSerializer implements Serializer<SerializedArray> {
 
-	private SerializerFacade facade;
+	public ArraySerializer() {
+	}
 
-	public ArraySerializer(SerializerFacade facade) {
-		this.facade = facade;
+	@Override
+	public Stream<?> components(Object object, SerializerSession session) {
+		Class<?> type = object.getClass().getComponentType();
+		if (isPrimitive(type)) {
+			return Stream.empty();
+		}
+		Builder<Object> components = Stream.builder();
+		for (int i = 0; i < Array.getLength(object); i++) {
+			Object component = Array.get(object, i);
+			components.add(component);
+		}
+		return components.build();
 	}
 
 	@Override
@@ -29,8 +43,10 @@ public class ArraySerializer implements Serializer<SerializedArray> {
 
 	@Override
 	public void populate(SerializedArray serializedObject, Object object, SerializerSession session) {
+		Class<?> type = object.getClass().getComponentType();
 		for (int i = 0; i < Array.getLength(object); i++) {
-			serializedObject.add(facade.serialize(serializedObject.getComponentType(), Array.get(object, i), session));
+			Object component = Array.get(object, i);
+			serializedObject.add(serializedValueOf(session, type, component));
 		}
 	}
 

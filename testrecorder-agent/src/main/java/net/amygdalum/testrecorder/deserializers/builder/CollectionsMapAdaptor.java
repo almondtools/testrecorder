@@ -95,11 +95,11 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 		    mapValueType = wildcard();
 		}
         Type resultType = parameterized(Map.class, null, mapKeyType, mapValueType);
-		return context.forVariable(value, local -> {
+		return context.forVariable(value, resultType, local -> {
 
 			String decoratingStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod(factoryMethod));
 
-			return variable(local.getName(), resultType, asList(decoratingStatement));
+			return variable(local.getName(), local.getType(), asList(decoratingStatement));
 		});
 	}
 
@@ -118,7 +118,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
             mapValueType = wildcard();
         }
         Type resultType = parameterized(Map.class, null, mapKeyType, mapValueType);
-		return context.forVariable(value, local -> {
+		return context.forVariable(value, resultType, local -> {
 
 			Entry<SerializedValue, SerializedValue> entry = value.entrySet().iterator().next();
 			List<String> statements = new LinkedList<>();
@@ -134,7 +134,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 			String decoratingStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod(factoryMethod, resultKey, resultValue));
 			statements.add(decoratingStatement);
 
-			return variable(local.getName(), resultType, statements);
+			return variable(local.getName(), local.getType(), statements);
 		});
 
 	}
@@ -153,7 +153,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
             mapValueType = wildcard();
         }
 		Type resultType = parameterized(Map.class, null, mapKeyType, mapValueType);
-		return context.forVariable(value, local -> {
+		return context.forVariable(value, resultType, local -> {
 
 			Computation computation = createOrdinaryMap(value, generator, context);
 			List<String> statements = new LinkedList<>(computation.getStatements());
@@ -162,7 +162,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 			String decoratingStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase));
 			statements.add(decoratingStatement);
 
-			return variable(local.getName(), resultType, statements);
+			return variable(local.getName(), local.getType(), statements);
 		});
 
 	}
@@ -181,7 +181,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
             mapValueType = wildcard();
         }
 		Type resultType = parameterized(Map.class, null, mapKeyType, mapValueType);
-		return context.forVariable(value, local -> {
+		return context.forVariable(value, resultType, local -> {
 
 			Computation computation = createOrdinaryMap(value, generator, context);
 			List<String> statements = new LinkedList<>(computation.getStatements());
@@ -190,7 +190,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 			String decoratingStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase));
 			statements.add(decoratingStatement);
 
-			return variable(local.getName(), resultType, statements);
+			return variable(local.getName(), local.getType(), statements);
 		});
 
 	}
@@ -209,7 +209,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
             throw new DeserializationException("cannot deserialize checked map with hidden value type: " + types.getVariableTypeName(mapValueType));
         }
 		Type resultType = parameterized(Map.class, null, mapKeyType, mapValueType);
-		return context.forVariable(value, local -> {
+		return context.forVariable(value, resultType, local -> {
 
 			Computation computation = createOrdinaryMap(value, generator, context);
 			List<String> statements = new LinkedList<>(computation.getStatements());
@@ -220,7 +220,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 			String decoratingStatement = assignLocalVariableStatement(types.getVariableTypeName(resultType), local.getName(), callLocalMethod(factoryMethod, resultBase, checkedKeyType, checkedValueType));
 			statements.add(decoratingStatement);
 
-			return variable(local.getName(), resultType, statements);
+			return variable(local.getName(), local.getType(), statements);
 		});
 	}
 

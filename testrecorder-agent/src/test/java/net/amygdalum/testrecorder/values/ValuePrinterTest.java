@@ -102,7 +102,7 @@ public class ValuePrinterTest {
 
 	@Test
 	public void testVisitNull() throws Exception {
-		SerializedReferenceType object = SerializedNull.nullInstance(Object.class);
+		SerializedReferenceType object = SerializedNull.nullInstance();
 		assertThat(printer.visitReferenceType(object, context)).isEqualTo("null");
 	}
 

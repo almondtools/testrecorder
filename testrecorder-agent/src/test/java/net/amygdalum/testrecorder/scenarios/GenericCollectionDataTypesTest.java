@@ -46,6 +46,6 @@ public class GenericCollectionDataTypesTest {
 		assertThat(testGenerator.testsFor(GenericCollectionDataTypes.class)).hasSize(1);
 		assertThat(testGenerator.renderTest(GenericCollectionDataTypes.class).getTestCode())
 			.contains("list1, containsInOrder(BigInteger.class, equalTo(new BigInteger(\"1\")))")
-			.contains("arrayList1, containsInOrder(BigInteger.class, equalTo(new BigInteger(\"1\")))");
+			.contains("list2, containsInOrder(BigInteger.class, equalTo(new BigInteger(\"1\")))");
 	}
 }

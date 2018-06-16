@@ -29,4 +29,25 @@ public class ObjectCyclesTest {
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(ObjectCycles.class)).satisfies(testsRun());
 	}
+
+	@Test
+	public void testCode() throws Exception {
+		ObjectCycles a = new ObjectCycles();
+		ObjectCycles b = new ObjectCycles();
+		a.next(b);
+		b.next(a);
+
+		assertThat(a.getNext()).isSameAs(b);
+		assertThat(a.getPrev()).isSameAs(b);
+		assertThat(b.getNext()).isSameAs(a);
+		assertThat(b.getPrev()).isSameAs(a);
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(ObjectCycles.class).getTestCode())
+			.containsPattern(""
+				+ "ObjectCycles objectCycles\\d = new GenericObject\\(\\) \\{\\s*"
+				+ "ObjectCycles next = objectCycles\\d;\\s*"
+				+ "ObjectCycles prev = objectCycles\\d;\\s*"
+				+ "\\}");
+	}
 }

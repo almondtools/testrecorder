@@ -116,7 +116,7 @@ public class SimpleDeserializerTest {
 
 	@Test
 	public void testVisitNull() throws Exception {
-		SerializedReferenceType object = SerializedNull.nullInstance(Object.class);
+		SerializedReferenceType object = SerializedNull.nullInstance();
 		assertThat(deserializer.visitReferenceType(object, NULL)).isNull();
 	}
 

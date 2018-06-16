@@ -5,7 +5,6 @@ import static net.amygdalum.testrecorder.util.TypeFilters.startingWith;
 import static net.amygdalum.testrecorder.util.Types.inferType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.typeArgument;
-import static net.amygdalum.testrecorder.util.Types.visibleType;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -21,8 +20,8 @@ import net.amygdalum.testrecorder.values.SerializedMap;
 
 public class CollectionsMapSerializer extends HiddenInnerClassSerializer<SerializedMap> {
 
-	public CollectionsMapSerializer(SerializerFacade facade) {
-		super(Collections.class, facade);
+	public CollectionsMapSerializer() {
+		super(Collections.class);
 	}
 
 	@Override
@@ -34,6 +33,12 @@ public class CollectionsMapSerializer extends HiddenInnerClassSerializer<Seriali
 	}
 
 	@Override
+	public Stream<?> components(Object object, SerializerSession session) {
+		return ((Map<?, ?>) object).entrySet().stream()
+			.flatMap(entry -> Stream.of(entry.getKey(), entry.getValue()));
+	}
+
+	@Override
 	public SerializedMap generate(Class<?> type, SerializerSession session) {
 		return new SerializedMap(type);
 	}
@@ -41,13 +46,13 @@ public class CollectionsMapSerializer extends HiddenInnerClassSerializer<Seriali
 	@Override
 	public void populate(SerializedMap serializedObject, Object object, SerializerSession session) {
 		Type[] componentTypes = computeComponentType(serializedObject, object);
+		Type keyType = componentTypes[0];
+		Type valueType = componentTypes[1];
 
 		for (Map.Entry<?, ?> element : ((Map<?, ?>) object).entrySet()) {
 			Object key = element.getKey();
 			Object value = element.getValue();
-			Type keyType = visibleType(key, componentTypes[0]);
-			Type valueType = visibleType(value, componentTypes[1]);
-			serializedObject.put(facade.serialize(keyType, key, session), facade.serialize(valueType, value, session));
+			serializedObject.put(serializedValueOf(session, keyType, key), serializedValueOf(session, valueType, value));
 		}
 		Type newType = parameterized(Map.class, null, componentTypes);
 		serializedObject.useAs(newType);

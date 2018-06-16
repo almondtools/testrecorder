@@ -7,6 +7,7 @@ import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenSe
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -69,11 +70,11 @@ public class DefaultSetAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
-			"Set<Integer> linkedHashSet1 = new LinkedHashSet<>()",
-			"linkedHashSet1.add(0)",
-			"linkedHashSet1.add(8)",
-			"linkedHashSet1.add(15)");
-		assertThat(result.getValue()).isEqualTo("linkedHashSet1");
+			"Set<Integer> set1 = new LinkedHashSet<>()",
+			"set1.add(0)",
+			"set1.add(8)",
+			"set1.add(15)");
+		assertThat(result.getValue()).isEqualTo("set1");
 	}
 
 	@Test
@@ -85,9 +86,9 @@ public class DefaultSetAdaptorTest {
 		value.add(literal(8));
 		value.add(literal(15));
 		SetupGenerators generator = generator();
-		
+
 		Computation result = adaptor.tryDeserialize(value, generator, context);
-		
+
 		assertThat(result.getStatements().toString()).containsSubsequence(
 			"LinkedHashSet temp1 = new LinkedHashSet<>()",
 			"temp1.add(0)",
@@ -96,7 +97,7 @@ public class DefaultSetAdaptorTest {
 			"Set<Integer> set1 = temp1;");
 		assertThat(result.getValue()).isEqualTo("set1");
 	}
-	
+
 	@Test
 	public void testTryDeserializeSameResultTypes() throws Exception {
 		SerializedSet value = new SerializedSet(LinkedHashSet.class);
@@ -187,9 +188,9 @@ public class DefaultSetAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, new DefaultDeserializerContext() {
 			@Override
-			public Computation forVariable(SerializedValue value, LocalVariableDefinition computation) {
+			public Computation forVariable(SerializedValue value, Type type, LocalVariableDefinition computation) {
 				LocalVariable local = new LocalVariable("forwarded");
-				local.define(value.getType());
+				local.define(type);
 				return computation.define(local);
 			}
 		});

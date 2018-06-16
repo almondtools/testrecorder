@@ -23,15 +23,13 @@ import net.amygdalum.testrecorder.values.SerializedMap;
 
 public class DefaultMapSerializerTest {
 
-	private SerializerFacade facade;
 	private SerializerSession session;
 	private Serializer<SerializedMap> serializer;
 
 	@BeforeEach
 	public void before() throws Exception {
-		facade = mock(SerializerFacade.class);
 		session = mock(SerializerSession.class);
-		serializer = new DefaultMapSerializer(facade);
+		serializer = new DefaultMapSerializer();
 	}
 
 	@Test
@@ -56,8 +54,8 @@ public class DefaultMapSerializerTest {
 	public void testPopulate() throws Exception {
 		SerializedValue foo = literal("Foo");
 		SerializedValue i42 = literal(Integer.class, 42);
-		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
-		when(facade.serialize(Integer.class, 42, session)).thenReturn(i42);
+		when(session.find("Foo")).thenReturn(foo);
+		when(session.find(42)).thenReturn(i42);
 
 		SerializedMap value = serializer.generate(HashMap.class, session);
 		value.useAs(parameterized(HashMap.class, null, String.class, Integer.class));

@@ -56,9 +56,6 @@ public class ValuePrinter implements Deserializer<String> {
 		} else if (rt instanceof SerializedProxy) {
 			SerializedProxy value = (SerializedProxy) rt;
 			return printProxy(context, value);
-		} else if (rt instanceof SerializedPlaceholder) {
-			SerializedPlaceholder value = (SerializedPlaceholder) rt;
-			return printPlaceholder(context, value);
 		} else if (rt instanceof SerializedList) {
 			SerializedList value = (SerializedList) rt;
 			return printList(context, value);
@@ -76,10 +73,6 @@ public class ValuePrinter implements Deserializer<String> {
 		} else {
 			return "?";
 		}
-	}
-
-	private String printPlaceholder(DeserializerContext context, SerializedPlaceholder value) {
-		return value.getType().toString().replace("class", "placeholder") + "/" + System.identityHashCode(value);
 	}
 
 	private String printProxy(DeserializerContext context, SerializedProxy value) {

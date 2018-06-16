@@ -35,8 +35,12 @@ public class DefaultLambdaAdaptor extends DefaultSetupGenerator<SerializedLambda
 		TypeManager types = context.getTypes();
 		types.registerImport(LambdaSignature.class);
 		types.registerTypes(value.getUsedTypes());
-		
-		return context.forVariable(value, local -> {
+
+		Type type = types.isHidden(value.getType())
+			? types.mostSpecialOf(value.getUsedTypes()).orElse(Object.class)
+			: value.getType();
+
+		return context.forVariable(value, type, local -> {
 			LambdaSignature signature = value.getSignature();
 
 			Class<?> functionalInterfaceType = baseType(local.getType());

@@ -12,15 +12,13 @@ import net.amygdalum.testrecorder.values.SerializedImmutable;
 
 public class ClassSerializerTest {
 
-	private SerializerFacade facade;
 	private SerializerSession session;
 	private Serializer<SerializedImmutable<Class<?>>> serializer;
 
 	@BeforeEach
 	public void before() throws Exception {
-		facade = mock(SerializerFacade.class);
 		session = mock(SerializerSession.class);
-		serializer = new ClassSerializer(facade);
+		serializer = new ClassSerializer();
 	}
 
 	@Test

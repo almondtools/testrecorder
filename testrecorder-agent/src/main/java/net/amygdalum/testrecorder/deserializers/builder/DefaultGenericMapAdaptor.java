@@ -64,7 +64,7 @@ public abstract class DefaultGenericMapAdaptor<T extends SerializedReferenceType
 
         types.registerTypes(effectiveResultType, temporaryType, type, keyResultType, valueResultType);
 
-        return context.forVariable(value, definition -> {
+        return context.forVariable(value, effectiveResultType, local -> {
 
             List<Pair<Computation, Computation>> elementTemplates = entries(value)
                 .map(entry -> new Pair<>(
@@ -83,7 +83,7 @@ public abstract class DefaultGenericMapAdaptor<T extends SerializedReferenceType
                 .flatMap(pair -> Stream.concat(pair.getElement1().getStatements().stream(), pair.getElement2().getStatements().stream()))
                 .collect(toList());
 
-            String tempVar = definition.getName();
+            String tempVar = local.getName();
             if (!equalBaseTypes(effectiveResultType, temporaryType)) {
                 tempVar = context.temporaryLocal();
             }
@@ -104,25 +104,15 @@ public abstract class DefaultGenericMapAdaptor<T extends SerializedReferenceType
                 statements.add(putEntry);
             }
 
-            if (definition.isDefined() && !definition.isReady()) {
-                statements.add(callMethodStatement(definition.getName(), "putAll", tempVar));
-                return variable(definition.getName(), definition.getType(), statements);
+            if (local.isDefined() && !local.isReady()) {
+                statements.add(callMethodStatement(local.getName(), "putAll", tempVar));
             } else if (context.needsAdaptation(effectiveResultType, temporaryType)) {
                 tempVar = context.adapt(tempVar, effectiveResultType, temporaryType);
-				String resultName = definition.getType() == effectiveResultType
-					? definition.getName()
-					: context.getLocals().fetchName(effectiveResultType);
-                statements.add(assignLocalVariableStatement(types.getVariableTypeName(effectiveResultType), resultName, tempVar));
-				return variable(resultName, effectiveResultType, statements);
+				statements.add(assignLocalVariableStatement(types.getVariableTypeName(effectiveResultType), local.getName(), tempVar));
             } else if (!equalBaseTypes(effectiveResultType, temporaryType)) {
-				String resultName = definition.getType() == effectiveResultType
-					? definition.getName()
-					: context.getLocals().fetchName(effectiveResultType);
-                statements.add(assignLocalVariableStatement(types.getVariableTypeName(effectiveResultType), resultName, tempVar));
-				return variable(resultName, effectiveResultType, statements);
-            } else {
-            	return variable(definition.getName(), effectiveResultType, statements);
+				statements.add(assignLocalVariableStatement(types.getVariableTypeName(effectiveResultType), local.getName(), tempVar));
             }
+            return variable(local.getName(), local.getType(), statements);
         });
     }
 

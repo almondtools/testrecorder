@@ -3,9 +3,8 @@ package net.amygdalum.testrecorder.values;
 import static java.util.Collections.emptyList;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.types.DeserializerContext;
@@ -18,11 +17,10 @@ import net.amygdalum.testrecorder.types.SerializedValue;
  */
 public class SerializedNull extends AbstractSerializedReferenceType implements SerializedImmutableType {
 
-	private static final Map<Class<?>, SerializedNull> KNOWN_LITERALS = new HashMap<>();
-	public static final SerializedNull VOID = nullInstance(void.class);
+	public static final SerializedValue VOID = new SerializedNull();
 
-	private SerializedNull(Class<?> type) {
-		super(type);
+	private SerializedNull() {
+		super(null);
 	}
 	
 	@Override
@@ -35,8 +33,28 @@ public class SerializedNull extends AbstractSerializedReferenceType implements S
 		return visitor.visitReferenceType(this, context);
 	}
 
-	public static SerializedNull nullInstance(Class<?> type) {
-		return KNOWN_LITERALS.computeIfAbsent(type, typ -> new SerializedNull(typ));
+	public static SerializedNull nullInstance() {
+		return new SerializedNull();
+	}
+	
+	@Override
+	public int hashCode() {
+		return Arrays.hashCode(getUsedTypes());
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		SerializedNull that = (SerializedNull) obj;
+		return Arrays.equals(this.getUsedTypes(), that.getUsedTypes());
 	}
 
 	@Override

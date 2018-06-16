@@ -4,6 +4,7 @@ import static java.util.Arrays.asList;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.types.SerializerSession;
@@ -11,12 +12,17 @@ import net.amygdalum.testrecorder.values.SerializedImmutable;
 
 public class BigIntegerSerializer implements Serializer<SerializedImmutable<BigInteger>> {
 
-	public BigIntegerSerializer(SerializerFacade facade) {
+	public BigIntegerSerializer() {
 	}
 
 	@Override
 	public List<Class<?>> getMatchingClasses() {
 		return asList(BigInteger.class);
+	}
+
+	@Override
+	public Stream<?> components(Object object, SerializerSession session) {
+		return Stream.empty();
 	}
 
 	@Override

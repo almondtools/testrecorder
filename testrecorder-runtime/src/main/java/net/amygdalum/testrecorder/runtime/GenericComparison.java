@@ -166,7 +166,7 @@ public class GenericComparison {
 			Object f1 = getValue(field, left);
 			Object f2 = getValue(field, right);
 			String newRoot = root == null ? field : root + '.' + field;
-			return new GenericComparison(newRoot, f1, f2, strategy);
+			return new GenericComparison(newRoot, f1, f2, strategy.next());
 		} catch (ReflectiveOperationException e) {
 			return GenericComparison.NULL;
 		}
@@ -197,7 +197,7 @@ public class GenericComparison {
 		try {
 			String suffix = "[" + index + "]";
 			String newRoot = root == null ? suffix : root + suffix;
-			return new GenericComparison(newRoot, Array.get(left, index), Array.get(right, index), strategy);
+			return new GenericComparison(newRoot, Array.get(left, index), Array.get(right, index), strategy.next());
 		} catch (ArrayIndexOutOfBoundsException e) {
 			return GenericComparison.NULL;
 		}

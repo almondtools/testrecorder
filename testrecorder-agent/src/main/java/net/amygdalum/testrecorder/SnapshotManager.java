@@ -5,6 +5,7 @@ import static java.lang.Thread.currentThread;
 import static java.util.stream.Collectors.joining;
 import static net.amygdalum.testrecorder.ContextSnapshot.INVALID;
 import static net.amygdalum.testrecorder.TestrecorderThreadFactory.RECORDING;
+import static net.amygdalum.testrecorder.util.Reflections.accessing;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -14,6 +15,7 @@ import java.io.InputStream;
 import java.lang.instrument.Instrumentation;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -21,11 +23,13 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -40,7 +44,9 @@ import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.serializers.SerializerFacade;
 import net.amygdalum.testrecorder.types.Profile;
+import net.amygdalum.testrecorder.types.SerializationException;
 import net.amygdalum.testrecorder.types.SerializedInteraction;
+import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.util.CircularityLock;
 import net.amygdalum.testrecorder.util.Logger;
@@ -57,7 +63,7 @@ public class SnapshotManager {
 
 	public static volatile SnapshotManager MANAGER;
 
-	private ExecutorService snapshotExecutor;
+	private SerializationThreadPoolExecutor snapshotExecutor;
 	private CircularityLock lock = new CircularityLock();
 
 	private MethodContext methodContext;
@@ -84,7 +90,7 @@ public class SnapshotManager {
 		PerformanceProfile performanceProfile = config.loadConfiguration(PerformanceProfile.class);
 
 		this.timeoutInMillis = performanceProfile.getTimeoutInMillis();
-		this.snapshotExecutor = new ThreadPoolExecutor(0, 1, performanceProfile.getIdleTime(), TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new TestrecorderThreadFactory("$snapshot"));
+		this.snapshotExecutor = new SerializationThreadPoolExecutor(performanceProfile.getIdleTime(), TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new TestrecorderThreadFactory("$snapshot"));
 		this.methodContext = new MethodContext();
 		this.globalContext = new GlobalContext();
 	}
@@ -200,7 +206,7 @@ public class SnapshotManager {
 
 	public void setupVariables(Object self, String signature, Object... args) {
 		try {
-			boolean aquired = lock.acquire();
+			boolean aquired = lock.acquire() && snapshotExecutor.submissionPermitted();
 			if (!aquired || !matches(self, signature)) {
 				return;
 			}
@@ -210,7 +216,7 @@ public class SnapshotManager {
 				}
 				snapshot.setSetupArgs(facade.serialize(snapshot.getArgumentTypes(), args, session));
 				snapshot.setSetupGlobals(globalContext.globals().stream()
-					.map(field -> facade.serialize(field, null, session))
+					.map(field -> serializedGlobal(session, field))
 					.toArray(SerializedField[]::new));
 			});
 		} finally {
@@ -220,7 +226,7 @@ public class SnapshotManager {
 
 	public int inputVariables(Object object, String method, Type resultType, Type[] paramTypes) {
 		try {
-			boolean aquired = lock.acquire();
+			boolean aquired = lock.acquire() && snapshotExecutor.submissionPermitted();
 			if (!aquired || isNestedIO() || isInvalidStacktrace()) {
 				return 0;
 			}
@@ -239,7 +245,7 @@ public class SnapshotManager {
 
 	public void inputArguments(int id, Object... arguments) {
 		try {
-			boolean aquired = lock.acquire();
+			boolean aquired = lock.acquire() && snapshotExecutor.submissionPermitted();
 			if (!aquired || id == 0) {
 				return;
 			}
@@ -255,7 +261,7 @@ public class SnapshotManager {
 
 	public void inputResult(int id, Object result) {
 		try {
-			boolean aquired = lock.acquire();
+			boolean aquired = lock.acquire() && snapshotExecutor.submissionPermitted();
 			if (!aquired || id == 0) {
 				return;
 			}
@@ -271,7 +277,7 @@ public class SnapshotManager {
 
 	public void inputVoidResult(int id) {
 		try {
-			boolean aquired = lock.acquire();
+			boolean aquired = lock.acquire() && snapshotExecutor.submissionPermitted();
 			if (!aquired || id == 0) {
 				return;
 			}
@@ -287,7 +293,7 @@ public class SnapshotManager {
 
 	public int outputVariables(Object object, String method, Type resultType, Type[] paramTypes) {
 		try {
-			boolean aquired = lock.acquire();
+			boolean aquired = lock.acquire() && snapshotExecutor.submissionPermitted();
 			if (!aquired || isNestedIO() || isInvalidStacktrace()) {
 				return 0;
 			}
@@ -306,7 +312,7 @@ public class SnapshotManager {
 
 	public void outputArguments(int id, Object... arguments) {
 		try {
-			boolean aquired = lock.acquire();
+			boolean aquired = lock.acquire() && snapshotExecutor.submissionPermitted();
 			if (!aquired || id == 0) {
 				return;
 			}
@@ -322,7 +328,7 @@ public class SnapshotManager {
 
 	public void outputResult(int id, Object result) {
 		try {
-			boolean aquired = lock.acquire();
+			boolean aquired = lock.acquire() && snapshotExecutor.submissionPermitted();
 			if (!aquired || id == 0) {
 				return;
 			}
@@ -338,7 +344,7 @@ public class SnapshotManager {
 
 	public void outputVoidResult(int id) {
 		try {
-			boolean aquired = lock.acquire();
+			boolean aquired = lock.acquire() && snapshotExecutor.submissionPermitted();
 			if (!aquired || id == 0) {
 				return;
 			}
@@ -366,7 +372,7 @@ public class SnapshotManager {
 
 	public void expectVariables(Object self, String signature, Object result, Object... args) {
 		try {
-			boolean aquired = lock.acquire();
+			boolean aquired = lock.acquire() && snapshotExecutor.submissionPermitted();
 			if (!aquired || !matches(self, signature)) {
 				return;
 			}
@@ -377,7 +383,7 @@ public class SnapshotManager {
 				snapshot.setExpectResult(facade.serialize(snapshot.getResultType(), result, session));
 				snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args, session));
 				snapshot.setExpectGlobals(globalContext.globals().stream()
-					.map(field -> facade.serialize(field, null, session))
+					.map(field -> serializedGlobal(session, field))
 					.toArray(SerializedField[]::new));
 			}).andConsume(this::consume);
 		} finally {
@@ -387,7 +393,7 @@ public class SnapshotManager {
 
 	public void expectVariables(Object self, String signature, Object... args) {
 		try {
-			boolean aquired = lock.acquire();
+			boolean aquired = lock.acquire() && snapshotExecutor.submissionPermitted();
 			if (!aquired || !matches(self, signature)) {
 				return;
 			}
@@ -397,7 +403,7 @@ public class SnapshotManager {
 				}
 				snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args, session));
 				snapshot.setExpectGlobals(globalContext.globals().stream()
-					.map(field -> facade.serialize(field, null, session))
+					.map(field -> serializedGlobal(session, field))
 					.toArray(SerializedField[]::new));
 			}).andConsume(this::consume);
 		} finally {
@@ -407,7 +413,7 @@ public class SnapshotManager {
 
 	public void throwVariables(Throwable throwable, Object self, String signature, Object... args) {
 		try {
-			boolean aquired = lock.acquire();
+			boolean aquired = lock.acquire() && snapshotExecutor.submissionPermitted();
 			if (!aquired || !matches(self, signature)) {
 				return;
 			}
@@ -418,14 +424,14 @@ public class SnapshotManager {
 				snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args, session));
 				snapshot.setExpectException(facade.serialize(throwable.getClass(), throwable, session));
 				snapshot.setExpectGlobals(globalContext.globals().stream()
-					.map(field -> facade.serialize(field, null, session))
+					.map(field -> serializedGlobal(session, field))
 					.toArray(SerializedField[]::new));
 			}).andConsume(this::consume);
 		} finally {
 			lock.release();
 		}
 	}
-
+	
 	protected void consume(ContextSnapshot snapshot) {
 		if (snapshot.isValid()) {
 			if (snapshotConsumer != null) {
@@ -458,6 +464,24 @@ public class SnapshotManager {
 			return new PassiveDeque<>(INVALID);
 		} else {
 			return new ArrayDeque<>();
+		}
+	}
+
+	private SerializedField serializedGlobal(SerializerSession session, Field field) {
+		Class<?> declaringClass = field.getDeclaringClass();
+		String name = field.getName();
+		Class<?> type = field.getType();
+		Object value = globalOf(field);
+
+		SerializedValue serializedValue = facade.serialize(type, value, session);
+		return new SerializedField(declaringClass, name, type, serializedValue);
+	}
+
+	private Object globalOf(Field field) {
+		try {
+			return accessing(field).call(f -> f.get(null));
+		} catch (ReflectiveOperationException e) {
+			throw new SerializationException(e);
 		}
 	}
 
@@ -546,6 +570,26 @@ public class SnapshotManager {
 		public StackTraceValidator invalidate(Class<?> clazz) {
 			classNames.add(clazz.getName());
 			return this;
+		}
+
+	}
+	
+	private static class SerializationThreadPoolExecutor extends ThreadPoolExecutor {
+		
+		private Thread active;
+
+		public SerializationThreadPoolExecutor(long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory) {
+			super(0, 1, keepAliveTime, unit, workQueue, threadFactory);
+		}
+		
+		@Override
+		protected void beforeExecute(Thread t, Runnable r) {
+			active = t;
+		}
+
+		public boolean submissionPermitted() {
+			Thread current = Thread.currentThread();
+			return current != active;
 		}
 
 	}

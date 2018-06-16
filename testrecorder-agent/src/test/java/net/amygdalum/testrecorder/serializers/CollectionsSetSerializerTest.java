@@ -1,10 +1,10 @@
 package net.amygdalum.testrecorder.serializers;
 
 import static java.util.Arrays.asList;
+import static net.amygdalum.testrecorder.SerializedValues.nullValue;
 import static net.amygdalum.testrecorder.util.Types.innerType;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
-import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -23,15 +23,13 @@ import net.amygdalum.testrecorder.values.SerializedSet;
 
 public class CollectionsSetSerializerTest {
 
-	private SerializerFacade facade;
 	private SerializerSession session;
 	private Serializer<SerializedSet> serializer;
 
 	@BeforeEach
 	public void before() throws Exception {
-		facade = mock(SerializerFacade.class);
 		session = mock(SerializerSession.class);
-		serializer = new CollectionsSetSerializer(facade);
+		serializer = new CollectionsSetSerializer();
 	}
 
 	@Test
@@ -66,8 +64,8 @@ public class CollectionsSetSerializerTest {
 	public void testPopulate() throws Exception {
 		SerializedValue foo = literal("Foo");
 		SerializedValue bar = literal("Bar");
-		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
-		when(facade.serialize(String.class, "Bar", session)).thenReturn(bar);
+		when(session.find("Foo")).thenReturn(foo);
+		when(session.find("Bar")).thenReturn(bar);
 		Class<?> unmodifiableSet = innerType(Collections.class, "UnmodifiableSet");
 		SerializedSet value = serializer.generate(unmodifiableSet, session);
 		value.useAs(parameterized(Set.class, null, String.class));
@@ -80,15 +78,14 @@ public class CollectionsSetSerializerTest {
 	@Test
 	public void testPopulateNull() throws Exception {
 		SerializedValue foo = literal("Foo");
-		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
-		when(facade.serialize(String.class, null, session)).thenReturn(nullInstance(String.class));
+		when(session.find("Foo")).thenReturn(foo);
 		Class<?> unmodifiableSet = innerType(Collections.class, "UnmodifiableSet");
 		SerializedSet value = serializer.generate(unmodifiableSet, session);
 		value.useAs(parameterized(Set.class, null, String.class));
 
 		serializer.populate(value, new HashSet<>(asList("Foo", null)), session);
 
-		assertThat(value).containsExactlyInAnyOrder(foo, nullInstance(String.class));
+		assertThat(value).containsExactlyInAnyOrder(foo, nullValue(String.class));
 	}
 
 }

@@ -12,29 +12,30 @@ public class SerializedNullTest {
 
 	@Test
 	public void testLiteral() throws Exception {
-		SerializedNull value = nullInstance(String.class);
-		SerializedNull testvalue = nullInstance(String.class);
+		SerializedNull value = nullInstance();
+		SerializedNull testvalue = nullInstance();
 
-		assertThat(testvalue).isSameAs(value);
+		assertThat(testvalue).isEqualTo(value);
 	}
 
 	@Test
 	public void testGetResultType() throws Exception {
-		SerializedNull value = nullInstance(String.class);
+		SerializedNull value = nullInstance();
+		value.useAs(String.class);
 
 		assertThat(value.getUsedTypes()).containsExactly(String.class);
 	}
 
 	@Test
 	public void testAccept() throws Exception {
-		SerializedNull value = nullInstance(String.class);
+		SerializedNull value = nullInstance();
 
 		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("ReferenceType:SerializedNull");
 	}
 
 	@Test
 	public void testToString() throws Exception {
-		SerializedNull value = nullInstance(String.class);
+		SerializedNull value = nullInstance();
 
 		assertThat(value.toString()).isEqualTo("null");
 	}

@@ -23,15 +23,13 @@ import net.amygdalum.testrecorder.values.SerializedList;
 
 public class ArraysListSerializerTest {
 
-	private SerializerFacade facade;
 	private SerializerSession session;
 	private Serializer<SerializedList> serializer;
 
 	@BeforeEach
 	public void before() throws Exception {
-		facade = mock(SerializerFacade.class);
 		session = mock(SerializerSession.class);
-		serializer = new ArraysListSerializer(facade);
+		serializer = new ArraysListSerializer();
 	}
 
 	@Test
@@ -55,8 +53,8 @@ public class ArraysListSerializerTest {
 	public void testPopulate() throws Exception {
 		SerializedValue foo = literal("Foo");
 		SerializedValue bar = literal("Bar");
-		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
-		when(facade.serialize(String.class, "Bar", session)).thenReturn(bar);
+		when(session.find("Foo")).thenReturn(foo);
+		when(session.find("Bar")).thenReturn(bar);
 		Type arrayListOfString = parameterized(innerType(Arrays.class, "ArrayList"), null, String.class);
 		SerializedList value = serializer.generate(ArrayList.class, session);
 		value.useAs(arrayListOfString);

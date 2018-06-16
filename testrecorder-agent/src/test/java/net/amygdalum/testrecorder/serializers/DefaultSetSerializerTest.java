@@ -22,15 +22,13 @@ import net.amygdalum.testrecorder.values.SerializedSet;
 
 public class DefaultSetSerializerTest {
 
-	private SerializerFacade facade;
 	private SerializerSession session;
 	private Serializer<SerializedSet> serializer;
 
 	@BeforeEach
 	public void before() throws Exception {
-		facade = mock(SerializerFacade.class);
 		session = mock(SerializerSession.class);
-		serializer = new DefaultSetSerializer(facade);
+		serializer = new DefaultSetSerializer();
 	}
 
 	@Test
@@ -54,8 +52,8 @@ public class DefaultSetSerializerTest {
 	public void testPopulate() throws Exception {
 		SerializedValue foo = literal("Foo");
 		SerializedValue bar = literal("Bar");
-		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
-		when(facade.serialize(String.class, "Bar", session)).thenReturn(bar);
+		when(session.find("Foo")).thenReturn(foo);
+		when(session.find("Bar")).thenReturn(bar);
 
 		SerializedSet value = serializer.generate(HashSet.class, session);
 		value.useAs(parameterized(HashSet.class, null, String.class));

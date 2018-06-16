@@ -22,15 +22,13 @@ import net.amygdalum.testrecorder.values.SerializedList;
 
 public class DefaultDequeSerializerTest {
 
-	private SerializerFacade facade;
 	private SerializerSession session;
 	private Serializer<SerializedList> serializer;
 
 	@BeforeEach
 	public void before() throws Exception {
-		facade = mock(SerializerFacade.class);
 		session = mock(SerializerSession.class);
-		serializer = new DefaultDequeSerializer(facade);
+		serializer = new DefaultDequeSerializer();
 	}
 
 	@Test
@@ -54,8 +52,8 @@ public class DefaultDequeSerializerTest {
 	public void testPopulate() throws Exception {
 		SerializedValue foo = literal("Foo");
 		SerializedValue bar = literal("Bar");
-		when(facade.serialize(String.class, "Foo", session)).thenReturn(foo);
-		when(facade.serialize(String.class, "Bar", session)).thenReturn(bar);
+		when(session.find("Foo")).thenReturn(foo);
+		when(session.find("Bar")).thenReturn(bar);
 
 		SerializedList value = serializer.generate(LinkedBlockingDeque.class, session);
 		value.useAs(parameterized(LinkedBlockingDeque.class, null, String.class));

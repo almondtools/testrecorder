@@ -13,10 +13,17 @@ import java.util.Set;
 public class SelectedFieldsComparisonStrategy implements ComparisonStrategy {
 
 	private Set<String> fields;
+	private ComparisonStrategy next;
 	
 	public SelectedFieldsComparisonStrategy(Set<String> fields) {
 		this.fields = fields;
+		this.next = this;
 	}
+	
+	public SelectedFieldsComparisonStrategy andThen(ComparisonStrategy next) {
+		this.next = next;
+		return this;
+	}	
 	
 	public static SelectedFieldsComparisonStrategy comparingFields(Collection<String> fields) {
 		return new SelectedFieldsComparisonStrategy(new HashSet<>(fields));
@@ -38,6 +45,11 @@ public class SelectedFieldsComparisonStrategy implements ComparisonStrategy {
 			todo.add(comparison.newComparison(fieldName));
 		}
 		return todo;
+	}
+	
+	@Override
+	public ComparisonStrategy next() {
+		return next;
 	}
 
 }

@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
@@ -66,6 +67,7 @@ public final class Types {
 
 	public static Optional<Type> mostSpecialOf(Type... types) {
 		return Arrays.stream(types)
+			.filter(Objects::nonNull)
 			.sorted(Types::byMostConcreteGeneric)
 			.findFirst();
 	}

@@ -7,6 +7,7 @@ import static net.amygdalum.testrecorder.util.testobjects.Hidden.classOfHiddenLi
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -66,11 +67,11 @@ public class DefaultListAdaptorTest {
 		Computation result = adaptor.tryDeserialize(value, generator, context);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
-			"List<Integer> arrayList1 = new ArrayList<>()",
-			"arrayList1.add(0)",
-			"arrayList1.add(8)",
-			"arrayList1.add(15)");
-		assertThat(result.getValue()).isEqualTo("arrayList1");
+			"List<Integer> list1 = new ArrayList<>()",
+			"list1.add(0)",
+			"list1.add(8)",
+			"list1.add(15)");
+		assertThat(result.getValue()).isEqualTo("list1");
 	}
 
 	@Test
@@ -184,9 +185,9 @@ public class DefaultListAdaptorTest {
 
 		Computation result = adaptor.tryDeserialize(value, generator, new DefaultDeserializerContext() {
 			@Override
-			public Computation forVariable(SerializedValue value, LocalVariableDefinition computation) {
+			public Computation forVariable(SerializedValue value, Type type, LocalVariableDefinition computation) {
 				LocalVariable local = new LocalVariable("forwarded");
-				local.define(value.getType());
+				local.define(type);
 				return computation.define(local);
 			}
 		});
