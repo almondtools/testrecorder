@@ -96,8 +96,9 @@ public class SerializedListTest {
 
 	@Test
 	public void testWithSerializedValueArray() throws Exception {
-		SerializedList result = new SerializedList(ArrayList.class)
-			.with(literal("a"), literal("b"));
+		SerializedList result = new SerializedList(ArrayList.class);
+		result.add(literal("a"));
+		result.add(literal("b"));
 		result.useAs(arrayListOfString());
 
 		assertThat(result).containsExactly(literal("a"), literal("b"));

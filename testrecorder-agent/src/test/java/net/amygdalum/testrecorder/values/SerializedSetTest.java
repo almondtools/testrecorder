@@ -103,8 +103,9 @@ public class SerializedSetTest {
 
 	@Test
 	public void testWithSerializedValueArray() throws Exception {
-		SerializedSet value = new SerializedSet(HashSet.class)
-			.with(literal("a"), literal("b"));
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.add(literal("a"));
+		value.add(literal("b"));
 		value.useAs(hashSetOfString());
 
 		assertThat(value).containsExactly(literal("a"), literal("b"));

@@ -1,7 +1,5 @@
 package net.amygdalum.testrecorder.values;
 
-import static net.amygdalum.testrecorder.util.Types.baseType;
-import static net.amygdalum.testrecorder.util.Types.mostSpecialOf;
 import static net.amygdalum.testrecorder.util.Types.typeArgument;
 import static net.amygdalum.testrecorder.util.Types.typeArguments;
 
@@ -12,13 +10,14 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedValue;
+import net.amygdalum.testrecorder.util.Optionals;
 
 /**
  * Serializing to SerializedMap is restricted to objects of a class that complies with following criteria:
@@ -30,54 +29,42 @@ import net.amygdalum.testrecorder.types.SerializedValue;
  */
 public class SerializedMap extends AbstractSerializedReferenceType implements SerializedReferenceType, Map<SerializedValue, SerializedValue> {
 
+	private Type keyType;
+	private Type valueType;
 	private Map<SerializedValue, SerializedValue> map;
 
 	public SerializedMap(Class<?> type) {
 		super(type);
+		this.keyType = Object.class;
+		this.valueType = Object.class;
 		this.map = new LinkedHashMap<>();
 	}
 
-	public SerializedMap with(Map<SerializedValue, SerializedValue> values) {
-		map.putAll(values);
-		return this;
-	}
-
 	public Type getMapKeyType() {
-		Type[] candidates = Arrays.stream(getUsedTypes())
-			.filter(type -> typeArguments(type).count() == 2)
-			.map(type -> typeArgument(type, 0))
-			.filter(Optional::isPresent)
-			.map(Optional::get)
-			.filter(this::satisfiesKeyType)
-			.toArray(Type[]::new);
-		return mostSpecialOf(candidates)
-			.orElse(Object.class);
+		return keyType;
 	}
 
 	public Type getMapValueType() {
-		Type[] candidates = Arrays.stream(getUsedTypes())
+		return valueType;
+	}
+
+	private Stream<Type> getKeyTypeCandidates() {
+		return Arrays.stream(getUsedTypes())
 			.filter(type -> typeArguments(type).count() == 2)
-			.map(type -> typeArgument(type, 1))
-			.filter(Optional::isPresent)
-			.map(Optional::get)
-			.filter(this::satisfiesValueType)
-			.toArray(Type[]::new);
-		return mostSpecialOf(candidates)
-			.orElse(Object.class);
+			.flatMap(type -> Optionals.stream(typeArgument(type, 0)));
 	}
 
-	public boolean satisfiesKeyType(Type type) {
-		Class<?> baseType = baseType(type);
-		return map.keySet().stream()
-			.filter(value -> value.getType() != null)
-			.allMatch(value -> baseType.isAssignableFrom(value.getType()));
+	private Stream<Type> getValueTypeCandidates() {
+		return Arrays.stream(getUsedTypes())
+			.filter(type -> typeArguments(type).count() == 2)
+			.flatMap(type -> Optionals.stream(typeArgument(type, 1)));
 	}
 
-	public boolean satisfiesValueType(Type type) {
-		Class<?> baseType = baseType(type);
-		return map.values().stream()
-			.filter(value -> value.getType() != null)
-			.allMatch(value -> baseType.isAssignableFrom(value.getType()));
+	@Override
+	public void useAs(Type type) {
+		super.useAs(type);
+		keyType = inferType(getKeyTypeCandidates(), map.keySet(), Object.class);
+		valueType = inferType(getValueTypeCandidates(), map.values(), Object.class);
 	}
 
 	@Override
@@ -106,7 +93,14 @@ public class SerializedMap extends AbstractSerializedReferenceType implements Se
 	}
 
 	public SerializedValue put(SerializedValue key, SerializedValue value) {
-		return map.put(key, value);
+		SerializedValue replaced = map.put(key, value);
+		if (!satisfiesType(keyType, key)) {
+			keyType = inferType(getKeyTypeCandidates(), map.keySet(), Object.class);
+		}
+		if (!satisfiesType(valueType, value)) {
+			valueType = inferType(getValueTypeCandidates(), map.values(), Object.class);
+		}
+		return replaced;
 	}
 
 	public SerializedValue remove(Object key) {
@@ -115,6 +109,12 @@ public class SerializedMap extends AbstractSerializedReferenceType implements Se
 
 	public void putAll(Map<? extends SerializedValue, ? extends SerializedValue> m) {
 		map.putAll(m);
+		if (!satisfiesType(keyType, m.keySet())) {
+			keyType = inferType(getKeyTypeCandidates(), map.keySet(), Object.class);
+		}
+		if (!satisfiesType(valueType, m.values())) {
+			valueType = inferType(getValueTypeCandidates(), map.values(), Object.class);
+		}
 	}
 
 	public void clear() {

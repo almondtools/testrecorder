@@ -20,6 +20,7 @@ import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.util.testobjects.Hidden;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 import net.amygdalum.testrecorder.values.SerializedList;
@@ -134,8 +135,8 @@ public class DefaultSequenceAdaptorTest {
 	public void testTryDeserializeGenericComponents() throws Exception {
 		SerializedList value = new SerializedList(ArrayList.class);
 		value.useAs(parameterized(List.class, null, parameterized(List.class, null, String.class)));
-		value.add(list(parameterized(List.class, null, String.class)).with(literal("str1")));
-		value.add(list(parameterized(List.class, null, String.class)).with(literal("str2"), literal("str3")));
+		value.add(list(parameterized(List.class, null, String.class), literal("str1")));
+		value.add(list(parameterized(List.class, null, String.class), literal("str2"), literal("str3")));
 		value.add(list(parameterized(List.class, null, String.class)));
 
 		MatcherGenerators generator = generator();
@@ -166,9 +167,12 @@ public class DefaultSequenceAdaptorTest {
 			+ "new GenericMatcher() {*}.matching(clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$CompletelyHidden\")))");
 	}
 
-	private SerializedList list(Type type) {
+	private SerializedList list(Type type, SerializedValue... values) {
 		SerializedList list = new SerializedList(baseType(type));
 		list.useAs(type);
+		for (SerializedValue value : values) {
+			list.add(value);
+		}
 		return list;
 	}
 

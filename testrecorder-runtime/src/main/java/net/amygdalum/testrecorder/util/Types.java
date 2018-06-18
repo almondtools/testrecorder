@@ -277,7 +277,7 @@ public final class Types {
 			} else {
 				return 0;
 			}
-		} else if (type1 instanceof WildcardType && type2 instanceof WildcardType){
+		} else if (type1 instanceof WildcardType && type2 instanceof WildcardType) {
 			Type[] typeArguments1 = ((WildcardType) type1).getUpperBounds();
 			Type[] typeArguments2 = ((WildcardType) type2).getUpperBounds();
 			int compare = Integer.compare(typeArguments1.length, typeArguments2.length);
@@ -287,9 +287,9 @@ public final class Types {
 				}
 			}
 			return compare;
-		} else if (type1 instanceof WildcardType){
+		} else if (type1 instanceof WildcardType) {
 			return 1;
-		} else if (type2 instanceof WildcardType){
+		} else if (type2 instanceof WildcardType) {
 			return -1;
 		} else {
 			int compare = byMostConcrete(baseType(type1), baseType(type2));
@@ -570,6 +570,11 @@ public final class Types {
 		return isPrimitive(type)
 			|| isBoxedPrimitive(type)
 			|| type == String.class;
+	}
+
+	public static boolean isArray(Type type) {
+		return type instanceof Class<?> && ((Class<?>) type).isArray()
+			|| type instanceof GenericArrayType;
 	}
 
 	public static boolean isBound(Type type) {

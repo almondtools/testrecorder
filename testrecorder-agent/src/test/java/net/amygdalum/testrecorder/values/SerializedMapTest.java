@@ -14,7 +14,6 @@ import static org.assertj.core.api.Assertions.entry;
 
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,8 +63,8 @@ public class SerializedMapTest {
 
 	@Test
 	public void testWithSerializedValueArray() throws Exception {
-		SerializedMap value = new SerializedMap(HashMap.class)
-			.with(Collections.singletonMap(literal("a"), literal("b")));
+		SerializedMap value = new SerializedMap(HashMap.class);
+		value.put(literal("a"), literal("b"));
 		value.useAs(hashMapOfStringString());
 
 		assertThat(value).containsExactly(entry(literal("a"), literal("b")));

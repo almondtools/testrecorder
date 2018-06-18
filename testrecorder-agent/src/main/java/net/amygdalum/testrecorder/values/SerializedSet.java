@@ -1,8 +1,5 @@
 package net.amygdalum.testrecorder.values;
 
-import static java.util.Arrays.asList;
-import static net.amygdalum.testrecorder.util.Types.baseType;
-import static net.amygdalum.testrecorder.util.Types.mostSpecialOf;
 import static net.amygdalum.testrecorder.util.Types.typeArgument;
 import static net.amygdalum.testrecorder.util.Types.typeArguments;
 
@@ -13,13 +10,14 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedValue;
+import net.amygdalum.testrecorder.util.Optionals;
 
 /**
  * Serializing to SerializedSet is restricted to objects of a class that complies with following criteria:
@@ -31,39 +29,29 @@ import net.amygdalum.testrecorder.types.SerializedValue;
  */
 public class SerializedSet extends AbstractSerializedReferenceType implements SerializedReferenceType, Set<SerializedValue> {
 
+	private Type componentType;
 	private Set<SerializedValue> set;
 
 	public SerializedSet(Class<?> type) {
 		super(type);
+		this.componentType = Object.class;
 		this.set = new LinkedHashSet<>();
 	}
 
-	public SerializedSet with(Collection<SerializedValue> values) {
-		set.addAll(values);
-		return this;
-	}
-
-	public SerializedSet with(SerializedValue... values) {
-		return with(asList(values));
-	}
-
 	public Type getComponentType() {
-		Type[] candidates = Arrays.stream(getUsedTypes())
-			.filter(type -> typeArguments(type).count() == 1)
-			.map(type -> typeArgument(type, 0))
-			.filter(Optional::isPresent)
-			.map(Optional::get)
-			.filter(this::satisfiesComponentType)
-			.toArray(Type[]::new);
-		return mostSpecialOf(candidates)
-			.orElse(Object.class);
+		return componentType;
 	}
 
-	public boolean satisfiesComponentType(Type type) {
-		Class<?> baseType = baseType(type);
-		return set.stream()
-			.filter(value -> value.getType() != null)
-			.allMatch(value -> baseType.isAssignableFrom(value.getType()));
+	private Stream<Type> getComponentTypeCandidates() {
+		return Arrays.stream(getUsedTypes())
+			.filter(type -> typeArguments(type).count() == 1)
+			.flatMap(type -> Optionals.stream(typeArgument(type, 0)));
+	}
+
+	@Override
+	public void useAs(Type type) {
+		super.useAs(type);
+		componentType = inferType(getComponentTypeCandidates(), set, Object.class);
 	}
 
 	@Override
@@ -95,8 +83,12 @@ public class SerializedSet extends AbstractSerializedReferenceType implements Se
 		return set.toArray(a);
 	}
 
-	public boolean add(SerializedValue e) {
-		return set.add(e);
+	public boolean add(SerializedValue element) {
+		boolean added = set.add(element);
+		if (!satisfiesType(componentType, element)) {
+			componentType = inferType(getComponentTypeCandidates(), set, Object.class);
+		}
+		return added;
 	}
 
 	public boolean remove(Object o) {
@@ -108,7 +100,11 @@ public class SerializedSet extends AbstractSerializedReferenceType implements Se
 	}
 
 	public boolean addAll(Collection<? extends SerializedValue> c) {
-		return set.addAll(c);
+		boolean added = set.addAll(c);
+		if (!satisfiesType(componentType, c)) {
+			componentType = inferType(getComponentTypeCandidates(), set, Object.class);
+		}
+		return added;
 	}
 
 	public boolean retainAll(Collection<?> c) {
@@ -132,4 +128,5 @@ public class SerializedSet extends AbstractSerializedReferenceType implements Se
 	public String toString() {
 		return ValuePrinter.print(this);
 	}
+
 }

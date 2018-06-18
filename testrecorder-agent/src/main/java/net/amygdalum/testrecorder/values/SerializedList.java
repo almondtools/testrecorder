@@ -1,8 +1,5 @@
 package net.amygdalum.testrecorder.values;
 
-import static java.util.Arrays.asList;
-import static net.amygdalum.testrecorder.util.Types.baseType;
-import static net.amygdalum.testrecorder.util.Types.mostSpecialOf;
 import static net.amygdalum.testrecorder.util.Types.typeArgument;
 import static net.amygdalum.testrecorder.util.Types.typeArguments;
 
@@ -13,12 +10,13 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Optional;
+import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedValue;
+import net.amygdalum.testrecorder.util.Optionals;
 
 /**
  * Serializing to SerializedList is restricted to objects of a class that complies with following criteria:
@@ -30,39 +28,29 @@ import net.amygdalum.testrecorder.types.SerializedValue;
  */
 public class SerializedList extends AbstractSerializedReferenceType implements SerializedReferenceType, List<SerializedValue> {
 
+	private Type componentType;
 	private List<SerializedValue> list;
 
 	public SerializedList(Class<?> type) {
 		super(type);
+		this.componentType = Object.class;
 		this.list = new ArrayList<>();
 	}
 
-	public SerializedList with(Collection<SerializedValue> values) {
-		list.addAll(values);
-		return this;
-	}
-
-	public SerializedList with(SerializedValue... values) {
-		return with(asList(values));
-	}
-
 	public Type getComponentType() {
-		Type[] candidates = Arrays.stream(getUsedTypes())
-			.filter(type -> typeArguments(type).count() == 1)
-			.map(type -> typeArgument(type, 0))
-			.filter(Optional::isPresent)
-			.map(Optional::get)
-			.filter(this::satisfiesComponentType)
-			.toArray(Type[]::new);
-		return mostSpecialOf(candidates)
-			.orElse(Object.class);
+		return componentType;
 	}
 
-	public boolean satisfiesComponentType(Type type) {
-		Class<?> baseType = baseType(type);
-		return list.stream()
-			.filter(value -> value.getType() != null)
-			.allMatch(value -> baseType.isAssignableFrom(value.getType()));
+	private Stream<Type> getComponentTypeCandidates() {
+		return Arrays.stream(getUsedTypes())
+			.filter(type -> typeArguments(type).count() == 1)
+			.flatMap(type -> Optionals.stream(typeArgument(type, 0)));
+	}
+
+	@Override
+	public void useAs(Type type) {
+		super.useAs(type);
+		componentType = inferType(getComponentTypeCandidates(), list, Object.class);
 	}
 
 	@Override
@@ -94,8 +82,12 @@ public class SerializedList extends AbstractSerializedReferenceType implements S
 		return list.toArray(a);
 	}
 
-	public boolean add(SerializedValue e) {
-		return list.add(e);
+	public boolean add(SerializedValue element) {
+		boolean added = list.add(element);
+		if (!satisfiesType(componentType, element)) {
+			componentType = inferType(getComponentTypeCandidates(), list, Object.class);
+		}
+		return added;
 	}
 
 	public boolean remove(Object o) {
@@ -107,11 +99,19 @@ public class SerializedList extends AbstractSerializedReferenceType implements S
 	}
 
 	public boolean addAll(Collection<? extends SerializedValue> c) {
-		return list.addAll(c);
+		boolean added = list.addAll(c);
+		if (!satisfiesType(componentType, c)) {
+			componentType = inferType(getComponentTypeCandidates(), list, Object.class);
+		}
+		return added;
 	}
 
 	public boolean addAll(int index, Collection<? extends SerializedValue> c) {
-		return list.addAll(index, c);
+		boolean added = list.addAll(index, c);
+		if (!satisfiesType(componentType, c)) {
+			componentType = inferType(getComponentTypeCandidates(), list, Object.class);
+		}
+		return added;
 	}
 
 	public boolean removeAll(Collection<?> c) {
@@ -136,6 +136,9 @@ public class SerializedList extends AbstractSerializedReferenceType implements S
 
 	public void add(int index, SerializedValue element) {
 		list.add(index, element);
+		if (!satisfiesType(componentType, element)) {
+			componentType = inferType(getComponentTypeCandidates(), list, Object.class);
+		}
 	}
 
 	public SerializedValue remove(int index) {

@@ -23,6 +23,7 @@ import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.util.testobjects.Hidden;
 import net.amygdalum.testrecorder.values.SerializedList;
 import net.amygdalum.testrecorder.values.SerializedMap;
@@ -128,11 +129,11 @@ public class DefaultMapAdaptorTest {
 	public void testTryDeserializeGenericComponents() throws Exception {
 		SerializedMap value = new SerializedMap(LinkedHashMap.class);
 		value.useAs(parameterized(LinkedHashMap.class, null, parameterized(List.class, null, String.class), parameterized(Set.class, null, String.class)));
-		value.put(list(parameterized(List.class, null, String.class)).with(literal("str1")), 
-			set(parameterized(Set.class, null, String.class)).with(literal("str1")));
-		value.put(list(parameterized(List.class, null, String.class)).with(literal("str2"), literal("str3")),
-			set(parameterized(Set.class, null, String.class)).with(literal("str2"), literal("str3")));
-		value.put(list(parameterized(List.class, null, String.class)), 
+		value.put(list(parameterized(List.class, null, String.class), literal("str1")),
+			set(parameterized(Set.class, null, String.class), literal("str1")));
+		value.put(list(parameterized(List.class, null, String.class), literal("str2"), literal("str3")),
+			set(parameterized(Set.class, null, String.class), literal("str2"), literal("str3")));
+		value.put(list(parameterized(List.class, null, String.class)),
 			set(parameterized(Set.class, null, String.class)));
 
 		MatcherGenerators generator = generator();
@@ -164,16 +165,22 @@ public class DefaultMapAdaptorTest {
 			+ "new GenericMatcher() {*}.matching(clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$CompletelyHidden\")),*"
 			+ "new GenericMatcher() {*}.matching(clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$CompletelyHidden\")))");
 	}
-	
-	private SerializedList list(Type type) {
+
+	private SerializedList list(Type type, SerializedValue... values) {
 		SerializedList list = new SerializedList(baseType(type));
 		list.useAs(type);
+		for (SerializedValue value : values) {
+			list.add(value);
+		}
 		return list;
 	}
 
-	private SerializedSet set(Type type) {
+	private SerializedSet set(Type type, SerializedValue... values) {
 		SerializedSet set = new SerializedSet(baseType(type));
 		set.useAs(type);
+		for (SerializedValue value : values) {
+			set.add(value);
+		}
 		return set;
 	}
 

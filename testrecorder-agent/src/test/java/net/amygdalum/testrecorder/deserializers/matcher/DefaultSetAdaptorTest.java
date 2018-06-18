@@ -20,6 +20,7 @@ import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.util.testobjects.Hidden;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 import net.amygdalum.testrecorder.values.SerializedObject;
@@ -136,8 +137,8 @@ public class DefaultSetAdaptorTest {
 	public void testTryDeserializeGenericComponents() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(parameterized(Set.class, null, parameterized(Set.class, null, String.class)));
-		value.add(set(parameterized(Set.class, null, String.class)).with(literal("str1")));
-		value.add(set(parameterized(Set.class, null, String.class)).with(literal("str2"), literal("str3")));
+		value.add(set(parameterized(Set.class, null, String.class), literal("str1")));
+		value.add(set(parameterized(Set.class, null, String.class), literal("str2"), literal("str3")));
 		value.add(set(parameterized(Set.class, null, String.class)));
 
 		MatcherGenerators generator = generator();
@@ -168,9 +169,12 @@ public class DefaultSetAdaptorTest {
 			+ "new GenericMatcher() {*}.matching(clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$CompletelyHidden\")))");
 	}
 
-	private SerializedSet set(Type type) {
+	private SerializedSet set(Type type, SerializedValue... values) {
 		SerializedSet set = new SerializedSet(baseType(type));
 		set.useAs(type);
+		for (SerializedValue value : values) {
+			set.add(value);
+		}
 		return set;
 	}
 
