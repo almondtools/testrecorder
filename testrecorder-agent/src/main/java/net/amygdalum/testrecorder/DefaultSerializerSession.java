@@ -6,6 +6,7 @@ import static net.amygdalum.testrecorder.util.Lambdas.isSerializableLambda;
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.isLiteral;
+import static net.amygdalum.testrecorder.util.Types.serializableOf;
 
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Field;
@@ -22,6 +23,7 @@ import net.amygdalum.testrecorder.profile.Facade;
 import net.amygdalum.testrecorder.profile.Fields;
 import net.amygdalum.testrecorder.types.AnalyzedObject;
 import net.amygdalum.testrecorder.types.Profile;
+import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.util.Lambdas;
@@ -85,6 +87,16 @@ public class DefaultSerializerSession implements SerializerSession {
 	@Override
 	public SerializedValue find(Object object) {
 		return serialized.get(object);
+	}
+	
+	@Override
+	public SerializedValue ref(Object object, Type type) {
+		SerializedValue serializedValue = find(object);
+		if (serializedValue instanceof SerializedReferenceType && type != null && !baseType(type).isSynthetic()) {
+			SerializedReferenceType serializedReferenceType = (SerializedReferenceType) serializedValue;
+			serializedReferenceType.useAs(serializableOf(type));
+		}
+		return serializedValue;
 	}
 
 	@Override

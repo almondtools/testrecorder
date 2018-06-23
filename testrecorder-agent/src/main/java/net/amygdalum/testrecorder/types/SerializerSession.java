@@ -14,6 +14,8 @@ public interface SerializerSession {
 
 	void resolve(Object object, SerializedValue value);
 
+	SerializedValue ref(Object object, Type type);
+
 	boolean excludes(Field field);
 
 	boolean excludes(Class<?> clazz);
@@ -21,5 +23,6 @@ public interface SerializerSession {
 	AnalyzedObject analyze(Object object);
 
 	boolean facades(Object object);
+
 
 }

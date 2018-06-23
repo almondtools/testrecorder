@@ -1,13 +1,14 @@
 package net.amygdalum.testrecorder.serializers;
 
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
+import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.isLiteral;
+import static net.amygdalum.testrecorder.util.Types.isPrimitive;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
 import net.amygdalum.testrecorder.types.SerializationException;
-import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.util.Types;
@@ -28,24 +29,25 @@ public abstract class AbstractCompositeSerializer {
 	}
 
 	public SerializedValue serializedValueOf(SerializerSession session, Type type, Object value) {
-		SerializedValue serializedValue = serializedValueOf(session, type == null ? null : Types.baseType(type), value);
-		if (serializedValue instanceof SerializedReferenceType) {
-			((SerializedReferenceType) serializedValue).useAs(type);
+		SerializedValue serializedValue = session.ref(value, type);
+		if (serializedValue != null) {
+			return serializedValue;
 		}
-		return serializedValue;
-	}
-
-	private SerializedValue serializedValueOf(SerializerSession session, Class<?> type, Object value) {
+		Class<?> clazz = type == null ? null : baseType(type);
 		if (value == null) {
-			return SerializedNull.nullInstance();
+			SerializedNull nullInstance = SerializedNull.nullInstance();
+			if (clazz != null && !clazz.isSynthetic()) {
+				nullInstance.useAs(type);
+			}
+			return nullInstance;
 		} 
-		if (Types.isPrimitive(type)) {
-			return SerializedLiteral.literal(type, value);
+		if (isPrimitive(clazz)) {
+			return SerializedLiteral.literal(clazz, value);
 		}
 		if (isLiteral(value.getClass())) {
 			return SerializedLiteral.literal(value);
 		} else {
-			return session.find(value);
+			throw new SerializationException("cannot resolve value of type " + value.getClass().getName());
 		}
 	}
 

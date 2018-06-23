@@ -6,4 +6,8 @@ public class SerializationException extends RuntimeException {
 		super(e);
 	}
 
+	public SerializationException(String msg) {
+		super(msg);
+	}
+
 }

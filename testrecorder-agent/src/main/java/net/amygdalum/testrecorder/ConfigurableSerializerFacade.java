@@ -145,19 +145,15 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 
 	@Override
 	public SerializedValue serialize(Type type, Object object, SerializerSession session) {
-		SerializedValue serializedObject = session.find(object);
+		SerializedValue serializedObject = session.ref(object, type);
 		if (serializedObject != null) {
-			if (serializedObject instanceof SerializedReferenceType) {
-				SerializedReferenceType serializedReferenceType = (SerializedReferenceType) serializedObject;
-				serializedReferenceType.useAs(serializableOf(type));
-			}
 			return serializedObject;
 		}
 
 		if (isGround(object)) {
 			return createGround(type, object);
 		} else {
-			return createObject(type, object, session);
+			return createObject(serializableOf(type), object, session);
 		}
 	}
 
@@ -206,12 +202,9 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 				Runnable deferred = defer.remove();
 				deferred.run();
 			}
+			
+			SerializedValue serializedValue =session.ref(object, type);
 
-			SerializedValue serializedValue = session.find(object);
-			if (serializedValue instanceof SerializedReferenceType) {
-				SerializedReferenceType serializedReferenceType = (SerializedReferenceType) serializedValue;
-				serializedReferenceType.useAs(type);
-			}
 			return serializedValue;
 		} catch (Throwable e) {
 			throw new SerializationException(e);

@@ -360,7 +360,7 @@ public final class Types {
 
 	public static Class<?> baseType(Type type) {
 		if (type instanceof Class<?>) {
-			return ((Class<?>) type);
+			return (Class<?>) type;
 		} else if (type instanceof GenericArrayType) {
 			return Array.newInstance(baseType(((GenericArrayType) type).getGenericComponentType()), 0).getClass();
 		} else if (type instanceof ParameterizedType) {
@@ -832,7 +832,7 @@ public final class Types {
 			TypeVariable<?> typeVariable = (TypeVariable<?>) type;
 			return typeVariable(typeVariable.getName(), typeVariable.getGenericDeclaration(), typeVariable.getBounds());
 		} else {
-			return Types.baseType(type);
+			return baseType(type);
 		}
 	}
 
