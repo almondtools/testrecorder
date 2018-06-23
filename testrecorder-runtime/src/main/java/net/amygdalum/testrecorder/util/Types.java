@@ -61,7 +61,7 @@ public final class Types {
 		Optional<Class<?>> inferred = Arrays.stream(types)
 			.map(type -> superTypes(baseType(type)))
 			.reduce((s1, s2) -> intersectClasses(s1, s2))
-			.map(s -> bestClass(s));
+			.map(s -> bestType(s));
 		return inferred.orElse(Object.class);
 	}
 
@@ -117,7 +117,7 @@ public final class Types {
 		return result;
 	}
 
-	private static Class<?> bestClass(Set<Class<?>> classes) {
+	private static Class<?> bestType(Set<Class<?>> classes) {
 		Class<?> bestInterface = null;
 		Class<?> bestClass = Object.class;
 		for (Class<?> clazz : classes) {
@@ -125,6 +125,8 @@ public final class Types {
 				if (bestInterface == null) {
 					bestInterface = clazz;
 				} else if (bestInterface.isAssignableFrom(clazz)) {
+					bestInterface = clazz;
+				} else if (estimatedInterfaceMethodCount(bestInterface) < estimatedInterfaceMethodCount(clazz)) {
 					bestInterface = clazz;
 				}
 			} else if (bestClass.isAssignableFrom(clazz)) {
@@ -651,6 +653,30 @@ public final class Types {
 			current = current.getSuperclass();
 		}
 		return methods;
+	}
+
+	private static int estimatedInterfaceMethodCount(Class<?> clazz) {
+		SortedSet<Method> methods = new TreeSet<>((m1, m2) ->  {
+			int compare = m1.getName().compareTo(m2.getName());
+			if (compare == 0) {
+				compare = m1.getParameterCount() - m2.getParameterCount();
+			}
+			return compare;
+		});
+		WorkSet<Class<?>> todo = new WorkSet<>();
+		for (Class<?> intrface : clazz.getInterfaces()) {
+			todo.add(intrface);
+		}
+		while (todo.hasMoreElements()) {
+			Class<?> current = todo.remove();
+			for (Method method : current.getMethods()) {
+				methods.add(method);
+			}
+			for (Class<?> intrface : current.getInterfaces()) {
+				todo.add(intrface);
+			}
+		}
+		return methods.size();
 	}
 
 	public static <T> Constructor<T> getDeclaredConstructor(Class<T> clazz, Class<?>... parameterTypes) throws NoSuchMethodException {

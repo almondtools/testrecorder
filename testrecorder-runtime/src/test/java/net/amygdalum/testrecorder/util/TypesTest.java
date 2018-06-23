@@ -602,8 +602,6 @@ public class TypesTest {
 			.isEqualTo(Types.parameterized(BiGeneric.class, null, freeType, Types.wildcardSuper(Sub.class)));
 		assertThat(Types.resolve(boundAndWildcardType, PartlyBoundBiGeneric.class))
 			.isEqualTo(Types.parameterized(BiGeneric.class, null, ((ParameterizedType) boundAndWildcardType).getActualTypeArguments()[0], Sub.class));
-		System.out.println(Types.resolve(unboundAndWildcardType, PartlyBoundBiGeneric.class));
-		System.out.println(Types.parameterized(BiGeneric.class, null, freeType, ((ParameterizedType) unboundAndWildcardType).getActualTypeArguments()[1]));
 		assertThat(Types.serializableOf(Types.resolve(unboundAndWildcardType, PartlyBoundBiGeneric.class)))
 			.isEqualTo(Types.parameterized(BiGeneric.class, null, freeType, ((ParameterizedType) unboundAndWildcardType).getActualTypeArguments()[1]));
 	}
