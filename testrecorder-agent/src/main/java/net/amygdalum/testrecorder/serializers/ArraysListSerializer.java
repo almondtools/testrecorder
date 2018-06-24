@@ -37,7 +37,7 @@ public class ArraysListSerializer extends HiddenInnerClassSerializer<SerializedL
 	@Override
 	public void populate(SerializedList serializedObject, Object object, SerializerSession session) {
 		for (Object element : (List<?>) object) {
-			serializedObject.add(serializedValueOf(session, serializedObject.getComponentType(), element));
+			serializedObject.add(resolvedValueOf(session, serializedObject.getComponentType(), element));
 		}
 	}
 

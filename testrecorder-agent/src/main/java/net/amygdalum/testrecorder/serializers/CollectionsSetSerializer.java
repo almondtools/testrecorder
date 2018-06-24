@@ -47,7 +47,7 @@ public class CollectionsSetSerializer extends HiddenInnerClassSerializer<Seriali
 		Type componentType = computeComponentType(serializedObject, object);
 
 		for (Object element : (Set<?>) object) {
-			serializedObject.add(serializedValueOf(session, componentType, element));
+			serializedObject.add(resolvedValueOf(session, componentType, element));
 		}
 		serializedObject.useAs(parameterized(Set.class, null, componentType));
 	}

@@ -39,7 +39,7 @@ public class DefaultMapSerializer extends AbstractCompositeSerializer implements
 		for (Map.Entry<?, ?> entry : ((Map<?, ?>) object).entrySet()) {
 			Object key = entry.getKey();
 			Object value = entry.getValue();
-			serializedObject.put(serializedValueOf(session, serializedObject.getMapKeyType(), key), serializedValueOf(session, serializedObject.getMapValueType(), value));
+			serializedObject.put(resolvedValueOf(session, serializedObject.getMapKeyType(), key), resolvedValueOf(session, serializedObject.getMapValueType(), value));
 		}
 	}
 

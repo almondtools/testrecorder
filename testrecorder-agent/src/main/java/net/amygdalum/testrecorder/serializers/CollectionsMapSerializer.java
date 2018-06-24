@@ -52,7 +52,7 @@ public class CollectionsMapSerializer extends HiddenInnerClassSerializer<Seriali
 		for (Map.Entry<?, ?> element : ((Map<?, ?>) object).entrySet()) {
 			Object key = element.getKey();
 			Object value = element.getValue();
-			serializedObject.put(serializedValueOf(session, keyType, key), serializedValueOf(session, valueType, value));
+			serializedObject.put(resolvedValueOf(session, keyType, key), resolvedValueOf(session, valueType, value));
 		}
 		Type newType = parameterized(Map.class, null, componentTypes);
 		serializedObject.useAs(newType);

@@ -64,7 +64,7 @@ public class GenericSerializer extends AbstractCompositeSerializer implements Se
 			while (objectClass != Object.class && !session.excludes(objectClass)) {
 				for (Field f : objectClass.getDeclaredFields()) {
 					if (!session.excludes(f)) {
-						serializedObject.addField(serializedFieldOf(session, object, f));
+						serializedObject.addField(resolvedFieldOf(session, object, f));
 					}
 				}
 				objectClass = objectClass.getSuperclass();

@@ -2,7 +2,6 @@ package net.amygdalum.testrecorder.values;
 
 import static java.util.Collections.emptyList;
 
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,7 +12,7 @@ import net.amygdalum.testrecorder.types.SerializedValue;
 
 /**
  * Serializing to SerializedNull is only valid and strongly recommended for any value that is null. Use the factory method  
- * {@link #nullInstance(Type)}
+ * {@link #nullInstance()}
  */
 public class SerializedNull extends AbstractSerializedReferenceType implements SerializedImmutableType {
 

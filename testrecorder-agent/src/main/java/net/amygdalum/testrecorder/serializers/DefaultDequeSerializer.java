@@ -36,7 +36,7 @@ public class DefaultDequeSerializer extends AbstractCompositeSerializer implemen
 	@Override
 	public void populate(SerializedList serializedObject, Object object, SerializerSession session) {
 		for (Object element : (Deque<?>) object) {
-			serializedObject.add(serializedValueOf(session, serializedObject.getComponentType(), element));
+			serializedObject.add(resolvedValueOf(session, serializedObject.getComponentType(), element));
 		}
 	}
 

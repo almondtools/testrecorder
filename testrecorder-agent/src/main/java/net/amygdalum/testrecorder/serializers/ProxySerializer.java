@@ -65,7 +65,7 @@ public class ProxySerializer extends AbstractCompositeSerializer implements Seri
 		serializedProxy.setInterfaces(serializedInterfaces);
 
 		InvocationHandler invocationHandler = Proxy.getInvocationHandler(object);
-		SerializedValue serializedInvocationHandler = serializedValueOf(session, InvocationHandler.class, invocationHandler);
+		SerializedValue serializedInvocationHandler = resolvedValueOf(session, InvocationHandler.class, invocationHandler);
 		serializedProxy.setInvocationHandler(serializedInvocationHandler);
 		if (!session.facades(object)) {
 
@@ -73,7 +73,7 @@ public class ProxySerializer extends AbstractCompositeSerializer implements Seri
 			while (objectClass != Proxy.class && objectClass != Object.class && !session.excludes(objectClass)) {
 				for (Field f : objectClass.getDeclaredFields()) {
 					if (!session.excludes(f)) {
-						serializedProxy.addField(serializedFieldOf(session, object, f));
+						serializedProxy.addField(resolvedFieldOf(session, object, f));
 					}
 				}
 				objectClass = objectClass.getSuperclass();

@@ -46,7 +46,7 @@ public class CollectionsListSerializer extends HiddenInnerClassSerializer<Serial
 		Type componentType = computeComponentType(serializedObject, object);
 
 		for (Object element : (List<?>) object) {
-			serializedObject.add(serializedValueOf(session, componentType, element));
+			serializedObject.add(resolvedValueOf(session, componentType, element));
 		}
 		serializedObject.useAs(parameterized(List.class, null, componentType));
 	}

@@ -59,7 +59,7 @@ public class LambdaSerializer extends AbstractCompositeSerializer implements Ser
 
 		List<SerializedValue> arguments = IntStream.range(0, lambda.getCapturedArgCount())
 			.mapToObj(lambda::getCapturedArg)
-			.map(o -> serializedValueOf(session, o.getClass(), o))
+			.map(o -> resolvedValueOf(session, o.getClass(), o))
 			.collect(toList());
 		serializedLambda.setCapturedArguments(arguments);
 	}

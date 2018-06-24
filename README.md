@@ -33,7 +33,7 @@ Maven Dependency
 <dependency>
     <groupId>net.amygdalum</groupId>
     <artifactId>testrecorder-agent</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
 </dependency>
 ```
 
@@ -41,6 +41,6 @@ Maven Dependency
 <dependency>
     <groupId>net.amygdalum</groupId>
     <artifactId>testrecorder-runtime</artifactId>
-    <version>0.6.0</version>
+    <version>0.7.0</version>
 </dependency>
 ```

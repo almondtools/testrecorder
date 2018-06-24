@@ -14,6 +14,7 @@ import org.hamcrest.Matcher;
 
 import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.hints.SkipChecks;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.runtime.GenericMatcher;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.Deserializer;
@@ -30,6 +31,10 @@ import net.amygdalum.testrecorder.values.SerializedNull;
 public class MatcherGenerators implements Deserializer<Computation> {
 
 	private Adaptors<MatcherGenerators> adaptors;
+
+	public MatcherGenerators(AgentConfiguration config) {
+		this(new Adaptors<MatcherGenerators>(config).load(MatcherGenerator.class));
+	}
 
 	public MatcherGenerators(Adaptors<MatcherGenerators> adaptors) {
 		this.adaptors = adaptors;

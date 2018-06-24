@@ -46,7 +46,7 @@ public class ArraySerializer extends AbstractCompositeSerializer implements Seri
 		Class<?> type = object.getClass().getComponentType();
 		for (int i = 0; i < Array.getLength(object); i++) {
 			Object component = Array.get(object, i);
-			serializedObject.add(serializedValueOf(session, type, component));
+			serializedObject.add(resolvedValueOf(session, type, component));
 		}
 	}
 

@@ -20,7 +20,10 @@ For a custom serializer example we choose an object that is practically not seri
 
     public class ThreadSerializer implements Serializer<SerializedObject> {
     
-        public ThreadSerializer() {
+        private SerializerFacade facade;
+    
+        public ThreadSerializer(SerializerFacade facade) {
+            this.facade = facade;
         }
     
         @Override
@@ -34,28 +37,15 @@ For a custom serializer example we choose an object that is practically not seri
         }
     
         @Override
-        public Stream<?> components(Object object, SerializerSession session) {
-            Builder<Object> builder = Stream.builder();
-            Thread thread = (Thread) object;
-            try {
-                Field field = Thread.class.getDeclaredField("target");
-                Reflections.accessing(field).exec(f -> {
-                    Runnable runnable = (Runnable) f.get(thread);
-                    builder.add(runnable);
-                });
-            } catch (ReflectiveOperationException e) {
-                throw new SerializationException(e);
-            }
-            return builder.build();
-        }
-
-        @Override
-        public void populate(SerializedObject serializedObject, Object object, SerializerSession session) {
+        public void populate(SerializedObject serializedObject, Object object) {
             try {
                 Thread thread = (Thread) object;
                 Field field = Thread.class.getDeclaredField("target");
-                SerializedField serializedField = serializedFieldOf(session, thread, field);
-                serializedObject.addField(serializedField);
+                Reflections.accessing(field).exec(f -> {
+                    Runnable runnable = (Runnable) f.get(thread);
+                    SerializedValue serializedRunnable = facade.serialize(runnable.getClass(), runnable);
+                    serializedObject.addField(new SerializedField(Thread.class, "target", Runnable.class, serializedRunnable));
+                });
             } catch (ReflectiveOperationException | SecurityException e) {
                 throw new RuntimeException(e.getMessage());
             }
@@ -69,56 +59,58 @@ We will explain this class step by step. Consider the class definition:
 
 A serializer must implement `net.amygdalum.testrecorder.types.Serializer` and should expose a generic type parameter that is emitted as model. `SerializedObject` is quite convenient, yet one could even emit custom types that are derived from `SerializedValue`.
 
-Each serializer needs a public standarad constructor (no paramaters):
+Each serializer needs a constructor:
 
-    public ThreadSerializer() {
-    }
+      private SerializerFacade facade;
       
+      public ThreadSerializer(SerializerFacade facade) {
+        this.facade = facade;
+      }
+      
+The constructor must accept `SerializerFacade`, yet if it is not needed it is not necessary to store it. We store it in a field `facade` because our methods will make use of it.       
+    
 In order to dispatch the correct objects to the new serializer we have to implement `getMatchingClasses()`.  
 
-    @Override
-    public List<Class<?>> getMatchingClasses() {
+      @Override
+      public List<Class<?>> getMatchingClasses() {
         return asList(Thread.class);
-    }
+      }
 
 This gives the dispatching serialization process a hint that only objects of type `Thread` should be passed to this serializer. Note that the serialization process does not support types associated to multiple serializers (other than deserializers).
 
 The creation phase is started with the method `generate(Type type)`.
 
-    @Override
-    public SerializedObject generate(Type type) {
+      @Override
+      public SerializedObject generate(Type type) {
         return new SerializedObject(type);
-    }
+      }
 
 This method is only expected to return a reference to the serialized object that later would be populated. It is passed the actual type of of the object. Throwing an exception will be caught and lead to the next best serializer to be considered.
 
-At creation phase we also need the dependencies of the object. These should be returned in `components(Object object, SerializerSession session)`:
+The split between creation and population phase is because of some dependency management that the references are needed for. The population phase calls the method `populate(SerializedObject serializedObject, Object object)`:
 
-    @Override
-    public Stream<?> components(Object object, SerializerSession session) {
-        Builder<Object> builder = Stream.builder();
-        Thread thread = (Thread) object;
-        Runnable runnable = (Runnable) fieldOf(thread, Thread.class, "target");
-        builder.add(runnable);
-        return builder.build();
-    }
-    
-This method should return all objects that should be provided in a serialized way in the later populate phase (you can view these objects as dependencies or components). In this case we only need the target runnable of the thread to be serialized, so we extract it from the thread and return it as stream.
+      @Override
+      public void populate(SerializedObject serializedObject, Object object) {
+        try {
+          Thread thread = (Thread) object;
+          Field field = Thread.class.getDeclaredField("target");
+          Reflections.accessing(field).exec(()-> {
+            Runnable runnable = (Runnable) field.get(thread);
+            SerializedValue serializedRunnable = facade.serialize(runnable.getClass(), runnable);
+            serializedObject.addField(new SerializedField(Thread.class, "target", Runnable.class, serializedRunnable));
+          });
+        } catch (ReflectiveOperationException | SecurityException e) {
+          throw new RuntimeException(e.getMessage());
+        }
+      }
 
-The split between creation and population phase is because of some dependency management that the references are needed for. Between the phases all components are serialized, and after this their serialized value is available in the session.
+This method knows that only objects of type `Thread` will be passed. So casting to `Thread` and extracting reflectively the field `target` (which contains the wrapped `Runnable`) could be done safely.
 
-The population phase calls the method `populate(SerializedObject serializedObject, Object object)`:
+In a second step this method builds a `SerializedObject` and puts in the field `target` as field. Note that we have to make the field accessible with `Reflections.accessing` because private fields will otherwise throw exceptions.
 
-    @Override
-    public void populate(SerializedObject serializedObject, Object object) {
-        Thread thread = (Thread) object;
-        SerializedField serializedField = resolvedFieldOf(session, thread, Thread.class, "target");
-        serializedObject.addField(serializedField);
-    }
+In theory these operations can lead to `ReflectiveOperationExceptions` or `SecurityExceptions`, so we captured these exceptions and rethrew them. It is generally a good practice to capture all exceptions in a serializer, because an exception will leave the object partially initialized and testrecorder will continue with the next object.
 
-This method has access to all components and literals in serialized form through  `resolvedValueOf(SerializerSession session, Type type, Object value)` or `resolvededFieldOf(SerializerSession session, Object object, Field field)`. These methods only recall these serialized value. If you need some value in the populate phase, you have to expose them in `components(Object object, SerializerSession session)` such that they can be serialized between the phases.
-
-Fortunately the `SerializedObject` created by this serializer complies with the default setup generators and the default matcher generators, so we will not have to write custom deserializers.
+Fortunately the serialized object created by this serializer can often serve as model for a the default setup generators and the default matcher generators. In other cases it might get necessary to provide also deserializers (setup generators, matcher generators), a subject which is covered in the following sections.
 
 To register your `ThreadSerializer` for serialization dispatch you will have to:
 
@@ -383,8 +375,8 @@ To register your `DateMatcherGenerator` for deserialization dispatch you will ha
 
 ## Custom Initializers
 
-TODO (Please file an issue if you need documentation on this subject)
+TODO (TestRecorderAgentInitializer)
 
 ## Bundling your custom components
 
-TODO (Please file an issue if you need documentation on this subject)
+TODO

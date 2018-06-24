@@ -67,7 +67,7 @@ Creating a validator from a model with a `MatcherGenerator` is probably a kind m
 * Lambda matchers for lambda values
 * Generic structural matcher for anything that is not deserializable by a dedicated deserializer
  
-Extension points for deserialization are:
+Extension points for serialization are:
 
 * `net.amygdalum.testrecorder.SnapshotConsumer`   
 * `net.amygdalum.testrecorder.deserializers.builder.SetupGenerator`   

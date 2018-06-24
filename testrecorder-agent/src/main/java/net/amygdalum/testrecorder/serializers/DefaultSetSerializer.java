@@ -36,7 +36,7 @@ public class DefaultSetSerializer extends AbstractCompositeSerializer implements
 	@Override
 	public void populate(SerializedSet serializedObject, Object object, SerializerSession session) {
 		for (Object element : (Set<?>) object) {
-			serializedObject.add(serializedValueOf(session, serializedObject.getComponentType(), element));
+			serializedObject.add(resolvedValueOf(session, serializedObject.getComponentType(), element));
 		}
 	}
 
