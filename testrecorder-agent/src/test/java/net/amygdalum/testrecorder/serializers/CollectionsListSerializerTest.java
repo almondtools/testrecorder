@@ -27,13 +27,13 @@ public class CollectionsListSerializerTest {
 	private Serializer<SerializedList> serializer;
 
 	@BeforeEach
-	public void before() throws Exception {
+	void before() throws Exception {
 		session = mock(SerializerSession.class);
 		serializer = new CollectionsListSerializer();
 	}
 
 	@Test
-	public void testGetMatchingClasses() throws Exception {
+	void testGetMatchingClasses() throws Exception {
 		assertThat(serializer.getMatchingClasses()).containsExactlyInAnyOrder(
 			innerType(Collections.class, "UnmodifiableList"),
 			innerType(Collections.class, "UnmodifiableRandomAccessList"),
@@ -46,7 +46,7 @@ public class CollectionsListSerializerTest {
 	}
 
 	@Test
-	public void testGenerate() throws Exception {
+	void testGenerate() throws Exception {
 		Class<?> unmodifiableList = innerType(Collections.class, "UnmodifiableList");
 		Type listOfString = parameterized(List.class, null, String.class);
 
@@ -59,7 +59,7 @@ public class CollectionsListSerializerTest {
 	}
 
 	@Test
-	public void testPopulate() throws Exception {
+	void testPopulate() throws Exception {
 		SerializedValue foo = literal("Foo");
 		SerializedValue bar = literal("Bar");
 		when(session.find("Foo")).thenReturn(foo);
@@ -73,7 +73,7 @@ public class CollectionsListSerializerTest {
 	}
 
 	@Test
-	public void testPopulateNull() throws Exception {
+	void testPopulateNull() throws Exception {
 		SerializedValue foo = literal("Foo");
 		when(session.find("Foo")).thenReturn(foo);
 		Class<?> unmodifiableList = innerType(Collections.class, "UnmodifiableList");

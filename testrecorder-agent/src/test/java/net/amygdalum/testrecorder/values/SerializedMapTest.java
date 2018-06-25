@@ -26,7 +26,7 @@ import net.amygdalum.testrecorder.types.TestValueVisitor;
 public class SerializedMapTest {
 
 	@Test
-	public void testGetResultTypeRaw() throws Exception {
+	void testGetResultTypeRaw() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(Map.class);
 
@@ -34,7 +34,7 @@ public class SerializedMapTest {
 	}
 
 	@Test
-	public void testGetResultTypeParameterized() throws Exception {
+	void testGetResultTypeParameterized() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(mapOfStringString());
 
@@ -44,7 +44,7 @@ public class SerializedMapTest {
 	}
 
 	@Test
-	public void testGetResultTypeIndirectParameterized() throws Exception {
+	void testGetResultTypeIndirectParameterized() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(hashMapOfStringString());
 
@@ -54,7 +54,7 @@ public class SerializedMapTest {
 	}
 
 	@Test
-	public void testGetResultTypeBounded() throws Exception {
+	void testGetResultTypeBounded() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(mapOfBounded());
 		
@@ -62,7 +62,7 @@ public class SerializedMapTest {
 	}
 
 	@Test
-	public void testWithSerializedValueArray() throws Exception {
+	void testWithSerializedValueArray() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.put(literal("a"), literal("b"));
 		value.useAs(hashMapOfStringString());
@@ -71,7 +71,7 @@ public class SerializedMapTest {
 	}
 
 	@Test
-	public void testGetKeyValueTypeRaw() throws Exception {
+	void testGetKeyValueTypeRaw() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(Map.class);
 		
@@ -80,7 +80,7 @@ public class SerializedMapTest {
 	}
 
 	@Test
-	public void testGetKeyValueTypeParameterized() throws Exception {
+	void testGetKeyValueTypeParameterized() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(mapOfStringString());
 
@@ -89,7 +89,7 @@ public class SerializedMapTest {
 	}
 
 	@Test
-	public void testGetKeyValueTypeNestedParameterized() throws Exception {
+	void testGetKeyValueTypeNestedParameterized() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(mapOfStringListOfString());
 
@@ -98,7 +98,7 @@ public class SerializedMapTest {
 	}
 
 	@Test
-	public void testGetKeyValueTypeIndirectParameterized() throws Exception {
+	void testGetKeyValueTypeIndirectParameterized() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(hashMapOfStringString());
 		
@@ -107,7 +107,7 @@ public class SerializedMapTest {
 	}
 
 	@Test
-	public void testGetKeyValueTypeBounded() throws Exception {
+	void testGetKeyValueTypeBounded() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(mapOfBounded());
 		
@@ -116,7 +116,7 @@ public class SerializedMapTest {
 	}
 
 	@Test
-	public void testSize0() throws Exception {
+	void testSize0() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(Map.class);
 
@@ -125,7 +125,7 @@ public class SerializedMapTest {
 	}
 
 	@Test
-	public void testSize1() throws Exception {
+	void testSize1() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(Map.class);
 		value.put(literal("key"), literal("value"));
@@ -135,7 +135,7 @@ public class SerializedMapTest {
 	}
 
 	@Test
-	public void testSize2() throws Exception {
+	void testSize2() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(Map.class);
 		value.put(literal("key1"), literal("value1"));
@@ -146,7 +146,7 @@ public class SerializedMapTest {
 	}
 
 	@Test
-	public void testIsEmpty0() throws Exception {
+	void testIsEmpty0() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(Map.class);
 		
@@ -154,7 +154,7 @@ public class SerializedMapTest {
 	}
 
 	@Test
-	public void testIsEmpty1() throws Exception {
+	void testIsEmpty1() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(Map.class);
 		value.put(literal("key"), literal("value"));
@@ -163,7 +163,7 @@ public class SerializedMapTest {
 	}
 
 	@Test
-	public void testContains0() throws Exception {
+	void testContains0() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(Map.class);
 		
@@ -172,7 +172,7 @@ public class SerializedMapTest {
 	}
 
 	@Test
-	public void testContainsKey1() throws Exception {
+	void testContainsKey1() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(Map.class);
 		value.put(literal("key"), literal("value"));
@@ -182,7 +182,7 @@ public class SerializedMapTest {
 	}
 
 	@Test
-	public void testContainsValue1() throws Exception {
+	void testContainsValue1() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(Map.class);
 		value.put(literal("key"), literal("value"));
@@ -192,7 +192,7 @@ public class SerializedMapTest {
 	}
 
 	@Test
-	public void testRemoveObject0() throws Exception {
+	void testRemoveObject0() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(Map.class);
 		
@@ -200,7 +200,7 @@ public class SerializedMapTest {
 	}
 
 	@Test
-	public void testRemoveObject1() throws Exception {
+	void testRemoveObject1() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(Map.class);
 		value.put(literal("key"), literal("value"));
@@ -210,21 +210,91 @@ public class SerializedMapTest {
 	}
 
 	@Test
-	public void testPutAll() throws Exception {
+	void testPut() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
-		value.useAs(Map.class);
-		Map<SerializedValue, SerializedValue> entries = new HashMap<>();
-		value.put(literal("key1"), literal("value1"));
-		value.put(literal("key2"), literal("value2"));
+		value.useAs(parameterized(Map.class, null, String.class, String.class));
 
-		value.putAll(entries);
+		value.put(literal("key"), literal("value"));
 
-		assertThat(value).contains(entry(literal("key1"), literal("value1")));
-		assertThat(value).contains(entry(literal("key2"), literal("value2")));
+		assertThat(value).contains(entry(literal("key"), literal("value")));
+		assertThat(value.getMapKeyType()).isEqualTo(String.class);
+		assertThat(value.getMapValueType()).isEqualTo(String.class);
 	}
 
 	@Test
-	public void testClear() throws Exception {
+	void testPutResettingKeyType() throws Exception {
+		SerializedMap value = new SerializedMap(HashMap.class);
+		value.useAs(parameterized(Map.class, null, String.class, String.class));
+		
+		value.put(literal(1), literal("value"));
+		
+		assertThat(value).contains(entry(literal(1), literal("value")));
+		assertThat(value.getMapKeyType()).isEqualTo(Object.class);
+		assertThat(value.getMapValueType()).isEqualTo(String.class);
+	}
+	
+	@Test
+	void testPutResettingValueType() throws Exception {
+		SerializedMap value = new SerializedMap(HashMap.class);
+		value.useAs(parameterized(Map.class, null, String.class, String.class));
+		
+		value.put(literal("key"), literal(2));
+		
+		assertThat(value).contains(entry(literal("key"), literal(2)));
+		assertThat(value.getMapKeyType()).isEqualTo(String.class);
+		assertThat(value.getMapValueType()).isEqualTo(Object.class);
+	}
+	
+	@Test
+	void testPutAll() throws Exception {
+		SerializedMap value = new SerializedMap(HashMap.class);
+		value.useAs(parameterized(Map.class, null, String.class, String.class));
+		Map<SerializedValue, SerializedValue> entries = new HashMap<>();
+		entries.put(literal("key1"), literal("value1"));
+		entries.put(literal("key2"), literal("value2"));
+		
+		value.putAll(entries);
+		
+		assertThat(value).contains(entry(literal("key1"), literal("value1")));
+		assertThat(value).contains(entry(literal("key2"), literal("value2")));
+		assertThat(value.getMapKeyType()).isEqualTo(String.class);
+		assertThat(value.getMapValueType()).isEqualTo(String.class);
+	}
+	
+	@Test
+	void testPutAllResettingKeyType() throws Exception {
+		SerializedMap value = new SerializedMap(HashMap.class);
+		value.useAs(parameterized(Map.class, null, String.class, String.class));
+		Map<SerializedValue, SerializedValue> entries = new HashMap<>();
+		entries.put(literal(1), literal("value1"));
+		entries.put(literal("key2"), literal("value2"));
+		
+		value.putAll(entries);
+		
+		assertThat(value).contains(entry(literal(1), literal("value1")));
+		assertThat(value).contains(entry(literal("key2"), literal("value2")));
+		assertThat(value.getMapKeyType()).isEqualTo(Object.class);
+		assertThat(value.getMapValueType()).isEqualTo(String.class);
+	}
+	
+	@Test
+	void testPutAllResettingValueType() throws Exception {
+		SerializedMap value = new SerializedMap(HashMap.class);
+		value.useAs(parameterized(Map.class, null, String.class, String.class));
+		Map<SerializedValue, SerializedValue> entries = new HashMap<>();
+		entries.put(literal("key1"), literal("value1"));
+		entries.put(literal("key2"), literal(2));
+		
+		value.putAll(entries);
+		
+		assertThat(value).contains(entry(literal("key1"), literal("value1")));
+		assertThat(value).contains(entry(literal("key2"), literal(2)));
+		assertThat(value.getMapKeyType()).isEqualTo(String.class);
+		assertThat(value.getMapValueType()).isEqualTo(Object.class);
+	}
+	
+	@Test
+	void testClear() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(Map.class);
 		value.put(literal("key1"), literal("value1"));
@@ -236,7 +306,7 @@ public class SerializedMapTest {
 	}
 
 	@Test
-	public void testKeySet() throws Exception {
+	void testKeySet() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(Map.class);
 		value.put(literal("key1"), literal("value1"));
@@ -246,7 +316,7 @@ public class SerializedMapTest {
 	}
 
 	@Test
-	public void testValues() throws Exception {
+	void testValues() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(Map.class);
 		value.put(literal("key1"), literal("value1"));
@@ -256,7 +326,7 @@ public class SerializedMapTest {
 	}
 
 	@Test
-	public void testGet() throws Exception {
+	void testGet() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(Map.class);
 		value.put(literal("key"), literal("value"));
@@ -265,7 +335,7 @@ public class SerializedMapTest {
 	}
 
 	@Test
-	public void testToString0() throws Exception {
+	void testToString0() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(Map.class);
 
@@ -273,7 +343,7 @@ public class SerializedMapTest {
 	}
 
 	@Test
-	public void testToString1() throws Exception {
+	void testToString1() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(Map.class);
 		value.put(literal("key"), literal("value"));
@@ -282,7 +352,7 @@ public class SerializedMapTest {
 	}
 
 	@Test
-	public void testAccept() throws Exception {
+	void testAccept() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(Map.class);
 		

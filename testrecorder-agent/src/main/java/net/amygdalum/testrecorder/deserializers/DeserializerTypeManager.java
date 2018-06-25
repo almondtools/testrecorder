@@ -206,7 +206,7 @@ public class DeserializerTypeManager implements TypeManager {
 
 	@Override
 	public boolean isGenericVariable(Type type) {
-		return Types.isGenericVariable(type, pkg);
+		return Types.isGenericVariable(type);
 	}
 
 	@Override

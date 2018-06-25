@@ -12,6 +12,7 @@ import static net.amygdalum.testrecorder.util.Types.boxedType;
 import static net.amygdalum.testrecorder.util.Types.boxingEquivalentTypes;
 import static net.amygdalum.testrecorder.util.Types.component;
 import static net.amygdalum.testrecorder.util.Types.equalBaseTypes;
+import static net.amygdalum.testrecorder.util.Types.equalGenericTypes;
 import static net.amygdalum.testrecorder.util.Types.getDeclaredConstructor;
 import static net.amygdalum.testrecorder.util.Types.getDeclaredField;
 import static net.amygdalum.testrecorder.util.Types.getDeclaredFields;
@@ -19,10 +20,13 @@ import static net.amygdalum.testrecorder.util.Types.getDeclaredMethod;
 import static net.amygdalum.testrecorder.util.Types.getDeclaredMethods;
 import static net.amygdalum.testrecorder.util.Types.inferType;
 import static net.amygdalum.testrecorder.util.Types.innerType;
+import static net.amygdalum.testrecorder.util.Types.isArray;
 import static net.amygdalum.testrecorder.util.Types.isBound;
 import static net.amygdalum.testrecorder.util.Types.isBoxedPrimitive;
 import static net.amygdalum.testrecorder.util.Types.isErasureHidden;
 import static net.amygdalum.testrecorder.util.Types.isFinal;
+import static net.amygdalum.testrecorder.util.Types.isGeneric;
+import static net.amygdalum.testrecorder.util.Types.isGenericVariable;
 import static net.amygdalum.testrecorder.util.Types.isHidden;
 import static net.amygdalum.testrecorder.util.Types.isLiteral;
 import static net.amygdalum.testrecorder.util.Types.isPrimitive;
@@ -32,6 +36,7 @@ import static net.amygdalum.testrecorder.util.Types.needsCast;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.util.Types.serializableOf;
 import static net.amygdalum.testrecorder.util.Types.typeArgument;
+import static net.amygdalum.testrecorder.util.Types.typeArguments;
 import static net.amygdalum.testrecorder.util.Types.typeVariable;
 import static net.amygdalum.testrecorder.util.Types.wildcard;
 import static net.amygdalum.testrecorder.util.Types.wildcardExtends;
@@ -150,14 +155,20 @@ public class TypesTest {
 		assertThat(component(array(parameterized))).isEqualTo(parameterized);
 
 		assertThat(component(Object.class)).isEqualTo(Object.class);
+		assertThat(component(array(typeVariable("E", List.class)))).isEqualTo(Object.class);
 	}
 
 	@Test
 	void testAssignableTypes() throws Exception {
+		assertThat(assignableTypes(null, String.class)).isFalse();
+		assertThat(assignableTypes(String.class, null)).isTrue();
 		assertThat(assignableTypes(String.class, String.class)).isTrue();
 		assertThat(assignableTypes(Object.class, String.class)).isTrue();
 		assertThat(assignableTypes(String.class, Object.class)).isFalse();
 		assertThat(assignableTypes(Integer.class, String.class)).isFalse();
+		assertThat(assignableTypes(List.class, parameterized(List.class, null, String.class))).isTrue();
+		assertThat(assignableTypes(parameterized(List.class, null, String.class), List.class)).isTrue();
+		assertThat(assignableTypes(parameterized(List.class, null, String.class), parameterized(List.class, null, Integer.class))).isFalse();
 	}
 
 	@Test
@@ -173,6 +184,10 @@ public class TypesTest {
 		assertThat(boxingEquivalentTypes(short.class, Short.class)).isTrue();
 		assertThat(boxingEquivalentTypes(int.class, Integer.class)).isTrue();
 		assertThat(boxingEquivalentTypes(long.class, Long.class)).isTrue();
+		assertThat(boxingEquivalentTypes(long.class, int.class)).isFalse();
+		assertThat(boxingEquivalentTypes(parameterized(List.class, null, Double.class), parameterized(List.class, null, Double.class))).isTrue();
+		assertThat(boxingEquivalentTypes(List.class, parameterized(List.class, null, Double.class))).isFalse();
+		assertThat(boxingEquivalentTypes(parameterized(List.class, null, Double.class), List.class)).isFalse();
 	}
 
 	@Test
@@ -364,6 +379,7 @@ public class TypesTest {
 		assertThat(getDeclaredField(Sub1.class, "str")).isEqualTo(Super.class.getDeclaredField("str"));
 		assertThat(getDeclaredField(Sub2.class, "subAttr")).isEqualTo(Sub2.class.getDeclaredField("subAttr"));
 		assertThat(getDeclaredField(Sub2.class, "str")).isEqualTo(Super.class.getDeclaredField("str"));
+		assertThatThrownBy(()->getDeclaredField(Sub1.class, "notexisting")).isInstanceOf(NoSuchFieldException.class);
 	}
 
 	@Test
@@ -791,6 +807,50 @@ public class TypesTest {
 
 		public void params(NestedPublic nestedPublic, NestedPackagePrivate nestedPackage) {
 		}
+	}
+
+	@Test
+	public void testIsArray() throws Exception {
+		assertThat(isArray(int.class)).isFalse();
+		assertThat(isArray(Integer.class)).isFalse();
+		assertThat(isArray(int[].class)).isTrue();
+		assertThat(isArray(Integer[].class)).isTrue();
+		assertThat(isArray(array(parameterized(List.class, null, Integer.class)))).isTrue();
+	}
+
+	@Test
+	public void testIsGenericVariable() throws Exception {
+		assertThat(isGenericVariable(long.class)).isFalse();
+		assertThat(isGenericVariable(Long.class)).isFalse();
+		assertThat(isGenericVariable(parameterized(List.class, null, Long.class))).isFalse();
+		assertThat(isGenericVariable(typeVariable("E", List.class, Long.class))).isTrue();
+	}
+
+	@Test
+	public void testIsGeneric() throws Exception {
+		assertThat(isGeneric(double.class)).isFalse();
+		assertThat(isGeneric(Double.class)).isFalse();
+		assertThat(isGeneric(parameterized(List.class, null, Long.class))).isTrue();
+		assertThat(isGeneric(typeVariable("E", List.class, Long.class))).isTrue();
+		assertThat(isGeneric(array(parameterized(List.class, null, Integer.class)))).isTrue();
+	}
+
+	@Test
+	public void testTypeArguments() throws Exception {
+		assertThat(typeArguments(List.class)).isEmpty();
+		assertThat(typeArguments(parameterized(List.class, null, Integer.class))).contains(Integer.class);
+		assertThat(typeArguments(parameterized(Map.class, null, Integer.class, String.class))).contains(Integer.class, String.class);
+	}
+
+	@Test
+	public void testEqualGenericTypes() throws Exception {
+		assertThat(equalGenericTypes(String.class, String.class)).isTrue();
+		assertThat(equalGenericTypes(parameterized(Set.class, null, String.class), parameterized(Set.class, null, String.class))).isTrue();
+		assertThat(equalGenericTypes(parameterized(Set.class, null, String.class), Set.class)).isFalse();
+		assertThat(equalGenericTypes(Set.class, parameterized(Set.class, null, String.class))).isFalse();
+		assertThat(equalGenericTypes(Set.class, parameterized(Set.class, null, String.class))).isFalse();
+		assertThat(equalGenericTypes(Fields.class.getDeclaredField("parameterized").getGenericType(), parameterized(List.class, null, String.class))).isTrue();
+		assertThat(equalGenericTypes(parameterized(List.class, null, String.class), Fields.class.getDeclaredField("parameterized").getGenericType())).isTrue();
 	}
 
 }

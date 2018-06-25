@@ -431,7 +431,8 @@ public final class Types {
 	}
 
 	public static boolean equalGenericTypes(Type type1, Type type2) {
-		return type1.equals(type2) || type2.equals(type1);
+		return type1.equals(type2) 
+			|| type2.equals(type1);
 	}
 
 	public static boolean equalBaseTypes(Type type1, Type type2) {
@@ -442,7 +443,7 @@ public final class Types {
 		if (type1 instanceof Class<?> && type2 instanceof Class<?>) {
 			return boxedType(type1).equals(boxedType(type2));
 		}
-		return false;
+		return equalGenericTypes(type1, type2);
 	}
 
 	public static Optional<Type> typeArgument(Type type, int i) {
@@ -500,7 +501,7 @@ public final class Types {
 		return !(type instanceof Class<?>);
 	}
 
-	public static boolean isGenericVariable(Type type, String pkg) {
+	public static boolean isGenericVariable(Type type) {
 		return type instanceof TypeVariable<?>;
 	}
 
@@ -722,7 +723,7 @@ public final class Types {
 				current = current.getSuperclass();
 			}
 		}
-		return current.getDeclaredField(name);
+		throw new NoSuchFieldException(name);
 	}
 
 	public static List<Field> getDeclaredFields(Class<?> clazz, String name) {

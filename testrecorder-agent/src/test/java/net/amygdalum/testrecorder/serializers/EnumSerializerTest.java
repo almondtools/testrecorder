@@ -16,18 +16,18 @@ public class EnumSerializerTest {
 	private Serializer<SerializedEnum> serializer;
 
 	@BeforeEach
-	public void before() throws Exception {
+	void before() throws Exception {
 		session = mock(SerializerSession.class);
 		serializer = new EnumSerializer();
 	}
 
 	@Test
-	public void testGetMatchingClasses() throws Exception {
+	void testGetMatchingClasses() throws Exception {
 		assertThat(serializer.getMatchingClasses()).isEmpty();
 	}
 
 	@Test
-	public void testGenerate() throws Exception {
+	void testGenerate() throws Exception {
 		SerializedEnum value = serializer.generate(MyEnum.class, session);
 		value.useAs(MyInterface.class);
 
@@ -36,7 +36,7 @@ public class EnumSerializerTest {
 	}
 
 	@Test
-	public void testGenerateWithExtendedEnum() throws Exception {
+	void testGenerateWithExtendedEnum() throws Exception {
 		SerializedEnum value = serializer.generate(ExtendedEnum.VALUE1.getClass(), session);
 		value.useAs(MyInterface.class);
 
@@ -45,7 +45,7 @@ public class EnumSerializerTest {
 	}
 
 	@Test
-	public void testPopulate() throws Exception {
+	void testPopulate() throws Exception {
 		SerializedEnum value = serializer.generate(MyEnum.class, session);
 		value.useAs(MyInterface.class);
 

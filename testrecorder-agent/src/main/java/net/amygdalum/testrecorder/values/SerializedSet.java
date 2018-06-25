@@ -27,7 +27,7 @@ import net.amygdalum.testrecorder.util.Optionals;
  * 
  * Serializing objects not complying to this criteria is possible, just make sure that their exists a custom deserializer for these objects  
  */
-public class SerializedSet extends AbstractSerializedReferenceType implements SerializedReferenceType, Set<SerializedValue> {
+public class SerializedSet extends AbstractSerializedReferenceType implements SerializedReferenceType, Collection<SerializedValue> {
 
 	private Type componentType;
 	private Set<SerializedValue> set;
@@ -59,30 +59,37 @@ public class SerializedSet extends AbstractSerializedReferenceType implements Se
 		return visitor.visitReferenceType(this, context);
 	}
 
+	@Override
 	public int size() {
 		return set.size();
 	}
 
+	@Override
 	public boolean isEmpty() {
 		return set.isEmpty();
 	}
 
+	@Override
 	public boolean contains(Object o) {
 		return set.contains(o);
 	}
 
+	@Override
 	public Iterator<SerializedValue> iterator() {
 		return set.iterator();
 	}
 
+	@Override
 	public Object[] toArray() {
 		return set.toArray();
 	}
 
+	@Override
 	public <T> T[] toArray(T[] a) {
 		return set.toArray(a);
 	}
 
+	@Override
 	public boolean add(SerializedValue element) {
 		boolean added = set.add(element);
 		if (!satisfiesType(componentType, element)) {
@@ -91,14 +98,17 @@ public class SerializedSet extends AbstractSerializedReferenceType implements Se
 		return added;
 	}
 
+	@Override
 	public boolean remove(Object o) {
 		return set.remove(o);
 	}
 
+	@Override
 	public boolean containsAll(Collection<?> c) {
 		return set.containsAll(c);
 	}
 
+	@Override
 	public boolean addAll(Collection<? extends SerializedValue> c) {
 		boolean added = set.addAll(c);
 		if (!satisfiesType(componentType, c)) {
@@ -107,14 +117,17 @@ public class SerializedSet extends AbstractSerializedReferenceType implements Se
 		return added;
 	}
 
+	@Override
 	public boolean retainAll(Collection<?> c) {
 		return set.retainAll(c);
 	}
 
+	@Override
 	public boolean removeAll(Collection<?> c) {
 		return set.removeAll(c);
 	}
 
+	@Override
 	public void clear() {
 		set.clear();
 	}

@@ -16,18 +16,18 @@ public class ClassSerializerTest {
 	private Serializer<SerializedImmutable<Class<?>>> serializer;
 
 	@BeforeEach
-	public void before() throws Exception {
+	void before() throws Exception {
 		session = mock(SerializerSession.class);
 		serializer = new ClassSerializer();
 	}
 
 	@Test
-	public void testGetMatchingClasses() throws Exception {
+	void testGetMatchingClasses() throws Exception {
 		assertThat(serializer.getMatchingClasses()).containsExactly(Class.class);
 	}
 
 	@Test
-	public void testGenerate() throws Exception {
+	void testGenerate() throws Exception {
 		SerializedImmutable<Class<?>> value = serializer.generate(Class.class, session);
 		value.useAs(Class.class);
 
@@ -36,7 +36,12 @@ public class ClassSerializerTest {
 	}
 
 	@Test
-	public void testPopulate() throws Exception {
+	void testComponents() throws Exception {
+		assertThat(serializer.components(Class.class, session)).isEmpty();;
+	}
+
+	@Test
+	void testPopulate() throws Exception {
 		SerializedImmutable<Class<?>> value = serializer.generate(Class.class, session);
 		value.useAs(Class.class);
 

@@ -29,18 +29,18 @@ public class GenericSerializerTest {
 	private Serializer<SerializedReferenceType> serializer;
 
 	@BeforeEach
-	public void before() throws Exception {
+	void before() throws Exception {
 		session = mock(SerializerSession.class);
 		serializer = new GenericSerializer();
 	}
 
 	@Test
-	public void testGetMatchingClasses() throws Exception {
+	void testGetMatchingClasses() throws Exception {
 		assertThat(serializer.getMatchingClasses()).isEmpty();
 	}
 
 	@Test
-	public void testGenerate() throws Exception {
+	void testGenerate() throws Exception {
 		SerializedReferenceType value = serializer.generate(GenericObject.class, session);
 		value.useAs(GenericObject.class);
 
@@ -49,7 +49,7 @@ public class GenericSerializerTest {
 	}
 
 	@Test
-	public void testGenerateOnExcludedType() throws Exception {
+	void testGenerateOnExcludedType() throws Exception {
 		when(session.excludes(Random.class)).thenReturn(true);
 		SerializedReferenceType value = serializer.generate(Random.class, session);
 		value.useAs(Random.class);
@@ -58,7 +58,7 @@ public class GenericSerializerTest {
 	}
 
 	@Test
-	public void testPopulate() throws Exception {
+	void testPopulate() throws Exception {
 		SerializedValue foo = literal("Foo");
 		SerializedValue bar = literal(int.class, 1);
 		when(session.excludes(any(Field.class))).thenAnswer(field -> ((Field) field.getArguments()[0]).isSynthetic());
@@ -75,7 +75,7 @@ public class GenericSerializerTest {
 	}
 
 	@Test
-	public void testPopulateOtherNullType() throws Exception {
+	void testPopulateOtherNullType() throws Exception {
 		SerializedNull nullValue = SerializedNull.nullInstance();
 
 		serializer.populate(nullValue, "Element", session);
@@ -84,7 +84,7 @@ public class GenericSerializerTest {
 	}
 
 	@Test
-	public void testPopulateOtherReferenceTypes() throws Exception {
+	void testPopulateOtherReferenceTypes() throws Exception {
 		SerializedSet set = new SerializedSet(HashSet.class);
 
 		serializer.populate(set, singleton("Element"), session);

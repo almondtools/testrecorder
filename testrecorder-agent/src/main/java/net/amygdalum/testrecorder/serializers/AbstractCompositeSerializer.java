@@ -22,7 +22,7 @@ public abstract class AbstractCompositeSerializer {
 		try {
 			Field field = type.getDeclaredField(name);
 			return resolvedFieldOf(session, object, field);
-		} catch (ReflectiveOperationException e) {
+		} catch (ReflectiveOperationException | IllegalArgumentException e) {
 			throw new SerializationException(e);
 		}
 	}
@@ -64,7 +64,7 @@ public abstract class AbstractCompositeSerializer {
 		try {
 			Field field = type.getDeclaredField(name);
 			return fieldOf(object, field);
-		} catch (ReflectiveOperationException e) {
+		} catch (ReflectiveOperationException | IllegalArgumentException e) {
 			throw new SerializationException(e);
 		}
 	}
@@ -72,7 +72,7 @@ public abstract class AbstractCompositeSerializer {
 	public Object fieldOf(Object object, Field field) {
 		try {
 			return accessing(field).call(f -> f.get(object));
-		} catch (ReflectiveOperationException e) {
+		} catch (ReflectiveOperationException | IllegalArgumentException e) {
 			throw new SerializationException(e);
 		}
 	}

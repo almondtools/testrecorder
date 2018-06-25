@@ -26,7 +26,7 @@ import net.amygdalum.testrecorder.types.TestValueVisitor;
 public class SerializedSetTest {
 
 	@Test
-	public void testGetResultTypeRaw() throws Exception {
+	void testGetResultTypeRaw() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(Set.class);
 
@@ -34,7 +34,7 @@ public class SerializedSetTest {
 	}
 
 	@Test
-	public void testGetResultTypeParameterized() throws Exception {
+	void testGetResultTypeParameterized() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(setOfString());
 
@@ -44,7 +44,7 @@ public class SerializedSetTest {
 	}
 
 	@Test
-	public void testGetResultTypeIndirectParameterized() throws Exception {
+	void testGetResultTypeIndirectParameterized() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(hashSetOfString());
 
@@ -54,7 +54,7 @@ public class SerializedSetTest {
 	}
 
 	@Test
-	public void testGetResultTypeBounded() throws Exception {
+	void testGetResultTypeBounded() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(setOfBounded());
 
@@ -62,7 +62,7 @@ public class SerializedSetTest {
 	}
 
 	@Test
-	public void testGetComponentTypeRaw() throws Exception {
+	void testGetComponentTypeRaw() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(Set.class);
 
@@ -70,7 +70,7 @@ public class SerializedSetTest {
 	}
 
 	@Test
-	public void testGetComponentTypeParameterized() throws Exception {
+	void testGetComponentTypeParameterized() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(setOfString());
 
@@ -78,7 +78,7 @@ public class SerializedSetTest {
 	}
 
 	@Test
-	public void testGetComponentTypeNestedParameterized() throws Exception {
+	void testGetComponentTypeNestedParameterized() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(setOfListOfString());
 
@@ -86,7 +86,7 @@ public class SerializedSetTest {
 	}
 
 	@Test
-	public void testGetComponentTypeIndirectParameterized() throws Exception {
+	void testGetComponentTypeIndirectParameterized() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(hashSetOfString());
 
@@ -94,7 +94,7 @@ public class SerializedSetTest {
 	}
 
 	@Test
-	public void testGetComponentTypeBounded() throws Exception {
+	void testGetComponentTypeBounded() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(hashSetOfString());
 
@@ -102,7 +102,7 @@ public class SerializedSetTest {
 	}
 
 	@Test
-	public void testWithSerializedValueArray() throws Exception {
+	void testWithSerializedValueArray() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.add(literal("a"));
 		value.add(literal("b"));
@@ -112,7 +112,7 @@ public class SerializedSetTest {
 	}
 
 	@Test
-	public void testSize0() throws Exception {
+	void testSize0() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(Set.class);
 
@@ -121,7 +121,7 @@ public class SerializedSetTest {
 	}
 
 	@Test
-	public void testSize1() throws Exception {
+	void testSize1() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(Set.class);
 		value.add(literal("string"));
@@ -131,7 +131,7 @@ public class SerializedSetTest {
 	}
 
 	@Test
-	public void testSize2() throws Exception {
+	void testSize2() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(Set.class);
 		value.add(literal("string"));
@@ -142,14 +142,14 @@ public class SerializedSetTest {
 	}
 
 	@Test
-	public void testIsEmpty0() throws Exception {
+	void testIsEmpty0() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(Set.class);
 		assertThat(value.isEmpty()).isTrue();
 	}
 
 	@Test
-	public void testIsEmpty1() throws Exception {
+	void testIsEmpty1() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(Set.class);
 		value.add(literal("string"));
@@ -158,7 +158,7 @@ public class SerializedSetTest {
 	}
 
 	@Test
-	public void testContains0() throws Exception {
+	void testContains0() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(Set.class);
 		
@@ -166,7 +166,7 @@ public class SerializedSetTest {
 	}
 
 	@Test
-	public void testContains1() throws Exception {
+	void testContains1() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(Set.class);
 		value.add(literal("string"));
@@ -175,14 +175,14 @@ public class SerializedSetTest {
 	}
 
 	@Test
-	public void testIterator0() throws Exception {
+	void testIterator0() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(Set.class);
 		assertThat(value.iterator().hasNext()).isFalse();
 	}
 
 	@Test
-	public void testIterator1() throws Exception {
+	void testIterator1() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(Set.class);
 		value.add(literal("string"));
@@ -190,7 +190,7 @@ public class SerializedSetTest {
 	}
 
 	@Test
-	public void testToArray0() throws Exception {
+	void testToArray0() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(Set.class);
 		
@@ -199,7 +199,7 @@ public class SerializedSetTest {
 	}
 
 	@Test
-	public void testToArray1() throws Exception {
+	void testToArray1() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(Set.class);
 		value.add(literal("string"));
@@ -209,14 +209,14 @@ public class SerializedSetTest {
 	}
 
 	@Test
-	public void testRemoveObject0() throws Exception {
+	void testRemoveObject0() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(Set.class);
 		assertThat(value.remove(literal("string"))).isFalse();
 	}
 
 	@Test
-	public void testRemoveObject1() throws Exception {
+	void testRemoveObject1() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(Set.class);
 		value.add(literal("string"));
@@ -224,7 +224,7 @@ public class SerializedSetTest {
 	}
 
 	@Test
-	public void testContainsAll0() throws Exception {
+	void testContainsAll0() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(Set.class);
 		
@@ -233,7 +233,7 @@ public class SerializedSetTest {
 	}
 
 	@Test
-	public void testContainsAll1() throws Exception {
+	void testContainsAll1() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(Set.class);
 		value.add(literal("string"));
@@ -243,17 +243,54 @@ public class SerializedSetTest {
 	}
 
 	@Test
-	public void testAddAll() throws Exception {
+	void testAdd() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
-		value.useAs(Set.class);
+		value.useAs(parameterized(HashSet.class, null, String.class));
+
+		value.add(literal("string"));
+		value.add(SerializedNull.nullInstance());
+
+		assertThat(value).containsExactly(literal("string"), SerializedNull.nullInstance());
+		assertThat(value.getComponentType()).isEqualTo(String.class);
+		assertThat(value.getUsedTypes()).contains(parameterized(HashSet.class, null, String.class));
+	}
+
+	@Test
+	void testAddResettingComponentType() throws Exception {
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(parameterized(HashSet.class, null, String.class));
+
+		value.add(literal(1));
+
+		assertThat(value).containsExactly(literal(1));
+		assertThat(value.getComponentType()).isEqualTo(Object.class);
+		assertThat(value.getUsedTypes()).contains(parameterized(HashSet.class, null, String.class));
+	}
+
+	@Test
+	void testAddAll() throws Exception {
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(parameterized(HashSet.class, null, String.class));
 
 		value.addAll(asList(literal("string"), literal("other")));
 
 		assertThat(value).containsExactly(literal("string"), literal("other"));
+		assertThat(value.getComponentType()).isEqualTo(String.class);
 	}
 
 	@Test
-	public void testRemoveAll() throws Exception {
+	void testAddAllResettingComponentType() throws Exception {
+		SerializedSet value = new SerializedSet(HashSet.class);
+		value.useAs(parameterized(HashSet.class, null, String.class));
+		
+		value.addAll(asList(literal(1), literal("other")));
+		
+		assertThat(value).containsExactly(literal(1), literal("other"));
+		assertThat(value.getComponentType()).isEqualTo(Object.class);
+	}
+	
+	@Test
+	void testRemoveAll() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(Set.class);
 		value.addAll(asList(
@@ -269,7 +306,7 @@ public class SerializedSetTest {
 	}
 
 	@Test
-	public void testRetainAll() throws Exception {
+	void testRetainAll() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(Set.class);
 		value.addAll(asList(
@@ -285,7 +322,7 @@ public class SerializedSetTest {
 	}
 
 	@Test
-	public void testClear() throws Exception {
+	void testClear() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(Set.class);
 		value.addAll(asList(
@@ -299,7 +336,7 @@ public class SerializedSetTest {
 	}
 
 	@Test
-	public void testToString0() throws Exception {
+	void testToString0() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(Set.class);
 		
@@ -307,7 +344,7 @@ public class SerializedSetTest {
 	}
 
 	@Test
-	public void testToString1() throws Exception {
+	void testToString1() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(Set.class);
 		value.add(literal("string"));
@@ -316,7 +353,7 @@ public class SerializedSetTest {
 	}
 
 	@Test
-	public void testAccept() throws Exception {
+	void testAccept() throws Exception {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(Set.class);
 		

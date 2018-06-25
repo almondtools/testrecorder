@@ -26,18 +26,18 @@ public class DefaultSetSerializerTest {
 	private Serializer<SerializedSet> serializer;
 
 	@BeforeEach
-	public void before() throws Exception {
+	void before() throws Exception {
 		session = mock(SerializerSession.class);
 		serializer = new DefaultSetSerializer();
 	}
 
 	@Test
-	public void testGetMatchingClasses() throws Exception {
+	void testGetMatchingClasses() throws Exception {
 		assertThat(serializer.getMatchingClasses()).containsExactlyInAnyOrder(HashSet.class, TreeSet.class, LinkedHashSet.class);
 	}
 
 	@Test
-	public void testGenerate() throws Exception {
+	void testGenerate() throws Exception {
 		Type hashSetOfString = parameterized(HashSet.class, null, String.class);
 
 		SerializedSet value = serializer.generate(HashSet.class, session);
@@ -49,7 +49,13 @@ public class DefaultSetSerializerTest {
 	}
 
 	@Test
-	public void testPopulate() throws Exception {
+	void testComponents() throws Exception {
+		assertThat(serializer.components(new HashSet<>(asList("Foo", "Bar")), session).map(o -> (Object) o))
+			.contains(new Object[] { "Foo", "Bar" });
+	}
+
+	@Test
+	void testPopulate() throws Exception {
 		SerializedValue foo = literal("Foo");
 		SerializedValue bar = literal("Bar");
 		when(session.find("Foo")).thenReturn(foo);

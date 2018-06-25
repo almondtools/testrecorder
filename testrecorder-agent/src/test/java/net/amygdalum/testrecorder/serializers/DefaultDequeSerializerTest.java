@@ -26,18 +26,18 @@ public class DefaultDequeSerializerTest {
 	private Serializer<SerializedList> serializer;
 
 	@BeforeEach
-	public void before() throws Exception {
+	void before() throws Exception {
 		session = mock(SerializerSession.class);
 		serializer = new DefaultDequeSerializer();
 	}
 
 	@Test
-	public void testGetMatchingClasses() throws Exception {
+	void testGetMatchingClasses() throws Exception {
 		assertThat(serializer.getMatchingClasses()).containsExactlyInAnyOrder(ArrayDeque.class, ConcurrentLinkedDeque.class, LinkedBlockingDeque.class);
 	}
 
 	@Test
-	public void testGenerate() throws Exception {
+	void testGenerate() throws Exception {
 		Type arrayDequeOfString = parameterized(ArrayDeque.class, null, String.class);
 
 		SerializedList value = serializer.generate(ArrayDeque.class, session);
@@ -49,7 +49,13 @@ public class DefaultDequeSerializerTest {
 	}
 
 	@Test
-	public void testPopulate() throws Exception {
+	void testComponents() throws Exception {
+		assertThat(serializer.components(new ArrayDeque<>(asList("Foo", "Bar")), session).map(o -> (Object) o))
+			.contains(new Object[] { "Foo", "Bar" });
+	}
+
+	@Test
+	void testPopulate() throws Exception {
 		SerializedValue foo = literal("Foo");
 		SerializedValue bar = literal("Bar");
 		when(session.find("Foo")).thenReturn(foo);

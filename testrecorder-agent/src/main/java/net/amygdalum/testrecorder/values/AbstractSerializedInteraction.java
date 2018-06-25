@@ -42,10 +42,13 @@ public abstract class AbstractSerializedInteraction implements SerializedInterac
 
 	@Override
 	public boolean isComplete() {
-		if (resultType != null && result == null) {
+		if (resultType == null || types == null) {
 			return false;
 		}
-		if (types != null && (arguments == null || arguments.length != types.length)) {
+		if (result == null) {
+			return false;
+		}
+		if (arguments == null || arguments.length != types.length) {
 			return false;
 		}
 		return true;

@@ -26,13 +26,13 @@ public class CollectionsMapSerializerTest {
 	private Serializer<SerializedMap> serializer;
 
 	@BeforeEach
-	public void before() throws Exception {
+	void before() throws Exception {
 		session = mock(SerializerSession.class);
 		serializer = new CollectionsMapSerializer();
 	}
 
 	@Test
-	public void testGetMatchingClasses() throws Exception {
+	void testGetMatchingClasses() throws Exception {
 		assertThat(serializer.getMatchingClasses()).containsExactlyInAnyOrder(
 			innerType(Collections.class, "UnmodifiableMap"),
 			innerType(Collections.class, "UnmodifiableSortedMap"),
@@ -48,7 +48,7 @@ public class CollectionsMapSerializerTest {
 	}
 
 	@Test
-	public void testGenerate() throws Exception {
+	void testGenerate() throws Exception {
 		Class<?> unmodifiableMap = innerType(Collections.class, "UnmodifiableMap");
 		
 		SerializedMap value = serializer.generate(unmodifiableMap, session);
@@ -61,7 +61,7 @@ public class CollectionsMapSerializerTest {
 	}
 
 	@Test
-	public void testPopulate() throws Exception {
+	void testPopulate() throws Exception {
 		SerializedValue foo = literal("Foo");
 		when(session.find("Foo")).thenReturn(foo);
 		when(session.find(47)).thenReturn(literal(47));
@@ -76,7 +76,7 @@ public class CollectionsMapSerializerTest {
 	}
 
 	@Test
-	public void testPopulateWithNullKey() throws Exception {
+	void testPopulateWithNullKey() throws Exception {
 		when(session.find(47)).thenReturn(literal(47));
 		Class<?> unmodifiableMap = innerType(Collections.class, "UnmodifiableMap");
 		Type mapOfStringInteger = parameterized(Map.class, null, String.class, Integer.class);
@@ -90,7 +90,7 @@ public class CollectionsMapSerializerTest {
 	}
 
 	@Test
-	public void testPopulateWithNullValue() throws Exception {
+	void testPopulateWithNullValue() throws Exception {
 		SerializedValue foo = literal("Foo");
 		when(session.find("Foo")).thenReturn(foo);
 		Class<?> unmodifiableMap = innerType(Collections.class, "UnmodifiableMap");

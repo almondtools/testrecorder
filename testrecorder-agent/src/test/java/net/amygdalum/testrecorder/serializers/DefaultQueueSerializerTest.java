@@ -29,19 +29,19 @@ public class DefaultQueueSerializerTest {
 	private Serializer<SerializedList> serializer;
 
 	@BeforeEach
-	public void before() throws Exception {
+	void before() throws Exception {
 		session = mock(SerializerSession.class);
 		serializer = new DefaultQueueSerializer();
 	}
 
 	@Test
-	public void testGetMatchingClasses() throws Exception {
+	void testGetMatchingClasses() throws Exception {
 		assertThat(serializer.getMatchingClasses()).containsExactlyInAnyOrder(LinkedBlockingQueue.class, ArrayBlockingQueue.class, ConcurrentLinkedQueue.class, PriorityBlockingQueue.class,
 			LinkedTransferQueue.class, DelayQueue.class);
 	}
 
 	@Test
-	public void testGenerate() throws Exception {
+	void testGenerate() throws Exception {
 		Type priorityBlockingQueueOfString = parameterized(PriorityBlockingQueue.class, null, String.class);
 
 		SerializedList value = serializer.generate(PriorityBlockingQueue.class, session);
@@ -53,7 +53,13 @@ public class DefaultQueueSerializerTest {
 	}
 
 	@Test
-	public void testPopulate() throws Exception {
+	void testComponents() throws Exception {
+		assertThat(serializer.components(new LinkedBlockingQueue<>(asList("Foo", "Bar")), session).map(o -> (Object) o))
+			.contains(new Object[] { "Foo", "Bar" });
+	}
+
+	@Test
+	void testPopulate() throws Exception {
 		SerializedValue foo = literal("Foo");
 		SerializedValue bar = literal("Bar");
 		when(session.find("Foo")).thenReturn(foo);

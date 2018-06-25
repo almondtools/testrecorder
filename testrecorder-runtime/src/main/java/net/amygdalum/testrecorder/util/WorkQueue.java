@@ -185,7 +185,7 @@ public class WorkQueue<E> implements Queue<E> {
         return first.item;
 	}
 
-    void linkLast(E e) {
+    private void linkLast(E e) {
         Node<E> l = last;
         Node<E> newLast = new Node<>(l, e, null);
         last = newLast;

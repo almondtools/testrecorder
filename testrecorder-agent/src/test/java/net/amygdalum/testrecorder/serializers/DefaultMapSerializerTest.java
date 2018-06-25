@@ -27,18 +27,18 @@ public class DefaultMapSerializerTest {
 	private Serializer<SerializedMap> serializer;
 
 	@BeforeEach
-	public void before() throws Exception {
+	void before() throws Exception {
 		session = mock(SerializerSession.class);
 		serializer = new DefaultMapSerializer();
 	}
 
 	@Test
-	public void testGetMatchingClasses() throws Exception {
+	void testGetMatchingClasses() throws Exception {
 		assertThat(serializer.getMatchingClasses()).containsExactlyInAnyOrder(HashMap.class, TreeMap.class, LinkedHashMap.class);
 	}
 
 	@Test
-	public void testGenerate() throws Exception {
+	void testGenerate() throws Exception {
 		Type hashMapOfStringInteger = parameterized(HashMap.class, null, String.class, Integer.class);
 
 		SerializedMap value = serializer.generate(HashMap.class, session);
@@ -51,7 +51,7 @@ public class DefaultMapSerializerTest {
 	}
 
 	@Test
-	public void testPopulate() throws Exception {
+	void testPopulate() throws Exception {
 		SerializedValue foo = literal("Foo");
 		SerializedValue i42 = literal(Integer.class, 42);
 		when(session.find("Foo")).thenReturn(foo);

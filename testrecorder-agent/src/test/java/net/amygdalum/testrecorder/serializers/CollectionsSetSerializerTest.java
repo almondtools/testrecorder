@@ -27,13 +27,13 @@ public class CollectionsSetSerializerTest {
 	private Serializer<SerializedSet> serializer;
 
 	@BeforeEach
-	public void before() throws Exception {
+	void before() throws Exception {
 		session = mock(SerializerSession.class);
 		serializer = new CollectionsSetSerializer();
 	}
 
 	@Test
-	public void testGetMatchingClasses() throws Exception {
+	void testGetMatchingClasses() throws Exception {
 		assertThat(serializer.getMatchingClasses()).containsExactlyInAnyOrder(
 			innerType(Collections.class, "UnmodifiableSet"),
 			innerType(Collections.class, "UnmodifiableSortedSet"),
@@ -49,7 +49,7 @@ public class CollectionsSetSerializerTest {
 	}
 
 	@Test
-	public void testGenerate() throws Exception {
+	void testGenerate() throws Exception {
 		Class<?> unmodifiableSet = innerType(Collections.class, "UnmodifiableSet");
 		
 		SerializedSet value = serializer.generate(unmodifiableSet, session);
@@ -61,7 +61,7 @@ public class CollectionsSetSerializerTest {
 	}
 
 	@Test
-	public void testPopulate() throws Exception {
+	void testPopulate() throws Exception {
 		SerializedValue foo = literal("Foo");
 		SerializedValue bar = literal("Bar");
 		when(session.find("Foo")).thenReturn(foo);
@@ -76,7 +76,7 @@ public class CollectionsSetSerializerTest {
 	}
 
 	@Test
-	public void testPopulateNull() throws Exception {
+	void testPopulateNull() throws Exception {
 		SerializedValue foo = literal("Foo");
 		when(session.find("Foo")).thenReturn(foo);
 		Class<?> unmodifiableSet = innerType(Collections.class, "UnmodifiableSet");

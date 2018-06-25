@@ -18,18 +18,18 @@ public class BigIntegerSerializerTest {
 	private Serializer<SerializedImmutable<BigInteger>> serializer;
 
 	@BeforeEach
-	public void before() throws Exception {
+	void before() throws Exception {
 		session = mock(SerializerSession.class);
 		serializer = new BigIntegerSerializer();
 	}
 
 	@Test
-	public void testGetMatchingClasses() throws Exception {
+	void testGetMatchingClasses() throws Exception {
 		assertThat(serializer.getMatchingClasses()).containsExactly(BigInteger.class);
 	}
 
 	@Test
-	public void testGenerate() throws Exception {
+	void testGenerate() throws Exception {
 		SerializedImmutable<BigInteger> value = serializer.generate(BigInteger.class, session);
 		value.useAs(BigInteger.class);
 
@@ -38,7 +38,7 @@ public class BigIntegerSerializerTest {
 	}
 
 	@Test
-	public void testPopulate() throws Exception {
+	void testPopulate() throws Exception {
 		SerializedImmutable<BigInteger> value = serializer.generate(BigInteger.class, session);
 		value.useAs(BigInteger.class);
 

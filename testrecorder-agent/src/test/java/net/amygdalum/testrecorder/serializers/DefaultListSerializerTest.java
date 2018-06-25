@@ -26,18 +26,18 @@ public class DefaultListSerializerTest {
 	private Serializer<SerializedList> serializer;
 
 	@BeforeEach
-	public void before() throws Exception {
+	void before() throws Exception {
 		session = mock(SerializerSession.class);
 		serializer = new DefaultListSerializer();
 	}
 
 	@Test
-	public void testGetMatchingClasses() throws Exception {
+	void testGetMatchingClasses() throws Exception {
 		assertThat(serializer.getMatchingClasses()).containsExactlyInAnyOrder(LinkedList.class, ArrayList.class, Vector.class);
 	}
 
 	@Test
-	public void testGenerate() throws Exception {
+	void testGenerate() throws Exception {
 		Type linkedListOfString = parameterized(LinkedList.class, null, String.class);
 
 		SerializedList value = serializer.generate(LinkedList.class, session);
@@ -49,7 +49,13 @@ public class DefaultListSerializerTest {
 	}
 
 	@Test
-	public void testPopulate() throws Exception {
+	void testComponents() throws Exception {
+		assertThat(serializer.components(new LinkedList<>(asList("Foo", "Bar")), session).map(o -> (Object) o))
+			.contains(new Object[] { "Foo", "Bar" });
+	}
+
+	@Test
+	void testPopulate() throws Exception {
 		SerializedValue foo = literal("Foo");
 		SerializedValue bar = literal("Bar");
 		when(session.find("Foo")).thenReturn(foo);

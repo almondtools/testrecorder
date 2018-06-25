@@ -11,12 +11,12 @@ import net.amygdalum.testrecorder.types.TestValueVisitor;
 public class SerializedObjectTest {
 
 	@Test
-	public void testGetResultType() throws Exception {
+	void testGetResultType() throws Exception {
 		assertThat(new SerializedObject(String.class).getUsedTypes()).containsExactly(String.class);
 	}
 
 	@Test
-	public void testSetGetObjectType() throws Exception {
+	void testSetGetObjectType() throws Exception {
 		SerializedObject value = new SerializedObject(String.class);
 		value.useAs(Object.class);
 
@@ -24,7 +24,7 @@ public class SerializedObjectTest {
 	}
 
 	@Test
-	public void testWithFields() throws Exception {
+	void testWithFields() throws Exception {
 		SerializedObject serializedObject = new SerializedObject(Object.class).withFields(
 			new SerializedField(Object.class, "f1", Object.class, literal("str")),
 			new SerializedField(Object.class, "f2", Integer.class, literal(2)));
@@ -35,7 +35,7 @@ public class SerializedObjectTest {
 	}
 
 	@Test
-	public void testGetAddFields() throws Exception {
+	void testGetAddFields() throws Exception {
 		SerializedObject serializedObject = new SerializedObject(Object.class);
 
 		serializedObject.addField(new SerializedField(Object.class, "f1", Object.class, literal("str")));
@@ -44,17 +44,20 @@ public class SerializedObjectTest {
 		assertThat(serializedObject.getFields()).containsExactly(
 			new SerializedField(Object.class, "f1", Object.class, literal("str")),
 			new SerializedField(Object.class, "f2", Integer.class, literal(2)));
+		assertThat(serializedObject.getField("f1")).map(field -> field.getValue()).contains(literal("str"));
+		assertThat(serializedObject.getField("f2")).map(field -> field.getValue()).contains(literal(2));
+		assertThat(serializedObject.getField("f3")).isNotPresent();
 	}
 
 	@Test
-	public void testAccept() throws Exception {
+	void testAccept() throws Exception {
 		SerializedObject serializedObject = new SerializedObject(Object.class);
 
 		assertThat(serializedObject.accept(new TestValueVisitor(), NULL)).isEqualTo("ReferenceType:SerializedObject");
 	}
 
 	@Test
-	public void testToString() throws Exception {
+	void testToString() throws Exception {
 		SerializedObject value = new SerializedObject(String.class);
 		value.useAs(Object.class);
 

@@ -27,18 +27,18 @@ public class ArraysListSerializerTest {
 	private Serializer<SerializedList> serializer;
 
 	@BeforeEach
-	public void before() throws Exception {
+	void before() throws Exception {
 		session = mock(SerializerSession.class);
 		serializer = new ArraysListSerializer();
 	}
 
 	@Test
-	public void testGetMatchingClasses() throws Exception {
+	void testGetMatchingClasses() throws Exception {
 		assertThat(serializer.getMatchingClasses()).containsExactly(innerType(Arrays.class, "ArrayList"));
 	}
 
 	@Test
-	public void testGenerate() throws Exception {
+	void testGenerate() throws Exception {
 		Type listOfString = parameterized(List.class, null, String.class);
 
 		SerializedList value = serializer.generate(ArrayList.class, session);
@@ -50,7 +50,7 @@ public class ArraysListSerializerTest {
 	}
 
 	@Test
-	public void testPopulate() throws Exception {
+	void testPopulate() throws Exception {
 		SerializedValue foo = literal("Foo");
 		SerializedValue bar = literal("Bar");
 		when(session.find("Foo")).thenReturn(foo);

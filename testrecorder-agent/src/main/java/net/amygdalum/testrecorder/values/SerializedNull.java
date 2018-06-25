@@ -16,8 +16,12 @@ import net.amygdalum.testrecorder.types.SerializedValue;
  */
 public class SerializedNull extends AbstractSerializedReferenceType implements SerializedImmutableType {
 
-	public static final SerializedValue VOID = new SerializedNull();
+	public static final SerializedValue VOID = new SerializedNull(void.class);
 
+	private SerializedNull(Class<?> clazz) {
+		super(clazz);
+	}
+	
 	private SerializedNull() {
 		super(null);
 	}

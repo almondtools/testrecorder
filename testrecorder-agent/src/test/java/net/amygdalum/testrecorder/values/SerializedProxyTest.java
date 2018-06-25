@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.values;
 
 import static java.util.Arrays.asList;
 import static net.amygdalum.testrecorder.types.DeserializerContext.NULL;
+import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.InvocationHandler;
@@ -15,7 +16,7 @@ import net.amygdalum.testrecorder.types.TestValueVisitor;
 public class SerializedProxyTest {
 
 	@Test
-	public void testGetType() throws Exception {
+	void testGetType() throws Exception {
 		SerializedProxy value = new SerializedProxy(Proxy.class);
 		value.setInterfaces(asList(new SerializedImmutable<Class<?>>(Class.class).withValue(MyInterface.class)));
 		value.useAs(MyInterface.class);
@@ -25,7 +26,7 @@ public class SerializedProxyTest {
 	}
 
 	@Test
-	public void testAccept() throws Exception {
+	void testAccept() throws Exception {
 		SerializedProxy value = new SerializedProxy(Proxy.class);
 		value.setInterfaces(asList(new SerializedImmutable<Class<?>>(Class.class).withValue(MyInterface.class)));
 
@@ -33,7 +34,7 @@ public class SerializedProxyTest {
 	}
 
 	@Test
-	public void testReferencedValues() throws Exception {
+	void testReferencedValues() throws Exception {
 		SerializedProxy value = new SerializedProxy(Proxy.class);
 		SerializedImmutable<Class<?>> interfaceValue = new SerializedImmutable<Class<?>>(Class.class).withValue(MyInterface.class);
 		SerializedObject handlerValue = new SerializedObject(MyInvocationHandler.class);
@@ -44,7 +45,22 @@ public class SerializedProxyTest {
 	}
 
 	@Test
-	public void testToString() throws Exception {
+	void testGetAddFields() throws Exception {
+		SerializedProxy value = new SerializedProxy(Proxy.class);
+
+		value.addField(new SerializedField(Object.class, "f1", Object.class, literal("str")));
+		value.addField(new SerializedField(Object.class, "f2", Integer.class, literal(2)));
+
+		assertThat(value.getFields()).containsExactly(
+			new SerializedField(Object.class, "f1", Object.class, literal("str")),
+			new SerializedField(Object.class, "f2", Integer.class, literal(2)));
+		assertThat(value.getField("f1")).map(field -> field.getValue()).contains(literal("str"));
+		assertThat(value.getField("f2")).map(field -> field.getValue()).contains(literal(2));
+		assertThat(value.getField("f3")).isNotPresent();
+	}
+
+	@Test
+	void testToString() throws Exception {
 		SerializedProxy value = new SerializedProxy(Proxy.class);
 		value.setInterfaces(asList(new SerializedImmutable<Class<?>>(Class.class).withValue(MyInterface.class)));
 

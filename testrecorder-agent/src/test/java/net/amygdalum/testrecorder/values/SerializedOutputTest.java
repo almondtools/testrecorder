@@ -12,75 +12,87 @@ import java.lang.reflect.Type;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.types.SerializedValue;
+
 public class SerializedOutputTest {
 
 	private SerializedOutput output;
 	private SerializedOutput outputNoResult;
 
 	@BeforeEach
-	public void before() throws Exception {
+	void before() throws Exception {
 		output = new SerializedOutput(41, PrintStream.class, "append", PrintStream.class, new Type[] { CharSequence.class })
 			.updateArguments(literal("Hello"))
 			.updateResult(new SerializedObject(PrintStream.class));
 		outputNoResult = new SerializedOutput(41, PrintStream.class, "println", void.class, new Type[] { String.class })
-			.updateArguments(literal("Hello"));
+			.updateArguments(literal("Hello"))
+			.updateResult(SerializedNull.VOID);
 	}
 
 	@Test
-	public void testGetId() throws Exception {
+	void testGetId() throws Exception {
 		assertThat(output.getId()).isEqualTo(41);
 	}
 
 	@Test
-	public void testGetDeclaringClass() throws Exception {
+	void testGetDeclaringClass() throws Exception {
 		assertThat(output.getDeclaringClass()).isSameAs(PrintStream.class);
 	}
 
 	@Test
-	public void testGetName() throws Exception {
+	void testGetName() throws Exception {
 		assertThat(output.getName()).isSameAs("append");
 		assertThat(outputNoResult.getName()).isSameAs("println");
 	}
 
 	@Test
-	public void testGetTypes() throws Exception {
+	void testGetTypes() throws Exception {
 		assertThat(output.getTypes()).containsExactly(CharSequence.class);
 		assertThat(outputNoResult.getTypes()).containsExactly(String.class);
 	}
 
 	@Test
-	public void testGetArguments() throws Exception {
+	void testGetArguments() throws Exception {
 		assertThat(output.getArguments()).containsExactly(literal("Hello"));
 	}
 
 	@Test
-	public void testGetResultType() throws Exception {
+	void testGetResultType() throws Exception {
 		assertThat(output.getResultType()).isSameAs(PrintStream.class);
 		assertThat(outputNoResult.getResultType()).isSameAs(void.class);
 	}
 
 	@Test
-	public void testGetResult() throws Exception {
+	void testGetResult() throws Exception {
 		assertThat(output.getResult()).isInstanceOf(SerializedObject.class);
-		assertThat(outputNoResult.getResult()).isNull();
+		assertThat(outputNoResult.getResult()).isSameAs(SerializedNull.VOID);
 	}
 
 	@Test
-	public void testEquals() throws Exception {
+	void testEquals() throws Exception {
 		assertThat(outputNoResult).satisfies(defaultEquality()
 			.andEqualTo(new SerializedOutput(41, PrintStream.class, "println", void.class, new Type[] { String.class })
-				.updateArguments(literal("Hello")))
+				.updateArguments(literal("Hello"))
+				.updateResult(SerializedNull.VOID))
 			.andNotEqualTo(output)
-			.andNotEqualTo(new SerializedOutput(42, PrintStream.class, "println", void.class, new Type[] { String.class })
-				.updateArguments(literal("Hello")))
-			.andNotEqualTo(new SerializedOutput(41, PrintWriter.class, "println", void.class, new Type[] { String.class })
-				.updateArguments(literal("Hello")))
-			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "print", void.class, new Type[] { String.class })
-				.updateArguments(literal("Hello")))
-			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "println", void.class, new Type[] { Object.class })
-				.updateArguments(literal("Hello")))
 			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "println", void.class, new Type[] { String.class })
-				.updateArguments(literal("Hello World")))
+				.updateArguments(literal("Hello"))
+				.updateResult(null))
+			.andNotEqualTo(new SerializedOutput(42, PrintStream.class, "println", void.class, new Type[] { String.class })
+				.updateArguments(literal("Hello"))
+				.updateResult(SerializedNull.VOID))
+			.andNotEqualTo(new SerializedOutput(41, PrintWriter.class, "println", void.class, new Type[] { String.class })
+				.updateArguments(literal("Hello"))
+				.updateResult(SerializedNull.VOID))
+			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "print", void.class, new Type[] { String.class })
+				.updateArguments(literal("Hello"))
+				.updateResult(SerializedNull.VOID))
+			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "println", void.class, new Type[] { Object.class })
+				.updateArguments(literal("Hello"))
+				.updateResult(SerializedNull.VOID))
+			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "println", void.class, new Type[] { String.class })
+				.updateArguments(literal("Hello World"))
+				.updateResult(SerializedNull.VOID))
 			.conventions());
 
 		assertThat(output).satisfies(defaultEquality()
@@ -98,10 +110,71 @@ public class SerializedOutputTest {
 	}
 
 	@Test
-	public void testToString() throws Exception {
+	void testToString() throws Exception {
 		assertThat(output.toString()).contains("PrintStream", "append", "Hello");
 
 		assertThat(outputNoResult.toString()).contains("PrintStream", "println", "Hello");
 	}
 
+	@Test
+	void testUpdateArguments() throws Exception {
+		output.updateArguments((SerializedValue[]) null);
+		
+		assertThat(output.getArguments()).isEmpty();
+	}
+
+	@Test
+	void testIsComplete() {
+		assertThat(output.isComplete()).isTrue();
+		assertThat(outputNoResult.isComplete()).isTrue();
+	}
+	
+	@Test
+	void testIsCompleteOnMissingResult() throws Exception {
+		output.result = null;
+		assertThat(output.isComplete()).isFalse();
+	}
+	
+	@Test
+	void testIsCompleteOnMissingResultType() throws Exception {
+		output.resultType = null;
+		assertThat(output.isComplete()).isFalse();
+	}
+	
+	@Test
+	void testIsCompleteOnMissingArgumentType() throws Exception {
+		output.types = null;
+		assertThat(output.isComplete()).isFalse();
+	}
+	
+	@Test
+	void testIsCompleteOnNullArguments() throws Exception {
+		output.arguments = null;
+		assertThat(output.isComplete()).isFalse();
+	}
+	
+	@Test
+	void testIsCompleteOnMissingArguments() throws Exception {
+		output.arguments = new SerializedValue[0];
+		assertThat(output.isComplete()).isFalse();
+	}
+	
+	@Test
+	void testHasResult() throws Exception {
+		assertThat(output.hasResult()).isTrue();
+		assertThat(outputNoResult.hasResult()).isFalse();
+	}
+	
+	@Test
+	void testHasResultWithNoResultType() throws Exception {
+		output.resultType = null;
+		assertThat(output.hasResult()).isFalse();
+	}
+	
+	@Test
+	void testHasResultWithNoResult() throws Exception {
+		output.result = null;
+		assertThat(output.hasResult()).isFalse();
+	}
+	
 }

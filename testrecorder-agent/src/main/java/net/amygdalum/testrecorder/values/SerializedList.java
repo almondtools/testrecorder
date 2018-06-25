@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.types.Deserializer;
@@ -26,7 +25,7 @@ import net.amygdalum.testrecorder.util.Optionals;
  * 
  * Serializing objects not complying to this criteria is possible, just make sure that their exists a custom deserializer for these objects  
  */
-public class SerializedList extends AbstractSerializedReferenceType implements SerializedReferenceType, List<SerializedValue> {
+public class SerializedList extends AbstractSerializedReferenceType implements SerializedReferenceType, Collection<SerializedValue> {
 
 	private Type componentType;
 	private List<SerializedValue> list;
@@ -58,30 +57,41 @@ public class SerializedList extends AbstractSerializedReferenceType implements S
 		return visitor.visitReferenceType(this, context);
 	}
 
+	public SerializedValue get(int index) {
+		return list.get(index);
+	}
+
+	@Override
 	public int size() {
 		return list.size();
 	}
 
+	@Override
 	public boolean isEmpty() {
 		return list.isEmpty();
 	}
 
+	@Override
 	public boolean contains(Object o) {
 		return list.contains(o);
 	}
 
+	@Override
 	public Iterator<SerializedValue> iterator() {
 		return list.iterator();
 	}
 
+	@Override
 	public Object[] toArray() {
 		return list.toArray();
 	}
 
+	@Override
 	public <T> T[] toArray(T[] a) {
 		return list.toArray(a);
 	}
 
+	@Override
 	public boolean add(SerializedValue element) {
 		boolean added = list.add(element);
 		if (!satisfiesType(componentType, element)) {
@@ -90,14 +100,17 @@ public class SerializedList extends AbstractSerializedReferenceType implements S
 		return added;
 	}
 
+	@Override
 	public boolean remove(Object o) {
 		return list.remove(o);
 	}
 
+	@Override
 	public boolean containsAll(Collection<?> c) {
 		return list.containsAll(c);
 	}
 
+	@Override
 	public boolean addAll(Collection<? extends SerializedValue> c) {
 		boolean added = list.addAll(c);
 		if (!satisfiesType(componentType, c)) {
@@ -106,63 +119,19 @@ public class SerializedList extends AbstractSerializedReferenceType implements S
 		return added;
 	}
 
-	public boolean addAll(int index, Collection<? extends SerializedValue> c) {
-		boolean added = list.addAll(index, c);
-		if (!satisfiesType(componentType, c)) {
-			componentType = inferType(getComponentTypeCandidates(), list, Object.class);
-		}
-		return added;
-	}
-
+	@Override
 	public boolean removeAll(Collection<?> c) {
 		return list.removeAll(c);
 	}
 
+	@Override
 	public boolean retainAll(Collection<?> c) {
 		return list.retainAll(c);
 	}
 
+	@Override
 	public void clear() {
 		list.clear();
-	}
-
-	public SerializedValue get(int index) {
-		return list.get(index);
-	}
-
-	public SerializedValue set(int index, SerializedValue element) {
-		return list.set(index, element);
-	}
-
-	public void add(int index, SerializedValue element) {
-		list.add(index, element);
-		if (!satisfiesType(componentType, element)) {
-			componentType = inferType(getComponentTypeCandidates(), list, Object.class);
-		}
-	}
-
-	public SerializedValue remove(int index) {
-		return list.remove(index);
-	}
-
-	public int indexOf(Object o) {
-		return list.indexOf(o);
-	}
-
-	public int lastIndexOf(Object o) {
-		return list.lastIndexOf(o);
-	}
-
-	public ListIterator<SerializedValue> listIterator() {
-		return list.listIterator();
-	}
-
-	public ListIterator<SerializedValue> listIterator(int index) {
-		return list.listIterator(index);
-	}
-
-	public List<SerializedValue> subList(int fromIndex, int toIndex) {
-		return list.subList(fromIndex, toIndex);
 	}
 
 	@Override

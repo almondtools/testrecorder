@@ -68,6 +68,8 @@ public class ValuePrinter implements Deserializer<String> {
 		} else if (rt instanceof SerializedArray) {
 			SerializedArray value = (SerializedArray) rt;
 			return printArray(context, value);
+		} else if (rt == SerializedNull.VOID) {
+			return "void";
 		} else if (rt instanceof SerializedNull) {
 			return "null";
 		} else {
