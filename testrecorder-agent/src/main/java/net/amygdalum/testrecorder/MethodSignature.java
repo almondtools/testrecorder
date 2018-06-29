@@ -76,7 +76,7 @@ public class MethodSignature implements Serializable {
 		String name = method.getName();
 		Annotation[][] parameterAnnotations = method.getParameterAnnotations();
 		Type[] genericParameterTypes = Types.serializableOf(method.getGenericParameterTypes());
-		
+
 		return new MethodSignature(clazz, annotations, genericReturnType, name, parameterAnnotations, genericParameterTypes);
 	}
 
@@ -86,34 +86,34 @@ public class MethodSignature implements Serializable {
 		} else if (invalid.contains(clazz)) {
 			return false;
 		}
-		Class<?> resolvedClass = resolveClass(clazz);
-
-		boolean valid = Objects.equals(resolvedClass.getName(), declaringClass.getName());
-		if (valid) {
-			this.valid.add(clazz);
-		} else {
-			this.invalid.add(clazz);
+		try {
+			Class<?> resolvedClass = resolveClass(clazz);
+	
+			boolean valid = Objects.equals(resolvedClass.getName(), declaringClass.getName());
+			if (valid) {
+				this.valid.add(clazz);
+			} else {
+				this.invalid.add(clazz);
+			}
+			return valid;
+		} catch (NoSuchMethodException e) {
+			return false;
 		}
-		return valid;
 	}
 
-	private Class<?> resolveClass(Class<?> clazz) {
-		try {
-			ClassLoader loader = clazz.getClassLoader();
-			Class<?>[] parameterTypes = Arrays.stream(argumentTypes)
-				.map(type -> {
-					try {
-						return Types.classFrom(Types.baseType(type), loader);
-					} catch (ClassNotFoundException e) {
-						return null;
-					}
-				})
-				.toArray(Class[]::new);
-			Method method = Types.getDeclaredMethod(clazz, methodName, parameterTypes);
-			return method.getDeclaringClass();
-		} catch (NoSuchMethodException e) {
-			return null;
-		}
+	private Class<?> resolveClass(Class<?> clazz) throws NoSuchMethodException {
+		ClassLoader loader = clazz.getClassLoader();
+		Class<?>[] parameterTypes = Arrays.stream(argumentTypes)
+			.map(type -> {
+				try {
+					return Types.classFrom(Types.baseType(type), loader);
+				} catch (ClassNotFoundException e) {
+					return null;
+				}
+			})
+			.toArray(Class[]::new);
+		Method method = Types.getDeclaredMethod(clazz, methodName, parameterTypes);
+		return method.getDeclaringClass();
 	}
 
 }

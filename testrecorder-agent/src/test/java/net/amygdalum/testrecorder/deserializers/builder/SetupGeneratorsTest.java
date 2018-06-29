@@ -20,7 +20,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.SerializedValues;
-import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
@@ -45,16 +44,16 @@ public class SetupGeneratorsTest {
 	private DeserializerContext context;
 
 	@BeforeEach
-	public void before() throws Exception {
+	void before() throws Exception {
 		config = defaultConfig();
 		values = new SerializedValues(config);
-		setupCode = new SetupGenerators(new Adaptors<SetupGenerators>(config).load(SetupGenerator.class));
+		setupCode = new SetupGenerators(config);
 
 		context = new DefaultDeserializerContext();
 	}
 
 	@Test
-	public void testVisitField() throws Exception {
+	void testVisitField() throws Exception {
 		Type type = parameterized(ArrayList.class, null, String.class);
 		SerializedList value = values.list(type, arrayList("Foo", "Bar"));
 
@@ -65,7 +64,7 @@ public class SetupGeneratorsTest {
 	}
 
 	@Test
-	public void testVisitFieldWithCastNeeded() throws Exception {
+	void testVisitFieldWithCastNeeded() throws Exception {
 		Computation result = setupCode.visitField(new SerializedField(Complex.class, "simple", Simple.class, values.object(Object.class, new Complex())), context);
 
 		assertThat(result.getStatements().toString()).containsWildcardPattern("Complex complex1 = new Complex*");
@@ -73,7 +72,7 @@ public class SetupGeneratorsTest {
 	}
 
 	@Test
-	public void testVisitFieldWithHiddenTypeAndVisibleResult() throws Exception {
+	void testVisitFieldWithHiddenTypeAndVisibleResult() throws Exception {
 		SerializedObject value = values.object(parameterized(classOfHiddenList(), null, String.class), hiddenList("Foo", "Bar"));
 
 		Computation result = setupCode.visitField(new SerializedField(ContainingList.class, "list", parameterized(List.class, null, String.class), value), context);
@@ -83,7 +82,7 @@ public class SetupGeneratorsTest {
 	}
 
 	@Test
-	public void testVisitFieldWithHiddenTypeAndHiddenResult() throws Exception {
+	void testVisitFieldWithHiddenTypeAndHiddenResult() throws Exception {
 		SerializedObject value = values.object(parameterized(classOfHiddenList(), null, String.class), hiddenList("Foo", "Bar"));
 
 		Computation result = setupCode.visitField(new SerializedField(ContainingList.class, "list", parameterized(List.class, null, String.class), value), context);
@@ -93,7 +92,7 @@ public class SetupGeneratorsTest {
 	}
 
 	@Test
-	public void testVisitReferenceType() throws Exception {
+	void testVisitReferenceType() throws Exception {
 		SerializedObject value = values.object(Dubble.class, new Dubble("Foo", "Bar"));
 
 		Computation result = setupCode.visitReferenceType(value, context);
@@ -103,7 +102,7 @@ public class SetupGeneratorsTest {
 	}
 
 	@Test
-	public void testVisitReferenceTypeRevisited() throws Exception {
+	void testVisitReferenceTypeRevisited() throws Exception {
 		SerializedObject value = values.object(Dubble.class, new Dubble("Foo", "Bar"));
 		setupCode.visitReferenceType(value, context);
 
@@ -114,7 +113,7 @@ public class SetupGeneratorsTest {
 	}
 
 	@Test
-	public void testVisitReferenceTypeForwarding() throws Exception {
+	void testVisitReferenceTypeForwarding() throws Exception {
 		SerializedObject value = values.object(Cycle.class, Cycle.recursive("Foo"));
 
 		Computation result = setupCode.visitReferenceType(value, context);
@@ -126,7 +125,7 @@ public class SetupGeneratorsTest {
 	}
 
 	@Test
-	public void testVisitReferenceTypeGenericsForwarding() throws Exception {
+	void testVisitReferenceTypeGenericsForwarding() throws Exception {
 		SerializedObject value = values.object(parameterized(GenericCycle.class, null, String.class), GenericCycle.recursive("Foo"));
 
 		Computation result = setupCode.visitReferenceType(value, context);
@@ -138,7 +137,7 @@ public class SetupGeneratorsTest {
 	}
 
 	@Test
-	public void testVisitImmutableType() throws Exception {
+	void testVisitImmutableType() throws Exception {
 		SerializedImmutable<BigInteger> value = values.bigInteger(BigInteger.valueOf(42));
 
 		Computation result = setupCode.visitImmutableType(value, context);
@@ -148,7 +147,7 @@ public class SetupGeneratorsTest {
 	}
 
 	@Test
-	public void testVisitValueType() throws Exception {
+	void testVisitValueType() throws Exception {
 		SerializedLiteral value = literal(int.class, 42);
 
 		Computation result = setupCode.visitValueType(value, context);
@@ -158,13 +157,13 @@ public class SetupGeneratorsTest {
 	}
 
 	@Test
-	public void testTemporaryLocal() throws Exception {
+	void testTemporaryLocal() throws Exception {
 		assertThat(context.temporaryLocal()).isEqualTo("temp1");
 		assertThat(context.temporaryLocal()).isEqualTo("temp2");
 	}
 
 	@Test
-	public void testNewLocal() throws Exception {
+	void testNewLocal() throws Exception {
 		assertThat(context.newLocal("var")).isEqualTo("var1");
 		assertThat(context.newLocal("var")).isEqualTo("var2");
 	}

@@ -19,7 +19,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.SerializedValues;
-import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.hints.SkipChecks;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
@@ -45,30 +44,30 @@ public class MatcherGeneratorsTest {
 	private DeserializerContext context;
 
 	@BeforeEach
-	public void before() throws Exception {
+	void before() throws Exception {
 		config = defaultConfig();
 		values = new SerializedValues(config);
 
-		matcherCode = new MatcherGenerators(new Adaptors<MatcherGenerators>(config).load(MatcherGenerator.class));
+		matcherCode = new MatcherGenerators(config);
 		context = new DefaultDeserializerContext();
 	}
 
 	@Test
-	public void testNullIsSimpleValue() throws Exception {
+	void testNullIsSimpleValue() throws Exception {
 		assertThat(matcherCode.isSimpleValue(nullInstance())).isTrue();
 		assertThat(matcherCode.simpleMatcher(nullInstance(), context).getStatements()).isEmpty();
 		assertThat(matcherCode.simpleMatcher(nullInstance(), context).getValue()).isEqualTo("null");
 	}
 
 	@Test
-	public void testLiteralIsSimpleValue() throws Exception {
+	void testLiteralIsSimpleValue() throws Exception {
 		assertThat(matcherCode.isSimpleValue(literal("str"))).isTrue();
 		assertThat(matcherCode.simpleMatcher(literal("str"), context).getStatements()).isEmpty();
 		assertThat(matcherCode.simpleMatcher(literal("str"), context).getValue()).isEqualTo("\"str\"");
 	}
 
 	@Test
-	public void testOtherIsNotSimpleValue() throws Exception {
+	void testOtherIsNotSimpleValue() throws Exception {
 		assertThat(matcherCode.isSimpleValue(values.object(Dubble.class, new Dubble("Foo", "Bar")))).isFalse();
 		assertThat(matcherCode.simpleMatcher(values.object(Dubble.class, new Dubble("Foo", "Bar")), context).getStatements()).isEmpty();
 		assertThat(matcherCode.simpleMatcher(values.object(Dubble.class, new Dubble("Foo", "Bar")), context).getValue()).containsWildcardPattern("new GenericMatcher() {*"
@@ -78,7 +77,7 @@ public class MatcherGeneratorsTest {
 	}
 
 	@Test
-	public void testVisitField() throws Exception {
+	void testVisitField() throws Exception {
 
 		Type type = parameterized(ArrayList.class, null, String.class);
 		SerializedList value = values.list(type, arrayList("Foo", "Bar"));
@@ -90,7 +89,7 @@ public class MatcherGeneratorsTest {
 	}
 
 	@Test
-	public void testVisitReferenceType() throws Exception {
+	void testVisitReferenceType() throws Exception {
 		SerializedObject value = values.object(Dubble.class, new Dubble("Foo", "Bar"));
 
 		Computation result = matcherCode.visitReferenceType(value, context);
@@ -103,7 +102,7 @@ public class MatcherGeneratorsTest {
 	}
 
 	@Test
-	public void testVisitReferenceTypePartiallyHidden() throws Exception {
+	void testVisitReferenceTypePartiallyHidden() throws Exception {
 		VisibleInterface o = createPartiallyHidden();
 		SerializedObject value = values.object(Hidden.VisibleInterface.class, o);
 
@@ -115,7 +114,7 @@ public class MatcherGeneratorsTest {
 	}
 
 	@Test
-	public void testVisitReferenceTypeCompletelyHidden() throws Exception {
+	void testVisitReferenceTypeCompletelyHidden() throws Exception {
 		Object o = createCompletelyHidden();
 		SerializedObject value = values.object(o.getClass(), o);
 
@@ -127,7 +126,7 @@ public class MatcherGeneratorsTest {
 	}
 
 	@Test
-	public void testVisitReferenceTypeComputedPartiallyHidden() throws Exception {
+	void testVisitReferenceTypeComputedPartiallyHidden() throws Exception {
 		VisibleInterface o = createPartiallyHidden();
 		SerializedObject value = values.object(Hidden.VisibleInterface.class, o);
 		Computation result = matcherCode.visitReferenceType(value, context);
@@ -139,7 +138,7 @@ public class MatcherGeneratorsTest {
 	}
 
 	@Test
-	public void testVisitReferenceTypeComputedCompletelyHidden() throws Exception {
+	void testVisitReferenceTypeComputedCompletelyHidden() throws Exception {
 		Object o = createCompletelyHidden();
 		SerializedObject value = values.object(o.getClass(), o);
 		Computation result = matcherCode.visitReferenceType(value, context);
@@ -151,7 +150,7 @@ public class MatcherGeneratorsTest {
 	}
 
 	@Test
-	public void testVisitReferenceTypeCheckSkipped() throws Exception {
+	void testVisitReferenceTypeCheckSkipped() throws Exception {
 		SerializedObject value = values.object(Dubble.class, new Dubble("Foo", "Bar"));
 
 		Computation result = matcherCode.visitReferenceType(value, context.newWithHints(skipChecks()));
@@ -160,7 +159,7 @@ public class MatcherGeneratorsTest {
 	}
 
 	@Test
-	public void testVisitReferenceTypeRevisited() throws Exception {
+	void testVisitReferenceTypeRevisited() throws Exception {
 		SerializedObject value = values.object(Dubble.class, new Dubble("Foo", "Bar"));
 		matcherCode.visitReferenceType(value, context);
 
@@ -171,7 +170,7 @@ public class MatcherGeneratorsTest {
 	}
 
 	@Test
-	public void testVisitImmutableType() throws Exception {
+	void testVisitImmutableType() throws Exception {
 		SerializedImmutable<BigInteger> value = values.bigInteger(BigInteger.valueOf(42));
 
 		Computation result = matcherCode.visitImmutableType(value, context);
@@ -181,7 +180,7 @@ public class MatcherGeneratorsTest {
 	}
 
 	@Test
-	public void testVisitImmutableTypeCheckSkipped() throws Exception {
+	void testVisitImmutableTypeCheckSkipped() throws Exception {
 		SerializedImmutable<BigInteger> value = values.bigInteger(BigInteger.valueOf(42));
 
 		Computation result = matcherCode.visitImmutableType(value, context.newWithHints(skipChecks()));
@@ -190,7 +189,7 @@ public class MatcherGeneratorsTest {
 	}
 
 	@Test
-	public void testVisitValueType() throws Exception {
+	void testVisitValueType() throws Exception {
 		SerializedLiteral value = literal(int.class, 42);
 
 		Computation result = matcherCode.visitValueType(value, context);
@@ -200,7 +199,7 @@ public class MatcherGeneratorsTest {
 	}
 
 	@Test
-	public void testVisitValueTypeCheckSkipped() throws Exception {
+	void testVisitValueTypeCheckSkipped() throws Exception {
 		SerializedLiteral value = literal(int.class, 42);
 
 		Computation result = matcherCode.visitValueType(value, context.newWithHints(skipChecks()));
@@ -209,7 +208,7 @@ public class MatcherGeneratorsTest {
 	}
 
 	@Test
-	public void testSimpleMatcherSerializedValueNull() throws Exception {
+	void testSimpleMatcherSerializedValueNull() throws Exception {
 		Computation result = matcherCode.simpleMatcher(SerializedNull.nullInstance(), context);
 
 		assertThat(result.getStatements()).isEmpty();
@@ -217,7 +216,7 @@ public class MatcherGeneratorsTest {
 	}
 
 	@Test
-	public void testSimpleMatcherSerializedValueLiteral() throws Exception {
+	void testSimpleMatcherSerializedValueLiteral() throws Exception {
 		Computation result = matcherCode.simpleMatcher(SerializedLiteral.literal("string"), context);
 
 		assertThat(result.getStatements()).isEmpty();
@@ -225,7 +224,7 @@ public class MatcherGeneratorsTest {
 	}
 
 	@Test
-	public void testSimpleMatcherSerializedValueObject() throws Exception {
+	void testSimpleMatcherSerializedValueObject() throws Exception {
 		Computation result = matcherCode.simpleMatcher(values.object(Simple.class, new Simple()), context);
 
 		assertThat(result.getStatements()).isEmpty();
@@ -233,13 +232,13 @@ public class MatcherGeneratorsTest {
 	}
 
 	@Test
-	public void testTemporaryLocal() throws Exception {
+	void testTemporaryLocal() throws Exception {
 		assertThat(context.temporaryLocal()).isEqualTo("temp1");
 		assertThat(context.temporaryLocal()).isEqualTo("temp2");
 	}
 
 	@Test
-	public void testNewLocal() throws Exception {
+	void testNewLocal() throws Exception {
 		assertThat(context.newLocal("var")).isEqualTo("var1");
 		assertThat(context.newLocal("var")).isEqualTo("var2");
 	}

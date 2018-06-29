@@ -57,6 +57,17 @@ public class DefaultArrayAdaptorTest {
 	}
 
 	@Test
+	public void testTryDeserializePrimitiveEmptyArray() throws Exception {
+		SerializedArray value = new SerializedArray(int[].class);
+		MatcherGenerators generator = generator();
+		
+		Computation result = adaptor.tryDeserialize(value, generator, context);
+		
+		assertThat(result.getStatements()).isEmpty();
+		assertThat(result.getValue()).isEqualTo("intEmptyArray()");
+	}
+	
+	@Test
 	public void testTryDeserializeObjectArray() throws Exception {
 		SerializedArray value = new SerializedArray(BigInteger[].class);
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(0)));

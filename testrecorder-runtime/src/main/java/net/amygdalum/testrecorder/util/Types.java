@@ -44,19 +44,6 @@ public final class Types {
 	private Types() {
 	}
 
-	public static Type visibleType(Object element, Type componentType) {
-		if (element != null) {
-			Class<?> current = element.getClass();
-			while (current != Object.class) {
-				if (!isHidden(current, null)) {
-					return current;
-				}
-				current = current.getSuperclass();
-			}
-		}
-		return componentType;
-	}
-
 	public static Type inferType(Type... types) {
 		Optional<Class<?>> inferred = Arrays.stream(types)
 			.map(type -> superTypes(baseType(type)))
@@ -284,9 +271,10 @@ public final class Types {
 		} else if (type1 instanceof WildcardType && type2 instanceof WildcardType) {
 			Type[] typeArguments1 = ((WildcardType) type1).getUpperBounds();
 			Type[] typeArguments2 = ((WildcardType) type2).getUpperBounds();
-			int compare = Integer.compare(typeArguments1.length, typeArguments2.length);
+			int compare = Integer.compare(typeArguments2.length, typeArguments1.length);
 			if (compare == 0) {
-				for (int i = 0; i < typeArguments1.length && i < typeArguments2.length; i++) {
+				int len = Math.min(typeArguments1.length, typeArguments2.length);
+				for (int i = 0; i < len; i++) {
 					compare += byMostConcrete(typeArguments1[i], typeArguments2[i]);
 				}
 			}
@@ -302,7 +290,8 @@ public final class Types {
 				Type[] typeArguments2 = type2 instanceof ParameterizedType ? ((ParameterizedType) type2).getActualTypeArguments() : NO_TYPES;
 				compare = Integer.compare(typeArguments2.length, typeArguments1.length);
 				if (compare == 0) {
-					for (int i = 0; i < typeArguments1.length && i < typeArguments2.length; i++) {
+					int len = Math.min(typeArguments1.length, typeArguments2.length);
+					for (int i = 0; i < len; i++) {
 						compare += byMostConcrete(typeArguments1[i], typeArguments2[i]);
 					}
 				}
@@ -431,7 +420,7 @@ public final class Types {
 	}
 
 	public static boolean equalGenericTypes(Type type1, Type type2) {
-		return type1.equals(type2) 
+		return type1.equals(type2)
 			|| type2.equals(type1);
 	}
 
@@ -657,7 +646,7 @@ public final class Types {
 	}
 
 	private static int estimatedInterfaceMethodCount(Class<?> clazz) {
-		SortedSet<Method> methods = new TreeSet<>((m1, m2) ->  {
+		SortedSet<Method> methods = new TreeSet<>((m1, m2) -> {
 			int compare = m1.getName().compareTo(m2.getName());
 			if (compare == 0) {
 				compare = m1.getParameterCount() - m2.getParameterCount();

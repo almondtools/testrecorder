@@ -68,6 +68,7 @@ public class LambdaSignature implements Serializable {
 			Lookup lookup = privateLookup(implClass);
 
 			MethodType implMethodType = MethodType.fromMethodDescriptorString(implMethodSignature, cl);
+			
 			MethodType interfaceMethodType = MethodType.fromMethodDescriptorString(functionalInterfaceMethodSignature, null);
 
 			MethodHandle implMethod = implMethod(lookup, implClass, implMethodType);
@@ -97,13 +98,16 @@ public class LambdaSignature implements Serializable {
 	private MethodType instantiatedType(MethodType interfaceMethodType, MethodType implType) {
 		if (implType.parameterCount() > interfaceMethodType.parameterCount()) {
 			return implType.dropParameterTypes(0, implType.parameterCount() - interfaceMethodType.parameterCount());
+		} else if (implType.returnType() == void.class && interfaceMethodType.returnType() != void.class){
+			return implType.changeReturnType(interfaceMethodType.returnType());
 		} else {
 			return implType;
 		}
 	}
 
 	private boolean isInstanceMethod() {
-		return implMethodKind != MethodHandleInfo.REF_invokeStatic;
+		return implMethodKind != MethodHandleInfo.REF_invokeStatic
+			&& implMethodKind != MethodHandleInfo.REF_newInvokeSpecial;
 	}
 
 	private MethodHandle implMethod(Lookup lookup, Class<?> implClass, MethodType implType) throws NoSuchMethodException, IllegalAccessException {
@@ -115,6 +119,8 @@ public class LambdaSignature implements Serializable {
 			return lookup.findSpecial(implClass, implMethodName, implType, implClass);
 		case MethodHandleInfo.REF_invokeStatic:
 			return lookup.findStatic(implClass, implMethodName, implType);
+		case MethodHandleInfo.REF_newInvokeSpecial:
+			return lookup.findConstructor(implClass, implType);
 		default:
 			throw new RuntimeException("Unsupported impl method kind " + implMethodKind);
 		}

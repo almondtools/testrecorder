@@ -349,7 +349,7 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testIsHiddenMethod() throws Exception {
+	void testIsHiddenMethod() throws Exception {
 		assertThat(isHidden(getDeclaredMethod(NestedPrivate.class, "method"), "any")).isTrue();
 		assertThat(isHidden(getDeclaredMethod(NestedPackagePrivate.class, "method"), "any")).isTrue();
 		assertThat(isHidden(getDeclaredMethod(NestedPackagePrivate.class, "method"), "net.amygdalum.testrecorder.util")).isTrue();
@@ -358,7 +358,7 @@ public class TypesTest {
 	}
 
 	@Test
-	public void testIsHiddenMethodOfNestedTypes() throws Exception {
+	void testIsHiddenMethodOfNestedTypes() throws Exception {
 		assertThat(isHidden(getDeclaredMethod(NestedMethods.class, "method"), "any")).isTrue();
 		assertThat(isHidden(getDeclaredMethod(NestedMethods.class, "method", int.class), "any")).isFalse();
 		assertThat(isHidden(getDeclaredMethod(NestedMethods.class, "method", boolean.class), "any")).isTrue();
@@ -368,8 +368,9 @@ public class TypesTest {
 	@Test
 	void testIsErasureHidden() throws Exception {
 		assertThat(isErasureHidden(Simple.class, "any")).isFalse();
-		assertThat(isErasureHidden(parameterized(Generic.class, null, Simple.class), "any")).isFalse();
+		assertThat(isErasureHidden(parameterized(Generic.class, null, (Class<?>[]) null), "any")).isFalse();
 		assertThat(isErasureHidden(parameterized(Generic.class, null, (Class<?>) null), "any")).isFalse();
+		assertThat(isErasureHidden(parameterized(Generic.class, null, Simple.class), "any")).isFalse();
 		assertThat(isErasureHidden(parameterized(Generic.class, null, classOfCompletelyHidden()), "any")).isTrue();
 	}
 
@@ -708,6 +709,70 @@ public class TypesTest {
 		assertThatThrownBy(() -> getDeclaredMethod(Object.class, "method")).isInstanceOf(NoSuchMethodException.class);
 	}
 
+	@Test
+	void testIsArray() throws Exception {
+		assertThat(isArray(int.class)).isFalse();
+		assertThat(isArray(Integer.class)).isFalse();
+		assertThat(isArray(int[].class)).isTrue();
+		assertThat(isArray(Integer[].class)).isTrue();
+		assertThat(isArray(array(parameterized(List.class, null, Integer.class)))).isTrue();
+	}
+
+	@Test
+	void testIsGenericVariable() throws Exception {
+		assertThat(isGenericVariable(long.class)).isFalse();
+		assertThat(isGenericVariable(Long.class)).isFalse();
+		assertThat(isGenericVariable(parameterized(List.class, null, Long.class))).isFalse();
+		assertThat(isGenericVariable(typeVariable("E", List.class, Long.class))).isTrue();
+	}
+
+	@Test
+	void testIsGeneric() throws Exception {
+		assertThat(isGeneric(double.class)).isFalse();
+		assertThat(isGeneric(Double.class)).isFalse();
+		assertThat(isGeneric(parameterized(List.class, null, Long.class))).isTrue();
+		assertThat(isGeneric(typeVariable("E", List.class, Long.class))).isTrue();
+		assertThat(isGeneric(array(parameterized(List.class, null, Integer.class)))).isTrue();
+	}
+
+	@Test
+	void testTypeArguments() throws Exception {
+		assertThat(typeArguments(List.class)).isEmpty();
+		assertThat(typeArguments(parameterized(List.class, null, Integer.class))).contains(Integer.class);
+		assertThat(typeArguments(parameterized(Map.class, null, Integer.class, String.class))).contains(Integer.class, String.class);
+	}
+
+	@Test
+	void testEqualGenericTypes() throws Exception {
+		assertThat(equalGenericTypes(String.class, String.class)).isTrue();
+		assertThat(equalGenericTypes(parameterized(Set.class, null, String.class), parameterized(Set.class, null, String.class))).isTrue();
+		assertThat(equalGenericTypes(parameterized(Set.class, null, String.class), Set.class)).isFalse();
+		assertThat(equalGenericTypes(Set.class, parameterized(Set.class, null, String.class))).isFalse();
+		assertThat(equalGenericTypes(Set.class, parameterized(Set.class, null, String.class))).isFalse();
+		assertThat(equalGenericTypes(Fields.class.getDeclaredField("parameterized").getGenericType(), parameterized(List.class, null, String.class))).isTrue();
+		assertThat(equalGenericTypes(parameterized(List.class, null, String.class), Fields.class.getDeclaredField("parameterized").getGenericType())).isTrue();
+	}
+
+	@Test
+	void testByMostConcreteGeneric() throws Exception {
+		assertThat(Stream.of(String.class, String.class).sorted(Types::byMostConcreteGeneric)).containsExactly(String.class, String.class);
+		assertThat(Stream.of(List.class, ArrayList.class).sorted(Types::byMostConcreteGeneric)).containsExactly(ArrayList.class, List.class);
+		assertThat(Stream.of(ArrayList.class, List.class).sorted(Types::byMostConcreteGeneric)).containsExactly(ArrayList.class, List.class);
+		assertThat(Stream.of(List.class, Set.class).sorted(Types::byMostConcreteGeneric)).containsExactly(List.class, Set.class);
+		assertThat(Stream.of(wildcardExtends(List.class, ArrayList.class), wildcardExtends(List.class)).sorted(Types::byMostConcreteGeneric)).containsExactly(wildcardExtends(List.class, ArrayList.class), wildcardExtends(List.class));
+		assertThat(Stream.of(wildcardExtends(List.class), wildcardExtends(List.class, ArrayList.class)).sorted(Types::byMostConcreteGeneric)).containsExactly(wildcardExtends(List.class, ArrayList.class), wildcardExtends(List.class));
+		assertThat(Stream.of(wildcardExtends(ArrayList.class), wildcardExtends(List.class)).sorted(Types::byMostConcreteGeneric)).containsExactly(wildcardExtends(ArrayList.class), wildcardExtends(List.class));
+		assertThat(Stream.of(wildcardExtends(List.class), wildcardExtends(ArrayList.class)).sorted(Types::byMostConcreteGeneric)).containsExactly(wildcardExtends(ArrayList.class), wildcardExtends(List.class));
+		assertThat(Stream.of(wildcardExtends(List.class), ArrayList.class).sorted(Types::byMostConcreteGeneric)).containsExactly(ArrayList.class, wildcardExtends(List.class));
+		assertThat(Stream.of(ArrayList.class, wildcardExtends(List.class)).sorted(Types::byMostConcreteGeneric)).containsExactly(ArrayList.class, wildcardExtends(List.class));
+		assertThat(Stream.of(parameterized(List.class, null, String.class), ArrayList.class).sorted(Types::byMostConcreteGeneric)).containsExactly(ArrayList.class, parameterized(List.class, null, String.class));
+		assertThat(Stream.of(ArrayList.class, parameterized(List.class, null, String.class)).sorted(Types::byMostConcreteGeneric)).containsExactly(ArrayList.class, parameterized(List.class, null, String.class));
+		assertThat(Stream.of(parameterized(List.class, null, String.class), parameterized(List.class,null, Object.class)).sorted(Types::byMostConcreteGeneric)).containsExactly(parameterized(List.class, null, String.class), parameterized(List.class,null, Object.class));
+		assertThat(Stream.of(parameterized(List.class,null, Object.class), parameterized(List.class, null, String.class)).sorted(Types::byMostConcreteGeneric)).containsExactly(parameterized(List.class, null, String.class), parameterized(List.class,null, Object.class));
+		assertThat(Stream.of(ArrayList.class, parameterized(ArrayList.class, null, String.class)).sorted(Types::byMostConcreteGeneric)).containsExactly(parameterized(ArrayList.class, null, String.class), ArrayList.class);
+		assertThat(Stream.of(parameterized(ArrayList.class, null, String.class), ArrayList.class).sorted(Types::byMostConcreteGeneric)).containsExactly(parameterized(ArrayList.class, null, String.class), ArrayList.class);
+	}
+
 	@MyAnnotation
 	public class GenericWithTypeVariable<T extends CharSequence> {
 
@@ -807,50 +872,6 @@ public class TypesTest {
 
 		public void params(NestedPublic nestedPublic, NestedPackagePrivate nestedPackage) {
 		}
-	}
-
-	@Test
-	public void testIsArray() throws Exception {
-		assertThat(isArray(int.class)).isFalse();
-		assertThat(isArray(Integer.class)).isFalse();
-		assertThat(isArray(int[].class)).isTrue();
-		assertThat(isArray(Integer[].class)).isTrue();
-		assertThat(isArray(array(parameterized(List.class, null, Integer.class)))).isTrue();
-	}
-
-	@Test
-	public void testIsGenericVariable() throws Exception {
-		assertThat(isGenericVariable(long.class)).isFalse();
-		assertThat(isGenericVariable(Long.class)).isFalse();
-		assertThat(isGenericVariable(parameterized(List.class, null, Long.class))).isFalse();
-		assertThat(isGenericVariable(typeVariable("E", List.class, Long.class))).isTrue();
-	}
-
-	@Test
-	public void testIsGeneric() throws Exception {
-		assertThat(isGeneric(double.class)).isFalse();
-		assertThat(isGeneric(Double.class)).isFalse();
-		assertThat(isGeneric(parameterized(List.class, null, Long.class))).isTrue();
-		assertThat(isGeneric(typeVariable("E", List.class, Long.class))).isTrue();
-		assertThat(isGeneric(array(parameterized(List.class, null, Integer.class)))).isTrue();
-	}
-
-	@Test
-	public void testTypeArguments() throws Exception {
-		assertThat(typeArguments(List.class)).isEmpty();
-		assertThat(typeArguments(parameterized(List.class, null, Integer.class))).contains(Integer.class);
-		assertThat(typeArguments(parameterized(Map.class, null, Integer.class, String.class))).contains(Integer.class, String.class);
-	}
-
-	@Test
-	public void testEqualGenericTypes() throws Exception {
-		assertThat(equalGenericTypes(String.class, String.class)).isTrue();
-		assertThat(equalGenericTypes(parameterized(Set.class, null, String.class), parameterized(Set.class, null, String.class))).isTrue();
-		assertThat(equalGenericTypes(parameterized(Set.class, null, String.class), Set.class)).isFalse();
-		assertThat(equalGenericTypes(Set.class, parameterized(Set.class, null, String.class))).isFalse();
-		assertThat(equalGenericTypes(Set.class, parameterized(Set.class, null, String.class))).isFalse();
-		assertThat(equalGenericTypes(Fields.class.getDeclaredField("parameterized").getGenericType(), parameterized(List.class, null, String.class))).isTrue();
-		assertThat(equalGenericTypes(parameterized(List.class, null, String.class), Fields.class.getDeclaredField("parameterized").getGenericType())).isTrue();
 	}
 
 }

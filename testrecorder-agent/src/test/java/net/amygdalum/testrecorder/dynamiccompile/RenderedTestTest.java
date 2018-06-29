@@ -15,6 +15,7 @@ public class RenderedTestTest {
 
 		assertThat(renderedTest.getTestClassLoader()).isSameAs(classLoader);
 		assertThat(renderedTest.getTestCode()).isEqualTo("mycode");
+		assertThat(renderedTest.toString()).isEqualTo("mycode");
 	}
 
 	@Test
