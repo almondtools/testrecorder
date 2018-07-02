@@ -8,21 +8,31 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-
 
 public class WorkSetTest {
 
-	@Test
-	public void testConstructor() throws Exception {
-		assertThat(new WorkSet<>().hasMoreElements()).isEqualTo(false);
-		assertThat(new WorkSet<>(new LinkedList<>(asList("A"))).hasMoreElements()).isEqualTo(true);
+	private WorkSet<String> workSet;
+
+	@BeforeEach
+	public void before() throws Exception {
+		workSet = new WorkSet<>();
 	}
 
 	@Test
-	public void testEnqueueDequeueSingle() throws Exception {
-		WorkSet<String> workSet = new WorkSet<>();
+	void testConstructor() throws Exception {
+		assertThat(workSet.hasMoreElements()).isEqualTo(false);
+	}
+
+	@Test
+	void testConstructorWithBase() throws Exception {
+		workSet = new WorkSet<>(new LinkedList<>(asList("A")));
+		assertThat(workSet.hasMoreElements()).isEqualTo(true);
+	}
+
+	@Test
+	void testEnqueueDequeueSingle() throws Exception {
 		workSet.add("A");
 		assertThat(workSet.hasMoreElements()).isEqualTo(true);
 		String element = workSet.remove();
@@ -31,8 +41,7 @@ public class WorkSetTest {
 	}
 
 	@Test
-	public void testEnqueueDequeueOneElementList() throws Exception {
-		WorkSet<String> workSet = new WorkSet<>();
+	void testEnqueueDequeueOneElementList() throws Exception {
 		workSet.addAll(asList("A"));
 		assertThat(workSet.hasMoreElements()).isEqualTo(true);
 		String element = workSet.remove();
@@ -41,8 +50,7 @@ public class WorkSetTest {
 	}
 
 	@Test
-	public void testEnqueueDequeueTwice() throws Exception {
-		WorkSet<String> workSet = new WorkSet<>();
+	void testEnqueueDequeueTwice() throws Exception {
 		workSet.addAll(asList("A", "B"));
 		assertThat(workSet.hasMoreElements()).isEqualTo(true);
 		String a = workSet.remove();
@@ -54,8 +62,7 @@ public class WorkSetTest {
 	}
 
 	@Test
-	public void testEnqueueTwiceDequeueTwice() throws Exception {
-		WorkSet<String> workSet = new WorkSet<>();
+	void testEnqueueTwiceDequeueTwice() throws Exception {
 		workSet.addAll(asList("A"));
 		workSet.addAll(asList("B"));
 		assertThat(workSet.hasMoreElements()).isEqualTo(true);
@@ -68,8 +75,7 @@ public class WorkSetTest {
 	}
 
 	@Test
-	public void testNoReenqueuings() throws Exception {
-		WorkSet<String> workSet = new WorkSet<>();
+	void testNoReenqueuings() throws Exception {
 		workSet.addAll(asList("A", "B"));
 		String a = workSet.remove();
 		assertThat(a).isEqualTo("A");
@@ -80,431 +86,390 @@ public class WorkSetTest {
 	}
 
 	@Test
-	public void testDequeueEmpty() throws Exception {
-		WorkSet<String> workSet = new WorkSet<>();
+	void testDequeueEmpty() throws Exception {
 		assertThatThrownBy(() -> workSet.remove()).isInstanceOf(NoSuchElementException.class);
 	}
 
 	@Test
-	public void testToStringFresh() throws Exception {
-		WorkSet<String> workSet = new WorkSet<>();
+	void testToStringFresh() throws Exception {
 		workSet.addAll(asList("A", "B"));
 		assertThat(workSet.toString()).isEqualTo("{A, B}");
 	}
 
 	@Test
-	public void testToStringUsed() throws Exception {
-		WorkSet<String> workSet = new WorkSet<>();
+	void testToStringUsed() throws Exception {
 		workSet.addAll(asList("A", "B", "C"));
 		workSet.remove();
 		assertThat(workSet.toString()).isEqualTo("{B, C | A}");
 	}
 
 	@Test
-	public void testWorkset() throws Exception {
-		assertThat(new WorkSet<>().isEmpty()).isTrue();
+	void testWorkset() throws Exception {
+		assertThat(workSet.isEmpty()).isTrue();
 	}
 
 	@Test
-	public void testAdd() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-
-		boolean changed = ws.add("A");
+	void testAdd() throws Exception {
+		boolean changed = workSet.add("A");
 
 		assertThat(changed).isTrue();
-		assertThat(ws.isEmpty()).isFalse();
-		assertThat(ws.getDone()).isEmpty();
-		assertThat(ws.peek()).isEqualTo("A");
-		assertThat(ws.size()).isEqualTo(1);
+		assertThat(workSet.isEmpty()).isFalse();
+		assertThat(workSet.getDone()).isEmpty();
+		assertThat(workSet.peek()).isEqualTo("A");
+		assertThat(workSet.size()).isEqualTo(1);
 	}
 
 	@Test
-	public void testAddExisting() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-		ws.add("A");
+	void testAddExisting() throws Exception {
+		workSet.add("A");
 
-		boolean changed = ws.add("A");
+		boolean changed = workSet.add("A");
 
 		assertThat(changed).isFalse();
-		assertThat(ws.isEmpty()).isFalse();
-		assertThat(ws.getDone()).isEmpty();
-		assertThat(ws.peek()).isEqualTo("A");
-		assertThat(ws.size()).isEqualTo(1);
+		assertThat(workSet.isEmpty()).isFalse();
+		assertThat(workSet.getDone()).isEmpty();
+		assertThat(workSet.peek()).isEqualTo("A");
+		assertThat(workSet.size()).isEqualTo(1);
 	}
 
 	@Test
-	public void testAddDone() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-		ws.add("A");
-		ws.remove();
+	void testAddDone() throws Exception {
+		workSet.add("A");
+		workSet.remove();
 
-		boolean changed = ws.add("A");
+		boolean changed = workSet.add("A");
 
 		assertThat(changed).isFalse();
-		assertThat(ws.isEmpty()).isTrue();
-		assertThat(ws.getDone()).containsExactly("A");
-		assertThat(ws.peek()).isNull();
-		assertThat(ws.size()).isEqualTo(0);
+		assertThat(workSet.isEmpty()).isTrue();
+		assertThat(workSet.getDone()).containsExactly("A");
+		assertThat(workSet.peek()).isNull();
+		assertThat(workSet.size()).isEqualTo(0);
 	}
 
 	@Test
-	public void testOffer() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-
-		boolean changed = ws.offer("A");
+	void testOffer() throws Exception {
+		boolean changed = workSet.offer("A");
 
 		assertThat(changed).isTrue();
-		assertThat(ws.isEmpty()).isFalse();
-		assertThat(ws.getDone()).isEmpty();
-		assertThat(ws.peek()).isEqualTo("A");
-		assertThat(ws.size()).isEqualTo(1);
+		assertThat(workSet.isEmpty()).isFalse();
+		assertThat(workSet.getDone()).isEmpty();
+		assertThat(workSet.peek()).isEqualTo("A");
+		assertThat(workSet.size()).isEqualTo(1);
 	}
 
 	@Test
-	public void testOfferExisting() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-		ws.add("A");
+	void testOfferExisting() throws Exception {
+		workSet.add("A");
 
-		boolean changed = ws.offer("A");
+		boolean changed = workSet.offer("A");
 
 		assertThat(changed).isFalse();
-		assertThat(ws.isEmpty()).isFalse();
-		assertThat(ws.getDone()).isEmpty();
-		assertThat(ws.peek()).isEqualTo("A");
-		assertThat(ws.size()).isEqualTo(1);
+		assertThat(workSet.isEmpty()).isFalse();
+		assertThat(workSet.getDone()).isEmpty();
+		assertThat(workSet.peek()).isEqualTo("A");
+		assertThat(workSet.size()).isEqualTo(1);
 	}
 
 	@Test
-	public void testOfferDone() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-		ws.add("A");
-		ws.remove();
+	void testOfferDone() throws Exception {
+		workSet.add("A");
+		workSet.remove();
 
-		boolean changed = ws.offer("A");
+		boolean changed = workSet.offer("A");
 
 		assertThat(changed).isFalse();
-		assertThat(ws.isEmpty()).isTrue();
-		assertThat(ws.getDone()).containsExactly("A");
-		assertThat(ws.peek()).isNull();
-		assertThat(ws.size()).isEqualTo(0);
+		assertThat(workSet.isEmpty()).isTrue();
+		assertThat(workSet.getDone()).containsExactly("A");
+		assertThat(workSet.peek()).isNull();
+		assertThat(workSet.size()).isEqualTo(0);
 	}
 
 	@Test
-	public void testAddAll() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-
-		boolean changed = ws.addAll(asList("A", "B"));
+	void testAddAll() throws Exception {
+		boolean changed = workSet.addAll(asList("A", "B"));
 
 		assertThat(changed).isTrue();
-		assertThat(ws.isEmpty()).isFalse();
-		assertThat(ws.getDone()).isEmpty();
-		assertThat(ws.peek()).isEqualTo("A");
-		assertThat(ws.toArray(new String[0])).containsExactly("A", "B");
-		assertThat(ws.size()).isEqualTo(2);
+		assertThat(workSet.isEmpty()).isFalse();
+		assertThat(workSet.getDone()).isEmpty();
+		assertThat(workSet.peek()).isEqualTo("A");
+		assertThat(workSet.toArray(new String[0])).containsExactly("A", "B");
+		assertThat(workSet.size()).isEqualTo(2);
 	}
 
 	@Test
-	public void testAddAllExisting() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-		ws.addAll(asList("A", "B"));
+	void testAddAllExisting() throws Exception {
+		workSet.addAll(asList("A", "B"));
 
-		boolean changed = ws.addAll(asList("A", "B"));
+		boolean changed = workSet.addAll(asList("A", "B"));
 
 		assertThat(changed).isFalse();
-		assertThat(ws.isEmpty()).isFalse();
-		assertThat(ws.getDone()).isEmpty();
-		assertThat(ws.peek()).isEqualTo("A");
-		assertThat(ws.toArray(new String[0])).containsExactly("A", "B");
-		assertThat(ws.size()).isEqualTo(2);
+		assertThat(workSet.isEmpty()).isFalse();
+		assertThat(workSet.getDone()).isEmpty();
+		assertThat(workSet.peek()).isEqualTo("A");
+		assertThat(workSet.toArray(new String[0])).containsExactly("A", "B");
+		assertThat(workSet.size()).isEqualTo(2);
 	}
 
 	@Test
-	public void testAddAllSomeExisting() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-		ws.addAll(asList("A", "B"));
+	void testAddAllSomeExisting() throws Exception {
+		workSet.addAll(asList("A", "B"));
 
-		boolean changed = ws.addAll(asList("B", "C"));
+		boolean changed = workSet.addAll(asList("B", "C"));
 
 		assertThat(changed).isTrue();
-		assertThat(ws.isEmpty()).isFalse();
-		assertThat(ws.getDone()).isEmpty();
-		assertThat(ws.peek()).isEqualTo("A");
-		assertThat(ws.toArray(new String[0])).containsExactly("A", "B", "C");
-		assertThat(ws.size()).isEqualTo(3);
+		assertThat(workSet.isEmpty()).isFalse();
+		assertThat(workSet.getDone()).isEmpty();
+		assertThat(workSet.peek()).isEqualTo("A");
+		assertThat(workSet.toArray(new String[0])).containsExactly("A", "B", "C");
+		assertThat(workSet.size()).isEqualTo(3);
 	}
 
 	@Test
-	public void testAddAllSomeDone() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-		ws.addAll(asList("A", "B"));
-		ws.remove();
+	void testAddAllSomeDone() throws Exception {
+		workSet.addAll(asList("A", "B"));
+		workSet.remove();
 
-		boolean changed = ws.addAll(asList("A", "C"));
+		boolean changed = workSet.addAll(asList("A", "C"));
 
 		assertThat(changed).isTrue();
-		assertThat(ws.isEmpty()).isFalse();
-		assertThat(ws.getDone()).containsExactly("A");
-		assertThat(ws.peek()).isEqualTo("B");
-		assertThat(ws.toArray(new String[0])).containsExactly("B", "C");
-		assertThat(ws.size()).isEqualTo(2);
+		assertThat(workSet.isEmpty()).isFalse();
+		assertThat(workSet.getDone()).containsExactly("A");
+		assertThat(workSet.peek()).isEqualTo("B");
+		assertThat(workSet.toArray(new String[0])).containsExactly("B", "C");
+		assertThat(workSet.size()).isEqualTo(2);
 	}
 
 	@Test
-	public void testRemoveOnEmpty() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-
-		assertThatThrownBy(() -> ws.remove()).isInstanceOf(NoSuchElementException.class);
+	void testRemoveOnEmpty() throws Exception {
+		assertThatThrownBy(() -> workSet.remove()).isInstanceOf(NoSuchElementException.class);
 	}
 
 	@Test
-	public void testRemoveEmptying() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-		ws.add("A");
+	void testRemoveEmptying() throws Exception {
+		workSet.add("A");
 
-		String r = ws.remove();
+		String r = workSet.remove();
 
 		assertThat(r).isEqualTo("A");
-		assertThat(ws.isEmpty()).isTrue();
-		assertThat(ws.getDone()).containsExactly("A");
-		assertThat(ws.peek()).isNull();
+		assertThat(workSet.isEmpty()).isTrue();
+		assertThat(workSet.getDone()).containsExactly("A");
+		assertThat(workSet.peek()).isNull();
 	}
 
 	@Test
-	public void testRemoveNonEmptying() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-		ws.addAll(asList("A", "B"));
+	void testRemoveNonEmptying() throws Exception {
+		workSet.addAll(asList("A", "B"));
 
-		String r = ws.remove();
+		String r = workSet.remove();
 
 		assertThat(r).isEqualTo("A");
-		assertThat(ws.isEmpty()).isFalse();
-		assertThat(ws.getDone()).containsExactly("A");
-		assertThat(ws.peek()).isEqualTo("B");
+		assertThat(workSet.isEmpty()).isFalse();
+		assertThat(workSet.getDone()).containsExactly("A");
+		assertThat(workSet.peek()).isEqualTo("B");
 	}
 
 	@Test
-	public void testPollOnEmpty() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-
-		String r = ws.poll();
+	void testPollOnEmpty() throws Exception {
+		String r = workSet.poll();
 
 		assertThat(r).isNull();
-		assertThat(ws.isEmpty()).isTrue();
+		assertThat(workSet.isEmpty()).isTrue();
 	}
 
 	@Test
-	public void testPollEmptying() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-		ws.add("A");
+	void testPollEmptying() throws Exception {
+		workSet.add("A");
 
-		String r = ws.poll();
+		String r = workSet.poll();
 
 		assertThat(r).isEqualTo("A");
-		assertThat(ws.isEmpty()).isTrue();
-		assertThat(ws.getDone()).containsExactly("A");
-		assertThat(ws.peek()).isNull();
+		assertThat(workSet.isEmpty()).isTrue();
+		assertThat(workSet.getDone()).containsExactly("A");
+		assertThat(workSet.peek()).isNull();
 	}
 
 	@Test
-	public void testPollNonEmptying() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-		ws.addAll(asList("A", "B"));
+	void testPollNonEmptying() throws Exception {
+		workSet.addAll(asList("A", "B"));
 
-		String r = ws.poll();
+		String r = workSet.poll();
 
 		assertThat(r).isEqualTo("A");
-		assertThat(ws.isEmpty()).isFalse();
-		assertThat(ws.getDone()).containsExactly("A");
-		assertThat(ws.peek()).isEqualTo("B");
+		assertThat(workSet.isEmpty()).isFalse();
+		assertThat(workSet.getDone()).containsExactly("A");
+		assertThat(workSet.peek()).isEqualTo("B");
 	}
 
 	@Test
-	public void testContains() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-		ws.addAll(asList("A", "B"));
+	void testContains() throws Exception {
+		workSet.addAll(asList("A", "B"));
 
-		assertThat(ws.contains("A")).isTrue();
-		assertThat(ws.contains("B")).isTrue();
-		assertThat(ws.contains("C")).isFalse();
+		assertThat(workSet.contains("A")).isTrue();
+		assertThat(workSet.contains("B")).isTrue();
+		assertThat(workSet.contains("C")).isFalse();
 	}
 
 	@Test
-	public void testContainsDone() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-		ws.addAll(asList("A", "B"));
+	void testContainsDone() throws Exception {
+		workSet.addAll(asList("A", "B"));
 
-		ws.remove();
+		workSet.remove();
 
-		assertThat(ws.contains("A")).isTrue();
-		assertThat(ws.contains("B")).isTrue();
-		assertThat(ws.contains("C")).isFalse();
+		assertThat(workSet.contains("A")).isTrue();
+		assertThat(workSet.contains("B")).isTrue();
+		assertThat(workSet.contains("C")).isFalse();
 	}
 
 	@Test
-	public void testIterator() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-		ws.addAll(asList("A", "B"));
+	void testIterator() throws Exception {
+		workSet.addAll(asList("A", "B"));
 
-		Iterator<String> iterator = ws.iterator();
+		Iterator<String> iterator = workSet.iterator();
 
 		assertThat(iterator.next()).isEqualTo("A");
 		assertThat(iterator.next()).isEqualTo("B");
 	}
 
 	@Test
-	public void testToArray() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-		ws.addAll(asList("A", "B"));
+	void testToArray() throws Exception {
+		workSet.addAll(asList("A", "B"));
 
-		assertThat(ws.toArray()).containsExactly((Object) "A", "B");
-		assertThat(ws.toArray(new String[0])).containsExactly("A", "B");
+		assertThat(workSet.toArray()).containsExactly((Object) "A", "B");
+		assertThat(workSet.toArray(new String[0])).containsExactly("A", "B");
 	}
 
 	@Test
-	public void testRemoveObject() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-		ws.addAll(asList("A", "B"));
+	void testRemoveObject() throws Exception {
+		workSet.addAll(asList("A", "B"));
 
-		ws.remove("A");
+		workSet.remove("A");
 
-		assertThat(ws.isEmpty()).isFalse();
-		assertThat(ws.getDone()).isEmpty();
-		assertThat(ws.peek()).isEqualTo("B");
+		assertThat(workSet.isEmpty()).isFalse();
+		assertThat(workSet.getDone()).isEmpty();
+		assertThat(workSet.peek()).isEqualTo("B");
 	}
 
 	@Test
-	public void testRemoveObjectOnDone() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-		ws.addAll(asList("0", "A", "B"));
-		ws.remove();
-		ws.remove();
+	void testRemoveObjectOnDone() throws Exception {
+		workSet.addAll(asList("0", "A", "B"));
+		workSet.remove();
+		workSet.remove();
 
-		ws.remove("A");
+		workSet.remove("A");
 
-		assertThat(ws.isEmpty()).isFalse();
-		assertThat(ws.getDone()).containsExactly("0");
-		assertThat(ws.peek()).isEqualTo("B");
+		assertThat(workSet.isEmpty()).isFalse();
+		assertThat(workSet.getDone()).containsExactly("0");
+		assertThat(workSet.peek()).isEqualTo("B");
 	}
 
 	@Test
-	public void testRemoveAll() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-		ws.addAll(asList("A", "B"));
+	void testRemoveAll() throws Exception {
+		workSet.addAll(asList("A", "B"));
 
-		ws.removeAll(asList("A", "B"));
+		workSet.removeAll(asList("A", "B"));
 
-		assertThat(ws.isEmpty()).isTrue();
-		assertThat(ws.getDone()).isEmpty();
-		assertThat(ws.peek()).isNull();
+		assertThat(workSet.isEmpty()).isTrue();
+		assertThat(workSet.getDone()).isEmpty();
+		assertThat(workSet.peek()).isNull();
 	}
 
 	@Test
-	public void testRemoveAllOnDone() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-		ws.addAll(asList("0", "A", "B"));
-		ws.remove();
-		ws.remove();
+	void testRemoveAllOnDone() throws Exception {
+		workSet.addAll(asList("0", "A", "B"));
+		workSet.remove();
+		workSet.remove();
 
-		ws.removeAll(asList("A", "B"));
+		workSet.removeAll(asList("A", "B"));
 
-		assertThat(ws.isEmpty()).isTrue();
-		assertThat(ws.getDone()).containsExactly("0");
-		assertThat(ws.peek()).isNull();
+		assertThat(workSet.isEmpty()).isTrue();
+		assertThat(workSet.getDone()).containsExactly("0");
+		assertThat(workSet.peek()).isNull();
 	}
 
 	@Test
-	public void testRetainAll() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-		ws.addAll(asList("A", "B"));
+	void testRetainAll() throws Exception {
+		workSet.addAll(asList("A", "B"));
 
-		ws.retainAll(asList("B"));
+		workSet.retainAll(asList("B"));
 
-		assertThat(ws.isEmpty()).isFalse();
-		assertThat(ws.getDone()).isEmpty();
-		assertThat(ws.peek()).isEqualTo("B");
+		assertThat(workSet.isEmpty()).isFalse();
+		assertThat(workSet.getDone()).isEmpty();
+		assertThat(workSet.peek()).isEqualTo("B");
 	}
 
 	@Test
-	public void testContainsAll() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-		ws.addAll(asList("A", "B"));
+	void testContainsAll() throws Exception {
+		workSet.addAll(asList("A", "B"));
 
-		assertThat(ws.containsAll(asList("B"))).isTrue();
-		assertThat(ws.containsAll(asList("A"))).isTrue();
-		assertThat(ws.containsAll(asList("A", "B"))).isTrue();
-		assertThat(ws.containsAll(asList("B", "A"))).isTrue();
-		assertThat(ws.containsAll(asList("C"))).isFalse();
-		assertThat(ws.containsAll(asList("A", "B", "C"))).isFalse();
+		assertThat(workSet.containsAll(asList("B"))).isTrue();
+		assertThat(workSet.containsAll(asList("A"))).isTrue();
+		assertThat(workSet.containsAll(asList("A", "B"))).isTrue();
+		assertThat(workSet.containsAll(asList("B", "A"))).isTrue();
+		assertThat(workSet.containsAll(asList("C"))).isFalse();
+		assertThat(workSet.containsAll(asList("A", "B", "C"))).isFalse();
 	}
 
 	@Test
-	public void testContainsAllDone() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-		ws.addAll(asList("A", "B"));
+	void testContainsAllDone() throws Exception {
+		workSet.addAll(asList("A", "B"));
 
-		ws.remove();
+		workSet.remove();
 
-		assertThat(ws.containsAll(asList("B"))).isTrue();
-		assertThat(ws.containsAll(asList("A"))).isTrue();
-		assertThat(ws.containsAll(asList("A", "B"))).isTrue();
-		assertThat(ws.containsAll(asList("B", "A"))).isTrue();
-		assertThat(ws.containsAll(asList("C"))).isFalse();
-		assertThat(ws.containsAll(asList("A", "B", "C"))).isFalse();
+		assertThat(workSet.containsAll(asList("B"))).isTrue();
+		assertThat(workSet.containsAll(asList("A"))).isTrue();
+		assertThat(workSet.containsAll(asList("A", "B"))).isTrue();
+		assertThat(workSet.containsAll(asList("B", "A"))).isTrue();
+		assertThat(workSet.containsAll(asList("C"))).isFalse();
+		assertThat(workSet.containsAll(asList("A", "B", "C"))).isFalse();
 	}
 
 	@Test
-	public void testClear() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-		ws.addAll(asList("A", "B"));
+	void testClear() throws Exception {
+		workSet.addAll(asList("A", "B"));
 
-		ws.clear();
+		workSet.clear();
 
-		assertThat(ws.isEmpty()).isTrue();
-		assertThat(ws.getDone()).isEmpty();
-		assertThat(ws.peek()).isNull();
+		assertThat(workSet.isEmpty()).isTrue();
+		assertThat(workSet.getDone()).isEmpty();
+		assertThat(workSet.peek()).isNull();
 	}
 
 	@Test
-	public void testClearOnDone() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-		ws.addAll(asList("A", "B"));
-		ws.remove();
+	void testClearOnDone() throws Exception {
+		workSet.addAll(asList("A", "B"));
+		workSet.remove();
 
-		ws.clear();
+		workSet.clear();
 
-		assertThat(ws.isEmpty()).isTrue();
-		assertThat(ws.getDone()).isEmpty();
-		assertThat(ws.peek()).isNull();
+		assertThat(workSet.isEmpty()).isTrue();
+		assertThat(workSet.getDone()).isEmpty();
+		assertThat(workSet.peek()).isNull();
 	}
 
 	@Test
-	public void testElementOnEmpty() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
+	void testElementOnEmpty() throws Exception {
 
-		assertThatThrownBy(() -> ws.element()).isInstanceOf(NoSuchElementException.class);
+		assertThatThrownBy(() -> workSet.element()).isInstanceOf(NoSuchElementException.class);
 	}
 
 	@Test
-	public void testElement() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-		ws.addAll(asList("A", "B"));
+	void testElement() throws Exception {
+		workSet.addAll(asList("A", "B"));
 
-		assertThat(ws.element()).isEqualTo("A");
+		assertThat(workSet.element()).isEqualTo("A");
 	}
 
 	@Test
-	public void testPeekOnEmpty() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
+	void testPeekOnEmpty() throws Exception {
 
-		assertThat(ws.peek()).isNull();
+		assertThat(workSet.peek()).isNull();
 	}
 
 	@Test
-	public void testPeek() throws Exception {
-		WorkSet<String> ws = new WorkSet<>();
-		ws.addAll(asList("A", "B"));
+	void testPeek() throws Exception {
+		workSet.addAll(asList("A", "B"));
 
-		assertThat(ws.peek()).isEqualTo("A");
+		assertThat(workSet.peek()).isEqualTo("A");
 	}
 
 }

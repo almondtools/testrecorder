@@ -47,7 +47,7 @@ public abstract class AttachableClassFileTransformer implements ClassFileTransfo
 			return new Class[0];
 		}
 		List<Class<?>> closure = new LinkedList<>();
-		WorkSet<Class<?>> todo = new WorkSet<>();
+		IdentityWorkSet<Class<?>> todo = new IdentityWorkSet<>();
 		todo.addAll(filterClassesToRetransform(loaded));
 		todo.addAll(getClassesToRetransform());
 		while (todo.hasMoreElements()) {

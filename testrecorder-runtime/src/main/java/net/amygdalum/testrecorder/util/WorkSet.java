@@ -1,178 +1,180 @@
 package net.amygdalum.testrecorder.util;
 
 import static java.util.stream.Collectors.joining;
+import static net.amygdalum.testrecorder.util.Distinct.distinct;
 
 import java.util.Collection;
-import java.util.IdentityHashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
 public class WorkSet<T> implements Queue<T> {
 
-    private Map<T,T> done;
-    private Queue<T> elements;
+	private Map<T, T> done;
+	private Queue<T> elements;
 
-    public WorkSet(Map<T,T> done, Queue<T> elements) {
-        this.done = done;
-        this.elements = elements;
-    }
-    
-    public WorkSet(Queue<T> base) {
-        this.done = new IdentityHashMap<>();
-        this.elements = new WorkQueue<>(base);
-    }
-    
-    public WorkSet() {
-        this.done = new IdentityHashMap<>();
-        this.elements = new WorkQueue<>();
-    }
+	protected WorkSet(Map<T, T> done, Queue<T> elements) {
+		this.done = done;
+		this.elements = elements;
+	}
 
-    public Set<T> getDone() {
-        return done.keySet();
-    }
+	public WorkSet(Queue<T> base) {
+		this(new LinkedHashMap<>(), base.stream()
+			.filter(distinct())
+			.collect(LinkedList::new, LinkedList::add, LinkedList::addAll));
+	}
 
-    @Override
-    public int size() {
-        return elements.size();
-    }
+	public WorkSet() {
+		this(new LinkedHashMap<>(), new LinkedList<>());
+	}
 
-    public boolean hasMoreElements() {
-        return !elements.isEmpty();
-    }
+	public Set<T> getDone() {
+		return done.keySet();
+	}
 
-    @Override
-    public boolean isEmpty() {
-        return elements.isEmpty();
-    }
+	@Override
+	public int size() {
+		return elements.size();
+	}
 
-    @Override
-    public boolean contains(Object o) {
-        return done.containsKey(o)
-            || elements.contains(o);
-    }
+	public boolean hasMoreElements() {
+		return !elements.isEmpty();
+	}
 
-    @Override
-    public Iterator<T> iterator() {
-        return elements.iterator();
-    }
+	@Override
+	public boolean isEmpty() {
+		return elements.isEmpty();
+	}
 
-    @Override
-    public Object[] toArray() {
-        return elements.toArray();
-    }
+	@Override
+	public boolean contains(Object o) {
+		return done.containsKey(o)
+			|| elements.contains(o);
+	}
 
-    @Override
-    public <S> S[] toArray(S[] a) {
-        return elements.toArray(a);
-    }
+	@Override
+	public Iterator<T> iterator() {
+		return elements.iterator();
+	}
 
-    @Override
-    public boolean remove(Object o) {
-        return elements.remove(o)
-            | done.remove(o,o);
-    }
+	@Override
+	public Object[] toArray() {
+		return elements.toArray();
+	}
 
-    @Override
-    public boolean containsAll(Collection<?> c) {
-        for (Object element : c) {
-            if (!done.containsKey(element) && !elements.contains(element)) {
-                return false;
-            }
-        }
-        return true;
-    }
+	@Override
+	public <S> S[] toArray(S[] a) {
+		return elements.toArray(a);
+	}
 
-    @Override
-    public boolean addAll(Collection<? extends T> c) {
-        boolean changed = false;
-        for (T element : c) {
-            if (done.containsKey(element) || elements.contains(element)) {
-                continue;
-            }
-            elements.add(element);
-            changed = true;
-        }
-        return changed;
-    }
+	@Override
+	public boolean remove(Object o) {
+		return elements.remove(o)
+			| done.remove(o, o);
+	}
 
-    @Override
-    public boolean removeAll(Collection<?> c) {
-        return elements.removeAll(c)
-            | done.keySet().removeAll(c);
-    }
+	@Override
+	public boolean containsAll(Collection<?> c) {
+		for (Object element : c) {
+			if (!done.containsKey(element) && !elements.contains(element)) {
+				return false;
+			}
+		}
+		return true;
+	}
 
-    @Override
-    public boolean retainAll(Collection<?> c) {
-        return elements.retainAll(c)
-            | done.keySet().retainAll(c);
-    }
+	@Override
+	public boolean addAll(Collection<? extends T> c) {
+		boolean changed = false;
+		for (T element : c) {
+			if (done.containsKey(element) || elements.contains(element)) {
+				continue;
+			}
+			elements.add(element);
+			changed = true;
+		}
+		return changed;
+	}
 
-    @Override
-    public void clear() {
-        elements.clear();
-        done.clear();
-    }
+	@Override
+	public boolean removeAll(Collection<?> c) {
+		return elements.removeAll(c)
+			| done.keySet().removeAll(c);
+	}
 
-    @Override
-    public boolean add(T e) {
-        if (done.containsKey(e) || elements.contains(e)) {
-            return false;
-        }
-        elements.add(e);
-        return true;
-    }
+	@Override
+	public boolean retainAll(Collection<?> c) {
+		return elements.retainAll(c)
+			| done.keySet().retainAll(c);
+	}
 
-    @Override
-    public boolean offer(T e) {
-        if (done.containsKey(e) || elements.contains(e)) {
-            return false;
-        }
-        elements.add(e);
-        return true;
-    }
+	@Override
+	public void clear() {
+		elements.clear();
+		done.clear();
+	}
 
-    @Override
-    public T remove() {
-        T head = elements.remove();
-        done.put(head,head);
-        return head;
-    }
+	@Override
+	public boolean add(T e) {
+		if (done.containsKey(e) || elements.contains(e)) {
+			return false;
+		}
+		elements.add(e);
+		return true;
+	}
 
-    @Override
-    public T poll() {
-        T head = elements.poll();
-        if (head == null) {
-            return null;
-        }
-        done.put(head, head);
-        return head;
-    }
+	@Override
+	public boolean offer(T e) {
+		if (done.containsKey(e) || elements.contains(e)) {
+			return false;
+		}
+		elements.add(e);
+		return true;
+	}
 
-    @Override
-    public T element() {
-        return elements.element();
-    }
+	@Override
+	public T remove() {
+		T head = elements.remove();
+		done.put(head, head);
+		return head;
+	}
 
-    @Override
-    public T peek() {
-        return elements.peek();
-    }
+	@Override
+	public T poll() {
+		T head = elements.poll();
+		if (head == null) {
+			return null;
+		}
+		done.put(head, head);
+		return head;
+	}
 
-    @Override
-    public String toString() {
-        if (done.isEmpty()) {
-            return elements.stream().map(Object::toString).collect(joining(", ", "{", "}"));
-        } else {
-            StringBuilder buffer = new StringBuilder();
-            buffer.append('{');
-            buffer.append(elements.stream().map(Object::toString).collect(joining(", ")));
-            buffer.append(" | ");
-            buffer.append(done.keySet().stream().map(Object::toString).collect(joining(", ")));
-            buffer.append('}');
-            return buffer.toString();
-        }
-    }
+	@Override
+	public T element() {
+		return elements.element();
+	}
+
+	@Override
+	public T peek() {
+		return elements.peek();
+	}
+
+	@Override
+	public String toString() {
+		if (done.isEmpty()) {
+			return elements.stream().map(Object::toString).collect(joining(", ", "{", "}"));
+		} else {
+			StringBuilder buffer = new StringBuilder();
+			buffer.append('{');
+			buffer.append(elements.stream().map(Object::toString).collect(joining(", ")));
+			buffer.append(" | ");
+			buffer.append(done.keySet().stream().map(Object::toString).collect(joining(", ")));
+			buffer.append('}');
+			return buffer.toString();
+		}
+	}
 
 }

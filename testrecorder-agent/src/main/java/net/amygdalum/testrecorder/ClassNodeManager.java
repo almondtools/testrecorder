@@ -8,7 +8,7 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
-import net.amygdalum.testrecorder.util.WorkSet;
+import net.amygdalum.testrecorder.util.IdentityWorkSet;
 
 public class ClassNodeManager {
 
@@ -41,7 +41,7 @@ public class ClassNodeManager {
 
 	public MethodNode fetch(ClassNode classNode, String methodName, String methodDesc) throws IOException, NoSuchMethodException {
 		ClassNode currentClassNode = classNode;
-		WorkSet<String> interfaces = new WorkSet<>();
+		IdentityWorkSet<String> interfaces = new IdentityWorkSet<>();
 		while (currentClassNode != null) {
 			for (MethodNode method : currentClassNode.methods) {
 				if (method.name.equals(methodName) && method.desc.equals(methodDesc)) {

@@ -11,9 +11,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -331,12 +328,12 @@ public class GenericComparisonTest {
 
 	@Test
 	public void testNewComparisonForArray() throws Exception {
-		Object a = new String[] {"strA"};
-		Object b = new String[] {"strB"};
+		Object a = new String[] { "strA" };
+		Object b = new String[] { "strB" };
 		GenericComparison comparison = new GenericComparison("@", a, b);
 
 		GenericComparison indexComparison = comparison.newComparison(0);
-		
+
 		assertThat(indexComparison.getRoot()).isEqualTo("@[0]");
 		assertThat(indexComparison.isMismatch()).isFalse();
 		assertThat(indexComparison.getLeft()).isEqualTo("strA");
@@ -351,7 +348,7 @@ public class GenericComparisonTest {
 		GenericComparison comparison = new GenericComparison("@", a, b);
 
 		GenericComparison fieldComparison = comparison.newComparison("str");
-		
+
 		assertThat(fieldComparison.getRoot()).isEqualTo("@.str");
 		assertThat(fieldComparison.isMismatch()).isFalse();
 		assertThat(fieldComparison.getLeft()).isEqualTo("strA");
@@ -369,7 +366,7 @@ public class GenericComparisonTest {
 	public void testCompare() throws Exception {
 		Node node1 = new Node("node1");
 		Node node2 = new Node("node2");
-		WorkSet<GenericComparison> todo = new WorkSet<>(new LinkedHashMap<>(), new LinkedList<>());
+		WorkSet<GenericComparison> todo = new WorkSet<>();
 		todo.add(new GenericComparison(null, node1, node2));
 		GenericComparison.compare(todo, (comparison, rem) -> comparison.eval(rem) ? GenericComparatorResult.NOT_APPLYING : GenericComparatorResult.MISMATCH);
 
@@ -387,7 +384,7 @@ public class GenericComparisonTest {
 		node1.children = new Node[] { node2 };
 		node2.children = new Node[] { node1 };
 
-		WorkSet<GenericComparison> todo = new WorkSet<>(new LinkedHashMap<>(), new LinkedList<>());
+		WorkSet<GenericComparison> todo = new WorkSet<>();
 		todo.add(new GenericComparison(null, node1, node2));
 		GenericComparison.compare(todo, (comparison, rem) -> comparison.eval(rem) ? GenericComparatorResult.NOT_APPLYING : GenericComparatorResult.MISMATCH);
 
@@ -411,6 +408,16 @@ public class GenericComparisonTest {
 			.andNotEqualTo(new GenericComparison("root", node1, node1))
 			.andNotEqualTo(new GenericComparison("root", node2, node2))
 			.conventions());
+	}
+
+	@Test
+	public void testEqualsRecursive() throws Exception {
+		Node node1 = new Node("name");
+		node1.children = new Node[] { node1 };
+		Node node2 = new Node("name");
+		node2.children = new Node[] { node2 };
+		
+		assertThat(GenericComparison.equals("", node1, node2)).isTrue();
 	}
 
 	@Test

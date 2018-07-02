@@ -60,7 +60,7 @@ public final class Types {
 	}
 
 	private static Set<Class<?>> superTypes(Class<?> clazz) {
-		WorkSet<Class<?>> todo = new WorkSet<>();
+		IdentityWorkSet<Class<?>> todo = new IdentityWorkSet<>();
 		todo.add(clazz);
 		while (!todo.isEmpty()) {
 			Class<?> next = todo.remove();
@@ -653,7 +653,7 @@ public final class Types {
 			}
 			return compare;
 		});
-		WorkSet<Class<?>> todo = new WorkSet<>();
+		IdentityWorkSet<Class<?>> todo = new IdentityWorkSet<>();
 		for (Class<?> intrface : clazz.getInterfaces()) {
 			todo.add(intrface);
 		}

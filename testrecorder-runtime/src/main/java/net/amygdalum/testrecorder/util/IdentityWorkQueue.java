@@ -6,16 +6,16 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 
-public class WorkQueue<E> implements Queue<E> {
+public class IdentityWorkQueue<E> implements Queue<E> {
 
 	private int size = 0;
 	private Node<E> first;
 	private Node<E> last;
 
-	public WorkQueue() {
+	public IdentityWorkQueue() {
 	}
 
-	public WorkQueue(Collection<? extends E> c) {
+	public IdentityWorkQueue(Collection<? extends E> c) {
 		addAll(c);
 	}
 
@@ -184,6 +184,20 @@ public class WorkQueue<E> implements Queue<E> {
         }
         return first.item;
 	}
+
+    @Override
+    public String toString() {
+            StringBuilder buffer = new StringBuilder();
+            buffer.append('[');
+    		for (Node<E> x = first; x != null; x = x.next) {
+    			buffer.append(x.item);
+    			if (x.next != null) {
+    				buffer.append(", ");
+    			}
+    		}
+            buffer.append(']');
+            return buffer.toString();
+    }
 
     private void linkLast(E e) {
         Node<E> l = last;

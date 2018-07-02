@@ -6,21 +6,21 @@ import java.util.Set;
 
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedValue;
-import net.amygdalum.testrecorder.util.WorkSet;
+import net.amygdalum.testrecorder.util.IdentityWorkSet;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedInput;
 import net.amygdalum.testrecorder.values.SerializedOutput;
 
 public class TreeAnalyzer {
 
-	private WorkSet<SerializedValue> seed;
-	private WorkSet<SerializedReferenceType> todo;
+	private IdentityWorkSet<SerializedValue> seed;
+	private IdentityWorkSet<SerializedReferenceType> todo;
 	private Set<Integer> inputs;
 	private Set<Integer> outputs;
 
 	public TreeAnalyzer() {
-		seed = new WorkSet<>();
-		todo = new WorkSet<>();
+		seed = new IdentityWorkSet<>();
+		todo = new IdentityWorkSet<>();
 		inputs = new HashSet<>();
 		outputs = new HashSet<>();
 	}

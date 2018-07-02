@@ -38,7 +38,7 @@ import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.util.Logger;
-import net.amygdalum.testrecorder.util.WorkSet;
+import net.amygdalum.testrecorder.util.IdentityWorkSet;
 import net.amygdalum.testrecorder.values.SerializedInput;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedNull;
@@ -171,7 +171,7 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 	private SerializedValue createObject(Type type, Object object, SerializerSession session) {
 		Profile serialization = session.log(type);
 		try {
-			WorkSet<Object> todo = new WorkSet<>();
+			IdentityWorkSet<Object> todo = new IdentityWorkSet<>();
 			todo.add(object);
 			Deque<Runnable> defer = new LinkedList<>();
 			while (!todo.isEmpty()) {

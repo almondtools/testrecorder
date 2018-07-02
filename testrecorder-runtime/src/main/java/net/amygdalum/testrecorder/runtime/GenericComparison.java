@@ -5,6 +5,7 @@ import static net.amygdalum.testrecorder.util.Types.isLiteral;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.util.List;
 
 import net.amygdalum.testrecorder.util.WorkSet;
 
@@ -105,7 +106,8 @@ public class GenericComparison {
 			}
 		} else {
 			try {
-				todo.addAll(strategy.extend(this));
+				List<GenericComparison> newtodo = strategy.extend(this);
+				todo.addAll(newtodo);
 			} catch (ComparisonException e) {
 				if (e.failed()) {
 					return false;

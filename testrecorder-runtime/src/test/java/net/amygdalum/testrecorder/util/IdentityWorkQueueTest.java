@@ -9,29 +9,28 @@ import java.util.NoSuchElementException;
 
 import org.junit.jupiter.api.Test;
 
-public class WorkQueueTest {
+public class IdentityWorkQueueTest {
 
 	@Test
 	void testSize() throws Exception {
-		assertThat(new WorkQueue<>().size()).isEqualTo(0);
-		assertThat(new WorkQueue<>().isEmpty()).isTrue();
-		assertThat(new WorkQueue<>(asList("a", "b")).size()).isEqualTo(2);
-		assertThat(new WorkQueue<>(asList("a", "b")).isEmpty()).isFalse();
+		assertThat(new IdentityWorkQueue<>().size()).isEqualTo(0);
+		assertThat(new IdentityWorkQueue<>().isEmpty()).isTrue();
+		assertThat(new IdentityWorkQueue<>(asList("a", "b")).size()).isEqualTo(2);
+		assertThat(new IdentityWorkQueue<>(asList("a", "b")).isEmpty()).isFalse();
 	}
 
 	@Test
 	void testContains() throws Exception {
-		assertThat(new WorkQueue<>(asList("a", "b")).contains("a")).isTrue();
-		assertThat(new WorkQueue<>(asList("a", "b")).contains("b")).isTrue();
-		assertThat(new WorkQueue<>(asList("a", "b")).contains("c")).isFalse();
-		assertThat(new WorkQueue<>(asList("a", "b")).contains(new String("a"))).isFalse();
-		assertThat(new WorkQueue<>(asList("a", "b")).contains(new String("b"))).isFalse();
-
+		assertThat(new IdentityWorkQueue<>(asList("a", "b")).contains("a")).isTrue();
+		assertThat(new IdentityWorkQueue<>(asList("a", "b")).contains("b")).isTrue();
+		assertThat(new IdentityWorkQueue<>(asList("a", "b")).contains("c")).isFalse();
+		assertThat(new IdentityWorkQueue<>(asList("a", "b")).contains(new String("a"))).isFalse();
+		assertThat(new IdentityWorkQueue<>(asList("a", "b")).contains(new String("b"))).isFalse();
 	}
 
 	@Test
 	void testIterator() throws Exception {
-		WorkQueue<String> queue = new WorkQueue<>(asList("a", "b"));
+		IdentityWorkQueue<String> queue = new IdentityWorkQueue<>(asList("a", "b"));
 		Iterator<String> iterator = queue.iterator();
 
 		assertThat(iterator.hasNext()).isTrue();
@@ -44,7 +43,7 @@ public class WorkQueueTest {
 
 	@Test
 	void testIteratorRemove() throws Exception {
-		WorkQueue<String> queue = new WorkQueue<>(asList("a", "b"));
+		IdentityWorkQueue<String> queue = new IdentityWorkQueue<>(asList("a", "b"));
 		Iterator<String> iterator = queue.iterator();
 		iterator.next();
 
@@ -61,7 +60,7 @@ public class WorkQueueTest {
 
 	@Test
 	void testToArray() throws Exception {
-		WorkQueue<String> queue = new WorkQueue<>(asList("a", "b"));
+		IdentityWorkQueue<String> queue = new IdentityWorkQueue<>(asList("a", "b"));
 
 		assertThat(queue.toArray()).containsExactly("a", "b");
 		assertThat(queue.toArray(new String[2])).containsExactly("a", "b");
@@ -70,7 +69,7 @@ public class WorkQueueTest {
 
 	@Test
 	void testAddObject() throws Exception {
-		WorkQueue<String> queue = new WorkQueue<>();
+		IdentityWorkQueue<String> queue = new IdentityWorkQueue<>();
 		queue.add("a");
 
 		assertThat(queue).containsExactly("a");
@@ -78,7 +77,7 @@ public class WorkQueueTest {
 
 	@Test
 	void testRemoveObject() throws Exception {
-		WorkQueue<String> queue = new WorkQueue<>();
+		IdentityWorkQueue<String> queue = new IdentityWorkQueue<>();
 		queue.add("a");
 		queue.remove("a");
 
@@ -87,7 +86,7 @@ public class WorkQueueTest {
 
 	@Test
 	void testRemoveObjectNotInQueue() throws Exception {
-		WorkQueue<String> queue = new WorkQueue<>();
+		IdentityWorkQueue<String> queue = new IdentityWorkQueue<>();
 		queue.add("a");
 		queue.remove("b");
 
@@ -96,7 +95,7 @@ public class WorkQueueTest {
 
 	@Test
 	void testContainsAll() throws Exception {
-		WorkQueue<String> queue = new WorkQueue<>();
+		IdentityWorkQueue<String> queue = new IdentityWorkQueue<>();
 		queue.add("a");
 		queue.add("b");
 
@@ -109,7 +108,7 @@ public class WorkQueueTest {
 
 	@Test
 	void testAddAll() throws Exception {
-		WorkQueue<String> queue = new WorkQueue<>();
+		IdentityWorkQueue<String> queue = new IdentityWorkQueue<>();
 		queue.addAll(asList("a", "b"));
 
 		assertThat(queue.contains("a")).isTrue();
@@ -119,7 +118,7 @@ public class WorkQueueTest {
 
 	@Test
 	void testRemoveAll() throws Exception {
-		WorkQueue<String> queue = new WorkQueue<>();
+		IdentityWorkQueue<String> queue = new IdentityWorkQueue<>();
 		queue.addAll(asList("a", "b", "c"));
 		queue.removeAll(asList("a", "b", "d"));
 
@@ -131,7 +130,7 @@ public class WorkQueueTest {
 
 	@Test
 	void testRetainAll() throws Exception {
-		WorkQueue<String> queue = new WorkQueue<>();
+		IdentityWorkQueue<String> queue = new IdentityWorkQueue<>();
 		queue.addAll(asList("a", "b", "c"));
 		queue.retainAll(asList("a", "b", "d"));
 
@@ -143,7 +142,7 @@ public class WorkQueueTest {
 
 	@Test
 	void testClear() throws Exception {
-		WorkQueue<String> queue = new WorkQueue<>(asList("a", "b"));
+		IdentityWorkQueue<String> queue = new IdentityWorkQueue<>(asList("a", "b"));
 		queue.clear();
 
 		assertThat(queue).isEmpty();
@@ -151,7 +150,7 @@ public class WorkQueueTest {
 
 	@Test
 	void testOffer() throws Exception {
-		WorkQueue<String> queue = new WorkQueue<>(asList("a", "b"));
+		IdentityWorkQueue<String> queue = new IdentityWorkQueue<>(asList("a", "b"));
 		queue.offer("c");
 
 		assertThat(queue).containsExactly("a", "b", "c");
@@ -159,7 +158,7 @@ public class WorkQueueTest {
 
 	@Test
 	void testRemove() throws Exception {
-		WorkQueue<String> queue = new WorkQueue<>(asList("a", "b"));
+		IdentityWorkQueue<String> queue = new IdentityWorkQueue<>(asList("a", "b"));
 		String s = queue.remove();
 
 		assertThat(s).isEqualTo("a");
@@ -168,14 +167,14 @@ public class WorkQueueTest {
 
 	@Test
 	void testRemoveOnEmpty() throws Exception {
-		WorkQueue<String> queue = new WorkQueue<>();
+		IdentityWorkQueue<String> queue = new IdentityWorkQueue<>();
 
 		assertThatThrownBy(() -> queue.remove()).isInstanceOf(NoSuchElementException.class);
 	}
 
 	@Test
 	void testPoll() throws Exception {
-		WorkQueue<String> queue = new WorkQueue<>(asList("a", "b"));
+		IdentityWorkQueue<String> queue = new IdentityWorkQueue<>(asList("a", "b"));
 		String s = queue.poll();
 
 		assertThat(s).isEqualTo("a");
@@ -184,7 +183,7 @@ public class WorkQueueTest {
 
 	@Test
 	void testPollOnEmpty() throws Exception {
-		WorkQueue<String> queue = new WorkQueue<>();
+		IdentityWorkQueue<String> queue = new IdentityWorkQueue<>();
 		String s = queue.poll();
 
 		assertThat(s).isNull();
@@ -192,7 +191,7 @@ public class WorkQueueTest {
 
 	@Test
 	void testElement() throws Exception {
-		WorkQueue<String> queue = new WorkQueue<>(asList("a", "b"));
+		IdentityWorkQueue<String> queue = new IdentityWorkQueue<>(asList("a", "b"));
 		String s = queue.element();
 
 		assertThat(s).isEqualTo("a");
@@ -201,14 +200,14 @@ public class WorkQueueTest {
 
 	@Test
 	void testElementOnEmpty() throws Exception {
-		WorkQueue<String> queue = new WorkQueue<>();
+		IdentityWorkQueue<String> queue = new IdentityWorkQueue<>();
 
 		assertThatThrownBy(() -> queue.element()).isInstanceOf(NoSuchElementException.class);
 	}
 
 	@Test
 	void testPeek() throws Exception {
-		WorkQueue<String> queue = new WorkQueue<>(asList("a", "b"));
+		IdentityWorkQueue<String> queue = new IdentityWorkQueue<>(asList("a", "b"));
 		String s = queue.peek();
 
 		assertThat(s).isEqualTo("a");
@@ -217,7 +216,7 @@ public class WorkQueueTest {
 
 	@Test
 	void testPeekOnEmpty() throws Exception {
-		WorkQueue<String> queue = new WorkQueue<>();
+		IdentityWorkQueue<String> queue = new IdentityWorkQueue<>();
 		String s = queue.peek();
 
 		assertThat(s).isNull();
