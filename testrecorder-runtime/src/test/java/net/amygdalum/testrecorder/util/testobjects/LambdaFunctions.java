@@ -5,6 +5,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+@SuppressWarnings("unchecked")
 public class LambdaFunctions {
 
 	public static BiFunction<Integer, Integer, Integer> plus = new BiFunction<Integer, Integer, Integer>() {

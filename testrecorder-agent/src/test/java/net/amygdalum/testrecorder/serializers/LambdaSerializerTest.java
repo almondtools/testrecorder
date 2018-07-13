@@ -22,6 +22,7 @@ import net.amygdalum.testrecorder.util.Lambdas;
 import net.amygdalum.testrecorder.values.SerializedLambdaObject;
 import net.amygdalum.testrecorder.values.SerializedList;
 
+@SuppressWarnings("unchecked")
 public class LambdaSerializerTest {
 
 	private SerializerSession session;
