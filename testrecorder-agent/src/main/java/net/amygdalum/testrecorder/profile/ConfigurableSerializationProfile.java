@@ -16,6 +16,18 @@ public class ConfigurableSerializationProfile implements SerializationProfile {
 
 	private List<Classes> classes;
 
+	public ConfigurableSerializationProfile() {
+		this.fieldExclusions = new ArrayList<>();
+		this.fieldFacades = new ArrayList<>();
+		this.classExclusions = new ArrayList<>();
+		this.classFacades = new ArrayList<>();
+		this.globalFields = new ArrayList<>();
+		this.inputs = new ArrayList<>();
+		this.outputs = new ArrayList<>();
+		this.recorded = new ArrayList<>();
+		this.classes = new ArrayList<>();
+	}
+
 	public ConfigurableSerializationProfile(SerializationProfile base) {
 		this.fieldExclusions = new ArrayList<>(base.getFieldExclusions());
 		this.fieldFacades = new ArrayList<>(base.getFieldFacades());
@@ -26,6 +38,10 @@ public class ConfigurableSerializationProfile implements SerializationProfile {
 		this.outputs = new ArrayList<>(base.getOutputs());
 		this.recorded = new ArrayList<>(base.getRecorded());
 		this.classes = new ArrayList<>(base.getClasses());
+	}
+
+	public static Builder builder() {
+		return new Builder();
 	}
 
 	public static Builder builder(SerializationProfile base) {
@@ -41,7 +57,7 @@ public class ConfigurableSerializationProfile implements SerializationProfile {
 	public List<Fields> getFieldExclusions() {
 		return fieldExclusions;
 	}
-	
+
 	@Override
 	public List<Fields> getFieldFacades() {
 		return fieldFacades;
@@ -51,7 +67,7 @@ public class ConfigurableSerializationProfile implements SerializationProfile {
 	public List<Classes> getClassExclusions() {
 		return classExclusions;
 	}
-	
+
 	@Override
 	public List<Classes> getClassFacades() {
 		return classFacades;
@@ -71,7 +87,7 @@ public class ConfigurableSerializationProfile implements SerializationProfile {
 	public List<Methods> getOutputs() {
 		return outputs;
 	}
-	
+
 	@Override
 	public List<Methods> getRecorded() {
 		return recorded;
@@ -79,49 +95,53 @@ public class ConfigurableSerializationProfile implements SerializationProfile {
 
 	public static class Builder {
 
-		private ConfigurableSerializationProfile agent;
+		private ConfigurableSerializationProfile profile;
+
+		public Builder() {
+			this.profile = new ConfigurableSerializationProfile();
+		}
 
 		public Builder(SerializationProfile base) {
-			this.agent = new ConfigurableSerializationProfile(base);
+			this.profile = new ConfigurableSerializationProfile(base);
 		}
 
 		public Builder withClasses(List<Classes> classes) {
-			agent.classes.addAll(classes);
+			profile.classes.addAll(classes);
 			return this;
 		}
 
 		public Builder withRecorded(List<Methods> methods) {
-			agent.recorded.addAll(methods);
+			profile.recorded.addAll(methods);
 			return this;
 		}
 
 		public Builder withFieldExclusions(List<Fields> fieldExclusions) {
-			agent.fieldExclusions.addAll(fieldExclusions);
+			profile.fieldExclusions.addAll(fieldExclusions);
 			return this;
 		}
 
 		public Builder withClassExclusions(List<Classes> classExclusions) {
-			agent.classExclusions.addAll(classExclusions);
+			profile.classExclusions.addAll(classExclusions);
 			return this;
 		}
 
 		public Builder withGlobalFields(List<Fields> globalFields) {
-			agent.globalFields.addAll(globalFields);
+			profile.globalFields.addAll(globalFields);
 			return this;
 		}
 
 		public Builder withInputs(List<Methods> inputs) {
-			agent.inputs.addAll(inputs);
+			profile.inputs.addAll(inputs);
 			return this;
 		}
 
 		public Builder withOutputs(List<Methods> outputs) {
-			agent.outputs.addAll(outputs);
+			profile.outputs.addAll(outputs);
 			return this;
 		}
 
 		public ConfigurableSerializationProfile build() {
-			return agent;
+			return profile;
 		}
 
 	}
