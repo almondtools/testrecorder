@@ -56,9 +56,8 @@ public class DefaultProxyAdaptor extends DefaultMatcherGenerator<SerializedProxy
 			.map(field -> field.getValue())
 			.collect(toList());
 
-		Type usedType = types.mostSpecialOf(value.getUsedTypes()).orElse(Object.class);
-		Type matchedType = types.isHidden(usedType) ? wildcard() : usedType;
-		Type resultType = parameterized(Matcher.class, null, matchedType);
+		Type usedType = types.mostSpecialOf(value.getUsedTypes()).orElse(wildcard());
+		Type resultType = parameterized(Matcher.class, null, usedType);
 
 		String matcherExpression = with(types).createMatcherExpression(value, fieldAssignments);
 
