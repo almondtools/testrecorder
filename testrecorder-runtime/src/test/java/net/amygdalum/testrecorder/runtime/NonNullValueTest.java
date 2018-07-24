@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.util.testobjects.ConstructorCycle;
 import net.amygdalum.testrecorder.util.testobjects.EmptyEnum;
 import net.amygdalum.testrecorder.util.testobjects.OrthogonalInterface;
 import net.amygdalum.testrecorder.util.testobjects.PublicEnum;
@@ -12,7 +13,7 @@ import net.amygdalum.testrecorder.util.testobjects.Simple;
 public class NonNullValueTest {
 
     @Test
-    public void testGetNonNullValue() throws Exception {
+    void testGetNonNullValue() throws Exception {
         assertThat(NonNullValue.of(byte.class)).isEqualTo(Byte.valueOf((byte) 0));
         assertThat(NonNullValue.of(short.class)).isEqualTo(Short.valueOf((short) 0));
         assertThat(NonNullValue.of(int.class)).isEqualTo(Integer.valueOf(0));
@@ -28,10 +29,11 @@ public class NonNullValueTest {
         assertThat(NonNullValue.of(EmptyEnum.class)).isNull();
         assertThat(NonNullValue.of(Object.class)).isNotNull();
         assertThat(NonNullValue.of(Simple.class)).isInstanceOf(Simple.class);
-    }
-
+        assertThat(NonNullValue.of(ConstructorCycle.class)).isInstanceOf(ConstructorCycle.class);
+	}
+    
     @Test
-    public void testGetDescription() throws Exception {
+    void testGetDescription() throws Exception {
         assertThat(NonNullValue.INSTANCE.getDescription(boolean.class)).isEqualTo("false");
         assertThat(NonNullValue.INSTANCE.getDescription(char.class)).isEqualTo("'\\u0000'");
         assertThat(NonNullValue.INSTANCE.getDescription(byte.class)).isEqualTo("(byte) 0");
@@ -47,5 +49,5 @@ public class NonNullValueTest {
         assertThat(NonNullValue.INSTANCE.getDescription(PublicEnum.class)).isEqualTo("VALUE1");
         assertThat(NonNullValue.INSTANCE.getDescription(Simple.class)).isEqualTo("new Simple()");
     }
-    
+
 }

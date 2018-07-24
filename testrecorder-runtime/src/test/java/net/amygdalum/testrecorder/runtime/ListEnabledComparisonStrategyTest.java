@@ -43,8 +43,8 @@ public class ListEnabledComparisonStrategyTest {
 		right.add("bdiff");
 
 		assertThat(extendByLists(all()).extend(new GenericComparison("@", left, right))).containsExactly(
-			new GenericComparison("@[0]", "aatt","aatt"),
-			new GenericComparison("@[1]", "batt","bdiff"));
+			new GenericComparison("@[0]", "aatt", "aatt"),
+			new GenericComparison("@[1]", "batt", "bdiff"));
 	}
 
 	@Test
@@ -56,9 +56,14 @@ public class ListEnabledComparisonStrategyTest {
 		left.add("aatt");
 		left.add("bdiff");
 		left.add("csurplus");
-		
+
 		assertThatThrownBy(() -> extendByLists(all()).extend(new GenericComparison("@", left, right))).isInstanceOf(ComparisonException.class);
 		assertThatThrownBy(() -> extendByLists(all()).extend(new GenericComparison("@", right, left))).isInstanceOf(ComparisonException.class);
 	}
-	
+
+	@Test
+	public void testNext() throws Exception {
+		assertThat(new ListEnabledComparisonStrategy(null).next()).isInstanceOf(ListEnabledComparisonStrategy.class);
+	}
+
 }

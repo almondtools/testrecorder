@@ -74,10 +74,6 @@ public class ClassGenerator {
 		return testName;
 	}
 
-	public TypeManager getTypes() {
-		return types;
-	}
-
 	public synchronized Set<String> getTests() {
 		return tests;
 	}

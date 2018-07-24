@@ -222,4 +222,10 @@ public class IdentityWorkQueueTest {
 		assertThat(s).isNull();
 	}
 
+	@Test
+	public void testToString() throws Exception {
+		assertThat(new IdentityWorkQueue<>().toString()).isEqualTo("[]");
+		assertThat(new IdentityWorkQueue<>(asList("a", "b")).toString()).isEqualTo("[a, b]");
+	}
+
 }
