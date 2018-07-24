@@ -10,7 +10,7 @@ import java.util.Objects;
 import net.amygdalum.testrecorder.types.SerializedInteraction;
 import net.amygdalum.testrecorder.types.SerializedValue;
 
-public abstract class AbstractSerializedInteraction implements SerializedInteraction {
+public abstract class AbstractSerializedInteraction implements SerializedInteraction, Serializable {
 
 	protected int id;
 	protected Class<?> clazz;
