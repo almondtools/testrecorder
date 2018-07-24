@@ -19,38 +19,38 @@ import net.amygdalum.testrecorder.util.testobjects.NoAnnotation;
 public class SerializedFieldTest {
 
 	@Test
-	public void testGetName() throws Exception {
+	void testGetName() throws Exception {
 		assertThat(new SerializedField(null, "field", String.class, literal("stringvalue")).getName()).isEqualTo("field");
 	}
 
 	@Test
-	public void testGetType() throws Exception {
+	void testGetType() throws Exception {
 		assertThat(new SerializedField(null, "field", String.class, literal("stringvalue")).getType()).isEqualTo(String.class);
 	}
 
 	@Test
-	public void testGetValue() throws Exception {
+	void testGetValue() throws Exception {
 		assertThat(new SerializedField(null, "field", String.class, literal("stringvalue")).getValue()).isEqualTo(literal("stringvalue"));
 	}
 
 	@Test
-	public void testAccept() throws Exception {
+	void testAccept() throws Exception {
 		assertThat(new SerializedField(null, "f", String.class, literal("sv"))
 			.accept(new TestValueVisitor(), NULL)).isEqualTo("field");
 	}
 
 	@Test
-	public void testToString() throws Exception {
+	void testToString() throws Exception {
 		assertThat(new SerializedField(Object.class, "f", String.class, literal("sv")).toString()).isEqualTo("java.lang.String f: sv");
 	}
 
 	@Test
-	public void testGetDeclaringClass() throws Exception {
+	void testGetDeclaringClass() throws Exception {
 		assertThat(new SerializedField(Object.class, "f", String.class, literal("sv")).getDeclaringClass()).isEqualTo(Object.class);
 	}
 
 	@Test
-	public void testGetAnnotations() throws Exception {
+	void testGetAnnotations() throws Exception {
 		SerializedField fieldAnnotated = new SerializedField(AnnotatedField.class, "annotated", String.class, nullInstance());
 
 		assertThat(fieldAnnotated.getAnnotations()).containsExactly((Annotation) Annotated.class.getAnnotation(MyAnnotation.class));
@@ -65,7 +65,7 @@ public class SerializedFieldTest {
 	}
 
 	@Test
-	public void testEquals() throws Exception {
+	void testEquals() throws Exception {
 		assertThat(new SerializedField(Object.class, "f", String.class, literal("sv"))).satisfies(defaultEquality()
 			.andEqualTo(new SerializedField(Object.class, "f", String.class, literal("sv")))
 			.andNotEqualTo(new SerializedField(String.class, "f", String.class, literal("sv")))

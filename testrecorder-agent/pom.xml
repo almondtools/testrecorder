@@ -17,6 +17,11 @@
 			<artifactId>testrecorder-runtime</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+        <dependency>
+            <groupId>net.amygdalum</groupId>
+            <artifactId>testrecorder-bridge</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 		<dependency>
 			<groupId>org.ow2.asm</groupId>
 			<artifactId>asm</artifactId>
