@@ -4,7 +4,6 @@ import static java.lang.reflect.Modifier.isPrivate;
 import static java.lang.reflect.Modifier.isPublic;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
-import static java.util.stream.Collectors.toList;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -412,9 +411,20 @@ public final class Types {
 		} else if (toType instanceof Class<?> || fromType instanceof Class<?>) {
 			return true;
 		} else {
-			List<Type> toArguments = Types.typeArguments(toType).collect(toList());
-			List<Type> fromArguments = Types.typeArguments(fromType).collect(toList());
-			return toArguments.equals(fromArguments);
+			Type[] toArguments = Types.typeArguments(toType).toArray(Type[]::new);
+			Type[] fromArguments = Types.typeArguments(fromType).toArray(Type[]::new);
+			int length = toArguments.length == fromArguments.length ? toArguments.length : -1;
+			if (length == -1) {
+				return false;
+			}
+			for (int i = 0; i < length; i++) {
+				if (toArguments[i] instanceof WildcardType) {
+					continue;
+				} else if (toArguments[i] != fromArguments[i]) {
+					return false;
+				}
+			}
+			return true;
 		}
 
 	}

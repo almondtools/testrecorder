@@ -1,15 +1,18 @@
 package net.amygdalum.testrecorder;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.util.Optional;
 
 import net.amygdalum.testrecorder.types.SerializedValue;
 
 public class AnnotatedValue {
-    public Annotation[] annotations;
+    public Type type;
+	public Annotation[] annotations;
     public SerializedValue value;
     
-    public AnnotatedValue(Annotation[] annotations, SerializedValue value) {
+    public AnnotatedValue(Type type, Annotation[] annotations, SerializedValue value) {
+    	this.type = type;
         this.annotations = annotations;
         this.value = value;
     }

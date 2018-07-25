@@ -159,7 +159,8 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 
 	private SerializedValue createGround(Type type, Object object) {
 		if (object == null) {
-			return SerializedNull.nullInstance();
+			SerializedNull nullInstance = SerializedNull.nullInstance();
+			return nullInstance;
 		} else if (baseType(type).isPrimitive()) {
 			return SerializedLiteral.literal(baseType(type), object);
 		} else {

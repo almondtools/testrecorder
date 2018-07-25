@@ -1,5 +1,7 @@
 package net.amygdalum.testrecorder.types;
 
+import static java.util.stream.Collectors.joining;
+
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,4 +54,14 @@ public class Computation {
 		return statements;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder buffer = new StringBuilder();
+		if (!statements.isEmpty()) {
+			buffer.append(statements.stream().collect(joining("\n")));
+			buffer.append('\n');
+		}
+		buffer.append(value).append(":").append(type == null ? "?" : type.getTypeName());
+		return buffer.toString();
+	}
 }

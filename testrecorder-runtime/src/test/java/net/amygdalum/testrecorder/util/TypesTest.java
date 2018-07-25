@@ -169,6 +169,8 @@ public class TypesTest {
 		assertThat(assignableTypes(List.class, parameterized(List.class, null, String.class))).isTrue();
 		assertThat(assignableTypes(parameterized(List.class, null, String.class), List.class)).isTrue();
 		assertThat(assignableTypes(parameterized(List.class, null, String.class), parameterized(List.class, null, Integer.class))).isFalse();
+		assertThat(assignableTypes(parameterized(Collection.class, null, Integer.class), parameterized(List.class, null, Integer.class))).isTrue();
+		assertThat(assignableTypes(parameterized(Collection.class, null, wildcard()), parameterized(List.class, null, Integer.class))).isTrue();
 	}
 
 	@Test

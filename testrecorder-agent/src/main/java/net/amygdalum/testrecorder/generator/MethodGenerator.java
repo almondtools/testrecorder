@@ -9,11 +9,13 @@ import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVari
 import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethodStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
 import static net.amygdalum.testrecorder.deserializers.Templates.captureException;
+import static net.amygdalum.testrecorder.deserializers.Templates.cast;
 import static net.amygdalum.testrecorder.deserializers.Templates.expressionStatement;
 import static net.amygdalum.testrecorder.deserializers.Templates.fieldAccess;
 import static net.amygdalum.testrecorder.deserializers.Templates.returnStatement;
 import static net.amygdalum.testrecorder.types.Computation.variable;
 import static net.amygdalum.testrecorder.util.Literals.asLiteral;
+import static net.amygdalum.testrecorder.util.Types.assignableTypes;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.isPrimitive;
 import static net.amygdalum.testrecorder.util.Types.mostSpecialOf;
@@ -27,7 +29,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -107,35 +108,33 @@ public class MethodGenerator {
 		DefaultDeserializerContext context = new DefaultDeserializerContext(types, locals);
 		TreeAnalyzer collector = new TreeAnalyzer();
 
-		Optional.ofNullable(snapshot.getSetupThis())
-			.ifPresent(self -> collector.addSeed(self));
-		Optional.ofNullable(snapshot.getExpectThis())
-			.ifPresent(self -> collector.addSeed(self));
+		snapshot.onSetupThis().ifPresent(collector::addSeed);
+		snapshot.onExpectThis().ifPresent(collector::addSeed);
 
-		Arrays.stream(snapshot.getSetupArgs())
+		snapshot.streamSetupArgs()
 			.filter(Objects::nonNull)
 			.forEach(arg -> collector.addSeed(arg));
-		Arrays.stream(snapshot.getExpectArgs())
+		snapshot.streamExpectArgs()
 			.filter(Objects::nonNull)
 			.forEach(arg -> collector.addSeed(arg));
 
-		Optional.ofNullable(snapshot.getExpectResult())
+		snapshot.onExpectResult()
 			.ifPresent(result -> collector.addSeed(result));
 
-		Optional.ofNullable(snapshot.getExpectException())
+		snapshot.onExpectException()
 			.ifPresent(exception -> collector.addSeed(exception));
 
-		Arrays.stream(snapshot.getSetupGlobals())
+		snapshot.streamSetupGlobals()
 			.filter(Objects::nonNull)
 			.forEach(global -> collector.addGlobalSeed(global));
-		Arrays.stream(snapshot.getExpectGlobals())
+		snapshot.streamExpectGlobals()
 			.filter(Objects::nonNull)
 			.forEach(global -> collector.addGlobalSeed(global));
 
-		snapshot.getSetupInput().stream()
+		snapshot.streamInput()
 			.forEach(input -> collector.addInputSeed(input));
 
-		snapshot.getExpectOutput().stream()
+		snapshot.streamOutput()
 			.forEach(output -> collector.addOutputSeed(output));
 
 		return collector.analyze(context);
@@ -145,23 +144,23 @@ public class MethodGenerator {
 		statements.add(BEGIN_ARRANGE);
 
 		types.registerType(snapshot.getThisType());
-		Stream.of(snapshot.getSetupGlobals()).forEach(global -> types.registerImport(global.getDeclaringClass()));
+		snapshot.streamSetupGlobals().forEach(global -> types.registerImport(global.getDeclaringClass()));
 
-		Computation setupThis = prepareThis(snapshot.getSetupThis(), snapshot.getThisType());
+		Computation setupThis = snapshot.onSetupThis()
+			.map(self -> prepareThis(self, snapshot.getThisType()))
+			.orElseGet(() -> prepareStatic(snapshot.getThisType()));
 		setupThis.getStatements()
 			.forEach(statements::add);
 
-		AnnotatedValue[] snapshotSetupArgs = snapshot.getAnnotatedSetupArgs();
-		List<Computation> setupArgs = Stream.of(snapshotSetupArgs)
-			.map(arg -> prepareArgument(arg.value, arg.annotations))
-
+		List<Computation> setupArgs = snapshot.streamAnnotatedSetupArgs()
+			.map(arg -> prepareArgument(arg.type, arg.value, arg.annotations))
 			.collect(toList());
 
 		setupArgs.stream()
 			.flatMap(arg -> arg.getStatements().stream())
 			.forEach(statements::add);
 
-		List<Computation> setupGlobals = Stream.of(snapshot.getSetupGlobals())
+		List<Computation> setupGlobals = snapshot.streamSetupGlobals()
 			.map(global -> assignGlobal(global.getDeclaringClass(), global.getName(), global.getValue().accept(setup, context)))
 			.collect(toList());
 
@@ -171,20 +170,17 @@ public class MethodGenerator {
 
 		this.base = setupThis.isStored()
 			? setupThis.getValue()
-			: assign(snapshot.getSetupThis().getType(), setupThis.getValue());
+			: newLocal(snapshot.getThisType(), setupThis.getValue());
 		this.args = setupArgs.stream()
 			.map(arg -> arg.getValue())
 			.collect(toList());
-
 		statements.addAll(mocked.prepare(context));
 
 		return this;
 	}
 
 	private Computation prepareThis(SerializedValue self, Type type) {
-		Computation computation = self != null
-			? self.accept(setup, context)
-			: variable(types.getVariableTypeName(types.wrapHidden(type)), null);
+		Computation computation = self.accept(setup, context);
 		if (computation.isStored()) {
 			return computation;
 		} else if (isLiteral(type)) {
@@ -202,9 +198,18 @@ public class MethodGenerator {
 		}
 	}
 
-	private Computation prepareArgument(SerializedValue argValue, Annotation[] annotations) {
-		Type type = mostSpecialOf(argValue.getUsedTypes()).orElse(Object.class); 
+	private Computation prepareStatic(Type type) {
+		return variable(types.getVariableTypeName(types.wrapHidden(type)), null);
+	}
+
+	private Computation prepareArgument(Type paramType, SerializedValue argValue, Annotation[] annotations) {
+		Type type = mostSpecialOf(argValue.getUsedTypes()).orElse(Object.class);
 		Computation computation = argValue.accept(setup, context.newWithHints(annotations));
+		if (!assignableTypes(paramType, type)) {
+			types.registerType(paramType);
+			String value = cast(types.getVariableTypeName(paramType), computation.getValue());
+			computation = Computation.expression(value, paramType, computation.getStatements());
+		}
 		if (computation.isStored()) {
 			return computation;
 		} else if (isLiteral(type)) {
@@ -216,7 +221,7 @@ public class MethodGenerator {
 			types.registerType(type);
 			String name = locals.fetchName(type);
 
-			statements.add(assignLocalVariableStatement(types.getVariableTypeName(type), name, value));
+			statements.add(assignLocalVariableStatement(types.getVariableTypeName(paramType), name, value));
 
 			return variable(name, type, statements);
 		}
@@ -235,28 +240,26 @@ public class MethodGenerator {
 
 		Type resultType = snapshot.getResultType();
 		String methodName = snapshot.getMethodName();
-		SerializedValue exception = snapshot.getExpectException();
+		
 
-		MethodGenerator gen;
-		if (exception != null) {
-			gen = new MethodGenerator(no, types, setup, matcher).analyze(snapshot);
-		} else {
-			gen = this;
-		}
+		MethodGenerator gen = snapshot.onExpectException()
+			.map(e -> new MethodGenerator(no, types, setup, matcher).analyze(snapshot))
+			.orElse(this);
+
 		String statement = callMethod(base, methodName, args);
 		if (resultType != void.class) {
-			result = gen.assign(resultType, statement, true);
+			result = gen.newLocal(resultType, statement, true);
 		} else {
 			gen.execute(statement);
 		}
-		if (exception != null) {
+		snapshot.onExpectException().ifPresent(exception -> {
 			List<String> exceptionBlock = new ArrayList<>();
 			exceptionBlock.addAll(gen.statements);
 			if (resultType != void.class) {
 				exceptionBlock.add(returnStatement(result));
 			}
 			error = capture(exceptionBlock, exception.getType());
-		}
+		});
 
 		return this;
 	}
@@ -267,18 +270,19 @@ public class MethodGenerator {
 
 		if (error == null) {
 			Annotation[] resultAnnotation = snapshot.getResultAnnotation();
-			Stream.of(snapshot.getExpectResult())
+			snapshot.streamExpectResult()
 				.flatMap(res -> generateResultAssert(types, res, resultAnnotation, result))
 				.forEach(statements::add);
 		} else {
-			Stream.of(snapshot.getExpectException())
+			snapshot.streamExpectException()
 				.flatMap(e -> generateExceptionAssert(types, e, error))
 				.forEach(statements::add);
 		}
 
-		boolean thisChanged = compare(snapshot.getSetupThis(), snapshot.getExpectThis());
-		SerializedValue snapshotExpectThis = snapshot.getExpectThis();
-		Stream.of(snapshotExpectThis)
+		boolean thisChanged = snapshot.onThis()
+			.map((before, after) -> compare(before, after), false)
+			.orElse(true);
+		snapshot.streamExpectThis()
 			.flatMap(self -> generateThisAssert(types, self, base, thisChanged))
 			.forEach(statements::add);
 
@@ -289,7 +293,7 @@ public class MethodGenerator {
 			.flatMap(arg -> generateArgumentAssert(types, arg.getElement1(), arg.getElement2(), arg.getElement3()))
 			.forEach(statements::add);
 
-		Boolean[] globalsChanged = compare(snapshot.getExpectGlobals(), snapshot.getExpectGlobals());
+		Boolean[] globalsChanged = compare(snapshot.getSetupGlobals(), snapshot.getExpectGlobals());
 		SerializedField[] snapshotExpectGlobals = snapshot.getExpectGlobals();
 		Pair<SerializedField, Boolean>[] globals = Pair.zip(snapshotExpectGlobals, globalsChanged);
 		Stream.of(globals)
@@ -321,9 +325,6 @@ public class MethodGenerator {
 	}
 
 	private Stream<String> generateThisAssert(TypeManager types, SerializedValue value, String expression, boolean changed) {
-		if (value == null) {
-			return Stream.empty();
-		}
 		Computation matcherExpression = value.accept(matcher, new DefaultDeserializerContext(types, locals));
 		return createAssertion(matcherExpression, expression, changed).stream();
 	}
@@ -397,11 +398,11 @@ public class MethodGenerator {
 		return statements;
 	}
 
-	public String assign(Type type, String value) {
-		return assign(type, value, false);
+	public String newLocal(Type type, String value) {
+		return newLocal(type, value, false);
 	}
 
-	public String assign(Type type, String value, boolean force) {
+	public String newLocal(Type type, String value, boolean force) {
 		if (isLiteral(type) && !force) {
 			return value;
 		} else {
@@ -469,8 +470,8 @@ public class MethodGenerator {
 
 	private String generateGroupAnnotation(String expression) {
 		types.registerImport(AnnotatedBy.class);
-		Optional<SerializedValue> serialized = new SerializedValueEvaluator(expression).applyTo(snapshot.getSetupThis());
-		return serialized
+		return snapshot.onSetupThis()
+			.flatMap(self -> new SerializedValueEvaluator(expression).applyTo(self))
 			.filter(value -> value instanceof SerializedLiteral)
 			.map(value -> ((SerializedLiteral) value).getValue())
 			.map(value -> annotation(types.getRawTypeName(AnnotatedBy.class), asList(

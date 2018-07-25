@@ -91,7 +91,7 @@ public class ClassGenerator {
 	}
 
 	public void generate(ContextSnapshot snapshot) {
-		if (!snapshot.getSetupInput().isEmpty() || !snapshot.getExpectOutput().isEmpty()) {
+		if (snapshot.hasSetupInput() || snapshot.hasExpectOutput()) {
 			SetupGenerator setupGenerator = new SetupGenerator(types, "resetFakeIO", asList(Before.class, After.class))
 				.generateReset();
 			addSetup("resetFakeIO", setupGenerator.generateSetup());
