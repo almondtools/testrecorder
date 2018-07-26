@@ -1,5 +1,7 @@
 package net.amygdalum.testrecorder.profile;
 
+import static java.util.Arrays.asList;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -105,9 +107,17 @@ public class ConfigurableSerializationProfile implements SerializationProfile {
 			this.profile = new ConfigurableSerializationProfile(base);
 		}
 
+		public Builder withClasses(Classes... classes) {
+			return withClasses(asList(classes));
+		}
+
 		public Builder withClasses(List<Classes> classes) {
 			profile.classes.addAll(classes);
 			return this;
+		}
+
+		public Builder withRecorded(Methods... methods) {
+			return withRecorded(asList(methods));
 		}
 
 		public Builder withRecorded(List<Methods> methods) {
@@ -115,26 +125,64 @@ public class ConfigurableSerializationProfile implements SerializationProfile {
 			return this;
 		}
 
+		public Builder withFieldExclusions(Fields... fieldExclusions) {
+			return withFieldExclusions(asList(fieldExclusions));
+		}
+		
 		public Builder withFieldExclusions(List<Fields> fieldExclusions) {
 			profile.fieldExclusions.addAll(fieldExclusions);
 			return this;
 		}
 
+		public Builder withFieldFacades(Fields... fieldFacades) {
+			return withFieldFacades(asList(fieldFacades));
+		}
+		
+		public Builder withFieldFacades(List<Fields> fieldFacades) {
+			profile.fieldFacades.addAll(fieldFacades);
+			return this;
+		}
+		
+		public Builder withClassExclusions(Classes... classExclusions) {
+			return withClassExclusions(asList(classExclusions));
+		}
+		
 		public Builder withClassExclusions(List<Classes> classExclusions) {
 			profile.classExclusions.addAll(classExclusions);
 			return this;
 		}
 
+		public Builder withClassFacades(Classes... classFacades) {
+			return withClassFacades(asList(classFacades));
+		}
+		
+		public Builder withClassFacades(List<Classes> classFacades) {
+			profile.classFacades.addAll(classFacades);
+			return this;
+		}
+		
+		public Builder withGlobalFields(Fields... globalFields) {
+			return withGlobalFields(asList(globalFields));
+		}
+		
 		public Builder withGlobalFields(List<Fields> globalFields) {
 			profile.globalFields.addAll(globalFields);
 			return this;
 		}
 
+		public Builder withInputs(Methods... inputs) {
+			return withInputs(asList(inputs));
+		}
+		
 		public Builder withInputs(List<Methods> inputs) {
 			profile.inputs.addAll(inputs);
 			return this;
 		}
 
+		public Builder withOutputs(Methods... outputs) {
+			return withOutputs(asList(outputs));
+		}
+		
 		public Builder withOutputs(List<Methods> outputs) {
 			profile.outputs.addAll(outputs);
 			return this;

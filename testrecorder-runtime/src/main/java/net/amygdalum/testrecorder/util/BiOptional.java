@@ -63,7 +63,7 @@ public class BiOptional<T> {
 		if (first == null || second == null) {
 			return Optional.empty();
 		}
-		return Optional.of(mapping.apply(first, second));
+		return Optional.ofNullable(mapping.apply(first, second));
 	}
 
 	public <R> Optional<R> map(BiFunction<T, T, R> mapping, R onlyDefault) {
@@ -73,7 +73,7 @@ public class BiOptional<T> {
 		if (first == null || second == null) {
 			return Optional.of(onlyDefault);
 		}
-		return Optional.of(mapping.apply(first, second));
+		return Optional.ofNullable(mapping.apply(first, second));
 	}
 	
 	public <R> Optional<R> map(BiFunction<T, T, R> mapping, R firstOnlyDefault, R secondOnlyDefault) {
@@ -86,23 +86,10 @@ public class BiOptional<T> {
 		if (second == null) {
 			return Optional.of(firstOnlyDefault);
 		}
-		return Optional.of(mapping.apply(first, second));
+		return Optional.ofNullable(mapping.apply(first, second));
 	}
 	
 	public <R> Optional<R> map(BiFunction<T, T, R> mapping, Function<T, R> firstOnly, Function<T, R> secondOnly) {
-		if (first == null && second == null) {
-			return Optional.empty();
-		}
-		if (first == null) {
-			return Optional.of(secondOnly.apply(second));
-		}
-		if (second == null) {
-			return Optional.of(firstOnly.apply(first));
-		}
-		return Optional.of(mapping.apply(first, second));
-	}
-	
-	public <R> Optional<R> flatMap(BiFunction<T, T, R> mapping, Function<T, R> firstOnly, Function<T, R> secondOnly) {
 		if (first == null && second == null) {
 			return Optional.empty();
 		}
@@ -114,4 +101,5 @@ public class BiOptional<T> {
 		}
 		return Optional.ofNullable(mapping.apply(first, second));
 	}
+	
 }

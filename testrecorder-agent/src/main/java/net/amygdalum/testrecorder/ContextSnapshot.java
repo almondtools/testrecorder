@@ -306,6 +306,14 @@ public class ContextSnapshot implements Serializable {
 		return BiOptional.ofNullable(setupThis, expectThis);
 	}
 
+	public BiOptional<SerializedValue[]> onArgs() {
+		return BiOptional.ofNullable(setupArgs, expectArgs);
+	}
+
+	public BiOptional<SerializedField[]> onGlobals() {
+		return BiOptional.ofNullable(setupGlobals, expectGlobals);
+	}
+
 	private Annotation[][] align(Annotation[][] annotations, SerializedValue[] values) {
 		if (annotations.length != values.length) {
 			Annotation[][] resultannotations = new Annotation[values.length][];

@@ -203,8 +203,8 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 				Runnable deferred = defer.remove();
 				deferred.run();
 			}
-			
-			SerializedValue serializedValue =session.ref(object, type);
+
+			SerializedValue serializedValue = session.ref(object, type);
 
 			return serializedValue;
 		} catch (Throwable e) {

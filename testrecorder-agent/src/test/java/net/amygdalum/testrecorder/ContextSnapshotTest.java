@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 
@@ -359,6 +360,52 @@ public class ContextSnapshotTest {
 		return new ContextSnapshot(0, "key", new MethodSignature(declaringClass, new Annotation[0], resultType, methodName, new Annotation[0][0], argumentTypes));
 	}
 
+	@Test
+	public void testOnThis() throws Exception {
+		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		SerializedList setupThis = new SerializedList(ArrayList.class);
+		setupThis.useAs(List.class);
+		setupThis.add(literal("setup"));
+
+		snapshot.setSetupThis(setupThis);
+
+		SerializedList expectThis = new SerializedList(ArrayList.class);
+		expectThis.useAs(List.class);
+		expectThis.add(literal("expect"));
+
+		snapshot.setExpectThis(expectThis);
+
+		assertThat(snapshot.onThis()
+			.map((first, second) -> first.toString() + ":" + second.toString(), "second missing", "first missing"))
+				.contains("[setup]:[expect]");
+	}
+
+	@Test
+	public void testOnArgs() throws Exception {
+		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+
+		snapshot.setSetupArgs(literal("a"), literal("b"));
+		snapshot.setExpectArgs(literal("b"), literal("a"));
+
+		assertThat(snapshot.onArgs()
+			.map((first, second) -> Arrays.toString(first) + ":" + Arrays.toString(second), "second missing", "first missing"))
+				.contains("[a, b]:[b, a]");
+
+	}
+
+	@Test
+	public void testOnGlobals() throws Exception {
+		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+
+		snapshot.setSetupGlobals(new SerializedField(Static.class, "global", String.class, literal("a")));
+		snapshot.setExpectGlobals(new SerializedField(Static.class, "global", String.class, literal("b")));
+
+		assertThat(snapshot.onGlobals()
+			.map((first, second) -> first[0].getValue().toString() + ":" + second[0].getValue().toString(), "second missing", "first missing"))
+		.contains("a:b");
+		
+	}
+	
 	private Anno anno(String value) {
 		return new Anno() {
 
