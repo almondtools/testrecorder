@@ -11,12 +11,19 @@ public class StandardLibInputOutputTestRecorderAgentConfig extends DefaultSerial
 
 	@Override
 	public List<Methods> getInputs() {
-		return asList(Methods.byDescription("java/lang/System", "currentTimeMillis", "()J"), Methods.byDescription("java/io/FileInputStream", "skip", "(J)J"), Methods.byDescription("java/io/FileInputStream", "read", "()I"));
-		
+		return asList(
+			Methods.byDescription("java/lang/System", "currentTimeMillis", "()J"),
+			Methods.byDescription("java/io/FileInputStream", "skip", "(J)J"),
+			Methods.byDescription("java/io/FileInputStream", "read", "()I"),
+			Methods.byDescription("java/io/FileInputStream", "read", "([B)I"),
+			Methods.byDescription("java/io/RandomAccessFile", "readFully", "([B)V"));
 	}
-	
+
 	@Override
 	public List<Methods> getOutputs() {
-		return asList(Methods.byDescription("java/io/OutputStream", "write", "([B)V"), Methods.byDescription("java/lang/Thread", "sleep", "(J)V"));
+		return asList(
+			Methods.byDescription("java/io/OutputStream", "write", "([B)V"),
+			Methods.byDescription("java/nio/channels/FileChannel", "write", "([Ljava/nio/ByteBuffer;)J"),
+			Methods.byDescription("java/lang/Thread", "sleep", "(J)V"));
 	}
 }

@@ -9,12 +9,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import net.amygdalum.testrecorder.generator.TestGenerator;
 import net.amygdalum.testrecorder.integration.Instrumented;
 import net.amygdalum.testrecorder.integration.TestRecorderAgentExtension;
+import net.amygdalum.testrecorder.util.Debug;
 
 @ExtendWith(TestRecorderAgentExtension.class)
 @Instrumented(classes = {
 	"net.amygdalum.testrecorder.ioscenarios.StandardLibInputOutput",
 	"java.lang.System",
-	"java.io.FileInputStream" }, config = StandardLibInputOutputTestRecorderAgentConfig.class)
+	"java.io.FileInputStream",
+	"java.io.RandomAccessFile" }, config = StandardLibInputOutputTestRecorderAgentConfig.class)
 public class StandardLibInputTest {
 
 	@Test
@@ -30,7 +32,7 @@ public class StandardLibInputTest {
 	}
 
 	@Test
-	public void testNativeMethodWithArgsCompilesAndRuns() throws Exception {
+	public void testNativeMethodWithResultCompilesAndRuns() throws Exception {
 		StandardLibInputOutput io = new StandardLibInputOutput();
 
 		int result = io.readFile(new byte[] { 41, 42 }, 1);
@@ -42,6 +44,36 @@ public class StandardLibInputTest {
 			"FakeIO",
 			"fakeInput");
 		assertThat(testGenerator.renderTest(StandardLibInputOutput.class)).satisfies(testsRun());
+	}
+
+	@Test
+	public void testNativeMethodWithArgsAndResultCompilesAndRuns() throws Exception {
+		StandardLibInputOutput io = new StandardLibInputOutput();
+
+		byte[] result = io.readFile(new byte[] { 41, 42 });
+
+		assertThat(result).isEqualTo(new byte[] { 41, 42 });
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(StandardLibInputOutput.class).getTestCode()).containsSubsequence(
+			"FakeIO",
+			"fakeInput");
+		assertThat(testGenerator.renderTest(StandardLibInputOutput.class)).satisfies(testsRun());
+	}
+
+	@Test
+	public void testNativeMethodWithArgsNoResultCompilesAndRuns() throws Exception {
+		StandardLibInputOutput io = new StandardLibInputOutput();
+
+		byte[] result = io.readRandomAccessFile(new byte[] { 41, 42 });
+
+		assertThat(result).isEqualTo(new byte[] { 41, 42 });
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(StandardLibInputOutput.class).getTestCode()).containsSubsequence(
+			"FakeIO",
+			"fakeInput");
+		assertThat(Debug.print(testGenerator.renderTest(StandardLibInputOutput.class))).satisfies(testsRun());
 	}
 
 }

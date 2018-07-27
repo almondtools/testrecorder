@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 
 import net.amygdalum.testrecorder.profile.Recorded;
 
@@ -34,8 +36,43 @@ public class StandardLibInputOutput {
 	}
 
 	@Recorded
+	public byte[] readFile(byte[] bytes) throws IOException {
+		File file = File.createTempFile("StandardLibInputOutput", "tmp");
+		try (FileOutputStream out = new FileOutputStream(file)) {
+			out.write(bytes);
+		}
+		byte[] readBytes = new byte[bytes.length];
+		try (FileInputStream in = new FileInputStream(file)) {
+			in.read(readBytes);
+		}
+		return readBytes;
+	}
+
+	@Recorded
+	public byte[] readRandomAccessFile(byte[] bytes) throws IOException {
+		File file = File.createTempFile("StandardLibInputOutput", "tmp");
+		try (FileOutputStream out = new FileOutputStream(file)) {
+			out.write(bytes);
+		}
+		byte[] readBytes = new byte[bytes.length];
+		try (RandomAccessFile in = new RandomAccessFile(file, "r")) {
+			in.readFully(readBytes);
+		}
+		return readBytes;
+	}
+
+	@Recorded
 	public void store(String value) throws IOException {
 		new ByteArrayOutputStream().write(value.getBytes());
+	}
+
+	@Recorded
+	public void storeBuffered(String value) throws IOException {
+		File file = File.createTempFile("StandardLibInputOutput", "tmp");
+		ByteBuffer buffer = ByteBuffer.wrap(value.getBytes());
+		try (RandomAccessFile out = new RandomAccessFile(file, "rw")) {
+			out.getChannel().write(new ByteBuffer[] { buffer });
+		}
 	}
 
 	@Recorded

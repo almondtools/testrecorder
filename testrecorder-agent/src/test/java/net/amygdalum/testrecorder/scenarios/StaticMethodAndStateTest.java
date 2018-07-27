@@ -16,7 +16,7 @@ import net.amygdalum.testrecorder.integration.TestRecorderAgentExtension;
 public class StaticMethodAndStateTest {
 
 	@Test
-	public void testCompilableSettingFromNull() throws Exception {
+	void testCompilableSettingFromNull() throws Exception {
 		StaticMethodAndState.global = null;
 
 		StaticMethodAndState.setGlobal("str");
@@ -28,7 +28,7 @@ public class StaticMethodAndStateTest {
 	}
 
 	@Test
-	public void testCompilableSettingToNull() throws Exception {
+	void testCompilableSettingToNull() throws Exception {
 		StaticMethodAndState.global = "str";
 
 		StaticMethodAndState.setGlobal(null);

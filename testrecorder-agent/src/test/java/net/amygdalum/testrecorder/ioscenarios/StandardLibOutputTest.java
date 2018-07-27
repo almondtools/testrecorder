@@ -15,11 +15,12 @@ import net.amygdalum.testrecorder.test.TestsRun;
 @Instrumented(classes = { 
 	"net.amygdalum.testrecorder.ioscenarios.StandardLibInputOutput", 
 	"java.io.OutputStream",
+	"java.nio.channels.FileChannel",
 	"java.io.ByteArrayOutputStream" }, config = StandardLibInputOutputTestRecorderAgentConfig.class)
 public class StandardLibOutputTest {
 
 	@Test
-	public void testJavaMethodCompilesAndRuns() throws Exception {
+	public void testJavaMethodNoResultCompilesAndRuns() throws Exception {
 		StandardLibInputOutput io = new StandardLibInputOutput();
 		io.store("My Output");
 
@@ -30,6 +31,18 @@ public class StandardLibOutputTest {
 		assertThat(testGenerator.renderTest(StandardLibInputOutput.class)).satisfies(TestsRun.testsRun());
 	}
 
+	@Test
+	public void testJavaMethodWithResultCompilesAndRuns() throws Exception {
+		StandardLibInputOutput io = new StandardLibInputOutput();
+		io.storeBuffered("My Output");
+		
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(StandardLibInputOutput.class).getTestCode()).containsSubsequence(
+			"FakeIO",
+			"fakeOutput");
+		assertThat(testGenerator.renderTest(StandardLibInputOutput.class)).satisfies(TestsRun.testsRun());
+	}
+	
 	@Test
 	public void testNativeMethodCompilesAndRuns() throws Exception {
 		StandardLibInputOutput io = new StandardLibInputOutput();

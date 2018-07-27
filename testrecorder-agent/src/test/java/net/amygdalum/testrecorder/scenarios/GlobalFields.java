@@ -3,18 +3,18 @@ package net.amygdalum.testrecorder.scenarios;
 import net.amygdalum.testrecorder.profile.Global;
 import net.amygdalum.testrecorder.profile.Recorded;
 
-public class StaticMethodAndState {
+public class GlobalFields {
 	@Global
-	public static String global;
+    public static String global;
 
-	private StaticMethodAndState() {
+	private GlobalFields() {
 	}
 
 	@Recorded
 	public static void setGlobal(String global) {
-		StaticMethodAndState.global = global;
+		GlobalFields.global = global;
 	}
-
+	
 	public static String getGlobal() {
 		return global;
 	}
