@@ -7,15 +7,13 @@ import java.security.Permission;
 
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.runtime.GenericObject;
-import net.amygdalum.testrecorder.runtime.Throwables;
 import net.amygdalum.testrecorder.util.WithSecurityManager;
 
 @SuppressWarnings("unused")
 public class GenericObjectIsolatedTest {
 
     @Test
-    public void testNewInstanceFailingBruteForceReflection() throws Exception {
+    void testNewInstanceFailingBruteForceReflection() throws Exception {
         WithSecurityManager.with(new SecurityManager() {
             @Override
             public void checkPackageAccess(String pkg) {

@@ -18,81 +18,79 @@ import net.amygdalum.testrecorder.util.testobjects.Simple;
 
 public class SerializedValueEvaluatorTest {
 
-	private AgentConfiguration config;
-    private ConfigurableSerializerFacade facade;
+	private ConfigurableSerializerFacade facade;
 	private SerializerSession session;
 
-    @BeforeEach
-    public void before() throws Exception {
-        config = defaultConfig();
+	@BeforeEach
+	public void before() throws Exception {
+		AgentConfiguration config = defaultConfig();
 		facade = new ConfigurableSerializerFacade(config);
 		session = facade.newSession();
-    }
+	}
 
-    @Test
-    public void testEvaluateLiteralFails() throws Exception {
-        SerializedValue value = facade.serialize(String.class, "str", session);
+	@Test
+	public void testEvaluateLiteralFails() throws Exception {
+		SerializedValue value = facade.serialize(String.class, "str", session);
 
-        assertThat(new SerializedValueEvaluator(".str").applyTo(value).isPresent()).isFalse();
-        assertThat(new SerializedValueEvaluator("[0]").applyTo(value).isPresent()).isFalse();
-    }
+		assertThat(new SerializedValueEvaluator(".str").applyTo(value).isPresent()).isFalse();
+		assertThat(new SerializedValueEvaluator("[0]").applyTo(value).isPresent()).isFalse();
+	}
 
-    @Test
-    public void testEvaluateField() throws Exception {
-        SerializedValue value = facade.serialize(Simple.class, new Simple("strValue"), session);
+	@Test
+	public void testEvaluateField() throws Exception {
+		SerializedValue value = facade.serialize(Simple.class, new Simple("strValue"), session);
 
-        assertThat(new SerializedValueEvaluator(".str").applyTo(value).get().toString()).isEqualTo("strValue");
-    }
+		assertThat(new SerializedValueEvaluator(".str").applyTo(value).get().toString()).isEqualTo("strValue");
+	}
 
-    @Test
-    public void testEvaluateFieldFails() throws Exception {
-        SerializedValue value = facade.serialize(Simple.class, new Simple("strValue"), session);
-        SerializedValue nullValue = facade.serialize(Simple.class, null, session);
-        
+	@Test
+	public void testEvaluateFieldFails() throws Exception {
+		SerializedValue value = facade.serialize(Simple.class, new Simple("strValue"), session);
+		SerializedValue nullValue = facade.serialize(Simple.class, null, session);
 
-        assertThat(new SerializedValueEvaluator(".s").applyTo(value).isPresent()).isFalse();
-        assertThat(new SerializedValueEvaluator(".str").applyTo(nullValue).isPresent()).isFalse();
-    }
+		assertThat(new SerializedValueEvaluator(".s").applyTo(value).isPresent()).isFalse();
+		assertThat(new SerializedValueEvaluator(".str").applyTo(nullValue).isPresent()).isFalse();
+	}
 
-    @Test
-    public void testEvaluateArray() throws Exception {
-        SerializedValue value = facade.serialize(String[].class, new String[]{"foo", "bar"}, session);
+	@Test
+	public void testEvaluateArray() throws Exception {
+		SerializedValue value = facade.serialize(String[].class, new String[] { "foo", "bar" }, session);
 
-        assertThat(new SerializedValueEvaluator("[0]").applyTo(value).get().toString()).isEqualTo("foo");
-        assertThat(new SerializedValueEvaluator("[1]").applyTo(value).get().toString()).isEqualTo("bar");
-    }
+		assertThat(new SerializedValueEvaluator("[0]").applyTo(value).get().toString()).isEqualTo("foo");
+		assertThat(new SerializedValueEvaluator("[1]").applyTo(value).get().toString()).isEqualTo("bar");
+	}
 
-    @Test
-    public void testEvaluateArrayFails() throws Exception {
-        SerializedValue value = facade.serialize(String[].class, new String[]{"foo", "bar"}, session);
-        
-        assertThat(new SerializedValueEvaluator("[2]").applyTo(value).isPresent()).isFalse();
-        assertThat(new SerializedValueEvaluator("[-1]").applyTo(value).isPresent()).isFalse();
-        assertThat(new SerializedValueEvaluator("[str]").applyTo(value).isPresent()).isFalse();
-    }
-    
-    @Test
-    public void testEvaluateList() throws Exception {
-        SerializedValue value = facade.serialize(List.class, asList("bar","foo"), session);
-        
-        assertThat(new SerializedValueEvaluator("[0]").applyTo(value).get().toString()).isEqualTo("bar");
-        assertThat(new SerializedValueEvaluator("[1]").applyTo(value).get().toString()).isEqualTo("foo");
-    }
+	@Test
+	public void testEvaluateArrayFails() throws Exception {
+		SerializedValue value = facade.serialize(String[].class, new String[] { "foo", "bar" }, session);
 
-    @Test
-    public void testEvaluateListFails() throws Exception {
-        SerializedValue value = facade.serialize(List.class, asList("bar","foo"), session);
-        
-        assertThat(new SerializedValueEvaluator("[2]").applyTo(value).isPresent()).isFalse();
-        assertThat(new SerializedValueEvaluator("[-1]").applyTo(value).isPresent()).isFalse();
-        assertThat(new SerializedValueEvaluator("[str]").applyTo(value).isPresent()).isFalse();
-    }
-    
-    @Test
-    public void testEvaluateNestedField() throws Exception {
-        SerializedValue value = facade.serialize(Complex.class, new Complex("sstr"), session);
-        
-        assertThat(new SerializedValueEvaluator(".simple.str").applyTo(value).get().toString()).isEqualTo("sstr");
-    }
+		assertThat(new SerializedValueEvaluator("[2]").applyTo(value).isPresent()).isFalse();
+		assertThat(new SerializedValueEvaluator("[-1]").applyTo(value).isPresent()).isFalse();
+		assertThat(new SerializedValueEvaluator("[str]").applyTo(value).isPresent()).isFalse();
+	}
+
+	@Test
+	public void testEvaluateList() throws Exception {
+		SerializedValue value = facade.serialize(List.class, asList("bar", "foo"), session);
+
+		assertThat(new SerializedValueEvaluator("[0]").applyTo(value).get().toString()).isEqualTo("bar");
+		assertThat(new SerializedValueEvaluator("[1]").applyTo(value).get().toString()).isEqualTo("foo");
+	}
+
+	@Test
+	public void testEvaluateListFails() throws Exception {
+		SerializedValue value = facade.serialize(List.class, asList("bar", "foo"), session);
+
+		assertThat(new SerializedValueEvaluator("[2]").applyTo(value).isPresent()).isFalse();
+		assertThat(new SerializedValueEvaluator("[-1]").applyTo(value).isPresent()).isFalse();
+		assertThat(new SerializedValueEvaluator("[str]").applyTo(value).isPresent()).isFalse();
+	}
+
+	@Test
+	public void testEvaluateNestedField() throws Exception {
+		SerializedValue value = facade.serialize(Complex.class, new Complex("sstr"), session);
+
+		assertThat(new SerializedValueEvaluator(".simple.str").applyTo(value).get().toString()).isEqualTo("sstr");
+	}
 
 }

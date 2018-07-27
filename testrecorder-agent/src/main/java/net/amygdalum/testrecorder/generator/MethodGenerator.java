@@ -24,7 +24,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -58,7 +57,7 @@ import net.amygdalum.testrecorder.values.SerializedLiteral;
 
 public class MethodGenerator {
 
-	private static final Set<Class<?>> LITERAL_TYPES = new HashSet<>(Arrays.asList(
+	private static final Set<Class<?>> LITERAL_TYPES = new HashSet<>(asList(
 		Boolean.class, Character.class, Byte.class, Short.class, Integer.class, Float.class, Long.class, Double.class, String.class));
 
 	private static final String TEST_TEMPLATE = "@Test\n"
@@ -240,7 +239,6 @@ public class MethodGenerator {
 
 		Type resultType = snapshot.getResultType();
 		String methodName = snapshot.getMethodName();
-		
 
 		MethodGenerator gen = snapshot.onExpectException()
 			.map(e -> new MethodGenerator(no, types, setup, matcher).analyze(snapshot))
@@ -280,7 +278,7 @@ public class MethodGenerator {
 		}
 
 		boolean thisChanged = snapshot.onThis()
-			.map((before, after) -> compare(before, after), false)
+			.map((before, after) -> compare(before, after), other -> false)
 			.orElse(true);
 		snapshot.streamExpectThis()
 			.flatMap(self -> generateThisAssert(types, self, base, thisChanged))

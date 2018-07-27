@@ -22,7 +22,7 @@ public class ExceptionalTest {
 		assertThat(Exceptional.throwing(new IOException()).andRecover("Default")).isEqualTo("Default");
 		assertThat(Exceptional.throwing(new IOException()).andRecover(t -> "Default")).isEqualTo("Default");
 		assertThatThrownBy(() -> Exceptional.throwing(new IOException()).orFail()).isInstanceOf(IOException.class);
-		assertThatThrownBy(() -> Exceptional.throwing(new IOException()).orFail(t -> new RuntimeException(t))).isInstanceOf(RuntimeException.class);;
+		assertThatThrownBy(() -> Exceptional.throwing(new IOException()).orFail(t -> new RuntimeException(t))).isInstanceOf(RuntimeException.class);
 	}
 
 }

@@ -20,13 +20,12 @@ import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class AdaptorsTest {
 
-	private AgentConfiguration config;
 	private Adaptors<TestComputationValueVisitor> adaptors;
 	private OpenAdaptors openadaptors;
 
 	@BeforeEach
 	public void before() throws Exception {
-		config = defaultConfig();
+		AgentConfiguration config = defaultConfig();
 		adaptors = new Adaptors<>(config);
 		openadaptors = xray(adaptors).to(OpenAdaptors.class);
 	}

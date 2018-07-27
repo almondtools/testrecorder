@@ -320,7 +320,7 @@ public class GenericComparisonTest {
 		ComparisonStrategy strategy = Mockito.mock(ComparisonStrategy.class);
 		when(strategy.extend(Mockito.any(GenericComparison.class))).thenThrow(new ComparisonException());
 		GenericComparator comparator = Mockito.mock(GenericComparator.class);
-		when(comparator.compare(any(GenericComparison.class), any(WorkSet.class))).thenReturn(GenericComparatorResult.NOT_APPLYING);
+		when(comparator.compare(any(GenericComparison.class), any(WorkSet.class))).thenReturn(NOT_APPLYING);
 
 		assertThat(new GenericComparison(null, new Node("node1"), new Node("node2"), strategy).eval(comparator, remainder)).isFalse();
 		assertThat(remainder).isEmpty();
@@ -368,7 +368,7 @@ public class GenericComparisonTest {
 		Node node2 = new Node("node2");
 		WorkSet<GenericComparison> todo = new WorkSet<>();
 		todo.add(new GenericComparison(null, node1, node2));
-		GenericComparison.compare(todo, (comparison, rem) -> comparison.eval(rem) ? GenericComparatorResult.NOT_APPLYING : GenericComparatorResult.MISMATCH);
+		GenericComparison.compare(todo, (comparison, rem) -> comparison.eval(rem) ? NOT_APPLYING : MISMATCH);
 
 		assertThat(todo.getDone()).containsExactly(
 			new GenericComparison(null, node1, node2, null, null),
@@ -386,7 +386,7 @@ public class GenericComparisonTest {
 
 		WorkSet<GenericComparison> todo = new WorkSet<>();
 		todo.add(new GenericComparison(null, node1, node2));
-		GenericComparison.compare(todo, (comparison, rem) -> comparison.eval(rem) ? GenericComparatorResult.NOT_APPLYING : GenericComparatorResult.MISMATCH);
+		GenericComparison.compare(todo, (comparison, rem) -> comparison.eval(rem) ? NOT_APPLYING : MISMATCH);
 
 		assertThat(todo.getDone()).containsExactly(
 			new GenericComparison(null, node1, node2, null, null),
@@ -416,7 +416,7 @@ public class GenericComparisonTest {
 		node1.children = new Node[] { node1 };
 		Node node2 = new Node("name");
 		node2.children = new Node[] { node2 };
-		
+
 		assertThat(GenericComparison.equals("", node1, node2)).isTrue();
 	}
 

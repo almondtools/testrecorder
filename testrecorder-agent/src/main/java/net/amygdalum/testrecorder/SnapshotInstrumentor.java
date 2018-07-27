@@ -16,7 +16,6 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -451,7 +450,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 		private List<FieldNode> getGlobalFields() {
 			if (!isVisible(classNode)) {
-				return Collections.emptyList();
+				return emptyList();
 			}
 			return classNode.fields.stream()
 				.filter(field -> isGlobalField(classNode.name, field))
@@ -461,7 +460,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 		private List<MethodNode> getSnapshotMethods() {
 			if (!isVisible(classNode)) {
-				return Collections.emptyList();
+				return emptyList();
 			}
 			return classNode.methods.stream()
 				.filter(methodNode -> isSnapshotMethod(classNode, methodNode))
@@ -471,7 +470,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 		private List<MethodNode> getJavaInputMethods() {
 			if (!isVisible(classNode)) {
-				return Collections.emptyList();
+				return emptyList();
 			}
 			return classNode.methods.stream()
 				.filter(methodNode -> isJavaInputMethod(classNode, methodNode))
@@ -480,7 +479,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 		private List<MethodNode> getJavaOutputMethods() {
 			if (!isVisible(classNode)) {
-				return Collections.emptyList();
+				return emptyList();
 			}
 			return classNode.methods.stream()
 				.filter(method -> isJavaOutputMethod(classNode, method))

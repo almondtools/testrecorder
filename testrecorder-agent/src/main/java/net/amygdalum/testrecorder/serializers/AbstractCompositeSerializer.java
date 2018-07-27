@@ -5,6 +5,8 @@ import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.isLiteral;
 import static net.amygdalum.testrecorder.util.Types.isPrimitive;
 import static net.amygdalum.testrecorder.util.Types.serializableOf;
+import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -13,7 +15,6 @@ import net.amygdalum.testrecorder.types.SerializationException;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.SerializedField;
-import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedNull;
 
 public abstract class AbstractCompositeSerializer {
@@ -44,17 +45,17 @@ public abstract class AbstractCompositeSerializer {
 		}
 		Class<?> clazz = type == null ? null : baseType(type);
 		if (value == null) {
-			SerializedNull nullInstance = SerializedNull.nullInstance();
+			SerializedNull nullInstance = nullInstance();
 			if (clazz != null && !clazz.isSynthetic()) {
 				nullInstance.useAs(type);
 			}
 			return nullInstance;
 		} 
 		if (isPrimitive(clazz)) {
-			return SerializedLiteral.literal(clazz, value);
+			return literal(clazz, value);
 		}
 		if (isLiteral(value.getClass())) {
-			return SerializedLiteral.literal(value);
+			return literal(value);
 		} else {
 			throw new SerializationException("cannot resolve value of type " + value.getClass().getName());
 		}

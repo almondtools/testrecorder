@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder;
 
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.annotation.Annotation;
@@ -75,8 +76,8 @@ public class ContextSnapshotTest {
 		snapshot.setSetupThis(setupThis);
 
 		SerializedValue getValue = snapshot.getSetupThis();
-		SerializedValue onValue = snapshot.onSetupThis().orElse(SerializedNull.nullInstance());
-		SerializedValue streamValue = snapshot.streamSetupThis().findFirst().orElse(SerializedNull.nullInstance());
+		SerializedValue onValue = snapshot.onSetupThis().orElse(nullInstance());
+		SerializedValue streamValue = snapshot.streamSetupThis().findFirst().orElse(nullInstance());
 
 		assertThat(getValue).isSameAs(setupThis);
 		assertThat(onValue).isSameAs(setupThis);
@@ -88,11 +89,10 @@ public class ContextSnapshotTest {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
 		SerializedValue getValue = snapshot.getSetupThis();
-		SerializedValue onValue = snapshot.onSetupThis().orElse(SerializedNull.nullInstance());
-		SerializedValue streamValue = snapshot.streamSetupThis().findFirst().orElse(SerializedNull.nullInstance());
+		SerializedValue onValue = snapshot.onSetupThis().orElse(nullInstance());
+		SerializedValue streamValue = snapshot.streamSetupThis().findFirst().orElse(nullInstance());
 
 		assertThat(getValue).isNull();
-		;
 		assertThat(onValue).isInstanceOf(SerializedNull.class);
 		assertThat(streamValue).isInstanceOf(SerializedNull.class);
 	}
@@ -107,8 +107,8 @@ public class ContextSnapshotTest {
 		snapshot.setExpectThis(expectedThis);
 
 		SerializedValue getValue = snapshot.getExpectThis();
-		SerializedValue onValue = snapshot.onExpectThis().orElse(SerializedNull.nullInstance());
-		SerializedValue streamValue = snapshot.streamExpectThis().findFirst().orElse(SerializedNull.nullInstance());
+		SerializedValue onValue = snapshot.onExpectThis().orElse(nullInstance());
+		SerializedValue streamValue = snapshot.streamExpectThis().findFirst().orElse(nullInstance());
 
 		assertThat(getValue).isEqualTo(expectedThis);
 		assertThat(onValue).isEqualTo(expectedThis);
@@ -120,8 +120,8 @@ public class ContextSnapshotTest {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
 		SerializedValue getValue = snapshot.getExpectThis();
-		SerializedValue onValue = snapshot.onExpectThis().orElse(SerializedNull.nullInstance());
-		SerializedValue streamValue = snapshot.streamExpectThis().findFirst().orElse(SerializedNull.nullInstance());
+		SerializedValue onValue = snapshot.onExpectThis().orElse(nullInstance());
+		SerializedValue streamValue = snapshot.streamExpectThis().findFirst().orElse(nullInstance());
 
 		assertThat(getValue).isNull();
 		assertThat(onValue).isInstanceOf(SerializedNull.class);
@@ -161,8 +161,8 @@ public class ContextSnapshotTest {
 		snapshot.setExpectResult(literal(boolean.class, true));
 
 		SerializedValue getValue = snapshot.getExpectResult();
-		SerializedValue onValue = snapshot.onExpectResult().orElse(SerializedNull.nullInstance());
-		SerializedValue streamValue = snapshot.streamExpectResult().findFirst().orElse(SerializedNull.nullInstance());
+		SerializedValue onValue = snapshot.onExpectResult().orElse(nullInstance());
+		SerializedValue streamValue = snapshot.streamExpectResult().findFirst().orElse(nullInstance());
 
 		assertThat(getValue).isEqualTo(literal(boolean.class, true));
 		assertThat(onValue).isEqualTo(literal(boolean.class, true));
@@ -177,8 +177,8 @@ public class ContextSnapshotTest {
 		snapshot.setExpectException(expectException);
 
 		SerializedValue getValue = snapshot.getExpectException();
-		SerializedValue onValue = snapshot.onExpectException().orElse(SerializedNull.nullInstance());
-		SerializedValue streamValue = snapshot.streamExpectException().findFirst().orElse(SerializedNull.nullInstance());
+		SerializedValue onValue = snapshot.onExpectException().orElse(nullInstance());
+		SerializedValue streamValue = snapshot.streamExpectException().findFirst().orElse(nullInstance());
 
 		assertThat(getValue).isSameAs(expectException);
 		assertThat(onValue).isSameAs(expectException);
@@ -310,7 +310,6 @@ public class ContextSnapshotTest {
 		assertThat(hasInput).isFalse();
 		assertThat(hasInput2).isFalse();
 		assertThat(getValue).isEmpty();
-		;
 		assertThat(streamValue).isEmpty();
 	}
 
@@ -376,7 +375,7 @@ public class ContextSnapshotTest {
 		snapshot.setExpectThis(expectThis);
 
 		assertThat(snapshot.onThis()
-			.map((first, second) -> first.toString() + ":" + second.toString(), "second missing", "first missing"))
+			.map((first, second) -> first.toString() + ":" + second.toString(), first -> "second missing", second -> "first missing"))
 				.contains("[setup]:[expect]");
 	}
 
@@ -388,7 +387,7 @@ public class ContextSnapshotTest {
 		snapshot.setExpectArgs(literal("b"), literal("a"));
 
 		assertThat(snapshot.onArgs()
-			.map((first, second) -> Arrays.toString(first) + ":" + Arrays.toString(second), "second missing", "first missing"))
+			.map((first, second) -> Arrays.toString(first) + ":" + Arrays.toString(second), first -> "second missing", second -> "first missing"))
 				.contains("[a, b]:[b, a]");
 
 	}
@@ -401,11 +400,11 @@ public class ContextSnapshotTest {
 		snapshot.setExpectGlobals(new SerializedField(Static.class, "global", String.class, literal("b")));
 
 		assertThat(snapshot.onGlobals()
-			.map((first, second) -> first[0].getValue().toString() + ":" + second[0].getValue().toString(), "second missing", "first missing"))
-		.contains("a:b");
-		
+			.map((first, second) -> first[0].getValue().toString() + ":" + second[0].getValue().toString(), first -> "second missing", second -> "first missing"))
+				.contains("a:b");
+
 	}
-	
+
 	private Anno anno(String value) {
 		return new Anno() {
 

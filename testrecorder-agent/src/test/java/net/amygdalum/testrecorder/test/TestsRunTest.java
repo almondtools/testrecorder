@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.test;
 
+import static net.amygdalum.testrecorder.test.TestsRun.testsRun;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -11,15 +12,15 @@ import net.amygdalum.testrecorder.dynamiccompile.RenderedTest;
 public class TestsRunTest {
 
 	@Test
-	public void testCompileError() throws Exception {
-		assertThatThrownBy(() -> TestsRun.testsRun().accept(new RenderedTest(this.getClass(), "")))
+	void testCompileError() throws Exception {
+		assertThatThrownBy(() -> testsRun().accept(new RenderedTest(this.getClass(), "")))
 			.isInstanceOf(SoftAssertionError.class)
 			.hasMessageContaining("contains no public class");
 	}
 
 	@Test
-	public void testDetailedCompileError() throws Exception {
-		assertThatThrownBy(() -> TestsRun.testsRun().accept(new RenderedTest(this.getClass(), ""
+	void testDetailedCompileError() throws Exception {
+		assertThatThrownBy(() -> testsRun().accept(new RenderedTest(this.getClass(), ""
 			+ "package net.amygdalum.testrecorder.testing.assertj;"
 			+ "public class Test {"
 			+ "	public void testName() throws Exception {"
@@ -32,8 +33,8 @@ public class TestsRunTest {
 	}
 
 	@Test
-	public void testTestError() throws Exception {
-		assertThatThrownBy(() -> TestsRun.testsRun().accept(new RenderedTest(this.getClass(), ""
+	void testTestError() throws Exception {
+		assertThatThrownBy(() -> testsRun().accept(new RenderedTest(this.getClass(), ""
 			+ "package net.amygdalum.testrecorder.testing.assertj;"
 			+ "public class Test {"
 			+ "}")))
@@ -42,8 +43,8 @@ public class TestsRunTest {
 	}
 
 	@Test
-	public void testTestSuccess() throws Exception {
-		assertThatCode(() -> TestsRun.testsRun().accept(new RenderedTest(this.getClass(), ""
+	void testTestSuccess() throws Exception {
+		assertThatCode(() -> testsRun().accept(new RenderedTest(this.getClass(), ""
 			+ "package net.amygdalum.testrecorder.testing.assertj;"
 			+ "public class Test {"
 			+ "	"
@@ -52,12 +53,11 @@ public class TestsRunTest {
 			+ "	}"
 			+ "}")))
 				.doesNotThrowAnyException();
-		;
 	}
 
 	@Test
-	public void testRuntimeException() throws Exception {
-		assertThatThrownBy(() -> TestsRun.testsRun().accept(new RenderedTest(this.getClass(), "") {
+	void testRuntimeException() throws Exception {
+		assertThatThrownBy(() -> testsRun().accept(new RenderedTest(this.getClass(), "") {
 			public String getTestCode() {
 				throw new RuntimeException();
 			}

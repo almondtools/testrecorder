@@ -1,15 +1,21 @@
 package net.amygdalum.testrecorder.runtime;
 
-import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.*;
+import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.booleanArrayContaining;
 import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.booleanEmptyArray;
 import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.byteArrayContaining;
 import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.byteEmptyArray;
 import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.charArrayContaining;
+import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.charEmptyArray;
 import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.doubleArrayContaining;
+import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.doubleEmptyArray;
 import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.floatArrayContaining;
+import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.floatEmptyArray;
 import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.intArrayContaining;
+import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.intEmptyArray;
 import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.longArrayContaining;
+import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.longEmptyArray;
 import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.shortArrayContaining;
+import static net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher.shortEmptyArray;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.hamcrest.StringDescription;
@@ -111,12 +117,12 @@ public class PrimitiveArrayMatcherTest {
 	@Test
 	void testDescribeMismatchSafelyOnEmptyArray() throws Exception {
 		StringDescription description = new StringDescription();
-		
+
 		booleanArrayContaining().describeMismatch(new boolean[0], description);
-		
+
 		assertThat(description.toString()).isEqualTo("with no items");
 	}
-	
+
 	@Test
 	void testDescribeMismatchSafelyOnNonPrimitiveArray() throws Exception {
 		StringDescription description = new StringDescription();

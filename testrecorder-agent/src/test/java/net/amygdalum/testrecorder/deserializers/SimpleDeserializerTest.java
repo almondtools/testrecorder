@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.deserializers;
 
 import static net.amygdalum.testrecorder.types.DeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
@@ -30,7 +31,6 @@ import net.amygdalum.testrecorder.values.SerializedImmutable;
 import net.amygdalum.testrecorder.values.SerializedList;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedMap;
-import net.amygdalum.testrecorder.values.SerializedNull;
 import net.amygdalum.testrecorder.values.SerializedObject;
 import net.amygdalum.testrecorder.values.SerializedSet;
 
@@ -116,7 +116,7 @@ public class SimpleDeserializerTest {
 
 	@Test
 	public void testVisitNull() throws Exception {
-		SerializedReferenceType object = SerializedNull.nullInstance();
+		SerializedReferenceType object = nullInstance();
 		assertThat(deserializer.visitReferenceType(object, NULL)).isNull();
 	}
 
@@ -157,7 +157,7 @@ public class SimpleDeserializerTest {
 
 	@Test
 	public void testVisitValueType() throws Exception {
-		SerializedLiteral serializedLiteral = SerializedLiteral.literal('a');
+		SerializedLiteral serializedLiteral = literal('a');
 
 		Object visitImmutableType = deserializer.visitValueType(serializedLiteral, NULL);
 
@@ -166,7 +166,7 @@ public class SimpleDeserializerTest {
 
 	@Test
 	public void testVisitValueTypeCached() throws Exception {
-		SerializedLiteral serializedLiteral = SerializedLiteral.literal('a');
+		SerializedLiteral serializedLiteral = literal('a');
 
 		Object visitImmutableType = deserializer.visitValueType(serializedLiteral, NULL);
 		visitImmutableType = deserializer.visitValueType(serializedLiteral, NULL);

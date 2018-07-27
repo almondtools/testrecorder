@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.deserializers.matcher;
 
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.TestAgentConfiguration.defaultConfig;
+import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Proxy;
@@ -19,7 +20,6 @@ import net.amygdalum.testrecorder.util.Types;
 import net.amygdalum.testrecorder.util.testobjects.Hidden;
 import net.amygdalum.testrecorder.util.testobjects.NonGenericInterface;
 import net.amygdalum.testrecorder.values.SerializedField;
-import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedProxy;
 
 public class DefaultProxyAdaptorTest {
@@ -90,7 +90,7 @@ public class DefaultProxyAdaptorTest {
 	public void testTryDeserializeProxyWithFields() throws Exception {
 		Class<?> clazz = Proxy.getProxyClass(DefaultProxyAdaptorTest.class.getClassLoader(), NonGenericInterface.class);
 		SerializedProxy value = new SerializedProxy(clazz);
-		value.addField(new SerializedField(clazz, "str", String.class, SerializedLiteral.literal("strvalue")));
+		value.addField(new SerializedField(clazz, "str", String.class, literal("strvalue")));
 		MatcherGenerators generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator, context);

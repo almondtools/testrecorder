@@ -43,11 +43,11 @@ public class SerializedNullTest {
 
 	@Test
 	public void testEquals() throws Exception {
-		SerializedNull typedNull = SerializedNull.nullInstance();
+		SerializedNull typedNull = nullInstance();
 		typedNull.useAs(String.class);
 		
-		assertThat(SerializedNull.nullInstance()).satisfies(defaultEquality()
-			.andEqualTo(SerializedNull.nullInstance())
+		assertThat(nullInstance()).satisfies(defaultEquality()
+			.andEqualTo(nullInstance())
 			.andNotEqualTo(typedNull)
 			.conventions());
 	}

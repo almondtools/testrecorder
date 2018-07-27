@@ -1,5 +1,7 @@
 package net.amygdalum.testrecorder.serializers;
 
+import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -13,7 +15,6 @@ import org.mockito.Mockito;
 import net.amygdalum.testrecorder.types.SerializationException;
 import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.SerializedField;
-import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedNull;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
@@ -39,7 +40,7 @@ public class AbstractCompositeSerializerTest {
 		assertThat(serializedField.getDeclaringClass()).isEqualTo(Fields.class);
 		assertThat(serializedField.getName()).isEqualTo("field");
 		assertThat(serializedField.getType()).isEqualTo(Object.class);
-		assertThat(serializedField.getValue()).isEqualTo(SerializedLiteral.literal("fieldvalue"));
+		assertThat(serializedField.getValue()).isEqualTo(literal("fieldvalue"));
 	}
 
 	@Test
@@ -59,7 +60,7 @@ public class AbstractCompositeSerializerTest {
 		assertThat(serializedField.getDeclaringClass()).isEqualTo(Fields.class);
 		assertThat(serializedField.getName()).isEqualTo("field");
 		assertThat(serializedField.getType()).isEqualTo(Object.class);
-		assertThat(serializedField.getValue()).isEqualTo(SerializedLiteral.literal("fieldvalue"));
+		assertThat(serializedField.getValue()).isEqualTo(literal("fieldvalue"));
 	}
 
 	@Test
@@ -71,20 +72,20 @@ public class AbstractCompositeSerializerTest {
 
 	@Test
 	void testResolvedValueOfPrimitives() throws Exception {
-		assertThat(serializer.resolvedValueOf(session, int.class, 1)).isEqualTo(SerializedLiteral.literal(int.class, 1));
-		assertThat(serializer.resolvedValueOf(session, Integer.class, 1)).isEqualTo(SerializedLiteral.literal(1));
-		assertThat(serializer.resolvedValueOf(session, String.class, "str")).isEqualTo(SerializedLiteral.literal("str"));
+		assertThat(serializer.resolvedValueOf(session, int.class, 1)).isEqualTo(literal(int.class, 1));
+		assertThat(serializer.resolvedValueOf(session, Integer.class, 1)).isEqualTo(literal(1));
+		assertThat(serializer.resolvedValueOf(session, String.class, "str")).isEqualTo(literal("str"));
 	}
 
 	@Test
 	void testResolvedValueOfNull() throws Exception {
-		assertThat(serializer.resolvedValueOf(session, null, null)).isEqualTo(SerializedNull.nullInstance());
-		assertThat(serializer.resolvedValueOf(session, Integer.class, null)).isEqualTo(nullInstance(Integer.class));
-		assertThat(serializer.resolvedValueOf(session, ((Callable<String>) () -> "result").getClass(), null)).isEqualTo(SerializedNull.nullInstance());
+		assertThat(serializer.resolvedValueOf(session, null, null)).isEqualTo(nullInstance());
+		assertThat(serializer.resolvedValueOf(session, Integer.class, null)).isEqualTo(nullInstanceFor(Integer.class));
+		assertThat(serializer.resolvedValueOf(session, ((Callable<String>) () -> "result").getClass(), null)).isEqualTo(nullInstance());
 	}
 
-	private SerializedNull nullInstance(Class<?> type) {
-		SerializedNull nullInstance = SerializedNull.nullInstance();
+	private SerializedNull nullInstanceFor(Class<?> type) {
+		SerializedNull nullInstance = nullInstance();
 		nullInstance.useAs(type);
 		return nullInstance;
 	}

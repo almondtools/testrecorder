@@ -29,21 +29,20 @@ import net.amygdalum.xrayinterface.XRayInterface;
 
 public class MethodGeneratorTest {
 
-	private AgentConfiguration config;
 	private TypeManager types;
 	private SetupGenerators setup;
 	private MatcherGenerators matcher;
 
 	@BeforeEach
-	public void before() throws Exception {
-		config = defaultConfig();
+	void before() throws Exception {
+		AgentConfiguration config = defaultConfig();
 		types = new DeserializerTypeManager();
 		setup = new SetupGenerators(new Adaptors<SetupGenerators>(config).load(SetupGenerator.class));
 		matcher = new MatcherGenerators(new Adaptors<MatcherGenerators>(config).load(MatcherGenerator.class));
 	}
 	
 	@Test
-	public void testGenerateActWithResult() throws Exception {
+	void testGenerateActWithResult() throws Exception {
 		MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher);
 		methodGenerator.analyze(snapshotWithResult());
 		XRayInterface.xray(methodGenerator).to(OpenMethodGenerator.class).setBase("var");
@@ -54,7 +53,7 @@ public class MethodGeneratorTest {
 	}
 
 	@Test
-	public void testGenerateActNoResult() throws Exception {
+	void testGenerateActNoResult() throws Exception {
 		MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher);
 		methodGenerator.analyze(snapshotNoResult());
 		XRayInterface.xray(methodGenerator).to(OpenMethodGenerator.class).setBase("var");
@@ -66,7 +65,7 @@ public class MethodGeneratorTest {
 	}
 
 	@Test
-	public void testGenerateActWithResultAndException() throws Exception {
+	void testGenerateActWithResultAndException() throws Exception {
 		MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher);
 		methodGenerator.analyze(snapshotWithResultAndException());
 		XRayInterface.xray(methodGenerator).to(OpenMethodGenerator.class).setBase("var");
@@ -81,7 +80,7 @@ public class MethodGeneratorTest {
 	}
 
 	@Test
-	public void testGenerateActNoResultAndException() throws Exception {
+	void testGenerateActNoResultAndException() throws Exception {
 		MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher);
 		methodGenerator.analyze(snapshotNoResultAndException());
 		XRayInterface.xray(methodGenerator).to(OpenMethodGenerator.class).setBase("var");

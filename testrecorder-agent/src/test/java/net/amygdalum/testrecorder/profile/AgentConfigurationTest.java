@@ -173,7 +173,7 @@ public class AgentConfigurationTest {
 	@Test
 	public void testLoadWithBrokenFilesOnConfigPath(TemporaryFolder folder, @LogLevel("info") ByteArrayOutputStream info, @LogLevel("error") ByteArrayOutputStream error) throws Exception {
 		AgentConfiguration agentConfiguration = new AgentConfiguration(new PathConfigurationLoader(folder.getRoot()) {
-			protected <T> java.util.stream.Stream<T> configsFrom(Path path, java.lang.Class<T> clazz, Object[] args) throws IOException {
+			protected <T> Stream<T> configsFrom(Path path, Class<T> clazz, Object[] args) throws IOException {
 				throw new IOException();
 			};
 		});

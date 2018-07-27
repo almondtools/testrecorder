@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.serializers;
 
 import static java.util.Collections.singleton;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -76,11 +77,11 @@ public class GenericSerializerTest {
 
 	@Test
 	void testPopulateOtherNullType() throws Exception {
-		SerializedNull nullValue = SerializedNull.nullInstance();
+		SerializedNull nullValue = nullInstance();
 
 		serializer.populate(nullValue, "Element", session);
 
-		assertThat(nullValue).isEqualTo(SerializedNull.nullInstance());
+		assertThat(nullValue).isEqualTo(nullInstance());
 	}
 
 	@Test

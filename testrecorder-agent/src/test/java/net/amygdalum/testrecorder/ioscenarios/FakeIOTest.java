@@ -116,7 +116,6 @@ public class FakeIOTest {
 		FakeIO faked = FakeIO.fake(Inputs.class)
 			.fakeInput(new Aspect() {
 				public void read(char[] cs) {
-					return;
 				}
 			})
 			.addVirtual(inputs, null, "Hello World".toCharArray())

@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.test;
 
+import static net.amygdalum.testrecorder.test.Compiles.compiles;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -12,14 +13,14 @@ public class CompilesTest {
 
 	@Test
 	public void testCompileError() throws Exception {
-		assertThatThrownBy(() -> Compiles.compiles().accept(new RenderedTest(this.getClass(), "")))
+		assertThatThrownBy(() -> compiles().accept(new RenderedTest(this.getClass(), "")))
 			.isInstanceOf(SoftAssertionError.class)
 			.hasMessageContaining("contains no public class");
 	}
 
 	@Test
 	public void testDetailedCompileError() throws Exception {
-		assertThatThrownBy(() -> Compiles.compiles().accept(new RenderedTest(this.getClass(), ""
+		assertThatThrownBy(() -> compiles().accept(new RenderedTest(this.getClass(), ""
 			+ "package net.amygdalum.testrecorder.testing.assertj;"
 			+ "public class Test {"
 			+ "	public void testName() throws Exception {"
@@ -33,7 +34,7 @@ public class CompilesTest {
 
 	@Test
 	public void testCompileSuccess() throws Exception {
-		assertThatCode(() -> Compiles.compiles().accept(new RenderedTest(this.getClass(), ""
+		assertThatCode(() -> compiles().accept(new RenderedTest(this.getClass(), ""
 			+ "package net.amygdalum.testrecorder.testing.assertj;"
 			+ "public class Test {"
 			+ "}")))

@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.util;
 
 import static net.amygdalum.extensions.assertj.conventions.UtilityClass.utilityClass;
 import static net.amygdalum.testrecorder.util.Lambdas.isSerializableLambda;
+import static net.amygdalum.testrecorder.util.Lambdas.serializeLambda;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.invoke.SerializedLambda;
@@ -32,39 +33,39 @@ public class LambdasTest {
 	void testIsSerializableLambdaForNoLambda() throws Exception {
 		NoLambda nolambda = new NoLambda() {
 		};
-		
-		assertThat(Lambdas.isSerializableLambda(nolambda.getClass())).isFalse();
+
+		assertThat(isSerializableLambda(nolambda.getClass())).isFalse();
 	}
-	
+
 	@Test
 	void testIsSerializableLambdaForNonserializableLambda() throws Exception {
-		NonSerializableLambda lambda = l -> (int) l;;
-		
-		assertThat(Lambdas.isSerializableLambda(lambda.getClass())).isFalse();
+		NonSerializableLambda lambda = l -> (int) l;
+
+		assertThat(isSerializableLambda(lambda.getClass())).isFalse();
 	}
-	
+
 	@Test
 	void testIsSerializableLambdaForSerializableLambda() throws Exception {
-		SerializableLambda lambda = l -> (int) l;;
-		
-		assertThat(Lambdas.isSerializableLambda(lambda.getClass())).isTrue();
+		SerializableLambda lambda = l -> (int) l;
+
+		assertThat(isSerializableLambda(lambda.getClass())).isTrue();
 	}
-	
+
 	@Test
 	void testSerializeLambdaForSerializableLambda() throws Exception {
-		SerializableLambda lambda = l -> (int) l;;
-		
-		SerializedLambda serializedLambda = Lambdas.serializeLambda(lambda);
-		
+		SerializableLambda lambda = l -> (int) l;
+
+		SerializedLambda serializedLambda = serializeLambda(lambda);
+
 		assertThat(serializedLambda.getFunctionalInterfaceClass()).isEqualTo(SerializableLambda.class.getName().replace('.', '/'));
 	}
-	
+
 	@Test
 	void testSerializeLambdaForNonSerializableLambda() throws Exception {
-		NonSerializableLambda lambda = l -> (int) l;;
-		
-		SerializedLambda serializedLambda = Lambdas.serializeLambda(lambda);
-		
+		NonSerializableLambda lambda = l -> (int) l;
+
+		SerializedLambda serializedLambda = serializeLambda(lambda);
+
 		assertThat(serializedLambda).isNull();
 	}
 

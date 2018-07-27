@@ -19,7 +19,6 @@ import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.util.testobjects.Bean;
 import net.amygdalum.testrecorder.util.testobjects.Simple;
 import net.amygdalum.testrecorder.values.SerializedField;
-import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class BeanObjectAdaptorTest {
@@ -48,7 +47,7 @@ public class BeanObjectAdaptorTest {
 	@Test
 	public void testTryDeserializeWithNonBean() throws Exception {
 		SerializedObject value = new SerializedObject(Simple.class);
-		value.addField(new SerializedField(String.class, "attribute", String.class, SerializedLiteral.literal("Hello World")));
+		value.addField(new SerializedField(String.class, "attribute", String.class, literal("Hello World")));
 		TypeManager types = new DeserializerTypeManager();
 		SetupGenerators generator = generator();
 

@@ -28,22 +28,19 @@ import net.amygdalum.testrecorder.values.SerializedObject;
 public class ClassGeneratorTest {
 
 	private ExtensibleClassLoader loader;
-	private AgentConfiguration config;
-	private SetupGenerators setup;
-	private MatcherGenerators matcher;
 	private ClassGenerator testGenerator;
 
 	@BeforeEach
-	public void before() throws Exception {
+	void before() throws Exception {
 		loader = new ExtensibleClassLoader(TestGenerator.class.getClassLoader());
-		config = defaultConfig().withLoader(loader);
-		setup = new SetupGenerators(new Adaptors<SetupGenerators>(config).load(SetupGenerator.class));
-		matcher = new MatcherGenerators(new Adaptors<MatcherGenerators>(config).load(MatcherGenerator.class));
+		AgentConfiguration config = defaultConfig().withLoader(loader);
+		SetupGenerators setup = new SetupGenerators(new Adaptors<SetupGenerators>(config).load(SetupGenerator.class));
+		MatcherGenerators matcher = new MatcherGenerators(new Adaptors<MatcherGenerators>(config).load(MatcherGenerator.class));
 		testGenerator = new ClassGenerator(setup, matcher, emptyList(), MyClass.class.getPackage().getName(), MyClass.class.getSimpleName());
 	}
-	
+
 	@Test
-	public void testSetSetup() throws Exception {
+	void testSetSetup() throws Exception {
 		testGenerator.setSetup(new TestComputationValueVisitor());
 		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
@@ -68,7 +65,7 @@ public class ClassGeneratorTest {
 	}
 
 	@Test
-	public void testSetMatcher() throws Exception {
+	void testSetMatcher() throws Exception {
 		testGenerator.setMatcher(new TestComputationValueVisitor());
 		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
@@ -92,7 +89,7 @@ public class ClassGeneratorTest {
 					"int field: 8");
 			});
 	}
-	
+
 	private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
 		return new ContextSnapshot(0, "key", new MethodSignature(declaringClass, new Annotation[0], resultType, methodName, new Annotation[0][0], argumentTypes));
 	}

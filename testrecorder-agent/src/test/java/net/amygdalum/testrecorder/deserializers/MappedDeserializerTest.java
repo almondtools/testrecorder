@@ -19,12 +19,10 @@ import net.amygdalum.testrecorder.types.SerializedValueType;
 import net.amygdalum.testrecorder.util.testobjects.Simple;
 import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
-import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class MappedDeserializerTest {
 
-	private Function<Integer, Long> mapping;
 	private Deserializer<Integer> deserializer;
 	private MappedDeserializer<Long, Integer> mappedDeserializer;
 
@@ -32,7 +30,7 @@ public class MappedDeserializerTest {
 	@BeforeEach
 	public void before() throws Exception {
 		deserializer = mock(Deserializer.class);
-		mapping = x -> (long) x;
+		Function<Integer, Long> mapping = x -> (long) x;
 		mappedDeserializer = new MappedDeserializer<>(deserializer, mapping);
 	}
 
@@ -62,7 +60,7 @@ public class MappedDeserializerTest {
 
 	@Test
 	public void testVisitValueType() throws Exception {
-		SerializedValueType object = SerializedLiteral.literal("lit");
+		SerializedValueType object = literal("lit");
 		when(deserializer.visitValueType(object, NULL)).thenReturn(5);
 
 		assertThat(mappedDeserializer.visitValueType(object, NULL)).isEqualTo(5l);

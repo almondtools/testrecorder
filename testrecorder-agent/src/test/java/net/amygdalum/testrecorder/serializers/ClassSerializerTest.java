@@ -37,7 +37,7 @@ public class ClassSerializerTest {
 
 	@Test
 	void testComponents() throws Exception {
-		assertThat(serializer.components(Class.class, session)).isEmpty();;
+		assertThat(serializer.components(Class.class, session)).isEmpty();
 	}
 
 	@Test

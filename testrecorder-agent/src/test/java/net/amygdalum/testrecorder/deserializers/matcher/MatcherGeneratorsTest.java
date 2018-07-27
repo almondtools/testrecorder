@@ -33,19 +33,17 @@ import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 import net.amygdalum.testrecorder.values.SerializedList;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
-import net.amygdalum.testrecorder.values.SerializedNull;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class MatcherGeneratorsTest {
 
-	private AgentConfiguration config;
 	private SerializedValues values;
 	private MatcherGenerators matcherCode;
 	private DeserializerContext context;
 
 	@BeforeEach
 	void before() throws Exception {
-		config = defaultConfig();
+		AgentConfiguration config = defaultConfig();
 		values = new SerializedValues(config);
 
 		matcherCode = new MatcherGenerators(config);
@@ -209,7 +207,7 @@ public class MatcherGeneratorsTest {
 
 	@Test
 	void testSimpleMatcherSerializedValueNull() throws Exception {
-		Computation result = matcherCode.simpleMatcher(SerializedNull.nullInstance(), context);
+		Computation result = matcherCode.simpleMatcher(nullInstance(), context);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).as("generic matchers can match nulls and do not need matchers here").isEqualTo("null");
@@ -217,7 +215,7 @@ public class MatcherGeneratorsTest {
 
 	@Test
 	void testSimpleMatcherSerializedValueLiteral() throws Exception {
-		Computation result = matcherCode.simpleMatcher(SerializedLiteral.literal("string"), context);
+		Computation result = matcherCode.simpleMatcher(literal("string"), context);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).as("generic matchers can match literals and do not need matchers here").isEqualTo("\"string\"");

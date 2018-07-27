@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import net.amygdalum.testrecorder.SnapshotManager.ContextSnapshotTransaction;
-import net.amygdalum.testrecorder.SnapshotManager.DummyContextSnapshotTransaction;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.util.CircularityLock;
 import net.amygdalum.testrecorder.util.testobjects.Bean;
@@ -34,13 +33,12 @@ import net.amygdalum.testrecorder.values.SerializedObject;
 public class SnapshotManagerTest {
 
 	private SnapshotConsumer consumer;
-	private AgentConfiguration config;
 	private SnapshotManager snapshotManager;
 
 	@BeforeEach
 	public void before() throws Exception {
 		consumer = Mockito.mock(SnapshotConsumer.class);
-		config = defaultConfig()
+		AgentConfiguration config = defaultConfig()
 			.withDefaultValue(SnapshotConsumer.class, () -> consumer);
 		snapshotManager = new SnapshotManager(config);
 		snapshotManager.registerRecordedMethod("getAttribute()Ljava/lang/String;", "net/amygdalum/testrecorder/util/testobjects/Bean", "getAttribute", "()Ljava/lang/String;");
@@ -320,7 +318,7 @@ public class SnapshotManagerTest {
 
 		Optional<ContextSnapshot> snapshot = snapshotManager.peek();
 
-		assertThat(ta).isSameAs(DummyContextSnapshotTransaction.INVALID);
+		assertThat(ta).isSameAs(INVALID);
 		assertThat(snapshot).isNotPresent();
 
 	}
@@ -338,7 +336,6 @@ public class SnapshotManagerTest {
 			assertThat(snapshot).isNotNull();
 			assertThat(snapshot.isValid()).isTrue();
 		});
-		;
 
 		snapshot2.andConsume(snapshot -> assertThat(snapshot.isValid()).isFalse());
 		snapshot3.andConsume(snapshot -> assertThat(snapshot.isValid()).isFalse());

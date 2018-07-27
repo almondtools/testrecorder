@@ -16,7 +16,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import net.amygdalum.testrecorder.generator.TestGenerator;
 import net.amygdalum.testrecorder.integration.Instrumented;
 import net.amygdalum.testrecorder.integration.TestRecorderAgentExtension;
-import net.amygdalum.testrecorder.test.Compiles;
 
 @ExtendWith(TestRecorderAgentExtension.class)
 @Instrumented(classes = { "net.amygdalum.testrecorder.ioscenarios.Inputs" })
@@ -37,7 +36,7 @@ public class InputsTest {
 		in.recorded();
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(Inputs.class)).satisfies(Compiles.compiles());
+		assertThat(testGenerator.renderTest(Inputs.class)).satisfies(compiles());
 	}
 
 	@Test

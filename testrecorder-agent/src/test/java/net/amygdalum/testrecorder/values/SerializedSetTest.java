@@ -10,6 +10,7 @@ import static net.amygdalum.testrecorder.values.GenericTypes.setOfBounded;
 import static net.amygdalum.testrecorder.values.GenericTypes.setOfListOfString;
 import static net.amygdalum.testrecorder.values.GenericTypes.setOfString;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Type;
@@ -248,9 +249,9 @@ public class SerializedSetTest {
 		value.useAs(parameterized(HashSet.class, null, String.class));
 
 		value.add(literal("string"));
-		value.add(SerializedNull.nullInstance());
+		value.add(nullInstance());
 
-		assertThat(value).containsExactly(literal("string"), SerializedNull.nullInstance());
+		assertThat(value).containsExactly(literal("string"), nullInstance());
 		assertThat(value.getComponentType()).isEqualTo(String.class);
 		assertThat(value.getUsedTypes()).contains(parameterized(HashSet.class, null, String.class));
 	}

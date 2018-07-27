@@ -20,7 +20,7 @@ public class NonNullValueTest {
         assertThat(NonNullValue.of(long.class)).isEqualTo(Long.valueOf(0));
         assertThat(NonNullValue.of(float.class)).isEqualTo(Float.valueOf(0));
         assertThat(NonNullValue.of(double.class)).isEqualTo(Double.valueOf(0));
-        assertThat(NonNullValue.of(boolean.class)).isEqualTo(Boolean.valueOf("false"));
+        assertThat(NonNullValue.of(boolean.class)).isEqualTo(Boolean.FALSE);
         assertThat(NonNullValue.of(char.class)).isEqualTo(Character.valueOf((char) 0));
         assertThat(NonNullValue.of(String.class)).isEqualTo("");
         assertThat(NonNullValue.of(int[].class)).isEqualTo(new int[0]);

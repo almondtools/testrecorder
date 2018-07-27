@@ -66,25 +66,15 @@ public class BiOptional<T> {
 		return Optional.ofNullable(mapping.apply(first, second));
 	}
 
-	public <R> Optional<R> map(BiFunction<T, T, R> mapping, R onlyDefault) {
-		if (first == null && second == null) {
-			return Optional.empty();
-		}
-		if (first == null || second == null) {
-			return Optional.of(onlyDefault);
-		}
-		return Optional.ofNullable(mapping.apply(first, second));
-	}
-	
-	public <R> Optional<R> map(BiFunction<T, T, R> mapping, R firstOnlyDefault, R secondOnlyDefault) {
+	public <R> Optional<R> map(BiFunction<T, T, R> mapping, Function<T, R> singleOnly) {
 		if (first == null && second == null) {
 			return Optional.empty();
 		}
 		if (first == null) {
-			return Optional.of(secondOnlyDefault);
+			return Optional.ofNullable(singleOnly.apply(second));
 		}
 		if (second == null) {
-			return Optional.of(firstOnlyDefault);
+			return Optional.ofNullable(singleOnly.apply(first));
 		}
 		return Optional.ofNullable(mapping.apply(first, second));
 	}

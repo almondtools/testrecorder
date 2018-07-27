@@ -129,7 +129,7 @@ public class SerializedMap extends AbstractSerializedReferenceType implements Se
 		return map.values();
 	}
 
-	public Set<java.util.Map.Entry<SerializedValue, SerializedValue>> entrySet() {
+	public Set<Map.Entry<SerializedValue, SerializedValue>> entrySet() {
 		return map.entrySet();
 	}
 

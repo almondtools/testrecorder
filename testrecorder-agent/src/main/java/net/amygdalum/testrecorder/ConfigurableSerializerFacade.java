@@ -7,6 +7,8 @@ import static net.amygdalum.testrecorder.util.Distinct.distinct;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.isLiteral;
 import static net.amygdalum.testrecorder.util.Types.serializableOf;
+import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Type;
@@ -37,10 +39,9 @@ import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.types.SerializerSession;
-import net.amygdalum.testrecorder.util.Logger;
 import net.amygdalum.testrecorder.util.IdentityWorkSet;
+import net.amygdalum.testrecorder.util.Logger;
 import net.amygdalum.testrecorder.values.SerializedInput;
-import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedNull;
 import net.amygdalum.testrecorder.values.SerializedOutput;
 
@@ -159,12 +160,12 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 
 	private SerializedValue createGround(Type type, Object object) {
 		if (object == null) {
-			SerializedNull nullInstance = SerializedNull.nullInstance();
+			SerializedNull nullInstance = nullInstance();
 			return nullInstance;
 		} else if (baseType(type).isPrimitive()) {
-			return SerializedLiteral.literal(baseType(type), object);
+			return literal(baseType(type), object);
 		} else {
-			return SerializedLiteral.literal(object);
+			return literal(object);
 		}
 	}
 

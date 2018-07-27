@@ -5,7 +5,6 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNull.nullValue;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -87,7 +86,7 @@ public class ArrayMatcher<T> extends AbstractIterableMatcher<T, T[]> {
 	@Override
 	protected boolean matchesSafely(T[] item) {
 		Iterator<Matcher<T>> elementIterator = elements.iterator();
-		Iterator<? extends T> itemIterator = Arrays.asList(item).iterator();
+		Iterator<? extends T> itemIterator = asList(item).iterator();
 		while (elementIterator.hasNext() && itemIterator.hasNext()) {
 			Matcher<T> matcher = elementIterator.next();
 			T element = itemIterator.next();

@@ -35,28 +35,27 @@ public class TestGeneratorTest {
 	private static SnapshotManager saveManager;
 
 	private ExtensibleClassLoader loader;
-	private AgentConfiguration config;
 	private TestGenerator testGenerator;
 
 	@BeforeAll
-	public static void beforeClass() throws Exception {
+	static void beforeClass() throws Exception {
 		saveManager = SnapshotManager.MANAGER;
 	}
 
 	@AfterAll
-	public static void afterClass() throws Exception {
+	static void afterClass() throws Exception {
 		SnapshotManager.MANAGER = saveManager;
 	}
 
 	@BeforeEach
-	public void before() throws Exception {
+	void before() throws Exception {
 		loader = new ExtensibleClassLoader(TestGenerator.class.getClassLoader());
-		config = defaultConfig().withLoader(loader);
+		AgentConfiguration config = defaultConfig().withLoader(loader);
 		testGenerator = new TestGenerator(config);
 	}
 
 	@Test
-	public void testAccept() throws Exception {
+	void testAccept() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));
@@ -80,7 +79,7 @@ public class TestGeneratorTest {
 	}
 
 	@Test
-	public void testAcceptWithInitializer() throws Exception {
+	void testAcceptWithInitializer() throws Exception {
 		loader.defineResource("agentconfig/net.amygdalum.testrecorder.runtime.TestRecorderAgentInitializer", "net.amygdalum.testrecorder.runtime.AgentInitializer".getBytes());
 		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
@@ -103,7 +102,7 @@ public class TestGeneratorTest {
 	}
 
 	@Test
-	public void testAcceptWithInput() throws Exception {
+	void testAcceptWithInput() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));
@@ -127,7 +126,7 @@ public class TestGeneratorTest {
 	}
 
 	@Test
-	public void testAcceptWithOutput() throws Exception {
+	void testAcceptWithOutput() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));
@@ -151,7 +150,7 @@ public class TestGeneratorTest {
 	}
 
 	@Test
-	public void testSuppressesWarnings() throws Exception {
+	void testSuppressesWarnings() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));
@@ -168,12 +167,12 @@ public class TestGeneratorTest {
 	}
 
 	@Test
-	public void testTestsForEmpty() throws Exception {
+	void testTestsForEmpty() throws Exception {
 		assertThat(testGenerator.testsFor(MyClass.class)).isEmpty();
 	}
 
 	@Test
-	public void testTestsForAfterClear() throws Exception {
+	void testTestsForAfterClear() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));
@@ -190,7 +189,7 @@ public class TestGeneratorTest {
 	}
 
 	@Test
-	public void testRenderCode() throws Exception {
+	void testRenderCode() throws Exception {
 		ContextSnapshot snapshot1 = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot1.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot1.setSetupArgs(literal(int.class, 16));
@@ -224,12 +223,12 @@ public class TestGeneratorTest {
 	}
 
 	@Test
-	public void testComputeClassName() throws Exception {
+	void testComputeClassName() throws Exception {
 		assertThat(testGenerator.computeClassName(ClassDescriptor.of(MyClass.class))).isEqualTo("MyClassRecordedTest");
 	}
 
 	@Test
-	public void testWriteResults(TemporaryFolder folder) throws Exception {
+	void testWriteResults(TemporaryFolder folder) throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));

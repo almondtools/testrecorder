@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.values;
 
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -102,7 +103,7 @@ public class ValuePrinterTest {
 
 	@Test
 	public void testVisitNull() throws Exception {
-		SerializedReferenceType object = SerializedNull.nullInstance();
+		SerializedReferenceType object = nullInstance();
 		assertThat(printer.visitReferenceType(object, context)).isEqualTo("null");
 	}
 
@@ -143,7 +144,7 @@ public class ValuePrinterTest {
 
 	@Test
 	public void testVisitValueType() throws Exception {
-		SerializedLiteral serializedLiteral = SerializedLiteral.literal('a');
+		SerializedLiteral serializedLiteral = literal('a');
 
 		String visitImmutableType = printer.visitValueType(serializedLiteral, context);
 
@@ -152,7 +153,7 @@ public class ValuePrinterTest {
 
 	@Test
 	public void testVisitValueTypeCached() throws Exception {
-		SerializedLiteral serializedLiteral = SerializedLiteral.literal('a');
+		SerializedLiteral serializedLiteral = literal('a');
 
 		String visitImmutableType = printer.visitValueType(serializedLiteral, context);
 		visitImmutableType = printer.visitValueType(serializedLiteral, context);

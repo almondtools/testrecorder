@@ -57,49 +57,26 @@ public class BiOptionalTest {
 	@Test
 	void testMapWithGenericDefault() throws Exception {
 		assertThat(BiOptional.of(47, 11)
-			.map((x, y) -> x + ":" + y, "?:?")
+			.map((x, y) -> x + ":" + y, xy -> "?:?")
 			.orElse("0:0"))
 				.isEqualTo("47:11");
 		assertThat(BiOptional.ofNullable(47, 11)
-			.map((x, y) -> x + ":" + y, "?:?")
+			.map((x, y) -> x + ":" + y, xy -> "?:?")
 			.orElse("0:0"))
 				.isEqualTo("47:11");
 		assertThat(BiOptional.ofNullable(47, null)
-			.map((x, y) -> x + ":" + y, "?:?")
+			.map((x, y) -> x + ":" + y, xy -> "?:?")
 			.orElse("0:0"))
 				.isEqualTo("?:?");
 		assertThat(BiOptional.ofNullable(null, 11)
-			.map((x, y) -> x + ":" + y, "?:?")
+			.map((x, y) -> x + ":" + y, xy -> "?:?")
 			.orElse("0:0"))
 				.isEqualTo("?:?");
 		assertThat(BiOptional.ofNullable((Integer) null, (Integer) null)
-			.map((x, y) -> x + ":" + y, "?:?")
+			.map((x, y) -> x + ":" + y, xy -> "?:?")
 			.orElse("0:0"))
 				.isEqualTo("0:0");
 	}
 
-	@Test
-	void testMapWithPairDefault() throws Exception {
-		assertThat(BiOptional.of(47, 11)
-			.map((x, y) -> x + ":" + y, "?:0", "0:?")
-			.orElse("0:0"))
-				.isEqualTo("47:11");
-		assertThat(BiOptional.ofNullable(47, 11)
-			.map((x, y) -> x + ":" + y, "?:0", "0:?")
-			.orElse("0:0"))
-				.isEqualTo("47:11");
-		assertThat(BiOptional.ofNullable(47, null)
-			.map((x, y) -> x + ":" + y, "?:0", "0:?")
-			.orElse("0:0"))
-				.isEqualTo("?:0");
-		assertThat(BiOptional.ofNullable(null, 11)
-			.map((x, y) -> x + ":" + y, "?:0", "0:?")
-			.orElse("0:0"))
-				.isEqualTo("0:?");
-		assertThat(BiOptional.ofNullable((Integer) null, (Integer) null)
-			.map((x, y) -> x + ":" + y, "?:0", "0:?")
-			.orElse("0:0"))
-				.isEqualTo("0:0");
-	}
 
 }

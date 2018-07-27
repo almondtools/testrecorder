@@ -18,7 +18,7 @@ public class DefaultValueTest {
         assertThat(DefaultValue.of(long.class)).isEqualTo(Long.valueOf(0));
         assertThat(DefaultValue.of(float.class)).isEqualTo(Float.valueOf(0));
         assertThat(DefaultValue.of(double.class)).isEqualTo(Double.valueOf(0));
-        assertThat(DefaultValue.of(boolean.class)).isEqualTo(Boolean.valueOf("false"));
+        assertThat(DefaultValue.of(boolean.class)).isEqualTo(Boolean.FALSE);
         assertThat(DefaultValue.of(char.class)).isEqualTo(Character.valueOf((char) 0));
         assertThat(DefaultValue.of(String.class)).isNull();
         assertThat(DefaultValue.of(PublicEnum.class)).isNull();

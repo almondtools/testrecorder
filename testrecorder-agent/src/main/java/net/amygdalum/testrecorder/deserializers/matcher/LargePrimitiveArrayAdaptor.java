@@ -65,7 +65,6 @@ public class LargePrimitiveArrayAdaptor implements MatcherGenerator<SerializedAr
 					throw new DeserializationException("failed deserializing: " + value, e);
 				}
 			}
-			;
 		}
 		throw new DeserializationException("failed deserializing: " + value);
 	}

@@ -38,14 +38,13 @@ import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class SetupGeneratorsTest {
 
-	private AgentConfiguration config;
 	private SerializedValues values;
 	private SetupGenerators setupCode;
 	private DeserializerContext context;
 
 	@BeforeEach
 	void before() throws Exception {
-		config = defaultConfig();
+		AgentConfiguration config = defaultConfig();
 		values = new SerializedValues(config);
 		setupCode = new SetupGenerators(config);
 

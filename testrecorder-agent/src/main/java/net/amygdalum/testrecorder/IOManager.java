@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder;
 
-import java.util.Collections;
+import static java.util.Collections.emptySet;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.Set;
 
 public class IOManager {
 	
-	private static final Set<String> NONE = Collections.emptySet();
+	private static final Set<String> NONE = emptySet();
 	
 	private Map<String, Set<String>> in;
 	private Map<String, Set<String>> out;

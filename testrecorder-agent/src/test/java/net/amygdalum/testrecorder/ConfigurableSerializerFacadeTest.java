@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder;
 
 import static java.util.Arrays.asList;
 import static net.amygdalum.testrecorder.TestAgentConfiguration.defaultConfig;
+import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,7 +20,6 @@ import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.ASerializedValue;
-import net.amygdalum.testrecorder.values.SerializedLiteral;
 import net.amygdalum.testrecorder.values.SerializedNull;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
@@ -96,9 +96,9 @@ public class ConfigurableSerializerFacadeTest {
 	public void testSerializeOnLiteral() throws Exception {
 		ConfigurableSerializerFacade facade = new ConfigurableSerializerFacade(defaultConfig());
 
-		assertThat(facade.serialize(String.class, "strliteral", facade.newSession())).isEqualTo(SerializedLiteral.literal("strliteral"));
-		assertThat(facade.serialize(int.class, 22, facade.newSession())).isEqualTo(SerializedLiteral.literal(int.class, 22));
-		assertThat(facade.serialize(Integer.class, 22, facade.newSession())).isEqualTo(SerializedLiteral.literal(Integer.class, 22));
+		assertThat(facade.serialize(String.class, "strliteral", facade.newSession())).isEqualTo(literal("strliteral"));
+		assertThat(facade.serialize(int.class, 22, facade.newSession())).isEqualTo(literal(int.class, 22));
+		assertThat(facade.serialize(Integer.class, 22, facade.newSession())).isEqualTo(literal(Integer.class, 22));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -136,7 +136,7 @@ public class ConfigurableSerializerFacadeTest {
 
 		SerializedValue[] serialize = facade.serialize(new Type[] { String.class }, new Object[] { "str" }, facade.newSession());
 
-		assertThat(serialize).containsExactly(SerializedLiteral.literal(String.class, "str"));
+		assertThat(serialize).containsExactly(literal(String.class, "str"));
 	}
 
 	public static class OtherClass {

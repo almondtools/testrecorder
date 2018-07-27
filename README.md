@@ -2,6 +2,7 @@
 ============
 [![Build Status](https://travis-ci.org/almondtools/testrecorder.svg?branch=master)](https://travis-ci.org/almondtools/testrecorder)
 [![codecov](https://codecov.io/gh/almondtools/testrecorder/branch/master/graph/badge.svg)](https://codecov.io/gh/almondtools/testrecorder)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/b988e1773ef042c5be578b49c8a432a0)](https://www.codacy.com/project/almondtools/testrecorder/dashboard?utm_source=github.com&utm_medium=referral&utm_content=almondtools/testrecorder&utm_campaign=Badge_Grade_Dashboard)
 
 __Testrecorder__ provides and easy way to generate characterizing unit tests (not integration tests!) by just recording interactions of a running system.
 

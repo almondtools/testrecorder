@@ -9,7 +9,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import net.amygdalum.testrecorder.generator.TestGenerator;
 import net.amygdalum.testrecorder.integration.Instrumented;
 import net.amygdalum.testrecorder.integration.TestRecorderAgentExtension;
-import net.amygdalum.testrecorder.test.TestsRun;
 
 @ExtendWith(TestRecorderAgentExtension.class)
 @Instrumented(classes = { 
@@ -28,7 +27,7 @@ public class StandardLibOutputTest {
 		assertThat(testGenerator.renderTest(StandardLibInputOutput.class).getTestCode()).containsSubsequence(
 			"FakeIO",
 			"fakeOutput");
-		assertThat(testGenerator.renderTest(StandardLibInputOutput.class)).satisfies(TestsRun.testsRun());
+		assertThat(testGenerator.renderTest(StandardLibInputOutput.class)).satisfies(testsRun());
 	}
 
 	@Test
@@ -40,7 +39,7 @@ public class StandardLibOutputTest {
 		assertThat(testGenerator.renderTest(StandardLibInputOutput.class).getTestCode()).containsSubsequence(
 			"FakeIO",
 			"fakeOutput");
-		assertThat(testGenerator.renderTest(StandardLibInputOutput.class)).satisfies(TestsRun.testsRun());
+		assertThat(testGenerator.renderTest(StandardLibInputOutput.class)).satisfies(testsRun());
 	}
 	
 	@Test

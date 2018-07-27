@@ -441,7 +441,7 @@ public class SnapshotManager {
 	}
 
 	public boolean isInvalidStacktrace() {
-		for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
+		for (StackTraceElement element : currentThread().getStackTrace()) {
 			if (STACKTRACE_VALIDATOR.isInvalid(element)) {
 				return true;
 			}
@@ -588,7 +588,7 @@ public class SnapshotManager {
 		}
 
 		public boolean submissionPermitted() {
-			Thread current = Thread.currentThread();
+			Thread current = currentThread();
 			return current != active;
 		}
 

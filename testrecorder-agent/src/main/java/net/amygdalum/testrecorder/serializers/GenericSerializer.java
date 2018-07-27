@@ -3,6 +3,7 @@ package net.amygdalum.testrecorder.serializers;
 import static java.util.Collections.emptyList;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.isPrimitive;
+import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -12,7 +13,6 @@ import java.util.stream.Stream.Builder;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.types.SerializerSession;
-import net.amygdalum.testrecorder.values.SerializedNull;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class GenericSerializer extends AbstractCompositeSerializer implements Serializer<SerializedReferenceType> {
@@ -47,7 +47,7 @@ public class GenericSerializer extends AbstractCompositeSerializer implements Se
 	@Override
 	public SerializedReferenceType generate(Class<?> type, SerializerSession session) {
 		if (session.excludes(baseType(type))) {
-			return SerializedNull.nullInstance();
+			return nullInstance();
 		} else {
 			return new SerializedObject(type);
 		}
