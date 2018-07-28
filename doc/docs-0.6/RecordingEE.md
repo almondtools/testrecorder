@@ -14,7 +14,7 @@ Maybe. I realized that really many enterprise frameworks do only add abstraction
 
 * they store transient state, e.g. caches, transaction management (that should not be recorded)
 * they may have dynamic classes (which is not easily recorded)
-* there state is not really relevant, there behavior is (another argument not to record it)
+* their state is not really relevant, there behavior is (another argument not to record it)
 
 With this insight we conclude, that testrecorder should ignore the state of these objects and instead record interactions with them. This may seem familiar, the resulting test code should stub or mock these objects, e.g.:
 

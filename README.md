@@ -12,6 +12,7 @@ __Some more Documentation (Work in Progress)__
 
 * [An Introduction to the Testrecorder Architecture](doc/Architecture.md)
 * [Tuning the Output of Testrecorder](doc/TuningOutput.md)
+* [Excluding Objects from Recording](doc/ExcludingObjects.md)
 * [Recording Input/Output](doc/RecordingIO.md)
 * [Recording Enterprise Java](doc/RecordingEE.md)
 * [Using the Testrecorder-API to serialize data and generate code](doc/API.md)

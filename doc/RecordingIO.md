@@ -28,7 +28,8 @@ Testrecorder follows a well known paradigm to simulate output/input - verifying 
 ## Input
 
 To capture the input, for mocking it in the later test cases, there are two variants:
-* mark the method that produces input with the `@SerializationProfile.Input` annotation
+
+* Mark the method that produces input with the `@Input` annotation
 * Use a `SerializationProfile` implementing the method `getInputs()` and return the method that produces input
 
 Whatever variant you choose, the result and the arguments of the method will be interpreted as input data.
@@ -36,9 +37,8 @@ Whatever variant you choose, the result and the arguments of the method will be 
 ## Output
 
 To capture output, for verifying it in the later test cases, there are two variants:
-* mark the method that produces input with the `@SerializationProfile.Output` annotation
+
+* Mark the method that produces input with the `@Output` annotation
 * Use a `SerializationProfile` implementing the method `getOutputs()` and return the method that transfers output
 
 Whatever variant you choose, the result and the arguments of the method will be interpreted as output data.
-
-
