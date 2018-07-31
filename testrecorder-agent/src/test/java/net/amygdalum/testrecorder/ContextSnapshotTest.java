@@ -10,6 +10,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Queue;
 
 import org.junit.jupiter.api.Test;
@@ -26,7 +27,7 @@ import net.amygdalum.testrecorder.values.SerializedOutput;
 public class ContextSnapshotTest {
 
 	@Test
-	public void testMethodSnapshot() throws Exception {
+	void testMethodSnapshot() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
 		assertThat(snapshot.isValid()).isTrue();
@@ -37,7 +38,7 @@ public class ContextSnapshotTest {
 	}
 
 	@Test
-	public void testGetKey() throws Exception {
+	void testGetKey() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
 		assertThat(snapshot.getKey()).isEqualTo("key");
@@ -46,7 +47,7 @@ public class ContextSnapshotTest {
 	}
 
 	@Test
-	public void testInvalidate() throws Exception {
+	void testInvalidate() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
 		snapshot.invalidate();
@@ -55,7 +56,7 @@ public class ContextSnapshotTest {
 	}
 
 	@Test
-	public void testGetThisType() throws Exception {
+	void testGetThisType() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		SerializedList setupThis = new SerializedList(ArrayList.class);
 		setupThis.useAs(List.class);
@@ -67,7 +68,7 @@ public class ContextSnapshotTest {
 	}
 
 	@Test
-	public void testSetGetSetupThis() throws Exception {
+	void testSetGetSetupThis() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		SerializedList setupThis = new SerializedList(ArrayList.class);
 		setupThis.useAs(List.class);
@@ -85,7 +86,7 @@ public class ContextSnapshotTest {
 	}
 
 	@Test
-	public void testSetGetSetupThisNull() throws Exception {
+	void testSetGetSetupThisNull() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
 		SerializedValue getValue = snapshot.getSetupThis();
@@ -98,7 +99,7 @@ public class ContextSnapshotTest {
 	}
 
 	@Test
-	public void testSetGetExpectThis() throws Exception {
+	void testSetGetExpectThis() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		SerializedList expectedThis = new SerializedList(ArrayList.class);
 		expectedThis.useAs(List.class);
@@ -116,7 +117,7 @@ public class ContextSnapshotTest {
 	}
 
 	@Test
-	public void testSetGetExpectThisNull() throws Exception {
+	void testSetGetExpectThisNull() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
 		SerializedValue getValue = snapshot.getExpectThis();
@@ -129,33 +130,45 @@ public class ContextSnapshotTest {
 	}
 
 	@Test
-	public void testSetGetSetupArgs() throws Exception {
+	void testSetGetSetupArgs() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
 		snapshot.setSetupArgs(literal("a"), literal("b"));
 
 		SerializedValue[] getValue = snapshot.getSetupArgs();
 		SerializedValue[] streamValue = snapshot.streamSetupArgs().toArray(SerializedValue[]::new);
+		Optional<SerializedValue> onValue0 = snapshot.onSetupArg(0);
+		Optional<SerializedValue> onValue1 = snapshot.onSetupArg(1);
+		Optional<SerializedValue> onValue2 = snapshot.onSetupArg(2);
 
 		assertThat(getValue).containsExactly(literal("a"), literal("b"));
 		assertThat(streamValue).containsExactly(literal("a"), literal("b"));
+		assertThat(onValue0).contains(literal("a"));
+		assertThat(onValue1).contains(literal("b"));
+		assertThat(onValue2).isNotPresent();
 	}
 
 	@Test
-	public void testSetGetExpectArgs() throws Exception {
+	void testSetGetExpectArgs() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
 		snapshot.setExpectArgs(literal("c"), literal("d"));
 
 		SerializedValue[] getValue = snapshot.getExpectArgs();
 		SerializedValue[] streamValue = snapshot.streamExpectArgs().toArray(SerializedValue[]::new);
+		Optional<SerializedValue> onValue0 = snapshot.onExpectArg(0);
+		Optional<SerializedValue> onValue1 = snapshot.onExpectArg(1);
+		Optional<SerializedValue> onValue2 = snapshot.onExpectArg(2);
 
 		assertThat(getValue).containsExactly(literal("c"), literal("d"));
 		assertThat(streamValue).containsExactly(literal("c"), literal("d"));
+		assertThat(onValue0).contains(literal("c"));
+		assertThat(onValue1).contains(literal("d"));
+		assertThat(onValue2).isNotPresent();
 	}
 
 	@Test
-	public void testSetGetExpectResult() throws Exception {
+	void testSetGetExpectResult() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
 		snapshot.setExpectResult(literal(boolean.class, true));
@@ -170,7 +183,7 @@ public class ContextSnapshotTest {
 	}
 
 	@Test
-	public void testSetGetExpectException() throws Exception {
+	void testSetGetExpectException() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		SerializedObject expectException = new SerializedObject(NullPointerException.class);
 
@@ -186,13 +199,13 @@ public class ContextSnapshotTest {
 	}
 
 	@Test
-	public void testGetTime() throws Exception {
+	void testGetTime() throws Exception {
 		assertThat(new ContextSnapshot(0l, "key", new MethodSignature(Object.class, new Annotation[0], Object.class, "method", new Annotation[0][0], new Type[0])).getTime()).isEqualTo(0l);
 		assertThat(new ContextSnapshot(1l, "key", new MethodSignature(Object.class, new Annotation[0], Object.class, "method", new Annotation[0][0], new Type[0])).getTime()).isEqualTo(1l);
 	}
 
 	@Test
-	public void testGetAnnotation() throws Exception {
+	void testGetAnnotation() throws Exception {
 		ContextSnapshot snapshot = new ContextSnapshot(0l, "key", new MethodSignature(
 			Object.class,
 			new Annotation[] { anno("result") },
@@ -215,7 +228,7 @@ public class ContextSnapshotTest {
 	}
 
 	@Test
-	public void testGetAnnotatedSetupArgs() throws Exception {
+	void testGetAnnotatedSetupArgs() throws Exception {
 		ContextSnapshot snapshot = new ContextSnapshot(0l, "key", new MethodSignature(
 			Object.class,
 			new Annotation[] { anno("result") },
@@ -233,7 +246,7 @@ public class ContextSnapshotTest {
 	}
 
 	@Test
-	public void testGetAnnotatedExpectArgs() throws Exception {
+	void testGetAnnotatedExpectArgs() throws Exception {
 		ContextSnapshot snapshot = new ContextSnapshot(0l, "key", new MethodSignature(
 			Object.class,
 			new Annotation[] { anno("result") },
@@ -251,7 +264,7 @@ public class ContextSnapshotTest {
 	}
 
 	@Test
-	public void testSetGetSetupGlobals() throws Exception {
+	void testSetGetSetupGlobals() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		SerializedField field = new SerializedField(Static.class, "global", String.class, literal("a"));
 
@@ -265,7 +278,7 @@ public class ContextSnapshotTest {
 	}
 
 	@Test
-	public void testSetGetExpectGlobals() throws Exception {
+	void testSetGetExpectGlobals() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		SerializedField field = new SerializedField(Static.class, "global", String.class, literal("a"));
 
@@ -279,7 +292,7 @@ public class ContextSnapshotTest {
 	}
 
 	@Test
-	public void testSetupInput() throws Exception {
+	void testSetupInput() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		SerializedInput input = new SerializedInput(41, String.class, "name", char.class, new Type[0]);
 
@@ -299,7 +312,7 @@ public class ContextSnapshotTest {
 	}
 
 	@Test
-	public void testSetupNoInput() throws Exception {
+	void testSetupNoInput() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
 		boolean hasInput = snapshot.hasSetupInput();
@@ -314,7 +327,7 @@ public class ContextSnapshotTest {
 	}
 
 	@Test
-	public void testExpectOutput() throws Exception {
+	void testExpectOutput() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		SerializedOutput output = new SerializedOutput(41, String.class, "name", char.class, new Type[0]);
 
@@ -334,7 +347,7 @@ public class ContextSnapshotTest {
 	}
 
 	@Test
-	public void testExpectNoOutput() throws Exception {
+	void testExpectNoOutput() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
 		boolean hasOutput = snapshot.hasExpectOutput();
@@ -349,7 +362,7 @@ public class ContextSnapshotTest {
 	}
 
 	@Test
-	public void testToString() throws Exception {
+	void testToString() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(Object.class, String.class, "method", Integer.class);
 
 		assertThat(snapshot.toString()).contains("Object", "String", "method", "Integer");
@@ -360,7 +373,7 @@ public class ContextSnapshotTest {
 	}
 
 	@Test
-	public void testOnThis() throws Exception {
+	void testOnThis() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		SerializedList setupThis = new SerializedList(ArrayList.class);
 		setupThis.useAs(List.class);
@@ -380,7 +393,7 @@ public class ContextSnapshotTest {
 	}
 
 	@Test
-	public void testOnArgs() throws Exception {
+	void testOnArgs() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
 		snapshot.setSetupArgs(literal("a"), literal("b"));
@@ -393,7 +406,7 @@ public class ContextSnapshotTest {
 	}
 
 	@Test
-	public void testOnGlobals() throws Exception {
+	void testOnGlobals() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
 		snapshot.setSetupGlobals(new SerializedField(Static.class, "global", String.class, literal("a")));
