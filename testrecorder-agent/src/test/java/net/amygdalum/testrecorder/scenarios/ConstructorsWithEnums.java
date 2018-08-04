@@ -39,16 +39,16 @@ public class ConstructorsWithEnums {
 		return (value == null ? "null" : value.toString()) + ":" + (chained == null ? "null" : chained.toString());
 	}
 
-	public static enum InnerEnum {
+	public enum InnerEnum {
 		FIRST, SECOND
 	}
 
-	public static enum ChainedEnum {
+	public enum ChainedEnum {
 		FIRST(InnerEnum.FIRST), SECOND(InnerEnum.SECOND);
 
 		private InnerEnum value;
 
-		private ChainedEnum(InnerEnum value) {
+		ChainedEnum(InnerEnum value) {
 			this.value = value;
 		}
 	}

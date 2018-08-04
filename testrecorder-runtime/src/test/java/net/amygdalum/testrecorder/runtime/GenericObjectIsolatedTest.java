@@ -48,10 +48,10 @@ public class GenericObjectIsolatedTest {
     private static class Simple {
         private String str;
 
-        public Simple() {
+        Simple() {
         }
 
-        public Simple(String str) {
+        Simple(String str) {
             this.str = str;
         }
 
@@ -64,7 +64,7 @@ public class GenericObjectIsolatedTest {
 
         private Simple simple;
 
-        public Complex() {
+        Complex() {
             this.simple = new Simple("otherStr");
         }
 
@@ -95,7 +95,7 @@ public class GenericObjectIsolatedTest {
     private static class SimpleNoDefaultConstructor {
         private String str;
 
-        public SimpleNoDefaultConstructor(String str) {
+        SimpleNoDefaultConstructor(String str) {
             this.str = str;
         }
 
@@ -107,7 +107,7 @@ public class GenericObjectIsolatedTest {
     private static class NullParamConstructor {
         private String str;
 
-        public NullParamConstructor(String str) {
+        NullParamConstructor(String str) {
             this.str = str;
         }
 
@@ -119,7 +119,7 @@ public class GenericObjectIsolatedTest {
     private static class DefaultParamConstructor {
         private String str;
 
-        public DefaultParamConstructor(String str) {
+        DefaultParamConstructor(String str) {
             if (str == null) {
                 throw new NullPointerException();
             }
@@ -134,7 +134,7 @@ public class GenericObjectIsolatedTest {
     private static class NonDefaultParamConstructor {
         private String str;
 
-        public NonDefaultParamConstructor(String str) {
+        NonDefaultParamConstructor(String str) {
             if (str == null) {
                 throw new NullPointerException();
             } else if (str.isEmpty()) {
@@ -151,7 +151,7 @@ public class GenericObjectIsolatedTest {
     private static class ExceptionConstructor {
         private String str;
 
-        public ExceptionConstructor(String str) {
+        ExceptionConstructor(String str) {
             throw new IllegalArgumentException();
         }
 
@@ -163,7 +163,7 @@ public class GenericObjectIsolatedTest {
     private static class NonSerializableConstructor implements Serializable {
         private String str;
 
-        public NonSerializableConstructor(String str) {
+        NonSerializableConstructor(String str) {
             throw new IllegalArgumentException();
         }
 

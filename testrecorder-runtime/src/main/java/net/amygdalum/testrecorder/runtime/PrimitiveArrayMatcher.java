@@ -143,7 +143,7 @@ public class PrimitiveArrayMatcher<T> extends TypeSafeMatcher<T> {
 	private static class SimpleClass {
 		private Class<?> clazz;
 
-		public SimpleClass(Class<?> clazz) {
+		SimpleClass(Class<?> clazz) {
 			this.clazz = clazz;
 		}
 

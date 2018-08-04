@@ -196,7 +196,7 @@ public class FakeIO {
 		fakeIOTransformer.reset();
 	}
 
-	public static abstract class Interaction {
+	public abstract static class Interaction {
 
 		protected FakeIO io;
 		protected String methodName;

@@ -74,7 +74,7 @@ public class ConstructorsWithNestedEnums {
 
 		private InnerEnum value;
 
-		private ChainedEnum(InnerEnum value) {
+		ChainedEnum(InnerEnum value) {
 			this.value = value;
 		}
 	}
@@ -99,7 +99,7 @@ public class ConstructorsWithNestedEnums {
 
 		public final int value;
 
-		private RecursiveEnum(int value) {
+		RecursiveEnum(int value) {
 			this.value = value;
 		}
 

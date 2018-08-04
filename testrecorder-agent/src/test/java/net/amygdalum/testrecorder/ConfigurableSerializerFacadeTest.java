@@ -165,7 +165,7 @@ public class ConfigurableSerializerFacadeTest {
 		private Class<?> clazz;
 		private SerializedValue value;
 
-		public TestSerializer(Class<?> clazz, SerializedValue value) {
+		TestSerializer(Class<?> clazz, SerializedValue value) {
 			this.clazz = clazz;
 			this.value = value;
 		}
@@ -195,7 +195,7 @@ public class ConfigurableSerializerFacadeTest {
 	@OverrideSerializer(TestSerializer.class)
 	private static class OverridingSerializer extends TestSerializer {
 
-		public OverridingSerializer(Class<?> clazz, SerializedValue value) {
+		OverridingSerializer(Class<?> clazz, SerializedValue value) {
 			super(clazz, value);
 		}
 

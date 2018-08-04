@@ -72,7 +72,7 @@ public class DefaultProxyAdaptor extends DefaultMatcherGenerator<SerializedProxy
 
 		private TypeManager types;
 
-		public TypesAware(TypeManager types) {
+		TypesAware(TypeManager types) {
 			this.types = types;
 		}
 

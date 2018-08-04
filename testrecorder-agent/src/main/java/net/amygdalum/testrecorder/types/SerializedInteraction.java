@@ -5,7 +5,7 @@ import java.util.List;
 
 public interface SerializedInteraction {
 
-	public static final int STATIC = 0;
+	int STATIC = 0;
 	
 	int getId();
 	

@@ -25,7 +25,7 @@ public class NestedEnum {
 		return enumValue;
 	}
 
-	private static enum Nested {
+	private enum Nested {
 		FIRST, SECOND;
 	}
 

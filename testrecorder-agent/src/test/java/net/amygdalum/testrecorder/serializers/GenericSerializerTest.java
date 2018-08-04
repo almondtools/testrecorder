@@ -98,7 +98,7 @@ public class GenericSerializerTest {
 		private String stringField;
 		private int intField;
 
-		public GenericObject(String stringField, int intField) {
+		GenericObject(String stringField, int intField) {
 			this.stringField = stringField;
 			this.intField = intField;
 		}

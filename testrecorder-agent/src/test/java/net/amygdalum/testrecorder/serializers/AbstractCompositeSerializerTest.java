@@ -144,7 +144,7 @@ public class AbstractCompositeSerializerTest {
 	private static class Fields {
 		private Object field;
 
-		public Fields(Object field) {
+		Fields(Object field) {
 			this.field = field;
 		}
 	}
@@ -153,7 +153,7 @@ public class AbstractCompositeSerializerTest {
 	private static class Other {
 		private Object field;
 
-		public Other(Object field) {
+		Other(Object field) {
 			this.field = field;
 		}
 	}

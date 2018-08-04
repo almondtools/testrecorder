@@ -76,12 +76,12 @@ public class Hidden {
         return HiddenSet.class;
     }
 
-    private static enum HiddenEnum {
-        VALUE1, VALUE2;
-    }
-
     public static Class<?> classOfHiddenEnum() {
         return HiddenEnum.class;
+    }
+
+    private enum HiddenEnum {
+        VALUE1, VALUE2;
     }
 
 }

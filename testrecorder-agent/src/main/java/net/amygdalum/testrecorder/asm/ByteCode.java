@@ -221,7 +221,7 @@ public final class ByteCode {
 		public String boxingFactory;
 		public String unboxingFactory;
 
-		public PrimitiveTypeInfo(char desc, int sort, Class<?> raw, Class<?> boxed, String boxingFactory, String unboxingFactory) {
+		PrimitiveTypeInfo(char desc, int sort, Class<?> raw, Class<?> boxed, String boxingFactory, String unboxingFactory) {
 			this.desc = desc;
 			this.sort = sort;
 			this.rawClass = raw;

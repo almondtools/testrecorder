@@ -84,7 +84,7 @@ public class CodeSerializer {
 
 		private List<String> statements;
 
-		public Generator(SerializedValue value) {
+		Generator(SerializedValue value) {
 			this.value = value;
 			this.locals = new LocalVariableNameGenerator();
 			this.statements = new ArrayList<>();

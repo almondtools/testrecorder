@@ -131,21 +131,21 @@ public class AdaptorsTest {
 		MyAdaptor1 a1 = new MyAdaptor1(null, true, Computation.variable("a1", Object.class));
 		MyAdaptor2 a2 = new MyAdaptor2(MyAdaptor1.class, true, Computation.variable("a2", Object.class));
 		MyAdaptor4 a4 = new MyAdaptor4(MyAdaptor3.class, true, Computation.variable("a3", Object.class));
-		
+
 		adaptors.add(a1);
 		adaptors.add(a2);
 		adaptors.add(a4);
-		
+
 		assertThat(openadaptors.getAdaptors().get(SerializedObject.class)).containsExactly(a4, a2, a1);
 	}
-	
+
 	private abstract class MyAbstractAdaptor implements Adaptor<SerializedObject, TestComputationValueVisitor> {
 
 		private Class<? extends Adaptor<SerializedObject, TestComputationValueVisitor>> parent;
 		private boolean matches;
 		private Computation computation;
 
-		public MyAbstractAdaptor(Class<? extends Adaptor<SerializedObject, TestComputationValueVisitor>> parent, boolean matches, Computation computation) {
+		MyAbstractAdaptor(Class<? extends Adaptor<SerializedObject, TestComputationValueVisitor>> parent, boolean matches, Computation computation) {
 			super();
 			this.parent = parent;
 			this.matches = matches;
@@ -176,7 +176,7 @@ public class AdaptorsTest {
 
 	private class MyAdaptor1 extends MyAbstractAdaptor {
 
-		public MyAdaptor1(Class<? extends Adaptor<SerializedObject, TestComputationValueVisitor>> parent, boolean matches, Computation computation) {
+		MyAdaptor1(Class<? extends Adaptor<SerializedObject, TestComputationValueVisitor>> parent, boolean matches, Computation computation) {
 			super(parent, matches, computation);
 		}
 
@@ -184,7 +184,7 @@ public class AdaptorsTest {
 
 	private class MyAdaptor2 extends MyAbstractAdaptor {
 
-		public MyAdaptor2(Class<? extends Adaptor<SerializedObject, TestComputationValueVisitor>> parent, boolean matches, Computation computation) {
+		MyAdaptor2(Class<? extends Adaptor<SerializedObject, TestComputationValueVisitor>> parent, boolean matches, Computation computation) {
 			super(parent, matches, computation);
 		}
 
@@ -192,7 +192,7 @@ public class AdaptorsTest {
 
 	private class MyAdaptor3 extends MyAbstractAdaptor {
 
-		public MyAdaptor3(Class<? extends Adaptor<SerializedObject, TestComputationValueVisitor>> parent, boolean matches, Computation computation) {
+		MyAdaptor3(Class<? extends Adaptor<SerializedObject, TestComputationValueVisitor>> parent, boolean matches, Computation computation) {
 			super(parent, matches, computation);
 		}
 
@@ -200,11 +200,12 @@ public class AdaptorsTest {
 
 	private class MyAdaptor4 extends MyAbstractAdaptor {
 
-		public MyAdaptor4(Class<? extends Adaptor<SerializedObject, TestComputationValueVisitor>> parent, boolean matches, Computation computation) {
+		MyAdaptor4(Class<? extends Adaptor<SerializedObject, TestComputationValueVisitor>> parent, boolean matches, Computation computation) {
 			super(parent, matches, computation);
 		}
 
 	}
+
 	interface OpenAdaptors {
 		Map<Class<? extends SerializedValue>, List<Adaptor<?, TestComputationValueVisitor>>> getAdaptors();
 	}

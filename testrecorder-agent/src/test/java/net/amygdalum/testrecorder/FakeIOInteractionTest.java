@@ -145,7 +145,7 @@ public class FakeIOInteractionTest {
 
 		private Object result;
 
-		public MyInteraction(FakeIO io, String methodName, String methodDesc) {
+		MyInteraction(FakeIO io, String methodName, String methodDesc) {
 			super(io, methodName, methodDesc);
 		}
 

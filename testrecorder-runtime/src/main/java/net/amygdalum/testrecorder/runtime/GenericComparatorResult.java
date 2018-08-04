@@ -7,11 +7,11 @@ public enum GenericComparatorResult {
 	private boolean applying;
 	private boolean result;
 
-	private GenericComparatorResult(boolean result) {
+	GenericComparatorResult(boolean result) {
 		this(true, result);
 	}
 	
-	private GenericComparatorResult(boolean applying, boolean result) {
+	GenericComparatorResult(boolean applying, boolean result) {
 		this.applying = applying;
 		this.result = result;
 	}

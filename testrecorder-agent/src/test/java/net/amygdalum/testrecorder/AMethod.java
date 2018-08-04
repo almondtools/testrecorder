@@ -62,7 +62,7 @@ public class AMethod extends Condition<Methods> {
 		public String methodName;
 		public String methodDescriptor;
 
-		public Method(String className, String methodName, String methodDescriptor) {
+		Method(String className, String methodName, String methodDescriptor) {
 			this.className = className;
 			this.methodName = methodName;
 			this.methodDescriptor = methodDescriptor;

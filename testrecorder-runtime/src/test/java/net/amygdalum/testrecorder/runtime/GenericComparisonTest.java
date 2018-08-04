@@ -432,11 +432,11 @@ public class GenericComparisonTest {
 		private String name;
 		private Node[] children;
 
-		public Node(String name) {
+		Node(String name) {
 			this(name, new Node[0]);
 		}
 
-		public Node(String name, Node[] children) {
+		Node(String name, Node[] children) {
 			this.name = name;
 			this.children = children;
 		}

@@ -19,7 +19,7 @@ public class DifferentPublicDeclarationTypes {
 		myInterface = new MyClass();
 	}
 
-	public static enum MyEnum {
+	public enum MyEnum {
 		VALUE1, VALUE2;
 	}
 

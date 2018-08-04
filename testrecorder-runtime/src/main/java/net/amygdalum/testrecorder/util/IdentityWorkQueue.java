@@ -239,7 +239,7 @@ public class IdentityWorkQueue<E> implements Queue<E> {
 
 		private Node<E> next;
 
-		public QueueIterator() {
+		QueueIterator() {
 			this.next = first;
 		}
 

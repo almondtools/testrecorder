@@ -280,7 +280,7 @@ public class DefaultDeserializerContext implements DeserializerContext {
 
 	private static class GlobalRoot implements SerializedReferenceType {
 
-		public GlobalRoot() {
+		GlobalRoot() {
 		}
 
 		@Override

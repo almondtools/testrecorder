@@ -223,7 +223,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		return node.visibleAnnotations;
 	}
 
-	public static abstract class Task {
+	public abstract static class Task {
 
 		private SerializationProfile profile;
 		private ClassNodeManager classes;

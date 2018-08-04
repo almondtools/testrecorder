@@ -1,6 +1,5 @@
 package net.amygdalum.testrecorder;
 
-import static java.util.Optional.empty;
 import static java.util.stream.Collectors.joining;
 
 import java.io.Serializable;
@@ -135,7 +134,7 @@ public class ContextSnapshot implements Serializable {
 
 	public Optional<SerializedValue> onSetupArg(int index) {
 		if (setupArgs.length <= index) {
-			return empty();
+			return Optional.empty();
 		}
 		return Optional.ofNullable(setupArgs[index]);
 	}
@@ -241,7 +240,7 @@ public class ContextSnapshot implements Serializable {
 
 	public Optional<SerializedValue> onExpectArg(int index) {
 		if (expectArgs.length <= index) {
-			return empty();
+			return Optional.empty();
 		}
 		return Optional.ofNullable(expectArgs[index]);
 	}

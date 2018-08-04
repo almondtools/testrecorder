@@ -62,7 +62,7 @@ public class AField extends Condition<Fields> {
 		public String fieldName;
 		public String fieldDescriptor;
 
-		public Field(String className, String fieldName, String fieldDescriptor) {
+		Field(String className, String fieldName, String fieldDescriptor) {
 			this.className = className;
 			this.fieldName = fieldName;
 			this.fieldDescriptor = fieldDescriptor;

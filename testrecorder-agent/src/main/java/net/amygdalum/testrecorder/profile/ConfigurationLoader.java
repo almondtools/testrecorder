@@ -9,7 +9,7 @@ public interface ConfigurationLoader {
 
 	<T> Stream<T> load(Class<T> clazz, Object... args);
 
-	public static ClassLoader defaultClassLoader(Class<?> clazz) {
+	static ClassLoader defaultClassLoader(Class<?> clazz) {
 		ClassLoader loader = Thread.currentThread().getContextClassLoader();
 		if (loader == null) {
 			loader = clazz.getClassLoader();
@@ -20,7 +20,7 @@ public interface ConfigurationLoader {
 		return loader;
 	}
 
-	public default boolean matches(Constructor<?> constructor, Object[] args) {
+	default boolean matches(Constructor<?> constructor, Object[] args) {
 		Class<?>[] parameterTypes = constructor.getParameterTypes();
 		if (parameterTypes.length != args.length) {
 			return false;

@@ -139,7 +139,7 @@ public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> im
 		private Type mapKeyType;
 		private Type mapValueType;
 
-		public EntryDeserializer(MatcherGenerators generator, DeserializerContext context, Type mapKeyType, Type mapValueType) {
+		EntryDeserializer(MatcherGenerators generator, DeserializerContext context, Type mapKeyType, Type mapValueType) {
 			this.generator = generator;
 			this.context = context;
 			this.mapKeyType = mapKeyType;

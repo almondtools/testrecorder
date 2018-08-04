@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 
 public interface DeserializerContext {
 
-	public static final DeserializerContext NULL = new DeserializerContext() {
+	DeserializerContext NULL = new DeserializerContext() {
 
 		@Override
 		public DeserializerContext getParent() {

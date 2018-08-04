@@ -51,7 +51,7 @@ public class SerializedEnumTest {
 	}
 
 
-	private static enum MyEnum {
+	private enum MyEnum {
 		VALUE1, VALUE2;
 	}
 

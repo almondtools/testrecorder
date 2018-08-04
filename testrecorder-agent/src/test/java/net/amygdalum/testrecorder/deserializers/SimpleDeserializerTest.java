@@ -174,7 +174,7 @@ public class SimpleDeserializerTest {
 		assertThat(visitImmutableType).isEqualTo('a');
 	}
 
-	public static enum TestEnum {
+	public enum TestEnum {
 		ENUM;
 	}
 

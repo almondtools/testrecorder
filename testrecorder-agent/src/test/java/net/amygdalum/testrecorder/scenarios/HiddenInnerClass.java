@@ -19,7 +19,7 @@ public class HiddenInnerClass {
 	private static class Hidden {
 		private String name;
 		
-		public Hidden(String name) {
+		Hidden(String name) {
 			this.name = name;
 		}
 		

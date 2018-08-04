@@ -559,7 +559,7 @@ public class SnapshotManager {
 
 		private Set<String> classNames;
 
-		public StackTraceValidator() {
+		StackTraceValidator() {
 			classNames = new HashSet<>();
 		}
 
@@ -578,7 +578,7 @@ public class SnapshotManager {
 		
 		private Thread active;
 
-		public SerializationThreadPoolExecutor(long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory) {
+		SerializationThreadPoolExecutor(long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory) {
 			super(0, 1, keepAliveTime, unit, workQueue, threadFactory);
 		}
 		

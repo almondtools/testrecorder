@@ -65,7 +65,7 @@ public class DefaultObjectAdaptor extends DefaultMatcherGenerator<SerializedObje
 
 		private TypeManager types;
 
-		public TypesAware(TypeManager types) {
+		TypesAware(TypeManager types) {
 			this.types = types;
 		}
 

@@ -161,7 +161,7 @@ public class ValuePrinterTest {
 		assertThat(visitImmutableType).isEqualTo("a");
 	}
 
-	public static enum TestEnum {
+	public enum TestEnum {
 		ENUM;
 	}
 

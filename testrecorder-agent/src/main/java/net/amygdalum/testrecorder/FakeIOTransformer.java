@@ -182,7 +182,7 @@ public class FakeIOTransformer extends AttachableClassFileTransformer implements
 		return null;
 	}
 
-	public static abstract class Task {
+	public abstract static class Task {
 
 		protected ClassNode classNode;
 		protected List<MethodNode> methods;

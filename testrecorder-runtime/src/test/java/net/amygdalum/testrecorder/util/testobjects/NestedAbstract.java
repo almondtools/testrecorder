@@ -26,24 +26,24 @@ public abstract class NestedAbstract {
 	public static NestedPackagePrivatePublicConstructor createNestedPackagePrivatePublicConstructor() {
 		return new NestedPackagePrivatePublicConstructor();
 	}
-	
+
 	public static class NestedPublic extends NestedAbstract {
 
 		public NestedPublic() {
 		}
-		
+
 	}
 
 	public static class NestedPublicNonPublicConstructor extends NestedAbstract {
 
 		NestedPublicNonPublicConstructor() {
 		}
-		
+
 	}
 
 	static class NestedPackagePrivatePublicConstructor extends NestedAbstract {
 
-		public NestedPackagePrivatePublicConstructor() {
+		NestedPackagePrivatePublicConstructor() {
 		}
-}
+	}
 }

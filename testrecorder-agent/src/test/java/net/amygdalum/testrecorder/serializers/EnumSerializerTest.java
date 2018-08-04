@@ -58,11 +58,11 @@ public class EnumSerializerTest {
 
 	}
 
-	private static enum MyEnum implements MyInterface {
+	private enum MyEnum implements MyInterface {
 		VALUE1, VALUE2;
 	}
 
-	private static enum ExtendedEnum {
+	private enum ExtendedEnum {
 		VALUE1 {
 		};
 	}

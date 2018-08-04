@@ -59,7 +59,7 @@ public class Matches<T> implements SelfDescribing {
 		description.appendText("]>");
 	}
 	
-	private static abstract class Matching<T> implements SelfDescribing {
+	private abstract static class Matching<T> implements SelfDescribing {
 
 	}
 
@@ -67,7 +67,7 @@ public class Matches<T> implements SelfDescribing {
 		
 		private int count;
 
-		public Match() {
+		Match() {
 			this.count = 1;
 		}
 		
@@ -87,7 +87,7 @@ public class Matches<T> implements SelfDescribing {
 
 		private String description;
 
-		public MismatchDescription(String description) {
+		MismatchDescription(String description) {
 			this.description = description;
 		}
 
@@ -102,7 +102,7 @@ public class Matches<T> implements SelfDescribing {
 		private Matcher<T> matcher;
 		private Object element;
 
-		public Mismatch(Matcher<T> matcher, Object element) {
+		Mismatch(Matcher<T> matcher, Object element) {
 			this.matcher = matcher;
 			this.element = element;
 		}

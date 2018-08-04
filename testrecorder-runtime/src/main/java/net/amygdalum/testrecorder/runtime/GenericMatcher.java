@@ -84,7 +84,7 @@ public class GenericMatcher extends GenericObject {
 
 		private Class<T> clazz;
 
-		public InternalsMatcher(Class<T> clazz) {
+		InternalsMatcher(Class<T> clazz) {
 			this.clazz = clazz;
 		}
 
@@ -184,7 +184,7 @@ public class GenericMatcher extends GenericObject {
 		private Class<S> clazz;
 		private Matcher<T> matcher;
 
-		public CastingMatcher(Class<S> clazz, Matcher<T> matcher) {
+		CastingMatcher(Class<S> clazz, Matcher<T> matcher) {
 			this.clazz = clazz;
 			this.matcher = matcher;
 		}

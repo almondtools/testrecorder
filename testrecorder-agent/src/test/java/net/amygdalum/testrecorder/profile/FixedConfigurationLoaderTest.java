@@ -66,7 +66,7 @@ public class FixedConfigurationLoaderTest {
 	}
 
 	private class BrokenImplementation implements Interface {
-		public BrokenImplementation() {
+		BrokenImplementation() {
 			throw new RuntimeException();
 		}
 	}
@@ -74,7 +74,7 @@ public class FixedConfigurationLoaderTest {
 	private class ImplementationWithArgs implements Interface {
 		private Object[] args;
 
-		public ImplementationWithArgs(Object[] args) {
+		ImplementationWithArgs(Object[] args) {
 			this.args = args;
 		}
 

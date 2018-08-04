@@ -28,7 +28,7 @@ public class TestDataGenerator {
 		
 		private Class<T> clazz;
 
-		public DefaultValueGenerator(Class<T> clazz) {
+		DefaultValueGenerator(Class<T> clazz) {
 			this.clazz = clazz;
 		}
 		
