@@ -44,7 +44,7 @@ public class DifferentDeclarationTypesTest {
 	public void testCodeSingletonClass() throws Exception {
 		CodeSerializer codeSerializer = setupSerializer();
 
-		assertThat(codeSerializer.serialize(MySingletonClass.SINGLE)).containsWildcardPattern("mySingletonClass2 = new GenericObject() {*"
+		assertThat(codeSerializer.serialize(MySingletonClass.SINGLE)).containsWildcardPattern("mySingletonClass1 = new GenericObject() {*"
 			+ "}.as(MySingletonClass.class)");
 	}
 

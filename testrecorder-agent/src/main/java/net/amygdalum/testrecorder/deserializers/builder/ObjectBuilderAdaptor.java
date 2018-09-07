@@ -8,7 +8,7 @@ import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
-public class BeanObjectAdaptor implements SetupGenerator<SerializedObject> {
+public class ObjectBuilderAdaptor implements SetupGenerator<SerializedObject> {
 
 	@Override
 	public Class<SerializedObject> getAdaptedClass() {
@@ -35,9 +35,9 @@ public class BeanObjectAdaptor implements SetupGenerator<SerializedObject> {
 
 		return context.forVariable(value, type, local -> {
 			try {
-				return new Construction(context, local, value).computeBest(types, generator);
+				return new BuilderConstruction(context, local, value).build(types, generator);
 			} catch (ReflectiveOperationException | RuntimeException e) {
-				throw new DeserializationException("failed deserializing as bean: " + value, e);
+				throw new DeserializationException("failed deserializing with builder conventions: " + value, e);
 			}
 		});
 	}

@@ -76,8 +76,8 @@ public class SetupGeneratorsTest {
 
 		Computation result = setupCode.visitField(new SerializedField(ContainingList.class, "list", parameterized(List.class, null, String.class), value), context);
 
-		assertThat(result.getStatements().toString()).containsWildcardPattern("List list2 = new GenericObject*.as(clazz(*HiddenList*)*.value(List.class)");
-		assertThat(result.getValue()).isEqualTo("List<String> list = list2;");
+		assertThat(result.getStatements().toString()).containsWildcardPattern("List list1 = new GenericObject*.as(clazz(*HiddenList*)*.value(List.class)");
+		assertThat(result.getValue()).isEqualTo("List<String> list = list1;");
 	}
 
 	@Test
@@ -86,8 +86,8 @@ public class SetupGeneratorsTest {
 
 		Computation result = setupCode.visitField(new SerializedField(ContainingList.class, "list", parameterized(List.class, null, String.class), value), context);
 
-		assertThat(result.getStatements().toString()).containsWildcardPattern("List list2 = *new GenericObject*value(List.class)");
-		assertThat(result.getValue()).isEqualTo("List<String> list = list2;");
+		assertThat(result.getStatements().toString()).containsWildcardPattern("List list1 = *new GenericObject*value(List.class)");
+		assertThat(result.getValue()).isEqualTo("List<String> list = list1;");
 	}
 
 	@Test
@@ -118,9 +118,9 @@ public class SetupGeneratorsTest {
 		Computation result = setupCode.visitReferenceType(value, context);
 
 		assertThat(result.getStatements()).is(containingExactly(
-			containingWildcardPattern("Cycle cycle2 = GenericObject.forward(Cycle.class)*"),
+			containingWildcardPattern("Cycle cycle1 = GenericObject.forward(Cycle.class)*"),
 			containingWildcardPattern("GenericObject.define*")));
-		assertThat(result.getValue()).isEqualTo("cycle2");
+		assertThat(result.getValue()).isEqualTo("cycle1");
 	}
 
 	@Test
@@ -130,9 +130,9 @@ public class SetupGeneratorsTest {
 		Computation result = setupCode.visitReferenceType(value, context);
 
 		assertThat(result.getStatements()).is(containingExactly(
-			containingWildcardPattern("GenericCycle genericCycle2 = GenericObject.forward(GenericCycle.class)*"),
+			containingWildcardPattern("GenericCycle genericCycle1 = GenericObject.forward(GenericCycle.class)*"),
 			containingWildcardPattern("GenericObject.define*")));
-		assertThat(result.getValue()).isEqualTo("genericCycle2");
+		assertThat(result.getValue()).isEqualTo("genericCycle1");
 	}
 
 	@Test

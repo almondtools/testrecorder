@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import net.amygdalum.testrecorder.generator.TestGenerator;
 import net.amygdalum.testrecorder.integration.Instrumented;
 import net.amygdalum.testrecorder.integration.TestRecorderAgentExtension;
+import net.amygdalum.testrecorder.util.Debug;
 
 @ExtendWith(TestRecorderAgentExtension.class)
 @Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.ObjectCycles" })
@@ -27,7 +28,7 @@ public class ObjectCyclesTest {
 		assertThat(b.getPrev()).isSameAs(a);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.renderTest(ObjectCycles.class)).satisfies(testsRun());
+		assertThat(Debug.print(testGenerator.renderTest(ObjectCycles.class))).satisfies(testsRun());
 	}
 
 	@Test

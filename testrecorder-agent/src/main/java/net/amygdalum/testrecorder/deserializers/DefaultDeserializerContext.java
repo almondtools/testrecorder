@@ -114,7 +114,8 @@ public class DefaultDeserializerContext implements DeserializerContext {
 
 	@Override
 	public void resetVariable(SerializedValue value) {
-		defined.remove(value);
+		LocalVariable variable = defined.remove(value);
+		locals.freeName(variable.getName());
 	}
 
 	@Override
