@@ -68,6 +68,14 @@ public class SerializedArray extends AbstractSerializedReferenceType implements 
 		return visitor.visitReferenceType(this, context);
 	}
 
+	public SerializedValue get(int index) {
+		return array.get(index);
+	}
+
+	public int size() {
+		return array.size();
+	}
+
 	public void add(SerializedValue value) {
 		array.add(value);
 		if (!satisfiesType(componentType, value)) {

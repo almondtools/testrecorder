@@ -29,6 +29,14 @@ public class SerializedValueEvaluatorTest {
 	}
 
 	@Test
+	public void testEvaluateParsingFails() throws Exception {
+		SerializedValue value = facade.serialize(String.class, "str", session);
+
+		assertThat(new SerializedValueEvaluator("str").applyTo(value).isPresent()).isFalse();
+		assertThat(new SerializedValueEvaluator("str").error().map(e -> e.getMessage()).orElse(null)).isEqualTo("expecting '.' or '[', but found: 'str'");
+	}
+
+	@Test
 	public void testEvaluateLiteralFails() throws Exception {
 		SerializedValue value = facade.serialize(String.class, "str", session);
 
