@@ -9,7 +9,11 @@ public final class Optionals {
 	}
 
 	public static <T> Stream<T> stream(Optional<T> o) {
-		return o.map(Stream::of).orElseGet(Stream::empty);
+		if (o.isPresent()) {
+			return Stream.of(o.get());
+		} else {
+			return Stream.empty();
+		}
 	}
 
 }

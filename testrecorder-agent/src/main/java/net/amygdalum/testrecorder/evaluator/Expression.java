@@ -6,5 +6,7 @@ import net.amygdalum.testrecorder.types.SerializedValue;
 
 public interface Expression {
 
-    Optional<SerializedValue> evaluate(SerializedValue base);
+	Optional<SerializedValue> evaluate(SerializedValue base);
+
+	Optional<SerializedValue> evaluate(SerializedValue base, Class<?> type);
 }

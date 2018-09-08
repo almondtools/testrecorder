@@ -10,13 +10,19 @@ import net.amygdalum.testrecorder.types.SerializedValue;
 
 public class SerializedValueEvaluator {
 
-    private List<Expression> parsed;
+    private Expression[] parsed;
+    private Class<?> type;
 
     public SerializedValueEvaluator(String expression) {
         this.parsed = parse(expression);
     }
     
-    private static List<Expression> parse(String expression) {
+    public SerializedValueEvaluator(String expression, Class<?> type) {
+    	this.parsed = parse(expression);
+    	this.type = type;
+    }
+    
+    private static Expression[] parse(String expression) {
         List<Expression> expressions = new ArrayList<>();
         StringTokenizer tokenizer = new StringTokenizer(expression, ".[]", true);
         
@@ -35,18 +41,29 @@ public class SerializedValueEvaluator {
                 tokenConstructor = null;
             }
         }
-        return expressions;
+        return expressions.toArray(new Expression[expressions.size()]);
     }
 
     public Optional<SerializedValue> applyTo(SerializedValue value) {
         Optional<SerializedValue> result = Optional.ofNullable(value);
-        
-        for (Expression expression : parsed) {
-            result = result
-                .map(v -> expression.evaluate(v))
-                .filter(v -> v.isPresent())
-                .map(v -> v.get());
-        }
+    	if (parsed.length == 0) {
+    		if (type != null) {
+    			result = result.filter(v -> type.isAssignableFrom(v.getType()));
+    		} 
+			return result;
+    	}
+
+        int last = parsed.length - 1;
+		for (int i = 0; i < last; i++) {
+        	Expression expression = parsed[i];
+        	result = result.flatMap(expression::evaluate);
+		}
+    	Expression expression = parsed[last];
+		if (type == null) {
+        	result = result.flatMap(expression::evaluate);
+		} else {
+			result = result.flatMap(v -> expression.evaluate(v, type));
+		}
         
         return result;
     }
