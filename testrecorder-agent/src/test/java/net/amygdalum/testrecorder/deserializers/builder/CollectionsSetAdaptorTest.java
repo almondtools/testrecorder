@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializationException;
@@ -59,9 +60,9 @@ public class CollectionsSetAdaptorTest {
 	@Test
 	public void testTryDeserializeUnmodifiable() throws Exception {
 		SerializedSet value = setOf("java.util.Collections$UnmodifiableSet", 0, 8, 15);
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(setDecoratedBy("unmodifiableSet", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
@@ -70,9 +71,9 @@ public class CollectionsSetAdaptorTest {
 	@Test
 	public void testTryDeserializeUnmodifiableNavigable() throws Exception {
 		SerializedSet value = setOf("java.util.Collections$UnmodifiableNavigableSet", 0, 8, 15);
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(setDecoratedBy("unmodifiableSet", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
@@ -81,9 +82,9 @@ public class CollectionsSetAdaptorTest {
 	@Test
 	public void testTryDeserializeUnmodifiableSorted() throws Exception {
 		SerializedSet value = setOf("java.util.Collections$UnmodifiableSortedSet", 0, 8, 15);
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(setDecoratedBy("unmodifiableSet", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
@@ -92,9 +93,9 @@ public class CollectionsSetAdaptorTest {
 	@Test
 	public void testTryDeserializeSynchronized() throws Exception {
 		SerializedSet value = setOf("java.util.Collections$SynchronizedSet", 0, 8, 15);
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(setDecoratedBy("synchronizedSet", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
@@ -103,9 +104,9 @@ public class CollectionsSetAdaptorTest {
 	@Test
 	public void testTryDeserializeSynchronizedRawType() throws Exception {
 		SerializedSet value = setOfRaw("java.util.Collections$SynchronizedSet", 0, 8, 15);
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(rawSetDecoratedBy("synchronizedSet", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
@@ -114,9 +115,9 @@ public class CollectionsSetAdaptorTest {
 	@Test
 	public void testTryDeserializeSynchronizedWildcardType() throws Exception {
 		SerializedSet value = setOfWildcard("java.util.Collections$SynchronizedSet", 0, 8, 15);
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(wildcardSetDecoratedBy("synchronizedSet", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
@@ -125,9 +126,9 @@ public class CollectionsSetAdaptorTest {
 	@Test
 	public void testTryDeserializeSynchronizedNavigable() throws Exception {
 		SerializedSet value = setOf("java.util.Collections$SynchronizedNavigableSet", 0, 8, 15);
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(setDecoratedBy("synchronizedSet", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
@@ -136,9 +137,9 @@ public class CollectionsSetAdaptorTest {
 	@Test
 	public void testTryDeserializeSynchronizedSorted() throws Exception {
 		SerializedSet value = setOf("java.util.Collections$SynchronizedSortedSet", 0, 8, 15);
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(setDecoratedBy("synchronizedSet", 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
@@ -147,9 +148,9 @@ public class CollectionsSetAdaptorTest {
 	@Test
 	public void testTryDeserializeChecked() throws Exception {
 		SerializedSet value = setOf("java.util.Collections$CheckedSet", 0, 8, 15);
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(setDecoratedBy("checkedSet", Integer.class, 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
@@ -158,9 +159,9 @@ public class CollectionsSetAdaptorTest {
 	@Test
 	public void testTryDeserializeCheckedSorted() throws Exception {
 		SerializedSet value = setOf("java.util.Collections$CheckedSortedSet", 0, 8, 15);
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(setDecoratedBy("checkedSet", Integer.class, 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
@@ -169,9 +170,9 @@ public class CollectionsSetAdaptorTest {
 	@Test
 	public void testTryDeserializeCheckedNavigable() throws Exception {
 		SerializedSet value = setOf("java.util.Collections$CheckedNavigableSet", 0, 8, 15);
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(setDecoratedBy("checkedSet", Integer.class, 0, 8, 15));
 		assertThat(result.getValue()).isEqualTo("set1");
@@ -180,9 +181,9 @@ public class CollectionsSetAdaptorTest {
 	@Test
 	public void testTryDeserializeEmpty() throws Exception {
 		SerializedSet value = setOf("java.util.Collections$EmptySet");
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString()).contains("Set<Integer> set1 = emptySet()");
 		assertThat(result.getValue()).isEqualTo("set1");
@@ -191,9 +192,9 @@ public class CollectionsSetAdaptorTest {
 	@Test
 	public void testTryDeserializeSingleton() throws Exception {
 		SerializedSet value = setOf("java.util.Collections$SingletonSet", 0);
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString()).contains("Set<Integer> set1 = singleton(0)");
 		assertThat(result.getValue()).isEqualTo("set1");
@@ -202,9 +203,9 @@ public class CollectionsSetAdaptorTest {
 	@Test
 	public void testTryDeserializeOther() throws Exception {
 		SerializedSet value = setOf("java.lang.Object");
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 
-		assertThatThrownBy(() -> adaptor.tryDeserialize(value, generator, context)).isInstanceOf(DeserializationException.class);
+		assertThatThrownBy(() -> adaptor.tryDeserialize(value, generator)).isInstanceOf(DeserializationException.class);
 	}
 
 	private SerializedSet setOf(String className, int... elements) throws ClassNotFoundException {
@@ -278,8 +279,8 @@ public class CollectionsSetAdaptorTest {
 		return matchers;
 	}
 
-	private SetupGenerators generator() {
-		return new SetupGenerators(new Adaptors<SetupGenerators>(config).load(SetupGenerator.class));
+	private Deserializer generator() {
+		return new SetupGenerators(new Adaptors(config).load(SetupGenerator.class)).newGenerator(context);
 	}
 
 }

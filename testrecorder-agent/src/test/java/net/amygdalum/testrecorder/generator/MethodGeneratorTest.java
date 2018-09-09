@@ -12,8 +12,6 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.ContextSnapshot;
-import net.amygdalum.testrecorder.MethodSignature;
 import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DeserializerTypeManager;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerator;
@@ -21,9 +19,11 @@ import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
 import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerator;
 import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerators;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.types.ContextSnapshot;
+import net.amygdalum.testrecorder.types.MethodSignature;
+import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.util.testobjects.Bean;
-import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedObject;
 import net.amygdalum.xrayinterface.XRayInterface;
 
@@ -37,8 +37,8 @@ public class MethodGeneratorTest {
 	void before() throws Exception {
 		AgentConfiguration config = defaultConfig();
 		types = new DeserializerTypeManager();
-		setup = new SetupGenerators(new Adaptors<SetupGenerators>(config).load(SetupGenerator.class));
-		matcher = new MatcherGenerators(new Adaptors<MatcherGenerators>(config).load(MatcherGenerator.class));
+		setup = new SetupGenerators(new Adaptors(config).load(SetupGenerator.class));
+		matcher = new MatcherGenerators(new Adaptors(config).load(MatcherGenerator.class));
 	}
 	
 	@Test
@@ -142,7 +142,7 @@ public class MethodGeneratorTest {
 	}
 	
 	private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
-		return new ContextSnapshot(0, "key", new MethodSignature(declaringClass, new Annotation[0], resultType, methodName, new Annotation[0][0], argumentTypes));
+		return new ContextSnapshot(0, "key", new MethodSignature(declaringClass, new Annotation[0], resultType, methodName, new Annotation[argumentTypes.length][0], argumentTypes));
 	}
 
 	private SerializedObject objectOf(Class<?> type, SerializedField... fields) {

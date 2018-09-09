@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
@@ -65,9 +66,9 @@ public class DefaultSetAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
 			"Set<Integer> set1 = new LinkedHashSet<>()",
@@ -85,9 +86,9 @@ public class DefaultSetAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
 			"LinkedHashSet temp1 = new LinkedHashSet<>()",
@@ -105,9 +106,9 @@ public class DefaultSetAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
 			"LinkedHashSet linkedHashSet1 = new LinkedHashSet<>()",
@@ -124,9 +125,9 @@ public class DefaultSetAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
 			"PublicSet temp1 = new PublicSet<>()",
@@ -144,9 +145,9 @@ public class DefaultSetAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
 			"java.util.Set temp1 = clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenSet\").value(java.util.Set.class);",
@@ -164,9 +165,9 @@ public class DefaultSetAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString()).doesNotContain("new net.amygdalum.testrecorder.util.testobjects.Hidden.HiddenSet");
 		assertThat(result.getStatements().toString()).containsSubsequence(
@@ -184,9 +185,7 @@ public class DefaultSetAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		SetupGenerators generator = generator();
-
-		Computation result = adaptor.tryDeserialize(value, generator, new DefaultDeserializerContext() {
+		Deserializer generator = generator(new DefaultDeserializerContext() {
 			@Override
 			public Computation forVariable(SerializedValue value, Type type, LocalVariableDefinition computation) {
 				LocalVariable local = new LocalVariable("forwarded");
@@ -194,6 +193,8 @@ public class DefaultSetAdaptorTest {
 				return computation.define(local);
 			}
 		});
+
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
 			"Set<Integer> forwarded = new LinkedHashSet<>()",
@@ -203,8 +204,12 @@ public class DefaultSetAdaptorTest {
 		assertThat(result.getValue()).isEqualTo("forwarded");
 	}
 
-	private SetupGenerators generator() {
-		return new SetupGenerators(new Adaptors<SetupGenerators>(config).load(SetupGenerator.class));
+	private Deserializer generator(DeserializerContext context) {
+		return new SetupGenerators(new Adaptors(config).load(SetupGenerator.class)).newGenerator(context);
+	}
+
+	private Deserializer generator() {
+		return new SetupGenerators(new Adaptors(config).load(SetupGenerator.class)).newGenerator(context);
 	}
 
 }

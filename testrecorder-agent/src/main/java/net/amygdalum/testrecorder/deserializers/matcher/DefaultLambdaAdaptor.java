@@ -7,6 +7,7 @@ import java.lang.reflect.Type;
 
 import org.hamcrest.Matcher;
 
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.runtime.LambdaMatcher;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
@@ -27,7 +28,8 @@ public class DefaultLambdaAdaptor extends DefaultMatcherGenerator<SerializedLamb
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedLambdaObject value, MatcherGenerators generator, DeserializerContext context) {
+	public Computation tryDeserialize(SerializedLambdaObject value, Deserializer generator) {
+		DeserializerContext context = generator.getContext();
 		TypeManager types = context.getTypes();
 		types.registerImport(Matcher.class);
 		types.staticImport(LambdaMatcher.class, "lambda");

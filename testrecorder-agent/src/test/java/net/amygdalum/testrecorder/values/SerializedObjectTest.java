@@ -1,11 +1,11 @@
 package net.amygdalum.testrecorder.values;
 
-import static net.amygdalum.testrecorder.types.DeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.TestValueVisitor;
 
 public class SerializedObjectTest {
@@ -53,7 +53,7 @@ public class SerializedObjectTest {
 	void testAccept() throws Exception {
 		SerializedObject serializedObject = new SerializedObject(Object.class);
 
-		assertThat(serializedObject.accept(new TestValueVisitor(), NULL)).isEqualTo("ReferenceType:SerializedObject");
+		assertThat(serializedObject.accept(new TestValueVisitor())).isEqualTo("ReferenceType:SerializedObject");
 	}
 
 	@Test

@@ -15,6 +15,8 @@ import net.amygdalum.testrecorder.DefaultSnapshotConsumer;
 import net.amygdalum.testrecorder.SnapshotConsumer;
 import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
+import net.amygdalum.testrecorder.deserializers.Deserializer;
+import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.deserializers.DeserializerTypeManager;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerator;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
@@ -25,7 +27,6 @@ import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.profile.SerializationProfile;
 import net.amygdalum.testrecorder.serializers.SerializerFacade;
 import net.amygdalum.testrecorder.types.Computation;
-import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.types.LocalVariableNameGenerator;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.SerializerSession;
@@ -37,7 +38,7 @@ public class CodeSerializer {
 	private SerializerFacade facade;
 	private SerializerSession session;
 	private TypeManager types;
-	private Deserializer<Computation> deserializer;
+	private DeserializerFactory deserializers;
 
 	public CodeSerializer() {
 		this("");
@@ -48,17 +49,17 @@ public class CodeSerializer {
 	}
 	
 	private static SetupGenerators loadSetup(AgentConfiguration config) {
-		return new SetupGenerators(new Adaptors<SetupGenerators>(config).load(SetupGenerator.class));
+		return new SetupGenerators(new Adaptors(config).load(SetupGenerator.class));
 	}
 
-	public CodeSerializer(String pkg, Function<AgentConfiguration, SerializerFacade> facade, Function<AgentConfiguration, Deserializer<Computation>> deserializer) {
+	public CodeSerializer(String pkg, Function<AgentConfiguration, SerializerFacade> facade, Function<AgentConfiguration, DeserializerFactory> deserializers) {
 		this.config = new AgentConfiguration(new ClassPathConfigurationLoader(), new DefaultPathConfigurationLoader())
 			.withDefaultValue(SerializationProfile.class, DefaultSerializationProfile::new)
 			.withDefaultValue(PerformanceProfile.class, DefaultPerformanceProfile::new)
 			.withDefaultValue(SnapshotConsumer.class, DefaultSnapshotConsumer::new);
 		this.facade = facade.apply(config);
 		this.session = this.facade.newSession();
-		this.deserializer = deserializer.apply(config);
+		this.deserializers = deserializers.apply(config);
 		this.types = new DeserializerTypeManager(pkg);
 	}
 
@@ -79,19 +80,19 @@ public class CodeSerializer {
 	private class Generator {
 
 		private LocalVariableNameGenerator locals;
-
 		private SerializedValue value;
-
 		private List<String> statements;
+		private Deserializer deserializer;
 
 		Generator(SerializedValue value) {
 			this.value = value;
 			this.locals = new LocalVariableNameGenerator();
 			this.statements = new ArrayList<>();
+			this.deserializer = deserializers.newGenerator(new DefaultDeserializerContext(types, locals));
 		}
 
 		public String generateCode() {
-			Computation serialized = value.accept(deserializer, new DefaultDeserializerContext(types, locals));
+			Computation serialized = value.accept(deserializer);
 
 			statements.addAll(serialized.getStatements());
 			if (!serialized.isStored()) {

@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
@@ -62,9 +63,9 @@ public class DefaultListAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
 			"List<Integer> list1 = new ArrayList<>()",
@@ -82,9 +83,9 @@ public class DefaultListAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 		
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 		
 		assertThat(result.getStatements().toString()).containsSubsequence(
 			"ArrayList temp1 = new ArrayList<>()",
@@ -102,9 +103,9 @@ public class DefaultListAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
 			"ArrayList arrayList1 = new ArrayList<>()",
@@ -121,9 +122,9 @@ public class DefaultListAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
 			"PublicList temp1 = new PublicList<>()",
@@ -141,9 +142,9 @@ public class DefaultListAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
 			"java.util.List temp1 = clazz(\"net.amygdalum.testrecorder.util.testobjects.Hidden$HiddenList\").value(java.util.List.class);",
@@ -161,9 +162,9 @@ public class DefaultListAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString()).doesNotContain("new net.amygdalum.testrecorder.util.testobjects.Hidden.HiddenList");
 		assertThat(result.getStatements().toString()).containsSubsequence(
@@ -181,9 +182,8 @@ public class DefaultListAdaptorTest {
 		value.add(literal(0));
 		value.add(literal(8));
 		value.add(literal(15));
-		SetupGenerators generator = generator();
-
-		Computation result = adaptor.tryDeserialize(value, generator, new DefaultDeserializerContext() {
+		
+		Deserializer generator = generator(new DefaultDeserializerContext() {
 			@Override
 			public Computation forVariable(SerializedValue value, Type type, LocalVariableDefinition computation) {
 				LocalVariable local = new LocalVariable("forwarded");
@@ -191,6 +191,8 @@ public class DefaultListAdaptorTest {
 				return computation.define(local);
 			}
 		});
+
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
 			"List<Integer> forwarded = new ArrayList<>()",
@@ -200,8 +202,12 @@ public class DefaultListAdaptorTest {
 		assertThat(result.getValue()).isEqualTo("forwarded");
 	}
 
-	private SetupGenerators generator() {
-		return new SetupGenerators(new Adaptors<SetupGenerators>(config).load(SetupGenerator.class));
+	private Deserializer generator(DeserializerContext context) {
+		return new SetupGenerators(new Adaptors(config).load(SetupGenerator.class)).newGenerator(context);
+	}
+
+	private Deserializer generator() {
+		return new SetupGenerators(new Adaptors(config).load(SetupGenerator.class)).newGenerator(context);
 	}
 
 }

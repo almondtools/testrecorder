@@ -21,16 +21,17 @@ import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.SerializedValues;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.util.testobjects.Complex;
 import net.amygdalum.testrecorder.util.testobjects.ContainingList;
 import net.amygdalum.testrecorder.util.testobjects.Cycle;
 import net.amygdalum.testrecorder.util.testobjects.Dubble;
 import net.amygdalum.testrecorder.util.testobjects.GenericCycle;
 import net.amygdalum.testrecorder.util.testobjects.Simple;
-import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 import net.amygdalum.testrecorder.values.SerializedList;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
@@ -39,16 +40,16 @@ import net.amygdalum.testrecorder.values.SerializedObject;
 public class SetupGeneratorsTest {
 
 	private SerializedValues values;
-	private SetupGenerators setupCode;
+	private Deserializer setupCode;
 	private DeserializerContext context;
 
 	@BeforeEach
 	void before() throws Exception {
 		AgentConfiguration config = defaultConfig();
 		values = new SerializedValues(config);
-		setupCode = new SetupGenerators(config);
 
 		context = new DefaultDeserializerContext();
+		setupCode = new SetupGenerators(config).newGenerator(context);
 	}
 
 	@Test
@@ -56,7 +57,7 @@ public class SetupGeneratorsTest {
 		Type type = parameterized(ArrayList.class, null, String.class);
 		SerializedList value = values.list(type, arrayList("Foo", "Bar"));
 
-		Computation result = setupCode.visitField(new SerializedField(ContainingList.class, "list", type, value), context);
+		Computation result = setupCode.visitField(new SerializedField(ContainingList.class, "list", type, value));
 
 		assertThat(result.getStatements().toString()).containsWildcardPattern("ArrayList<String> arrayList1 = new ArrayList*");
 		assertThat(result.getValue()).isEqualTo("ArrayList<String> list = arrayList1;");
@@ -64,7 +65,7 @@ public class SetupGeneratorsTest {
 
 	@Test
 	void testVisitFieldWithCastNeeded() throws Exception {
-		Computation result = setupCode.visitField(new SerializedField(Complex.class, "simple", Simple.class, values.object(Object.class, new Complex())), context);
+		Computation result = setupCode.visitField(new SerializedField(Complex.class, "simple", Simple.class, values.object(Object.class, new Complex())));
 
 		assertThat(result.getStatements().toString()).containsWildcardPattern("Complex complex1 = new Complex*");
 		assertThat(result.getValue()).isEqualTo("Simple simple = (Simple) complex1;");
@@ -74,7 +75,7 @@ public class SetupGeneratorsTest {
 	void testVisitFieldWithHiddenTypeAndVisibleResult() throws Exception {
 		SerializedObject value = values.object(parameterized(classOfHiddenList(), null, String.class), hiddenList("Foo", "Bar"));
 
-		Computation result = setupCode.visitField(new SerializedField(ContainingList.class, "list", parameterized(List.class, null, String.class), value), context);
+		Computation result = setupCode.visitField(new SerializedField(ContainingList.class, "list", parameterized(List.class, null, String.class), value));
 
 		assertThat(result.getStatements().toString()).containsWildcardPattern("List list1 = new GenericObject*.as(clazz(*HiddenList*)*.value(List.class)");
 		assertThat(result.getValue()).isEqualTo("List<String> list = list1;");
@@ -84,7 +85,7 @@ public class SetupGeneratorsTest {
 	void testVisitFieldWithHiddenTypeAndHiddenResult() throws Exception {
 		SerializedObject value = values.object(parameterized(classOfHiddenList(), null, String.class), hiddenList("Foo", "Bar"));
 
-		Computation result = setupCode.visitField(new SerializedField(ContainingList.class, "list", parameterized(List.class, null, String.class), value), context);
+		Computation result = setupCode.visitField(new SerializedField(ContainingList.class, "list", parameterized(List.class, null, String.class), value));
 
 		assertThat(result.getStatements().toString()).containsWildcardPattern("List list1 = *new GenericObject*value(List.class)");
 		assertThat(result.getValue()).isEqualTo("List<String> list = list1;");
@@ -94,7 +95,7 @@ public class SetupGeneratorsTest {
 	void testVisitReferenceType() throws Exception {
 		SerializedObject value = values.object(Dubble.class, new Dubble("Foo", "Bar"));
 
-		Computation result = setupCode.visitReferenceType(value, context);
+		Computation result = setupCode.visitReferenceType(value);
 
 		assertThat(result.getStatements().toString()).contains("Dubble dubble1 = new Dubble(\"Foo\", \"Bar\");");
 		assertThat(result.getValue()).isEqualTo("dubble1");
@@ -103,9 +104,9 @@ public class SetupGeneratorsTest {
 	@Test
 	void testVisitReferenceTypeRevisited() throws Exception {
 		SerializedObject value = values.object(Dubble.class, new Dubble("Foo", "Bar"));
-		setupCode.visitReferenceType(value, context);
+		setupCode.visitReferenceType(value);
 
-		Computation result = setupCode.visitReferenceType(value, context);
+		Computation result = setupCode.visitReferenceType(value);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("dubble1");
@@ -115,7 +116,7 @@ public class SetupGeneratorsTest {
 	void testVisitReferenceTypeForwarding() throws Exception {
 		SerializedObject value = values.object(Cycle.class, Cycle.recursive("Foo"));
 
-		Computation result = setupCode.visitReferenceType(value, context);
+		Computation result = setupCode.visitReferenceType(value);
 
 		assertThat(result.getStatements()).is(containingExactly(
 			containingWildcardPattern("Cycle cycle1 = GenericObject.forward(Cycle.class)*"),
@@ -127,7 +128,7 @@ public class SetupGeneratorsTest {
 	void testVisitReferenceTypeGenericsForwarding() throws Exception {
 		SerializedObject value = values.object(parameterized(GenericCycle.class, null, String.class), GenericCycle.recursive("Foo"));
 
-		Computation result = setupCode.visitReferenceType(value, context);
+		Computation result = setupCode.visitReferenceType(value);
 
 		assertThat(result.getStatements()).is(containingExactly(
 			containingWildcardPattern("GenericCycle genericCycle1 = GenericObject.forward(GenericCycle.class)*"),
@@ -139,7 +140,7 @@ public class SetupGeneratorsTest {
 	void testVisitImmutableType() throws Exception {
 		SerializedImmutable<BigInteger> value = values.bigInteger(BigInteger.valueOf(42));
 
-		Computation result = setupCode.visitImmutableType(value, context);
+		Computation result = setupCode.visitImmutableType(value);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("new BigInteger(\"42\")");
@@ -149,7 +150,7 @@ public class SetupGeneratorsTest {
 	void testVisitValueType() throws Exception {
 		SerializedLiteral value = literal(int.class, 42);
 
-		Computation result = setupCode.visitValueType(value, context);
+		Computation result = setupCode.visitValueType(value);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("42");

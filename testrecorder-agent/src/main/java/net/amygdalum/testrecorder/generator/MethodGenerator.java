@@ -34,25 +34,28 @@ import java.util.stream.Stream;
 import org.junit.Assert;
 import org.stringtemplate.v4.ST;
 
-import net.amygdalum.testrecorder.AnnotatedValue;
-import net.amygdalum.testrecorder.ContextSnapshot;
 import net.amygdalum.testrecorder.MockedInteractions;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
+import net.amygdalum.testrecorder.deserializers.Deserializer;
+import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
+import net.amygdalum.testrecorder.deserializers.ReferenceAnalyzer;
 import net.amygdalum.testrecorder.deserializers.TreeAnalyzer;
 import net.amygdalum.testrecorder.evaluator.SerializedValueEvaluator;
 import net.amygdalum.testrecorder.hints.AnnotateGroupExpression;
 import net.amygdalum.testrecorder.hints.AnnotateTimestamp;
 import net.amygdalum.testrecorder.runtime.Throwables;
 import net.amygdalum.testrecorder.types.Computation;
-import net.amygdalum.testrecorder.types.Deserializer;
+import net.amygdalum.testrecorder.types.ContextSnapshot;
 import net.amygdalum.testrecorder.types.LocalVariableNameGenerator;
+import net.amygdalum.testrecorder.types.SerializedArgument;
+import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.SerializedImmutableType;
+import net.amygdalum.testrecorder.types.SerializedResult;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.util.AnnotatedBy;
 import net.amygdalum.testrecorder.util.Pair;
 import net.amygdalum.testrecorder.util.Triple;
-import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
 
 public class MethodGenerator {
@@ -71,8 +74,8 @@ public class MethodGenerator {
 	private static final String BEGIN_ASSERT = "\n//Assert";
 
 	private LocalVariableNameGenerator locals;
-	private Deserializer<Computation> setup;
-	private Deserializer<Computation> matcher;
+	private DeserializerFactory setup;
+	private DeserializerFactory matcher;
 
 	private int no;
 	private ContextSnapshot snapshot;
@@ -87,7 +90,7 @@ public class MethodGenerator {
 	private String result;
 	private String error;
 
-	public MethodGenerator(int no, TypeManager types, Deserializer<Computation> setup, Deserializer<Computation> matcher) {
+	public MethodGenerator(int no, TypeManager types, DeserializerFactory setup, DeserializerFactory matcher) {
 		this.no = no;
 		this.types = types;
 		this.setup = setup;
@@ -99,60 +102,37 @@ public class MethodGenerator {
 	public MethodGenerator analyze(ContextSnapshot snapshot) {
 		this.snapshot = snapshot;
 		this.context = computeInitialContext(snapshot);
-		this.mocked = new MockedInteractions(setup, matcher, snapshot.getSetupInput(), snapshot.getExpectOutput());
+		this.mocked = new MockedInteractions(setup.newGenerator(context), matcher.newGenerator(context), snapshot.getSetupInput(), snapshot.getExpectOutput());
 		return this;
 	}
 
 	private DefaultDeserializerContext computeInitialContext(ContextSnapshot snapshot) {
 		DefaultDeserializerContext context = new DefaultDeserializerContext(types, locals);
-		TreeAnalyzer collector = new TreeAnalyzer();
 
-		snapshot.onSetupThis().ifPresent(collector::addSeed);
-		snapshot.onExpectThis().ifPresent(collector::addSeed);
+		TreeAnalyzer analyzer = new TreeAnalyzer()
+			.addListener(new ReferenceAnalyzer(context));
 
-		snapshot.streamSetupArgs()
-			.filter(Objects::nonNull)
-			.forEach(arg -> collector.addSeed(arg));
-		snapshot.streamExpectArgs()
-			.filter(Objects::nonNull)
-			.forEach(arg -> collector.addSeed(arg));
+		analyzer.analyze(snapshot);
 
-		snapshot.onExpectResult()
-			.ifPresent(result -> collector.addSeed(result));
-
-		snapshot.onExpectException()
-			.ifPresent(exception -> collector.addSeed(exception));
-
-		snapshot.streamSetupGlobals()
-			.filter(Objects::nonNull)
-			.forEach(global -> collector.addGlobalSeed(global));
-		snapshot.streamExpectGlobals()
-			.filter(Objects::nonNull)
-			.forEach(global -> collector.addGlobalSeed(global));
-
-		snapshot.streamInput()
-			.forEach(input -> collector.addInputSeed(input));
-
-		snapshot.streamOutput()
-			.forEach(output -> collector.addOutputSeed(output));
-
-		return collector.analyze(context);
+		return context;
 	}
 
 	public MethodGenerator generateArrange() {
 		statements.add(BEGIN_ARRANGE);
 
+		Deserializer deserializer = setup.newGenerator(context);
+
 		types.registerType(snapshot.getThisType());
 		snapshot.streamSetupGlobals().forEach(global -> types.registerImport(global.getDeclaringClass()));
 
 		Computation setupThis = snapshot.onSetupThis()
-			.map(self -> prepareThis(self, snapshot.getThisType()))
+			.map(self -> prepareThis(self, snapshot.getThisType(), deserializer))
 			.orElseGet(() -> prepareStatic(snapshot.getThisType()));
 		setupThis.getStatements()
 			.forEach(statements::add);
 
-		List<Computation> setupArgs = snapshot.streamAnnotatedSetupArgs()
-			.map(arg -> prepareArgument(arg.type, arg.value, arg.annotations))
+		List<Computation> setupArgs = snapshot.streamSetupArgs()
+			.map(arg -> prepareArgument(arg, deserializer))
 			.collect(toList());
 
 		setupArgs.stream()
@@ -160,7 +140,7 @@ public class MethodGenerator {
 			.forEach(statements::add);
 
 		List<Computation> setupGlobals = snapshot.streamSetupGlobals()
-			.map(global -> assignGlobal(global.getDeclaringClass(), global.getName(), global.getValue().accept(setup, context)))
+			.map(global -> assignGlobal(global.getDeclaringClass(), global.getName(), global.getValue().accept(deserializer)))
 			.collect(toList());
 
 		setupGlobals.stream()
@@ -178,8 +158,8 @@ public class MethodGenerator {
 		return this;
 	}
 
-	private Computation prepareThis(SerializedValue self, Type type) {
-		Computation computation = self.accept(setup, context);
+	private Computation prepareThis(SerializedValue self, Type type, Deserializer deserializer) {
+		Computation computation = self.accept(deserializer);
 		if (computation.isStored()) {
 			return computation;
 		} else if (isLiteral(type)) {
@@ -201,13 +181,15 @@ public class MethodGenerator {
 		return variable(types.getVariableTypeName(types.wrapHidden(type)), null);
 	}
 
-	private Computation prepareArgument(Type paramType, SerializedValue argValue, Annotation[] annotations) {
+	private Computation prepareArgument(SerializedArgument arg, Deserializer deserializer) {
+		Type argType = arg.getType();
+		SerializedValue argValue = arg.getValue();
 		Type type = mostSpecialOf(argValue.getUsedTypes()).orElse(Object.class);
-		Computation computation = argValue.accept(setup, context.newWithHints(annotations));
-		if (!assignableTypes(paramType, type)) {
-			types.registerType(paramType);
-			String value = cast(types.getVariableTypeName(paramType), computation.getValue());
-			computation = Computation.expression(value, paramType, computation.getStatements());
+		Computation computation = arg.accept(deserializer);
+		if (!assignableTypes(argType, type)) {
+			types.registerType(argType);
+			String value = cast(types.getVariableTypeName(argType), computation.getValue());
+			computation = Computation.expression(value, argType, computation.getStatements());
 		}
 		if (computation.isStored()) {
 			return computation;
@@ -220,7 +202,7 @@ public class MethodGenerator {
 			types.registerType(type);
 			String name = locals.fetchName(type);
 
-			statements.add(assignLocalVariableStatement(types.getVariableTypeName(paramType), name, value));
+			statements.add(assignLocalVariableStatement(types.getVariableTypeName(argType), name, value));
 
 			return variable(name, type, statements);
 		}
@@ -267,9 +249,8 @@ public class MethodGenerator {
 		statements.add(BEGIN_ASSERT);
 
 		if (error == null) {
-			Annotation[] resultAnnotation = snapshot.getResultAnnotation();
 			snapshot.streamExpectResult()
-				.flatMap(res -> generateResultAssert(types, res, resultAnnotation, result))
+				.flatMap(res -> generateResultAssert(types, res, result))
 				.forEach(statements::add);
 		} else {
 			snapshot.streamExpectException()
@@ -285,8 +266,8 @@ public class MethodGenerator {
 			.forEach(statements::add);
 
 		Boolean[] argsChanged = compare(snapshot.getSetupArgs(), snapshot.getExpectArgs());
-		AnnotatedValue[] snapshotExpectArgs = snapshot.getAnnotatedExpectArgs();
-		Triple<AnnotatedValue, String, Boolean>[] arguments = Triple.zip(snapshotExpectArgs, args.toArray(new String[0]), argsChanged);
+		SerializedArgument[] snapshotExpectArgs = snapshot.getExpectArgs();
+		Triple<SerializedArgument, String, Boolean>[] arguments = Triple.zip(snapshotExpectArgs, args.toArray(new String[0]), argsChanged);
 		Stream.of(arguments)
 			.flatMap(arg -> generateArgumentAssert(types, arg.getElement1(), arg.getElement2(), arg.getElement3()))
 			.forEach(statements::add);
@@ -303,11 +284,10 @@ public class MethodGenerator {
 		return this;
 	}
 
-	private Stream<String> generateResultAssert(TypeManager types, SerializedValue result, Annotation[] resultAnnotation, String expression) {
-		if (result == null) {
-			return Stream.empty();
-		}
-		Computation matcherExpression = result.accept(matcher, new DefaultDeserializerContext(types, locals).newWithHints(resultAnnotation));
+	private Stream<String> generateResultAssert(TypeManager types, SerializedResult result, String expression) {
+		Deserializer deserializer = matcher.newGenerator(context.newIsolatedContext(types, locals));
+
+		Computation matcherExpression = result.accept(deserializer);
 		if (matcherExpression == null) {
 			return Stream.empty();
 		}
@@ -315,23 +295,29 @@ public class MethodGenerator {
 	}
 
 	private Stream<String> generateExceptionAssert(TypeManager types, SerializedValue exception, String expression) {
+		Deserializer deserializer = matcher.newGenerator(context.newIsolatedContext(types, locals));
+		
 		if (exception == null) {
 			return Stream.empty();
 		}
-		Computation matcherExpression = exception.accept(matcher, new DefaultDeserializerContext(types, locals));
+		Computation matcherExpression = exception.accept(deserializer);
 		return createAssertion(matcherExpression, expression).stream();
 	}
 
 	private Stream<String> generateThisAssert(TypeManager types, SerializedValue value, String expression, boolean changed) {
-		Computation matcherExpression = value.accept(matcher, new DefaultDeserializerContext(types, locals));
+		Deserializer deserializer = matcher.newGenerator(context.newIsolatedContext(types, locals));
+		
+		Computation matcherExpression = value.accept(deserializer);
 		return createAssertion(matcherExpression, expression, changed).stream();
 	}
 
-	private Stream<String> generateArgumentAssert(TypeManager types, AnnotatedValue value, String expression, boolean changed) {
-		if (value == null || value.value instanceof SerializedLiteral || value.value instanceof SerializedImmutableType) {
+	private Stream<String> generateArgumentAssert(TypeManager types, SerializedArgument arg, String expression, boolean changed) {
+		Deserializer deserializer = matcher.newGenerator(context.newIsolatedContext(types, locals));
+
+		if (arg == null || arg.getValue() instanceof SerializedLiteral || arg.getValue() instanceof SerializedImmutableType) {
 			return Stream.empty();
 		}
-		Computation matcherExpression = value.value.accept(matcher, new DefaultDeserializerContext(types, locals).newWithHints(value.annotations));
+		Computation matcherExpression = arg.accept(deserializer);
 		if (matcherExpression == null) {
 			return Stream.empty();
 		}
@@ -339,7 +325,9 @@ public class MethodGenerator {
 	}
 
 	private Stream<String> generateGlobalAssert(TypeManager types, SerializedField value, boolean changed) {
-		Computation matcherExpression = value.getValue().accept(matcher, new DefaultDeserializerContext(types, locals));
+		Deserializer deserializer = matcher.newGenerator(context.newIsolatedContext(types, locals));
+
+		Computation matcherExpression = value.getValue().accept(deserializer);
 		String expression = fieldAccess(types.getVariableTypeName(value.getDeclaringClass()), value.getName());
 		return createAssertion(matcherExpression, expression, changed).stream();
 	}
@@ -352,22 +340,23 @@ public class MethodGenerator {
 		return changes;
 	}
 
-	private Boolean[] compare(SerializedValue[] s, SerializedValue[] e) {
+	private Boolean[] compare(SerializedArgument[] s, SerializedArgument[] e) {
 		Boolean[] changes = new Boolean[s.length];
 		for (int i = 0; i < changes.length; i++) {
-			changes[i] = compare(s[i], e[i]);
+			changes[i] = compare(s[i].getValue(), e[i].getValue());
 		}
 		return changes;
 	}
 
 	private boolean compare(SerializedValue s, SerializedValue e) {
+		Deserializer deserializer = setup.newGenerator(DefaultDeserializerContext.empty());
 		if (s == e) {
 			return true;
 		} else if (s == null || e == null) {
 			return false;
 		}
-		Computation sc = s.accept(setup, new DefaultDeserializerContext());
-		Computation ec = e.accept(setup, new DefaultDeserializerContext());
+		Computation sc = s.accept(deserializer);
+		Computation ec = e.accept(deserializer);
 		return !ec.getValue().equals(sc.getValue())
 			|| !ec.getStatements().equals(sc.getStatements());
 	}

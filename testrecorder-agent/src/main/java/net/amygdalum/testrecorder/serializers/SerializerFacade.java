@@ -2,10 +2,10 @@ package net.amygdalum.testrecorder.serializers;
 
 import java.lang.reflect.Type;
 
+import net.amygdalum.testrecorder.types.SerializedInput;
+import net.amygdalum.testrecorder.types.SerializedOutput;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.SerializerSession;
-import net.amygdalum.testrecorder.values.SerializedInput;
-import net.amygdalum.testrecorder.values.SerializedOutput;
 
 public interface SerializerFacade {
 

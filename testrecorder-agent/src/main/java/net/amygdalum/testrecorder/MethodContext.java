@@ -3,6 +3,9 @@ package net.amygdalum.testrecorder;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.amygdalum.testrecorder.types.ContextSnapshot;
+import net.amygdalum.testrecorder.types.MethodSignature;
+
 public class MethodContext {
 
 	private Map<String, ContextSnapshotFactory> factories;

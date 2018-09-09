@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
@@ -43,16 +44,16 @@ public class DefaultBigIntegerAdaptorTest {
 	public void testTryDeserialize() throws Exception {
 		SerializedImmutable<BigInteger> value = new SerializedImmutable<>(BigInteger.class);
 		value.setValue(new BigInteger("0815"));
-		MatcherGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("equalTo(new BigInteger(\"815\"))");
 	}
 
-	private MatcherGenerators generator() {
-		return new MatcherGenerators(new Adaptors<MatcherGenerators>(config).load(MatcherGenerator.class));
+	private Deserializer generator() {
+		return new MatcherGenerators(new Adaptors(config).load(MatcherGenerator.class)).newGenerator(context);
 	}
 
 }

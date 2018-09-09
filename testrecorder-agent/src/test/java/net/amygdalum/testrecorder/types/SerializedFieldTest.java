@@ -1,20 +1,18 @@
-package net.amygdalum.testrecorder.values;
+package net.amygdalum.testrecorder.types;
 
 import static net.amygdalum.extensions.assertj.conventions.DefaultEquality.defaultEquality;
-import static net.amygdalum.testrecorder.types.DeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.annotation.Annotation;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.types.TestValueVisitor;
 import net.amygdalum.testrecorder.util.testobjects.Annotated;
 import net.amygdalum.testrecorder.util.testobjects.AnnotatedField;
 import net.amygdalum.testrecorder.util.testobjects.MyAnnotation;
-import net.amygdalum.testrecorder.util.testobjects.NoAnnotation;
 
 public class SerializedFieldTest {
 
@@ -36,7 +34,7 @@ public class SerializedFieldTest {
 	@Test
 	void testAccept() throws Exception {
 		assertThat(new SerializedField(null, "f", String.class, literal("sv"))
-			.accept(new TestValueVisitor(), NULL)).isEqualTo("field");
+			.accept(new TestValueVisitor())).isEqualTo("field");
 	}
 
 	@Test
@@ -54,14 +52,10 @@ public class SerializedFieldTest {
 		SerializedField fieldAnnotated = new SerializedField(AnnotatedField.class, "annotated", String.class, nullInstance());
 
 		assertThat(fieldAnnotated.getAnnotations()).containsExactly((Annotation) Annotated.class.getAnnotation(MyAnnotation.class));
-		assertThat(fieldAnnotated.getAnnotation(MyAnnotation.class).get()).isEqualTo(Annotated.class.getAnnotation(MyAnnotation.class));
-		assertThat(fieldAnnotated.getAnnotation(NoAnnotation.class).isPresent()).isFalse();
 
 		SerializedField valueAnnotated = new SerializedField(AnnotatedField.class, "annotatedValue", Annotated.class, nullInstance());
 
 		assertThat(valueAnnotated.getAnnotations()).isEmpty();
-		assertThat(valueAnnotated.getAnnotation(MyAnnotation.class).isPresent()).isFalse();
-		assertThat(valueAnnotated.getAnnotation(NoAnnotation.class).isPresent()).isFalse();
 	}
 
 	@Test
@@ -73,6 +67,22 @@ public class SerializedFieldTest {
 			.andNotEqualTo(new SerializedField(Object.class, "f", Object.class, literal("sv")))
 			.andNotEqualTo(new SerializedField(Object.class, "f", String.class, literal("nsv")))
 			.conventions());
+	}
+
+	@Test
+	public void testCompareTo() throws Exception {
+		assertThat(Stream.of(
+			new SerializedField(null, "a", String.class, literal("stringvalue")),
+			new SerializedField(null, "b", String.class, literal("stringvalue"))).sorted())
+		.containsExactly(
+			new SerializedField(null, "a", String.class, literal("stringvalue")),
+			new SerializedField(null, "b", String.class, literal("stringvalue")));
+		assertThat(Stream.of(
+			new SerializedField(null, "b", String.class, literal("stringvalue")),
+			new SerializedField(null, "a", String.class, literal("stringvalue"))).sorted())
+		.containsExactly(
+			new SerializedField(null, "a", String.class, literal("stringvalue")),
+			new SerializedField(null, "b", String.class, literal("stringvalue")));
 	}
 
 }

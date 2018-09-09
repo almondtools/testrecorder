@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.values;
 
+import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.util.Types.typeArgument;
 import static net.amygdalum.testrecorder.util.Types.typeArguments;
 
@@ -11,9 +12,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
-import net.amygdalum.testrecorder.types.Deserializer;
-import net.amygdalum.testrecorder.types.DeserializerContext;
-import net.amygdalum.testrecorder.types.SerializedReferenceType;
+import net.amygdalum.testrecorder.types.RoleVisitor;
+import net.amygdalum.testrecorder.types.ReferenceTypeVisitor;
+import net.amygdalum.testrecorder.types.SerializedAggregateType;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.util.Optionals;
 
@@ -25,7 +26,7 @@ import net.amygdalum.testrecorder.util.Optionals;
  * 
  * Serializing objects not complying to this criteria is possible, just make sure that their exists a custom deserializer for these objects  
  */
-public class SerializedList extends AbstractSerializedReferenceType implements SerializedReferenceType, Collection<SerializedValue> {
+public class SerializedList extends AbstractSerializedReferenceType implements SerializedAggregateType, Collection<SerializedValue> {
 
 	private Type componentType;
 	private List<SerializedValue> list;
@@ -34,6 +35,13 @@ public class SerializedList extends AbstractSerializedReferenceType implements S
 		super(type);
 		this.componentType = Object.class;
 		this.list = new ArrayList<>();
+	}
+	
+	@Override
+	public List<SerializedValue> elements() {
+		return list.stream()
+			.distinct()
+			.collect(toList());
 	}
 
 	public Type getComponentType() {
@@ -53,8 +61,13 @@ public class SerializedList extends AbstractSerializedReferenceType implements S
 	}
 
 	@Override
-	public <T> T accept(Deserializer<T> visitor, DeserializerContext context) {
-		return visitor.visitReferenceType(this, context);
+	public <T> T accept(RoleVisitor<T> visitor) {
+		return visitor.visitReferenceType(this);
+	}
+
+	@Override
+	public <T> T accept(ReferenceTypeVisitor<T> visitor) {
+		return visitor.visitAggregateType(this);
 	}
 
 	public SerializedValue get(int index) {
@@ -136,7 +149,7 @@ public class SerializedList extends AbstractSerializedReferenceType implements S
 
 	@Override
 	public List<SerializedValue> referencedValues() {
-		return new ArrayList<>(list);
+		return elements();
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.types;
 
+import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
@@ -13,10 +14,8 @@ public class DeserializerContextTest {
 		SerializedValue anyValue = Mockito.mock(SerializedValue.class);
 		SerializedReferenceType anyRef = Mockito.mock(SerializedReferenceType.class);
 		
-		assertThat(DeserializerContext.NULL.getParent()).isNull();
-		assertThat(DeserializerContext.NULL.newWithHints(new Object[0])).isSameAs(DeserializerContext.NULL);
-		assertThat(DeserializerContext.NULL.getHint(Object.class)).isEmpty();
-		assertThat(DeserializerContext.NULL.getHints(Object.class)).isEmpty();
+		assertThat(DeserializerContext.NULL.getHint(nullInstance(), Object.class)).isEmpty();
+		assertThat(DeserializerContext.NULL.getHints(nullInstance(), Object.class)).isEmpty();
 		assertThat(DeserializerContext.NULL.refCount(anyValue)).isEqualTo(0);
 		assertThatCode(() -> DeserializerContext.NULL.ref(anyRef, anyValue)).doesNotThrowAnyException();
 		assertThatCode(() -> DeserializerContext.NULL.staticRef(anyValue)).doesNotThrowAnyException();

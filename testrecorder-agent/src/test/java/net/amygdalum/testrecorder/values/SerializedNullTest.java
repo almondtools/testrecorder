@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder.values;
 
 import static net.amygdalum.extensions.assertj.conventions.DefaultEquality.defaultEquality;
-import static net.amygdalum.testrecorder.types.DeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,7 +30,7 @@ public class SerializedNullTest {
 	public void testAccept() throws Exception {
 		SerializedNull value = nullInstance();
 
-		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("ReferenceType:SerializedNull");
+		assertThat(value.accept(new TestValueVisitor())).isEqualTo("ReferenceType:SerializedNull");
 	}
 
 	@Test

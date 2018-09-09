@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder;
+package net.amygdalum.testrecorder.types;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

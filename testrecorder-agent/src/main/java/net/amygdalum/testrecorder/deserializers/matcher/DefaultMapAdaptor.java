@@ -18,6 +18,7 @@ import java.util.stream.Stream;
 
 import org.hamcrest.Matcher;
 
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.runtime.MapMatcher;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
@@ -29,13 +30,20 @@ import net.amygdalum.testrecorder.values.SerializedNull;
 
 public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> implements MatcherGenerator<SerializedMap> {
 
+	private SimpleValueAdaptor simpleAdaptor;
+
+	public DefaultMapAdaptor() {
+		this.simpleAdaptor = new SimpleValueAdaptor();
+	}
+	
 	@Override
 	public Class<SerializedMap> getAdaptedClass() {
 		return SerializedMap.class;
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedMap value, MatcherGenerators generator, DeserializerContext context) {
+	public Computation tryDeserialize(SerializedMap value, Deserializer generator) {
+		DeserializerContext context = generator.getContext();
 		if (value.isEmpty()) {
 			TypeManager types = context.getTypes();
 			types.staticImport(MapMatcher.class, "noEntries");
@@ -49,7 +57,7 @@ public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> im
 			types.staticImport(MapMatcher.class, "containsEntries");
 			types.registerTypes(mapKeyType(types, value), mapValueType(types, value));
 
-			EntryDeserializer deserializer = new EntryDeserializer(generator, context, mapKeyType(types, value), mapValueType(types, value));
+			EntryDeserializer deserializer = new EntryDeserializer(generator, simpleAdaptor, context, mapKeyType(types, value), mapValueType(types, value));
 			List<Pair<Computation, Computation>> elements = value.entrySet().stream()
 				.map(deserializer::computeKeyValues)
 				.collect(toList());
@@ -134,13 +142,15 @@ public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> im
 
 	private static class EntryDeserializer {
 
-		private MatcherGenerators generator;
+		private Deserializer generator;
+		private SimpleValueAdaptor simpleAdaptor;
 		private DeserializerContext context;
 		private Type mapKeyType;
 		private Type mapValueType;
-
-		EntryDeserializer(MatcherGenerators generator, DeserializerContext context, Type mapKeyType, Type mapValueType) {
+		
+		EntryDeserializer(Deserializer generator, SimpleValueAdaptor simpleAdaptor, DeserializerContext context, Type mapKeyType, Type mapValueType) {
 			this.generator = generator;
+			this.simpleAdaptor = simpleAdaptor;
 			this.context = context;
 			this.mapKeyType = mapKeyType;
 			this.mapValueType = mapValueType;
@@ -152,9 +162,9 @@ public class DefaultMapAdaptor extends DefaultMatcherGenerator<SerializedMap> im
 			SerializedValue key = entry.getKey();
 			SerializedValue value = entry.getValue();
 
-			Computation keyDeserialized = generator.simpleMatcher(key, context);
+			Computation keyDeserialized = simpleAdaptor.tryDeserialize(key, generator);
 
-			Computation valueDeserialized = generator.simpleMatcher(value, context);
+			Computation valueDeserialized = simpleAdaptor.tryDeserialize(value, generator);
 
 			Type keyType = key instanceof SerializedNull ? null : types.mostSpecialOf(key.getUsedTypes()).orElse(Object.class);
 			Type valueType = value instanceof SerializedNull ? null : types.mostSpecialOf(value.getUsedTypes()).orElse(Object.class);

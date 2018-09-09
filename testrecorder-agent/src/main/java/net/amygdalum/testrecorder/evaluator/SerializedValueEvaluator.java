@@ -35,7 +35,7 @@ public class SerializedValueEvaluator {
 					expressions.add(new IndexExpression(nextInt(tokenizer, "<index>")));
 					String nextToken = nextString(tokenizer, "']'");
 					if (!nextToken.equals("]")) {
-						throw new ParseException("expecting ']', but found: '" + token + "'", 0);
+						throw new ParseException("expecting ']', but found: '" + nextToken + "'", 0);
 					}
 				} else {
 					throw new ParseException("expecting '.' or '[', but found: '" + token + "'", 0);
@@ -60,7 +60,7 @@ public class SerializedValueEvaluator {
 			try {
 				return Integer.parseInt(nextToken);
 			} catch (NumberFormatException e) {
-				throw new ParseException("expecting " + expression + ", found:'" + nextToken + "'", 0);
+				throw new ParseException("expecting " + expression + ", but found: '" + nextToken + "'", 0);
 			}
 		}
 		throw new ParseException("expecting " + expression + ", but nothing found", 0);

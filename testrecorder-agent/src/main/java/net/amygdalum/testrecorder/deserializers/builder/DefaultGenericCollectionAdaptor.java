@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
@@ -43,7 +44,8 @@ public abstract class DefaultGenericCollectionAdaptor<T extends SerializedRefere
 	}
 
 	@Override
-	public Computation tryDeserialize(T value, SetupGenerators generator, DeserializerContext context) {
+	public Computation tryDeserialize(T value, Deserializer generator) {
+		DeserializerContext context = generator.getContext();
 		TypeManager types = context.getTypes();
 
 		Type type = value.getType();
@@ -63,7 +65,7 @@ public abstract class DefaultGenericCollectionAdaptor<T extends SerializedRefere
 		return context.forVariable(value, effectiveResultType, local -> {
 
 			List<Computation> elementTemplates = elements(value)
-				.map(element -> element.accept(generator, context))
+				.map(element -> element.accept(generator))
 				.filter(element -> element != null)
 				.collect(toList());
 

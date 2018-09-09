@@ -12,17 +12,17 @@ import java.lang.reflect.Type;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.ContextSnapshot;
-import net.amygdalum.testrecorder.MethodSignature;
 import net.amygdalum.testrecorder.deserializers.Adaptors;
-import net.amygdalum.testrecorder.deserializers.TestComputationValueVisitor;
+import net.amygdalum.testrecorder.deserializers.TestDeserializer;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerator;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
 import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerator;
 import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerators;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.types.ContextSnapshot;
+import net.amygdalum.testrecorder.types.MethodSignature;
+import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.util.ExtensibleClassLoader;
-import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class ClassGeneratorTest {
@@ -34,14 +34,14 @@ public class ClassGeneratorTest {
 	void before() throws Exception {
 		loader = new ExtensibleClassLoader(TestGenerator.class.getClassLoader());
 		AgentConfiguration config = defaultConfig().withLoader(loader);
-		SetupGenerators setup = new SetupGenerators(new Adaptors<SetupGenerators>(config).load(SetupGenerator.class));
-		MatcherGenerators matcher = new MatcherGenerators(new Adaptors<MatcherGenerators>(config).load(MatcherGenerator.class));
+		SetupGenerators setup = new SetupGenerators(new Adaptors(config).load(SetupGenerator.class));
+		MatcherGenerators matcher = new MatcherGenerators(new Adaptors(config).load(MatcherGenerator.class));
 		testGenerator = new ClassGenerator(setup, matcher, emptyList(), MyClass.class.getPackage().getName(), MyClass.class.getSimpleName());
 	}
 
 	@Test
 	void testSetSetup() throws Exception {
-		testGenerator.setSetup(new TestComputationValueVisitor());
+		testGenerator.setSetup(new TestDeserializer.Factory());
 		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));
@@ -66,7 +66,7 @@ public class ClassGeneratorTest {
 
 	@Test
 	void testSetMatcher() throws Exception {
-		testGenerator.setMatcher(new TestComputationValueVisitor());
+		testGenerator.setMatcher(new TestDeserializer.Factory());
 		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));
@@ -91,7 +91,7 @@ public class ClassGeneratorTest {
 	}
 
 	private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
-		return new ContextSnapshot(0, "key", new MethodSignature(declaringClass, new Annotation[0], resultType, methodName, new Annotation[0][0], argumentTypes));
+		return new ContextSnapshot(0, "key", new MethodSignature(declaringClass, new Annotation[0], resultType, methodName, new Annotation[argumentTypes.length][0], argumentTypes));
 	}
 
 	private SerializedObject objectOf(Class<MyClass> type, SerializedField... fields) {

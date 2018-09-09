@@ -1,5 +1,6 @@
-package net.amygdalum.testrecorder;
+package net.amygdalum.testrecorder.types;
 
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
@@ -12,17 +13,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.util.testobjects.Static;
-import net.amygdalum.testrecorder.values.SerializedField;
-import net.amygdalum.testrecorder.values.SerializedInput;
 import net.amygdalum.testrecorder.values.SerializedList;
 import net.amygdalum.testrecorder.values.SerializedNull;
 import net.amygdalum.testrecorder.values.SerializedObject;
-import net.amygdalum.testrecorder.values.SerializedOutput;
 
 public class ContextSnapshotTest {
 
@@ -131,15 +129,15 @@ public class ContextSnapshotTest {
 
 	@Test
 	void testSetGetSetupArgs() throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class, Object.class);
 
 		snapshot.setSetupArgs(literal("a"), literal("b"));
 
-		SerializedValue[] getValue = snapshot.getSetupArgs();
-		SerializedValue[] streamValue = snapshot.streamSetupArgs().toArray(SerializedValue[]::new);
-		Optional<SerializedValue> onValue0 = snapshot.onSetupArg(0);
-		Optional<SerializedValue> onValue1 = snapshot.onSetupArg(1);
-		Optional<SerializedValue> onValue2 = snapshot.onSetupArg(2);
+		SerializedValue[] getValue = argumentValues(snapshot.getSetupArgs());
+		SerializedValue[] streamValue = argumentValues(snapshot.streamSetupArgs());
+		Optional<SerializedValue> onValue0 = argumentValues(snapshot.onSetupArg(0));
+		Optional<SerializedValue> onValue1 = argumentValues(snapshot.onSetupArg(1));
+		Optional<SerializedValue> onValue2 = argumentValues(snapshot.onSetupArg(2));
 
 		assertThat(getValue).containsExactly(literal("a"), literal("b"));
 		assertThat(streamValue).containsExactly(literal("a"), literal("b"));
@@ -150,15 +148,15 @@ public class ContextSnapshotTest {
 
 	@Test
 	void testSetGetExpectArgs() throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class, Object.class);
 
 		snapshot.setExpectArgs(literal("c"), literal("d"));
 
-		SerializedValue[] getValue = snapshot.getExpectArgs();
-		SerializedValue[] streamValue = snapshot.streamExpectArgs().toArray(SerializedValue[]::new);
-		Optional<SerializedValue> onValue0 = snapshot.onExpectArg(0);
-		Optional<SerializedValue> onValue1 = snapshot.onExpectArg(1);
-		Optional<SerializedValue> onValue2 = snapshot.onExpectArg(2);
+		SerializedValue[] getValue = argumentValues(snapshot.getExpectArgs());
+		SerializedValue[] streamValue = argumentValues(snapshot.streamExpectArgs());
+		Optional<SerializedValue> onValue0 = argumentValues(snapshot.onExpectArg(0));
+		Optional<SerializedValue> onValue1 = argumentValues(snapshot.onExpectArg(1));
+		Optional<SerializedValue> onValue2 = argumentValues(snapshot.onExpectArg(2));
 
 		assertThat(getValue).containsExactly(literal("c"), literal("d"));
 		assertThat(streamValue).containsExactly(literal("c"), literal("d"));
@@ -173,9 +171,9 @@ public class ContextSnapshotTest {
 
 		snapshot.setExpectResult(literal(boolean.class, true));
 
-		SerializedValue getValue = snapshot.getExpectResult();
-		SerializedValue onValue = snapshot.onExpectResult().orElse(nullInstance());
-		SerializedValue streamValue = snapshot.streamExpectResult().findFirst().orElse(nullInstance());
+		SerializedValue getValue = resultValues(snapshot.getExpectResult());
+		SerializedValue onValue = resultValues(snapshot.onExpectResult());
+		SerializedValue streamValue = resultValues(snapshot.streamExpectResult());
 
 		assertThat(getValue).isEqualTo(literal(boolean.class, true));
 		assertThat(onValue).isEqualTo(literal(boolean.class, true));
@@ -229,38 +227,38 @@ public class ContextSnapshotTest {
 
 	@Test
 	void testGetAnnotatedSetupArgs() throws Exception {
+		Anno annotation = anno("arg");
 		ContextSnapshot snapshot = new ContextSnapshot(0l, "key", new MethodSignature(
 			Object.class,
 			new Annotation[] { anno("result") },
 			String.class,
 			"method",
-			new Annotation[][] { new Annotation[] { anno("arg") } },
+			new Annotation[][] { new Annotation[] { annotation } },
 			new Type[] { Integer.class }));
 
 		snapshot.setSetupArgs(literal(int.class, 42));
 
-		assertThat(snapshot.getAnnotatedSetupArgs()).hasSize(1);
-		assertThat(snapshot.getAnnotatedSetupArgs()[0].getAnnotation(Anno.class).get().value()).isEqualTo("arg");
-		assertThat(snapshot.getAnnotatedSetupArgs()[0].getAnnotation(NoAnno.class).isPresent()).isFalse();
-		assertThat(snapshot.getAnnotatedSetupArgs()[0].value).isEqualTo(literal(int.class, 42));
+		assertThat(snapshot.getSetupArgs()).hasSize(1);
+		assertThat(snapshot.getSetupArgs()[0].getAnnotations()).contains(annotation);
+		assertThat(snapshot.getSetupArgs()[0].getValue()).isEqualTo(literal(int.class, 42));
 	}
 
 	@Test
 	void testGetAnnotatedExpectArgs() throws Exception {
+		Anno annotation = anno("arg");
 		ContextSnapshot snapshot = new ContextSnapshot(0l, "key", new MethodSignature(
 			Object.class,
 			new Annotation[] { anno("result") },
 			String.class,
 			"method",
-			new Annotation[][] { new Annotation[] { anno("arg") } },
+			new Annotation[][] { new Annotation[] { annotation } },
 			new Type[] { Integer.class }));
 
 		snapshot.setExpectArgs(literal(int.class, 42));
 
-		assertThat(snapshot.getAnnotatedExpectArgs()).hasSize(1);
-		assertThat(snapshot.getAnnotatedExpectArgs()[0].getAnnotation(Anno.class).get().value()).isEqualTo("arg");
-		assertThat(snapshot.getAnnotatedExpectArgs()[0].getAnnotation(NoAnno.class).isPresent()).isFalse();
-		assertThat(snapshot.getAnnotatedExpectArgs()[0].value).isEqualTo(literal(int.class, 42));
+		assertThat(snapshot.getExpectArgs()).hasSize(1);
+		assertThat(snapshot.getExpectArgs()[0].getAnnotations()).contains(annotation);
+		assertThat(snapshot.getExpectArgs()[0].getValue()).isEqualTo(literal(int.class, 42));
 	}
 
 	@Test
@@ -369,7 +367,7 @@ public class ContextSnapshotTest {
 	}
 
 	private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
-		return new ContextSnapshot(0, "key", new MethodSignature(declaringClass, new Annotation[0], resultType, methodName, new Annotation[0][0], argumentTypes));
+		return new ContextSnapshot(0, "key", new MethodSignature(declaringClass, new Annotation[0], resultType, methodName, new Annotation[argumentTypes.length][0], argumentTypes));
 	}
 
 	@Test
@@ -394,15 +392,22 @@ public class ContextSnapshotTest {
 
 	@Test
 	void testOnArgs() throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class, Object.class);
 
 		snapshot.setSetupArgs(literal("a"), literal("b"));
 		snapshot.setExpectArgs(literal("b"), literal("a"));
 
 		assertThat(snapshot.onArgs()
-			.map((first, second) -> Arrays.toString(first) + ":" + Arrays.toString(second), first -> "second missing", second -> "first missing"))
+			.map((first, second) -> toString(first) + ":" + toString(second), first -> "second missing", second -> "first missing"))
 				.contains("[a, b]:[b, a]");
 
+	}
+
+	private String toString(SerializedArgument[] args) {
+		return Arrays.stream(args)
+			.map(SerializedArgument::getValue)
+			.map(Object::toString)
+			.collect(joining(", ", "[", "]"));
 	}
 
 	@Test
@@ -416,6 +421,32 @@ public class ContextSnapshotTest {
 			.map((first, second) -> first[0].getValue().toString() + ":" + second[0].getValue().toString(), first -> "second missing", second -> "first missing"))
 				.contains("a:b");
 
+	}
+
+	private Optional<SerializedValue> argumentValues(Optional<SerializedArgument> arg) {
+		return arg.map(SerializedArgument::getValue);
+	}
+
+	private SerializedValue[] argumentValues(Stream<SerializedArgument> args) {
+		return args.map(SerializedArgument::getValue).toArray(SerializedValue[]::new);
+	}
+
+	private SerializedValue[] argumentValues(SerializedArgument[] args) {
+		return argumentValues(Arrays.stream(args));
+	}
+
+	private SerializedValue resultValues(SerializedResult result) {
+		return resultValues(Optional.ofNullable(result));
+	}
+
+	private SerializedValue resultValues(Stream<SerializedResult> result) {
+		return resultValues(result.findFirst());
+	}
+
+	private SerializedValue resultValues(Optional<SerializedResult> result) {
+		return result
+			.map(SerializedResult::getValue)
+			.orElse(null);
 	}
 
 	private Anno anno(String value) {

@@ -8,7 +8,7 @@ import static net.amygdalum.testrecorder.util.Types.serializableOf;
 import java.util.List;
 import java.util.function.Function;
 
-import net.amygdalum.testrecorder.values.SerializedField;
+import net.amygdalum.testrecorder.types.SerializedField;
 
 public final class FieldNamingStrategy {
 

@@ -14,7 +14,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import net.amygdalum.testrecorder.ContextSnapshot;
 import net.amygdalum.testrecorder.DefaultPerformanceProfile;
 import net.amygdalum.testrecorder.DefaultSerializationProfile;
 import net.amygdalum.testrecorder.DefaultSnapshotConsumer;
@@ -30,6 +29,7 @@ import net.amygdalum.testrecorder.profile.FixedConfigurationLoader;
 import net.amygdalum.testrecorder.profile.Methods;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.profile.SerializationProfile;
+import net.amygdalum.testrecorder.types.ContextSnapshot;
 import net.bytebuddy.agent.ByteBuddyAgent;
 
 public class CallsiteRecorder implements SnapshotConsumer, AutoCloseable {

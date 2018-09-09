@@ -1,6 +1,5 @@
 package net.amygdalum.testrecorder.values;
 
-import static net.amygdalum.testrecorder.types.DeserializerContext.NULL;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
@@ -22,7 +21,7 @@ public class SerializedBigDecimalTest {
 	public void testAccept() throws Exception {
 		SerializedImmutable<BigDecimal> value = new SerializedImmutable<BigDecimal>(BigDecimal.class);
 
-		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("ImmutableType:SerializedImmutable");
+		assertThat(value.accept(new TestValueVisitor())).isEqualTo("ImmutableType:SerializedImmutable");
 	}
 
 }

@@ -16,16 +16,18 @@ import java.util.function.Supplier;
 import net.amygdalum.testrecorder.runtime.GenericObject;
 import net.amygdalum.testrecorder.runtime.GenericObjectException;
 import net.amygdalum.testrecorder.types.DeserializationException;
-import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.types.DeserializerContext;
-import net.amygdalum.testrecorder.types.SerializedFieldType;
+import net.amygdalum.testrecorder.types.RoleVisitor;
+import net.amygdalum.testrecorder.types.SerializedArgument;
+import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.SerializedImmutableType;
+import net.amygdalum.testrecorder.types.SerializedKeyValue;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
+import net.amygdalum.testrecorder.types.SerializedResult;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.SerializedValueType;
 import net.amygdalum.testrecorder.values.SerializedArray;
 import net.amygdalum.testrecorder.values.SerializedEnum;
-import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 import net.amygdalum.testrecorder.values.SerializedList;
 import net.amygdalum.testrecorder.values.SerializedLiteral;
@@ -34,12 +36,18 @@ import net.amygdalum.testrecorder.values.SerializedNull;
 import net.amygdalum.testrecorder.values.SerializedObject;
 import net.amygdalum.testrecorder.values.SerializedSet;
 
-public class SimpleDeserializer implements Deserializer<Object> {
+public class SimpleDeserializer implements RoleVisitor<Object> {
 
+	private DeserializerContext context;
 	private Map<SerializedValue, Object> deserialized;
 
-	public SimpleDeserializer() {
+	public SimpleDeserializer(DeserializerContext context) {
+		this.context = context;
 		this.deserialized = new IdentityHashMap<>();
+	}
+	
+	public DeserializerContext getContext() {
+		return context;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -54,18 +62,33 @@ public class SimpleDeserializer implements Deserializer<Object> {
 	}
 
 	@Override
-	public Object visitField(SerializedFieldType field, DeserializerContext context) {
+	public Object visitField(SerializedField field) {
 		throw new DeserializationException("failed deserializing: " + field);
 	}
 
 	@Override
-	public Object visitReferenceType(SerializedReferenceType rt, DeserializerContext context) {
+	public Object visitKeyValue(SerializedKeyValue keyvalue) {
+		throw new DeserializationException("failed deserializing: " + keyvalue);
+	}
+
+	@Override
+	public Object visitArgument(SerializedArgument argument) {
+		throw new DeserializationException("failed deserializing: " + argument);
+	}
+
+	@Override
+	public Object visitResult(SerializedResult result) {
+		throw new DeserializationException("failed deserializing: " + result);
+	}
+
+	@Override
+	public Object visitReferenceType(SerializedReferenceType rt) {
 		if (rt instanceof SerializedObject) {
 			SerializedObject value = (SerializedObject) rt;
 			try {
 				Object object = fetch(value, () -> GenericObject.newInstance(baseType(value.getType())), base -> {
 					for (SerializedField field : value.getFields()) {
-						GenericObject.setField(base, field.getName(), field.getValue().accept(this, context));
+						GenericObject.setField(base, field.getName(), field.getValue().accept(this));
 					}
 				});
 				return object;
@@ -76,7 +99,7 @@ public class SimpleDeserializer implements Deserializer<Object> {
 			SerializedList value = (SerializedList) rt;
 			List<Object> list = fetch(value, ArrayList::new, base -> {
 				for (SerializedValue element : value) {
-					base.add(element.accept(this, context));
+					base.add(element.accept(this));
 				}
 			});
 			return list;
@@ -84,8 +107,8 @@ public class SimpleDeserializer implements Deserializer<Object> {
 			SerializedMap value = (SerializedMap) rt;
 			Map<Object, Object> map = fetch(value, LinkedHashMap::new, base -> {
 				for (Map.Entry<SerializedValue, SerializedValue> entry : value.entrySet()) {
-					Object k = entry.getKey().accept(this, context);
-					Object v = entry.getValue().accept(this, context);
+					Object k = entry.getKey().accept(this);
+					Object v = entry.getValue().accept(this);
 					base.put(k, v);
 				}
 			});
@@ -94,7 +117,7 @@ public class SimpleDeserializer implements Deserializer<Object> {
 			SerializedSet value = (SerializedSet) rt;
 			Set<Object> set = fetch(value, LinkedHashSet::new, base -> {
 				for (SerializedValue element : value) {
-					base.add(element.accept(this, context));
+					base.add(element.accept(this));
 				}
 			});
 			return set;
@@ -104,7 +127,7 @@ public class SimpleDeserializer implements Deserializer<Object> {
 			SerializedValue[] rawArray = value.getArray();
 			Object array = fetch(value, () -> Array.newInstance(componentType, rawArray.length), base -> {
 				for (int i = 0; i < rawArray.length; i++) {
-					Array.set(base, i, rawArray[i].accept(this, context));
+					Array.set(base, i, rawArray[i].accept(this));
 				}
 			});
 			return array;
@@ -117,7 +140,7 @@ public class SimpleDeserializer implements Deserializer<Object> {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public Object visitImmutableType(SerializedImmutableType rt, DeserializerContext context) {
+	public Object visitImmutableType(SerializedImmutableType rt) {
 		if (rt instanceof SerializedImmutable<?>) {
 			SerializedImmutable<?> value = (SerializedImmutable<?>) rt;
 			return fetch(value, () -> value.getValue(), noInit());
@@ -130,7 +153,7 @@ public class SimpleDeserializer implements Deserializer<Object> {
 	}
 
 	@Override
-	public Object visitValueType(SerializedValueType value, DeserializerContext context) {
+	public Object visitValueType(SerializedValueType value) {
 		return fetch(value, () -> ((SerializedLiteral) value).getValue(), noInit());
 	}
 

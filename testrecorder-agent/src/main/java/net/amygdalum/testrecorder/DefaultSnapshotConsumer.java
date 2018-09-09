@@ -1,5 +1,7 @@
 package net.amygdalum.testrecorder;
 
+import net.amygdalum.testrecorder.types.ContextSnapshot;
+
 public class DefaultSnapshotConsumer implements SnapshotConsumer {
 
 	@Override

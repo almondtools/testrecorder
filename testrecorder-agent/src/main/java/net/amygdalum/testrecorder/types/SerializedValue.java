@@ -1,10 +1,8 @@
 package net.amygdalum.testrecorder.types;
 
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * A serialized value.
@@ -17,18 +15,12 @@ import java.util.Optional;
  * The equals method of a serialized value must return true if both values are the same (==) and false otherwise (default equal should be fine)
  *
  */
-public interface SerializedValue extends Serializable {
-
-	<T> T accept(Deserializer<T> visitor, DeserializerContext context);
+public interface SerializedValue extends Serializable, SerializedRole {
 
 	Type[] getUsedTypes();
 	
 	Class<?> getType();
 
 	List<SerializedValue> referencedValues();
-
-    Annotation[] getAnnotations();
-
-    <T extends Annotation> Optional<T> getAnnotation(Class<T> clazz);
 
 }

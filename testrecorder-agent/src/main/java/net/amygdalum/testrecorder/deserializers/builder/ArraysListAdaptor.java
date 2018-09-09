@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.SerializedValue;
@@ -50,10 +51,11 @@ public class ArraysListAdaptor implements SetupGenerator<SerializedList> {
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedList value, SetupGenerators generator, DeserializerContext context) {
-		Type componentType = value.getComponentType();
-
+	public Computation tryDeserialize(SerializedList value, Deserializer generator) {
+		DeserializerContext context = generator.getContext();
 		TypeManager types = context.getTypes();
+		
+		Type componentType = value.getComponentType();
 		types.staticImport(Arrays.class, "asList");
 		types.registerType(componentType);
 
@@ -69,7 +71,7 @@ public class ArraysListAdaptor implements SetupGenerator<SerializedList> {
 			: parameterized(List.class, null, componentType);
 		return context.forVariable(value, resultType, local -> {
 
-			Computation computation = adaptor.tryDeserialize(baseValue, generator, context);
+			Computation computation = adaptor.tryDeserialize(baseValue, generator);
 			List<String> statements = new LinkedList<>(computation.getStatements());
 			String resultArray = computation.getValue();
 

@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.TypeManager;
@@ -33,7 +34,8 @@ public class DefaultBigDecimalAdaptor extends DefaultMatcherGenerator<Serialized
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedImmutable<BigDecimal> value, MatcherGenerators generator, DeserializerContext context) {
+	public Computation tryDeserialize(SerializedImmutable<BigDecimal> value, Deserializer generator) {
+		DeserializerContext context = generator.getContext();
 		TypeManager types = context.getTypes();
 		types.registerImport(BigDecimal.class);
 		types.staticImport(Matchers.class, "equalTo");

@@ -6,5 +6,4 @@ import java.lang.annotation.Retention;
 
 @Retention(RUNTIME)
 public @interface MyAnnotation {
-
 }

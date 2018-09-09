@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder.values;
 
 import static java.util.Arrays.asList;
-import static net.amygdalum.testrecorder.types.DeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -11,6 +10,7 @@ import java.lang.reflect.Proxy;
 
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.TestValueVisitor;
 
 public class SerializedProxyTest {
@@ -30,7 +30,7 @@ public class SerializedProxyTest {
 		SerializedProxy value = new SerializedProxy(Proxy.class);
 		value.setInterfaces(asList(new SerializedImmutable<Class<?>>(Class.class).withValue(MyInterface.class)));
 
-		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("ReferenceType:SerializedProxy");
+		assertThat(value.accept(new TestValueVisitor())).isEqualTo("ReferenceType:SerializedProxy");
 	}
 
 	@Test

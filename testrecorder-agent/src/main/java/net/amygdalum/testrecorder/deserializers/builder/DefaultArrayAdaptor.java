@@ -10,6 +10,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.stream.Stream;
 
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.TypeManager;
@@ -23,7 +24,8 @@ public class DefaultArrayAdaptor extends DefaultSetupGenerator<SerializedArray> 
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedArray value, SetupGenerators generator, DeserializerContext context) {
+	public Computation tryDeserialize(SerializedArray value, Deserializer generator) {
+		DeserializerContext context = generator.getContext();
 		TypeManager types = context.getTypes();
 		Type componentType = types.bestType(value.getComponentType(), Object.class);
 		types.registerTypes(value.getComponentType(), componentType);
@@ -34,7 +36,7 @@ public class DefaultArrayAdaptor extends DefaultSetupGenerator<SerializedArray> 
 		return context.forVariable(value, usedType, local -> {
 
 			List<Computation> elementTemplates = Stream.of(value.getArray())
-				.map(element -> element.accept(generator, context))
+				.map(element -> element.accept(generator))
 				.collect(toList());
 
 			List<String> elements = elementTemplates.stream()

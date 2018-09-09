@@ -11,6 +11,7 @@ import java.lang.reflect.Type;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.TypeManager;
@@ -30,7 +31,8 @@ public class DefaultClassAdaptor extends DefaultMatcherGenerator<SerializedImmut
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedImmutable<Class<?>> value, MatcherGenerators generator, DeserializerContext context) {
+	public Computation tryDeserialize(SerializedImmutable<Class<?>> value, Deserializer generator) {
+		DeserializerContext context = generator.getContext();
 		TypeManager types = context.getTypes();
 		types.registerImport(Class.class);
 		types.staticImport(Matchers.class, "equalTo");

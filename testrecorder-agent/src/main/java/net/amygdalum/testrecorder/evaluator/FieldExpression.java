@@ -5,8 +5,8 @@ import static net.amygdalum.testrecorder.util.Types.boxedType;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.SerializedValue;
-import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class FieldExpression implements Expression {

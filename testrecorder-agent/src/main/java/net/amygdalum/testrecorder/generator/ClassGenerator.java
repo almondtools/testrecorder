@@ -13,12 +13,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.stringtemplate.v4.ST;
 
-import net.amygdalum.testrecorder.ContextSnapshot;
 import net.amygdalum.testrecorder.SetupGenerator;
+import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.deserializers.DeserializerTypeManager;
 import net.amygdalum.testrecorder.runtime.TestRecorderAgentInitializer;
-import net.amygdalum.testrecorder.types.Computation;
-import net.amygdalum.testrecorder.types.Deserializer;
+import net.amygdalum.testrecorder.types.ContextSnapshot;
 import net.amygdalum.testrecorder.types.TypeManager;
 
 public class ClassGenerator {
@@ -35,13 +34,13 @@ public class ClassGenerator {
 		+ "\n}";
 
 	private String testName;
-	private Deserializer<Computation> setup;
-	private Deserializer<Computation> matcher;
+	private DeserializerFactory setup;
+	private DeserializerFactory matcher;
 	private TypeManager types;
 	private Map<String, String> setups;
 	private Set<String> tests;
 
-	public ClassGenerator(Deserializer<Computation> setup, Deserializer<Computation> matcher, List<TestRecorderAgentInitializer> initializers, String pkg, String testName) {
+	public ClassGenerator(DeserializerFactory setup, DeserializerFactory matcher, List<TestRecorderAgentInitializer> initializers, String pkg, String testName) {
 		this.testName = testName;
 		this.setup = setup;
 		this.matcher = matcher;
@@ -62,11 +61,11 @@ public class ClassGenerator {
 		}
 	}
 
-	public void setSetup(Deserializer<Computation> setup) {
+	public void setSetup(DeserializerFactory setup) {
 		this.setup = setup;
 	}
 
-	public void setMatcher(Deserializer<Computation> matcher) {
+	public void setMatcher(DeserializerFactory matcher) {
 		this.matcher = matcher;
 	}
 

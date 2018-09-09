@@ -11,6 +11,7 @@ import static net.amygdalum.testrecorder.types.Computation.variable;
 import java.lang.reflect.Type;
 import java.util.List;
 
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.runtime.GenericObject;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
@@ -25,7 +26,8 @@ public class DefaultObjectAdaptor extends DefaultSetupGenerator<SerializedObject
     }
 
     @Override
-    public Computation tryDeserialize(SerializedObject value, SetupGenerators generator, DeserializerContext context) {
+    public Computation tryDeserialize(SerializedObject value, Deserializer generator) {
+		DeserializerContext context = generator.getContext();
         TypeManager types = context.getTypes();
         types.registerTypes(value.getType(), GenericObject.class);
         types.registerTypes(value.getUsedTypes());
@@ -36,7 +38,7 @@ public class DefaultObjectAdaptor extends DefaultSetupGenerator<SerializedObject
 
             List<Computation> elementTemplates = ensureUniqueNames(value.getFields()).stream()
                 .sorted()
-                .map(field -> field.accept(generator, context))
+                .map(field -> field.accept(generator))
                 .collect(toList());
 
             List<String> elements = elementTemplates.stream()

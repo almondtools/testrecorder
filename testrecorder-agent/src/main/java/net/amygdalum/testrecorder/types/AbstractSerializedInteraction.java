@@ -1,4 +1,6 @@
-package net.amygdalum.testrecorder.values;
+package net.amygdalum.testrecorder.types;
+
+import static net.amygdalum.testrecorder.types.SerializedRole.NO_ANNOTATIONS;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
@@ -7,18 +9,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import net.amygdalum.testrecorder.types.SerializedInteraction;
-import net.amygdalum.testrecorder.types.SerializedValue;
-
 public abstract class AbstractSerializedInteraction implements SerializedInteraction, Serializable {
 
 	protected int id;
 	protected Class<?> clazz;
 	protected String name;
 	protected Type resultType;
-	protected SerializedValue result;
+	protected SerializedResult result;
 	protected Type[] types;
-	protected SerializedValue[] arguments;
+	protected SerializedArgument[] arguments;
 
 	public AbstractSerializedInteraction(int id, Class<?> clazz, String name, Type resultType, Type[] types) {
 		assert resultType instanceof Serializable;
@@ -28,9 +27,9 @@ public abstract class AbstractSerializedInteraction implements SerializedInterac
 		this.name = name;
 		this.resultType = resultType;
 		this.types = types;
-		this.arguments = new SerializedValue[0];
+		this.arguments = new SerializedArgument[0];
 	}
-	
+
 	public int id() {
 		return System.identityHashCode(this);
 	}
@@ -82,7 +81,7 @@ public abstract class AbstractSerializedInteraction implements SerializedInterac
 	}
 
 	@Override
-	public SerializedValue getResult() {
+	public SerializedResult getResult() {
 		return result;
 	}
 
@@ -92,16 +91,16 @@ public abstract class AbstractSerializedInteraction implements SerializedInterac
 	}
 
 	@Override
-	public SerializedValue[] getArguments() {
+	public SerializedArgument[] getArguments() {
 		return arguments;
 	}
 
 	@Override
 	public List<SerializedValue> getAllValues() {
 		List<SerializedValue> allValues = new ArrayList<>();
-		allValues.add(result);
-		for (SerializedValue argument : arguments) {
-			allValues.add(argument);
+		allValues.add(result.getValue());
+		for (SerializedArgument argument : arguments) {
+			allValues.add(argument.getValue());
 		}
 		return allValues;
 	}
@@ -135,6 +134,26 @@ public abstract class AbstractSerializedInteraction implements SerializedInterac
 			&& Objects.equals(this.result, that.result)
 			&& Arrays.equals(this.types, that.types)
 			&& Arrays.equals(this.arguments, that.arguments);
+	}
+
+	protected SerializedArgument[] argumentsOf(SerializedValue[] argumentValues) {
+		if (argumentValues == null) {
+			return new SerializedArgument[0];
+		} else {
+			SerializedArgument[] arguments = new SerializedArgument[argumentValues.length];
+			for (int i = 0; i < arguments.length; i++) {
+				arguments[i] = new SerializedArgument(i, types[i], NO_ANNOTATIONS, argumentValues[i]);
+			}
+			return arguments;
+		}
+	}
+
+	protected SerializedResult resultOf(SerializedValue resultValue) {
+		if (resultValue == null) {
+			return null;
+		} else {
+			return new SerializedResult(resultType, NO_ANNOTATIONS, resultValue);
+		}
 	}
 
 }

@@ -11,40 +11,39 @@ import java.util.Map;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializationException;
-import net.amygdalum.testrecorder.types.Deserializer;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.TypeManager;
 
-public class Adaptors<G extends Deserializer<Computation>> {
+public class Adaptors {
 
 	private AgentConfiguration config;
-	private Map<Class<? extends SerializedValue>, List<Adaptor<?, G>>> adaptors;
+	private Map<Class<? extends SerializedValue>, List<Adaptor<?>>> adaptors;
 
 	public Adaptors(AgentConfiguration config) {
 		this.config = config;
 		this.adaptors = new LinkedHashMap<>();
 	}
 
-	public Adaptors<G> add(Adaptor<?, G> adaptor) {
+	public Adaptors add(Adaptor<?> adaptor) {
 		return add(adaptor.getAdaptedClass(), adaptor);
 	}
 
-	public Adaptors<G> add(Class<? extends SerializedValue> clazz, Adaptor<?, G> adaptor) {
-		List<Adaptor<?, G>> matching = adaptors.computeIfAbsent(clazz, key -> new LinkedList<>());
+	public Adaptors add(Class<? extends SerializedValue> clazz, Adaptor<?> adaptor) {
+		List<Adaptor<?>> matching = adaptors.computeIfAbsent(clazz, key -> new LinkedList<>());
 		if (matching.isEmpty() || adaptor.parent() == null) {
 			matching.add(adaptor);
 		} else if (matching.size() == 1) {
-			Adaptor<?, G> existing = matching.get(0);
+			Adaptor<?> existing = matching.get(0);
 			if (existing.parent() == adaptor.getClass()) {
 				matching.add(adaptor);
 			} else {
 				matching.add(0, adaptor);
 			}
 		} else {
-			ListIterator<Adaptor<?, G>> iterator = matching.listIterator(matching.size());
+			ListIterator<Adaptor<?>> iterator = matching.listIterator(matching.size());
 			while (iterator.hasPrevious()) {
-				Adaptor<?, G> prev = iterator.previous();
+				Adaptor<?> prev = iterator.previous();
 				if (prev.getClass() == adaptor.parent()) {
 					break;
 				} else if (adaptor.getClass() == prev.parent()) {
@@ -62,13 +61,13 @@ public class Adaptors<G extends Deserializer<Computation>> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends SerializedValue> Computation tryDeserialize(T value, TypeManager types, G generator, DeserializerContext context) {
+	public <T extends SerializedValue> Computation tryDeserialize(T value, TypeManager types, Deserializer generator, DeserializerContext context) {
 		Class<? extends SerializedValue> clazz = value.getClass();
-		List<Adaptor<?, G>> matching = adaptors.getOrDefault(clazz, emptyList());
-		for (Adaptor<?, G> match : matching) {
+		List<Adaptor<?>> matching = adaptors.getOrDefault(clazz, emptyList());
+		for (Adaptor<?> match : matching) {
 			if (match.matches(value.getType())) {
 				try {
-					return ((Adaptor<T, G>) match).tryDeserialize(value, generator, context);
+					return ((Adaptor<T>) match).tryDeserialize(value, generator);
 				} catch (DeserializationException e) {
 					continue;
 				}
@@ -77,9 +76,9 @@ public class Adaptors<G extends Deserializer<Computation>> {
 		return null;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public Adaptors<G> load(Class<? extends Adaptor> clazz) {
-		for (Adaptor<?, G> adaptor : config.loadConfigurations(clazz)) {
+	@SuppressWarnings({ "rawtypes" })
+	public Adaptors load(Class<? extends Adaptor> clazz) {
+		for (Adaptor<?> adaptor : config.loadConfigurations(clazz)) {
 			add(adaptor);
 		}
 		return this;

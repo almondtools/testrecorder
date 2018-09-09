@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.hamcrest.Matcher;
 
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.runtime.ContainsMatcher;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
@@ -23,13 +24,20 @@ import net.amygdalum.testrecorder.values.SerializedSet;
 
 public class DefaultSetAdaptor extends DefaultMatcherGenerator<SerializedSet> implements MatcherGenerator<SerializedSet> {
 
+	private SimpleValueAdaptor simpleAdaptor;
+
+	public DefaultSetAdaptor() {
+		this.simpleAdaptor = new SimpleValueAdaptor();
+	}
+	
 	@Override
 	public Class<SerializedSet> getAdaptedClass() {
 		return SerializedSet.class;
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedSet value, MatcherGenerators generator, DeserializerContext context) {
+	public Computation tryDeserialize(SerializedSet value, Deserializer generator) {
+		DeserializerContext context = generator.getContext();
 		if (value.isEmpty()) {
 			TypeManager types = context.getTypes();
 			types.staticImport(ContainsMatcher.class, "empty");
@@ -42,7 +50,7 @@ public class DefaultSetAdaptor extends DefaultMatcherGenerator<SerializedSet> im
 			types.registerImport(baseType(componentType(types, value)));
 
 			List<Computation> elements = value.stream()
-				.map(element -> generator.simpleMatcher(element, context))
+				.map(element -> simpleAdaptor.tryDeserialize(element, generator))
 				.collect(toList());
 
 			List<String> elementComputations = elements.stream()

@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder;
+package net.amygdalum.testrecorder.types;
 
 import static java.util.stream.Collectors.joining;
 
@@ -12,18 +12,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.function.Predicate;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.util.BiOptional;
-import net.amygdalum.testrecorder.values.SerializedField;
-import net.amygdalum.testrecorder.values.SerializedInput;
-import net.amygdalum.testrecorder.values.SerializedOutput;
 
 public class ContextSnapshot implements Serializable {
 
-	protected static final ContextSnapshot INVALID = new ContextSnapshot();
+	public static final ContextSnapshot INVALID = new ContextSnapshot();
 
 	private long time;
 	private String key;
@@ -32,13 +27,13 @@ public class ContextSnapshot implements Serializable {
 	private boolean valid;
 
 	private SerializedValue setupThis;
-	private SerializedValue[] setupArgs;
+	private SerializedArgument[] setupArgs;
 	private SerializedField[] setupGlobals;
 
 	private SerializedValue expectThis;
-	private SerializedValue expectResult;
+	private SerializedResult expectResult;
 	private SerializedValue expectException;
-	private SerializedValue[] expectArgs;
+	private SerializedArgument[] expectArgs;
 	private SerializedField[] expectGlobals;
 
 	private Deque<SerializedInput> setupInput;
@@ -128,34 +123,23 @@ public class ContextSnapshot implements Serializable {
 		this.setupThis = setupThis;
 	}
 
-	public SerializedValue[] getSetupArgs() {
+	public SerializedArgument[] getSetupArgs() {
 		return setupArgs;
 	}
 
-	public Optional<SerializedValue> onSetupArg(int index) {
+	public Optional<SerializedArgument> onSetupArg(int index) {
 		if (setupArgs.length <= index) {
 			return Optional.empty();
 		}
 		return Optional.ofNullable(setupArgs[index]);
 	}
 
-	public Stream<SerializedValue> streamSetupArgs() {
+	public Stream<SerializedArgument> streamSetupArgs() {
 		return Arrays.stream(setupArgs);
 	}
 
 	public void setSetupArgs(SerializedValue... setupArgs) {
-		this.setupArgs = setupArgs;
-	}
-
-	public AnnotatedValue[] getAnnotatedSetupArgs() {
-		return streamAnnotatedSetupArgs().toArray(AnnotatedValue[]::new);
-	}
-
-	public Stream<AnnotatedValue> streamAnnotatedSetupArgs() {
-		Annotation[][] annotations = align(signature.argumentAnnotations, setupArgs);
-		Type[] argumentTypes = signature.argumentTypes;
-		return IntStream.range(0, setupArgs.length)
-			.mapToObj(i -> new AnnotatedValue(argumentTypes[i], annotations[i], setupArgs[i]));
+		this.setupArgs = argumentsOf(setupArgs);
 	}
 
 	public SerializedField[] getSetupGlobals() {
@@ -187,21 +171,21 @@ public class ContextSnapshot implements Serializable {
 		this.expectThis = expectThis;
 	}
 
-	public SerializedValue getExpectResult() {
+	public SerializedResult getExpectResult() {
 		return expectResult;
 	}
 
-	public Optional<SerializedValue> onExpectResult() {
+	public Optional<SerializedResult> onExpectResult() {
 		return Optional.ofNullable(expectResult);
 	}
 
-	public Stream<SerializedValue> streamExpectResult() {
+	public Stream<SerializedResult> streamExpectResult() {
 		return Stream.of(expectResult)
 			.filter(Objects::nonNull);
 	}
 
 	public void setExpectResult(SerializedValue expectResult) {
-		this.expectResult = expectResult;
+		this.expectResult = resultOf(expectResult);
 	}
 
 	public <T extends Annotation> Optional<T> getMethodAnnotation(Class<T> clazz) {
@@ -230,34 +214,23 @@ public class ContextSnapshot implements Serializable {
 		this.expectException = expectException;
 	}
 
-	public SerializedValue[] getExpectArgs() {
+	public SerializedArgument[] getExpectArgs() {
 		return expectArgs;
 	}
 
-	public Stream<SerializedValue> streamExpectArgs() {
+	public Stream<SerializedArgument> streamExpectArgs() {
 		return Arrays.stream(expectArgs);
 	}
 
-	public Optional<SerializedValue> onExpectArg(int index) {
+	public Optional<SerializedArgument> onExpectArg(int index) {
 		if (expectArgs.length <= index) {
 			return Optional.empty();
 		}
 		return Optional.ofNullable(expectArgs[index]);
 	}
 
-	public AnnotatedValue[] getAnnotatedExpectArgs() {
-		return streamAnnotatedExpectArgs().toArray(AnnotatedValue[]::new);
-	}
-
-	public Stream<AnnotatedValue> streamAnnotatedExpectArgs() {
-		Annotation[][] annotations = align(signature.argumentAnnotations, expectArgs);
-		Type[] argumentTypes = signature.argumentTypes;
-		return IntStream.range(0, expectArgs.length)
-			.mapToObj(i -> new AnnotatedValue(argumentTypes[i], annotations[i], expectArgs[i]));
-	}
-
 	public void setExpectArgs(SerializedValue... expectArgs) {
-		this.expectArgs = expectArgs;
+		this.expectArgs = argumentsOf(expectArgs);
 	}
 
 	public SerializedField[] getExpectGlobals() {
@@ -320,7 +293,7 @@ public class ContextSnapshot implements Serializable {
 		return BiOptional.ofNullable(setupThis, expectThis);
 	}
 
-	public BiOptional<SerializedValue[]> onArgs() {
+	public BiOptional<SerializedArgument[]> onArgs() {
 		return BiOptional.ofNullable(setupArgs, expectArgs);
 	}
 
@@ -328,18 +301,21 @@ public class ContextSnapshot implements Serializable {
 		return BiOptional.ofNullable(setupGlobals, expectGlobals);
 	}
 
-	private Annotation[][] align(Annotation[][] annotations, SerializedValue[] values) {
-		if (annotations.length != values.length) {
-			Annotation[][] resultannotations = new Annotation[values.length][];
-			Arrays.fill(resultannotations, new Annotation[0]);
-			return resultannotations;
-		}
-		return annotations;
-	}
-
 	public String toString() {
 		return signature.resultType.getTypeName() + " " + signature.methodName + Stream.of(signature.argumentTypes).map(type -> type.getTypeName()).collect(joining(",", "(", ")")) + " of "
 			+ signature.declaringClass.getName();
+	}
+
+	private SerializedArgument[] argumentsOf(SerializedValue[] argumentValues) {
+		SerializedArgument[] arguments = new SerializedArgument[argumentValues.length];
+		for (int i = 0; i < arguments.length; i++) {
+			arguments[i] = new SerializedArgument(i, signature.argumentTypes[i], signature.argumentAnnotations[i], argumentValues[i]);
+		}
+		return arguments;
+	}
+
+	private SerializedResult resultOf(SerializedValue result) {
+		return new SerializedResult(signature.resultType, signature.resultAnnotation, result);
 	}
 
 }

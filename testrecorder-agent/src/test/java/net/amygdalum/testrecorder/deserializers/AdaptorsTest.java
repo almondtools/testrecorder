@@ -14,19 +14,18 @@ import org.junit.jupiter.api.Test;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializationException;
-import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class AdaptorsTest {
 
-	private Adaptors<TestComputationValueVisitor> adaptors;
+	private Adaptors adaptors;
 	private OpenAdaptors openadaptors;
 
 	@BeforeEach
 	public void before() throws Exception {
 		AgentConfiguration config = defaultConfig();
-		adaptors = new Adaptors<>(config);
+		adaptors = new Adaptors(config);
 		openadaptors = xray(adaptors).to(OpenAdaptors.class);
 	}
 
@@ -139,13 +138,13 @@ public class AdaptorsTest {
 		assertThat(openadaptors.getAdaptors().get(SerializedObject.class)).containsExactly(a4, a2, a1);
 	}
 
-	private abstract class MyAbstractAdaptor implements Adaptor<SerializedObject, TestComputationValueVisitor> {
+	private abstract class MyAbstractAdaptor implements Adaptor<SerializedObject> {
 
-		private Class<? extends Adaptor<SerializedObject, TestComputationValueVisitor>> parent;
+		private Class<? extends Adaptor<SerializedObject>> parent;
 		private boolean matches;
 		private Computation computation;
 
-		MyAbstractAdaptor(Class<? extends Adaptor<SerializedObject, TestComputationValueVisitor>> parent, boolean matches, Computation computation) {
+		MyAbstractAdaptor(Class<? extends Adaptor<SerializedObject>> parent, boolean matches, Computation computation) {
 			super();
 			this.parent = parent;
 			this.matches = matches;
@@ -153,7 +152,7 @@ public class AdaptorsTest {
 		}
 
 		@Override
-		public Class<? extends Adaptor<SerializedObject, TestComputationValueVisitor>> parent() {
+		public Class<? extends Adaptor<SerializedObject>> parent() {
 			return parent;
 		}
 
@@ -168,7 +167,7 @@ public class AdaptorsTest {
 		}
 
 		@Override
-		public Computation tryDeserialize(SerializedObject value, TestComputationValueVisitor generator, DeserializerContext context) throws DeserializationException {
+		public Computation tryDeserialize(SerializedObject value, Deserializer generator) throws DeserializationException {
 			return computation;
 		}
 
@@ -176,7 +175,7 @@ public class AdaptorsTest {
 
 	private class MyAdaptor1 extends MyAbstractAdaptor {
 
-		MyAdaptor1(Class<? extends Adaptor<SerializedObject, TestComputationValueVisitor>> parent, boolean matches, Computation computation) {
+		MyAdaptor1(Class<? extends Adaptor<SerializedObject>> parent, boolean matches, Computation computation) {
 			super(parent, matches, computation);
 		}
 
@@ -184,7 +183,7 @@ public class AdaptorsTest {
 
 	private class MyAdaptor2 extends MyAbstractAdaptor {
 
-		MyAdaptor2(Class<? extends Adaptor<SerializedObject, TestComputationValueVisitor>> parent, boolean matches, Computation computation) {
+		MyAdaptor2(Class<? extends Adaptor<SerializedObject>> parent, boolean matches, Computation computation) {
 			super(parent, matches, computation);
 		}
 
@@ -192,7 +191,7 @@ public class AdaptorsTest {
 
 	private class MyAdaptor3 extends MyAbstractAdaptor {
 
-		MyAdaptor3(Class<? extends Adaptor<SerializedObject, TestComputationValueVisitor>> parent, boolean matches, Computation computation) {
+		MyAdaptor3(Class<? extends Adaptor<SerializedObject>> parent, boolean matches, Computation computation) {
 			super(parent, matches, computation);
 		}
 
@@ -200,13 +199,13 @@ public class AdaptorsTest {
 
 	private class MyAdaptor4 extends MyAbstractAdaptor {
 
-		MyAdaptor4(Class<? extends Adaptor<SerializedObject, TestComputationValueVisitor>> parent, boolean matches, Computation computation) {
+		MyAdaptor4(Class<? extends Adaptor<SerializedObject>> parent, boolean matches, Computation computation) {
 			super(parent, matches, computation);
 		}
 
 	}
 
 	interface OpenAdaptors {
-		Map<Class<? extends SerializedValue>, List<Adaptor<?, TestComputationValueVisitor>>> getAdaptors();
+		Map<Class<? extends SerializedValue>, List<Adaptor<?>>> getAdaptors();
 	}
 }

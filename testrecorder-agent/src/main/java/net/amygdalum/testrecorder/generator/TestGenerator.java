@@ -22,7 +22,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import net.amygdalum.testrecorder.ClassDescriptor;
-import net.amygdalum.testrecorder.ContextSnapshot;
 import net.amygdalum.testrecorder.SnapshotConsumer;
 import net.amygdalum.testrecorder.SnapshotManager;
 import net.amygdalum.testrecorder.TestrecorderThreadFactory;
@@ -35,6 +34,7 @@ import net.amygdalum.testrecorder.dynamiccompile.RenderedTest;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.runtime.TestRecorderAgentInitializer;
+import net.amygdalum.testrecorder.types.ContextSnapshot;
 import net.amygdalum.testrecorder.util.Logger;
 
 public class TestGenerator implements SnapshotConsumer {
@@ -137,8 +137,8 @@ public class TestGenerator implements SnapshotConsumer {
 	}
 
 	public ClassGenerator newGenerator(ClassDescriptor clazz) {
-		SetupGenerators setup = new SetupGenerators(new Adaptors<SetupGenerators>(config).load(SetupGenerator.class));
-		MatcherGenerators matcher = new MatcherGenerators(new Adaptors<MatcherGenerators>(config).load(MatcherGenerator.class));
+		SetupGenerators setup = new SetupGenerators(new Adaptors(config).load(SetupGenerator.class));
+		MatcherGenerators matcher = new MatcherGenerators(new Adaptors(config).load(MatcherGenerator.class));
 		List<TestRecorderAgentInitializer> initializer = config.loadConfigurations(TestRecorderAgentInitializer.class);
 
 		return new ClassGenerator(setup, matcher, initializer, clazz.getPackage(), computeClassName(clazz));

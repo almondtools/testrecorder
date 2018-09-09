@@ -5,8 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.types.Deserializer;
-import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.RoleVisitor;
 
 public class SerializedImmutableTest {
 
@@ -52,7 +51,7 @@ public class SerializedImmutableTest {
 		}
 
 		@Override
-		public <T> T accept(Deserializer<T> visitor, DeserializerContext context) {
+		public <T> T accept(RoleVisitor<T> visitor) {
 			return null;
 		}
 

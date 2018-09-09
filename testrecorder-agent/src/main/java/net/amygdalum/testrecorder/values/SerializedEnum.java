@@ -4,8 +4,8 @@ import static java.util.Collections.emptyList;
 
 import java.util.List;
 
-import net.amygdalum.testrecorder.types.Deserializer;
-import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.RoleVisitor;
+import net.amygdalum.testrecorder.types.ReferenceTypeVisitor;
 import net.amygdalum.testrecorder.types.SerializedImmutableType;
 import net.amygdalum.testrecorder.types.SerializedValue;
 
@@ -38,8 +38,13 @@ public class SerializedEnum extends AbstractSerializedReferenceType implements S
 		return emptyList();
 	}
 
-	public <T> T accept(Deserializer<T> visitor, DeserializerContext context) {
-		return visitor.visitImmutableType(this, context);
+	public <T> T accept(RoleVisitor<T> visitor) {
+		return visitor.visitImmutableType(this);
+	}
+
+	@Override
+	public <T> T accept(ReferenceTypeVisitor<T> visitor) {
+		return visitor.visitImmutableType(this);
 	}
 
 	@Override

@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.util.testobjects.Annotated;
 import net.amygdalum.testrecorder.util.testobjects.MyAnnotation;
-import net.amygdalum.testrecorder.util.testobjects.NoAnnotation;
 
 public class AbstractSerializedValueTest {
 
@@ -25,8 +24,6 @@ public class AbstractSerializedValueTest {
 		ASerializedValue value = new ASerializedValue(Annotated.class);
 
 		assertThat(value.getAnnotations()).containsExactly((Annotation) Annotated.class.getAnnotation(MyAnnotation.class));
-		assertThat(value.getAnnotation(MyAnnotation.class).get()).isEqualTo(Annotated.class.getAnnotation(MyAnnotation.class));
-		assertThat(value.getAnnotation(NoAnnotation.class).isPresent()).isFalse();
 	}
 
 }

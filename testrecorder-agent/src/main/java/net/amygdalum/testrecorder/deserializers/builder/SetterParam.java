@@ -3,8 +3,8 @@ package net.amygdalum.testrecorder.deserializers.builder;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
+import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.SerializedValue;
-import net.amygdalum.testrecorder.values.SerializedField;
 
 public class SetterParam {
 

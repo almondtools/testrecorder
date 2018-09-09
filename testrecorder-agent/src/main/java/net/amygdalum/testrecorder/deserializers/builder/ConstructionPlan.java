@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.LocalVariable;
@@ -49,14 +50,15 @@ public class ConstructionPlan implements Comparable<ConstructionPlan> {
 		}
 	}
 
-	public Computation compute(TypeManager types, SetupGenerators generator, DeserializerContext context) {
+	public Computation compute(TypeManager types, Deserializer generator) {
+		DeserializerContext context = generator.getContext();
 		Class<?> clazz = constructorParams.getType();
 		types.registerTypes(clazz);
 
 		List<String> statements = new ArrayList<>();
 
 		List<Computation> computedParams = constructorParams.getParams().stream()
-			.map(value -> value.compile(types, generator, context))
+			.map(value -> value.compile(types, generator))
 			.collect(toList());
 
 		statements.addAll(computedParams.stream()
@@ -73,7 +75,7 @@ public class ConstructionPlan implements Comparable<ConstructionPlan> {
 		var.define(clazz);
 
 		for (SetterParam param : setterParams) {
-			Computation fieldComputation = param.computeSerializedValue().accept(generator, context);
+			Computation fieldComputation = param.computeSerializedValue().accept(generator);
 			statements.addAll(fieldComputation.getStatements());
 
 			String value = context.adapt(fieldComputation.getValue(), param.getType(), fieldComputation.getType());

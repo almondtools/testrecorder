@@ -1,6 +1,5 @@
 package net.amygdalum.testrecorder.values;
 
-import static net.amygdalum.testrecorder.types.DeserializerContext.NULL;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -21,7 +20,7 @@ public class SerializedEnumTest {
 	public void testAccept() throws Exception {
 		SerializedEnum value = new SerializedEnum(MyEnum.class);
 
-		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("ImmutableType:SerializedEnum");
+		assertThat(value.accept(new TestValueVisitor())).isEqualTo("ImmutableType:SerializedEnum");
 	}
 
 	@Test

@@ -13,6 +13,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.SerializedValue;
@@ -35,7 +36,8 @@ public class DefaultProxyAdaptor extends DefaultSetupGenerator<SerializedProxy> 
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedProxy value, SetupGenerators generator, DeserializerContext context) {
+	public Computation tryDeserialize(SerializedProxy value, Deserializer generator) {
+		DeserializerContext context = generator.getContext();
 		TypeManager types = context.getTypes();
 		types.registerImport(Proxy.class);
 
@@ -49,14 +51,14 @@ public class DefaultProxyAdaptor extends DefaultSetupGenerator<SerializedProxy> 
 
 			List<String> interfaceList = new ArrayList<>();
 			for (SerializedImmutable<Class<?>> interfaceClass : value.getInterfaces()) {
-				Computation interfaceComputation = interfaceClass.accept(generator, context);
+				Computation interfaceComputation = interfaceClass.accept(generator);
 				statements.addAll(interfaceComputation.getStatements());
 				interfaceList.add(interfaceComputation.getValue());
 			}
 			String interfaces = arrayLiteral(types.getVariableTypeName(Class[].class), interfaceList);
 
 			SerializedValue invocationHandler = value.getInvocationHandler();
-			Computation invocationHandlerComputation = invocationHandler.accept(generator, context);
+			Computation invocationHandlerComputation = invocationHandler.accept(generator);
 			statements.addAll(invocationHandlerComputation.getStatements());
 			String handler = invocationHandlerComputation.getValue();
 

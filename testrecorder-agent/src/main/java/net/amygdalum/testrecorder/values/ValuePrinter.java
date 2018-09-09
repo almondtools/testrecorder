@@ -6,15 +6,18 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import net.amygdalum.testrecorder.types.Deserializer;
-import net.amygdalum.testrecorder.types.DeserializerContext;
-import net.amygdalum.testrecorder.types.SerializedFieldType;
+import net.amygdalum.testrecorder.types.RoleVisitor;
+import net.amygdalum.testrecorder.types.SerializedArgument;
+import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.SerializedImmutableType;
+import net.amygdalum.testrecorder.types.SerializedKeyValue;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
+import net.amygdalum.testrecorder.types.SerializedResult;
+import net.amygdalum.testrecorder.types.SerializedRole;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.SerializedValueType;
 
-public class ValuePrinter implements Deserializer<String> {
+public class ValuePrinter implements RoleVisitor<String> {
 
 	private Set<Object> known;
 
@@ -22,52 +25,56 @@ public class ValuePrinter implements Deserializer<String> {
 		known = new LinkedHashSet<>();
 	}
 
-	public static String print(SerializedValue value) {
+	public static String print(SerializedRole value) {
 		ValuePrinter printer = new ValuePrinter();
-		return printer.printValue(value);
+		return value.accept(printer);
 	}
-
-	public static String print(SerializedFieldType value) {
-		ValuePrinter printer = new ValuePrinter();
-		return printer.printField(value);
+	
+	@Override
+	public String visitField(SerializedField field) {
+		return field.getType().getTypeName() + " " + field.getName() + ": " + field.getValue().accept(this);
 	}
-
-	public String printValue(SerializedValue value) {
-		return value.accept(this, DeserializerContext.NULL);
+	
+	@Override
+	public String visitArgument(SerializedArgument argument) {
+		return argument.getValue().accept(this);
 	}
-
-	public String printField(SerializedFieldType value) {
-		return value.accept(this, DeserializerContext.NULL);
+	
+	@Override
+	public String visitResult(SerializedResult result) {
+		return result.getValue().accept(this);
+	}
+	
+	@Override
+	public String visitKeyValue(SerializedKeyValue keyvalue) {
+		SerializedValue key = keyvalue.getKey();
+		SerializedValue value = keyvalue.getValue();
+		return key.accept(this) + ": " + value.accept(this);
 	}
 
 	@Override
-	public String visitField(SerializedFieldType field, DeserializerContext context) {
-		return field.getType().getTypeName() + " " + field.getName() + ": " + field.getValue().accept(this, context);
-	}
-
-	@Override
-	public String visitReferenceType(SerializedReferenceType rt, DeserializerContext context) {
+	public String visitReferenceType(SerializedReferenceType rt) {
 		boolean inserted = known.add(rt);
 		if (!inserted) {
 			return rt.getType() + "/" + System.identityHashCode(rt);
 		} else if (rt instanceof SerializedObject) {
 			SerializedObject value = (SerializedObject) rt;
-			return printObject(context, value); 
+			return printObject(value); 
 		} else if (rt instanceof SerializedProxy) {
 			SerializedProxy value = (SerializedProxy) rt;
-			return printProxy(context, value);
+			return printProxy(value);
 		} else if (rt instanceof SerializedList) {
 			SerializedList value = (SerializedList) rt;
-			return printList(context, value);
+			return printList(value);
 		} else if (rt instanceof SerializedMap) {
 			SerializedMap value = (SerializedMap) rt;
-			return printMap(context, value);
+			return printMap(value);
 		} else if (rt instanceof SerializedSet) {
 			SerializedSet value = (SerializedSet) rt;
-			return printSet(context, value);
+			return printSet(value);
 		} else if (rt instanceof SerializedArray) {
 			SerializedArray value = (SerializedArray) rt;
-			return printArray(context, value);
+			return printArray(value);
 		} else if (rt == SerializedNull.VOID) {
 			return "void";
 		} else if (rt instanceof SerializedNull) {
@@ -77,44 +84,44 @@ public class ValuePrinter implements Deserializer<String> {
 		}
 	}
 
-	private String printProxy(DeserializerContext context, SerializedProxy value) {
+	private String printProxy(SerializedProxy value) {
 		return value.getType().toString().replace("class", "proxy") + "/" + System.identityHashCode(value);
 	}
 
-	private String printObject(DeserializerContext context, SerializedObject value) {
+	private String printObject(SerializedObject value) {
 		return value.getType().getTypeName() + "/" + System.identityHashCode(value) + " "
 			+ value.getFields().stream()
 				.sorted()
-				.map(field -> field.accept(this, context))
+				.map(field -> field.accept(this))
 				.collect(joining(",\n", "{\n", "\n}"));
 	}
 
-	private String printList(DeserializerContext context, SerializedList value) {
+	private String printList(SerializedList value) {
 		return value.stream()
-			.map(element -> element.accept(this, context))
+			.map(element -> element.accept(this))
 			.collect(joining(", ", "[", "]"));
 	}
 
-	private String printSet(DeserializerContext context, SerializedSet value) {
+	private String printSet(SerializedSet value) {
 		return value.stream()
-			.map(element -> element.accept(this, context))
+			.map(element -> element.accept(this))
 			.collect(joining(", ", "{", "}"));
 	}
 
-	private String printMap(DeserializerContext context, SerializedMap value) {
+	private String printMap(SerializedMap value) {
 		return value.entrySet().stream()
-			.map(element -> element.getKey().accept(this, context) + ":" + element.getValue().accept(this, context))
+			.map(element -> element.getKey().accept(this) + ":" + element.getValue().accept(this))
 			.collect(joining(",", "{", "}"));
 	}
 
-	private String printArray(DeserializerContext context, SerializedArray value) {
+	private String printArray(SerializedArray value) {
 		return Stream.of(value.getArray())
-			.map(element -> element.accept(this, context))
+			.map(element -> element.accept(this))
 			.collect(joining(", ", "<", ">"));
 	}
 
 	@Override
-	public String visitImmutableType(SerializedImmutableType rt, DeserializerContext context) {
+	public String visitImmutableType(SerializedImmutableType rt) {
 		if (rt instanceof SerializedImmutable<?>) {
 			SerializedImmutable<?> value = (SerializedImmutable<?>) rt;
 			return value.getValue().toString();
@@ -127,7 +134,7 @@ public class ValuePrinter implements Deserializer<String> {
 	}
 
 	@Override
-	public String visitValueType(SerializedValueType value, DeserializerContext context) {
+	public String visitValueType(SerializedValueType value) {
 		return value.getValue().toString();
 	}
 

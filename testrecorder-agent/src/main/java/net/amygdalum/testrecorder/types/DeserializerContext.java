@@ -5,29 +5,29 @@ import static java.util.Collections.emptySet;
 import java.lang.reflect.Type;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 public interface DeserializerContext {
 
 	DeserializerContext NULL = new DeserializerContext() {
-
+		
 		@Override
-		public DeserializerContext getParent() {
-			return null;
-		}
-
-		@Override
-		public <T> DeserializerContext newWithHints(T[] hints) {
+		public <T> DeserializerContext newIsolatedContext(TypeManager types, LocalVariableNameGenerator locals) {
 			return NULL;
 		}
 
 		@Override
-		public <T> Optional<T> getHint(Class<T> clazz) {
+		public void addHint(SerializedRole role, Object hint) {
+		}
+
+		@Override
+		public <T> Optional<T> getHint(SerializedRole role, Class<T> clazz) {
 			return Optional.empty();
 		}
 
 		@Override
-		public <T> Stream<T> getHints(Class<T> clazz) {
+		public <T> Stream<T> getHints(SerializedRole role, Class<T> clazz) {
 			return Stream.empty();
 		}
 
@@ -78,7 +78,7 @@ public interface DeserializerContext {
 		public Computation forVariable(SerializedValue value, Type type, LocalVariableDefinition computation) {
 			return null;
 		}
-		
+
 		@Override
 		public String temporaryLocal() {
 			return null;
@@ -117,15 +117,20 @@ public interface DeserializerContext {
 			return Optional.empty();
 		}
 
+		@Override
+		public <T extends SerializedRole, S> S withRole(T role, Function<T, S> continuation) {
+			return continuation.apply(role);
+		}
+
 	};
 
-	DeserializerContext getParent();
+	<T> DeserializerContext newIsolatedContext(TypeManager types, LocalVariableNameGenerator locals);
 
-	<T> DeserializerContext newWithHints(T[] hints);
+	void addHint(SerializedRole role, Object hint);
 
-	<T> Optional<T> getHint(Class<T> clazz);
+	<T> Optional<T> getHint(SerializedRole role, Class<T> clazz);
 
-	<T> Stream<T> getHints(Class<T> clazz);
+	<T> Stream<T> getHints(SerializedRole role, Class<T> clazz);
 
 	int refCount(SerializedValue value);
 
@@ -162,5 +167,7 @@ public interface DeserializerContext {
 	boolean isComputed(SerializedValue value);
 
 	Optional<SerializedValue> resolve(int id);
+
+	<T extends SerializedRole,S> S withRole(T role, Function<T, S> continuation);
 
 }

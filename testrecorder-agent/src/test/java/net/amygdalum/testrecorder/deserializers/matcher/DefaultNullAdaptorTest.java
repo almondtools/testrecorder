@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
@@ -45,9 +46,9 @@ public class DefaultNullAdaptorTest {
 	public void testTryDeserialize() throws Exception {
 		SerializedNull value = nullInstance();
 		value.useAs(String.class);
-		MatcherGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("nullValue(String.class)");
@@ -58,9 +59,9 @@ public class DefaultNullAdaptorTest {
 		SerializedNull value = nullInstance();
 		value.useAs(Hidden.VisibleInterface.class);
 
-		MatcherGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(context.getTypes().getImports()).contains("net.amygdalum.testrecorder.util.testobjects.Hidden.VisibleInterface");
@@ -72,16 +73,16 @@ public class DefaultNullAdaptorTest {
 		SerializedNull value = nullInstance();
 		value.useAs(classOfCompletelyHidden());
 
-		MatcherGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("nullValue()");
 	}
 
-	private MatcherGenerators generator() {
-		return new MatcherGenerators(new Adaptors<MatcherGenerators>(config).load(MatcherGenerator.class));
+	private Deserializer generator() {
+		return new MatcherGenerators(new Adaptors(config).load(MatcherGenerator.class)).newGenerator(context);
 	}
 
 }

@@ -8,8 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.amygdalum.testrecorder.types.Deserializer;
-import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.RoleVisitor;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.SerializedValueType;
 
@@ -59,8 +58,8 @@ public class SerializedLiteral extends AbstractSerializedValue implements Serial
     }
 
     @Override
-    public <T> T accept(Deserializer<T> visitor, DeserializerContext context) {
-        return visitor.visitValueType(this, context);
+    public <T> T accept(RoleVisitor<T> visitor) {
+        return visitor.visitValueType(this);
     }
 
     @Override

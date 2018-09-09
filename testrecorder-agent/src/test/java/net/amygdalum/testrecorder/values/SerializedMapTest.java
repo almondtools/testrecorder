@@ -2,7 +2,6 @@ package net.amygdalum.testrecorder.values;
 
 import static java.util.Comparator.comparing;
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
-import static net.amygdalum.testrecorder.types.DeserializerContext.NULL;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.GenericTypes.hashMapOfStringString;
 import static net.amygdalum.testrecorder.values.GenericTypes.mapOfBounded;
@@ -356,7 +355,7 @@ public class SerializedMapTest {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(Map.class);
 		
-		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("ReferenceType:SerializedMap");
+		assertThat(value.accept(new TestValueVisitor())).isEqualTo("ReferenceType:SerializedMap");
 	}
 
 }

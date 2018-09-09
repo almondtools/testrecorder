@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder.values;
 import static java.util.Arrays.asList;
 import static java.util.Comparator.comparing;
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
-import static net.amygdalum.testrecorder.types.DeserializerContext.NULL;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.GenericTypes.arrayListOfSetOfString;
 import static net.amygdalum.testrecorder.values.GenericTypes.arrayListOfString;
@@ -377,7 +376,7 @@ public class SerializedListTest {
 		SerializedList value = new SerializedList(ArrayList.class);
 		value.useAs(List.class);
 
-		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("ReferenceType:SerializedList");
+		assertThat(value.accept(new TestValueVisitor())).isEqualTo("ReferenceType:SerializedList");
 	}
 
 }

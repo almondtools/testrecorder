@@ -13,12 +13,13 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.hints.Builder;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.LocalVariable;
+import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.TypeManager;
-import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class BuilderConstruction {
@@ -36,11 +37,11 @@ public class BuilderConstruction {
 		this.serialized = value;
 	}
 
-	public Computation build(TypeManager types, SetupGenerators generator) throws ReflectiveOperationException {
+	public Computation build(TypeManager types, Deserializer generator) throws ReflectiveOperationException {
 		String name = var.getName();
 		Type type = var.getType();
 
-		Class<?> builderClass = context.getHint(Builder.class).orElseThrow(() -> new InstantiationException()).builder();
+		Class<?> builderClass = context.getHint(serialized, Builder.class).orElseThrow(() -> new InstantiationException()).builder();
 		assertBuilderConventions(builderClass);
 		
 		types.registerTypes(builderClass);
@@ -51,7 +52,7 @@ public class BuilderConstruction {
 		
 		for (SerializedField field : serialized.getFields()) {
 			String withSetter = withSetterNameFor(field.getName());
-			Computation fieldComputation = field.getValue().accept(generator, context);
+			Computation fieldComputation = field.getValue().accept(generator);
 			aggregate = callMethod(aggregate, withSetter, fieldComputation.getValue());
 		}
 		

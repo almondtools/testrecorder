@@ -12,9 +12,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
 import net.amygdalum.testrecorder.types.SerializationException;
+import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.SerializerSession;
-import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedNull;
 
 public abstract class AbstractCompositeSerializer {

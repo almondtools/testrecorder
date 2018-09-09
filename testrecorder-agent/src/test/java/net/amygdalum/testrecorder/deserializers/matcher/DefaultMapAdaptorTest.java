@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
@@ -61,8 +62,8 @@ public class DefaultMapAdaptorTest {
 		value.useAs(parameterized(Map.class, null, Integer.class, Integer.class));
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
-		MatcherGenerators generator = generator();
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Deserializer generator = generator();
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo(""
@@ -77,8 +78,8 @@ public class DefaultMapAdaptorTest {
 		value.useAs(parameterized(Map.class, null, Integer.class, Integer.class));
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
-		MatcherGenerators generator = generator();
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Deserializer generator = generator();
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo(""
@@ -92,8 +93,8 @@ public class DefaultMapAdaptorTest {
 		SerializedMap value = new SerializedMap(LinkedHashMap.class);
 		value.put(literal(8), literal(15));
 		value.put(literal(47), literal(11));
-		MatcherGenerators generator = generator();
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Deserializer generator = generator();
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo(""
@@ -106,9 +107,9 @@ public class DefaultMapAdaptorTest {
 	public void testTryDeserializeEmptyMap() throws Exception {
 		SerializedMap value = new SerializedMap(HashMap.class);
 		value.useAs(parameterized(Map.class, null, BigInteger.class, String.class));
-		MatcherGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("noEntries(BigInteger.class, String.class)");
@@ -117,9 +118,9 @@ public class DefaultMapAdaptorTest {
 	@Test
 	public void testTryDeserializeEmptyRawMap() throws Exception {
 		SerializedMap value = new SerializedMap(Map.class);
-		MatcherGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("noEntries()");
@@ -136,9 +137,9 @@ public class DefaultMapAdaptorTest {
 		value.put(list(parameterized(List.class, null, String.class)),
 			set(parameterized(Set.class, null, String.class)));
 
-		MatcherGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo(""
@@ -154,9 +155,9 @@ public class DefaultMapAdaptorTest {
 		value.useAs(parameterized(LinkedHashMap.class, null, Hidden.classOfCompletelyHidden(), Hidden.classOfCompletelyHidden()));
 		value.put(new SerializedObject(Hidden.classOfCompletelyHidden()), new SerializedObject(Hidden.classOfCompletelyHidden()));
 
-		MatcherGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).containsWildcardPattern(""
@@ -184,8 +185,8 @@ public class DefaultMapAdaptorTest {
 		return set;
 	}
 
-	private MatcherGenerators generator() {
-		return new MatcherGenerators(new Adaptors<MatcherGenerators>(config).load(MatcherGenerator.class));
+	private Deserializer generator() {
+		return new MatcherGenerators(new Adaptors(config).load(MatcherGenerator.class)).newGenerator(context);
 	}
 
 }

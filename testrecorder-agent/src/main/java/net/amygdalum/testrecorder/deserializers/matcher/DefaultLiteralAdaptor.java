@@ -9,6 +9,7 @@ import static net.amygdalum.testrecorder.util.Types.parameterized;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.TypeManager;
@@ -22,7 +23,8 @@ public class DefaultLiteralAdaptor extends DefaultMatcherGenerator<SerializedLit
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedLiteral value, MatcherGenerators generator, DeserializerContext context) {
+	public Computation tryDeserialize(SerializedLiteral value, Deserializer generator) {
+		DeserializerContext context = generator.getContext();
 		TypeManager types = context.getTypes();
 		types.staticImport(Matchers.class, "equalTo");
 

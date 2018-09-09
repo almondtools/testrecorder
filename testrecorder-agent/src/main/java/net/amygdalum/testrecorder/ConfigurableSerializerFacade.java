@@ -32,18 +32,19 @@ import net.amygdalum.testrecorder.serializers.LambdaSerializer;
 import net.amygdalum.testrecorder.serializers.ProxySerializer;
 import net.amygdalum.testrecorder.serializers.SerializerFacade;
 import net.amygdalum.testrecorder.types.AnalyzedObject;
+import net.amygdalum.testrecorder.types.ContextSnapshot;
 import net.amygdalum.testrecorder.types.OverrideSerializer;
 import net.amygdalum.testrecorder.types.Profile;
 import net.amygdalum.testrecorder.types.SerializationException;
+import net.amygdalum.testrecorder.types.SerializedInput;
+import net.amygdalum.testrecorder.types.SerializedOutput;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.util.IdentityWorkSet;
 import net.amygdalum.testrecorder.util.Logger;
-import net.amygdalum.testrecorder.values.SerializedInput;
 import net.amygdalum.testrecorder.values.SerializedNull;
-import net.amygdalum.testrecorder.values.SerializedOutput;
 
 public class ConfigurableSerializerFacade implements SerializerFacade {
 

@@ -4,7 +4,7 @@ import java.lang.reflect.Type;
 
 import net.amygdalum.testrecorder.types.SerializedValue;
 
-public abstract class DefaultAdaptor<T extends SerializedValue,G> implements Adaptor<T,G> {
+public abstract class DefaultAdaptor<T extends SerializedValue> implements Adaptor<T> {
 
 	@Override
 	public boolean matches(Type type) {
@@ -12,7 +12,7 @@ public abstract class DefaultAdaptor<T extends SerializedValue,G> implements Ada
 	}
 
 	@Override
-	public Class<? extends Adaptor<T,G>> parent() {
+	public Class<? extends Adaptor<T>> parent() {
 		return null;
 	}
 

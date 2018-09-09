@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder.values;
 import static java.util.Arrays.asList;
 import static java.util.Comparator.comparing;
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
-import static net.amygdalum.testrecorder.types.DeserializerContext.NULL;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.GenericTypes.hashSetOfString;
 import static net.amygdalum.testrecorder.values.GenericTypes.setOfBounded;
@@ -358,7 +357,7 @@ public class SerializedSetTest {
 		SerializedSet value = new SerializedSet(HashSet.class);
 		value.useAs(Set.class);
 		
-		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("ReferenceType:SerializedSet");
+		assertThat(value.accept(new TestValueVisitor())).isEqualTo("ReferenceType:SerializedSet");
 	}
 
 }

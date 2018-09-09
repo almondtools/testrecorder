@@ -15,6 +15,7 @@ import java.util.Objects;
 
 import org.hamcrest.Matcher;
 
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.runtime.GenericMatcher;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
@@ -29,14 +30,15 @@ public class DefaultObjectAdaptor extends DefaultMatcherGenerator<SerializedObje
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedObject value, MatcherGenerators generator, DeserializerContext context) {
+	public Computation tryDeserialize(SerializedObject value, Deserializer generator) {
+		DeserializerContext context = generator.getContext();
 		TypeManager types = context.getTypes();
 		types.registerTypes(value.getType(), GenericMatcher.class);
 		types.registerTypes(value.getUsedTypes());
 
 		List<Computation> fields = ensureUniqueNames(value.getFields()).stream()
 			.sorted()
-			.map(field -> field.accept(generator, context))
+			.map(field -> field.accept(generator))
 			.filter(Objects::nonNull)
 			.collect(toList());
 

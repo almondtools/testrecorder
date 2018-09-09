@@ -10,4 +10,6 @@ public interface SerializedReferenceType extends SerializedValue {
 
 	void useAs(Type type);
 
+    <T> T accept(ReferenceTypeVisitor<T> visitor);
+	
 }

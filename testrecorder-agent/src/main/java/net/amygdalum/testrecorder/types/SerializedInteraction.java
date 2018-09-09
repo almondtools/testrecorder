@@ -17,11 +17,11 @@ public interface SerializedInteraction {
 
 	Type getResultType();
 
-	SerializedValue getResult();
+	SerializedResult getResult();
 
 	Type[] getTypes();
 
-	SerializedValue[] getArguments();
+	SerializedArgument[] getArguments();
 
 	List<SerializedValue> getAllValues();
 

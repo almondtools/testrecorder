@@ -28,30 +28,30 @@ import net.amygdalum.testrecorder.deserializers.Templates;
 import net.amygdalum.testrecorder.runtime.Aspect;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializationException;
-import net.amygdalum.testrecorder.types.Deserializer;
+import net.amygdalum.testrecorder.types.RoleVisitor;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.LocalVariableNameGenerator;
+import net.amygdalum.testrecorder.types.SerializedInput;
 import net.amygdalum.testrecorder.types.SerializedInteraction;
+import net.amygdalum.testrecorder.types.SerializedOutput;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.util.Literals;
 import net.amygdalum.testrecorder.util.Types;
-import net.amygdalum.testrecorder.values.SerializedInput;
-import net.amygdalum.testrecorder.values.SerializedOutput;
 
 public class MockedInteractions {
 
 	public static final MockedInteractions NONE = new MockedInteractions(null, null, emptyList(), emptyList());
 
-	private Deserializer<Computation> setup;
-	private Deserializer<Computation> matcher;
+	private RoleVisitor<Computation> setup;
+	private RoleVisitor<Computation> matcher;
 
 	private Collection<SerializedInput> input;
 	private Collection<SerializedOutput> output;
 
 	private List<String> fakeClassVariables;
 
-	public MockedInteractions(Deserializer<Computation> setup, Deserializer<Computation> matcher, Collection<SerializedInput> setupInput, Collection<SerializedOutput> expectOutput) {
+	public MockedInteractions(RoleVisitor<Computation> setup, RoleVisitor<Computation> matcher, Collection<SerializedInput> setupInput, Collection<SerializedOutput> expectOutput) {
 		this.setup = setup;
 		this.matcher = matcher;
 		this.input = setupInput;
@@ -86,7 +86,7 @@ public class MockedInteractions {
 				fakeArgs = interactions.stream()
 					.map(interaction -> context.resolve(interaction.getId()))
 					.filter(Optional::isPresent)
-					.map(value -> value.get().accept(setup, context))
+					.map(value -> value.get().accept(setup))
 					.peek(computation -> statements.addAll(computation.getStatements()))
 					.map(computation -> computation.getValue())
 					.toArray(String[]::new);
@@ -120,13 +120,13 @@ public class MockedInteractions {
 				String aspect = aspectInteractions.getKey();
 				methods.add(aspect);
 				for (SerializedInteraction interaction : aspectInteractions.getValue()) {
-					Deserializer<Computation> deserializer = deserializerFor(interaction, setup, matcher);
+					RoleVisitor<Computation> deserializer = deserializerFor(interaction, setup, matcher);
 					List<String> arguments = new ArrayList<>();
 
 					if (!interaction.isStatic()) {
 						Optional<SerializedValue> value = context.resolve(interaction.getId());
 						if (value.isPresent()) {
-							Computation selfComputation = value.get().accept(setup, context);
+							Computation selfComputation = value.get().accept(setup);
 							statements.addAll(selfComputation.getStatements());
 							arguments.add(selfComputation.getValue());
 						} else {
@@ -135,7 +135,7 @@ public class MockedInteractions {
 					}
 
 					if (interaction.hasResult()) {
-						Computation resultComputation = interaction.getResult().accept(setup, context);
+						Computation resultComputation = interaction.getResult().accept(setup);
 						statements.addAll(resultComputation.getStatements());
 						arguments.add(resultComputation.getValue());
 					} else {
@@ -144,7 +144,7 @@ public class MockedInteractions {
 					}
 
 					List<Computation> argumentsComputation = Arrays.stream(interaction.getArguments())
-						.map(argument -> argument.accept(deserializer, context))
+						.map(argument -> argument.accept(deserializer))
 						.collect(toList());
 					argumentsComputation.forEach(argumentComputation -> {
 						statements.addAll(argumentComputation.getStatements());
@@ -175,7 +175,7 @@ public class MockedInteractions {
 			|| clazz == Proxy.class;
 	}
 
-	private Deserializer<Computation> deserializerFor(SerializedInteraction interaction, Deserializer<Computation> setup, Deserializer<Computation> matcher) {
+	private RoleVisitor<Computation> deserializerFor(SerializedInteraction interaction, RoleVisitor<Computation> setup, RoleVisitor<Computation> matcher) {
 		if (interaction instanceof SerializedInput) {
 			return setup;
 		} else if (interaction instanceof SerializedOutput) {

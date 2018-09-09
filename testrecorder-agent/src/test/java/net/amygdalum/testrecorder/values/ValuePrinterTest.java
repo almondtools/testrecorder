@@ -13,7 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.SerializedImmutableType;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.util.testobjects.Simple;
@@ -21,19 +21,17 @@ import net.amygdalum.testrecorder.util.testobjects.Simple;
 public class ValuePrinterTest {
 
 	private ValuePrinter printer;
-	private DeserializerContext context;
 
 	@BeforeEach
 	public void before() throws Exception {
 		printer = new ValuePrinter();
-		context = Mockito.mock(DeserializerContext.class);
 	}
 
 	@Test
 	public void testVisitField() throws Exception {
 		SerializedField field = new SerializedField(Simple.class, "field", String.class, literal("v"));
 
-		assertThat(printer.visitField(field, context)).isEqualTo("java.lang.String field: v");
+		assertThat(printer.visitField(field)).isEqualTo("java.lang.String field: v");
 	}
 
 	@Test
@@ -41,7 +39,7 @@ public class ValuePrinterTest {
 		SerializedObject object = new SerializedObject(Simple.class);
 		object.addField(new SerializedField(Simple.class, "str", String.class, literal("v")));
 
-		String visitReferenceType = printer.visitReferenceType(object, context);
+		String visitReferenceType = printer.visitReferenceType(object);
 
 		assertThat(visitReferenceType).containsWildcardPattern(""
 			+ "net.amygdalum.testrecorder.util.testobjects.Simple/*{*"
@@ -54,8 +52,8 @@ public class ValuePrinterTest {
 		SerializedObject object = new SerializedObject(Simple.class);
 		object.addField(new SerializedField(Simple.class, "str", String.class, literal("v")));
 
-		String visitReferenceType = printer.visitReferenceType(object, context);
-		visitReferenceType = printer.visitReferenceType(object, context);
+		String visitReferenceType = printer.visitReferenceType(object);
+		visitReferenceType = printer.visitReferenceType(object);
 
 		assertThat(visitReferenceType).containsWildcardPattern("net.amygdalum.testrecorder.util.testobjects.Simple/*");
 		assertThat(visitReferenceType).doesNotContain("java.lang.String str: v");
@@ -66,7 +64,7 @@ public class ValuePrinterTest {
 		SerializedArray object = new SerializedArray(int[].class);
 		object.add(literal(22));
 
-		String visitReferenceType = printer.visitReferenceType(object, context);
+		String visitReferenceType = printer.visitReferenceType(object);
 
 		assertThat(visitReferenceType).isEqualTo("<22>");
 	}
@@ -76,7 +74,7 @@ public class ValuePrinterTest {
 		SerializedList object = new SerializedList(ArrayList.class);
 		object.add(literal(1));
 
-		String visitReferenceType = printer.visitReferenceType(object, context);
+		String visitReferenceType = printer.visitReferenceType(object);
 
 		assertThat(visitReferenceType).isEqualTo("[1]");
 	}
@@ -86,7 +84,7 @@ public class ValuePrinterTest {
 		SerializedSet object = new SerializedSet(HashSet.class);
 		object.add(literal(true));
 
-		String visitReferenceType = printer.visitReferenceType(object, context);
+		String visitReferenceType = printer.visitReferenceType(object);
 
 		assertThat(visitReferenceType).isEqualTo("{true}");
 	}
@@ -96,7 +94,7 @@ public class ValuePrinterTest {
 		SerializedMap object = new SerializedMap(HashMap.class);
 		object.put(literal(1.0), literal("one"));
 
-		String visitReferenceType = printer.visitReferenceType(object, context);
+		String visitReferenceType = printer.visitReferenceType(object);
 
 		assertThat(visitReferenceType).isEqualTo("{1.0:one}");
 	}
@@ -104,13 +102,13 @@ public class ValuePrinterTest {
 	@Test
 	public void testVisitNull() throws Exception {
 		SerializedReferenceType object = nullInstance();
-		assertThat(printer.visitReferenceType(object, context)).isEqualTo("null");
+		assertThat(printer.visitReferenceType(object)).isEqualTo("null");
 	}
 
 	@Test
 	public void testVisitOtherReferenceType() throws Exception {
 		SerializedReferenceType object = Mockito.mock(SerializedReferenceType.class);
-		assertThat(printer.visitReferenceType(object, context)).isEqualTo("?");
+		assertThat(printer.visitReferenceType(object)).isEqualTo("?");
 	}
 
 	@Test
@@ -118,7 +116,7 @@ public class ValuePrinterTest {
 		SerializedImmutable<BigDecimal> serializedImmutable = new SerializedImmutable<>(BigDecimal.class);
 		serializedImmutable.setValue(new BigDecimal("2.0"));
 
-		String visitImmutableType = printer.visitImmutableType(serializedImmutable, context);
+		String visitImmutableType = printer.visitImmutableType(serializedImmutable);
 
 		assertThat(visitImmutableType).isEqualTo("2.0");
 	}
@@ -128,7 +126,7 @@ public class ValuePrinterTest {
 		SerializedEnum serializedEnum = new SerializedEnum(TestEnum.class);
 		serializedEnum.setName("ENUM");
 
-		String visitImmutableType = printer.visitImmutableType(serializedEnum, context);
+		String visitImmutableType = printer.visitImmutableType(serializedEnum);
 
 		assertThat(visitImmutableType).isEqualTo("ENUM");
 	}
@@ -137,7 +135,7 @@ public class ValuePrinterTest {
 	public void testVisitOtherImmutable() throws Exception {
 		SerializedImmutableType serializedImmutable = Mockito.mock(SerializedImmutableType.class);
 
-		String visitImmutableType = printer.visitImmutableType(serializedImmutable, context);
+		String visitImmutableType = printer.visitImmutableType(serializedImmutable);
 
 		assertThat(visitImmutableType).isEqualTo("");
 	}
@@ -146,7 +144,7 @@ public class ValuePrinterTest {
 	public void testVisitValueType() throws Exception {
 		SerializedLiteral serializedLiteral = literal('a');
 
-		String visitImmutableType = printer.visitValueType(serializedLiteral, context);
+		String visitImmutableType = printer.visitValueType(serializedLiteral);
 
 		assertThat(visitImmutableType).isEqualTo("a");
 	}
@@ -155,8 +153,8 @@ public class ValuePrinterTest {
 	public void testVisitValueTypeCached() throws Exception {
 		SerializedLiteral serializedLiteral = literal('a');
 
-		String visitImmutableType = printer.visitValueType(serializedLiteral, context);
-		visitImmutableType = printer.visitValueType(serializedLiteral, context);
+		String visitImmutableType = printer.visitValueType(serializedLiteral);
+		visitImmutableType = printer.visitValueType(serializedLiteral);
 
 		assertThat(visitImmutableType).isEqualTo("a");
 	}

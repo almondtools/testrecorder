@@ -8,7 +8,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import net.amygdalum.testrecorder.ContextSnapshot;
+import net.amygdalum.testrecorder.types.ContextSnapshot;
 import net.amygdalum.testrecorder.util.ContextClassloaderExtension;
 
 @ExtendWith(ContextClassloaderExtension.class)

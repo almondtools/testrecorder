@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import net.amygdalum.testrecorder.types.Deserializer;
-import net.amygdalum.testrecorder.types.DeserializerContext;
-import net.amygdalum.testrecorder.types.SerializedReferenceType;
+import net.amygdalum.testrecorder.types.RoleVisitor;
+import net.amygdalum.testrecorder.types.ReferenceTypeVisitor;
+import net.amygdalum.testrecorder.types.SerializedAggregateType;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.util.Optionals;
 
@@ -27,7 +27,7 @@ import net.amygdalum.testrecorder.util.Optionals;
  * 
  * Serializing objects not complying to this criteria is possible, just make sure that their exists a custom deserializer for these objects  
  */
-public class SerializedSet extends AbstractSerializedReferenceType implements SerializedReferenceType, Collection<SerializedValue> {
+public class SerializedSet extends AbstractSerializedReferenceType implements SerializedAggregateType, Collection<SerializedValue> {
 
 	private Type componentType;
 	private Set<SerializedValue> set;
@@ -36,6 +36,11 @@ public class SerializedSet extends AbstractSerializedReferenceType implements Se
 		super(type);
 		this.componentType = Object.class;
 		this.set = new LinkedHashSet<>();
+	}
+
+	@Override
+	public List<SerializedValue> elements() {	
+		return new ArrayList<>(set);
 	}
 
 	public Type getComponentType() {
@@ -55,8 +60,13 @@ public class SerializedSet extends AbstractSerializedReferenceType implements Se
 	}
 
 	@Override
-	public <T> T accept(Deserializer<T> visitor, DeserializerContext context) {
-		return visitor.visitReferenceType(this, context);
+	public <T> T accept(RoleVisitor<T> visitor) {
+		return visitor.visitReferenceType(this);
+	}
+
+	@Override
+	public <T> T accept(ReferenceTypeVisitor<T> visitor) {
+		return visitor.visitAggregateType(this);
 	}
 
 	@Override
@@ -134,7 +144,7 @@ public class SerializedSet extends AbstractSerializedReferenceType implements Se
 
 	@Override
 	public List<SerializedValue> referencedValues() {
-		return new ArrayList<>(set);
+		return elements();
 	}
 
 	@Override

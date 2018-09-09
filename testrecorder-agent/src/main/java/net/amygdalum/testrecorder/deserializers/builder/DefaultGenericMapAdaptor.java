@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
@@ -46,7 +47,8 @@ public abstract class DefaultGenericMapAdaptor<T extends SerializedReferenceType
     }
 
     @Override
-    public Computation tryDeserialize(T value, SetupGenerators generator, DeserializerContext context) {
+    public Computation tryDeserialize(T value, Deserializer generator) {
+		DeserializerContext context = generator.getContext();
         TypeManager types = context.getTypes();
 
         Type type = value.getType();
@@ -68,8 +70,8 @@ public abstract class DefaultGenericMapAdaptor<T extends SerializedReferenceType
 
             List<Pair<Computation, Computation>> elementTemplates = entries(value)
                 .map(entry -> new Pair<>(
-                    entry.getElement1().accept(generator, context),
-                    entry.getElement2().accept(generator, context)))
+                    entry.getElement1().accept(generator),
+                    entry.getElement2().accept(generator)))
                 .filter(pair -> pair.getElement1() != null && pair.getElement2() != null)
                 .collect(toList());
 

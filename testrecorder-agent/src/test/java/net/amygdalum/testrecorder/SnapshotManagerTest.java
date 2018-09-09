@@ -23,11 +23,13 @@ import org.mockito.Mockito;
 
 import net.amygdalum.testrecorder.SnapshotManager.ContextSnapshotTransaction;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.types.ContextSnapshot;
+import net.amygdalum.testrecorder.types.SerializedArgument;
+import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.util.CircularityLock;
 import net.amygdalum.testrecorder.util.testobjects.Bean;
 import net.amygdalum.testrecorder.util.testobjects.Overridden;
 import net.amygdalum.testrecorder.util.testobjects.Overriding;
-import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class SnapshotManagerTest {
@@ -60,6 +62,7 @@ public class SnapshotManagerTest {
 				.withFields(new SerializedField(Bean.class, "attribute", String.class, literal("tobeset"))), "id");
 		assertThat(snapshot.getSetupArgs())
 			.hasSize(1)
+			.extracting(SerializedArgument::getValue)
 			.contains(literal("mystr"));
 		assertThat(snapshot.getSetupGlobals()).isEmpty();
 		assertThat(snapshot.getSetupInput()).isEmpty();
@@ -114,6 +117,7 @@ public class SnapshotManagerTest {
 				.withFields(new SerializedField(Bean.class, "attribute", String.class, literal("hasbeenset"))), "id");
 		assertThat(snapshot.getExpectArgs())
 			.hasSize(1)
+			.extracting(SerializedArgument::getValue)
 			.contains(literal("mystr"));
 		assertThat(snapshot.getExpectResult()).isNull();
 		assertThat(snapshot.getExpectException()).isNull();
@@ -176,8 +180,9 @@ public class SnapshotManagerTest {
 			.isEqualToIgnoringGivenFields(new SerializedObject(Overridden.class), "id");
 		assertThat(snapshot.getExpectArgs())
 			.hasSize(1)
+			.extracting(SerializedArgument::getValue)
 			.contains(literal(int.class, 1));
-		assertThat(snapshot.getExpectResult()).isEqualTo(literal(int.class, 2));
+		assertThat(snapshot.getExpectResult().getValue()).isEqualTo(literal(int.class, 2));
 		assertThat(snapshot.getExpectException()).isNull();
 		assertThat(snapshot.getExpectGlobals()).isEmpty();
 		assertThat(snapshot.getExpectOutput()).isEmpty();
@@ -238,6 +243,7 @@ public class SnapshotManagerTest {
 			.isEqualToIgnoringGivenFields(new SerializedObject(Overridden.class), "id");
 		assertThat(snapshot.getExpectArgs())
 			.hasSize(1)
+			.extracting(SerializedArgument::getValue)
 			.contains(literal(int.class, 1));
 		assertThat(snapshot.getExpectResult()).isNull();
 		assertThat(snapshot.getExpectException())

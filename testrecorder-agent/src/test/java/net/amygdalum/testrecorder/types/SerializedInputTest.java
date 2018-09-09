@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.values;
+package net.amygdalum.testrecorder.types;
 
 import static net.amygdalum.extensions.assertj.conventions.DefaultEquality.defaultEquality;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
@@ -11,21 +11,28 @@ import java.lang.reflect.Type;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.types.SerializedValue;
+import net.amygdalum.testrecorder.values.SerializedArray;
+import net.amygdalum.testrecorder.values.SerializedLiteral;
+import net.amygdalum.testrecorder.values.SerializedNull;
 
 public class SerializedInputTest {
 
+	private static final SerializedValue VOID = SerializedNull.VOID;
+	private static final SerializedLiteral STRING_LITERAL = literal("Hello");
+	private static final SerializedLiteral INT_LITERAL = literal(int.class, 0);
+	private static final SerializedArray ARRAY = new SerializedArray(byte.class);
+	
 	private SerializedInput input;
 	private SerializedInput inputNoResult;
 
 	@BeforeEach
 	void before() throws Exception {
 		input = new SerializedInput(42, BufferedReader.class, "readLine", String.class, new Type[0])
-			.updateResult(literal("Hello"))
+			.updateResult(STRING_LITERAL)
 			.updateArguments(new SerializedValue[0]);
 		inputNoResult = new SerializedInput(43, InputStream.class, "read", void.class, new Type[] { byte[].class, int.class, int.class })
-			.updateArguments(new SerializedArray(byte.class), literal(int.class, 0), literal(int.class, 0))
-			.updateResult(SerializedNull.VOID);
+			.updateArguments(ARRAY, INT_LITERAL, INT_LITERAL)
+			.updateResult(VOID);
 	}
 
 	@Test
@@ -55,7 +62,8 @@ public class SerializedInputTest {
 	@Test
 	void testGetArguments() throws Exception {
 		assertThat(input.getArguments()).hasSize(0);
-		assertThat(inputNoResult.getArguments()).containsExactly(inputNoResult.getArguments()[0], literal(int.class, 0), literal(int.class, 0));
+		assertThat(inputNoResult.getArguments()).extracting(SerializedArgument::getValue)
+			.containsExactly(ARRAY, INT_LITERAL, INT_LITERAL);
 	}
 
 	@Test
@@ -66,46 +74,43 @@ public class SerializedInputTest {
 
 	@Test
 	void testGetResult() throws Exception {
-		assertThat(input.getResult()).isEqualTo(literal("Hello"));
-		assertThat(inputNoResult.getResult()).isSameAs(SerializedNull.VOID);
+		assertThat(input.getResult().getValue()).isEqualTo(STRING_LITERAL);
+		assertThat(inputNoResult.getResult().getValue()).isSameAs(VOID);
 	}
 
 	@Test
 	void testEquals() throws Exception {
 		inputNoResult.equals(new SerializedInput(43, InputStream.class, "read", void.class, new Type[] { byte[].class, int.class, int.class })
-			.updateArguments(new SerializedArray(byte.class), literal(int.class, 0), literal(int.class, 0)));
+			.updateArguments(ARRAY, INT_LITERAL, INT_LITERAL));
 		assertThat(input).satisfies(defaultEquality()
 			.andEqualTo(new SerializedInput(42, BufferedReader.class, "readLine", String.class, new Type[0])
-				.updateResult(literal("Hello"))
+				.updateResult(STRING_LITERAL)
 				.updateArguments(new SerializedValue[0]))
 			.andNotEqualTo(inputNoResult)
 			.andNotEqualTo(new SerializedInput(43, BufferedReader.class, "readLine", String.class, new Type[0])
-				.updateResult(literal("Hello"))
+				.updateResult(STRING_LITERAL)
 				.updateArguments(new SerializedValue[0]))
 			.andNotEqualTo(new SerializedInput(42, InputStream.class, "readLine", String.class, new Type[0])
-				.updateResult(literal("Hello"))
+				.updateResult(STRING_LITERAL)
 				.updateArguments(new SerializedValue[0]))
 			.andNotEqualTo(new SerializedInput(42, BufferedReader.class, "read", String.class, new Type[0])
-				.updateResult(literal("Hello"))
+				.updateResult(STRING_LITERAL)
 				.updateArguments(new SerializedValue[0]))
 			.andNotEqualTo(new SerializedInput(42, BufferedReader.class, "readLine", Object.class, new Type[0])
-				.updateResult(literal("Hello"))
+				.updateResult(STRING_LITERAL)
 				.updateArguments(new SerializedValue[0]))
 			.andNotEqualTo(new SerializedInput(42, BufferedReader.class, "readLine", String.class, new Type[0])
 				.updateResult(literal("Hello World"))
 				.updateArguments(new SerializedValue[0]))
 			.andNotEqualTo(new SerializedInput(42, BufferedReader.class, "readLine", String.class, new Type[] { int.class })
-				.updateResult(literal("Hello"))
+				.updateResult(STRING_LITERAL)
 				.updateArguments(new SerializedValue[0]))
-			.andNotEqualTo(new SerializedInput(42, BufferedReader.class, "readLine", String.class, new Type[0])
-				.updateResult(literal("Hello"))
-				.updateArguments(literal("value")))
 			.conventions());
 
 		assertThat(inputNoResult).satisfies(defaultEquality()
 			.andEqualTo(new SerializedInput(43, InputStream.class, "read", void.class, new Type[] { byte[].class, int.class, int.class })
-				.updateArguments(inputNoResult.getArguments())
-				.updateResult(SerializedNull.VOID))
+				.updateArguments(ARRAY, INT_LITERAL, INT_LITERAL)
+				.updateResult(VOID))
 			.andNotEqualTo(input)
 			.conventions());
 	}
@@ -120,7 +125,7 @@ public class SerializedInputTest {
 	@Test
 	void testUpdateArguments() throws Exception {
 		input.updateArguments((SerializedValue[]) null);
-		
+
 		assertThat(input.getArguments()).isEmpty();
 	}
 
@@ -129,53 +134,53 @@ public class SerializedInputTest {
 		assertThat(input.isComplete()).isTrue();
 		assertThat(inputNoResult.isComplete()).isTrue();
 	}
-	
+
 	@Test
 	void testIsCompleteOnMissingResult() throws Exception {
 		input.result = null;
 		assertThat(input.isComplete()).isFalse();
 	}
-	
+
 	@Test
 	void testIsCompleteOnMissingResultType() throws Exception {
 		input.resultType = null;
 		assertThat(input.isComplete()).isFalse();
 	}
-	
+
 	@Test
 	void testIsCompleteOnMissingArgumentType() throws Exception {
 		input.types = null;
 		assertThat(input.isComplete()).isFalse();
 	}
-	
+
 	@Test
 	void testIsCompleteOnNullArguments() throws Exception {
 		input.arguments = null;
 		assertThat(input.isComplete()).isFalse();
 	}
-	
+
 	@Test
 	void testIsCompleteOnMissingArguments() throws Exception {
-		input.arguments = new SerializedValue[] {null};
+		input.arguments = new SerializedArgument[] { null };
 		assertThat(input.isComplete()).isFalse();
 	}
-	
+
 	@Test
 	void testHasResult() throws Exception {
 		assertThat(input.hasResult()).isTrue();
 		assertThat(inputNoResult.hasResult()).isFalse();
 	}
-	
+
 	@Test
 	void testHasResultWithNoResultType() throws Exception {
 		input.resultType = null;
 		assertThat(input.hasResult()).isFalse();
 	}
-	
+
 	@Test
 	void testHasResultWithNoResult() throws Exception {
 		input.result = null;
 		assertThat(input.hasResult()).isFalse();
 	}
-	
+
 }

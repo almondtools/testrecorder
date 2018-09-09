@@ -20,17 +20,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import net.amygdalum.testrecorder.ClassDescriptor;
-import net.amygdalum.testrecorder.ContextSnapshot;
-import net.amygdalum.testrecorder.MethodSignature;
 import net.amygdalum.testrecorder.SnapshotManager;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.types.ContextSnapshot;
+import net.amygdalum.testrecorder.types.MethodSignature;
+import net.amygdalum.testrecorder.types.SerializedField;
+import net.amygdalum.testrecorder.types.SerializedInput;
+import net.amygdalum.testrecorder.types.SerializedOutput;
 import net.amygdalum.testrecorder.util.ExtensibleClassLoader;
 import net.amygdalum.testrecorder.util.TemporaryFolder;
 import net.amygdalum.testrecorder.util.TemporaryFolderExtension;
-import net.amygdalum.testrecorder.values.SerializedField;
-import net.amygdalum.testrecorder.values.SerializedInput;
 import net.amygdalum.testrecorder.values.SerializedObject;
-import net.amygdalum.testrecorder.values.SerializedOutput;
 import net.amygdalum.xrayinterface.XRayInterface;
 
 @ExtendWith(TemporaryFolderExtension.class)
@@ -397,7 +397,7 @@ public class ScheduledTestGeneratorTest {
 	}
 
 	private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
-		return new ContextSnapshot(0, "key", new MethodSignature(declaringClass, new Annotation[0], resultType, methodName, new Annotation[0][0], argumentTypes));
+		return new ContextSnapshot(0, "key", new MethodSignature(declaringClass, new Annotation[0], resultType, methodName, new Annotation[argumentTypes.length][0], argumentTypes));
 	}
 
 	private static int base = 8;

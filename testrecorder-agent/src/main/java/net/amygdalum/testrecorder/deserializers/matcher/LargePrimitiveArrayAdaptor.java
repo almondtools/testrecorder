@@ -15,6 +15,7 @@ import java.util.Optional;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.hints.LoadFromFile;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializationException;
@@ -43,14 +44,15 @@ public class LargePrimitiveArrayAdaptor implements MatcherGenerator<SerializedAr
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedArray value, MatcherGenerators generator, DeserializerContext context) throws DeserializationException {
+	public Computation tryDeserialize(SerializedArray value, Deserializer generator) {
+		DeserializerContext context = generator.getContext();
 		TypeManager types = context.getTypes();
 		Class<?> componentType = baseType(value.getComponentType());
 		while (componentType.isArray()) {
 			componentType = componentType.getComponentType();
 		}
 		if (isLiteral(componentType)) {
-			Optional<LoadFromFile> hint = context.getHint(LoadFromFile.class);
+			Optional<LoadFromFile> hint = context.getHint(value, LoadFromFile.class);
 			if (hint.isPresent()) {
 				try {
 					LoadFromFile loadFromFile = hint.get();

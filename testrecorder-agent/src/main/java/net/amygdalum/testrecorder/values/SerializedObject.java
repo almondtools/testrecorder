@@ -7,9 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import net.amygdalum.testrecorder.types.Deserializer;
-import net.amygdalum.testrecorder.types.DeserializerContext;
-import net.amygdalum.testrecorder.types.SerializedReferenceType;
+import net.amygdalum.testrecorder.types.RoleVisitor;
+import net.amygdalum.testrecorder.types.ReferenceTypeVisitor;
+import net.amygdalum.testrecorder.types.SerializedField;
+import net.amygdalum.testrecorder.types.SerializedStructuralType;
 import net.amygdalum.testrecorder.types.SerializedValue;
 
 /**
@@ -17,7 +18,7 @@ import net.amygdalum.testrecorder.types.SerializedValue;
  * 
  * There is no restriction to objects that are serialized in this way other than being non-primitive.
  */
-public class SerializedObject extends AbstractSerializedReferenceType implements SerializedReferenceType {
+public class SerializedObject extends AbstractSerializedReferenceType implements SerializedStructuralType {
 
 	private List<SerializedField> fields;
 
@@ -35,6 +36,11 @@ public class SerializedObject extends AbstractSerializedReferenceType implements
 		return withFields(asList(fields));
 	}
 
+	@Override
+	public List<SerializedField> fields() {
+		return new ArrayList<>(fields);
+	}
+
 	public List<SerializedField> getFields() {
 		return fields;
 	}
@@ -49,8 +55,13 @@ public class SerializedObject extends AbstractSerializedReferenceType implements
 		fields.add(field);
 	}
 
-	public <T> T accept(Deserializer<T> visitor, DeserializerContext context) {
-		return visitor.visitReferenceType(this, context);
+	public <T> T accept(RoleVisitor<T> visitor) {
+		return visitor.visitReferenceType(this);
+	}
+
+	@Override
+	public <T> T accept(ReferenceTypeVisitor<T> visitor) {
+		return visitor.visitStructuralType(this);
 	}
 
 	@Override

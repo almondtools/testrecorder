@@ -10,26 +10,27 @@ import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
-import net.amygdalum.testrecorder.deserializers.DeserializerTypeManager;
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializationException;
-import net.amygdalum.testrecorder.types.LocalVariableNameGenerator;
-import net.amygdalum.testrecorder.types.TypeManager;
+import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.util.testobjects.Bean;
 import net.amygdalum.testrecorder.util.testobjects.Simple;
-import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class BeanObjectAdaptorTest {
 
 	private AgentConfiguration config;
 	private BeanObjectAdaptor adaptor;
+	private DeserializerContext context;
 
 	@BeforeEach
 	public void before() throws Exception {
 		config = defaultConfig();
 		adaptor = new BeanObjectAdaptor();
+		context = new DefaultDeserializerContext();
 	}
 
 	@Test
@@ -48,19 +49,18 @@ public class BeanObjectAdaptorTest {
 	public void testTryDeserializeWithNonBean() throws Exception {
 		SerializedObject value = new SerializedObject(Simple.class);
 		value.addField(new SerializedField(String.class, "attribute", String.class, literal("Hello World")));
-		TypeManager types = new DeserializerTypeManager();
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 
-		assertThrows(DeserializationException.class, () -> adaptor.tryDeserialize(value, generator, new DefaultDeserializerContext(types, new LocalVariableNameGenerator())));
+		assertThrows(DeserializationException.class, () -> adaptor.tryDeserialize(value, generator));
 	}
 
 	@Test
 	public void testTryDeserializeWithBean() throws Exception {
 		SerializedObject value = new SerializedObject(Bean.class);
 		value.addField(new SerializedField(String.class, "attribute", String.class, literal("Hello World")));
-		SetupGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, new DefaultDeserializerContext());
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements().toString()).containsSubsequence(
 			"Bean bean1 = new Bean()",
@@ -68,8 +68,8 @@ public class BeanObjectAdaptorTest {
 		assertThat(result.getValue()).isEqualTo("bean1");
 	}
 
-	private SetupGenerators generator() {
-		return new SetupGenerators(new Adaptors<SetupGenerators>(config).load(SetupGenerator.class));
+	private Deserializer generator() {
+		return new SetupGenerators(new Adaptors(config).load(SetupGenerator.class)).newGenerator(context);
 	}
 
 }

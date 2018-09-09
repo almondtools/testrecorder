@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import net.amygdalum.testrecorder.types.SerializationException;
+import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.SerializerSession;
-import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedNull;
 import net.amygdalum.testrecorder.values.SerializedObject;
 

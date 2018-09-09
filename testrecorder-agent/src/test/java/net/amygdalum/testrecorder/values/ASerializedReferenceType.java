@@ -4,8 +4,8 @@ import static java.util.Collections.emptyList;
 
 import java.util.List;
 
-import net.amygdalum.testrecorder.types.Deserializer;
-import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.ReferenceTypeVisitor;
+import net.amygdalum.testrecorder.types.RoleVisitor;
 import net.amygdalum.testrecorder.types.SerializedValue;
 
 public class ASerializedReferenceType extends AbstractSerializedReferenceType {
@@ -24,7 +24,12 @@ public class ASerializedReferenceType extends AbstractSerializedReferenceType {
 	}
 
 	@Override
-	public <T> T accept(Deserializer<T> visitor, DeserializerContext context) {
+	public <T> T accept(RoleVisitor<T> visitor) {
+		return null;
+	}
+
+	@Override
+	public <T> T accept(ReferenceTypeVisitor<T> visitor) {
 		return null;
 	}
 }

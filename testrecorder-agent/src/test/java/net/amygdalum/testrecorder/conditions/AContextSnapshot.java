@@ -6,7 +6,7 @@ import org.assertj.core.description.TextDescription;
 
 import net.amygdalum.extensions.assertj.conditions.AString;
 import net.amygdalum.extensions.assertj.conditions.CompoundDescription;
-import net.amygdalum.testrecorder.ContextSnapshot;
+import net.amygdalum.testrecorder.types.ContextSnapshot;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedValue;
 

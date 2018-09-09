@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
@@ -58,9 +59,9 @@ public class DefaultSequenceAdaptorTest {
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(0)));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(8)));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(15)));
-		MatcherGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo(""
@@ -77,9 +78,9 @@ public class DefaultSequenceAdaptorTest {
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(0)));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(8)));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(15)));
-		MatcherGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo(""
@@ -95,9 +96,9 @@ public class DefaultSequenceAdaptorTest {
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(0)));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(8)));
 		value.add(new SerializedImmutable<>(BigInteger.class).withValue(BigInteger.valueOf(15)));
-		MatcherGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo(""
@@ -112,9 +113,9 @@ public class DefaultSequenceAdaptorTest {
 		SerializedList value = new SerializedList(ArrayList.class);
 		value.useAs(parameterized(List.class, null, BigInteger.class));
 
-		MatcherGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("empty(BigInteger.class)");
@@ -123,9 +124,9 @@ public class DefaultSequenceAdaptorTest {
 	public void testTryDeserializeEmptyRawList() throws Exception {
 		SerializedList value = new SerializedList(List.class);
 
-		MatcherGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("empty()");
@@ -139,9 +140,9 @@ public class DefaultSequenceAdaptorTest {
 		value.add(list(parameterized(List.class, null, String.class), literal("str2"), literal("str3")));
 		value.add(list(parameterized(List.class, null, String.class)));
 
-		MatcherGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo(""
@@ -157,9 +158,9 @@ public class DefaultSequenceAdaptorTest {
 		value.useAs(parameterized(List.class, null, Hidden.classOfCompletelyHidden()));
 		value.add(new SerializedObject(Hidden.classOfCompletelyHidden()));
 
-		MatcherGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).containsWildcardPattern(""
@@ -176,8 +177,8 @@ public class DefaultSequenceAdaptorTest {
 		return list;
 	}
 
-	private MatcherGenerators generator() {
-		return new MatcherGenerators(new Adaptors<MatcherGenerators>(config).load(MatcherGenerator.class));
+	private Deserializer generator() {
+		return new MatcherGenerators(new Adaptors(config).load(MatcherGenerator.class)).newGenerator(context);
 	}
 
 }

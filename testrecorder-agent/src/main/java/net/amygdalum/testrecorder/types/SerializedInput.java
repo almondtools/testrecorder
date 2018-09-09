@@ -1,13 +1,10 @@
-package net.amygdalum.testrecorder.values;
+package net.amygdalum.testrecorder.types;
 
 import static java.util.stream.Collectors.joining;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
 import java.util.stream.Stream;
-
-import net.amygdalum.testrecorder.types.SerializedInteraction;
-import net.amygdalum.testrecorder.types.SerializedValue;
 
 public class SerializedInput extends AbstractSerializedInteraction implements SerializedInteraction {
 
@@ -16,27 +13,23 @@ public class SerializedInput extends AbstractSerializedInteraction implements Se
 	}
 
 	public SerializedInput updateArguments(SerializedValue... arguments) {
-		if (arguments != null) {
-			this.arguments = arguments;
-		} else {
-			this.arguments = new SerializedValue[0];
-		}
+		this.arguments = argumentsOf(arguments);
+		
 		return this;
 	}
 
 	public SerializedInput updateResult(SerializedValue result) {
-		this.result = result;
+		this.result = resultOf(result);
 		return this;
 	}
 
 	@Override
 	public String toString() {
-		ValuePrinter printer = new ValuePrinter();
 		String resultStr = Optional.ofNullable(result)
-			.map(value -> printer.printValue(value))
+			.map(value -> value.toString())
 			.orElse("void");
 		String argumentsStr = Stream.of(arguments)
-			.map(value -> printer.printValue(value))
+			.map(value -> value.toString())
 			.collect(joining(", "));
 		return "<< " + clazz.getTypeName() + "@" + id + "." + name + "(" + resultStr + ", " + argumentsStr + ")";
 	}

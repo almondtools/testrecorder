@@ -12,6 +12,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.TypeManager;
@@ -31,7 +32,8 @@ public class DefaultLambdaAdaptor extends DefaultSetupGenerator<SerializedLambda
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedLambdaObject value, SetupGenerators generator, DeserializerContext context) {
+	public Computation tryDeserialize(SerializedLambdaObject value, Deserializer generator) {
+		DeserializerContext context = generator.getContext();
 		TypeManager types = context.getTypes();
 		types.registerImport(LambdaSignature.class);
 		types.registerTypes(value.getUsedTypes());
@@ -51,7 +53,7 @@ public class DefaultLambdaAdaptor extends DefaultSetupGenerator<SerializedLambda
 			deserializeArguments.add(classOf(functionalInterfaceType.getName()));
 
 			List<Computation> argumentTemplates = value.getCapturedArguments().stream()
-				.map(element -> element.accept(generator, context))
+				.map(element -> element.accept(generator))
 				.collect(toList());
 
 			argumentTemplates.stream()

@@ -9,12 +9,13 @@ import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
 
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.runtime.DefaultValue;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.TypeManager;
-import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedNull;
 
 public class ConstructorParam {
@@ -94,12 +95,13 @@ public class ConstructorParam {
 		return !equalGenericTypes(type, field.getType());
 	}
 
-	public Computation compile(TypeManager types, SetupGenerators generator, DeserializerContext context) {
+	public Computation compile(TypeManager types, Deserializer generator) {
 		SerializedValue serializedValue = computeSerializedValue();
-		Computation computation = serializedValue.accept(generator, context);
+		Computation computation = serializedValue.accept(generator);
 		String value = computation.getValue();
 		boolean stored = computation.isStored();
 
+		DeserializerContext context = generator.getContext();
 		if (context.needsAdaptation(type, computation.getType())) {
 			value = context.adapt(value, type, computation.getType());
 			stored = true;

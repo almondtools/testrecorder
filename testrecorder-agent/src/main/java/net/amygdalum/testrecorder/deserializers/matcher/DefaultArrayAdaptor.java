@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 import org.hamcrest.Matcher;
 import org.hamcrest.collection.IsArrayWithSize;
 
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.runtime.ArrayMatcher;
 import net.amygdalum.testrecorder.runtime.PrimitiveArrayMatcher;
 import net.amygdalum.testrecorder.types.Computation;
@@ -26,16 +27,23 @@ import net.amygdalum.testrecorder.values.SerializedArray;
 
 public class DefaultArrayAdaptor extends DefaultMatcherGenerator<SerializedArray> implements MatcherGenerator<SerializedArray> {
 
+	private SimpleValueAdaptor simpleAdaptor;
+
+	public DefaultArrayAdaptor() {
+		this.simpleAdaptor = new SimpleValueAdaptor();
+	}
+	
 	@Override
 	public Class<SerializedArray> getAdaptedClass() {
 		return SerializedArray.class;
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedArray value, MatcherGenerators generator, DeserializerContext context) {
-		Type componentType = value.getComponentType();
-
+	public Computation tryDeserialize(SerializedArray value, Deserializer generator) {
+		DeserializerContext context = generator.getContext();
 		TypeManager types = context.getTypes();
+
+		Type componentType = value.getComponentType();
 		if (types.isHidden(componentType)) {
 			componentType = Object.class;
 		}
@@ -51,7 +59,7 @@ public class DefaultArrayAdaptor extends DefaultMatcherGenerator<SerializedArray
 				types.staticImport(PrimitiveArrayMatcher.class, name + "ArrayContaining");
 
 				List<Computation> elements = Stream.of(value.getArray())
-					.map(element -> generator.simpleMatcher(element, context))
+					.map(element -> simpleAdaptor.tryDeserialize(element, generator))
 					.collect(toList());
 
 				List<String> elementComputations = elements.stream()
@@ -76,7 +84,7 @@ public class DefaultArrayAdaptor extends DefaultMatcherGenerator<SerializedArray
 				String name = types.getRawClass(componentType);
 
 				List<Computation> elements = Stream.of(value.getArray())
-					.map(element -> generator.simpleMatcher(element, context))
+					.map(element -> simpleAdaptor.tryDeserialize(element, generator))
 					.collect(toList());
 
 				List<String> elementComputations = elements.stream()

@@ -1,5 +1,8 @@
 package net.amygdalum.testrecorder;
 
+import net.amygdalum.testrecorder.types.ContextSnapshot;
+import net.amygdalum.testrecorder.types.MethodSignature;
+
 public class ContextSnapshotFactory {
 	
 	public static final ContextSnapshotFactory NULL = new ContextSnapshotFactory("null", MethodSignature.NULL);

@@ -1,5 +1,6 @@
 package net.amygdalum.testrecorder.values;
 
+import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.util.Types.typeArgument;
 import static net.amygdalum.testrecorder.util.Types.typeArguments;
 
@@ -13,9 +14,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import net.amygdalum.testrecorder.types.Deserializer;
-import net.amygdalum.testrecorder.types.DeserializerContext;
-import net.amygdalum.testrecorder.types.SerializedReferenceType;
+import net.amygdalum.testrecorder.types.RoleVisitor;
+import net.amygdalum.testrecorder.types.ReferenceTypeVisitor;
+import net.amygdalum.testrecorder.types.SerializedKeyValue;
+import net.amygdalum.testrecorder.types.SerializedMapType;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.util.Optionals;
 
@@ -27,7 +29,7 @@ import net.amygdalum.testrecorder.util.Optionals;
  * 
  * Serializing objects not complying to this criteria is possible, just make sure that their exists a custom deserializer for these objects  
  */
-public class SerializedMap extends AbstractSerializedReferenceType implements SerializedReferenceType, Map<SerializedValue, SerializedValue> {
+public class SerializedMap extends AbstractSerializedReferenceType implements SerializedMapType, Map<SerializedValue, SerializedValue> {
 
 	private Type keyType;
 	private Type valueType;
@@ -38,6 +40,14 @@ public class SerializedMap extends AbstractSerializedReferenceType implements Se
 		this.keyType = Object.class;
 		this.valueType = Object.class;
 		this.map = new LinkedHashMap<>();
+	}
+
+	@Override
+	public List<SerializedKeyValue> elements() {
+		return map.entrySet().stream()
+			.map(entry -> new SerializedKeyValue(entry.getKey(), entry.getValue()))
+			.distinct()
+			.collect(toList());
 	}
 
 	public Type getMapKeyType() {
@@ -68,8 +78,13 @@ public class SerializedMap extends AbstractSerializedReferenceType implements Se
 	}
 
 	@Override
-	public <T> T accept(Deserializer<T> visitor, DeserializerContext context) {
-		return visitor.visitReferenceType(this, context);
+	public <T> T accept(RoleVisitor<T> visitor) {
+		return visitor.visitReferenceType(this);
+	}
+
+	@Override
+	public <T> T accept(ReferenceTypeVisitor<T> visitor) {
+		return visitor.visitMapType(this);
 	}
 
 	public int size() {

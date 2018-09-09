@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.deserializers.SimpleDeserializer;
 import net.amygdalum.testrecorder.hints.Setter;
 import net.amygdalum.testrecorder.runtime.DefaultValue;
@@ -31,17 +32,16 @@ import net.amygdalum.testrecorder.runtime.NonDefaultValue;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.LocalVariable;
+import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.SerializedImmutableType;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.util.Types;
-import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class Construction {
 
-	private DeserializerContext context;
 	private SimpleDeserializer deserializer;
 	private SerializedObject serialized;
 	private LocalVariable var;
@@ -50,16 +50,15 @@ public class Construction {
 	private List<SetterParam> setters;
 
 	public Construction(DeserializerContext context, LocalVariable var, SerializedObject value) {
-		this.context = context;
-		this.deserializer = new SimpleDeserializer();
+		this.deserializer = new SimpleDeserializer(context);
 		this.var = var;
 		this.serialized = value;
-		this.value = serialized.accept(deserializer, context);
+		this.value = serialized.accept(deserializer);
 		this.constructors = new HashMap<>();
 		this.setters = new ArrayList<>();
 	}
 
-	public Computation computeBest(TypeManager types, SetupGenerators generator) throws InstantiationException {
+	public Computation computeBest(TypeManager types, Deserializer generator) throws InstantiationException {
 		if (types.isHidden(serialized.getType())) {
 			throw new InstantiationException();
 		}
@@ -72,7 +71,7 @@ public class Construction {
 			.filter(plan -> GenericComparison.equals("", plan.execute(), value, comparingFields(fields).andThen(all())))
 			.sorted()
 			.findFirst()
-			.map(plan -> plan.compute(types, generator, context))
+			.map(plan -> plan.compute(types, generator))
 			.orElseThrow(() -> new InstantiationException());
 	}
 
@@ -114,6 +113,7 @@ public class Construction {
 		if (value instanceof SerializedImmutableType) {
 			return true;
 		} else if (value instanceof SerializedReferenceType) {
+			DeserializerContext context = deserializer.getContext();
 			if (context.refCount(value) > 1) {
 				return false;
 			}
@@ -164,7 +164,7 @@ public class Construction {
 	private void addSuitableConstructors(TypeManager types) {
 		for (SerializedField field : serialized.getFields()) {
 			String fieldName = field.getName();
-			Object fieldValue = field.getValue().accept(deserializer, context);
+			Object fieldValue = field.getValue().accept(deserializer);
 
 			for (Constructor<?> constructor : getParameterConstructors(types, serialized.getType())) {
 
@@ -216,7 +216,7 @@ public class Construction {
 	private void applySetters(TypeManager types) {
 		for (SerializedField field : serialized.getFields()) {
 			String fieldName = field.getName();
-			Object fieldValue = field.getValue().accept(deserializer, context);
+			Object fieldValue = field.getValue().accept(deserializer);
 
 			nextmethod: for (Method method : getSetterMethods(types, serialized.getType(), fieldValue)) {
 				for (Object base : createBases()) {

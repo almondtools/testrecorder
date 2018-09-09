@@ -3,8 +3,8 @@ package net.amygdalum.testrecorder;
 import static java.lang.System.identityHashCode;
 import static java.lang.Thread.currentThread;
 import static java.util.stream.Collectors.joining;
-import static net.amygdalum.testrecorder.ContextSnapshot.INVALID;
 import static net.amygdalum.testrecorder.TestrecorderThreadFactory.RECORDING;
+import static net.amygdalum.testrecorder.types.ContextSnapshot.INVALID;
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
 
 import java.io.File;
@@ -43,17 +43,18 @@ import net.amygdalum.testrecorder.bridge.BridgedSnapshotManager;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.serializers.SerializerFacade;
+import net.amygdalum.testrecorder.types.ContextSnapshot;
 import net.amygdalum.testrecorder.types.Profile;
 import net.amygdalum.testrecorder.types.SerializationException;
+import net.amygdalum.testrecorder.types.SerializedField;
+import net.amygdalum.testrecorder.types.SerializedInput;
 import net.amygdalum.testrecorder.types.SerializedInteraction;
+import net.amygdalum.testrecorder.types.SerializedOutput;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.util.CircularityLock;
 import net.amygdalum.testrecorder.util.Logger;
-import net.amygdalum.testrecorder.values.SerializedField;
-import net.amygdalum.testrecorder.values.SerializedInput;
 import net.amygdalum.testrecorder.values.SerializedNull;
-import net.amygdalum.testrecorder.values.SerializedOutput;
 import net.bytebuddy.agent.ByteBuddyAgent;
 
 public class SnapshotManager {

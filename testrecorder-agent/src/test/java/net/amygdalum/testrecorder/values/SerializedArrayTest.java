@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder.values;
 
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
-import static net.amygdalum.testrecorder.types.DeserializerContext.NULL;
 import static net.amygdalum.testrecorder.util.Types.array;
 import static net.amygdalum.testrecorder.util.Types.parameterized;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
@@ -81,7 +80,7 @@ public class SerializedArrayTest {
 	public void testAccept() throws Exception {
 		SerializedArray array = new SerializedArray(String[].class);
 
-		assertThat(array.accept(new TestValueVisitor(), NULL)).isEqualTo("ReferenceType:SerializedArray");
+		assertThat(array.accept(new TestValueVisitor())).isEqualTo("ReferenceType:SerializedArray");
 	}
 
 	@Test

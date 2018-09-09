@@ -13,13 +13,14 @@ import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.util.Types;
 import net.amygdalum.testrecorder.util.testobjects.Hidden;
 import net.amygdalum.testrecorder.util.testobjects.NonGenericInterface;
-import net.amygdalum.testrecorder.values.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedProxy;
 
 public class DefaultProxyAdaptorTest {
@@ -52,9 +53,9 @@ public class DefaultProxyAdaptorTest {
 		Class<?> clazz = Proxy.getProxyClass(DefaultProxyAdaptorTest.class.getClassLoader(), NonGenericInterface.class);
 		SerializedProxy value = new SerializedProxy(clazz);
 		value.useAs(NonGenericInterface.class);
-		MatcherGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).containsWildcardPattern("new GenericMatcher() {*}.matching(Proxy.class, NonGenericInterface.class)");
@@ -65,9 +66,9 @@ public class DefaultProxyAdaptorTest {
 		Class<?> clazz = Proxy.getProxyClass(DefaultProxyAdaptorTest.class.getClassLoader(), NonGenericInterface.class);
 		SerializedProxy value = new SerializedProxy(clazz);
 		value.useAs(Hidden.classOfCompletelyHidden());
-		MatcherGenerators generator = generator();
+		Deserializer generator = generator();
 		
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 		
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).containsWildcardPattern("new GenericMatcher() {*}.matching(Proxy.class)");
@@ -78,9 +79,9 @@ public class DefaultProxyAdaptorTest {
 		Class<?> clazz = Proxy.getProxyClass(DefaultProxyAdaptorTest.class.getClassLoader(), NonGenericInterface.class);
 		SerializedProxy value = new SerializedProxy(clazz);
 		value.useAs(Types.parameterized(Matcher.class, null, NonGenericInterface.class));
-		MatcherGenerators generator = generator();
+		Deserializer generator = generator();
 		
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 		
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).containsWildcardPattern("new GenericMatcher() {*}.matching(Proxy.class, NonGenericInterface.class)");
@@ -91,16 +92,16 @@ public class DefaultProxyAdaptorTest {
 		Class<?> clazz = Proxy.getProxyClass(DefaultProxyAdaptorTest.class.getClassLoader(), NonGenericInterface.class);
 		SerializedProxy value = new SerializedProxy(clazz);
 		value.addField(new SerializedField(clazz, "str", String.class, literal("strvalue")));
-		MatcherGenerators generator = generator();
+		Deserializer generator = generator();
 
-		Computation result = adaptor.tryDeserialize(value, generator, context);
+		Computation result = adaptor.tryDeserialize(value, generator);
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).containsWildcardPattern("new GenericMatcher() {*String str = \"strvalue\";*}.matching(Proxy.class)");
 	}
 
-	private MatcherGenerators generator() {
-		return new MatcherGenerators(new Adaptors<MatcherGenerators>(config).load(MatcherGenerator.class));
+	private Deserializer generator() {
+		return new MatcherGenerators(new Adaptors(config).load(MatcherGenerator.class)).newGenerator(context);
 	}
 
 }

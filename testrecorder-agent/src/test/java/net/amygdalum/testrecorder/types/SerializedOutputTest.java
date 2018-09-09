@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.values;
+package net.amygdalum.testrecorder.types;
 
 import static net.amygdalum.extensions.assertj.conventions.DefaultEquality.defaultEquality;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
@@ -12,9 +12,15 @@ import java.lang.reflect.Type;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.types.SerializedValue;
+import net.amygdalum.testrecorder.values.SerializedLiteral;
+import net.amygdalum.testrecorder.values.SerializedNull;
+import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class SerializedOutputTest {
+
+	private static final SerializedLiteral STRING_LITERAL = literal("Hello");
+	private static final SerializedObject PRINTSTREAM_OBJECT = new SerializedObject(PrintStream.class);
+	private static final SerializedValue VOID = SerializedNull.VOID;
 
 	private SerializedOutput output;
 	private SerializedOutput outputNoResult;
@@ -22,11 +28,11 @@ public class SerializedOutputTest {
 	@BeforeEach
 	void before() throws Exception {
 		output = new SerializedOutput(41, PrintStream.class, "append", PrintStream.class, new Type[] { CharSequence.class })
-			.updateArguments(literal("Hello"))
-			.updateResult(new SerializedObject(PrintStream.class));
+			.updateArguments(STRING_LITERAL)
+			.updateResult(PRINTSTREAM_OBJECT);
 		outputNoResult = new SerializedOutput(41, PrintStream.class, "println", void.class, new Type[] { String.class })
-			.updateArguments(literal("Hello"))
-			.updateResult(SerializedNull.VOID);
+			.updateArguments(STRING_LITERAL)
+			.updateResult(VOID);
 	}
 
 	@Test
@@ -53,7 +59,7 @@ public class SerializedOutputTest {
 
 	@Test
 	void testGetArguments() throws Exception {
-		assertThat(output.getArguments()).containsExactly(literal("Hello"));
+		assertThat(output.getArguments()).extracting(SerializedArgument::getValue).containsExactly(STRING_LITERAL);
 	}
 
 	@Test
@@ -64,48 +70,48 @@ public class SerializedOutputTest {
 
 	@Test
 	void testGetResult() throws Exception {
-		assertThat(output.getResult()).isInstanceOf(SerializedObject.class);
-		assertThat(outputNoResult.getResult()).isSameAs(SerializedNull.VOID);
+		assertThat(output.getResult().getValue()).isInstanceOf(SerializedObject.class);
+		assertThat(outputNoResult.getResult().getValue()).isSameAs(VOID);
 	}
 
 	@Test
 	void testEquals() throws Exception {
 		assertThat(outputNoResult).satisfies(defaultEquality()
 			.andEqualTo(new SerializedOutput(41, PrintStream.class, "println", void.class, new Type[] { String.class })
-				.updateArguments(literal("Hello"))
-				.updateResult(SerializedNull.VOID))
+				.updateArguments(STRING_LITERAL)
+				.updateResult(VOID))
 			.andNotEqualTo(output)
 			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "println", void.class, new Type[] { String.class })
-				.updateArguments(literal("Hello"))
+				.updateArguments(STRING_LITERAL)
 				.updateResult(null))
 			.andNotEqualTo(new SerializedOutput(42, PrintStream.class, "println", void.class, new Type[] { String.class })
-				.updateArguments(literal("Hello"))
-				.updateResult(SerializedNull.VOID))
+				.updateArguments(STRING_LITERAL)
+				.updateResult(VOID))
 			.andNotEqualTo(new SerializedOutput(41, PrintWriter.class, "println", void.class, new Type[] { String.class })
-				.updateArguments(literal("Hello"))
-				.updateResult(SerializedNull.VOID))
+				.updateArguments(STRING_LITERAL)
+				.updateResult(VOID))
 			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "print", void.class, new Type[] { String.class })
-				.updateArguments(literal("Hello"))
-				.updateResult(SerializedNull.VOID))
+				.updateArguments(STRING_LITERAL)
+				.updateResult(VOID))
 			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "println", void.class, new Type[] { Object.class })
-				.updateArguments(literal("Hello"))
-				.updateResult(SerializedNull.VOID))
+				.updateArguments(STRING_LITERAL)
+				.updateResult(VOID))
 			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "println", void.class, new Type[] { String.class })
 				.updateArguments(literal("Hello World"))
-				.updateResult(SerializedNull.VOID))
+				.updateResult(VOID))
 			.conventions());
 
 		assertThat(output).satisfies(defaultEquality()
 			.andEqualTo(new SerializedOutput(41, PrintStream.class, "append", PrintStream.class, new Type[] { CharSequence.class })
-				.updateArguments(literal("Hello"))
-				.updateResult(output.getResult()))
+				.updateArguments(STRING_LITERAL)
+				.updateResult(PRINTSTREAM_OBJECT))
 			.andNotEqualTo(outputNoResult)
 			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "append", PrintStream.class, new Type[] { CharSequence.class })
-				.updateArguments(literal("Hello"))
+				.updateArguments(STRING_LITERAL)
 				.updateResult(null))
 			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "append", OutputStream.class, new Type[] { CharSequence.class })
-				.updateArguments(literal("Hello"))
-				.updateResult(output.getResult()))
+				.updateArguments(STRING_LITERAL)
+				.updateResult(VOID))
 			.conventions());
 	}
 
@@ -155,7 +161,7 @@ public class SerializedOutputTest {
 	
 	@Test
 	void testIsCompleteOnMissingArguments() throws Exception {
-		output.arguments = new SerializedValue[0];
+		output.arguments = new SerializedArgument[0];
 		assertThat(output.isComplete()).isFalse();
 	}
 	

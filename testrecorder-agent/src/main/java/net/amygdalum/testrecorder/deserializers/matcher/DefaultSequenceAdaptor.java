@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.hamcrest.Matcher;
 
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.runtime.ContainsInOrderMatcher;
 import net.amygdalum.testrecorder.runtime.ContainsMatcher;
 import net.amygdalum.testrecorder.types.Computation;
@@ -24,13 +25,20 @@ import net.amygdalum.testrecorder.values.SerializedList;
 
 public class DefaultSequenceAdaptor extends DefaultMatcherGenerator<SerializedList> implements MatcherGenerator<SerializedList> {
 
+	private SimpleValueAdaptor simpleAdaptor;
+
+	public DefaultSequenceAdaptor() {
+		this.simpleAdaptor = new SimpleValueAdaptor();
+	}
+	
 	@Override
 	public Class<SerializedList> getAdaptedClass() {
 		return SerializedList.class;
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedList value, MatcherGenerators generator, DeserializerContext context) {
+	public Computation tryDeserialize(SerializedList value, Deserializer generator) {
+		DeserializerContext context = generator.getContext();
 		if (value.isEmpty()) {
 			TypeManager types = context.getTypes();
 			types.registerImport(baseType(componentType(types, value)));
@@ -43,7 +51,7 @@ public class DefaultSequenceAdaptor extends DefaultMatcherGenerator<SerializedLi
 			types.registerImport(baseType(componentType(types, value)));
 
 			List<Computation> elements = value.stream()
-				.map(element -> generator.simpleMatcher(element, context))
+				.map(element -> simpleAdaptor.tryDeserialize(element, generator))
 				.collect(toList());
 
 			List<String> elementComputations = elements.stream()

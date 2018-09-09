@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.deserializers.builder;
 
 import java.lang.reflect.Type;
 
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializationException;
 import net.amygdalum.testrecorder.types.DeserializerContext;
@@ -26,7 +27,8 @@ public class BeanObjectAdaptor implements SetupGenerator<SerializedObject> {
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedObject value, SetupGenerators generator, DeserializerContext context) throws DeserializationException {
+	public Computation tryDeserialize(SerializedObject value, Deserializer generator) throws DeserializationException {
+		DeserializerContext context = generator.getContext();
 		TypeManager types = context.getTypes();
 
 		Type type = types.isHidden(value.getType())

@@ -1,6 +1,5 @@
 package net.amygdalum.testrecorder.values;
 
-import static net.amygdalum.testrecorder.types.DeserializerContext.NULL;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,7 +35,7 @@ public class SerializedLiteralTest {
 	public void testAccept() throws Exception {
 		SerializedLiteral value = literal("string");
 
-		assertThat(value.accept(new TestValueVisitor(), NULL)).isEqualTo("ValueType:SerializedLiteral");
+		assertThat(value.accept(new TestValueVisitor())).isEqualTo("ValueType:SerializedLiteral");
 	}
 
 	@Test

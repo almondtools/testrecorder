@@ -6,12 +6,13 @@ import static net.amygdalum.testrecorder.util.Types.equalBaseTypes;
 import java.lang.reflect.Type;
 
 import net.amygdalum.testrecorder.deserializers.Adaptor;
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
 
-public class DefaultClassAdaptor extends DefaultSetupGenerator<SerializedImmutable<Class<?>>> implements Adaptor<SerializedImmutable<Class<?>>, SetupGenerators> {
+public class DefaultClassAdaptor extends DefaultSetupGenerator<SerializedImmutable<Class<?>>> implements Adaptor<SerializedImmutable<Class<?>>> {
 
 	@SuppressWarnings("rawtypes")
 	@Override
@@ -25,7 +26,8 @@ public class DefaultClassAdaptor extends DefaultSetupGenerator<SerializedImmutab
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedImmutable<Class<?>> value, SetupGenerators generator, DeserializerContext context) {
+	public Computation tryDeserialize(SerializedImmutable<Class<?>> value, Deserializer generator) {
+		DeserializerContext context = generator.getContext();
 		TypeManager types = context.getTypes();
 		types.registerImport(Class.class);
 

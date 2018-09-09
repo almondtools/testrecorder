@@ -90,7 +90,7 @@ public class SubSuperBeanMatcherTest {
 	private static CodeSerializer matcherSerializer() {
 		CodeSerializer codeSerializer = new CodeSerializer("net.amygdalum.testrecorder.scenarios",
 			config -> new ConfigurableSerializerFacade(config),
-			config -> new MatcherGenerators(new Adaptors<MatcherGenerators>(config).load(MatcherGenerator.class)));
+			config -> new MatcherGenerators(new Adaptors(config).load(MatcherGenerator.class)));
 		codeSerializer.getTypes().registerTypes(SubBean.class);
 		return codeSerializer;
 	}

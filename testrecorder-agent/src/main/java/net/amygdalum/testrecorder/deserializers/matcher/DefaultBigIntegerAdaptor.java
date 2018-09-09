@@ -14,6 +14,7 @@ import java.math.BigInteger;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
+import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.TypeManager;
@@ -33,7 +34,8 @@ public class DefaultBigIntegerAdaptor extends DefaultMatcherGenerator<Serialized
 	}
 
 	@Override
-	public Computation tryDeserialize(SerializedImmutable<BigInteger> value, MatcherGenerators generator, DeserializerContext context) {
+	public Computation tryDeserialize(SerializedImmutable<BigInteger> value, Deserializer generator) {
+		DeserializerContext context = generator.getContext();
 		TypeManager types = context.getTypes();
 		types.registerImport(BigInteger.class);
 		types.staticImport(Matchers.class, "equalTo");
