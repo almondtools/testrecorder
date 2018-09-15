@@ -73,7 +73,7 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
 		}
 	}
 
-	private Computation createOrdinarySet(SerializedSet value, Deserializer generator, DeserializerContext context) {
+	private Computation createOrdinarySet(SerializedSet value, Deserializer generator) {
 		SerializedSet baseValue = new SerializedSet(LinkedHashSet.class);
 		baseValue.useAs(parameterized(LinkedHashSet.class, null, value.getComponentType()));
 		baseValue.addAll(value);
@@ -138,7 +138,7 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
 		Type resultType = parameterized(Set.class, null, componentType);
 		return context.forVariable(value, resultType, local -> {
 
-			Computation computation = createOrdinarySet(value, generator, context);
+			Computation computation = createOrdinarySet(value, generator);
 			List<String> statements = new LinkedList<>(computation.getStatements());
 			String resultBase = computation.getValue();
 
@@ -162,7 +162,7 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
 		Type resultType = parameterized(Set.class, null, componentType);
 		return context.forVariable(value, resultType, local -> {
 
-			Computation computation = createOrdinarySet(value, generator, context);
+			Computation computation = createOrdinarySet(value, generator);
 			List<String> statements = new LinkedList<>(computation.getStatements());
 			String resultBase = computation.getValue();
 
@@ -186,7 +186,7 @@ public class CollectionsSetAdaptor implements SetupGenerator<SerializedSet> {
 		Type resultType = parameterized(Set.class, null, componentType);
 		return context.forVariable(value, resultType, local -> {
 
-			Computation computation = createOrdinarySet(value, generator, context);
+			Computation computation = createOrdinarySet(value, generator);
 			List<String> statements = new LinkedList<>(computation.getStatements());
 			String resultBase = computation.getValue();
 			String checkedType = types.getRawClass(value.getComponentType());

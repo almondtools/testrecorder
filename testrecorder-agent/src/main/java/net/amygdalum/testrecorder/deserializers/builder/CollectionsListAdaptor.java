@@ -72,7 +72,7 @@ public class CollectionsListAdaptor implements SetupGenerator<SerializedList> {
 		}
 	}
 
-	private Computation createOrdinaryList(SerializedList value, Deserializer generator, DeserializerContext context) {
+	private Computation createOrdinaryList(SerializedList value, Deserializer generator) {
 		SerializedList baseValue = new SerializedList(ArrayList.class);
 		baseValue.useAs(parameterized(ArrayList.class, null, value.getComponentType()));
 		baseValue.addAll(value);
@@ -136,7 +136,7 @@ public class CollectionsListAdaptor implements SetupGenerator<SerializedList> {
 		Type resultType = parameterized(List.class, null, componentType);
 		return context.forVariable(value, resultType, local -> {
 
-			Computation computation = createOrdinaryList(value, generator, context);
+			Computation computation = createOrdinaryList(value, generator);
 			List<String> statements = new LinkedList<>(computation.getStatements());
 			String resultBase = computation.getValue();
 
@@ -160,7 +160,7 @@ public class CollectionsListAdaptor implements SetupGenerator<SerializedList> {
 		Type resultType = parameterized(List.class, null, componentType);
 		return context.forVariable(value, resultType, local -> {
 
-			Computation computation = createOrdinaryList(value, generator, context);
+			Computation computation = createOrdinaryList(value, generator);
 			List<String> statements = new LinkedList<>(computation.getStatements());
 			String resultBase = computation.getValue();
 
@@ -185,7 +185,7 @@ public class CollectionsListAdaptor implements SetupGenerator<SerializedList> {
 		Type resultType = parameterized(List.class, null, componentType);
 		return context.forVariable(value, resultType, local -> {
 
-			Computation computation = createOrdinaryList(value, generator, context);
+			Computation computation = createOrdinaryList(value, generator);
 			List<String> statements = new LinkedList<>(computation.getStatements());
 			String resultBase = computation.getValue();
 			String checkedType = types.getRawClass(componentType);

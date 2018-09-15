@@ -75,7 +75,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 		}	
 	}
 
-	private Computation createOrdinaryMap(SerializedMap value, Deserializer generator, DeserializerContext context) {
+	private Computation createOrdinaryMap(SerializedMap value, Deserializer generator) {
 		SerializedMap baseValue = new SerializedMap(LinkedHashMap.class);
 		baseValue.useAs(parameterized(LinkedHashMap.class, null, value.getMapKeyType(), value.getMapValueType()));
 		baseValue.putAll(value);
@@ -160,7 +160,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 		Type resultType = parameterized(Map.class, null, mapKeyType, mapValueType);
 		return context.forVariable(value, resultType, local -> {
 
-			Computation computation = createOrdinaryMap(value, generator, context);
+			Computation computation = createOrdinaryMap(value, generator);
 			List<String> statements = new LinkedList<>(computation.getStatements());
 			String resultBase = computation.getValue();
 
@@ -189,7 +189,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 		Type resultType = parameterized(Map.class, null, mapKeyType, mapValueType);
 		return context.forVariable(value, resultType, local -> {
 
-			Computation computation = createOrdinaryMap(value, generator, context);
+			Computation computation = createOrdinaryMap(value, generator);
 			List<String> statements = new LinkedList<>(computation.getStatements());
 			String resultBase = computation.getValue();
 
@@ -218,7 +218,7 @@ public class CollectionsMapAdaptor implements SetupGenerator<SerializedMap> {
 		Type resultType = parameterized(Map.class, null, mapKeyType, mapValueType);
 		return context.forVariable(value, resultType, local -> {
 
-			Computation computation = createOrdinaryMap(value, generator, context);
+			Computation computation = createOrdinaryMap(value, generator);
 			List<String> statements = new LinkedList<>(computation.getStatements());
 			String resultBase = computation.getValue();
 			String checkedKeyType = types.getRawClass(mapKeyType);
