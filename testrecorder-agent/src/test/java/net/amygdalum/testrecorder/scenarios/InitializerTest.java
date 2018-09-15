@@ -24,6 +24,7 @@ public class InitializerTest {
 		loader.addPackage("net.amygdalum.testrecorder.scenarios");
 		loader.defineResource("agentconfig/net.amygdalum.testrecorder.runtime.TestRecorderAgentInitializer", "net.amygdalum.testrecorder.scenarios.GlobalsInitializer".getBytes());
 		config.reset().withLoader(loader);
+		TestGenerator.fromRecorded().reload(config);
 
 		Globals.global = 0;
 		new GlobalsInitializer().run();
@@ -50,5 +51,4 @@ public class InitializerTest {
 		assertThat(testGenerator.testsFor(Globals.class)).hasSize(2);
 		assertThat(testGenerator.renderTest(Globals.class)).satisfies(testsFail());
 	}
-
 }

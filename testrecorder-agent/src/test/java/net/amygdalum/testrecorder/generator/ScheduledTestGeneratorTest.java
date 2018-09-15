@@ -21,7 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import net.amygdalum.testrecorder.ClassDescriptor;
 import net.amygdalum.testrecorder.SnapshotManager;
-import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.TestAgentConfiguration;
 import net.amygdalum.testrecorder.types.ContextSnapshot;
 import net.amygdalum.testrecorder.types.MethodSignature;
 import net.amygdalum.testrecorder.types.SerializedField;
@@ -39,7 +39,7 @@ public class ScheduledTestGeneratorTest {
 	private static SnapshotManager saveManager;
 
 	private ExtensibleClassLoader loader;
-	private AgentConfiguration config;
+	private TestAgentConfiguration config;
 	private ScheduledTestGenerator testGenerator;
 
 	@BeforeAll
@@ -98,6 +98,9 @@ public class ScheduledTestGeneratorTest {
 	@Test
 	void testAcceptWithInitializer() throws Exception {
 		loader.defineResource("agentconfig/net.amygdalum.testrecorder.runtime.TestRecorderAgentInitializer", "net.amygdalum.testrecorder.runtime.AgentInitializer".getBytes());
+		config.reset().withLoader(loader);
+		testGenerator.reload(config);
+
 		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));

@@ -1,6 +1,5 @@
 package net.amygdalum.testrecorder.deserializers;
 
-import static net.amygdalum.testrecorder.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.xrayinterface.XRayInterface.xray;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -11,7 +10,6 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializationException;
 import net.amygdalum.testrecorder.types.SerializedValue;
@@ -24,8 +22,7 @@ public class AdaptorsTest {
 
 	@BeforeEach
 	public void before() throws Exception {
-		AgentConfiguration config = defaultConfig();
-		adaptors = new Adaptors(config);
+		adaptors = new Adaptors();
 		openadaptors = xray(adaptors).to(OpenAdaptors.class);
 	}
 

@@ -18,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.SerializedValues;
+import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.hints.SkipChecks;
@@ -46,7 +47,7 @@ public class MatcherGeneratorsTest {
 		values = new SerializedValues(config);
 
 		context = new DefaultDeserializerContext();
-		matcherCode = new MatcherGenerators(config).newGenerator(context);
+		matcherCode = new MatcherGenerators(new Adaptors().load(config.loadConfigurations(MatcherGenerator.class))).newGenerator(context);
 	}
 
 	@Test

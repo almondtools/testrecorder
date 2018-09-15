@@ -133,7 +133,7 @@ public class ObjectBuilderAdaptorTest {
 	}
 
 	private Deserializer generator() {
-		return new SetupGenerators(new Adaptors(config).load(SetupGenerator.class)).newGenerator(context);
+		return new SetupGenerators(new Adaptors().load(config.loadConfigurations(SetupGenerator.class))).newGenerator(context);
 	}
 
 	@Builder(builder = MyBuilder.class)

@@ -81,7 +81,7 @@ public class ConstructorParamTest {
 	}
 
 	private Deserializer generator() {
-		return new SetupGenerators(new Adaptors(config).load(SetupGenerator.class)).newGenerator(new DefaultDeserializerContext());
+		return new SetupGenerators(new Adaptors().load(config.loadConfigurations(SetupGenerator.class))).newGenerator(new DefaultDeserializerContext());
 	}
 
 }

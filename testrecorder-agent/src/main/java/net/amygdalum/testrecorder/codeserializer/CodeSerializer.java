@@ -49,7 +49,7 @@ public class CodeSerializer {
 	}
 	
 	private static SetupGenerators loadSetup(AgentConfiguration config) {
-		return new SetupGenerators(new Adaptors(config).load(SetupGenerator.class));
+		return new SetupGenerators(new Adaptors().load(config.loadConfigurations(SetupGenerator.class)));
 	}
 
 	public CodeSerializer(String pkg, Function<AgentConfiguration, SerializerFacade> facade, Function<AgentConfiguration, DeserializerFactory> deserializers) {

@@ -34,8 +34,8 @@ public class ClassGeneratorTest {
 	void before() throws Exception {
 		loader = new ExtensibleClassLoader(TestGenerator.class.getClassLoader());
 		AgentConfiguration config = defaultConfig().withLoader(loader);
-		SetupGenerators setup = new SetupGenerators(new Adaptors(config).load(SetupGenerator.class));
-		MatcherGenerators matcher = new MatcherGenerators(new Adaptors(config).load(MatcherGenerator.class));
+		SetupGenerators setup = new SetupGenerators(new Adaptors().load(config.loadConfigurations(SetupGenerator.class)));
+		MatcherGenerators matcher = new MatcherGenerators(new Adaptors().load(config.loadConfigurations(MatcherGenerator.class)));
 		testGenerator = new ClassGenerator(setup, matcher, emptyList(), MyClass.class.getPackage().getName(), MyClass.class.getSimpleName());
 	}
 

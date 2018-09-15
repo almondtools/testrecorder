@@ -15,7 +15,6 @@ import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.hints.SkipChecks;
-import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.runtime.GenericMatcher;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializationException;
@@ -33,10 +32,6 @@ import net.amygdalum.testrecorder.types.TypeManager;
 public class MatcherGenerators implements DeserializerFactory {
 
 	private Adaptors adaptors;
-
-	public MatcherGenerators(AgentConfiguration config) {
-		this(new Adaptors(config).load(MatcherGenerator.class));
-	}
 
 	public MatcherGenerators(Adaptors adaptors) {
 		this.adaptors = adaptors;

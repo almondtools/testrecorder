@@ -14,7 +14,6 @@ import java.util.List;
 import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
-import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.runtime.GenericObject;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializationException;
@@ -33,10 +32,6 @@ import net.amygdalum.testrecorder.types.TypeManager;
 public class SetupGenerators implements DeserializerFactory {
 
 	private Adaptors adaptors;
-
-	public SetupGenerators(AgentConfiguration config) {
-		this(new Adaptors(config).load(SetupGenerator.class));
-	}
 
 	public SetupGenerators(Adaptors adaptors) {
 		this.adaptors = adaptors;

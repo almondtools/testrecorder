@@ -37,8 +37,8 @@ public class MethodGeneratorTest {
 	void before() throws Exception {
 		AgentConfiguration config = defaultConfig();
 		types = new DeserializerTypeManager();
-		setup = new SetupGenerators(new Adaptors(config).load(SetupGenerator.class));
-		matcher = new MatcherGenerators(new Adaptors(config).load(MatcherGenerator.class));
+		setup = new SetupGenerators(new Adaptors().load(config.loadConfigurations(SetupGenerator.class)));
+		matcher = new MatcherGenerators(new Adaptors().load(config.loadConfigurations(MatcherGenerator.class)));
 	}
 	
 	@Test

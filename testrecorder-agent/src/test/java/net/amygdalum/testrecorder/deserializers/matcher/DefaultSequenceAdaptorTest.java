@@ -178,7 +178,7 @@ public class DefaultSequenceAdaptorTest {
 	}
 
 	private Deserializer generator() {
-		return new MatcherGenerators(new Adaptors(config).load(MatcherGenerator.class)).newGenerator(context);
+		return new MatcherGenerators(new Adaptors().load(config.loadConfigurations(MatcherGenerator.class))).newGenerator(context);
 	}
 
 }

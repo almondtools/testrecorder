@@ -45,18 +45,58 @@ public class TestGenerator implements SnapshotConsumer {
 
 	private volatile CompletableFuture<Void> pipeline;
 
-	private AgentConfiguration config;
 	private Map<ClassDescriptor, ClassGenerator> tests;
 
+	private SetupGenerators setup;
+	private MatcherGenerators matcher;
+	private List<TestRecorderAgentInitializer> initializer;
+
 	public TestGenerator(AgentConfiguration config) {
-		this.config = config;
-		PerformanceProfile performanceProfile = config.loadConfiguration(PerformanceProfile.class);
-		this.executor = new ThreadPoolExecutor(0, 1, performanceProfile.getIdleTime(), TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new TestrecorderThreadFactory("$consume"));
+		this(
+			config.loadConfiguration(PerformanceProfile.class),
+			config.loadConfigurations(SetupGenerator.class),
+			config.loadConfigurations(MatcherGenerator.class),
+			config.loadConfigurations(TestRecorderAgentInitializer.class));
+	}
+
+	@SuppressWarnings("rawtypes")
+	public TestGenerator(PerformanceProfile profile, List<SetupGenerator> setup, List<MatcherGenerator> matcher, List<TestRecorderAgentInitializer> init) {
+		this.executor = initExecutor(profile);
 
 		this.tests = synchronizedMap(new LinkedHashMap<>());
 		this.pipeline = CompletableFuture.runAsync(() -> {
 			Logger.info("starting code generation");
 		}, executor);
+
+		this.setup = new SetupGenerators(new Adaptors().load(setup));
+		this.matcher = new MatcherGenerators(new Adaptors().load(matcher));
+		this.initializer = init;
+	}
+
+	public void reload(AgentConfiguration config) {
+		reload(
+			config.loadConfiguration(PerformanceProfile.class),
+			config.loadConfigurations(SetupGenerator.class),
+			config.loadConfigurations(MatcherGenerator.class),
+			config.loadConfigurations(TestRecorderAgentInitializer.class));
+	}
+
+	@SuppressWarnings("rawtypes")
+	public void reload(PerformanceProfile profile, List<SetupGenerator> setup, List<MatcherGenerator> matcher, List<TestRecorderAgentInitializer> init) {
+		this.executor = initExecutor(profile);
+
+		this.tests = synchronizedMap(new LinkedHashMap<>());
+		this.pipeline = this.pipeline.thenRunAsync(() -> {
+			Logger.info("restarting code generation");
+		}, executor);
+
+		this.setup = new SetupGenerators(new Adaptors().load(setup));
+		this.matcher = new MatcherGenerators(new Adaptors().load(matcher));
+		this.initializer = init;
+	}
+
+	private static ThreadPoolExecutor initExecutor(PerformanceProfile profile) {
+		return new ThreadPoolExecutor(0, 1, profile.getIdleTime(), TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new TestrecorderThreadFactory("$consume"));
 	}
 
 	public static TestGenerator fromRecorded() {
@@ -137,10 +177,6 @@ public class TestGenerator implements SnapshotConsumer {
 	}
 
 	public ClassGenerator newGenerator(ClassDescriptor clazz) {
-		SetupGenerators setup = new SetupGenerators(new Adaptors(config).load(SetupGenerator.class));
-		MatcherGenerators matcher = new MatcherGenerators(new Adaptors(config).load(MatcherGenerator.class));
-		List<TestRecorderAgentInitializer> initializer = config.loadConfigurations(TestRecorderAgentInitializer.class);
-
 		return new ClassGenerator(setup, matcher, initializer, clazz.getPackage(), computeClassName(clazz));
 	}
 

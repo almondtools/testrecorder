@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
-import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializationException;
 import net.amygdalum.testrecorder.types.DeserializerContext;
@@ -17,12 +16,18 @@ import net.amygdalum.testrecorder.types.TypeManager;
 
 public class Adaptors {
 
-	private AgentConfiguration config;
 	private Map<Class<? extends SerializedValue>, List<Adaptor<?>>> adaptors;
 
-	public Adaptors(AgentConfiguration config) {
-		this.config = config;
+	public Adaptors() {
 		this.adaptors = new LinkedHashMap<>();
+	}
+
+	@SuppressWarnings({ "rawtypes" })
+	public Adaptors load(List<? extends Adaptor> adaptors) {
+		for (Adaptor<?> adaptor : adaptors) {
+			add(adaptor);
+		}
+		return this;
 	}
 
 	public Adaptors add(Adaptor<?> adaptor) {
@@ -74,14 +79,6 @@ public class Adaptors {
 			}
 		}
 		return null;
-	}
-
-	@SuppressWarnings({ "rawtypes" })
-	public Adaptors load(Class<? extends Adaptor> clazz) {
-		for (Adaptor<?> adaptor : config.loadConfigurations(clazz)) {
-			add(adaptor);
-		}
-		return this;
 	}
 
 }

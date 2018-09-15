@@ -20,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.SerializedValues;
+import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
@@ -49,7 +50,7 @@ public class SetupGeneratorsTest {
 		values = new SerializedValues(config);
 
 		context = new DefaultDeserializerContext();
-		setupCode = new SetupGenerators(config).newGenerator(context);
+		setupCode = new SetupGenerators(new Adaptors().load(config.loadConfigurations(SetupGenerator.class))).newGenerator(context);
 	}
 
 	@Test

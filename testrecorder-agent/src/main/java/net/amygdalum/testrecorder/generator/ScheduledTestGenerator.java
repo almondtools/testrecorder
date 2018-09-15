@@ -49,7 +49,6 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 
 	private volatile CompletableFuture<Void> pipeline;
 
-	private AgentConfiguration config;
 	private Map<ClassDescriptor, ClassGenerator> generators;
 
 	private static volatile Set<ScheduledTestGenerator> dumpOnShutDown;
@@ -84,10 +83,21 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 	private long start;
 	private int counter;
 
+	private SetupGenerators setup;
+	private MatcherGenerators matcher;
+	private List<TestRecorderAgentInitializer> initializer;
+
 	public ScheduledTestGenerator(AgentConfiguration config) {
-		this.config = config;
-		PerformanceProfile performanceProfile = config.loadConfiguration(PerformanceProfile.class);
-		this.executor = new ThreadPoolExecutor(0, 1, performanceProfile.getIdleTime(), TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new TestrecorderThreadFactory("$consume"));
+		this(
+			config.loadConfiguration(PerformanceProfile.class),
+			config.loadConfigurations(SetupGenerator.class),
+			config.loadConfigurations(MatcherGenerator.class),
+			config.loadConfigurations(TestRecorderAgentInitializer.class));
+	}
+
+	@SuppressWarnings("rawtypes")
+	public ScheduledTestGenerator(PerformanceProfile profile, List<SetupGenerator> setup, List<MatcherGenerator> matcher, List<TestRecorderAgentInitializer> init) {
+		this.executor = initExecutor(profile);
 
 		this.generators = synchronizedMap(new LinkedHashMap<>());
 		this.pipeline = CompletableFuture.runAsync(() -> {
@@ -98,6 +108,41 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 		this.counter = 0;
 		this.start = System.currentTimeMillis();
 		this.generateTo = Paths.get("generated + " + start);
+
+		this.setup = new SetupGenerators(new Adaptors().load(setup));
+		this.matcher = new MatcherGenerators(new Adaptors().load(matcher));
+		this.initializer = init;
+	}
+
+	public void reload(AgentConfiguration config) {
+		reload(
+			config.loadConfiguration(PerformanceProfile.class),
+			config.loadConfigurations(SetupGenerator.class),
+			config.loadConfigurations(MatcherGenerator.class),
+			config.loadConfigurations(TestRecorderAgentInitializer.class));
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public void reload(PerformanceProfile profile, List<SetupGenerator> setup, List<MatcherGenerator> matcher, List<TestRecorderAgentInitializer> init) {
+		this.executor = initExecutor(profile);
+		
+		this.generators = synchronizedMap(new LinkedHashMap<>());
+		this.pipeline = this.pipeline.thenRunAsync(() -> {
+			Logger.info("restarting code generation");
+		}, executor);
+		
+		this.counterMaximum = -1;
+		this.counter = 0;
+		this.start = System.currentTimeMillis();
+		this.generateTo = Paths.get("generated + " + start);
+		
+		this.setup = new SetupGenerators(new Adaptors().load(setup));
+		this.matcher = new MatcherGenerators(new Adaptors().load(matcher));
+		this.initializer = init;
+	}
+	
+	private static ThreadPoolExecutor initExecutor(PerformanceProfile profile) {
+		return new ThreadPoolExecutor(0, 1, profile.getIdleTime(), TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new TestrecorderThreadFactory("$consume"));
 	}
 
 	/**
@@ -217,10 +262,6 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 	}
 
 	public ClassGenerator newGenerator(ClassDescriptor clazz) {
-		SetupGenerators setup = new SetupGenerators(new Adaptors(config).load(SetupGenerator.class));
-		MatcherGenerators matcher = new MatcherGenerators(new Adaptors(config).load(MatcherGenerator.class));
-		List<TestRecorderAgentInitializer> initializer = config.loadConfigurations(TestRecorderAgentInitializer.class);
-
 		return new ClassGenerator(setup, matcher, initializer, clazz.getPackage(), computeClassName(clazz));
 	}
 
