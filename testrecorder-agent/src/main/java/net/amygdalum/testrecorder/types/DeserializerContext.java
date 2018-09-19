@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.types;
 
 import static java.util.Collections.emptySet;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Type;
 import java.util.Optional;
 import java.util.Set;
@@ -18,7 +19,7 @@ public interface DeserializerContext {
 		}
 
 		@Override
-		public void addHint(SerializedRole role, Object hint) {
+		public void addHint(AnnotatedElement role, Object hint) {
 		}
 
 		@Override
@@ -27,7 +28,17 @@ public interface DeserializerContext {
 		}
 
 		@Override
+		public <T> Optional<T> getHint(AnnotatedElement element, Class<T> clazz) {
+			return Optional.empty();
+		}
+
+		@Override
 		public <T> Stream<T> getHints(SerializedRole role, Class<T> clazz) {
+			return Stream.empty();
+		}
+
+		@Override
+		public <T> Stream<T> getHints(AnnotatedElement element, Class<T> clazz) {
 			return Stream.empty();
 		}
 
@@ -126,12 +137,16 @@ public interface DeserializerContext {
 
 	<T> DeserializerContext newIsolatedContext(TypeManager types, LocalVariableNameGenerator locals);
 
-	void addHint(SerializedRole role, Object hint);
+	void addHint(AnnotatedElement role, Object hint);
 
 	<T> Optional<T> getHint(SerializedRole role, Class<T> clazz);
 
+	<T> Optional<T> getHint(AnnotatedElement element, Class<T> clazz);
+
 	<T> Stream<T> getHints(SerializedRole role, Class<T> clazz);
 
+	<T> Stream<T> getHints(AnnotatedElement element, Class<T> clazz);
+	
 	int refCount(SerializedValue value);
 
 	void ref(SerializedReferenceType value, SerializedValue referencedValue);

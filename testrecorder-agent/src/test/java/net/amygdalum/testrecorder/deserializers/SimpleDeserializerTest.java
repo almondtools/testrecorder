@@ -20,6 +20,7 @@ import org.mockito.Mockito;
 
 import net.amygdalum.testrecorder.runtime.GenericObjectException;
 import net.amygdalum.testrecorder.types.DeserializationException;
+import net.amygdalum.testrecorder.types.FieldSignature;
 import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.SerializedImmutableType;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
@@ -44,14 +45,14 @@ public class SimpleDeserializerTest {
 
 	@Test
 	public void testVisitField() throws Exception {
-		SerializedField field = new SerializedField(Simple.class, "field", String.class, literal("v"));
+		SerializedField field = new SerializedField(new FieldSignature(Simple.class, String.class, "field"), literal("v"));
 		assertThatThrownBy(() -> deserializer.visitField(field)).isInstanceOf(DeserializationException.class);
 	}
 
 	@Test
 	public void testVisitObject() throws Exception {
 		SerializedObject object = new SerializedObject(Simple.class);
-		object.addField(new SerializedField(Simple.class, "str", String.class, literal("v")));
+		object.addField(new SerializedField(new FieldSignature(Simple.class, String.class, "str"), literal("v")));
 
 		Object visitReferenceType = deserializer.visitReferenceType(object);
 

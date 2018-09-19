@@ -15,6 +15,7 @@ import java.util.Random;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.types.FieldSignature;
 import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedValue;
@@ -70,8 +71,8 @@ public class GenericSerializerTest {
 
 		serializer.populate(value, new GenericObject("Foo", 1), session);
 
-		SerializedField fooField = new SerializedField(GenericObject.class, "stringField", String.class, foo);
-		SerializedField barField = new SerializedField(GenericObject.class, "intField", int.class, bar);
+		SerializedField fooField = new SerializedField(new FieldSignature(GenericObject.class, String.class, "stringField"), foo);
+		SerializedField barField = new SerializedField(new FieldSignature(GenericObject.class, int.class, "intField"), bar);
 		assertThat(value.getFields()).containsExactlyInAnyOrder(fooField, barField);
 	}
 

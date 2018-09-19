@@ -249,7 +249,7 @@ public class Construction {
 	}
 
 	private boolean qualifiesAsSetter(Method method, Object value) {
-		if (!method.getName().startsWith("set") && !method.isAnnotationPresent(Setter.class)) {
+		if (!method.getName().startsWith("set") && !deserializer.getContext().getHint(method, Setter.class).isPresent()) {
 			return false;
 		}
 		Class<?>[] parameterTypes = method.getParameterTypes();

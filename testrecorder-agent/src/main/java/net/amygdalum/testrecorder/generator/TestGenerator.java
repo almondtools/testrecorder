@@ -26,6 +26,7 @@ import net.amygdalum.testrecorder.SnapshotConsumer;
 import net.amygdalum.testrecorder.SnapshotManager;
 import net.amygdalum.testrecorder.TestrecorderThreadFactory;
 import net.amygdalum.testrecorder.deserializers.Adaptors;
+import net.amygdalum.testrecorder.deserializers.CustomAnnotation;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerator;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
 import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerator;
@@ -45,25 +46,28 @@ public class TestGenerator implements SnapshotConsumer {
 
 	private volatile CompletableFuture<Void> pipeline;
 
-	private Map<ClassDescriptor, ClassGenerator> tests;
+	private Map<ClassDescriptor, ClassGenerator> generators;
 
 	private SetupGenerators setup;
 	private MatcherGenerators matcher;
 	private List<TestRecorderAgentInitializer> initializer;
+	private List<CustomAnnotation> annotations;
+
 
 	public TestGenerator(AgentConfiguration config) {
 		this(
 			config.loadConfiguration(PerformanceProfile.class),
+			config.loadOptionalConfiguration(TestGeneratorProfile.class).orElseGet(DefaultTestGeneratorProfile::new),
 			config.loadConfigurations(SetupGenerator.class),
 			config.loadConfigurations(MatcherGenerator.class),
 			config.loadConfigurations(TestRecorderAgentInitializer.class));
 	}
 
 	@SuppressWarnings("rawtypes")
-	public TestGenerator(PerformanceProfile profile, List<SetupGenerator> setup, List<MatcherGenerator> matcher, List<TestRecorderAgentInitializer> init) {
+	public TestGenerator(PerformanceProfile profile, TestGeneratorProfile generatorProfile, List<SetupGenerator> setup, List<MatcherGenerator> matcher, List<TestRecorderAgentInitializer> init) {
 		this.executor = initExecutor(profile);
 
-		this.tests = synchronizedMap(new LinkedHashMap<>());
+		this.generators = synchronizedMap(new LinkedHashMap<>());
 		this.pipeline = CompletableFuture.runAsync(() -> {
 			Logger.info("starting code generation");
 		}, executor);
@@ -71,21 +75,23 @@ public class TestGenerator implements SnapshotConsumer {
 		this.setup = new SetupGenerators(new Adaptors().load(setup));
 		this.matcher = new MatcherGenerators(new Adaptors().load(matcher));
 		this.initializer = init;
+		this.annotations = generatorProfile.annotations();
 	}
 
 	public void reload(AgentConfiguration config) {
 		reload(
 			config.loadConfiguration(PerformanceProfile.class),
+			config.loadOptionalConfiguration(TestGeneratorProfile.class).orElseGet(DefaultTestGeneratorProfile::new),
 			config.loadConfigurations(SetupGenerator.class),
 			config.loadConfigurations(MatcherGenerator.class),
 			config.loadConfigurations(TestRecorderAgentInitializer.class));
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void reload(PerformanceProfile profile, List<SetupGenerator> setup, List<MatcherGenerator> matcher, List<TestRecorderAgentInitializer> init) {
+	public void reload(PerformanceProfile profile, TestGeneratorProfile generatorProfile, List<SetupGenerator> setup, List<MatcherGenerator> matcher, List<TestRecorderAgentInitializer> init) {
 		this.executor = initExecutor(profile);
 
-		this.tests = synchronizedMap(new LinkedHashMap<>());
+		this.generators = synchronizedMap(new LinkedHashMap<>());
 		this.pipeline = this.pipeline.thenRunAsync(() -> {
 			Logger.info("restarting code generation");
 		}, executor);
@@ -93,6 +99,7 @@ public class TestGenerator implements SnapshotConsumer {
 		this.setup = new SetupGenerators(new Adaptors().load(setup));
 		this.matcher = new MatcherGenerators(new Adaptors().load(matcher));
 		this.initializer = init;
+		this.annotations = generatorProfile.annotations();
 	}
 
 	private static ThreadPoolExecutor initExecutor(PerformanceProfile profile) {
@@ -121,7 +128,7 @@ public class TestGenerator implements SnapshotConsumer {
 	}
 
 	public void writeResults(Path dir) {
-		for (ClassDescriptor clazz : tests.keySet()) {
+		for (ClassDescriptor clazz : generators.keySet()) {
 
 			String rendered = renderTest(clazz);
 
@@ -138,7 +145,7 @@ public class TestGenerator implements SnapshotConsumer {
 	}
 
 	public void clearResults() {
-		this.tests.clear();
+		this.generators.clear();
 		this.pipeline = CompletableFuture.runAsync(() -> {
 			Logger.info("listening for snapshots");
 		}, executor);
@@ -173,11 +180,11 @@ public class TestGenerator implements SnapshotConsumer {
 	}
 
 	public ClassGenerator generatorFor(ClassDescriptor clazz) {
-		return tests.computeIfAbsent(clazz, this::newGenerator);
+		return generators.computeIfAbsent(clazz, this::newGenerator);
 	}
 
 	public ClassGenerator newGenerator(ClassDescriptor clazz) {
-		return new ClassGenerator(setup, matcher, initializer, clazz.getPackage(), computeClassName(clazz));
+		return new ClassGenerator(setup, matcher, initializer, annotations, clazz.getPackage(), computeClassName(clazz));
 	}
 
 	public RenderedTest renderTest(Class<?> clazz) {

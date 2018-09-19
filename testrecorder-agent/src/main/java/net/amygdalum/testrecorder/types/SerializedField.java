@@ -1,52 +1,38 @@
 package net.amygdalum.testrecorder.types;
 
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.Objects;
-
-import net.amygdalum.testrecorder.util.Types;
 
 public class SerializedField implements Comparable<SerializedField>, Serializable, SerializedRole {
 
-    private String name;
-    private Type type;
+    private FieldSignature signature;
     private SerializedValue value;
-    private Class<?> clazz;
 
-    public SerializedField(Class<?> clazz, String name, Type type, SerializedValue value) {
-    	assert name != null;
-    	assert type instanceof Serializable;
+    public SerializedField(FieldSignature signature, SerializedValue value) {
+    	assert signature != null;
     	assert value != null;
-    	this.clazz = clazz;
-        this.name = name;
-        this.type = type;
+    	this.signature = signature;
         this.value = value;
     }
+    
+    public FieldSignature getSignature() {
+		return signature;
+	}
 
     public Class<?> getDeclaringClass() {
-        return clazz;
+        return signature.declaringClass;
     }
 
     public String getName() {
-        return name;
+        return signature.fieldName;
     }
 
 	public Type getType() {
-        return type;
+        return signature.type;
     }
 
 	public SerializedValue getValue() {
         return value;
-    }
-
-	@Override
-	public Annotation[] getAnnotations() {
-        try {
-            return Types.getDeclaredField(clazz, name).getAnnotations();
-        } catch (NoSuchFieldException e) {
-            return new Annotation[0];
-        }
     }
 
 	@Override
@@ -55,12 +41,11 @@ public class SerializedField implements Comparable<SerializedField>, Serializabl
     }
 
     public String toString() {
-		return type.getTypeName() + " " + name + ": " + value.toString();
+		return signature.type.getTypeName() + " " + signature.fieldName + ": " + value.toString();
     }
 
     public int hashCode() {
-        return name.hashCode() * 31
-            + type.getTypeName().hashCode() * 13
+        return signature.hashCode() * 31
             + value.hashCode();
     }
 
@@ -75,9 +60,7 @@ public class SerializedField implements Comparable<SerializedField>, Serializabl
             return false;
         }
         SerializedField that = (SerializedField) obj;
-        return Objects.equals(this.clazz,that.clazz)
-            && this.name.equals(that.name)
-            && this.type == that.type
+        return this.signature.equals(that.signature)
             && this.value.equals(that.value);
     }
     

@@ -24,6 +24,7 @@ import org.mockito.Mockito;
 import net.amygdalum.testrecorder.SnapshotManager.ContextSnapshotTransaction;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.ContextSnapshot;
+import net.amygdalum.testrecorder.types.FieldSignature;
 import net.amygdalum.testrecorder.types.SerializedArgument;
 import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.util.CircularityLock;
@@ -59,7 +60,7 @@ public class SnapshotManagerTest {
 		assertThat(snapshot.getSetupThis())
 			.isInstanceOf(SerializedObject.class)
 			.isEqualToIgnoringGivenFields(new SerializedObject(Bean.class)
-				.withFields(new SerializedField(Bean.class, "attribute", String.class, literal("tobeset"))), "id");
+				.withFields(new SerializedField(new FieldSignature(Bean.class, String.class, "attribute"), literal("tobeset"))), "id");
 		assertThat(snapshot.getSetupArgs())
 			.hasSize(1)
 			.extracting(SerializedArgument::getValue)
@@ -114,7 +115,7 @@ public class SnapshotManagerTest {
 		assertThat(snapshot.getExpectThis())
 			.isInstanceOf(SerializedObject.class)
 			.isEqualToIgnoringGivenFields(new SerializedObject(Bean.class)
-				.withFields(new SerializedField(Bean.class, "attribute", String.class, literal("hasbeenset"))), "id");
+				.withFields(new SerializedField(new FieldSignature(Bean.class, String.class, "attribute"), literal("hasbeenset"))), "id");
 		assertThat(snapshot.getExpectArgs())
 			.hasSize(1)
 			.extracting(SerializedArgument::getValue)

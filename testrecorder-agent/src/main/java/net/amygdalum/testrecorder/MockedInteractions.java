@@ -101,8 +101,8 @@ public class MockedInteractions {
 					: returnStatement(nullValue(interaction.getResultType()));
 				String method = methodDeclaration("public",
 					types.getRawTypeName(interaction.getResultType()),
-					interaction.getName(),
-					Arrays.stream(interaction.getTypes())
+					interaction.getMethodName(),
+					Arrays.stream(interaction.getArgumentTypes())
 						.map(type -> Templates.param(types.getRawTypeName(type), methodParams.fetchName(type)))
 						.collect(toList()),
 					dummyBody);

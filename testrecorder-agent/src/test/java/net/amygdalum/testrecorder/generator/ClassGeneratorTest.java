@@ -6,7 +6,6 @@ import static net.amygdalum.testrecorder.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -20,8 +19,10 @@ import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerator;
 import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerators;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.ContextSnapshot;
+import net.amygdalum.testrecorder.types.FieldSignature;
 import net.amygdalum.testrecorder.types.MethodSignature;
 import net.amygdalum.testrecorder.types.SerializedField;
+import net.amygdalum.testrecorder.types.VirtualMethodSignature;
 import net.amygdalum.testrecorder.util.ExtensibleClassLoader;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
@@ -36,17 +37,18 @@ public class ClassGeneratorTest {
 		AgentConfiguration config = defaultConfig().withLoader(loader);
 		SetupGenerators setup = new SetupGenerators(new Adaptors().load(config.loadConfigurations(SetupGenerator.class)));
 		MatcherGenerators matcher = new MatcherGenerators(new Adaptors().load(config.loadConfigurations(MatcherGenerator.class)));
-		testGenerator = new ClassGenerator(setup, matcher, emptyList(), MyClass.class.getPackage().getName(), MyClass.class.getSimpleName());
+		testGenerator = new ClassGenerator(setup, matcher, emptyList(), emptyList(), MyClass.class.getPackage().getName(), MyClass.class.getSimpleName());
 	}
 
 	@Test
 	void testSetSetup() throws Exception {
 		testGenerator.setSetup(new TestDeserializer.Factory());
 		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
-		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
+		FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
+		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));
 		snapshot.setSetupGlobals(new SerializedField[0]);
-		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 8))));
+		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 8))));
 		snapshot.setExpectArgs(literal(int.class, 16));
 		snapshot.setExpectResult(literal(int.class, 22));
 		snapshot.setExpectGlobals(new SerializedField[0]);
@@ -68,10 +70,11 @@ public class ClassGeneratorTest {
 	void testSetMatcher() throws Exception {
 		testGenerator.setMatcher(new TestDeserializer.Factory());
 		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
-		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 12))));
+		FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
+		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
 		snapshot.setSetupArgs(literal(int.class, 16));
 		snapshot.setSetupGlobals(new SerializedField[0]);
-		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(MyClass.class, "field", int.class, literal(int.class, 8))));
+		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 8))));
 		snapshot.setExpectArgs(literal(int.class, 16));
 		snapshot.setExpectResult(literal(int.class, 22));
 		snapshot.setExpectGlobals(new SerializedField[0]);
@@ -91,7 +94,7 @@ public class ClassGeneratorTest {
 	}
 
 	private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
-		return new ContextSnapshot(0, "key", new MethodSignature(declaringClass, new Annotation[0], resultType, methodName, new Annotation[argumentTypes.length][0], argumentTypes));
+		return new ContextSnapshot(0, "key", new VirtualMethodSignature(new MethodSignature(declaringClass, resultType, methodName, argumentTypes)));
 	}
 
 	private SerializedObject objectOf(Class<MyClass> type, SerializedField... fields) {

@@ -2,13 +2,12 @@ package net.amygdalum.testrecorder.types;
 
 import static java.util.stream.Collectors.joining;
 
-import java.lang.reflect.Type;
 import java.util.stream.Stream;
 
 public class SerializedOutput extends AbstractSerializedInteraction implements SerializedInteraction {
 
-	public SerializedOutput(int id, Class<?> clazz, String name, Type resultType, Type[] types) {
-		super(id, clazz, name, resultType, types);
+	public SerializedOutput(int id, MethodSignature signature) {
+		super(id, signature);
 	}
 
 	public SerializedOutput updateArguments(SerializedValue... arguments) {
@@ -26,7 +25,7 @@ public class SerializedOutput extends AbstractSerializedInteraction implements S
 		String argumentsStr = Stream.of(arguments)
 			.map(Object::toString)
 			.collect(joining(", ", "(", ")"));
-		return ">> " + clazz.getTypeName() + "@" + id + "." + name + argumentsStr;
+		return ">> " + signature.declaringClass.getTypeName() + "@" + id + "." + signature.methodName + argumentsStr;
 	}
 
 }

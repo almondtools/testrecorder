@@ -1,7 +1,5 @@
 package net.amygdalum.testrecorder.types;
 
-import static net.amygdalum.testrecorder.types.SerializedRole.NO_ANNOTATIONS;
-
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -12,21 +10,13 @@ import java.util.Objects;
 public abstract class AbstractSerializedInteraction implements SerializedInteraction, Serializable {
 
 	protected int id;
-	protected Class<?> clazz;
-	protected String name;
-	protected Type resultType;
+	protected MethodSignature signature;
 	protected SerializedResult result;
-	protected Type[] types;
 	protected SerializedArgument[] arguments;
 
-	public AbstractSerializedInteraction(int id, Class<?> clazz, String name, Type resultType, Type[] types) {
-		assert resultType instanceof Serializable;
-		assert Arrays.stream(types).allMatch(type -> type instanceof Serializable);
+	public AbstractSerializedInteraction(int id, MethodSignature signature) {
 		this.id = id;
-		this.clazz = clazz;
-		this.name = name;
-		this.resultType = resultType;
-		this.types = types;
+		this.signature = signature;
 		this.arguments = new SerializedArgument[0];
 	}
 
@@ -41,13 +31,10 @@ public abstract class AbstractSerializedInteraction implements SerializedInterac
 
 	@Override
 	public boolean isComplete() {
-		if (resultType == null || types == null) {
-			return false;
-		}
 		if (result == null) {
 			return false;
 		}
-		if (arguments == null || arguments.length != types.length) {
+		if (arguments == null || arguments.length != signature.argumentTypes.length) {
 			return false;
 		}
 		return true;
@@ -55,8 +42,8 @@ public abstract class AbstractSerializedInteraction implements SerializedInterac
 
 	@Override
 	public boolean hasResult() {
-		return resultType != null
-			&& resultType != void.class
+		return signature.resultType != null
+			&& signature.resultType != void.class
 			&& result != null;
 	}
 
@@ -67,27 +54,27 @@ public abstract class AbstractSerializedInteraction implements SerializedInterac
 
 	@Override
 	public Class<?> getDeclaringClass() {
-		return clazz;
+		return signature.declaringClass;
 	}
-
+	
 	@Override
-	public String getName() {
-		return name;
+	public String getMethodName() {
+		return signature.methodName;
 	}
-
+	
 	@Override
 	public Type getResultType() {
-		return resultType;
+		return signature.resultType;
+	}
+	
+	@Override
+	public Type[] getArgumentTypes() {
+		return signature.argumentTypes;
 	}
 
 	@Override
 	public SerializedResult getResult() {
 		return result;
-	}
-
-	@Override
-	public Type[] getTypes() {
-		return types;
 	}
 
 	@Override
@@ -107,11 +94,8 @@ public abstract class AbstractSerializedInteraction implements SerializedInterac
 
 	@Override
 	public int hashCode() {
-		return clazz.hashCode() * 37
-			+ name.hashCode() * 29
-			+ resultType.hashCode() * 17
+		return signature.hashCode() * 11
 			+ (result == null ? 0 : result.hashCode() * 13)
-			+ Arrays.hashCode(types) * 11
 			+ Arrays.hashCode(arguments);
 	}
 
@@ -128,11 +112,8 @@ public abstract class AbstractSerializedInteraction implements SerializedInterac
 		}
 		AbstractSerializedInteraction that = (AbstractSerializedInteraction) obj;
 		return this.id == that.id
-			&& this.clazz.equals(that.clazz)
-			&& this.name.equals(that.name)
-			&& this.resultType.equals(that.resultType)
+			&& this.signature.equals(that.signature)
 			&& Objects.equals(this.result, that.result)
-			&& Arrays.equals(this.types, that.types)
 			&& Arrays.equals(this.arguments, that.arguments);
 	}
 
@@ -142,7 +123,7 @@ public abstract class AbstractSerializedInteraction implements SerializedInterac
 		} else {
 			SerializedArgument[] arguments = new SerializedArgument[argumentValues.length];
 			for (int i = 0; i < arguments.length; i++) {
-				arguments[i] = new SerializedArgument(i, types[i], NO_ANNOTATIONS, argumentValues[i]);
+				arguments[i] = new SerializedArgument(i, signature, argumentValues[i]);
 			}
 			return arguments;
 		}
@@ -152,7 +133,7 @@ public abstract class AbstractSerializedInteraction implements SerializedInterac
 		if (resultValue == null) {
 			return null;
 		} else {
-			return new SerializedResult(resultType, NO_ANNOTATIONS, resultValue);
+			return new SerializedResult(signature, resultValue);
 		}
 	}
 

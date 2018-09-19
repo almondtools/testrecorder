@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.serializers;
 
 import java.lang.reflect.Type;
 
+import net.amygdalum.testrecorder.types.MethodSignature;
 import net.amygdalum.testrecorder.types.SerializedInput;
 import net.amygdalum.testrecorder.types.SerializedOutput;
 import net.amygdalum.testrecorder.types.SerializedValue;
@@ -13,9 +14,9 @@ public interface SerializerFacade {
 
 	SerializedValue[] serialize(Type[] clazzes, Object[] objects, SerializerSession session);
 
-	SerializedOutput serializeOutput(int id, Class<?> clazz, String method, Type resultType, Type[] paramTypes);
+	SerializedOutput serializeOutput(int id, MethodSignature signature);
 
-	SerializedInput serializeInput(int id, Class<?> clazz, String method, Type resultType, Type[] paramTypes);
+	SerializedInput serializeInput(int id, MethodSignature signature);
 
 	SerializerSession newSession();
 

@@ -51,6 +51,20 @@ public class AgentConfiguration {
 		return this;
 	}
 
+	public <T> Optional<T> loadOptionalConfiguration(Class<T> clazz, Object... args) {
+		if (args.length == 0) {
+			Object cached = singleValues.get(clazz);
+			if (cached != null) {
+				return Optional.of(clazz.cast(cached));
+			}
+		}
+		Optional<T> config = load(clazz, args).findFirst();
+		if (args.length == 0 && config.isPresent()) {
+			singleValues.put(clazz, config.get());
+		}
+		return config;
+	}
+
 	public <T> T loadConfiguration(Class<T> clazz, Object... args) {
 		if (args.length == 0) {
 			Object cached = singleValues.get(clazz);

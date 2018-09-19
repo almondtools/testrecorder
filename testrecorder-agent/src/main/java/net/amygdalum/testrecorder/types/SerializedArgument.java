@@ -3,41 +3,36 @@ package net.amygdalum.testrecorder.types;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
 public class SerializedArgument implements Comparable<SerializedArgument>, Serializable, SerializedRole {
 
     private int index;
-	private Type type;
-    private Annotation[] annotations;
+	private MethodSignature signature;
     private SerializedValue value;
 
-    public SerializedArgument(int index, Type type, Annotation[] annotations, SerializedValue value) {
-    	assert type instanceof Serializable;
-    	assert annotations != null;
+    public SerializedArgument(int index, MethodSignature signature, SerializedValue value) {
+    	assert signature != null;
     	assert value != null;
     	this.index = index;
-        this.type = type;
-        this.annotations = annotations;
+        this.signature = signature;
         this.value = value;
     }
 
     public int getIndex() {
 		return index;
 	}
+    
+    public MethodSignature getSignature() {
+		return signature;
+	}
 
 	public Type getType() {
-        return type;
-    }
+		return signature.argumentTypes[index];
+	}
 
 	public SerializedValue getValue() {
         return value;
-    }
-
-	@Override
-	public Annotation[] getAnnotations() {
-        return annotations;
     }
 
 	@Override
@@ -46,12 +41,12 @@ public class SerializedArgument implements Comparable<SerializedArgument>, Seria
     }
 
     public String toString() {
-		return "(" + type.getTypeName() + " " + baseType(type).getSimpleName().toLowerCase() + index + ": " + value.toString() + ")";
+		return "(" + signature.argumentTypes[index].getTypeName() + " " + baseType(signature.argumentTypes[index]).getSimpleName().toLowerCase() + index + ": " + value.toString() + ")";
 	}
 
     public int hashCode() {
         return index * 37
-            + type.getTypeName().hashCode() * 17
+            + signature.hashCode() * 17
             + value.hashCode();
     }
 
@@ -67,11 +62,12 @@ public class SerializedArgument implements Comparable<SerializedArgument>, Seria
         }
         SerializedArgument that = (SerializedArgument) obj;
         return this.index == that.index
-            && this.type == that.type
+            && this.signature.equals(that.signature)
             && this.value.equals(that.value);
     }
     
     public int compareTo(SerializedArgument o) {
         return Integer.compare(index, o.index);
     }
+
 }

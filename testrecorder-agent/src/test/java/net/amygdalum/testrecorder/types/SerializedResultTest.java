@@ -4,79 +4,61 @@ import static net.amygdalum.extensions.assertj.conventions.DefaultEquality.defau
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.lang.annotation.Annotation;
-import java.util.stream.Stream;
+import java.lang.reflect.Type;
 
 import org.junit.jupiter.api.Test;
-
-import net.amygdalum.testrecorder.util.testobjects.MyAnnotation;
 
 public class SerializedResultTest {
 
 	@Test
 	void testGetType() throws Exception {
-		assertThat(new SerializedResult(String.class, SerializedRole.NO_ANNOTATIONS, literal("stringvalue")).getType()).isEqualTo(String.class);
-		assertThat(new SerializedResult(Object.class, SerializedRole.NO_ANNOTATIONS, literal("stringvalue")).getType()).isEqualTo(Object.class);
+		assertThat(new SerializedResult(MyObject.stringSignature(), literal("stringvalue")).getType()).isEqualTo(String.class);
+		assertThat(new SerializedResult(MyObject.objectSignature(), literal("stringvalue")).getType()).isEqualTo(Object.class);
 	}
 
 	@Test
 	void testGetValue() throws Exception {
-		assertThat(new SerializedResult(String.class, SerializedRole.NO_ANNOTATIONS, literal("stringvalue")).getValue()).isEqualTo(literal("stringvalue"));
-		assertThat(new SerializedResult(String.class, SerializedRole.NO_ANNOTATIONS, literal(2)).getValue()).isEqualTo(literal(2));
+		assertThat(new SerializedResult(MyObject.stringSignature(), literal("stringvalue")).getValue()).isEqualTo(literal("stringvalue"));
+		assertThat(new SerializedResult(MyObject.objectSignature(), literal(2)).getValue()).isEqualTo(literal(2));
 	}
 
 	@Test
 	void testAccept() throws Exception {
-		assertThat(new SerializedResult(String.class, SerializedRole.NO_ANNOTATIONS, literal("stringvalue"))
+		assertThat(new SerializedResult(MyObject.stringSignature(), literal("stringvalue"))
 			.accept(new TestValueVisitor())).isEqualTo("result");
 	}
 
 	@Test
 	void testToString() throws Exception {
-		assertThat(new SerializedResult(String.class, SerializedRole.NO_ANNOTATIONS, literal("stringvalue")).toString()).isEqualTo("=>java.lang.String: stringvalue");
-	}
-
-	@Test
-	void testGetAnnotations() throws Exception {
-		assertThat(new SerializedResult(String.class, SerializedRole.NO_ANNOTATIONS, literal("stringvalue")).getAnnotations()).isEmpty();
-		MyAnnotation anno = anno();
-		assertThat(new SerializedResult(String.class, new Annotation[] { anno }, literal("stringvalue")).getAnnotations()).containsExactly(anno);
+		assertThat(new SerializedResult(MyObject.stringSignature(), literal("stringvalue")).toString()).isEqualTo("=>java.lang.String: stringvalue");
 	}
 
 	@Test
 	void testEquals() throws Exception {
-		assertThat(new SerializedResult(String.class, SerializedRole.NO_ANNOTATIONS, literal("stringvalue"))).satisfies(defaultEquality()
-			.andEqualTo(new SerializedResult(String.class, SerializedRole.NO_ANNOTATIONS, literal("stringvalue")))
-			.andEqualTo(new SerializedResult(String.class, new Annotation[] {anno()}, literal("stringvalue")))
-			.andNotEqualTo(new SerializedResult(Object.class, SerializedRole.NO_ANNOTATIONS, literal("stringvalue")))
-			.andNotEqualTo(new SerializedResult(String.class, SerializedRole.NO_ANNOTATIONS, literal(3)))
+		assertThat(new SerializedResult(MyObject.stringSignature(), literal("stringvalue"))).satisfies(defaultEquality()
+			.andEqualTo(new SerializedResult(MyObject.stringSignature(), literal("stringvalue")))
+			.andNotEqualTo(new SerializedResult(MyObject.objectSignature(), literal("stringvalue")))
+			.andNotEqualTo(new SerializedResult(MyObject.stringSignature(), literal(3)))
 			.conventions());
 	}
 
-	@Test
-	public void testCompareTo() throws Exception {
-		assertThat(Stream.of(
-			new SerializedArgument(0, String.class, SerializedRole.NO_ANNOTATIONS, literal("stringvalue")),
-			new SerializedArgument(1, String.class, SerializedRole.NO_ANNOTATIONS, literal("stringvalue"))).sorted())
-				.containsExactly(
-					new SerializedArgument(0, String.class, SerializedRole.NO_ANNOTATIONS, literal("stringvalue")),
-					new SerializedArgument(1, String.class, SerializedRole.NO_ANNOTATIONS, literal("stringvalue")));
-		assertThat(Stream.of(
-			new SerializedArgument(1, String.class, SerializedRole.NO_ANNOTATIONS, literal("stringvalue")),
-			new SerializedArgument(0, String.class, SerializedRole.NO_ANNOTATIONS, literal("stringvalue"))).sorted())
-				.containsExactly(
-					new SerializedArgument(0, String.class, SerializedRole.NO_ANNOTATIONS, literal("stringvalue")),
-					new SerializedArgument(1, String.class, SerializedRole.NO_ANNOTATIONS, literal("stringvalue")));
-	}
+	public static class MyObject {
 
-	public MyAnnotation anno() {
-		return new MyAnnotation() {
+		public static MethodSignature stringSignature() {
+			return new MethodSignature(MyObject.class, String.class, "string", new Type[0]);
+		}
 
-			@Override
-			public Class<? extends Annotation> annotationType() {
-				return MyAnnotation.class;
-			}
-		};
+		public String string() {
+			return null;
+		}
+
+		public static MethodSignature objectSignature() {
+			return new MethodSignature(MyObject.class, Object.class, "object", new Type[0]);
+		}
+
+		public Object object() {
+			return null;
+		}
 	}
 
 }

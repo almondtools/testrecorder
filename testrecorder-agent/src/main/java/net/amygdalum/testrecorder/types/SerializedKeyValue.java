@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder.types;
 
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
 
 public class SerializedKeyValue implements Serializable, SerializedRole {
 
@@ -21,11 +20,6 @@ public class SerializedKeyValue implements Serializable, SerializedRole {
 		return value;
 	}
 
-	@Override
-	public Annotation[] getAnnotations() {
-		return NO_ANNOTATIONS;
-	}
-	
 	@Override
 	public <T> T accept(RoleVisitor<T> visitor) {
         return visitor.visitKeyValue(this);

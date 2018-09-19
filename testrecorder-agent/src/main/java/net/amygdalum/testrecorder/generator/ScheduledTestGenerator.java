@@ -27,6 +27,7 @@ import net.amygdalum.testrecorder.ClassDescriptor;
 import net.amygdalum.testrecorder.SnapshotConsumer;
 import net.amygdalum.testrecorder.TestrecorderThreadFactory;
 import net.amygdalum.testrecorder.deserializers.Adaptors;
+import net.amygdalum.testrecorder.deserializers.CustomAnnotation;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerator;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
 import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerator;
@@ -86,17 +87,19 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 	private SetupGenerators setup;
 	private MatcherGenerators matcher;
 	private List<TestRecorderAgentInitializer> initializer;
+	private List<CustomAnnotation> annotations;
 
 	public ScheduledTestGenerator(AgentConfiguration config) {
 		this(
 			config.loadConfiguration(PerformanceProfile.class),
+			config.loadOptionalConfiguration(TestGeneratorProfile.class).orElseGet(DefaultTestGeneratorProfile::new),
 			config.loadConfigurations(SetupGenerator.class),
 			config.loadConfigurations(MatcherGenerator.class),
 			config.loadConfigurations(TestRecorderAgentInitializer.class));
 	}
 
 	@SuppressWarnings("rawtypes")
-	public ScheduledTestGenerator(PerformanceProfile profile, List<SetupGenerator> setup, List<MatcherGenerator> matcher, List<TestRecorderAgentInitializer> init) {
+	public ScheduledTestGenerator(PerformanceProfile profile, TestGeneratorProfile generatorProfile, List<SetupGenerator> setup, List<MatcherGenerator> matcher, List<TestRecorderAgentInitializer> init) {
 		this.executor = initExecutor(profile);
 
 		this.generators = synchronizedMap(new LinkedHashMap<>());
@@ -112,18 +115,20 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 		this.setup = new SetupGenerators(new Adaptors().load(setup));
 		this.matcher = new MatcherGenerators(new Adaptors().load(matcher));
 		this.initializer = init;
+		this.annotations = generatorProfile.annotations();
 	}
 
 	public void reload(AgentConfiguration config) {
 		reload(
 			config.loadConfiguration(PerformanceProfile.class),
+			config.loadOptionalConfiguration(TestGeneratorProfile.class).orElseGet(DefaultTestGeneratorProfile::new),
 			config.loadConfigurations(SetupGenerator.class),
 			config.loadConfigurations(MatcherGenerator.class),
 			config.loadConfigurations(TestRecorderAgentInitializer.class));
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public void reload(PerformanceProfile profile, List<SetupGenerator> setup, List<MatcherGenerator> matcher, List<TestRecorderAgentInitializer> init) {
+	public void reload(PerformanceProfile profile, TestGeneratorProfile generatorProfile, List<SetupGenerator> setup, List<MatcherGenerator> matcher, List<TestRecorderAgentInitializer> init) {
 		this.executor = initExecutor(profile);
 		
 		this.generators = synchronizedMap(new LinkedHashMap<>());
@@ -139,6 +144,7 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 		this.setup = new SetupGenerators(new Adaptors().load(setup));
 		this.matcher = new MatcherGenerators(new Adaptors().load(matcher));
 		this.initializer = init;
+		this.annotations = generatorProfile.annotations();
 	}
 	
 	private static ThreadPoolExecutor initExecutor(PerformanceProfile profile) {
@@ -262,7 +268,7 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 	}
 
 	public ClassGenerator newGenerator(ClassDescriptor clazz) {
-		return new ClassGenerator(setup, matcher, initializer, clazz.getPackage(), computeClassName(clazz));
+		return new ClassGenerator(setup, matcher, initializer, annotations, clazz.getPackage(), computeClassName(clazz));
 	}
 
 	public RenderedTest renderTest(Class<?> clazz) {

@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder.values;
 import static net.amygdalum.testrecorder.util.Types.baseType;
 
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.stream.Stream;
@@ -28,13 +27,6 @@ public abstract class AbstractSerializedValue implements SerializedValue {
 	@Override
 	public Class<?> getType() {
 		return type;
-	}
-
-	@Override
-	public Annotation[] getAnnotations() {
-		return type == null
-			? NO_ANNOTATIONS
-			: type.getAnnotations();
 	}
 
 	public Type inferType(Stream<Type> candidateTypes, Collection<SerializedValue> values, Class<?> defaultType) {

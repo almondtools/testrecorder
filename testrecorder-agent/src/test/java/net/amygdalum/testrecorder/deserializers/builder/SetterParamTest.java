@@ -3,9 +3,12 @@ package net.amygdalum.testrecorder.deserializers.builder;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.lang.reflect.Method;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.types.FieldSignature;
 import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.util.testobjects.Bean;
 import net.amygdalum.testrecorder.util.testobjects.Simple;
@@ -16,7 +19,9 @@ public class SetterParamTest {
 
 	@BeforeEach
 	public void before() throws Exception {
-		setterParam = new SetterParam(Bean.class.getDeclaredMethod("setAttribute", String.class), String.class, new SerializedField(Simple.class, "attribute", String.class, literal("value")), "value");
+		Method setter = Bean.class.getDeclaredMethod("setAttribute", String.class);
+		FieldSignature field = new FieldSignature(Simple.class, String.class, "attribute");
+		setterParam = new SetterParam(setter, String.class, new SerializedField(field, literal("value")), "value");
 	}
 
 	@Test

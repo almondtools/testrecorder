@@ -11,6 +11,7 @@ import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
+import net.amygdalum.testrecorder.types.FieldSignature;
 import net.amygdalum.testrecorder.types.SerializationException;
 import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.SerializedValue;
@@ -32,10 +33,11 @@ public abstract class AbstractCompositeSerializer {
 		Class<?> declaringClass = field.getDeclaringClass();
 		String name = field.getName();
 		Type type = serializableOf(field.getGenericType());
+		FieldSignature signature = new FieldSignature(declaringClass, type, name);
 		Object value = fieldOf(object, field);
 		SerializedValue serializedValue = resolvedValueOf(session, type, value);
 
-		return new SerializedField(declaringClass, name, type, serializedValue);
+		return new SerializedField(signature, serializedValue);
 	}
 
 	public SerializedValue resolvedValueOf(SerializerSession session, Type type, Object value) {
@@ -50,7 +52,7 @@ public abstract class AbstractCompositeSerializer {
 				nullInstance.useAs(type);
 			}
 			return nullInstance;
-		} 
+		}
 		if (isPrimitive(clazz)) {
 			return literal(clazz, value);
 		}

@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import net.amygdalum.testrecorder.types.FieldSignature;
 import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.SerializedImmutableType;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
@@ -29,7 +30,7 @@ public class ValuePrinterTest {
 
 	@Test
 	public void testVisitField() throws Exception {
-		SerializedField field = new SerializedField(Simple.class, "field", String.class, literal("v"));
+		SerializedField field = new SerializedField(new FieldSignature(Simple.class, String.class, "field"), literal("v"));
 
 		assertThat(printer.visitField(field)).isEqualTo("java.lang.String field: v");
 	}
@@ -37,7 +38,7 @@ public class ValuePrinterTest {
 	@Test
 	public void testVisitObject() throws Exception {
 		SerializedObject object = new SerializedObject(Simple.class);
-		object.addField(new SerializedField(Simple.class, "str", String.class, literal("v")));
+		object.addField(new SerializedField(new FieldSignature(Simple.class, String.class, "str"), literal("v")));
 
 		String visitReferenceType = printer.visitReferenceType(object);
 
@@ -50,7 +51,7 @@ public class ValuePrinterTest {
 	@Test
 	public void testVisitObjectCached() throws Exception {
 		SerializedObject object = new SerializedObject(Simple.class);
-		object.addField(new SerializedField(Simple.class, "str", String.class, literal("v")));
+		object.addField(new SerializedField(new FieldSignature(Simple.class, String.class, "str"), literal("v")));
 
 		String visitReferenceType = printer.visitReferenceType(object);
 		visitReferenceType = printer.visitReferenceType(object);

@@ -1,35 +1,30 @@
 package net.amygdalum.testrecorder.types;
 
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
 public class SerializedResult implements Serializable, SerializedRole {
 
-	private Type type;
-	private Annotation[] annotations;
+	private MethodSignature signature;
 	private SerializedValue value;
 
-	public SerializedResult(Type type, Annotation[] annotations, SerializedValue value) {
-		assert type instanceof Serializable;
-		assert annotations != null;
+	public SerializedResult(MethodSignature signature, SerializedValue value) {
+		assert signature != null;
 		assert value != null;
-		this.type = type;
-		this.annotations = annotations;
+		this.signature = signature;
 		this.value = value;
 	}
 
-	public Type getType() {
-		return type;
+	public MethodSignature getSignature() {
+		return signature;
 	}
-
+	
+	public Type getType() {
+		return signature.resultType;
+	}
+	
 	public SerializedValue getValue() {
 		return value;
-	}
-
-	@Override
-	public Annotation[] getAnnotations() {
-		return annotations;
 	}
 
 	@Override
@@ -38,11 +33,11 @@ public class SerializedResult implements Serializable, SerializedRole {
 	}
 
 	public String toString() {
-		return "=>" + type.getTypeName() + ": " + value.toString();
+		return "=>" + signature.resultType.getTypeName() + ": " + value.toString();
 	}
 
 	public int hashCode() {
-		return type.getTypeName().hashCode() * 13
+		return signature.hashCode() * 13
 			+ value.hashCode();
 	}
 
@@ -57,7 +52,7 @@ public class SerializedResult implements Serializable, SerializedRole {
 			return false;
 		}
 		SerializedResult that = (SerializedResult) obj;
-		return this.type == that.type
+		return this.signature.equals(that.signature)
 			&& this.value.equals(that.value);
 	}
 

@@ -26,6 +26,7 @@ import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.FieldSignature;
 import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.util.testobjects.Complex;
 import net.amygdalum.testrecorder.util.testobjects.ContainingList;
@@ -58,7 +59,7 @@ public class SetupGeneratorsTest {
 		Type type = parameterized(ArrayList.class, null, String.class);
 		SerializedList value = values.list(type, arrayList("Foo", "Bar"));
 
-		Computation result = setupCode.visitField(new SerializedField(ContainingList.class, "list", type, value));
+		Computation result = setupCode.visitField(new SerializedField(new FieldSignature(ContainingList.class, type, "list"), value));
 
 		assertThat(result.getStatements().toString()).containsWildcardPattern("ArrayList<String> arrayList1 = new ArrayList*");
 		assertThat(result.getValue()).isEqualTo("ArrayList<String> list = arrayList1;");
@@ -66,7 +67,7 @@ public class SetupGeneratorsTest {
 
 	@Test
 	void testVisitFieldWithCastNeeded() throws Exception {
-		Computation result = setupCode.visitField(new SerializedField(Complex.class, "simple", Simple.class, values.object(Object.class, new Complex())));
+		Computation result = setupCode.visitField(new SerializedField(new FieldSignature(Complex.class, Simple.class, "simple"), values.object(Object.class, new Complex())));
 
 		assertThat(result.getStatements().toString()).containsWildcardPattern("Complex complex1 = new Complex*");
 		assertThat(result.getValue()).isEqualTo("Simple simple = (Simple) complex1;");
@@ -76,7 +77,7 @@ public class SetupGeneratorsTest {
 	void testVisitFieldWithHiddenTypeAndVisibleResult() throws Exception {
 		SerializedObject value = values.object(parameterized(classOfHiddenList(), null, String.class), hiddenList("Foo", "Bar"));
 
-		Computation result = setupCode.visitField(new SerializedField(ContainingList.class, "list", parameterized(List.class, null, String.class), value));
+		Computation result = setupCode.visitField(new SerializedField(new FieldSignature(ContainingList.class, parameterized(List.class, null, String.class), "list"), value));
 
 		assertThat(result.getStatements().toString()).containsWildcardPattern("List list1 = new GenericObject*.as(clazz(*HiddenList*)*.value(List.class)");
 		assertThat(result.getValue()).isEqualTo("List<String> list = list1;");
@@ -86,7 +87,7 @@ public class SetupGeneratorsTest {
 	void testVisitFieldWithHiddenTypeAndHiddenResult() throws Exception {
 		SerializedObject value = values.object(parameterized(classOfHiddenList(), null, String.class), hiddenList("Foo", "Bar"));
 
-		Computation result = setupCode.visitField(new SerializedField(ContainingList.class, "list", parameterized(List.class, null, String.class), value));
+		Computation result = setupCode.visitField(new SerializedField(new FieldSignature(ContainingList.class, parameterized(List.class, null, String.class), "list"), value));
 
 		assertThat(result.getStatements().toString()).containsWildcardPattern("List list1 = *new GenericObject*value(List.class)");
 		assertThat(result.getValue()).isEqualTo("List<String> list = list1;");

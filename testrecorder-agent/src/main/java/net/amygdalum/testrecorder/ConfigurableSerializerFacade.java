@@ -33,6 +33,7 @@ import net.amygdalum.testrecorder.serializers.ProxySerializer;
 import net.amygdalum.testrecorder.serializers.SerializerFacade;
 import net.amygdalum.testrecorder.types.AnalyzedObject;
 import net.amygdalum.testrecorder.types.ContextSnapshot;
+import net.amygdalum.testrecorder.types.MethodSignature;
 import net.amygdalum.testrecorder.types.OverrideSerializer;
 import net.amygdalum.testrecorder.types.Profile;
 import net.amygdalum.testrecorder.types.SerializationException;
@@ -246,13 +247,13 @@ public class ConfigurableSerializerFacade implements SerializerFacade {
 	}
 
 	@Override
-	public SerializedOutput serializeOutput(int id, Class<?> clazz, String method, Type resultType, Type[] paramTypes) {
-		return new SerializedOutput(id, clazz, method, serializableOf(resultType), serializableOf(paramTypes));
+	public SerializedOutput serializeOutput(int id, MethodSignature signature) {
+		return new SerializedOutput(id, signature);
 	}
 
 	@Override
-	public SerializedInput serializeInput(int id, Class<?> clazz, String method, Type resultType, Type[] paramTypes) {
-		return new SerializedInput(id, clazz, method, serializableOf(resultType), serializableOf(paramTypes));
+	public SerializedInput serializeInput(int id, MethodSignature signature) {
+		return new SerializedInput(id, signature);
 	}
 
 	@Override

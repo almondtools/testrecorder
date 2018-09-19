@@ -44,6 +44,8 @@ import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.serializers.SerializerFacade;
 import net.amygdalum.testrecorder.types.ContextSnapshot;
+import net.amygdalum.testrecorder.types.FieldSignature;
+import net.amygdalum.testrecorder.types.MethodSignature;
 import net.amygdalum.testrecorder.types.Profile;
 import net.amygdalum.testrecorder.types.SerializationException;
 import net.amygdalum.testrecorder.types.SerializedField;
@@ -234,7 +236,8 @@ public class SnapshotManager {
 			Class<?> clazz = toClass(object);
 			int id = toId(object);
 
-			SerializedInput in = facade.serializeInput(id, clazz, method, resultType, paramTypes);
+			MethodSignature signature = new MethodSignature(clazz, resultType, method, paramTypes);
+			SerializedInput in = facade.serializeInput(id, signature);
 			for (ContextSnapshot snapshot : all()) {
 				snapshot.addInput(in);
 			}
@@ -252,7 +255,7 @@ public class SnapshotManager {
 			}
 			current().to((facade, session, snapshot) -> {
 				snapshot.streamInput().filter(in -> in.id() == id).forEach(in -> {
-					in.updateArguments(facade.serialize(in.getTypes(), arguments, session));
+					in.updateArguments(facade.serialize(in.getArgumentTypes(), arguments, session));
 				});
 			});
 		} finally {
@@ -301,7 +304,8 @@ public class SnapshotManager {
 			Class<?> clazz = toClass(object);
 			int id = toId(object);
 
-			SerializedOutput out = facade.serializeOutput(id, clazz, method, resultType, paramTypes);
+			MethodSignature signature = new MethodSignature(clazz, resultType, method, paramTypes);
+			SerializedOutput out = facade.serializeOutput(id, signature);
 			for (ContextSnapshot snapshot : all()) {
 				snapshot.addOutput(out);
 			}
@@ -319,7 +323,7 @@ public class SnapshotManager {
 			}
 			current().to((facade, session, snapshot) -> {
 				snapshot.streamOutput().filter(out -> out.id() == id).forEach(out -> {
-					out.updateArguments(facade.serialize(out.getTypes(), arguments, session));
+					out.updateArguments(facade.serialize(out.getArgumentTypes(), arguments, session));
 				});
 			});
 		} finally {
@@ -472,10 +476,11 @@ public class SnapshotManager {
 		Class<?> declaringClass = field.getDeclaringClass();
 		String name = field.getName();
 		Class<?> type = field.getType();
+		FieldSignature signature = new FieldSignature(declaringClass, type, name);
 		Object value = globalOf(field);
 
 		SerializedValue serializedValue = facade.serialize(type, value, session);
-		return new SerializedField(declaringClass, name, type, serializedValue);
+		return new SerializedField(signature, serializedValue);
 	}
 
 	private Object globalOf(Field field) {

@@ -4,9 +4,7 @@ import static net.amygdalum.extensions.assertj.conventions.DefaultEquality.defau
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.lang.reflect.Type;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -27,10 +25,10 @@ public class SerializedOutputTest {
 
 	@BeforeEach
 	void before() throws Exception {
-		output = new SerializedOutput(41, PrintStream.class, "append", PrintStream.class, new Type[] { CharSequence.class })
+		output = new SerializedOutput(41, printStreamAppend())
 			.updateArguments(STRING_LITERAL)
 			.updateResult(PRINTSTREAM_OBJECT);
-		outputNoResult = new SerializedOutput(41, PrintStream.class, "println", void.class, new Type[] { String.class })
+		outputNoResult = new SerializedOutput(41, printStreamPrintln())
 			.updateArguments(STRING_LITERAL)
 			.updateResult(VOID);
 	}
@@ -47,14 +45,14 @@ public class SerializedOutputTest {
 
 	@Test
 	void testGetName() throws Exception {
-		assertThat(output.getName()).isSameAs("append");
-		assertThat(outputNoResult.getName()).isSameAs("println");
+		assertThat(output.getMethodName()).isSameAs("append");
+		assertThat(outputNoResult.getMethodName()).isSameAs("println");
 	}
 
 	@Test
 	void testGetTypes() throws Exception {
-		assertThat(output.getTypes()).containsExactly(CharSequence.class);
-		assertThat(outputNoResult.getTypes()).containsExactly(String.class);
+		assertThat(output.getArgumentTypes()).containsExactly(CharSequence.class);
+		assertThat(outputNoResult.getArgumentTypes()).containsExactly(String.class);
 	}
 
 	@Test
@@ -77,39 +75,33 @@ public class SerializedOutputTest {
 	@Test
 	void testEquals() throws Exception {
 		assertThat(outputNoResult).satisfies(defaultEquality()
-			.andEqualTo(new SerializedOutput(41, PrintStream.class, "println", void.class, new Type[] { String.class })
+			.andEqualTo(new SerializedOutput(41, printStreamPrintln())
 				.updateArguments(STRING_LITERAL)
 				.updateResult(VOID))
 			.andNotEqualTo(output)
-			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "println", void.class, new Type[] { String.class })
+			.andNotEqualTo(new SerializedOutput(41, printStreamPrintln())
 				.updateArguments(STRING_LITERAL)
 				.updateResult(null))
-			.andNotEqualTo(new SerializedOutput(42, PrintStream.class, "println", void.class, new Type[] { String.class })
+			.andNotEqualTo(new SerializedOutput(42, printStreamPrintln())
 				.updateArguments(STRING_LITERAL)
 				.updateResult(VOID))
-			.andNotEqualTo(new SerializedOutput(41, PrintWriter.class, "println", void.class, new Type[] { String.class })
+			.andNotEqualTo(new SerializedOutput(41, printStreamAppend())
 				.updateArguments(STRING_LITERAL)
 				.updateResult(VOID))
-			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "print", void.class, new Type[] { String.class })
-				.updateArguments(STRING_LITERAL)
-				.updateResult(VOID))
-			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "println", void.class, new Type[] { Object.class })
-				.updateArguments(STRING_LITERAL)
-				.updateResult(VOID))
-			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "println", void.class, new Type[] { String.class })
+			.andNotEqualTo(new SerializedOutput(41, printStreamPrintln())
 				.updateArguments(literal("Hello World"))
 				.updateResult(VOID))
 			.conventions());
 
 		assertThat(output).satisfies(defaultEquality()
-			.andEqualTo(new SerializedOutput(41, PrintStream.class, "append", PrintStream.class, new Type[] { CharSequence.class })
+			.andEqualTo(new SerializedOutput(41, printStreamAppend())
 				.updateArguments(STRING_LITERAL)
 				.updateResult(PRINTSTREAM_OBJECT))
 			.andNotEqualTo(outputNoResult)
-			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "append", PrintStream.class, new Type[] { CharSequence.class })
+			.andNotEqualTo(new SerializedOutput(41, printStreamAppend())
 				.updateArguments(STRING_LITERAL)
 				.updateResult(null))
-			.andNotEqualTo(new SerializedOutput(41, PrintStream.class, "append", OutputStream.class, new Type[] { CharSequence.class })
+			.andNotEqualTo(new SerializedOutput(41, printStreamAppend())
 				.updateArguments(STRING_LITERAL)
 				.updateResult(VOID))
 			.conventions());
@@ -125,7 +117,7 @@ public class SerializedOutputTest {
 	@Test
 	void testUpdateArguments() throws Exception {
 		output.updateArguments((SerializedValue[]) null);
-		
+
 		assertThat(output.getArguments()).isEmpty();
 	}
 
@@ -134,53 +126,49 @@ public class SerializedOutputTest {
 		assertThat(output.isComplete()).isTrue();
 		assertThat(outputNoResult.isComplete()).isTrue();
 	}
-	
+
 	@Test
 	void testIsCompleteOnMissingResult() throws Exception {
 		output.result = null;
 		assertThat(output.isComplete()).isFalse();
 	}
-	
-	@Test
-	void testIsCompleteOnMissingResultType() throws Exception {
-		output.resultType = null;
-		assertThat(output.isComplete()).isFalse();
-	}
-	
-	@Test
-	void testIsCompleteOnMissingArgumentType() throws Exception {
-		output.types = null;
-		assertThat(output.isComplete()).isFalse();
-	}
-	
+
 	@Test
 	void testIsCompleteOnNullArguments() throws Exception {
 		output.arguments = null;
 		assertThat(output.isComplete()).isFalse();
 	}
-	
+
 	@Test
 	void testIsCompleteOnMissingArguments() throws Exception {
 		output.arguments = new SerializedArgument[0];
 		assertThat(output.isComplete()).isFalse();
 	}
-	
+
 	@Test
 	void testHasResult() throws Exception {
 		assertThat(output.hasResult()).isTrue();
 		assertThat(outputNoResult.hasResult()).isFalse();
 	}
-	
+
 	@Test
 	void testHasResultWithNoResultType() throws Exception {
-		output.resultType = null;
+		output.signature.resultType = null;
 		assertThat(output.hasResult()).isFalse();
 	}
-	
+
 	@Test
 	void testHasResultWithNoResult() throws Exception {
 		output.result = null;
 		assertThat(output.hasResult()).isFalse();
 	}
-	
+
+	private MethodSignature printStreamAppend() {
+		return new MethodSignature(PrintStream.class, PrintStream.class, "append", new Type[] { CharSequence.class });
+	}
+
+	private MethodSignature printStreamPrintln() {
+		return new MethodSignature(PrintStream.class, void.class, "println", new Type[] { String.class });
+	}
+
 }

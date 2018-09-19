@@ -13,13 +13,13 @@ public interface SerializedInteraction {
 
 	Class<?> getDeclaringClass();
 
-	String getName();
+	String getMethodName();
 
 	Type getResultType();
 
 	SerializedResult getResult();
 
-	Type[] getTypes();
+	Type[] getArgumentTypes();
 
 	SerializedArgument[] getArguments();
 

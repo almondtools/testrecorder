@@ -16,6 +16,7 @@ import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializationException;
 import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.FieldSignature;
 import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
@@ -47,11 +48,10 @@ public class ObjectBuilderAdaptorTest {
 	@Test
 	public void testTryDeserializeWithBuildable() throws Exception {
 		SerializedObject value = new SerializedObject(Buildable.class);
-		value.addField(new SerializedField(Buildable.class, "a", int.class, literal(1)));
-		value.addField(new SerializedField(Buildable.class, "b", String.class, literal("2")));
+		value.addField(new SerializedField(new FieldSignature(Buildable.class, int.class, "a"), literal(1)));
+		value.addField(new SerializedField(new FieldSignature(Buildable.class, String.class, "b"), literal("2")));
 
 		context.getTypes().registerImport(Buildable.class);
-		context.addHint(value, Buildable.class.getAnnotation(Builder.class));
 		Deserializer generator = generator();
 
 		Computation deserialized = adaptor.tryDeserialize(value, generator);
@@ -63,8 +63,8 @@ public class ObjectBuilderAdaptorTest {
 	@Test
 	public void testTryDeserializeWithNonBuildable() throws Exception {
 		SerializedObject value = new SerializedObject(NotBuildable.class);
-		value.addField(new SerializedField(Buildable.class, "a", int.class, literal(1)));
-		value.addField(new SerializedField(Buildable.class, "b", String.class, literal("2")));
+		value.addField(new SerializedField(new FieldSignature(Buildable.class, int.class, "a"), literal(1)));
+		value.addField(new SerializedField(new FieldSignature(Buildable.class, String.class, "b"), literal("2")));
 
 		context.getTypes().registerImport(NotBuildable.class);
 		Deserializer generator = generator();
@@ -75,8 +75,8 @@ public class ObjectBuilderAdaptorTest {
 	@Test
 	public void testTryDeserializeWithBuilderMissingConstructor() throws Exception {
 		SerializedObject value = new SerializedObject(BuildableButNoBuilderConstructor.class);
-		value.addField(new SerializedField(Buildable.class, "a", int.class, literal(1)));
-		value.addField(new SerializedField(Buildable.class, "b", String.class, literal("2")));
+		value.addField(new SerializedField(new FieldSignature(Buildable.class, int.class, "a"), literal(1)));
+		value.addField(new SerializedField(new FieldSignature(Buildable.class, String.class, "b"), literal("2")));
 
 		context.getTypes().registerImport(BuildableButNoBuilderConstructor.class);
 		Deserializer generator = generator();
@@ -87,8 +87,8 @@ public class ObjectBuilderAdaptorTest {
 	@Test
 	public void testTryDeserializeWithBuilderMissingWithMethod() throws Exception {
 		SerializedObject value = new SerializedObject(BuildableButMissingWith.class);
-		value.addField(new SerializedField(Buildable.class, "a", int.class, literal(1)));
-		value.addField(new SerializedField(Buildable.class, "b", String.class, literal("2")));
+		value.addField(new SerializedField(new FieldSignature(Buildable.class, int.class, "a"), literal(1)));
+		value.addField(new SerializedField(new FieldSignature(Buildable.class, String.class, "b"), literal("2")));
 
 		context.getTypes().registerImport(BuildableButMissingWith.class);
 		Deserializer generator = generator();
@@ -99,8 +99,8 @@ public class ObjectBuilderAdaptorTest {
 	@Test
 	public void testTryDeserializeWithBuilderBrokenWithMethod() throws Exception {
 		SerializedObject value = new SerializedObject(BuildableButBrokenWith.class);
-		value.addField(new SerializedField(Buildable.class, "a", int.class, literal(1)));
-		value.addField(new SerializedField(Buildable.class, "b", String.class, literal("2")));
+		value.addField(new SerializedField(new FieldSignature(Buildable.class, int.class, "a"), literal(1)));
+		value.addField(new SerializedField(new FieldSignature(Buildable.class, String.class, "b"), literal("2")));
 
 		context.getTypes().registerImport(BuildableButBrokenWith.class);
 		Deserializer generator = generator();
@@ -111,8 +111,8 @@ public class ObjectBuilderAdaptorTest {
 	@Test
 	public void testTryDeserializeWithBuilderMissingBuildMethod() throws Exception {
 		SerializedObject value = new SerializedObject(BuildableButMissingBuild.class);
-		value.addField(new SerializedField(Buildable.class, "a", int.class, literal(1)));
-		value.addField(new SerializedField(Buildable.class, "b", String.class, literal("2")));
+		value.addField(new SerializedField(new FieldSignature(Buildable.class, int.class, "a"), literal(1)));
+		value.addField(new SerializedField(new FieldSignature(Buildable.class, String.class, "b"), literal("2")));
 
 		context.getTypes().registerImport(BuildableButMissingBuild.class);
 		Deserializer generator = generator();
@@ -123,8 +123,8 @@ public class ObjectBuilderAdaptorTest {
 	@Test
 	public void testTryDeserializeWithBuilderBrokenBuildMethod() throws Exception {
 		SerializedObject value = new SerializedObject(BuildableButBrokenBuild.class);
-		value.addField(new SerializedField(Buildable.class, "a", int.class, literal(1)));
-		value.addField(new SerializedField(Buildable.class, "b", String.class, literal("2")));
+		value.addField(new SerializedField(new FieldSignature(Buildable.class, int.class, "a"), literal(1)));
+		value.addField(new SerializedField(new FieldSignature(Buildable.class, String.class, "b"), literal("2")));
 
 		context.getTypes().registerImport(BuildableButBrokenBuild.class);
 		Deserializer generator = generator();

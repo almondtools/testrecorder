@@ -25,6 +25,7 @@ import net.amygdalum.testrecorder.hints.SkipChecks;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.FieldSignature;
 import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.util.testobjects.ContainingList;
 import net.amygdalum.testrecorder.util.testobjects.Dubble;
@@ -52,11 +53,10 @@ public class MatcherGeneratorsTest {
 
 	@Test
 	void testVisitField() throws Exception {
-
 		Type type = parameterized(ArrayList.class, null, String.class);
 		SerializedList value = values.list(type, arrayList("Foo", "Bar"));
 
-		Computation result = matcherCode.visitField(new SerializedField(ContainingList.class, "list", type, value));
+		Computation result = matcherCode.visitField(new SerializedField(new FieldSignature(ContainingList.class, type, "list"), value));
 
 		assertThat(result.getStatements()).isEmpty();
 		assertThat(result.getValue()).isEqualTo("Matcher<?> list = containsInOrder(String.class, \"Foo\", \"Bar\");");
@@ -126,7 +126,7 @@ public class MatcherGeneratorsTest {
 	@Test
 	void testVisitReferenceTypeCheckSkipped() throws Exception {
 		SerializedObject value = values.object(Dubble.class, new Dubble("Foo", "Bar"));
-		context.addHint(value, skipChecks());
+		context.addHint(Dubble.class, skipChecks());
 
 		Computation result = matcherCode.visitReferenceType(value);
 
@@ -157,7 +157,7 @@ public class MatcherGeneratorsTest {
 	@Test
 	void testVisitImmutableTypeCheckSkipped() throws Exception {
 		SerializedImmutable<BigInteger> value = values.bigInteger(BigInteger.valueOf(42));
-		context.addHint(value, skipChecks());
+		context.addHint(BigInteger.class, skipChecks());
 
 		Computation result = matcherCode.visitImmutableType(value);
 
@@ -177,7 +177,7 @@ public class MatcherGeneratorsTest {
 	@Test
 	void testVisitValueTypeCheckSkipped() throws Exception {
 		SerializedLiteral value = literal(int.class, 42);
-		context.addHint(value, skipChecks());
+		context.addHint(int.class, skipChecks());
 
 		Computation result = matcherCode.visitValueType(value);
 

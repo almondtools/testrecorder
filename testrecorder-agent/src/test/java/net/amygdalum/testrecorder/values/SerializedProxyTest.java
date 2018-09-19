@@ -10,6 +10,7 @@ import java.lang.reflect.Proxy;
 
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.types.FieldSignature;
 import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.TestValueVisitor;
 
@@ -48,12 +49,14 @@ public class SerializedProxyTest {
 	void testGetAddFields() throws Exception {
 		SerializedProxy value = new SerializedProxy(Proxy.class);
 
-		value.addField(new SerializedField(Object.class, "f1", Object.class, literal("str")));
-		value.addField(new SerializedField(Object.class, "f2", Integer.class, literal(2)));
+		FieldSignature f1 = new FieldSignature(Object.class, Object.class, "f1");
+		FieldSignature f2 = new FieldSignature(Object.class, Integer.class, "f2");
+		value.addField(new SerializedField(f1, literal("str")));
+		value.addField(new SerializedField(f2, literal(2)));
 
 		assertThat(value.getFields()).containsExactly(
-			new SerializedField(Object.class, "f1", Object.class, literal("str")),
-			new SerializedField(Object.class, "f2", Integer.class, literal(2)));
+			new SerializedField(f1, literal("str")),
+			new SerializedField(f2, literal(2)));
 		assertThat(value.getField("f1")).map(field -> field.getValue()).contains(literal("str"));
 		assertThat(value.getField("f2")).map(field -> field.getValue()).contains(literal(2));
 		assertThat(value.getField("f3")).isNotPresent();

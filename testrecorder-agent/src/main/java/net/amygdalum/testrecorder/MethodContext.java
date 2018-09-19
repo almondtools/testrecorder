@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.amygdalum.testrecorder.types.ContextSnapshot;
-import net.amygdalum.testrecorder.types.MethodSignature;
+import net.amygdalum.testrecorder.types.VirtualMethodSignature;
 
 public class MethodContext {
 
@@ -23,7 +23,7 @@ public class MethodContext {
 		return factory.createSnapshot();
 	}
 
-	public MethodSignature signature(String signature) {
+	public VirtualMethodSignature signature(String signature) {
 		ContextSnapshotFactory factory = factories.getOrDefault(signature, ContextSnapshotFactory.NULL);
 		return factory.signature();
 	}

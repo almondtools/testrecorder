@@ -1,21 +1,21 @@
 package net.amygdalum.testrecorder;
 
 import net.amygdalum.testrecorder.types.ContextSnapshot;
-import net.amygdalum.testrecorder.types.MethodSignature;
+import net.amygdalum.testrecorder.types.VirtualMethodSignature;
 
 public class ContextSnapshotFactory {
 	
-	public static final ContextSnapshotFactory NULL = new ContextSnapshotFactory("null", MethodSignature.NULL);
+	public static final ContextSnapshotFactory NULL = new ContextSnapshotFactory("null", VirtualMethodSignature.NULL);
 	
 	private String key;
 	private String className;
 	private String methodName;
 	private String methodDesc;
 
-	private MethodSignature signature;
+	private VirtualMethodSignature signature;
 
 
-    private ContextSnapshotFactory(String key, MethodSignature signature) {
+    private ContextSnapshotFactory(String key, VirtualMethodSignature signature) {
     	this.key = key;
 		this.signature = signature;
 	}
@@ -27,9 +27,9 @@ public class ContextSnapshotFactory {
 		this.methodDesc = methodDesc;
     }
 
-	public synchronized MethodSignature signature() {
+	public synchronized VirtualMethodSignature signature() {
 		if (signature == null) {
-			signature = MethodSignature.fromDescriptor(className, methodName, methodDesc);
+			signature = VirtualMethodSignature.fromDescriptor(className, methodName, methodDesc);
 		}
 		return signature;
     }

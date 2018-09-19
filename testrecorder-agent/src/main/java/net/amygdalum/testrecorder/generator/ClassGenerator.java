@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.stringtemplate.v4.ST;
 
 import net.amygdalum.testrecorder.SetupGenerator;
+import net.amygdalum.testrecorder.deserializers.CustomAnnotation;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.deserializers.DeserializerTypeManager;
 import net.amygdalum.testrecorder.runtime.TestRecorderAgentInitializer;
@@ -36,14 +37,17 @@ public class ClassGenerator {
 	private String testName;
 	private DeserializerFactory setup;
 	private DeserializerFactory matcher;
+	private List<CustomAnnotation> annotations;
 	private TypeManager types;
 	private Map<String, String> setups;
 	private Set<String> tests;
 
-	public ClassGenerator(DeserializerFactory setup, DeserializerFactory matcher, List<TestRecorderAgentInitializer> initializers, String pkg, String testName) {
+
+	public ClassGenerator(DeserializerFactory setup, DeserializerFactory matcher, List<TestRecorderAgentInitializer> initializers, List<CustomAnnotation> annotations, String pkg, String testName) {
 		this.testName = testName;
 		this.setup = setup;
 		this.matcher = matcher;
+		this.annotations = annotations;
 		this.types = new DeserializerTypeManager(pkg);
 		this.setups = new LinkedHashMap<>();
 		this.tests = new LinkedHashSet<>();
@@ -96,7 +100,7 @@ public class ClassGenerator {
 			addSetup("resetFakeIO", setupGenerator.generateSetup());
 		}
 
-		MethodGenerator methodGenerator = new MethodGenerator(size(), types, setup, matcher)
+		MethodGenerator methodGenerator = new MethodGenerator(size(), types, setup, matcher, annotations)
 			.analyze(snapshot)
 			.generateArrange()
 			.generateAct()

@@ -6,7 +6,6 @@ import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static net.amygdalum.testrecorder.values.SerializedNull.nullInstance;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -198,73 +197,36 @@ public class ContextSnapshotTest {
 
 	@Test
 	void testGetTime() throws Exception {
-		assertThat(new ContextSnapshot(0l, "key", new MethodSignature(Object.class, new Annotation[0], Object.class, "method", new Annotation[0][0], new Type[0])).getTime()).isEqualTo(0l);
-		assertThat(new ContextSnapshot(1l, "key", new MethodSignature(Object.class, new Annotation[0], Object.class, "method", new Annotation[0][0], new Type[0])).getTime()).isEqualTo(1l);
+		assertThat(new ContextSnapshot(0l, "key", anyVirtualMethod()).getTime()).isEqualTo(0l);
+		assertThat(new ContextSnapshot(1l, "key", anyVirtualMethod()).getTime()).isEqualTo(1l);
 	}
 
 	@Test
-	void testGetAnnotation() throws Exception {
-		ContextSnapshot snapshot = new ContextSnapshot(0l, "key", new MethodSignature(
-			Object.class,
-			new Annotation[] { anno("result") },
-			Object.class,
-			"method",
-			new Annotation[][] { new Annotation[] { anno("arg") } },
-			new Type[] { Integer.class }));
-
-		assertThat(snapshot.getResultAnnotation())
-			.hasSize(1)
-			.hasOnlyElementsOfTypes(Anno.class);
-		assertThat(snapshot.getMethodAnnotation(Anno.class).get().value()).isEqualTo("result");
-		assertThat(snapshot.getMethodAnnotation(NoAnno.class).isPresent()).isFalse();
-		assertThat(((Anno) snapshot.getResultAnnotation()[0]).value()).isEqualTo("result");
-		assertThat(snapshot.getArgumentAnnotations()).hasSize(1);
-		assertThat(snapshot.getArgumentAnnotations()[0])
-			.hasSize(1)
-			.hasOnlyElementsOfTypes(Anno.class);
-		assertThat(((Anno) snapshot.getArgumentAnnotations()[0][0]).value()).isEqualTo("arg");
-	}
-
-	@Test
-	void testGetAnnotatedSetupArgs() throws Exception {
-		Anno annotation = anno("arg");
-		ContextSnapshot snapshot = new ContextSnapshot(0l, "key", new MethodSignature(
-			Object.class,
-			new Annotation[] { anno("result") },
-			String.class,
-			"method",
-			new Annotation[][] { new Annotation[] { annotation } },
-			new Type[] { Integer.class }));
+	void testGetSetupArgs() throws Exception {
+		MethodSignature signature = new MethodSignature(Object.class, String.class, "method", new Type[] { Integer.class });
+		ContextSnapshot snapshot = new ContextSnapshot(0l, "key", new VirtualMethodSignature(signature));
 
 		snapshot.setSetupArgs(literal(int.class, 42));
 
 		assertThat(snapshot.getSetupArgs()).hasSize(1);
-		assertThat(snapshot.getSetupArgs()[0].getAnnotations()).contains(annotation);
 		assertThat(snapshot.getSetupArgs()[0].getValue()).isEqualTo(literal(int.class, 42));
 	}
 
 	@Test
-	void testGetAnnotatedExpectArgs() throws Exception {
-		Anno annotation = anno("arg");
-		ContextSnapshot snapshot = new ContextSnapshot(0l, "key", new MethodSignature(
-			Object.class,
-			new Annotation[] { anno("result") },
-			String.class,
-			"method",
-			new Annotation[][] { new Annotation[] { annotation } },
-			new Type[] { Integer.class }));
+	void testGetExpectArgs() throws Exception {
+		MethodSignature signature = new MethodSignature(Object.class, String.class, "method", new Type[] { Integer.class });
+		ContextSnapshot snapshot = new ContextSnapshot(0l, "key", new VirtualMethodSignature(signature));
 
 		snapshot.setExpectArgs(literal(int.class, 42));
 
 		assertThat(snapshot.getExpectArgs()).hasSize(1);
-		assertThat(snapshot.getExpectArgs()[0].getAnnotations()).contains(annotation);
 		assertThat(snapshot.getExpectArgs()[0].getValue()).isEqualTo(literal(int.class, 42));
 	}
 
 	@Test
 	void testSetGetSetupGlobals() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
-		SerializedField field = new SerializedField(Static.class, "global", String.class, literal("a"));
+		SerializedField field = new SerializedField(new FieldSignature(Static.class, String.class, "global"), literal("a"));
 
 		snapshot.setSetupGlobals(field);
 
@@ -278,7 +240,7 @@ public class ContextSnapshotTest {
 	@Test
 	void testSetGetExpectGlobals() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
-		SerializedField field = new SerializedField(Static.class, "global", String.class, literal("a"));
+		SerializedField field = new SerializedField(new FieldSignature(Static.class, String.class, "global"), literal("a"));
 
 		snapshot.setExpectGlobals(field);
 
@@ -292,7 +254,7 @@ public class ContextSnapshotTest {
 	@Test
 	void testSetupInput() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
-		SerializedInput input = new SerializedInput(41, String.class, "name", char.class, new Type[0]);
+		SerializedInput input = new SerializedInput(41, new MethodSignature(String.class, char.class, "name", new Type[0]));
 
 		snapshot.addInput(input);
 
@@ -327,7 +289,7 @@ public class ContextSnapshotTest {
 	@Test
 	void testExpectOutput() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
-		SerializedOutput output = new SerializedOutput(41, String.class, "name", char.class, new Type[0]);
+		SerializedOutput output = new SerializedOutput(41, new MethodSignature(String.class, char.class, "name", new Type[0]));
 
 		snapshot.addOutput(output);
 
@@ -364,10 +326,6 @@ public class ContextSnapshotTest {
 		ContextSnapshot snapshot = contextSnapshot(Object.class, String.class, "method", Integer.class);
 
 		assertThat(snapshot.toString()).contains("Object", "String", "method", "Integer");
-	}
-
-	private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
-		return new ContextSnapshot(0, "key", new MethodSignature(declaringClass, new Annotation[0], resultType, methodName, new Annotation[argumentTypes.length][0], argumentTypes));
 	}
 
 	@Test
@@ -414,13 +372,22 @@ public class ContextSnapshotTest {
 	void testOnGlobals() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
-		snapshot.setSetupGlobals(new SerializedField(Static.class, "global", String.class, literal("a")));
-		snapshot.setExpectGlobals(new SerializedField(Static.class, "global", String.class, literal("b")));
+		FieldSignature global = new FieldSignature(Static.class, String.class, "global");
+		snapshot.setSetupGlobals(new SerializedField(global, literal("a")));
+		snapshot.setExpectGlobals(new SerializedField(global, literal("b")));
 
 		assertThat(snapshot.onGlobals()
 			.map((first, second) -> first[0].getValue().toString() + ":" + second[0].getValue().toString(), first -> "second missing", second -> "first missing"))
 				.contains("a:b");
 
+	}
+
+	private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
+		return new ContextSnapshot(0, "key", new VirtualMethodSignature(new MethodSignature(declaringClass, resultType, methodName, argumentTypes)));
+	}
+
+	private VirtualMethodSignature anyVirtualMethod() {
+		return new VirtualMethodSignature(new MethodSignature(Object.class, Object.class, "method", new Type[0]));
 	}
 
 	private Optional<SerializedValue> argumentValues(Optional<SerializedArgument> arg) {
@@ -447,30 +414,6 @@ public class ContextSnapshotTest {
 		return result
 			.map(SerializedResult::getValue)
 			.orElse(null);
-	}
-
-	private Anno anno(String value) {
-		return new Anno() {
-
-			@Override
-			public String value() {
-				return value;
-			}
-
-			@Override
-			public Class<? extends Annotation> annotationType() {
-				return Anno.class;
-			}
-
-		};
-	}
-
-	@interface Anno {
-		String value();
-	}
-
-	@interface NoAnno {
-		String value();
 	}
 
 }

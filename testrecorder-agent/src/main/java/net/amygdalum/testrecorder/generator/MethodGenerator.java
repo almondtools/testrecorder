@@ -20,14 +20,12 @@ import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.isPrimitive;
 import static net.amygdalum.testrecorder.util.Types.mostSpecialOf;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -35,6 +33,7 @@ import org.junit.Assert;
 import org.stringtemplate.v4.ST;
 
 import net.amygdalum.testrecorder.MockedInteractions;
+import net.amygdalum.testrecorder.deserializers.CustomAnnotation;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
@@ -76,6 +75,7 @@ public class MethodGenerator {
 	private LocalVariableNameGenerator locals;
 	private DeserializerFactory setup;
 	private DeserializerFactory matcher;
+	private List<CustomAnnotation> annotations;
 
 	private int no;
 	private ContextSnapshot snapshot;
@@ -90,11 +90,12 @@ public class MethodGenerator {
 	private String result;
 	private String error;
 
-	public MethodGenerator(int no, TypeManager types, DeserializerFactory setup, DeserializerFactory matcher) {
+	public MethodGenerator(int no, TypeManager types, DeserializerFactory setup, DeserializerFactory matcher, List<CustomAnnotation> annotations) {
 		this.no = no;
 		this.types = types;
 		this.setup = setup;
 		this.matcher = matcher;
+		this.annotations = annotations;
 		this.locals = new LocalVariableNameGenerator();
 		this.statements = new ArrayList<>();
 	}
@@ -108,6 +109,9 @@ public class MethodGenerator {
 
 	private DefaultDeserializerContext computeInitialContext(ContextSnapshot snapshot) {
 		DefaultDeserializerContext context = new DefaultDeserializerContext(types, locals);
+		for (CustomAnnotation annotation : annotations) {
+			context.addHint(annotation.getTarget(), annotation.getAnnotation());
+		}
 
 		TreeAnalyzer analyzer = new TreeAnalyzer()
 			.addListener(new ReferenceAnalyzer(context));
@@ -223,7 +227,7 @@ public class MethodGenerator {
 		String methodName = snapshot.getMethodName();
 
 		MethodGenerator gen = snapshot.onExpectException()
-			.map(e -> new MethodGenerator(no, types, setup, matcher).analyze(snapshot))
+			.map(e -> new MethodGenerator(no, types, setup, matcher, annotations).analyze(snapshot))
 			.orElse(this);
 
 		String statement = callMethod(base, methodName, args);
@@ -296,7 +300,7 @@ public class MethodGenerator {
 
 	private Stream<String> generateExceptionAssert(TypeManager types, SerializedValue exception, String expression) {
 		Deserializer deserializer = matcher.newGenerator(context.newIsolatedContext(types, locals));
-		
+
 		if (exception == null) {
 			return Stream.empty();
 		}
@@ -306,7 +310,7 @@ public class MethodGenerator {
 
 	private Stream<String> generateThisAssert(TypeManager types, SerializedValue value, String expression, boolean changed) {
 		Deserializer deserializer = matcher.newGenerator(context.newIsolatedContext(types, locals));
-		
+
 		Computation matcherExpression = value.accept(deserializer);
 		return createAssertion(matcherExpression, expression, changed).stream();
 	}
@@ -432,19 +436,13 @@ public class MethodGenerator {
 	}
 
 	private List<String> annotations() {
-		return Stream.of(snapshot.getResultAnnotation())
-			.map(annotation -> transferAnnotation(annotation))
-			.filter(Objects::nonNull)
+		return snapshot.streamExpectResult()
+			.flatMap(result -> Stream.concat(
+				context.getHints(result, AnnotateTimestamp.class)
+					.map(annotation -> generateTimestampAnnotation(annotation.format())),
+				context.getHints(result, AnnotateGroupExpression.class)
+					.map(annotation -> generateGroupAnnotation(annotation.expression()))))
 			.collect(toList());
-	}
-
-	private String transferAnnotation(Annotation annotation) {
-		if (annotation instanceof AnnotateTimestamp) {
-			return generateTimestampAnnotation(((AnnotateTimestamp) annotation).format());
-		} else if (annotation instanceof AnnotateGroupExpression) {
-			return generateGroupAnnotation(((AnnotateGroupExpression) annotation).expression());
-		}
-		return null;
 	}
 
 	private String generateTimestampAnnotation(String format) {

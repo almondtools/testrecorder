@@ -15,11 +15,6 @@ public class SerializedKeyValueTest {
 	}
 
 	@Test
-	public void testGetAnnotations() throws Exception {
-		assertThat(new SerializedKeyValue(literal("key"), literal(2)).getAnnotations()).isEmpty();
-	}
-
-	@Test
 	public void testAccept() throws Exception {
 		assertThat(new SerializedKeyValue(literal("key"), literal(2))
 			.accept(new TestValueVisitor())).isEqualTo("keyvalue");

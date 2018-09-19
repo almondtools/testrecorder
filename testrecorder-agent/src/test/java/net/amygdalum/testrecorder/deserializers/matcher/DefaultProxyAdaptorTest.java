@@ -17,6 +17,7 @@ import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.FieldSignature;
 import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.util.Types;
 import net.amygdalum.testrecorder.util.testobjects.Hidden;
@@ -91,7 +92,8 @@ public class DefaultProxyAdaptorTest {
 	public void testTryDeserializeProxyWithFields() throws Exception {
 		Class<?> clazz = Proxy.getProxyClass(DefaultProxyAdaptorTest.class.getClassLoader(), NonGenericInterface.class);
 		SerializedProxy value = new SerializedProxy(clazz);
-		value.addField(new SerializedField(clazz, "str", String.class, literal("strvalue")));
+		FieldSignature signature = new FieldSignature(clazz, String.class, "str");
+		value.addField(new SerializedField(signature, literal("strvalue")));
 		Deserializer generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator);

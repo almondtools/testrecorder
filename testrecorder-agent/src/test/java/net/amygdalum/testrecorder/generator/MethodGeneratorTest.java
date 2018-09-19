@@ -1,11 +1,11 @@
 package net.amygdalum.testrecorder.generator;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 
@@ -20,9 +20,11 @@ import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerator;
 import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerators;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.ContextSnapshot;
+import net.amygdalum.testrecorder.types.FieldSignature;
 import net.amygdalum.testrecorder.types.MethodSignature;
 import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.TypeManager;
+import net.amygdalum.testrecorder.types.VirtualMethodSignature;
 import net.amygdalum.testrecorder.util.testobjects.Bean;
 import net.amygdalum.testrecorder.values.SerializedObject;
 import net.amygdalum.xrayinterface.XRayInterface;
@@ -43,7 +45,7 @@ public class MethodGeneratorTest {
 	
 	@Test
 	void testGenerateActWithResult() throws Exception {
-		MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher);
+		MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher, emptyList());
 		methodGenerator.analyze(snapshotWithResult());
 		XRayInterface.xray(methodGenerator).to(OpenMethodGenerator.class).setBase("var");
 		
@@ -54,7 +56,7 @@ public class MethodGeneratorTest {
 
 	@Test
 	void testGenerateActNoResult() throws Exception {
-		MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher);
+		MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher, emptyList());
 		methodGenerator.analyze(snapshotNoResult());
 		XRayInterface.xray(methodGenerator).to(OpenMethodGenerator.class).setBase("var");
 		XRayInterface.xray(methodGenerator).to(OpenMethodGenerator.class).setArgs(asList("\"newstr\""));
@@ -66,7 +68,7 @@ public class MethodGeneratorTest {
 
 	@Test
 	void testGenerateActWithResultAndException() throws Exception {
-		MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher);
+		MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher, emptyList());
 		methodGenerator.analyze(snapshotWithResultAndException());
 		XRayInterface.xray(methodGenerator).to(OpenMethodGenerator.class).setBase("var");
 		
@@ -81,7 +83,7 @@ public class MethodGeneratorTest {
 
 	@Test
 	void testGenerateActNoResultAndException() throws Exception {
-		MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher);
+		MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher, emptyList());
 		methodGenerator.analyze(snapshotNoResultAndException());
 		XRayInterface.xray(methodGenerator).to(OpenMethodGenerator.class).setBase("var");
 		XRayInterface.xray(methodGenerator).to(OpenMethodGenerator.class).setArgs(asList("\"newstr\""));
@@ -96,10 +98,11 @@ public class MethodGeneratorTest {
 
 	private ContextSnapshot snapshotWithResult() {
 		ContextSnapshot snapshot = contextSnapshot(Bean.class, String.class, "getAttribute");
-		snapshot.setSetupThis(objectOf(Bean.class, new SerializedField(Bean.class, "attribute", String.class, literal(String.class, "str"))));
+		FieldSignature attribute = new FieldSignature(Bean.class, String.class, "attribute");
+		snapshot.setSetupThis(objectOf(Bean.class, new SerializedField(attribute, literal(String.class, "str"))));
 		snapshot.setSetupArgs();
 		snapshot.setSetupGlobals(new SerializedField[0]);
-		snapshot.setExpectThis(objectOf(Bean.class, new SerializedField(Bean.class, "attribute", String.class, literal(String.class, "str"))));
+		snapshot.setExpectThis(objectOf(Bean.class, new SerializedField(attribute, literal(String.class, "str"))));
 		snapshot.setExpectArgs();
 		snapshot.setExpectResult(literal("str"));
 		snapshot.setExpectGlobals(new SerializedField[0]);
@@ -108,10 +111,11 @@ public class MethodGeneratorTest {
 
 	private ContextSnapshot snapshotNoResult() {
 		ContextSnapshot snapshot = contextSnapshot(Bean.class, void.class, "setAttribute", String.class);
-		snapshot.setSetupThis(objectOf(Bean.class, new SerializedField(Bean.class, "attribute", String.class, literal(String.class, "str"))));
+		FieldSignature attribute = new FieldSignature(Bean.class, String.class, "attribute");
+		snapshot.setSetupThis(objectOf(Bean.class, new SerializedField(attribute, literal(String.class, "str"))));
 		snapshot.setSetupArgs(literal("newstr"));
 		snapshot.setSetupGlobals(new SerializedField[0]);
-		snapshot.setExpectThis(objectOf(Bean.class, new SerializedField(Bean.class, "attribute", String.class, literal(String.class, "newstr"))));
+		snapshot.setExpectThis(objectOf(Bean.class, new SerializedField(attribute, literal(String.class, "newstr"))));
 		snapshot.setExpectArgs(literal("newstr"));
 		snapshot.setExpectGlobals(new SerializedField[0]);
 		return snapshot;
@@ -119,10 +123,11 @@ public class MethodGeneratorTest {
 	
 	private ContextSnapshot snapshotWithResultAndException() {
 		ContextSnapshot snapshot = contextSnapshot(Bean.class, String.class, "getAttribute");
-		snapshot.setSetupThis(objectOf(Bean.class, new SerializedField(Bean.class, "attribute", String.class, literal(String.class, "str"))));
+		FieldSignature attribute = new FieldSignature(Bean.class, String.class, "attribute");
+		snapshot.setSetupThis(objectOf(Bean.class, new SerializedField(attribute, literal(String.class, "str"))));
 		snapshot.setSetupArgs();
 		snapshot.setSetupGlobals(new SerializedField[0]);
-		snapshot.setExpectThis(objectOf(Bean.class, new SerializedField(Bean.class, "attribute", String.class, literal(String.class, "str"))));
+		snapshot.setExpectThis(objectOf(Bean.class, new SerializedField(attribute, literal(String.class, "str"))));
 		snapshot.setExpectArgs();
 		snapshot.setExpectException(objectOf(RuntimeException.class));
 		snapshot.setExpectGlobals(new SerializedField[0]);
@@ -131,10 +136,11 @@ public class MethodGeneratorTest {
 	
 	private ContextSnapshot snapshotNoResultAndException() {
 		ContextSnapshot snapshot = contextSnapshot(Bean.class, void.class, "setAttribute", String.class);
-		snapshot.setSetupThis(objectOf(Bean.class, new SerializedField(Bean.class, "attribute", String.class, literal(String.class, "str"))));
+		FieldSignature attribute = new FieldSignature(Bean.class, String.class, "attribute");
+		snapshot.setSetupThis(objectOf(Bean.class, new SerializedField(attribute, literal(String.class, "str"))));
 		snapshot.setSetupArgs(literal("newstr"));
 		snapshot.setSetupGlobals(new SerializedField[0]);
-		snapshot.setExpectThis(objectOf(Bean.class, new SerializedField(Bean.class, "attribute", String.class, literal(String.class, "newstr"))));
+		snapshot.setExpectThis(objectOf(Bean.class, new SerializedField(attribute, literal(String.class, "newstr"))));
 		snapshot.setExpectArgs(literal("newstr"));
 		snapshot.setExpectException(objectOf(RuntimeException.class));
 		snapshot.setExpectGlobals(new SerializedField[0]);
@@ -142,7 +148,7 @@ public class MethodGeneratorTest {
 	}
 	
 	private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
-		return new ContextSnapshot(0, "key", new MethodSignature(declaringClass, new Annotation[0], resultType, methodName, new Annotation[argumentTypes.length][0], argumentTypes));
+		return new ContextSnapshot(0, "key", new VirtualMethodSignature(new MethodSignature(declaringClass, resultType, methodName, argumentTypes)));
 	}
 
 	private SerializedObject objectOf(Class<?> type, SerializedField... fields) {

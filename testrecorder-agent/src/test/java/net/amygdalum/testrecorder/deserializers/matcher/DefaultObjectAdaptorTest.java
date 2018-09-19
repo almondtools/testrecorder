@@ -14,6 +14,7 @@ import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
+import net.amygdalum.testrecorder.types.FieldSignature;
 import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.util.testobjects.Simple;
 import net.amygdalum.testrecorder.values.SerializedObject;
@@ -46,7 +47,8 @@ public class DefaultObjectAdaptorTest {
 	@Test
 	public void testTryDeserialize() throws Exception {
 		SerializedObject value = new SerializedObject(Simple.class);
-		value.addField(new SerializedField(String.class, "str", String.class, literal("Hello World")));
+		FieldSignature signature = new FieldSignature(String.class, String.class, "str");
+		value.addField(new SerializedField(signature, literal("Hello World")));
 		Deserializer generator = generator();
 
 		Computation result = adaptor.tryDeserialize(value, generator);

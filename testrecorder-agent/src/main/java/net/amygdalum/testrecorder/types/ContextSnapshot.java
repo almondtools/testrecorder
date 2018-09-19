@@ -1,9 +1,6 @@
 package net.amygdalum.testrecorder.types;
 
-import static java.util.stream.Collectors.joining;
-
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.ArrayDeque;
 import java.util.Arrays;
@@ -22,7 +19,7 @@ public class ContextSnapshot implements Serializable {
 
 	private long time;
 	private String key;
-	private MethodSignature signature;
+	private VirtualMethodSignature signature;
 
 	private boolean valid;
 
@@ -45,7 +42,7 @@ public class ContextSnapshot implements Serializable {
 		this.expectOutput = new ArrayDeque<>();
 	}
 
-	public ContextSnapshot(long time, String key, MethodSignature signature) {
+	public ContextSnapshot(long time, String key, VirtualMethodSignature signature) {
 		this.time = time;
 		this.key = key;
 		this.signature = signature;
@@ -75,34 +72,26 @@ public class ContextSnapshot implements Serializable {
 	}
 
 	public Class<?> getDeclaringClass() {
-		return signature.declaringClass;
+		return signature.signature.declaringClass;
 	}
 
 	public Type getResultType() {
-		return signature.resultType;
-	}
-
-	public Annotation[] getResultAnnotation() {
-		return signature.resultAnnotation;
+		return signature.signature.resultType;
 	}
 
 	public String getMethodName() {
-		return signature.methodName;
+		return signature.signature.methodName;
 	}
 
 	public Type[] getArgumentTypes() {
-		return signature.argumentTypes;
-	}
-
-	public Annotation[][] getArgumentAnnotations() {
-		return signature.argumentAnnotations;
+		return signature.signature.argumentTypes;
 	}
 
 	public Type getThisType() {
 		if (setupThis != null) {
 			return setupThis.getType();
 		} else {
-			return signature.declaringClass;
+			return signature.signature.declaringClass;
 		}
 	}
 
@@ -186,15 +175,6 @@ public class ContextSnapshot implements Serializable {
 
 	public void setExpectResult(SerializedValue expectResult) {
 		this.expectResult = resultOf(expectResult);
-	}
-
-	public <T extends Annotation> Optional<T> getMethodAnnotation(Class<T> clazz) {
-		for (int i = 0; i < signature.resultAnnotation.length; i++) {
-			if (clazz.isInstance(signature.resultAnnotation[i])) {
-				return Optional.of(clazz.cast(signature.resultAnnotation[i]));
-			}
-		}
-		return Optional.empty();
 	}
 
 	public SerializedValue getExpectException() {
@@ -302,20 +282,19 @@ public class ContextSnapshot implements Serializable {
 	}
 
 	public String toString() {
-		return signature.resultType.getTypeName() + " " + signature.methodName + Stream.of(signature.argumentTypes).map(type -> type.getTypeName()).collect(joining(",", "(", ")")) + " of "
-			+ signature.declaringClass.getName();
+		return signature.toString();
 	}
 
 	private SerializedArgument[] argumentsOf(SerializedValue[] argumentValues) {
 		SerializedArgument[] arguments = new SerializedArgument[argumentValues.length];
 		for (int i = 0; i < arguments.length; i++) {
-			arguments[i] = new SerializedArgument(i, signature.argumentTypes[i], signature.argumentAnnotations[i], argumentValues[i]);
+			arguments[i] = new SerializedArgument(i, signature.signature, argumentValues[i]);
 		}
 		return arguments;
 	}
 
 	private SerializedResult resultOf(SerializedValue result) {
-		return new SerializedResult(signature.resultType, signature.resultAnnotation, result);
+		return new SerializedResult(signature.signature, result);
 	}
 
 }

@@ -1,7 +1,6 @@
 package net.amygdalum.testrecorder.deserializers;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptySet;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
 import static net.amygdalum.testrecorder.deserializers.Templates.cast;
 import static net.amygdalum.testrecorder.util.Types.assignableTypes;
@@ -9,9 +8,8 @@ import static net.amygdalum.testrecorder.util.Types.baseType;
 import static net.amygdalum.testrecorder.util.Types.boxingEquivalentTypes;
 import static net.amygdalum.testrecorder.util.Types.isGeneric;
 
-import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
@@ -24,7 +22,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
-import java.util.stream.Stream.Builder;
 
 import net.amygdalum.testrecorder.runtime.Wrapped;
 import net.amygdalum.testrecorder.types.Computation;
@@ -47,7 +44,7 @@ public class DefaultDeserializerContext implements DeserializerContext {
 
 	private Map<SerializedValue, Set<SerializedReferenceType>> backReferences;
 	private Map<SerializedValue, Set<SerializedValue>> closures;
-	private Map<SerializedRole, Set<Object>> hints;
+	private HintManager hints;
 	private LocalVariableNameGenerator locals;
 	private TypeManager types;
 	private Map<SerializedValue, LocalVariable> defined;
@@ -55,13 +52,13 @@ public class DefaultDeserializerContext implements DeserializerContext {
 	private Deque<SerializedRole> stack;
 
 	public DefaultDeserializerContext(TypeManager types, LocalVariableNameGenerator locals) {
-		this(new IdentityHashMap<>(), new IdentityHashMap<>(), new IdentityHashMap<>(), types, locals);
+		this(new IdentityHashMap<>(), new IdentityHashMap<>(), new HintManager(), types, locals);
 	}
 
 	public DefaultDeserializerContext() {
 		this.backReferences = new IdentityHashMap<>();
 		this.closures = new IdentityHashMap<>();
-		this.hints = new IdentityHashMap<>();
+		this.hints = new HintManager();
 		this.types = new DeserializerTypeManager();
 		this.locals = new LocalVariableNameGenerator();
 		this.defined = new IdentityHashMap<>();
@@ -70,7 +67,7 @@ public class DefaultDeserializerContext implements DeserializerContext {
 	}
 
 	private DefaultDeserializerContext(Map<SerializedValue, Set<SerializedReferenceType>> backReferences, Map<SerializedValue, Set<SerializedValue>> closures,
-		Map<SerializedRole, Set<Object>> hints, TypeManager types, LocalVariableNameGenerator locals) {
+		HintManager hints, TypeManager types, LocalVariableNameGenerator locals) {
 		this.backReferences = backReferences;
 		this.closures = closures;
 		this.hints = hints;
@@ -140,76 +137,54 @@ public class DefaultDeserializerContext implements DeserializerContext {
 	}
 
 	@Override
-	public void addHint(SerializedRole role, Object hint) {
-		hints.computeIfAbsent(role, key -> new HashSet<>())
-			.add(hint);
+	public void addHint(AnnotatedElement role, Object hint) {
+		hints.addHint(role, hint);
 	}
 
 	@Override
 	public <T> Optional<T> getHint(SerializedRole role, Class<T> clazz) {
-		Iterator<SerializedRole> iterator = stack.iterator();
-		current: if (iterator.hasNext()) {
-			SerializedRole current = iterator.next();
-			if (current != role) {
-				break current;
-			}
-			Optional<T> annotation = Arrays.stream(current.getAnnotations())
-				.filter(clazz::isInstance)
-				.map(clazz::cast)
-				.findFirst();
-			if (annotation.isPresent()) {
-				return annotation;
-			}
-		}
-		parent: if (iterator.hasNext()) {
-			SerializedRole current = iterator.next();
-			if (current instanceof SerializedValue) {
-				break parent;
-			}
-			Optional<T> annotation = Arrays.stream(current.getAnnotations())
-				.filter(clazz::isInstance)
-				.map(clazz::cast)
-				.findFirst();
-			if (annotation.isPresent()) {
-				return annotation;
-			}
-		}
-		return hints.getOrDefault(role, emptySet()).stream()
-			.filter(clazz::isInstance)
-			.map(clazz::cast)
+		return fetchHints(role, clazz)
 			.findFirst();
 	}
 
 	@Override
 	public <T> Stream<T> getHints(SerializedRole role, Class<T> clazz) {
-		Builder<T> allhints = Stream.builder();
-		Iterator<SerializedRole> iterator = stack.iterator();
-		current: if (iterator.hasNext()) {
-			SerializedRole current = iterator.next();
-			if (current != role) {
-				break current;
-			}
-			Arrays.stream(current.getAnnotations())
-				.filter(clazz::isInstance)
-				.map(clazz::cast)
-				.forEach(allhints::add);
-		}
-		parent: if (iterator.hasNext()) {
-			SerializedRole current = iterator.next();
-			if (current instanceof SerializedValue) {
-				break parent;
-			}
-			Arrays.stream(current.getAnnotations())
-				.filter(clazz::isInstance)
-				.map(clazz::cast)
-				.forEach(allhints::add);
-		}
-		hints.getOrDefault(role, emptySet()).stream()
-			.filter(clazz::isInstance)
-			.map(clazz::cast)
-			.forEach(allhints::add);
+		return fetchHints(role, clazz);
+	}
 
-		return allhints.build();
+	private <T> Stream<T> fetchHints(SerializedRole role, Class<T> clazz) {
+		Stream<SerializedRole> roles = findRoles(role);
+		return roles.flatMap(r -> hints.fetch(clazz, r));
+	}
+
+	private Stream<SerializedRole> findRoles(SerializedRole role) {
+		Iterator<SerializedRole> iterator = stack.iterator();
+		if (!iterator.hasNext() || iterator.next() != role) {
+			return Stream.of(role);
+		}
+		if (iterator.hasNext()) {
+			SerializedRole parent = iterator.next();
+			if (parent instanceof SerializedValue) {
+				return Stream.of(role);
+			}
+			return Stream.of(parent, role);
+		}
+		return Stream.of(role);
+	}
+
+	@Override
+	public <T> Optional<T> getHint(AnnotatedElement element, Class<T> clazz) {
+		return fetchHints(element, clazz)
+			.findFirst();
+	}
+
+	@Override
+	public <T> Stream<T> getHints(AnnotatedElement element, Class<T> clazz) {
+		return fetchHints(element, clazz);
+	}
+
+	private <T> Stream<T> fetchHints(AnnotatedElement element, Class<T> clazz) {
+		return hints.fetch(clazz, element);
 	}
 
 	@Override
@@ -370,11 +345,6 @@ public class DefaultDeserializerContext implements DeserializerContext {
 		@Override
 		public List<SerializedValue> referencedValues() {
 			return emptyList();
-		}
-
-		@Override
-		public Annotation[] getAnnotations() {
-			return NO_ANNOTATIONS;
 		}
 
 		@Override

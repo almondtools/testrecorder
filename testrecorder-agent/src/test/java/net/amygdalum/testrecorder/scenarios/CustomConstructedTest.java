@@ -1,15 +1,26 @@
 package net.amygdalum.testrecorder.scenarios;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.test.TestsRun.testsRun;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.lang.annotation.Annotation;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import net.amygdalum.testrecorder.TestAgentConfiguration;
+import net.amygdalum.testrecorder.deserializers.CustomAnnotation;
 import net.amygdalum.testrecorder.generator.TestGenerator;
+import net.amygdalum.testrecorder.generator.TestGeneratorProfile;
+import net.amygdalum.testrecorder.hints.Setter;
 import net.amygdalum.testrecorder.integration.Instrumented;
 import net.amygdalum.testrecorder.integration.TestRecorderAgentExtension;
+import net.amygdalum.testrecorder.util.ClasspathResourceExtension;
+import net.amygdalum.testrecorder.util.ExtensibleClassLoader;
 
 @ExtendWith(TestRecorderAgentExtension.class)
 @Instrumented(classes = { "net.amygdalum.testrecorder.scenarios.CustomConstructed" })
@@ -60,5 +71,50 @@ public class CustomConstructedTest {
 					.containsWildcardPattern("new GenericObject() {*other = \"str\";*}")
 					.contains("equalTo(3)");
 			});
+	}
+
+	@Test
+	@ExtendWith(ClasspathResourceExtension.class)
+	public void testCodeWithSetterHint(TestAgentConfiguration config, ExtensibleClassLoader loader) throws Exception {
+		loader.defineResource("agentconfig/net.amygdalum.testrecorder.generator.TestGeneratorProfile", "net.amygdalum.testrecorder.scenarios.CustomConstructedTest$CustomTestGeneratorProfile".getBytes());
+		config.reset().withLoader(loader);
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		testGenerator.reload(config);
+		
+		CustomConstructed bean = new CustomConstructed();
+		bean.string("string");
+		bean.other("other");
+
+		assertThat(bean.hashCode()).isEqualTo(11);
+
+		testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.testsFor(CustomConstructed.class)).hasSize(1);
+		assertThat(testGenerator.testsFor(CustomConstructed.class))
+			.anySatisfy(test -> {
+				assertThat(test)
+					.contains("new CustomConstructed()")
+					.containsWildcardPattern("customConstructed?.string")
+					.containsWildcardPattern("customConstructed?.other")
+					.contains("equalTo(11)");
+			});
+	}
+	
+	public static class CustomTestGeneratorProfile implements TestGeneratorProfile {
+
+		@Override
+		public List<CustomAnnotation> annotations() {
+			try {
+				return asList(new CustomAnnotation(CustomConstructed.class.getDeclaredMethod("other", String.class), new Setter() {
+					
+					@Override
+					public Class<? extends Annotation> annotationType() {
+						return Setter.class;
+					}
+				}));
+			} catch (ReflectiveOperationException e) {
+				return emptyList();
+			}
+		}
+		
 	}
 }

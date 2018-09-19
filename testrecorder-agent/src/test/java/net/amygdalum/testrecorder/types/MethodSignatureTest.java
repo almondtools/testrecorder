@@ -3,57 +3,56 @@ package net.amygdalum.testrecorder.types;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.util.testobjects.Complex;
-import net.amygdalum.testrecorder.util.testobjects.Simple;
-import net.amygdalum.testrecorder.util.testobjects.Sub;
-import net.amygdalum.testrecorder.util.testobjects.Super;
-
+import net.amygdalum.extensions.assertj.conventions.DefaultEquality;
 
 public class MethodSignatureTest {
 
 	@Test
-	void testNULL() throws Exception {
-		assertThat(MethodSignature.NULL.validIn(Object.class)).isFalse();
+	void testSerializable() throws Exception {
+		MethodSignature signature = new MethodSignature(MyObject.class, String.class, "method", new Type[] { int.class });
+
+		MethodSignature deserialized = new TestDeSerializer().deSerialize(signature);
+
+		assertThat(deserialized).isEqualTo(signature);
 	}
 
 	@Test
-	public void testValidIn() throws Exception {
-		Method method = Simple.class.getDeclaredMethod("getStr");
+	void testResolveMethod() throws Exception {
+		MethodSignature signature = new MethodSignature(MyObject.class, String.class, "method", new Type[] { int.class });
 
-		assertThat(MethodSignature.fromDescriptor(method).validIn(Simple.class)).isTrue();
-		assertThat(MethodSignature.fromDescriptor(method).validIn(Object.class)).isFalse();
-		assertThat(MethodSignature.fromDescriptor(method).validIn(Complex.class)).isFalse();
+		Method method = signature.resolveMethod();
+		assertThat(method.getDeclaringClass()).isSameAs(MyObject.class);
+		assertThat(method.getName()).isEqualTo("method");
+		assertThat(method.getParameterTypes()).contains(int.class);
+		assertThat(method.getReturnType()).isEqualTo(String.class);
 	}
 
 	@Test
-	public void testValidInInherited() throws Exception {
-		Method method = Super.class.getDeclaredMethod("getStr");
-		
-		assertThat(MethodSignature.fromDescriptor(method).validIn(Super.class)).isTrue();
-		assertThat(MethodSignature.fromDescriptor(method).validIn(Sub.class)).isTrue();
-		assertThat(MethodSignature.fromDescriptor(method).validIn(Simple.class)).isFalse();
-		assertThat(MethodSignature.fromDescriptor(method).validIn(Object.class)).isFalse();
+	void testToString() throws Exception {
+		MethodSignature signature = new MethodSignature(MyObject.class, String.class, "method", new Type[] { int.class });
+		assertThat(signature.toString()).isEqualTo("java.lang.String method(int) of net.amygdalum.testrecorder.types.MethodSignatureTest$MyObject");
 	}
 
 	@Test
-	public void testValidInWithValidCached() throws Exception {
-		Method method = Super.class.getDeclaredMethod("getStr");
-		MethodSignature descriptor = MethodSignature.fromDescriptor(method);
-		
-		assertThat(descriptor.validIn(Sub.class)).isTrue();
-		assertThat(descriptor.validIn(Sub.class)).isTrue();
+	void testEquals() throws Exception {
+		MethodSignature signature = new MethodSignature(MyObject.class, String.class, "method", new Type[] { int.class });
+		assertThat(signature).satisfies(DefaultEquality.defaultEquality()
+			.andEqualTo(new MethodSignature(MyObject.class, String.class, "method", new Type[] { int.class }))
+			.andNotEqualTo(new MethodSignature(Object.class, String.class, "method", new Type[] { int.class }))
+			.andNotEqualTo(new MethodSignature(MyObject.class, Object.class, "method", new Type[] { int.class }))
+			.andNotEqualTo(new MethodSignature(MyObject.class, String.class, "other", new Type[] { int.class }))
+			.andNotEqualTo(new MethodSignature(MyObject.class, String.class, "method", new Type[] { long.class }))
+			.conventions());
 	}
 
-	@Test
-	public void testValidInWithInvalidCached() throws Exception {
-		Method method = Super.class.getDeclaredMethod("getStr");
-		MethodSignature descriptor = MethodSignature.fromDescriptor(method);
-		
-		assertThat(descriptor.validIn(Simple.class)).isFalse();
-		assertThat(descriptor.validIn(Simple.class)).isFalse();
+	public static class MyObject {
+		public String method(int i) {
+			return "" + i;
+		}
 	}
 
 }
