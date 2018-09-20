@@ -13,12 +13,12 @@ public class FieldSignatureTest {
 	@Test
 	void testSerializable() throws Exception {
 		FieldSignature signature = new FieldSignature(MyObject.class, String.class, "field");
-		
-		FieldSignature deserialized = new TestDeSerializer().deSerialize(signature);;
-		
+
+		FieldSignature deserialized = new TestDeSerializer().deSerialize(signature);
+
 		assertThat(deserialized).isEqualTo(signature);
 	}
-	
+
 	@Test
 	void testResolveField() throws Exception {
 		FieldSignature signature = new FieldSignature(MyObject.class, String.class, "field");
