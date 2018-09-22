@@ -14,10 +14,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import net.amygdalum.testrecorder.types.RoleVisitor;
 import net.amygdalum.testrecorder.types.ReferenceTypeVisitor;
-import net.amygdalum.testrecorder.types.SerializedKeyValue;
-import net.amygdalum.testrecorder.types.SerializedMapType;
+import net.amygdalum.testrecorder.types.RoleVisitor;
+import net.amygdalum.testrecorder.types.SerializedAggregateType;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.util.Optionals;
 
@@ -29,7 +28,7 @@ import net.amygdalum.testrecorder.util.Optionals;
  * 
  * Serializing objects not complying to this criteria is possible, just make sure that their exists a custom deserializer for these objects  
  */
-public class SerializedMap extends AbstractSerializedReferenceType implements SerializedMapType, Map<SerializedValue, SerializedValue> {
+public class SerializedMap extends AbstractSerializedReferenceType implements SerializedAggregateType, Map<SerializedValue, SerializedValue> {
 
 	private Type keyType;
 	private Type valueType;
@@ -43,9 +42,9 @@ public class SerializedMap extends AbstractSerializedReferenceType implements Se
 	}
 
 	@Override
-	public List<SerializedKeyValue> elements() {
+	public List<SerializedValue> elements() {
 		return map.entrySet().stream()
-			.map(entry -> new SerializedKeyValue(entry.getKey(), entry.getValue()))
+			.flatMap(entry -> Stream.of(entry.getKey(), entry.getValue()))
 			.distinct()
 			.collect(toList());
 	}
@@ -84,7 +83,7 @@ public class SerializedMap extends AbstractSerializedReferenceType implements Se
 
 	@Override
 	public <T> T accept(ReferenceTypeVisitor<T> visitor) {
-		return visitor.visitMapType(this);
+		return visitor.visitAggregateType(this);
 	}
 
 	public int size() {

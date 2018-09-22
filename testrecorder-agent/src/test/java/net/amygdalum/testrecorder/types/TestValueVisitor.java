@@ -8,11 +8,6 @@ public class TestValueVisitor implements RoleVisitor<String> {
 	}
 	
 	@Override
-	public String visitKeyValue(SerializedKeyValue keyvalue) {
-		return "keyvalue";
-	}
-	
-	@Override
 	public String visitArgument(SerializedArgument argument) {
 		return "argument" + argument.getIndex();
 	}

@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.deserializers.builder;
 
-import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethod;
+import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
+import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
 import static net.amygdalum.testrecorder.types.Computation.expression;
 import static net.amygdalum.testrecorder.util.Literals.asLiteral;
 import static net.amygdalum.testrecorder.util.Types.baseType;
@@ -52,10 +53,11 @@ public class LargePrimitiveArrayAdaptor implements SetupGenerator<SerializedArra
 			if (hint.isPresent()) {
 				try {
 					LoadFromFile loadFromFile = hint.get();
-					types.staticImport(FileSerializer.class, "load");
+					types.registerType(FileSerializer.class);
 					Object object = unwrap(value);
-					String fileName = FileSerializer.store(loadFromFile.writeTo(), object);
-					String result = callLocalMethod("load", asLiteral(loadFromFile.readFrom()), asLiteral(fileName), types.getRawClass(value.getType()));
+					String fileName = new FileSerializer(loadFromFile.writeTo()).store(object);
+					String base = newObject(types.getConstructorTypeName(FileSerializer.class), asLiteral(loadFromFile.readFrom()));
+					String result = callMethod(base, "load", asLiteral(fileName), types.getRawClass(value.getType()));
 					return expression(result, types.mostSpecialOf(value.getUsedTypes()).orElse(Object.class));
 				} catch (IOException e) {
 					throw new DeserializationException("failed deserializing: " + value, e);

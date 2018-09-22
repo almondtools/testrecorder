@@ -21,7 +21,6 @@ import net.amygdalum.testrecorder.types.RoleVisitor;
 import net.amygdalum.testrecorder.types.SerializedArgument;
 import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.SerializedImmutableType;
-import net.amygdalum.testrecorder.types.SerializedKeyValue;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedResult;
 import net.amygdalum.testrecorder.types.SerializedValue;
@@ -64,11 +63,6 @@ public class SimpleDeserializer implements RoleVisitor<Object> {
 	@Override
 	public Object visitField(SerializedField field) {
 		throw new DeserializationException("failed deserializing: " + field);
-	}
-
-	@Override
-	public Object visitKeyValue(SerializedKeyValue keyvalue) {
-		throw new DeserializationException("failed deserializing: " + keyvalue);
 	}
 
 	@Override

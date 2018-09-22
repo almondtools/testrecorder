@@ -17,12 +17,10 @@ import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.hints.SkipChecks;
 import net.amygdalum.testrecorder.runtime.GenericMatcher;
 import net.amygdalum.testrecorder.types.Computation;
-import net.amygdalum.testrecorder.types.DeserializationException;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.SerializedArgument;
 import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.SerializedImmutableType;
-import net.amygdalum.testrecorder.types.SerializedKeyValue;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedResult;
 import net.amygdalum.testrecorder.types.SerializedValue;
@@ -85,11 +83,6 @@ public class MatcherGenerators implements DeserializerFactory {
 				String assignField = fieldDeclaration(null, genericType, field.getName(), value.getValue());
 				return expression(assignField, null, value.getStatements());
 			}
-		}
-
-		@Override
-		public Computation visitKeyValue(SerializedKeyValue keyvalue) {
-			throw new DeserializationException("keyvalues are not used in matcher generation");
 		}
 
 		@Override

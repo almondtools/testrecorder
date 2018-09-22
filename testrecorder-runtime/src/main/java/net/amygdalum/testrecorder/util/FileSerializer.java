@@ -17,12 +17,15 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 
-public final class FileSerializer {
+public class FileSerializer {
 
-    private FileSerializer() {
+    private String dir;
+
+	public FileSerializer(String dir) {
+		this.dir = dir;
     }
 
-    public static String store(String dir, Object object) throws IOException {
+    public String store(Object object) throws IOException {
         try {
             byte[] data = serialize(object);
             String string = digest(data);
@@ -41,7 +44,7 @@ public final class FileSerializer {
         }
     }
 
-    private static byte[] serialize(Object object) throws IOException {
+    private byte[] serialize(Object object) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try (ObjectOutputStream o = new ObjectOutputStream(out)) {
             o.writeObject(object);
@@ -50,7 +53,7 @@ public final class FileSerializer {
         }
     }
 
-    private static String digest(byte[] data) throws NoSuchAlgorithmException {
+    private String digest(byte[] data) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         byte[] mdbytes = md.digest(data);
         StringBuilder buffer = new StringBuilder();
@@ -61,7 +64,7 @@ public final class FileSerializer {
         return buffer.toString();
     }
 
-    public static <T> T load(String dir, String fileName, Class<T> type) {
+    public <T> T load(String fileName, Class<T> type) {
         try (ObjectInputStream in = new ObjectInputStream(Files.newInputStream(Paths.get(dir, fileName), READ))) {
             Object rawObject = in.readObject();
             T object = type.cast(rawObject);

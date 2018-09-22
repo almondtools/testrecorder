@@ -10,11 +10,9 @@ import net.amygdalum.testrecorder.types.RoleVisitor;
 import net.amygdalum.testrecorder.types.SerializedArgument;
 import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.SerializedImmutableType;
-import net.amygdalum.testrecorder.types.SerializedKeyValue;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedResult;
 import net.amygdalum.testrecorder.types.SerializedRole;
-import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.SerializedValueType;
 
 public class ValuePrinter implements RoleVisitor<String> {
@@ -29,27 +27,20 @@ public class ValuePrinter implements RoleVisitor<String> {
 		ValuePrinter printer = new ValuePrinter();
 		return value.accept(printer);
 	}
-	
+
 	@Override
 	public String visitField(SerializedField field) {
 		return field.getType().getTypeName() + " " + field.getName() + ": " + field.getValue().accept(this);
 	}
-	
+
 	@Override
 	public String visitArgument(SerializedArgument argument) {
 		return argument.getValue().accept(this);
 	}
-	
+
 	@Override
 	public String visitResult(SerializedResult result) {
 		return result.getValue().accept(this);
-	}
-	
-	@Override
-	public String visitKeyValue(SerializedKeyValue keyvalue) {
-		SerializedValue key = keyvalue.getKey();
-		SerializedValue value = keyvalue.getValue();
-		return key.accept(this) + ": " + value.accept(this);
 	}
 
 	@Override
@@ -59,7 +50,7 @@ public class ValuePrinter implements RoleVisitor<String> {
 			return rt.getType() + "/" + System.identityHashCode(rt);
 		} else if (rt instanceof SerializedObject) {
 			SerializedObject value = (SerializedObject) rt;
-			return printObject(value); 
+			return printObject(value);
 		} else if (rt instanceof SerializedProxy) {
 			SerializedProxy value = (SerializedProxy) rt;
 			return printProxy(value);

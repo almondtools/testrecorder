@@ -6,7 +6,6 @@ import net.amygdalum.testrecorder.types.RoleVisitor;
 import net.amygdalum.testrecorder.types.SerializedArgument;
 import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.SerializedImmutableType;
-import net.amygdalum.testrecorder.types.SerializedKeyValue;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedResult;
 import net.amygdalum.testrecorder.types.SerializedValueType;
@@ -24,11 +23,6 @@ public class MappedRoleVisitor<T, S> implements RoleVisitor<T> {
 	@Override
 	public T visitField(SerializedField field) {
 		return mapping.apply(field.accept(visitor));
-	}
-
-	@Override
-	public T visitKeyValue(SerializedKeyValue keyvalue) {
-		return mapping.apply(keyvalue.accept(visitor));
 	}
 
 	@Override

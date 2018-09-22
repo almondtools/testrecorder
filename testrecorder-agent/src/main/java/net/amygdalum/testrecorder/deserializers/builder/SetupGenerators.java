@@ -16,13 +16,11 @@ import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.runtime.GenericObject;
 import net.amygdalum.testrecorder.types.Computation;
-import net.amygdalum.testrecorder.types.DeserializationException;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.LocalVariable;
 import net.amygdalum.testrecorder.types.SerializedArgument;
 import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.SerializedImmutableType;
-import net.amygdalum.testrecorder.types.SerializedKeyValue;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedResult;
 import net.amygdalum.testrecorder.types.SerializedValue;
@@ -83,11 +81,6 @@ public class SetupGenerators implements DeserializerFactory {
 
 			String assignField = fieldDeclaration(null, types.getVariableTypeName(fieldResultType), field.getName(), expression);
 			return expression(assignField, null, statements);
-		}
-
-		@Override
-		public Computation visitKeyValue(SerializedKeyValue keyvalue) {
-			throw new DeserializationException("keyvalues are not used in setup generation");
 		}
 
 		@Override

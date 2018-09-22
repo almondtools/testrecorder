@@ -3,8 +3,6 @@ package net.amygdalum.testrecorder.deserializers;
 import net.amygdalum.testrecorder.types.SerializedAggregateType;
 import net.amygdalum.testrecorder.types.SerializedArgument;
 import net.amygdalum.testrecorder.types.SerializedField;
-import net.amygdalum.testrecorder.types.SerializedKeyValue;
-import net.amygdalum.testrecorder.types.SerializedMapType;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedResult;
 import net.amygdalum.testrecorder.types.SerializedStructuralType;
@@ -61,12 +59,6 @@ public class ReferenceAnalyzer implements TreeAnalysisListener {
 	@Override
 	public void notifyAggregate(SerializedAggregateType self, SerializedValue value) {
 		reference(self, value);
-	}
-
-	@Override
-	public void notifyMap(SerializedMapType self, SerializedKeyValue keyvalue) {
-		reference(self, keyvalue.getKey());
-		reference(self, keyvalue.getValue());
 	}
 
 	@Override

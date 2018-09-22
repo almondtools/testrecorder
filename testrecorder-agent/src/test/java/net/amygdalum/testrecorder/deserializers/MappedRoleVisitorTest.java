@@ -18,7 +18,6 @@ import net.amygdalum.testrecorder.types.RoleVisitor;
 import net.amygdalum.testrecorder.types.SerializedArgument;
 import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.SerializedImmutableType;
-import net.amygdalum.testrecorder.types.SerializedKeyValue;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedResult;
 import net.amygdalum.testrecorder.types.SerializedValueType;
@@ -49,7 +48,7 @@ public class MappedRoleVisitorTest {
 
 	@Test
 	public void testVisitArgument() throws Exception {
-		SerializedArgument argument = new SerializedArgument(1, new MethodSignature(MyObject.class, String.class, "method", new Type[] {int.class}), literal("v"));
+		SerializedArgument argument = new SerializedArgument(1, new MethodSignature(MyObject.class, String.class, "method", new Type[] { int.class }), literal("v"));
 		when(deserializer.visitArgument(argument)).thenReturn(3);
 
 		assertThat(mappedDeserializer.visitArgument(argument)).isEqualTo(3);
@@ -57,20 +56,12 @@ public class MappedRoleVisitorTest {
 
 	@Test
 	public void testVisitResult() throws Exception {
-		SerializedResult result = new SerializedResult(new MethodSignature(MyObject.class, String.class, "method", new Type[] {int.class}), literal("v"));
+		SerializedResult result = new SerializedResult(new MethodSignature(MyObject.class, String.class, "method", new Type[] { int.class }), literal("v"));
 		when(deserializer.visitResult(result)).thenReturn(4);
-		
+
 		assertThat(mappedDeserializer.visitResult(result)).isEqualTo(4);
 	}
-	
-	@Test
-	public void testVisitKeyValue() throws Exception {
-		SerializedKeyValue result = new SerializedKeyValue(literal("k"), literal("v"));
-		when(deserializer.visitKeyValue(result)).thenReturn(5);
-		
-		assertThat(mappedDeserializer.visitKeyValue(result)).isEqualTo(5);
-	}
-	
+
 	@Test
 	public void testVisitReferenceType() throws Exception {
 		SerializedReferenceType object = new SerializedObject(Simple.class);
@@ -94,7 +85,7 @@ public class MappedRoleVisitorTest {
 
 		assertThat(mappedDeserializer.visitValueType(object)).isEqualTo(8);
 	}
-	
+
 	public static class MyObject {
 		String method(int arg) {
 			return String.valueOf(arg);

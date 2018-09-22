@@ -26,6 +26,7 @@ public class VirtualMethodSignatureTest {
 		assertThat(VirtualMethodSignature.fromDescriptor(method).validIn(Simple.class)).isTrue();
 		assertThat(VirtualMethodSignature.fromDescriptor(method).validIn(Object.class)).isFalse();
 		assertThat(VirtualMethodSignature.fromDescriptor(method).validIn(Complex.class)).isFalse();
+		assertThat(VirtualMethodSignature.NULL.validIn(Object.class)).isFalse();
 	}
 
 	@Test

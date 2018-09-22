@@ -13,7 +13,6 @@ import net.amygdalum.testrecorder.types.SerializedArgument;
 import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.SerializedImmutableType;
 import net.amygdalum.testrecorder.types.SerializedInput;
-import net.amygdalum.testrecorder.types.SerializedMapType;
 import net.amygdalum.testrecorder.types.SerializedOutput;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedResult;
@@ -107,15 +106,6 @@ public class TreeAnalyzer implements ReferenceTypeVisitor<Void> {
 	public Void visitAggregateType(SerializedAggregateType value) {
 		value.elements().stream()
 			.peek(ref -> listeners.forEach(listener -> listener.notifyAggregate(value, ref)))
-			.forEach(this::analyzeValue);
-		return null;
-	}
-
-	@Override
-	public Void visitMapType(SerializedMapType value) {
-		value.elements().stream()
-			.peek(ref -> listeners.forEach(listener -> listener.notifyMap(value, ref)))
-			.map(ref -> ref.getValue())
 			.forEach(this::analyzeValue);
 		return null;
 	}

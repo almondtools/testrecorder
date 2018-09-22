@@ -1,7 +1,8 @@
 package net.amygdalum.testrecorder.deserializers.matcher;
 
-import static net.amygdalum.testrecorder.deserializers.Templates.callLocalMethod;
+import static net.amygdalum.testrecorder.deserializers.Templates.callMethod;
 import static net.amygdalum.testrecorder.deserializers.Templates.equalToMatcher;
+import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
 import static net.amygdalum.testrecorder.types.Computation.expression;
 import static net.amygdalum.testrecorder.util.Literals.asLiteral;
 import static net.amygdalum.testrecorder.util.Types.baseType;
@@ -56,11 +57,12 @@ public class LargePrimitiveArrayAdaptor implements MatcherGenerator<SerializedAr
 			if (hint.isPresent()) {
 				try {
 					LoadFromFile loadFromFile = hint.get();
-					types.staticImport(FileSerializer.class, "load");
+					types.registerType(FileSerializer.class);
 					types.staticImport(Matchers.class, "equalTo");
 					Object object = unwrap(value);
-					String fileName = FileSerializer.store(loadFromFile.writeTo(), object);
-					String result = callLocalMethod("load", asLiteral(loadFromFile.readFrom()), asLiteral(fileName), types.getRawClass(value.getType()));
+					String fileName = new FileSerializer(loadFromFile.writeTo()).store(object);
+					String base = newObject(types.getConstructorTypeName(FileSerializer.class), asLiteral(loadFromFile.readFrom()));
+					String result = callMethod(base, "load", asLiteral(fileName), types.getRawClass(value.getType()));
 					String matcher = equalToMatcher(result);
 					return expression(matcher, Matcher.class);
 				} catch (IOException e) {

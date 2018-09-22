@@ -23,7 +23,7 @@ import net.amygdalum.testrecorder.util.testobjects.Super;
 public class FakeIOTest {
 
 	@Test
-	public void testInputs() throws Exception {
+	void testInputs() throws Exception {
 		Inputs inputs = new Inputs();
 		FakeIO faked = FakeIO.fake(Inputs.class)
 			.fakeInput(new Aspect() {
@@ -43,7 +43,7 @@ public class FakeIOTest {
 	}
 
 	@Test
-	public void testPrimitiveInputs() throws Exception {
+	void testPrimitiveInputs() throws Exception {
 		Inputs inputs = new Inputs();
 		FakeIO faked = FakeIO.fake(Inputs.class)
 			.fakeInput(new Aspect() {
@@ -111,7 +111,7 @@ public class FakeIOTest {
 	}
 
 	@Test
-	public void testInputsWithSideEffects() throws Exception {
+	void testInputsWithSideEffects() throws Exception {
 		Inputs inputs = new Inputs();
 		FakeIO faked = FakeIO.fake(Inputs.class)
 			.fakeInput(new Aspect() {
@@ -128,7 +128,7 @@ public class FakeIOTest {
 	}
 
 	@Test
-	public void testInputsWithSideObjectEffects() throws Exception {
+	void testInputsWithSideObjectEffects() throws Exception {
 		Inputs inputs = new Inputs();
 		ArrayList<String> list = new ArrayList<>();
 		list.add("Hello");
@@ -149,7 +149,7 @@ public class FakeIOTest {
 	}
 
 	@Test
-	public void testMissingInputRecording() throws Exception {
+	void testMissingInputRecording() throws Exception {
 		Inputs inputs = new Inputs();
 		FakeIO faked = FakeIO.fake(Inputs.class)
 			.fakeInput(new Aspect() {
@@ -174,7 +174,7 @@ public class FakeIOTest {
 	}
 
 	@Test
-	public void testSurplusInputRequest() throws Exception {
+	void testSurplusInputRequest() throws Exception {
 		Inputs inputs = new Inputs();
 		FakeIO faked = FakeIO.fake(Inputs.class)
 			.fakeInput(new Aspect() {
@@ -195,7 +195,7 @@ public class FakeIOTest {
 	}
 
 	@Test
-	public void testStandardLibInput() throws Exception {
+	void testStandardLibInput() throws Exception {
 		StandardLibInputOutput io = new StandardLibInputOutput();
 		FakeIO faked = FakeIO.fake(System.class)
 			.fakeInput(new Aspect() {
@@ -214,7 +214,7 @@ public class FakeIOTest {
 	}
 
 	@Test
-	public void testOutputs() throws Exception {
+	void testOutputs() throws Exception {
 		Outputs outputs = new Outputs();
 		FakeIO faked = FakeIO.fake(Outputs.class)
 			.fakeOutput(new Aspect() {
@@ -232,7 +232,7 @@ public class FakeIOTest {
 	}
 
 	@Test
-	public void testMissingOutputRecording() throws Exception {
+	void testMissingOutputRecording() throws Exception {
 		Outputs outputs = new Outputs();
 		FakeIO faked = FakeIO.fake(Outputs.class)
 			.fakeOutput(new Aspect() {
@@ -255,7 +255,7 @@ public class FakeIOTest {
 	}
 
 	@Test
-	public void testUnexpectedOutput() throws Exception {
+	void testUnexpectedOutput() throws Exception {
 		Outputs outputs = new Outputs();
 		FakeIO faked = FakeIO.fake(Outputs.class)
 			.fakeOutput(new Aspect() {
@@ -280,7 +280,7 @@ public class FakeIOTest {
 	}
 
 	@Test
-	public void testMissingOutput() throws Exception {
+	void testMissingOutput() throws Exception {
 		Outputs outputs = new Outputs();
 		FakeIO faked = FakeIO.fake(Outputs.class)
 			.fakeOutput(new Aspect() {
@@ -305,7 +305,7 @@ public class FakeIOTest {
 	}
 
 	@Test
-	public void testStandardLibOutput() throws Exception {
+	void testStandardLibOutput() throws Exception {
 		StandardLibInputOutput io = new StandardLibInputOutput();
 		FakeIO faked = FakeIO.fake(ByteArrayOutputStream.class)
 			.fakeOutput(new Aspect() {
@@ -322,13 +322,13 @@ public class FakeIOTest {
 	}
 
 	@Test
-	public void testCall() throws Exception {
+	void testCall() throws Exception {
 		FakeIO faked = FakeIO.fake(Bean.class);
 		assertThat(faked.call(null)).isSameAs(FakeIO.NO_RESULT);
 	}
 
 	@Test
-	public void testMatches() throws Exception {
+	void testMatches() throws Exception {
 		FakeIO faked = FakeIO.fake(Super.class);
 
 		assertThat(faked.matches(new Super(), Super.class)).isTrue();
@@ -338,14 +338,14 @@ public class FakeIOTest {
 	}
 
 	@Test
-	public void testCallFakeNonRecording() throws Exception {
+	void testCallFakeNonRecording() throws Exception {
 		Object result = FakeIO.callFake("name", new Object(), "methodName", "methodDesc");
 		
 		assertThat(result).isSameAs(FakeIO.NO_RESULT);
 	}
 
 	@Test
-	public void testCallFakeNotFaked() throws Exception {
+	void testCallFakeNotFaked() throws Exception {
 		Object result = FakeIO.callFake("name", new Object(), "methodName", "methodDesc");
 		
 		assertThat(result).isSameAs(FakeIO.NO_RESULT);

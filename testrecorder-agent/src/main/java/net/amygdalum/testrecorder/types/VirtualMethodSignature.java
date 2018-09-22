@@ -19,6 +19,11 @@ public class VirtualMethodSignature implements Serializable {
 		public synchronized boolean validIn(Class<?> clazz) {
 			return false;
 		}
+		
+		@Override
+		public String toString() {
+			return "NULL";
+		}
 
 	};
 

@@ -8,8 +8,6 @@ public interface RoleVisitor<T> {
 
     T visitField(SerializedField field);
 
-    T visitKeyValue(SerializedKeyValue keyvalue);
-
 	T visitReferenceType(SerializedReferenceType value);
 
 	T visitImmutableType(SerializedImmutableType value);

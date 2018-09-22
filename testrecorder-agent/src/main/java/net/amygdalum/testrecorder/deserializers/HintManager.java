@@ -14,7 +14,6 @@ import net.amygdalum.testrecorder.types.RoleVisitor;
 import net.amygdalum.testrecorder.types.SerializedArgument;
 import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.SerializedImmutableType;
-import net.amygdalum.testrecorder.types.SerializedKeyValue;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.SerializedResult;
 import net.amygdalum.testrecorder.types.SerializedRole;
@@ -92,6 +91,9 @@ public class HintManager implements RoleVisitor<Stream<Object>> {
 	}
 
 	public Stream<Object> fetchTypeHints(Class<?> type) {
+		if (type == null) {
+			return Stream.empty();
+		}
 		Stream<Object> typeHints = Arrays.stream(type.getAnnotations());
 		Set<Object> typeCustomHints = hints.get(type);
 		if (typeCustomHints == null) {
@@ -129,35 +131,18 @@ public class HintManager implements RoleVisitor<Stream<Object>> {
 	}
 
 	@Override
-	public Stream<Object> visitKeyValue(SerializedKeyValue keyvalue) {
-		return Stream.concat(keyvalue.getKey().accept(this), keyvalue.getValue().accept(this));
-	}
-
-	@Override
 	public Stream<Object> visitReferenceType(SerializedReferenceType value) {
-		Class<?> type = value.getType();
-		if (type == null) {
-			return Stream.empty();
-		}
-		return fetchTypeHints(type);
+		return fetchTypeHints(value.getType());
 	}
 
 	@Override
 	public Stream<Object> visitImmutableType(SerializedImmutableType value) {
-		Class<?> type = value.getType();
-		if (type == null) {
-			return Stream.empty();
-		}
-		return fetchTypeHints(type);
+		return fetchTypeHints(value.getType());
 	}
 
 	@Override
 	public Stream<Object> visitValueType(SerializedValueType value) {
-		Class<?> type = value.getType();
-		if (type == null) {
-			return Stream.empty();
-		}
-		return fetchTypeHints(type);
+		return fetchTypeHints(value.getType());
 	}
 
 }

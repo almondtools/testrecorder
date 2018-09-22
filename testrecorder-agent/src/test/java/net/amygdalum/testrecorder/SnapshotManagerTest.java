@@ -12,21 +12,31 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import net.amygdalum.testrecorder.SnapshotManager.ContextSnapshotTransaction;
+import net.amygdalum.testrecorder.SnapshotManager.DummyContextSnapshotTransaction;
+import net.amygdalum.testrecorder.SnapshotManager.SerializationTask;
+import net.amygdalum.testrecorder.SnapshotManager.ValidContextSnapshotTransaction;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.serializers.SerializerFacade;
 import net.amygdalum.testrecorder.types.ContextSnapshot;
 import net.amygdalum.testrecorder.types.FieldSignature;
 import net.amygdalum.testrecorder.types.SerializedArgument;
 import net.amygdalum.testrecorder.types.SerializedField;
+import net.amygdalum.testrecorder.types.VirtualMethodSignature;
 import net.amygdalum.testrecorder.util.CircularityLock;
 import net.amygdalum.testrecorder.util.testobjects.Bean;
 import net.amygdalum.testrecorder.util.testobjects.Overridden;
@@ -543,6 +553,74 @@ public class SnapshotManagerTest {
 
 		boolean locked = xray(snapshotManager).to(OpenSnapshotManager.class).getLock().locked();
 		assertThat(locked).isFalse();
+	}
+
+	@Test
+	public void testValidContextSnapshotTransactionWithInvalidSnapshot() throws Exception {
+		ContextSnapshot snapshot = new ContextSnapshot(0, "key", VirtualMethodSignature.NULL);
+		snapshot.invalidate();
+		SerializerFacade facade = Mockito.mock(SerializerFacade.class);
+		ExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+		ValidContextSnapshotTransaction transaction = new SnapshotManager.ValidContextSnapshotTransaction(executor, 1_000, facade, snapshot);
+		SerializationTask task = Mockito.mock(SerializationTask.class);
+
+		ContextSnapshotTransaction resulttransaction = transaction.to(task);
+
+		executor.shutdown();
+
+		assertThat(resulttransaction).isSameAs(transaction);
+		verify(task, never()).serialize(Mockito.any(), Mockito.any(), Mockito.any());
+	}
+
+	@Test
+	public void testValidContextSnapshotTransactionWithBrokenSnapshot() throws Exception {
+		ContextSnapshot snapshot = new ContextSnapshot(0, "key", VirtualMethodSignature.NULL);
+		SerializerFacade facade = Mockito.mock(SerializerFacade.class, Mockito.RETURNS_DEEP_STUBS);
+		when(facade.newSession().dumpProfiles()).thenReturn(Collections.emptyList());
+		ExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+		ValidContextSnapshotTransaction transaction = new SnapshotManager.ValidContextSnapshotTransaction(executor, 1_000, facade, snapshot);
+		SerializationTask task = Mockito.mock(SerializationTask.class);
+		doThrow(new RuntimeException()).when(task).serialize(Mockito.any(), Mockito.any(), Mockito.any());
+
+		ContextSnapshotTransaction resulttransaction = transaction.to(task);
+
+		executor.shutdown();
+
+		assertThat(resulttransaction).isSameAs(transaction);
+		assertThat(snapshot.isValid()).isFalse();
+	}
+
+	@Test
+	public void testValidContextSnapshotTransactionWithValidSnapshot() throws Exception {
+		ContextSnapshot snapshot = new ContextSnapshot(0, "key", VirtualMethodSignature.NULL);
+		SerializerFacade facade = Mockito.mock(SerializerFacade.class, Mockito.RETURNS_DEEP_STUBS);
+		ExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+		ValidContextSnapshotTransaction transaction = new SnapshotManager.ValidContextSnapshotTransaction(executor, 1_000, facade, snapshot);
+		SerializationTask task = Mockito.mock(SerializationTask.class);
+
+		ContextSnapshotTransaction resulttransaction = transaction.to(task);
+
+		executor.shutdown();
+
+		assertThat(resulttransaction).isSameAs(transaction);
+		assertThat(snapshot.isValid()).isTrue();
+		verify(task, times(1)).serialize(Mockito.any(), Mockito.any(), Mockito.any());
+	}
+
+	@Test
+	public void testDummyContextSnapshotTransaction() throws Exception {
+		ContextSnapshot snapshot = new ContextSnapshot(0, "key", VirtualMethodSignature.NULL);
+		ExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+		DummyContextSnapshotTransaction transaction = new SnapshotManager.DummyContextSnapshotTransaction();
+		SerializationTask task = Mockito.mock(SerializationTask.class);
+
+		ContextSnapshotTransaction resulttransaction = transaction.to(task);
+
+		executor.shutdown();
+		resulttransaction.andConsume(s -> s.invalidate());
+
+		assertThat(resulttransaction).isSameAs(transaction);
+		assertThat(snapshot.isValid()).isTrue();
 	}
 
 	interface OpenSnapshotManager {

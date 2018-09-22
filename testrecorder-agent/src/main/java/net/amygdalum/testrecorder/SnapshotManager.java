@@ -518,11 +518,11 @@ public class SnapshotManager {
 
 		private ExecutorService snapshotExecutor;
 		private long timeoutInMillis;
-		private ConfigurableSerializerFacade facade;
+		private SerializerFacade facade;
 
 		private ContextSnapshot snapshot;
 
-		public ValidContextSnapshotTransaction(ExecutorService snapshotExecutor, long timeoutInMillis, ConfigurableSerializerFacade facade, ContextSnapshot snapshot) {
+		public ValidContextSnapshotTransaction(ExecutorService snapshotExecutor, long timeoutInMillis, SerializerFacade facade, ContextSnapshot snapshot) {
 			this.snapshotExecutor = snapshotExecutor;
 			this.timeoutInMillis = timeoutInMillis;
 			this.facade = facade;

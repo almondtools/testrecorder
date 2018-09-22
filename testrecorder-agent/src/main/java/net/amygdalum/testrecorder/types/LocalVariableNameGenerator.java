@@ -22,7 +22,6 @@ public class LocalVariableNameGenerator {
 	}
 
 	public String fetchName(String base) {
-		//TODO test var followed by var1 and var1 followed by 11 times var
 		if (base.isEmpty() || Character.isDigit(base.charAt(base.length() - 1))) {
 			base += "_";
 		}
@@ -76,12 +75,15 @@ public class LocalVariableNameGenerator {
 		String base = name.substring(0, pos);
 		int index = Integer.parseInt(name.substring(pos));
 		FreeIndexes free = names.get(base);
-		free.free(index);
+		if (free != null) {
+			free.free(index);
+		}
 	}
 
 	private int splitNameAndIndex(String name) {
 		int pos = name.length() - 1;
-		while (pos >= 0 && Character.isDigit(name.charAt(pos))) {
+		while (pos >= 0
+			&& Character.isDigit(name.charAt(pos))) {
 			pos--;
 		}
 		return pos + 1;
@@ -98,7 +100,7 @@ public class LocalVariableNameGenerator {
 		public void free(int index) {
 			if (last == index) {
 				last--;
-			} else {
+			} else if (index < last) {
 				if (free == null) {
 					free = new BitSet();
 				}
