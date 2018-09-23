@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>net.amygdalum</groupId>
 		<artifactId>testrecorder</artifactId>
-		<version>0.7.1-SNAPSHOT</version>
+		<version>0.8.0</version>
 	</parent>
 	<artifactId>testrecorder-runtime</artifactId>
 	<name>${project.groupId}:${project.artifactId}</name>
