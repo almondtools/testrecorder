@@ -10,7 +10,6 @@ import java.util.Map;
 
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializationException;
-import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.TypeManager;
 
@@ -66,7 +65,7 @@ public class Adaptors {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends SerializedValue> Computation tryDeserialize(T value, TypeManager types, Deserializer generator, DeserializerContext context) {
+	public <T extends SerializedValue> Computation tryDeserialize(T value, TypeManager types, Deserializer generator) {
 		Class<? extends SerializedValue> clazz = value.getClass();
 		List<Adaptor<?>> matching = adaptors.getOrDefault(clazz, emptyList());
 		for (Adaptor<?> match : matching) {

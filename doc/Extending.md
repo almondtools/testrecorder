@@ -140,7 +140,7 @@ You can extend both phases with custom generators. Let us have a look at an exam
 
 The example setup generator for our example looks like this:
 
-    public class DateSetupGenerator extends DefaultSetupGenerator<SerializedImmutable<Date>> implements Adaptor<SerializedImmutable<Date>, SetupGenerators> {
+    public class DateSetupGenerator extends DefaultSetupGenerator<SerializedImmutable<Date>> implements Adaptor<SerializedImmutable<Date>> {
     
         @Override
         public Class<SerializedImmutable> getAdaptedClass() {
@@ -153,7 +153,8 @@ The example setup generator for our example looks like this:
         }
     
         @Override
-        public Computation tryDeserialize(SerializedImmutable<Date> value, SetupGenerators generator, DeserializerContext context) throws DeserializationException {
+        public Computation tryDeserialize(SerializedImmutable<Date> value, Deserializer generator) {
+            DeserializerContext context = generator.getContext();
             TypeManager types = context.getTypes();
             types.registerTypes(Date.class, Calendar.class);
     
@@ -197,10 +198,11 @@ Where `getAdaptedClass()` defines the type of the serialized value, `matches(Typ
 
 Note that matching `getAdaptedClass()` and `matches(Type type)` is not sufficient to guarantee that this Class will generate code. A model object class can be adapted by more than one `SetupGenerator`, the first matching is chosen for generation, and its result is committed if the generation process did not fail. If the first `SetupGenerator` fails the next is considered (and so on).
 
-Now let us examine the method `tryDeserialize(SerializedImmutable<Date> value, SetupGenerators generator, DeserializerContext context)`:
+Now let us examine the method `tryDeserialize(SerializedImmutable<Date> value, Deserializer generator)`:
 
       @Override
-      public Computation tryDeserialize(SerializedImmutable<Date> value, SetupGenerators generator, DeserializerContext context) throws DeserializationException {
+      public Computation tryDeserialize(SerializedImmutable<Date> value, Deserializer generator) {
+        DeserializerContext context = generator.getContext();
         TypeManager types = generator.getTypes();
         types.registerTypes(Date.class, Calendar.class);
         
@@ -270,7 +272,7 @@ To register your `DateSetupGenerator` for deserialization dispatch you will have
 
 The example matcher generator looks like this:
 
-    public class DateMatcherGenerator extends DefaultMatcherGenerator<SerializedImmutable<Date>> implements Adaptor<SerializedImmutable<Date>, MatcherGenerators> {
+    public class DateMatcherGenerator extends DefaultMatcherGenerator<SerializedImmutable<Date>> implements Adaptor<SerializedImmutable<Date>> {
     
         @Override
         public Class<SerializedImmutable> getAdaptedClass() {
@@ -283,7 +285,8 @@ The example matcher generator looks like this:
         }
     
         @Override
-        public Computation tryDeserialize(SerializedImmutable<Date> value, MatcherGenerators generator, DeserializerContext context) throws DeserializationException {
+        public Computation tryDeserialize(SerializedImmutable<Date> value, Deserializer generator) {
+            DeserializerContext context = generator.getContext();
             Date date = value.getValue();
             Calendar cal = Calendar.getInstance();
             cal.setTime(date);
@@ -321,10 +324,11 @@ Where `getAdaptedClass()` defines the type of the serialized value, `matches(Typ
 
 As in the `SetupGenerator` both methods `getAdaptedClass()` and `matches(Type type)` only specify which types could be handled. Since multiple `MatcherGenerator` can adapt the same serialized value type and even the same real type, there is a conflict resolution which will prefer the first generator that can successfully generate a matcher (using a sequence defined by the generator hierarchy).
 
-Now let us examine the method `tryDeserialize(SerializedImmutable<Date> value, MatcherGenerators generator, DeserializerContext context)`:
+Now let us examine the method `tryDeserialize(SerializedImmutable<Date> value, Deserializer generator)`:
 
       @Override
-      public Computation tryDeserialize(SerializedImmutable<Date> value, MatcherGenerators generator, DeserializerContext context) throws DeserializationException {
+      public Computation tryDeserialize(SerializedImmutable<Date> value, Deserializer generator) {
+        DeserializerContext context = generator.getContext();
         Date date = value.getValue();
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);

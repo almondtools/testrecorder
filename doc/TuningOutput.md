@@ -12,8 +12,5 @@ Hints are provided as annotations to classes, parameters or fields. The followin
 ### SkipChecks
 TODO (file an issue if you feel documentation or implementation of this feature would help you)
 
-### PreferFactoryMethods
-TODO (file an issue if you feel documentation or implementation of this feature would help you)
-
 ### LoadFromFile
 TODO (file an issue if you feel documentation or implementation of this feature would help you)

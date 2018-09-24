@@ -14,6 +14,7 @@ import java.util.List;
 import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.runtime.GenericObject;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
@@ -30,6 +31,10 @@ import net.amygdalum.testrecorder.types.TypeManager;
 public class SetupGenerators implements DeserializerFactory {
 
 	private Adaptors adaptors;
+
+	public SetupGenerators(AgentConfiguration config) {
+		this(new Adaptors().load(config.loadConfigurations(SetupGenerator.class)));
+	}
 
 	public SetupGenerators(Adaptors adaptors) {
 		this.adaptors = adaptors;
@@ -124,7 +129,7 @@ public class SetupGenerators implements DeserializerFactory {
 					return variable(name, resultType, statements);
 				}
 			}
-			return adaptors.tryDeserialize(value, types, this, context);
+			return adaptors.tryDeserialize(value, types, this);
 		}
 
 		@Override
@@ -134,7 +139,7 @@ public class SetupGenerators implements DeserializerFactory {
 
 		private Computation generateValueType(SerializedValueType value) {
 			TypeManager types = context.getTypes();
-			return adaptors.tryDeserialize(value, types, this, context);
+			return adaptors.tryDeserialize(value, types, this);
 		}
 
 		@Override
@@ -144,7 +149,7 @@ public class SetupGenerators implements DeserializerFactory {
 
 		private Computation generateImmutableType(SerializedImmutableType value) {
 			TypeManager types = context.getTypes();
-			return adaptors.tryDeserialize(value, types, this, context);
+			return adaptors.tryDeserialize(value, types, this);
 		}
 	}
 }

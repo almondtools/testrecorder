@@ -15,6 +15,7 @@ import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.hints.SkipChecks;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.runtime.GenericMatcher;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
@@ -30,6 +31,10 @@ import net.amygdalum.testrecorder.types.TypeManager;
 public class MatcherGenerators implements DeserializerFactory {
 
 	private Adaptors adaptors;
+
+	public MatcherGenerators(AgentConfiguration config) {
+		this(new Adaptors().load(config.loadConfigurations(MatcherGenerator.class)));
+	}
 
 	public MatcherGenerators(Adaptors adaptors) {
 		this.adaptors = adaptors;
@@ -134,7 +139,7 @@ public class MatcherGenerators implements DeserializerFactory {
 					return expression(recursiveMatcher(types.getRawClass(Object.class)), parameterized(Matcher.class, null, wildcard()));
 				}
 			}
-			return adaptors.tryDeserialize(value, types, this, context);
+			return adaptors.tryDeserialize(value, types, this);
 		}
 
 		@Override
@@ -147,7 +152,7 @@ public class MatcherGenerators implements DeserializerFactory {
 			if (context.getHint(value, SkipChecks.class).isPresent()) {
 				return null;
 			}
-			return adaptors.tryDeserialize(value, types, this, context);
+			return adaptors.tryDeserialize(value, types, this);
 		}
 
 		@Override
@@ -160,7 +165,7 @@ public class MatcherGenerators implements DeserializerFactory {
 			if (context.getHint(value, SkipChecks.class).isPresent()) {
 				return null;
 			}
-			return adaptors.tryDeserialize(value, types, this, context);
+			return adaptors.tryDeserialize(value, types, this);
 		}
 	}
 }

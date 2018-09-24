@@ -13,12 +13,10 @@ import net.amygdalum.testrecorder.DefaultPerformanceProfile;
 import net.amygdalum.testrecorder.DefaultSerializationProfile;
 import net.amygdalum.testrecorder.DefaultSnapshotConsumer;
 import net.amygdalum.testrecorder.SnapshotConsumer;
-import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.DefaultDeserializerContext;
 import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.deserializers.DeserializerTypeManager;
-import net.amygdalum.testrecorder.deserializers.builder.SetupGenerator;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerators;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.ClassPathConfigurationLoader;
@@ -41,17 +39,13 @@ public class CodeSerializer {
 	private DeserializerFactory deserializers;
 
 	public CodeSerializer() {
-		this("");
+		this("", ConfigurableSerializerFacade::new, SetupGenerators::new);
 	}
 
 	public CodeSerializer(String pkg) {
-		this(pkg, config -> new ConfigurableSerializerFacade(config), CodeSerializer::loadSetup);
+		this(pkg, ConfigurableSerializerFacade::new, SetupGenerators::new);
 	}
 	
-	private static SetupGenerators loadSetup(AgentConfiguration config) {
-		return new SetupGenerators(new Adaptors().load(config.loadConfigurations(SetupGenerator.class)));
-	}
-
 	public CodeSerializer(String pkg, Function<AgentConfiguration, SerializerFacade> facade, Function<AgentConfiguration, DeserializerFactory> deserializers) {
 		this.config = new AgentConfiguration(new ClassPathConfigurationLoader(), new DefaultPathConfigurationLoader())
 			.withDefaultValue(SerializationProfile.class, DefaultSerializationProfile::new)
