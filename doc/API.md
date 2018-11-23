@@ -64,7 +64,7 @@ The matcher generation is mostly straight forward, just validating the structura
 
 ## Recording a Method Call with CallsiteRecorder
 
-The fact that testrecorder requires your program to be startet with an agent is somewhat distracting. You may consider  `CallsiteRecorder` to overcome this requirement. The [following code](https://github.com/almondtools/testrecorder-examples/tree/master/src/main/java/com/almondtools/testrecorder/examples/callsitegenerator) will serve as example:
+The fact that testrecorder requires your program to be startet with an agent is somewhat distracting. You may consider  `CallsiteRecorder` to overcome this requirement. The [following code](https://github.com/almondtools/testrecorder-examples/tree/master/src/main/java/com/almondtools/testrecorder/examples/callsiterecorder) will serve as example:
 
     public class ExampleObject {
         private int counter;
