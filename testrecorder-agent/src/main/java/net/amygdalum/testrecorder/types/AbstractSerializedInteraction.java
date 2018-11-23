@@ -85,7 +85,9 @@ public abstract class AbstractSerializedInteraction implements SerializedInterac
 	@Override
 	public List<SerializedValue> getAllValues() {
 		List<SerializedValue> allValues = new ArrayList<>();
-		allValues.add(result.getValue());
+		if (result != null) {
+			allValues.add(result.getValue());
+		}
 		for (SerializedArgument argument : arguments) {
 			allValues.add(argument.getValue());
 		}
