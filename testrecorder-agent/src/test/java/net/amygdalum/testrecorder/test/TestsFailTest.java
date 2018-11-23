@@ -3,8 +3,8 @@ package net.amygdalum.testrecorder.test;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import org.assertj.core.api.SoftAssertionError;
 import org.junit.jupiter.api.Test;
+import org.opentest4j.MultipleFailuresError;
 
 import net.amygdalum.testrecorder.dynamiccompile.RenderedTest;
 
@@ -13,7 +13,7 @@ public class TestsFailTest {
 	@Test
 	public void testCompileError() throws Exception {
 		assertThatThrownBy(() -> TestsFail.testsFail().accept(new RenderedTest(this.getClass(), "")))
-			.isInstanceOf(SoftAssertionError.class)
+			.isInstanceOf(MultipleFailuresError.class)
 			.hasMessageContaining("contains no public class");
 	}
 
@@ -26,7 +26,7 @@ public class TestsFailTest {
 			+ "   int i = \"str\";"
 			+ "	}"
 			+ "}")))
-				.isInstanceOf(SoftAssertionError.class)
+				.isInstanceOf(MultipleFailuresError.class)
 				.hasMessageContaining("compile failed with messages")
 				.hasMessageContaining("incompatible types");
 	}
@@ -50,7 +50,7 @@ public class TestsFailTest {
 			+ " public void testName() throws Exception {"
 			+ "	}"
 			+ "}")))
-				.isInstanceOf(SoftAssertionError.class)
+				.isInstanceOf(MultipleFailuresError.class)
 				.hasMessageContaining("expected test failures but tests were successful");
 	}
 
