@@ -208,9 +208,8 @@ public class FakeIOTest {
 
 		long result = io.getTimestamp();
 
-		assertThat(result).isEqualTo(42l);
-
 		faked.verify();
+		assertThat(result).isEqualTo(42l);
 	}
 
 	@Test
