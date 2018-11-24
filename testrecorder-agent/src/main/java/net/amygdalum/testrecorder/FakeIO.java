@@ -15,6 +15,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.instrument.Instrumentation;
+import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
@@ -37,7 +38,6 @@ import java.util.stream.Stream;
 import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
 
-import net.amygdalum.testrecorder.bridge.BridgedFakeIO;
 import net.amygdalum.testrecorder.runtime.Aspect;
 import net.amygdalum.testrecorder.runtime.GenericObjectException;
 import net.amygdalum.testrecorder.runtime.Invocation;
@@ -70,7 +70,7 @@ public class FakeIO {
 		Invocation invocation = Invocation.capture(instance, fake.clazz, methodName, methodDesc);
 		return fake.call(invocation, varargs);
 	}
-	
+
 	public Class<?> getClazz() {
 		return clazz;
 	}
@@ -84,7 +84,7 @@ public class FakeIO {
 			.orElse(Proxy.class);
 		return faked.computeIfAbsent(clazz.getName(), key -> new FakeIO(clazz));
 	}
-	
+
 	public static FakeIO fake(Class<?> clazz) {
 		return faked.computeIfAbsent(clazz.getName(), key -> new FakeIO(clazz));
 	}
@@ -97,16 +97,22 @@ public class FakeIO {
 
 	private static void installBridge(Instrumentation inst) {
 		try {
-			inst.appendToBootstrapClassLoaderSearch(jarfile());
-			BridgedFakeIO.callFake = MethodHandles.lookup().findStatic(FakeIO.class, "callFake", MethodType.methodType(Object.class, String.class, Object.class, String.class, String.class, Object[].class));
-			BridgedFakeIO.NO_RESULT = NO_RESULT;
+			String bridgeClassName = "net.amygdalum.testrecorder.bridge.BridgedFakeIO";
+			
+			inst.appendToBootstrapClassLoaderSearch(jarfile(bridgeClassName));
+
+			MethodHandle callFakeMethod = MethodHandles.lookup().findStatic(FakeIO.class, "callFake", MethodType.methodType(Object.class, String.class, Object.class, String.class, String.class, Object[].class));
+			
+			Class<?> bridgedFakeIOClass = Class.forName(bridgeClassName, true, null);
+			bridgedFakeIOClass.getField("callFake").set(null, callFakeMethod);
+			bridgedFakeIOClass.getField("NO_RESULT").set(null, NO_RESULT);
 		} catch (ReflectiveOperationException | IOException e) {
 			throw new RuntimeException("failed installing fake bridge", e);
 		}
 	}
 
-	private static JarFile jarfile() throws IOException {
-		String bridge = "net/amygdalum/testrecorder/bridge/BridgedFakeIO.class";
+	private static JarFile jarfile(String bridgeClassName) throws IOException {
+		String bridge = bridgeClassName.replace('.', '/') + ".class";
 		InputStream resourceStream = FakeIO.class.getResourceAsStream("/" + bridge);
 		if (resourceStream == null) {
 			throw new FileNotFoundException(bridge);
@@ -258,7 +264,7 @@ public class FakeIO {
 					return result;
 				}
 			}
-			String methodInvocation = invocation.clazz.getSimpleName() +"." + signatureFor(arguments);
+			String methodInvocation = invocation.clazz.getSimpleName() + "." + signatureFor(arguments);
 			if (invocationData.isEmpty()) {
 				throw new AssertionError("surplus invocation " + methodInvocation + "\n\nIf the input was recorded ensure that all call sites are recorded");
 			} else {
@@ -462,15 +468,15 @@ public class FakeIO {
 		}
 
 	}
-	
+
 	protected interface SelfSpecification {
 
 		boolean matches(Object instance);
-		
+
 	}
-	
+
 	protected static class AnyInvocation implements SelfSpecification {
-		
+
 		@Override
 		public boolean matches(Object instance) {
 			return true;
@@ -478,17 +484,17 @@ public class FakeIO {
 	}
 
 	protected static class StaticInvocation implements SelfSpecification {
-		
+
 		@Override
 		public boolean matches(Object instance) {
 			return instance == null;
 		}
 	}
-	
+
 	protected static class BoundInvocation implements SelfSpecification {
-		
+
 		private Object instance;
-		
+
 		public BoundInvocation(Object instance) {
 			this.instance = instance;
 		}
@@ -500,9 +506,9 @@ public class FakeIO {
 	}
 
 	protected static class BindableInvocation implements SelfSpecification {
-		
+
 		private Object instance;
-		
+
 		public BindableInvocation() {
 		}
 
