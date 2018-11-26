@@ -36,6 +36,7 @@ import org.objectweb.asm.tree.MethodNode;
 import net.amygdalum.testrecorder.asm.Assign;
 import net.amygdalum.testrecorder.asm.ByteCode;
 import net.amygdalum.testrecorder.asm.CaptureCall;
+import net.amygdalum.testrecorder.asm.GetClass;
 import net.amygdalum.testrecorder.asm.GetInvokedMethodArgumentTypes;
 import net.amygdalum.testrecorder.asm.GetInvokedMethodName;
 import net.amygdalum.testrecorder.asm.GetInvokedMethodResultType;
@@ -123,7 +124,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 				if (clazz.matches(className)) {
 					Logger.info("recording snapshots of " + className);
 
-					byte[] instrument = instrument(classfileBuffer, classBeingRedefined);
+					byte[] instrument = instrument(classfileBuffer, classBeingRedefined, loader);
 					if (classBeingRedefined != null) {
 						instrumentedClasses.add(classBeingRedefined);
 						instrumentedClassPrototypes.remove(Type.getObjectType(classBeingRedefined.getName()).getClassName());
@@ -144,23 +145,23 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 	}
 
-	public byte[] instrument(String className, Class<?> clazz) throws IOException {
-		return instrument(classes.fetch(className), clazz);
+	public byte[] instrument(String className, Class<?> clazz, ClassLoader loader) throws IOException {
+		return instrument(classes.fetch(className, loader), clazz, loader);
 	}
 
-	public byte[] instrument(byte[] buffer, Class<?> clazz) {
-		return instrument(classes.register(buffer), clazz);
+	public byte[] instrument(byte[] buffer, Class<?> clazz, ClassLoader loader) {
+		return instrument(classes.register(buffer), clazz, loader);
 	}
 
-	public byte[] instrument(ClassNode classNode, Class<?> clazz) {
+	public byte[] instrument(ClassNode classNode, Class<?> clazz, ClassLoader loader) {
 		analyzeMethods(classNode);
 
 		if (!isClass(classNode)) {
 			return null;
 		}
 		Task task = needsBridging(classNode, clazz)
-			? new BridgedTask(profile, classes, io, classNode)
-			: new DefaultTask(profile, classes, io, classNode);
+			? new BridgedTask(loader, profile, classes, io, classNode)
+			: new DefaultTask(loader, profile, classes, io, classNode);
 
 		task.logSkippedSnapshotMethods();
 
@@ -225,13 +226,15 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 	public abstract static class Task {
 
+		private ClassLoader loader;
 		private SerializationProfile profile;
 		private ClassNodeManager classes;
 		private IOManager io;
 
 		protected ClassNode classNode;
 
-		public Task(SerializationProfile profile, ClassNodeManager classes, IOManager io, ClassNode classNode) {
+		public Task(ClassLoader loader, SerializationProfile profile, ClassNodeManager classes, IOManager io, ClassNode classNode) {
+			this.loader = loader;
 			this.profile = profile;
 			this.classes = classes;
 			this.io = io;
@@ -269,11 +272,12 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		}
 
 		protected SequenceInstruction setupVariables(MethodNode methodNode) {
-			return new InvokeVirtual(SnapshotManager.class, "setupVariables", Object.class, String.class, Object[].class)
+			return new InvokeVirtual(SnapshotManager.class, "setupVariables", Class.class, Object.class, String.class, Object[].class)
 				.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-				.withArgument(0, new GetThisOrNull())
-				.withArgument(1, new Ldc(keySignature(classNode, methodNode)))
-				.withArgument(2, new WrapArguments());
+				.withArgument(0, new GetClass())
+				.withArgument(1, new GetThisOrNull())
+				.withArgument(2, new Ldc(keySignature(classNode, methodNode)))
+				.withArgument(3, new WrapArguments());
 		}
 
 		protected SequenceInstruction expectVariables(MethodNode methodNode) {
@@ -498,8 +502,8 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 						if (ByteCode.isPrimitive(type) || ByteCode.isArray(type)) {
 							continue;
 						}
-						ClassNode calledClassNode = classes.fetch(methodinsn.owner);
-						MethodNode calledMethodNode = classes.fetch(calledClassNode, methodinsn.name, methodinsn.desc);
+						ClassNode calledClassNode = classes.fetch(methodinsn.owner, loader);
+						MethodNode calledMethodNode = classes.fetch(calledClassNode, methodinsn.name, methodinsn.desc, loader);
 						if (isNativeInputMethod(calledClassNode, calledMethodNode)) {
 							calls.add(methodinsn);
 						}
@@ -523,8 +527,8 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 						if (ByteCode.isPrimitive(type) || ByteCode.isArray(type)) {
 							continue;
 						}
-						ClassNode calledClassNode = classes.fetch(methodinsn.owner);
-						MethodNode calledMethodNode = classes.fetch(calledClassNode, methodinsn.name, methodinsn.desc);
+						ClassNode calledClassNode = classes.fetch(methodinsn.owner, loader);
+						MethodNode calledMethodNode = classes.fetch(calledClassNode, methodinsn.name, methodinsn.desc, loader);
 						if (isNativeOutputMethod(calledClassNode, calledMethodNode)) {
 							calls.add(methodinsn);
 						}
@@ -642,8 +646,8 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 	public static class BridgedTask extends Task {
 
-		public BridgedTask(SerializationProfile profile, ClassNodeManager classes, IOManager io, ClassNode classNode) {
-			super(profile, classes, io, classNode);
+		public BridgedTask(ClassLoader loader, SerializationProfile profile, ClassNodeManager classes, IOManager io, ClassNode classNode) {
+			super(loader, profile, classes, io, classNode);
 		}
 
 		@Override
@@ -712,8 +716,8 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 	public static class DefaultTask extends Task {
 
-		public DefaultTask(SerializationProfile profile, ClassNodeManager classes, IOManager io, ClassNode classNode) {
-			super(profile, classes, io, classNode);
+		public DefaultTask(ClassLoader loader, SerializationProfile profile, ClassNodeManager classes, IOManager io, ClassNode classNode) {
+			super(loader, profile, classes, io, classNode);
 		}
 
 		@Override

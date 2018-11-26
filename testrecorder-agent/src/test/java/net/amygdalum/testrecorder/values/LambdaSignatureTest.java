@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.invoke.MethodHandleInfo;
 import java.lang.invoke.SerializedLambda;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -29,17 +28,12 @@ public class LambdaSignatureTest {
 		assertThat(lambda.getCapturingClass()).isEqualTo("net/amygdalum/testrecorder/util/testobjects/LambdaFunctions");
 
 		assertThat(lambda.getFunctionalInterfaceClass()).isEqualTo("java/util/function/BiFunction");
-		assertThat(lambda.getFunctionalInterfaceMethod().getDeclaringClass()).isEqualTo(BiFunction.class);
 		assertThat(lambda.getFunctionalInterfaceMethodName()).isEqualTo("apply");
 		assertThat(lambda.getFunctionalInterfaceMethodSignature()).isEqualTo("(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
-		assertThat(lambda.getFunctionalInterfaceMethod().getName()).isEqualTo("apply");
-		assertThat(lambda.getFunctionalInterfaceMethod().getParameterTypes()).containsExactly(Object.class, Object.class);
 
 		assertThat(lambda.getImplClass()).isEqualTo("net/amygdalum/testrecorder/util/testobjects/LambdaFunctions");
-		assertThat(lambda.getImplMethod().getDeclaringClass()).isEqualTo(LambdaFunctions.class);
 		assertThat(lambda.getImplMethodKind()).isEqualTo(MethodHandleInfo.REF_invokeStatic);
 		assertThat(lambda.getImplMethodSignature()).isEqualTo("(Ljava/lang/Integer;Ljava/lang/Integer;)Ljava/lang/Integer;");
-		assertThat(lambda.getImplMethod().getParameterTypes()).containsExactly(Integer.class, Integer.class);
 
 		assertThat(lambda.getInstantiatedMethodType()).isEqualTo("(Ljava/lang/Integer;Ljava/lang/Integer;)Ljava/lang/Integer;");
 	}
@@ -60,16 +54,12 @@ public class LambdaSignatureTest {
 		assertThat(lambda.getCapturingClass()).isEqualTo("net/amygdalum/testrecorder/util/testobjects/LambdaFunctions");
 
 		assertThat(lambda.getFunctionalInterfaceClass()).isEqualTo("java/util/function/Function");
-		assertThat(lambda.getFunctionalInterfaceMethod().getDeclaringClass()).isEqualTo(Function.class);
 		assertThat(lambda.getFunctionalInterfaceMethodName()).isEqualTo("apply");
 		assertThat(lambda.getFunctionalInterfaceMethodSignature()).isEqualTo("(Ljava/lang/Object;)Ljava/lang/Object;");
-		assertThat(lambda.getFunctionalInterfaceMethod().getName()).isEqualTo("apply");
-		assertThat(lambda.getFunctionalInterfaceMethod().getParameterTypes()).containsExactly(Object.class);
 
 		assertThat(lambda.getImplClass()).isEqualTo("net/amygdalum/testrecorder/util/testobjects/LambdaFunctions");
 		assertThat(lambda.getImplMethodKind()).isEqualTo(MethodHandleInfo.REF_invokeStatic);
 		assertThat(lambda.getImplMethodSignature()).isEqualTo("(ILjava/lang/Integer;)Ljava/lang/Integer;");
-		assertThat(lambda.getImplMethod().getParameterTypes()).containsExactly(int.class, Integer.class);
 
 		assertThat(lambda.getInstantiatedMethodType()).isEqualTo("(Ljava/lang/Integer;)Ljava/lang/Integer;");
 	}
@@ -90,16 +80,12 @@ public class LambdaSignatureTest {
 		assertThat(lambda.getCapturingClass()).isEqualTo("net/amygdalum/testrecorder/util/testobjects/LambdaFunctions");
 
 		assertThat(lambda.getFunctionalInterfaceClass()).isEqualTo("java/util/function/Function");
-		assertThat(lambda.getFunctionalInterfaceMethod().getDeclaringClass()).isEqualTo(Function.class);
 		assertThat(lambda.getFunctionalInterfaceMethodName()).isEqualTo("apply");
 		assertThat(lambda.getFunctionalInterfaceMethodSignature()).isEqualTo("(Ljava/lang/Object;)Ljava/lang/Object;");
-		assertThat(lambda.getFunctionalInterfaceMethod().getName()).isEqualTo("apply");
-		assertThat(lambda.getFunctionalInterfaceMethod().getParameterTypes()).containsExactly(Object.class);
 
 		assertThat(lambda.getImplClass()).isEqualTo("net/amygdalum/testrecorder/util/testobjects/LambdaFunctions");
 		assertThat(lambda.getImplMethodKind()).isEqualTo(MethodHandleInfo.REF_invokeSpecial);
 		assertThat(lambda.getImplMethodSignature()).isEqualTo("(Ljava/lang/Integer;)Ljava/lang/Integer;");
-		assertThat(lambda.getImplMethod().getParameterTypes()).containsExactly(Integer.class);
 
 		assertThat(lambda.getInstantiatedMethodType()).isEqualTo("(Ljava/lang/Integer;)Ljava/lang/Integer;");
 	}

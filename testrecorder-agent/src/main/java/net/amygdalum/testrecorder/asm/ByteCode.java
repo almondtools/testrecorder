@@ -135,10 +135,6 @@ public final class ByteCode {
 		}
 	}
 
-	public static Class<?> classFrom(String name) {
-		return classFrom(Type.getObjectType(name), ByteCode.class.getClassLoader());
-	}
-
 	public static Class<?> classFrom(String name, ClassLoader loader) {
 		return classFrom(Type.getObjectType(name), loader);
 	}
@@ -162,14 +158,13 @@ public final class ByteCode {
 
 	private static Class<?> loadClass(String name, ClassLoader loader) {
 		try {
+			if (loader == null) {
+				return Class.forName(name);
+			}
 			return loader.loadClass(name);
 		} catch (ClassNotFoundException e) {
 			throw new ByteCodeException(e);
 		}
-	}
-
-	public static Class<?>[] argumentTypesFrom(String desc) {
-		return argumentTypesFrom(desc, ByteCode.class.getClassLoader());
 	}
 
 	public static Class<?>[] argumentTypesFrom(String desc, ClassLoader loader) {
@@ -179,10 +174,6 @@ public final class ByteCode {
 			argumentTypes[i] = classFrom(argumentTypeDescriptions[i], loader);
 		}
 		return argumentTypes;
-	}
-
-	public static Class<?> resultTypeFrom(String desc) {
-		return resultTypeFrom(desc, ByteCode.class.getClassLoader());
 	}
 
 	public static Class<?> resultTypeFrom(String desc, ClassLoader loader) {

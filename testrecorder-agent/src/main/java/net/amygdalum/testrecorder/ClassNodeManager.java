@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,16 +19,27 @@ public class ClassNodeManager {
 		cache = new HashMap<>();
 	}
 
-	public ClassNode fetch(String className) throws IOException {
+	public ClassNode fetch(String className, ClassLoader loader) throws IOException {
 		ClassNode classNode = cache.get(className);
 		if (classNode == null) {
-			ClassReader cr = new ClassReader(className);
+			ClassReader cr = readerFor(className, loader);
 			classNode = new ClassNode();
 
 			cr.accept(classNode, 0);
 			cache.put(className, classNode);
 		}
 		return classNode;
+	}
+
+	private ClassReader readerFor(String className, ClassLoader loader) throws IOException {
+		if (loader == null) {
+			return new ClassReader(className);
+		}
+		InputStream stream = loader.getResourceAsStream(className.replace('.', '/') + ".class");
+		if (stream == null) {
+			return new ClassReader(className);
+		}
+		return new ClassReader(stream);
 	}
 
 	public ClassNode register(byte[] buffer) {
@@ -39,7 +51,7 @@ public class ClassNodeManager {
 		return classNode;
 	}
 
-	public MethodNode fetch(ClassNode classNode, String methodName, String methodDesc) throws IOException, NoSuchMethodException {
+	public MethodNode fetch(ClassNode classNode, String methodName, String methodDesc, ClassLoader loader) throws IOException, NoSuchMethodException {
 		ClassNode currentClassNode = classNode;
 		IdentityWorkSet<String> interfaces = new IdentityWorkSet<>();
 		while (currentClassNode != null) {
@@ -49,12 +61,12 @@ public class ClassNodeManager {
 				}
 			}
 			interfaces.addAll(currentClassNode.interfaces);
-			currentClassNode = currentClassNode.superName == null ? null : fetch(currentClassNode.superName);
+			currentClassNode = currentClassNode.superName == null ? null : fetch(currentClassNode.superName, loader);
 		}
 
 		while (interfaces.hasMoreElements()) {
 			String interfaceName = interfaces.remove();
-			currentClassNode = fetch(interfaceName);
+			currentClassNode = fetch(interfaceName, loader);
 			for (MethodNode method : currentClassNode.methods) {
 				if (method.name.equals(methodName) && method.desc.equals(methodDesc)) {
 					return method;

@@ -29,6 +29,10 @@ public class MethodSignature implements Serializable {
 		this.argumentTypes = serializableOf(argumentTypes);
 	}
 
+	public ClassLoader getClassLoader() {
+		return declaringClass.getClassLoader();
+	}
+
 	public Method resolveMethod() throws NoSuchMethodException {
 		return getDeclaredMethod(declaringClass, methodName, getParameterTypes());
 	}

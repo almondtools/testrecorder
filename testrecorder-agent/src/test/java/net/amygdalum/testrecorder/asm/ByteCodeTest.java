@@ -171,27 +171,29 @@ public class ByteCodeTest {
 
 	@Test
 	public void testClassFrom() throws Exception {
-		assertThat(ByteCode.classFrom("net/amygdalum/testrecorder/util/testobjects/PublicEnum")).isEqualTo(PublicEnum.class);
+		assertThat(ByteCode.classFrom("net/amygdalum/testrecorder/util/testobjects/PublicEnum", PublicEnum.class.getClassLoader())).isEqualTo(PublicEnum.class);
 		assertThat(ByteCode.classFrom("net/amygdalum/testrecorder/util/testobjects/Simple", ByteCodeTest.class.getClassLoader())).isEqualTo(Simple.class);
 		assertThat(ByteCode.classFrom(Type.getType(Complex[].class))).isEqualTo(Complex[].class);
 		assertThat(ByteCode.classFrom(Type.getType(int.class))).isEqualTo(int.class);
-		assertThatThrownBy(() -> ByteCode.classFrom("net/amygdalum/testrecorder/util/testobjects/NotExisting"))
+		assertThatThrownBy(() -> ByteCode.classFrom("net/amygdalum/testrecorder/util/testobjects/NotExisting", null))
 			.isInstanceOf(ByteCodeException.class)
 			.hasCauseExactlyInstanceOf(ClassNotFoundException.class);
 	}
 
 	@Test
 	public void testArgumentTypes() throws Exception {
-		assertThat(ByteCode.argumentTypesFrom("()V")).isEmpty();
-		assertThat(ByteCode.argumentTypesFrom("(Ljava/lang/Object;)I")).containsExactly(Object.class);
-		assertThat(ByteCode.argumentTypesFrom("(IC)V")).containsExactly(int.class, char.class);
+		ClassLoader loader = ByteCode.class.getClassLoader();
+		assertThat(ByteCode.argumentTypesFrom("()V", loader)).isEmpty();
+		assertThat(ByteCode.argumentTypesFrom("(Ljava/lang/Object;)I", loader)).containsExactly(Object.class);
+		assertThat(ByteCode.argumentTypesFrom("(IC)V", loader)).containsExactly(int.class, char.class);
 	}
 
 	@Test
 	public void testResultType() throws Exception {
-		assertThat(ByteCode.resultTypeFrom("()V")).isEqualTo(void.class);
-		assertThat(ByteCode.resultTypeFrom("(Ljava/lang/Object;)I")).isEqualTo(int.class);
-		assertThat(ByteCode.resultTypeFrom("(IC)Ljava/lang/String;")).isEqualTo(String.class);
+		ClassLoader loader = ByteCode.class.getClassLoader();
+		assertThat(ByteCode.resultTypeFrom("()V", loader)).isEqualTo(void.class);
+		assertThat(ByteCode.resultTypeFrom("(Ljava/lang/Object;)I", loader)).isEqualTo(int.class);
+		assertThat(ByteCode.resultTypeFrom("(IC)Ljava/lang/String;", loader)).isEqualTo(String.class);
 	}
 
 	@ExtendWith(LoggerExtension.class)

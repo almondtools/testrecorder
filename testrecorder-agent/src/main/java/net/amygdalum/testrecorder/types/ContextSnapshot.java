@@ -51,6 +51,10 @@ public class ContextSnapshot implements Serializable {
 		this.expectOutput = new ArrayDeque<>();
 	}
 
+	public ClassLoader getClassLoader() {
+		return signature.getClassLoader();
+	}
+
 	public String getKey() {
 		return key;
 	}

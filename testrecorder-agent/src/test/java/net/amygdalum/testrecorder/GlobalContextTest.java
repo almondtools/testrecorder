@@ -15,27 +15,27 @@ public class GlobalContextTest {
 	public void testGlobals() throws Exception {
 		GlobalContext globalContext = new GlobalContext();
 		globalContext.add("net.amygdalum.testrecorder.util.testobjects.Static", "global");
-		assertThat(globalContext.globals()).containsExactly(Types.getDeclaredField(Static.class, "global"));
+		assertThat(globalContext.globals(Static.class.getClassLoader())).containsExactly(Types.getDeclaredField(Static.class, "global"));
 
 		globalContext.add("net.amygdalum.testrecorder.util.testobjects.Static", "CONSTANT");
-		assertThat(globalContext.globals()).containsExactly(Types.getDeclaredField(Static.class, "global"));
+		assertThat(globalContext.globals(Static.class.getClassLoader())).containsExactly(Types.getDeclaredField(Static.class, "global"));
 	}
 
 	@Test
 	public void testGlobalsFinishesAddPhase() throws Exception {
 		GlobalContext globalContext = new GlobalContext();
 		globalContext.add("net.amygdalum.testrecorder.util.testobjects.Static", "global");
-		globalContext.globals();
+		globalContext.globals(Static.class.getClassLoader());
 		globalContext.add("net.amygdalum.testrecorder.util.testobjects.Static", "CONSTANT");
 
-		assertThat(globalContext.globals()).containsExactly(Types.getDeclaredField(Static.class, "global"));
+		assertThat(globalContext.globals(Static.class.getClassLoader())).containsExactly(Types.getDeclaredField(Static.class, "global"));
 	}
 
 	@Test
 	public void testGlobalsOnNonexistingField() throws Exception {
 		GlobalContext globalContext = new GlobalContext();
 		globalContext.add("net.amygdalum.testrecorder.util.testobjects.Static", "notexisting");
-		assertThatThrownBy(() -> globalContext.globals())
+		assertThatThrownBy(() -> globalContext.globals(Static.class.getClassLoader()))
 			.isInstanceOf(SerializationException.class)
 			.hasCauseExactlyInstanceOf(NoSuchFieldException.class);
 	}

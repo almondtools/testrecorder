@@ -63,7 +63,7 @@ public class SnapshotManagerTest {
 		Bean self = new Bean();
 		self.setAttribute("tobeset");
 
-		snapshotManager.setupVariables(self, "setAttribute(Ljava/lang/String;)V", "mystr");
+		snapshotManager.setupVariables(self.getClass(), self, "setAttribute(Ljava/lang/String;)V", "mystr");
 
 		ContextSnapshot snapshot = snapshotManager.peek().get();
 
@@ -84,7 +84,7 @@ public class SnapshotManagerTest {
 		snapshotManager.registerRecordedMethod("method(I)I", "net/amygdalum/testrecorder/util/testobjects/Overridden", "method", "(I)I");
 		Overriding self = new Overriding();
 
-		snapshotManager.setupVariables(self, "method(I)I", 1);
+		snapshotManager.setupVariables(self.getClass(), self, "method(I)I", 1);
 
 		Optional<ContextSnapshot> snapshot = snapshotManager.peek();
 		assertThat(snapshot).isNotPresent();
@@ -95,18 +95,18 @@ public class SnapshotManagerTest {
 		SnapshotManager snapshotManager = spy(this.snapshotManager);
 		xray(snapshotManager).to(OpenSnapshotManager.class).getLock().acquire();
 
-		snapshotManager.setupVariables(new Bean(), "setAttribute(Ljava/lang/String;)V", "mystr");
+		snapshotManager.setupVariables(Bean.class, new Bean(), "setAttribute(Ljava/lang/String;)V", "mystr");
 
-		verify(snapshotManager, never()).push("setAttribute(Ljava/lang/String;)V");
-		verify(snapshotManager, only()).setupVariables(any(), any(), any());
+		verify(snapshotManager, never()).push("setAttribute(Ljava/lang/String;)V", Bean.class.getClassLoader());
+		verify(snapshotManager, only()).setupVariables(any(), any(), any(), any());
 	}
 
 	@Test
 	public void testSetupVariablesExceptionReleasesLock() throws Exception {
 		SnapshotManager snapshotManager = spy(this.snapshotManager);
-		doThrow(new RuntimeException("setupVariables")).when(snapshotManager).push(any());
+		doThrow(new RuntimeException("setupVariables")).when(snapshotManager).push(any(),any());
 
-		assertThatCode(() -> snapshotManager.setupVariables(new Bean(), "setAttribute(Ljava/lang/String;)V", "mystr"))
+		assertThatCode(() -> snapshotManager.setupVariables(Bean.class, new Bean(), "setAttribute(Ljava/lang/String;)V", "mystr"))
 			.hasMessage("setupVariables");
 		boolean locked = xray(snapshotManager).to(OpenSnapshotManager.class).getLock().locked();
 		assertThat(locked).isFalse();
@@ -116,7 +116,7 @@ public class SnapshotManagerTest {
 	public void testExpectVariablesMatching() throws Exception {
 		snapshotManager.registerRecordedMethod("setAttribute(Ljava/lang/String;)V", "net/amygdalum/testrecorder/util/testobjects/Bean", "setAttribute", "(Ljava/lang/String;)V");
 		Bean self = new Bean();
-		snapshotManager.setupVariables(self, "setAttribute(Ljava/lang/String;)V", "mystr");
+		snapshotManager.setupVariables(self.getClass(), self, "setAttribute(Ljava/lang/String;)V", "mystr");
 		ContextSnapshot snapshot = snapshotManager.peek().get();
 
 		self.setAttribute("hasbeenset");
@@ -142,7 +142,7 @@ public class SnapshotManagerTest {
 		snapshotManager.registerRecordedMethod("method(L)V", "net/amygdalum/testrecorder/util/testobjects/Overridden", "method", "(I)I");
 		Overriding self = new Overriding();
 
-		ContextSnapshotTransaction pushed = snapshotManager.push("method(L)V");
+		ContextSnapshotTransaction pushed = snapshotManager.push("method(L)V", self.getClass().getClassLoader());
 
 		snapshotManager.expectVariables(self, "method(L)V", new Object[] { 1 });
 
@@ -181,7 +181,7 @@ public class SnapshotManagerTest {
 	public void testExpectVariablesWithResultMatching() throws Exception {
 		snapshotManager.registerRecordedMethod("method(I)I", "net/amygdalum/testrecorder/util/testobjects/Overridden", "method", "(I)I");
 		Overridden self = new Overridden();
-		snapshotManager.setupVariables(self, "method(I)I", new Object[] { 1 });
+		snapshotManager.setupVariables(self.getClass(), self, "method(I)I", new Object[] { 1 });
 		ContextSnapshot snapshot = snapshotManager.peek().get();
 
 		snapshotManager.expectVariables(self, "method(I)I", 2, new Object[] { 1 });
@@ -205,7 +205,7 @@ public class SnapshotManagerTest {
 		snapshotManager.registerRecordedMethod("method(I)I", "net/amygdalum/testrecorder/util/testobjects/Overridden", "method", "(I)I");
 		Overriding self = new Overriding();
 
-		ContextSnapshotTransaction pushed = snapshotManager.push("method(L)V");
+		ContextSnapshotTransaction pushed = snapshotManager.push("method(L)V", self.getClass().getClassLoader());
 
 		snapshotManager.expectVariables(self, "method(I)I", 1, new Object[] { 1 });
 
@@ -244,7 +244,7 @@ public class SnapshotManagerTest {
 	public void testThrowVariablesMatching() throws Exception {
 		snapshotManager.registerRecordedMethod("method(I)I", "net/amygdalum/testrecorder/util/testobjects/Overridden", "method", "(I)I");
 		Overridden self = new Overridden();
-		snapshotManager.setupVariables(self, "method(I)I", new Object[] { 1 });
+		snapshotManager.setupVariables(self.getClass(), self, "method(I)I", new Object[] { 1 });
 		ContextSnapshot snapshot = snapshotManager.peek().get();
 
 		snapshotManager.throwVariables(new RuntimeException("thrown by test"), self, "method(I)I", new Object[] { 1 });
@@ -273,7 +273,7 @@ public class SnapshotManagerTest {
 		snapshotManager.registerRecordedMethod("method(I)I", "net/amygdalum/testrecorder/util/testobjects/Overridden", "method", "(I)I");
 		Overriding self = new Overriding();
 
-		ContextSnapshotTransaction pushed = snapshotManager.push("method(I)I");
+		ContextSnapshotTransaction pushed = snapshotManager.push("method(I)I", self.getClass().getClassLoader());
 
 		snapshotManager.throwVariables(new RuntimeException("thrown by test"), self, "method(I)I", new Object[] { 1 });
 
@@ -314,7 +314,7 @@ public class SnapshotManagerTest {
 	public void testPushPop() throws Exception {
 		snapshotManager.registerRecordedMethod("signature", "net/amygdalum/testrecorder/util/testobjects/Bean", "setAttribute", "(Ljava/lang/String;)V");
 
-		snapshotManager.push("signature");
+		snapshotManager.push("signature", Bean.class.getClassLoader());
 
 		Optional<ContextSnapshot> snapshot = snapshotManager.peek();
 
@@ -345,9 +345,9 @@ public class SnapshotManagerTest {
 		snapshotManager.registerRecordedMethod("signature1", "net/amygdalum/testrecorder/util/testobjects/Bean", "setAttribute", "(Ljava/lang/String;)V");
 		snapshotManager.registerRecordedMethod("signature2", "net/amygdalum/testrecorder/util/testobjects/Bean", "setAttribute", "(Ljava/lang/String;)V");
 		snapshotManager.registerRecordedMethod("signature3", "net/amygdalum/testrecorder/util/testobjects/Bean", "setAttribute", "(Ljava/lang/String;)V");
-		snapshotManager.push("signature1");
-		ContextSnapshotTransaction snapshot2 = snapshotManager.push("signature2");
-		ContextSnapshotTransaction snapshot3 = snapshotManager.push("signature3");
+		snapshotManager.push("signature1", Bean.class.getClassLoader());
+		ContextSnapshotTransaction snapshot2 = snapshotManager.push("signature2", Bean.class.getClassLoader());
+		ContextSnapshotTransaction snapshot3 = snapshotManager.push("signature3", Bean.class.getClassLoader());
 
 		snapshotManager.pop("signature1").andConsume(snapshot -> {
 			assertThat(snapshot).isNotNull();
@@ -363,8 +363,8 @@ public class SnapshotManagerTest {
 		snapshotManager.registerRecordedMethod("signature1", "net/amygdalum/testrecorder/util/testobjects/Bean", "setAttribute", "(Ljava/lang/String;)V");
 		snapshotManager.registerRecordedMethod("signature2", "net/amygdalum/testrecorder/util/testobjects/Bean", "getAttribute", "()Ljava/lang/String;");
 
-		snapshotManager.push("signature1");
-		snapshotManager.push("signature2");
+		snapshotManager.push("signature1", Bean.class.getClassLoader());
+		snapshotManager.push("signature2", Bean.class.getClassLoader());
 
 		assertThat(snapshotManager.all()).hasSize(2);
 		assertThat(snapshotManager.peek())

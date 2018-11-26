@@ -88,7 +88,7 @@ public class DefaultSerializerSession implements SerializerSession {
 	public SerializedValue find(Object object) {
 		return serialized.get(object);
 	}
-	
+
 	@Override
 	public SerializedValue ref(Object object, Type type) {
 		SerializedValue serializedValue = find(object);
@@ -126,10 +126,10 @@ public class DefaultSerializerSession implements SerializerSession {
 		Class<?> clazz = object.getClass();
 		if (isLiteral(clazz)) {
 			return new AnalyzedObject(clazz, object);
-		} 
+		}
 		if (isSerializableLambda(clazz)) {
 			SerializedLambda lambda = Lambdas.serializeLambda(object);
-			Class<?> type = classFrom(lambda.getFunctionalInterfaceClass());
+			Class<?> type = classFrom(lambda.getFunctionalInterfaceClass(), clazz.getClassLoader());
 			return new AnalyzedObject(object, type, lambda);
 		}
 		if (facades(clazz)) {

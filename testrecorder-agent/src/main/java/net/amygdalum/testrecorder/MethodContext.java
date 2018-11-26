@@ -13,19 +13,19 @@ public class MethodContext {
 	public MethodContext() {
 		factories = new HashMap<>();
 	}
-	
+
 	public void add(String signature, String className, String methodName, String methodDesc) {
 		factories.put(signature, new ContextSnapshotFactory(signature, className, methodName, methodDesc));
 	}
 
-	public ContextSnapshot createSnapshot(String signature) {
+	public ContextSnapshot createSnapshot(String signature, ClassLoader loader) {
 		ContextSnapshotFactory factory = factories.getOrDefault(signature, ContextSnapshotFactory.NULL);
-		return factory.createSnapshot();
+		return factory.createSnapshot(loader);
 	}
 
-	public VirtualMethodSignature signature(String signature) {
+	public VirtualMethodSignature signature(String signature, ClassLoader loader) {
 		ContextSnapshotFactory factory = factories.getOrDefault(signature, ContextSnapshotFactory.NULL);
-		return factory.signature();
+		return factory.signature(loader);
 	}
 
 }

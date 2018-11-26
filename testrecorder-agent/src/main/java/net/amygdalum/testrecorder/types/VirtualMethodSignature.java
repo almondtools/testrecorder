@@ -1,8 +1,5 @@
 package net.amygdalum.testrecorder.types;
 
-import static net.amygdalum.testrecorder.asm.ByteCode.argumentTypesFrom;
-import static net.amygdalum.testrecorder.asm.ByteCode.classFrom;
-
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -44,18 +41,6 @@ public class VirtualMethodSignature implements Serializable {
 		this.invalid = new HashSet<>();
 	}
 
-	public static VirtualMethodSignature fromDescriptor(String className, String methodName, String methodDesc) {
-		try {
-			Class<?> clazz = classFrom(className);
-			Method method = Types.getDeclaredMethod(clazz, methodName, argumentTypesFrom(methodDesc));
-
-			return fromDescriptor(clazz, method);
-		} catch (RuntimeException | ReflectiveOperationException e) {
-			throw new SerializationException(e);
-		}
-
-	}
-
 	public static VirtualMethodSignature fromDescriptor(Method method) {
 		return fromDescriptor(method.getDeclaringClass(), method);
 	}
@@ -63,6 +48,10 @@ public class VirtualMethodSignature implements Serializable {
 	public static VirtualMethodSignature fromDescriptor(Class<?> clazz, Method method) {
 		MethodSignature signature = new MethodSignature(clazz, method.getGenericReturnType(), method.getName(), method.getGenericParameterTypes());
 		return new VirtualMethodSignature(signature);
+	}
+	
+	public ClassLoader getClassLoader() {
+		return signature.getClassLoader();
 	}
 
 	public synchronized boolean validIn(Class<?> clazz) {

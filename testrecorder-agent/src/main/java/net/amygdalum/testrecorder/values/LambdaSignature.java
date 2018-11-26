@@ -1,6 +1,5 @@
 package net.amygdalum.testrecorder.values;
 
-import static net.amygdalum.testrecorder.asm.ByteCode.argumentTypesFrom;
 import static net.amygdalum.testrecorder.asm.ByteCode.classFrom;
 
 import java.io.Serializable;
@@ -11,7 +10,6 @@ import java.lang.invoke.MethodHandleInfo;
 import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 
 public class LambdaSignature implements Serializable {
@@ -60,7 +58,7 @@ public class LambdaSignature implements Serializable {
 	@SuppressWarnings("unchecked")
 	public <T> T deserialize(Class<T> resultType, Object... capturedArgs) {
 		try {
-			Class<?> capturingClass = classFrom(this.capturingClass);
+			Class<?> capturingClass = classFrom(this.capturingClass, resultType.getClassLoader());
 			ClassLoader cl = capturingClass.getClassLoader();
 			Class<?> implClass = classFrom(this.implClass, cl);
 			Class<?> interfaceType = classFrom(this.functionalInterfaceClass, cl);
@@ -152,16 +150,6 @@ public class LambdaSignature implements Serializable {
 		return functionalInterfaceMethodSignature;
 	}
 
-	public Method getFunctionalInterfaceMethod() {
-		try {
-			Class<?> base = classFrom(functionalInterfaceClass);
-			Class<?>[] parameterTypes = argumentTypesFrom(functionalInterfaceMethodSignature);
-			return base.getDeclaredMethod(functionalInterfaceMethodName, parameterTypes);
-		} catch (ReflectiveOperationException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 	public String getImplClass() {
 		return implClass;
 	}
@@ -176,16 +164,6 @@ public class LambdaSignature implements Serializable {
 
 	public String getImplMethodSignature() {
 		return implMethodSignature;
-	}
-
-	public Method getImplMethod() {
-		try {
-			Class<?> base = classFrom(implClass);
-			Class<?>[] parameterTypes = argumentTypesFrom(implMethodSignature);
-			return base.getDeclaredMethod(implMethodName, parameterTypes);
-		} catch (ReflectiveOperationException e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 }

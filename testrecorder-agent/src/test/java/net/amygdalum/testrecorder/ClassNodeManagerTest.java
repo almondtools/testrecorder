@@ -8,33 +8,35 @@ import org.objectweb.asm.tree.ClassNode;
 
 public class ClassNodeManagerTest {
 
+	private ClassLoader loader;
 	private ClassNodeManager manager;
 	
 	@BeforeEach
 	public void before() throws Exception {
+		loader = ClassNodeManager.class.getClassLoader();
 		manager = new ClassNodeManager();
 	}
 	
 	@Test
-	public void testFetchInterface() throws Exception {
-		assertThat(manager.fetch("java/util/concurrent/BlockingQueue")).isNotNull();
-	}
+		public void testReaderForetchInterface() throws Exception {
+			assertThat(manager.fetch("java/util/concurrent/BlockingQueue", loader)).isNotNull();
+		}
 
 	@Test
-	public void testFetchClass() throws Exception {
-		assertThat(manager.fetch("java/util/concurrent/LinkedBlockingQueue")).isNotNull();
-	}
+		public void testReaderForetchClass() throws Exception {
+			assertThat(manager.fetch("java/util/concurrent/LinkedBlockingQueue", loader)).isNotNull();
+		}
 	
 	@Test
-	public void testFetchInterfaceMethod() throws Exception {
-		ClassNode blockingQueue = manager.fetch("java/util/concurrent/BlockingQueue");
-		assertThat(manager.fetch(blockingQueue, "add", "(Ljava/lang/Object;)Z")).isNotNull();
-	}
+		public void testReaderForetchInterfaceMethod() throws Exception {
+			ClassNode blockingQueue = manager.fetch("java/util/concurrent/BlockingQueue", loader);
+			assertThat(manager.fetch(blockingQueue, "add", "(Ljava/lang/Object;)Z", loader)).isNotNull();
+		}
 
 	@Test
 	public void testInterfaceExtendedMethod() throws Exception {
-		ClassNode blockingQueue = manager.fetch("java/util/concurrent/BlockingQueue");
-		assertThat(manager.fetch(blockingQueue, "isEmpty", "()Z")).isNotNull();
+		ClassNode blockingQueue = manager.fetch("java/util/concurrent/BlockingQueue", loader);
+		assertThat(manager.fetch(blockingQueue, "isEmpty", "()Z", loader)).isNotNull();
 	}
 
 }

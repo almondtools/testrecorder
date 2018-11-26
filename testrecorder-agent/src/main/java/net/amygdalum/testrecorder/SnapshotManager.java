@@ -93,7 +93,8 @@ public class SnapshotManager {
 		PerformanceProfile performanceProfile = config.loadConfiguration(PerformanceProfile.class);
 
 		this.timeoutInMillis = performanceProfile.getTimeoutInMillis();
-		this.snapshotExecutor = new SerializationThreadPoolExecutor(performanceProfile.getIdleTime(), TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new TestrecorderThreadFactory("$snapshot"));
+		this.snapshotExecutor = new SerializationThreadPoolExecutor(performanceProfile.getIdleTime(), TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(),
+			new TestrecorderThreadFactory("$snapshot"));
 		this.methodContext = new MethodContext();
 		this.globalContext = new GlobalContext();
 	}
@@ -168,11 +169,11 @@ public class SnapshotManager {
 		if (self == null) {
 			return true;
 		}
-		return methodContext.signature(signature).validIn(self.getClass());
+		return methodContext.signature(signature, self.getClass().getClassLoader()).validIn(self.getClass());
 	}
 
-	public ContextSnapshotTransaction push(String signature) {
-		ContextSnapshot snapshot = methodContext.createSnapshot(signature);
+	public ContextSnapshotTransaction push(String signature, ClassLoader loader) {
+		ContextSnapshot snapshot = methodContext.createSnapshot(signature, loader);
 		current.get().push(snapshot);
 		return new ValidContextSnapshotTransaction(snapshotExecutor, timeoutInMillis, facade, snapshot);
 	}
@@ -207,18 +208,20 @@ public class SnapshotManager {
 		return Optional.ofNullable(current.get().peek());
 	}
 
-	public void setupVariables(Object self, String signature, Object... args) {
+	public void setupVariables(Class<?> selfClass, Object self, String signature, Object... args) {
 		try {
 			boolean aquired = lock.acquire() && snapshotExecutor.submissionPermitted();
 			if (!aquired || !matches(self, signature)) {
 				return;
 			}
-			push(signature).to((facade, session, snapshot) -> {
+			ClassLoader loader = selfClass.getClassLoader();
+			push(signature, loader).to((facade, session, snapshot) -> {
+				
 				if (self != null) {
 					snapshot.setSetupThis(facade.serialize(self.getClass(), self, session));
 				}
 				snapshot.setSetupArgs(facade.serialize(snapshot.getArgumentTypes(), args, session));
-				snapshot.setSetupGlobals(globalContext.globals().stream()
+				snapshot.setSetupGlobals(globalContext.globals(snapshot.getClassLoader()).stream()
 					.map(field -> serializedGlobal(session, field))
 					.toArray(SerializedField[]::new));
 			});
@@ -387,7 +390,7 @@ public class SnapshotManager {
 				}
 				snapshot.setExpectResult(facade.serialize(snapshot.getResultType(), result, session));
 				snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args, session));
-				snapshot.setExpectGlobals(globalContext.globals().stream()
+				snapshot.setExpectGlobals(globalContext.globals(snapshot.getClassLoader()).stream()
 					.map(field -> serializedGlobal(session, field))
 					.toArray(SerializedField[]::new));
 			}).andConsume(this::consume);
@@ -407,7 +410,7 @@ public class SnapshotManager {
 					snapshot.setExpectThis(facade.serialize(self.getClass(), self, session));
 				}
 				snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args, session));
-				snapshot.setExpectGlobals(globalContext.globals().stream()
+				snapshot.setExpectGlobals(globalContext.globals(snapshot.getClassLoader()).stream()
 					.map(field -> serializedGlobal(session, field))
 					.toArray(SerializedField[]::new));
 			}).andConsume(this::consume);
@@ -428,7 +431,7 @@ public class SnapshotManager {
 				}
 				snapshot.setExpectArgs(facade.serialize(snapshot.getArgumentTypes(), args, session));
 				snapshot.setExpectException(facade.serialize(throwable.getClass(), throwable, session));
-				snapshot.setExpectGlobals(globalContext.globals().stream()
+				snapshot.setExpectGlobals(globalContext.globals(snapshot.getClassLoader()).stream()
 					.map(field -> serializedGlobal(session, field))
 					.toArray(SerializedField[]::new));
 			}).andConsume(this::consume);
@@ -436,7 +439,7 @@ public class SnapshotManager {
 			lock.release();
 		}
 	}
-	
+
 	protected void consume(ContextSnapshot snapshot) {
 		if (snapshot.isValid()) {
 			if (snapshotConsumer != null) {
@@ -579,15 +582,15 @@ public class SnapshotManager {
 		}
 
 	}
-	
+
 	private static class SerializationThreadPoolExecutor extends ThreadPoolExecutor {
-		
+
 		private Thread active;
 
 		SerializationThreadPoolExecutor(long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory) {
 			super(0, 1, keepAliveTime, unit, workQueue, threadFactory);
 		}
-		
+
 		@Override
 		protected void beforeExecute(Thread t, Runnable r) {
 			active = t;

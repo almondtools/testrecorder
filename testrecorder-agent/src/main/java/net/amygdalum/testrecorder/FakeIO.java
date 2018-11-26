@@ -6,6 +6,7 @@ import static net.amygdalum.testrecorder.asm.ByteCode.argumentTypesFrom;
 import static net.amygdalum.testrecorder.runtime.GenericObject.copyArrayValues;
 import static net.amygdalum.testrecorder.runtime.GenericObject.copyField;
 import static net.amygdalum.testrecorder.util.Types.allFields;
+import static net.amygdalum.testrecorder.util.Types.getDeclaredMethod;
 import static net.amygdalum.testrecorder.util.Types.isLiteral;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -41,7 +42,6 @@ import org.hamcrest.StringDescription;
 import net.amygdalum.testrecorder.runtime.Aspect;
 import net.amygdalum.testrecorder.runtime.GenericObjectException;
 import net.amygdalum.testrecorder.runtime.Invocation;
-import net.amygdalum.testrecorder.util.Types;
 import net.bytebuddy.agent.ByteBuddyAgent;
 
 public class FakeIO {
@@ -220,7 +220,7 @@ public class FakeIO {
 
 		public Class<?> resolve(Class<?> clazz) {
 			try {
-				Method method = Types.getDeclaredMethod(clazz, methodName, argumentTypesFrom(methodDesc));
+				Method method = getDeclaredMethod(clazz, methodName, argumentTypesFrom(methodDesc, clazz.getClassLoader()));
 				return method.getDeclaringClass();
 			} catch (ReflectiveOperationException e) {
 				throw new RuntimeException("failed to resolve class of virtual call", e);
