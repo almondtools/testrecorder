@@ -218,7 +218,7 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 
 			try {
 				Path testfile = locateTestFile(dir, clazz);
-				Logger.info("writing tests to " + testfile);
+				Logger.info("writing tests to " + testfile.toAbsolutePath());
 				try (Writer writer = Files.newBufferedWriter(testfile, StandardCharsets.UTF_8, CREATE, WRITE, TRUNCATE_EXISTING)) {
 					writer.write(rendered);
 				}
