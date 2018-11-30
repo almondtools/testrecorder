@@ -8,7 +8,7 @@ import static net.amygdalum.testrecorder.runtime.GenericObject.copyField;
 import static net.amygdalum.testrecorder.util.Types.allFields;
 import static net.amygdalum.testrecorder.util.Types.getDeclaredMethod;
 import static net.amygdalum.testrecorder.util.Types.isLiteral;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.CoreMatchers.equalTo;
 
 import java.io.File;
 import java.io.FileNotFoundException;

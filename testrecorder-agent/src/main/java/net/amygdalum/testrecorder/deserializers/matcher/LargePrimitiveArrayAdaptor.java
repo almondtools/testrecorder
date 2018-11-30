@@ -13,8 +13,8 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
+import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
 
 import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.hints.LoadFromFile;
@@ -58,7 +58,7 @@ public class LargePrimitiveArrayAdaptor implements MatcherGenerator<SerializedAr
 				try {
 					LoadFromFile loadFromFile = hint.get();
 					types.registerType(FileSerializer.class);
-					types.staticImport(Matchers.class, "equalTo");
+					types.staticImport(CoreMatchers.class, "equalTo");
 					Object object = unwrap(value);
 					String fileName = new FileSerializer(loadFromFile.writeTo()).store(object);
 					String base = newObject(types.getConstructorTypeName(FileSerializer.class), asLiteral(loadFromFile.readFrom()));

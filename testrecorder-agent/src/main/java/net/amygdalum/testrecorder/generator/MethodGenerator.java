@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import org.junit.Assert;
+import org.hamcrest.MatcherAssert;
 import org.stringtemplate.v4.ST;
 
 import net.amygdalum.testrecorder.MockedInteractions;
@@ -249,7 +249,7 @@ public class MethodGenerator {
 	}
 
 	public MethodGenerator generateAssert() {
-		types.staticImport(Assert.class, "assertThat");
+		types.staticImport(MatcherAssert.class, "assertThat");
 		statements.add(BEGIN_ASSERT);
 
 		if (error == null) {

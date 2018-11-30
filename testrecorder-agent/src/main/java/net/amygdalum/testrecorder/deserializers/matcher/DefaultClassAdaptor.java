@@ -9,7 +9,7 @@ import static net.amygdalum.testrecorder.util.Types.parameterized;
 import java.lang.reflect.Type;
 
 import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
+import org.hamcrest.CoreMatchers;
 
 import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.types.Computation;
@@ -35,7 +35,7 @@ public class DefaultClassAdaptor extends DefaultMatcherGenerator<SerializedImmut
 		DeserializerContext context = generator.getContext();
 		TypeManager types = context.getTypes();
 		types.registerImport(Class.class);
-		types.staticImport(Matchers.class, "equalTo");
+		types.staticImport(CoreMatchers.class, "equalTo");
 
 		Class<?> clazz = value.getValue();
 

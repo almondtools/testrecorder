@@ -101,15 +101,18 @@ public class ArrayMatcher<T> extends AbstractIterableMatcher<T, T[]> {
 	@SuppressWarnings("unchecked")
 	@SafeVarargs
 	public static <T> ArrayMatcher<T> arrayContaining(Class<T> key, Object... elements) {
-		ArrayMatcher<T> set = new ArrayMatcher<>(key);
+		ArrayMatcher<T> matcher = new ArrayMatcher<>(key);
 		for (Object element : elements) {
 			if (element instanceof Matcher) {
-				set.element((Matcher<T>) element);
+				matcher.element((Matcher<T>) element);
 			} else {
-				set.element(key.cast(element));
+				matcher.element(key.cast(element));
 			}
 		}
-		return set;
+		return matcher;
 	}
 
+	public static <T> ArrayMatcher<T> emptyArray() {
+		return new ArrayMatcher<>(null);
+	}
 }

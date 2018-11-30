@@ -6,7 +6,7 @@ import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.MISMATC
 import static net.amygdalum.testrecorder.runtime.GenericComparatorResult.NOT_APPLYING;
 import static net.amygdalum.testrecorder.util.Reflections.getValue;
 import static net.amygdalum.testrecorder.util.Types.allFields;
-import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.CoreMatchers.instanceOf;
 
 import java.lang.reflect.Field;
 import java.util.List;

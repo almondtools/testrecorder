@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
+import net.amygdalum.testrecorder.generator.RenderedTest;
 import net.amygdalum.testrecorder.util.ExtensibleClassLoader;
 
 public class RenderedTestTest {

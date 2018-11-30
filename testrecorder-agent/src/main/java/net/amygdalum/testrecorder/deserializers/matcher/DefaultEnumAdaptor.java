@@ -14,7 +14,7 @@ import static net.amygdalum.testrecorder.util.Types.wildcardExtends;
 import java.lang.reflect.Type;
 
 import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
+import org.hamcrest.CoreMatchers;
 
 import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.runtime.EnumMatcher;
@@ -50,7 +50,7 @@ public class DefaultEnumAdaptor extends DefaultMatcherGenerator<SerializedEnum> 
 			}
 			types.staticImport(EnumMatcher.class, "matchingEnum");
 		} else {
-			types.staticImport(Matchers.class, "sameInstance");
+			types.staticImport(CoreMatchers.class, "sameInstance");
 		}
 
 		if (types.isHidden(type)) {

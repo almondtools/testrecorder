@@ -9,8 +9,8 @@ import static net.amygdalum.testrecorder.util.Types.wildcard;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
+import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
 
 import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.types.Computation;
@@ -31,7 +31,7 @@ public class DefaultNullAdaptor extends DefaultMatcherGenerator<SerializedNull> 
 		TypeManager types = context.getTypes();
 		types.registerType(value.getType());
 		types.registerTypes(value.getUsedTypes());
-		types.staticImport(Matchers.class, "nullValue");
+		types.staticImport(CoreMatchers.class, "nullValue");
 
 		Optional<Type> usedType = types.mostSpecialOf(value.getUsedTypes());
 		if (usedType.isPresent()) {

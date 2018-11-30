@@ -9,7 +9,7 @@ import org.junit.runner.notification.Failure;
 
 import net.amygdalum.testrecorder.dynamiccompile.DynamicClassCompiler;
 import net.amygdalum.testrecorder.dynamiccompile.DynamicClassCompilerException;
-import net.amygdalum.testrecorder.dynamiccompile.RenderedTest;
+import net.amygdalum.testrecorder.generator.RenderedTest;
 import net.amygdalum.testrecorder.util.Instantiations;
 
 public class TestsRun implements Consumer<RenderedTest> {

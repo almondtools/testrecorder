@@ -6,7 +6,7 @@ import org.assertj.core.api.SoftAssertions;
 
 import net.amygdalum.testrecorder.dynamiccompile.DynamicClassCompiler;
 import net.amygdalum.testrecorder.dynamiccompile.DynamicClassCompilerException;
-import net.amygdalum.testrecorder.dynamiccompile.RenderedTest;
+import net.amygdalum.testrecorder.generator.RenderedTest;
 
 public class Compiles implements Consumer<RenderedTest> {
 

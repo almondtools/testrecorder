@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.MultipleFailuresError;
 
-import net.amygdalum.testrecorder.dynamiccompile.RenderedTest;
+import net.amygdalum.testrecorder.generator.RenderedTest;
 
 public class TestsFailTest {
 

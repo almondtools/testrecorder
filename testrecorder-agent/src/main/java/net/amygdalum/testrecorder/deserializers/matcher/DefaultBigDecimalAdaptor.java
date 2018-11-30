@@ -11,8 +11,8 @@ import static net.amygdalum.testrecorder.util.Types.parameterized;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 
+import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
 
 import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.types.Computation;
@@ -38,7 +38,7 @@ public class DefaultBigDecimalAdaptor extends DefaultMatcherGenerator<Serialized
 		DeserializerContext context = generator.getContext();
 		TypeManager types = context.getTypes();
 		types.registerImport(BigDecimal.class);
-		types.staticImport(Matchers.class, "equalTo");
+		types.staticImport(CoreMatchers.class, "equalTo");
 
 		String literal = asLiteral(value.getValue().toPlainString());
 

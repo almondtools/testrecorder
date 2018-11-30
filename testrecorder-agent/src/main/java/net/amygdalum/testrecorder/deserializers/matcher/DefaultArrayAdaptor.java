@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.hamcrest.Matcher;
-import org.hamcrest.collection.IsArrayWithSize;
 
 import net.amygdalum.testrecorder.deserializers.Deserializer;
 import net.amygdalum.testrecorder.runtime.ArrayMatcher;
@@ -75,7 +74,7 @@ public class DefaultArrayAdaptor extends DefaultMatcherGenerator<SerializedArray
 			}
 		} else {
 			if (value.getArrayAsList().isEmpty()) {
-				types.staticImport(IsArrayWithSize.class, "emptyArray");
+				types.staticImport(ArrayMatcher.class, "emptyArray");
 
 				String arrayEmptyMatcher = arrayEmptyMatcher();
 				return expression(arrayEmptyMatcher, parameterized(Matcher.class, null, wildcard()));

@@ -3,7 +3,7 @@ package net.amygdalum.testrecorder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.mockito.Mockito.doReturn;
 
 import java.util.List;
