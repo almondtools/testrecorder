@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -17,30 +19,10 @@
 			<artifactId>testrecorder-runtime</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-        <dependency>
-            <groupId>net.amygdalum</groupId>
-            <artifactId>testrecorder-bridge</artifactId>
-            <version>${project.version}</version>
-        </dependency>
 		<dependency>
-			<groupId>org.ow2.asm</groupId>
-			<artifactId>asm</artifactId>
-			<version>7.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.ow2.asm</groupId>
-			<artifactId>asm-tree</artifactId>
-			<version>7.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.ow2.asm</groupId>
-			<artifactId>asm-commons</artifactId>
-			<version>7.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.ow2.asm</groupId>
-			<artifactId>asm-analysis</artifactId>
-			<version>7.0</version>
+			<groupId>net.amygdalum</groupId>
+			<artifactId>testrecorder-bridge</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ow2.asm</groupId>
@@ -134,8 +116,45 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>${version.plugin.shade}</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<shadedArtifactAttached>false</shadedArtifactAttached>
+							<createDependencyReducedPom>true</createDependencyReducedPom>
+							<createSourcesJar>true</createSourcesJar>
+							<shadeSourcesContent>true</shadeSourcesContent>
+							<relocations>
+								<relocation>
+									<pattern>org.objectweb.asm</pattern>
+									<shadedPattern>net.amygdalum.included.asm</shadedPattern>
+								</relocation>
+							</relocations>
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.ow2.asm</groupId>
+						<artifactId>asm</artifactId>
+						<version>7.0</version>
+					</dependency>
+					<dependency>
+						<groupId>org.ow2.asm</groupId>
+						<artifactId>asm-tree</artifactId>
+						<version>7.0</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.2</version>
+				<version>${version.plugin.assembly}</version>
 				<executions>
 					<execution>
 						<id>make-agent</id>
@@ -185,6 +204,18 @@
 						</configuration>
 						<goals>
 							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>${version.plugin.jar}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>test-jar</goal>
 						</goals>
 					</execution>
 				</executions>
