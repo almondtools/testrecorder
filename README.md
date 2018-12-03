@@ -17,6 +17,7 @@ __Some more Documentation (Work in Progress)__
 * [Recording Enterprise Java](doc/RecordingEE.md)
 * [Using the Testrecorder-API to serialize data and generate code](doc/API.md)
 * [Extending Testrecorder with Custom Components](doc/Extending.md)
+* [Creating a Custom Agent](doc/CreatingCustomAgents.md) 
 
 Examples
 ========

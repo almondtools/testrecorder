@@ -2,6 +2,8 @@ package net.amygdalum.testrecorder.profile;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
+import static net.amygdalum.testrecorder.ExtensionStrategy.EXTENDING;
+import static net.amygdalum.testrecorder.ExtensionStrategy.OVERRIDING;
 
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -11,6 +13,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.Stream.Builder;
 
+import net.amygdalum.testrecorder.ExtensionPoint;
 import net.amygdalum.testrecorder.util.Logger;
 
 public class AgentConfiguration {
@@ -52,6 +55,8 @@ public class AgentConfiguration {
 	}
 
 	public <T> Optional<T> loadOptionalConfiguration(Class<T> clazz, Object... args) {
+		assert clazz.isAnnotationPresent(ExtensionPoint.class);
+		assert clazz.getAnnotation(ExtensionPoint.class).strategy() == OVERRIDING;
 		if (args.length == 0) {
 			Object cached = singleValues.get(clazz);
 			if (cached != null) {
@@ -66,6 +71,8 @@ public class AgentConfiguration {
 	}
 
 	public <T> T loadConfiguration(Class<T> clazz, Object... args) {
+		assert clazz.isAnnotationPresent(ExtensionPoint.class);
+		assert clazz.getAnnotation(ExtensionPoint.class).strategy() == OVERRIDING;
 		if (args.length == 0) {
 			Object cached = singleValues.get(clazz);
 			if (cached != null) {
@@ -92,6 +99,8 @@ public class AgentConfiguration {
 
 	@SuppressWarnings("unchecked")
 	public <T> List<T> loadConfigurations(Class<T> clazz, Object... args) {
+		assert clazz.isAnnotationPresent(ExtensionPoint.class);
+		assert clazz.getAnnotation(ExtensionPoint.class).strategy() == EXTENDING;
 		if (args.length == 0) {
 			List<?> cached = multiValues.get(clazz);
 			if (cached != null) {

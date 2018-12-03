@@ -17,7 +17,6 @@ import net.amygdalum.testrecorder.SetupGenerator;
 import net.amygdalum.testrecorder.deserializers.CustomAnnotation;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.deserializers.DeserializerTypeManager;
-import net.amygdalum.testrecorder.runtime.TestRecorderAgentInitializer;
 import net.amygdalum.testrecorder.types.ContextSnapshot;
 import net.amygdalum.testrecorder.types.TypeManager;
 
@@ -43,7 +42,7 @@ public class ClassGenerator {
 	private Set<String> tests;
 
 
-	public ClassGenerator(DeserializerFactory setup, DeserializerFactory matcher, List<TestRecorderAgentInitializer> initializers, List<CustomAnnotation> annotations, String pkg, String testName) {
+	public ClassGenerator(DeserializerFactory setup, DeserializerFactory matcher, List<CustomAnnotation> annotations, String pkg, String testName) {
 		this.testName = testName;
 		this.setup = setup;
 		this.matcher = matcher;
@@ -53,16 +52,6 @@ public class ClassGenerator {
 		this.tests = new LinkedHashSet<>();
 
 		types.registerTypes(Test.class);
-
-		if (!initializers.isEmpty()) {
-			SetupGenerator setupGenerator = new SetupGenerator(types, "initialize", asList(Before.class));
-
-			for (TestRecorderAgentInitializer initializer : initializers) {
-				setupGenerator = setupGenerator.generateInitialize(initializer);
-			}
-
-			addSetup("initialize", setupGenerator.generateSetup());
-		}
 	}
 
 	public void setSetup(DeserializerFactory setup) {

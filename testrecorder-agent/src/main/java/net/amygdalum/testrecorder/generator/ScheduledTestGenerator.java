@@ -24,7 +24,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import net.amygdalum.testrecorder.ClassDescriptor;
-import net.amygdalum.testrecorder.SnapshotConsumer;
 import net.amygdalum.testrecorder.TestrecorderThreadFactory;
 import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.CustomAnnotation;
@@ -34,7 +33,7 @@ import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerator;
 import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerators;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
-import net.amygdalum.testrecorder.runtime.TestRecorderAgentInitializer;
+import net.amygdalum.testrecorder.profile.SnapshotConsumer;
 import net.amygdalum.testrecorder.types.ContextSnapshot;
 import net.amygdalum.testrecorder.util.Logger;
 
@@ -85,7 +84,6 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 
 	private SetupGenerators setup;
 	private MatcherGenerators matcher;
-	private List<TestRecorderAgentInitializer> initializer;
 	private List<CustomAnnotation> annotations;
 
 	public ScheduledTestGenerator(AgentConfiguration config) {
@@ -93,12 +91,11 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 			config.loadConfiguration(PerformanceProfile.class),
 			config.loadOptionalConfiguration(TestGeneratorProfile.class).orElseGet(DefaultTestGeneratorProfile::new),
 			config.loadConfigurations(SetupGenerator.class),
-			config.loadConfigurations(MatcherGenerator.class),
-			config.loadConfigurations(TestRecorderAgentInitializer.class));
+			config.loadConfigurations(MatcherGenerator.class));
 	}
 
 	@SuppressWarnings("rawtypes")
-	public ScheduledTestGenerator(PerformanceProfile profile, TestGeneratorProfile generatorProfile, List<SetupGenerator> setup, List<MatcherGenerator> matcher, List<TestRecorderAgentInitializer> init) {
+	public ScheduledTestGenerator(PerformanceProfile profile, TestGeneratorProfile generatorProfile, List<SetupGenerator> setup, List<MatcherGenerator> matcher) {
 		this.executor = initExecutor(profile);
 
 		this.generators = synchronizedMap(new LinkedHashMap<>());
@@ -113,7 +110,6 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 
 		this.setup = new SetupGenerators(new Adaptors().load(setup));
 		this.matcher = new MatcherGenerators(new Adaptors().load(matcher));
-		this.initializer = init;
 		this.annotations = generatorProfile.annotations();
 	}
 
@@ -122,12 +118,11 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 			config.loadConfiguration(PerformanceProfile.class),
 			config.loadOptionalConfiguration(TestGeneratorProfile.class).orElseGet(DefaultTestGeneratorProfile::new),
 			config.loadConfigurations(SetupGenerator.class),
-			config.loadConfigurations(MatcherGenerator.class),
-			config.loadConfigurations(TestRecorderAgentInitializer.class));
+			config.loadConfigurations(MatcherGenerator.class));
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public void reload(PerformanceProfile profile, TestGeneratorProfile generatorProfile, List<SetupGenerator> setup, List<MatcherGenerator> matcher, List<TestRecorderAgentInitializer> init) {
+	public void reload(PerformanceProfile profile, TestGeneratorProfile generatorProfile, List<SetupGenerator> setup, List<MatcherGenerator> matcher) {
 		this.executor = initExecutor(profile);
 		
 		this.generators = synchronizedMap(new LinkedHashMap<>());
@@ -142,7 +137,6 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 		
 		this.setup = new SetupGenerators(new Adaptors().load(setup));
 		this.matcher = new MatcherGenerators(new Adaptors().load(matcher));
-		this.initializer = init;
 		this.annotations = generatorProfile.annotations();
 	}
 	
@@ -267,7 +261,7 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 	}
 
 	public ClassGenerator newGenerator(ClassDescriptor clazz) {
-		return new ClassGenerator(setup, matcher, initializer, annotations, clazz.getPackage(), computeClassName(clazz));
+		return new ClassGenerator(setup, matcher, annotations, clazz.getPackage(), computeClassName(clazz));
 	}
 
 	public RenderedTest renderTest(Class<?> clazz) {

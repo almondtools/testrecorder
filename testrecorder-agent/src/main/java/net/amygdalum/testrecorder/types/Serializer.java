@@ -1,8 +1,13 @@
 package net.amygdalum.testrecorder.types;
 
+import static net.amygdalum.testrecorder.ExtensionStrategy.EXTENDING;
+
 import java.util.List;
 import java.util.stream.Stream;
 
+import net.amygdalum.testrecorder.ExtensionPoint;
+
+@ExtensionPoint(strategy=EXTENDING)
 public interface Serializer<T extends SerializedValue> {
 
 	List<Class<?>> getMatchingClasses();

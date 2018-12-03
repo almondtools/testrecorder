@@ -31,6 +31,7 @@ import net.amygdalum.testrecorder.SnapshotManager.DummyContextSnapshotTransactio
 import net.amygdalum.testrecorder.SnapshotManager.SerializationTask;
 import net.amygdalum.testrecorder.SnapshotManager.ValidContextSnapshotTransaction;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.profile.SnapshotConsumer;
 import net.amygdalum.testrecorder.serializers.SerializerFacade;
 import net.amygdalum.testrecorder.types.ContextSnapshot;
 import net.amygdalum.testrecorder.types.FieldSignature;

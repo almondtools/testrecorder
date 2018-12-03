@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import java.io.ByteArrayOutputStream;
 import java.lang.instrument.Instrumentation;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,14 +16,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
-import net.amygdalum.testrecorder.profile.ConfigNoArguments;
+import net.amygdalum.testrecorder.profile.ConfigNoArgumentsNonExclusive;
 import net.amygdalum.testrecorder.profile.DefaultConfigNoArguments;
 import net.amygdalum.testrecorder.profile.OtherConfigNoArguments;
 import net.amygdalum.testrecorder.util.AttachableClassFileTransformer;
-import net.amygdalum.testrecorder.util.ClasspathResourceExtension;
-import net.amygdalum.testrecorder.util.ExtensibleClassLoader;
-import net.amygdalum.testrecorder.util.LogLevel;
-import net.amygdalum.testrecorder.util.LoggerExtension;
 import net.amygdalum.testrecorder.util.TemporaryFolder;
 import net.amygdalum.testrecorder.util.TemporaryFolderExtension;
 
@@ -34,42 +29,14 @@ public class TestRecorderAgentTest {
 	@Test
 	public void testLoadConfig(TemporaryFolder folder) throws Exception {
 		Path folder1 = folder.provideFolder("agentconfig").toAbsolutePath();
-		Files.write(folder1.resolve(ConfigNoArguments.class.getName()), DefaultConfigNoArguments.class.getName().getBytes(), StandardOpenOption.CREATE);
+		Files.write(folder1.resolve(ConfigNoArgumentsNonExclusive.class.getName()), DefaultConfigNoArguments.class.getName().getBytes(), StandardOpenOption.CREATE);
 
 		Path folder2 = folder.provideFolder("otherconfig").toAbsolutePath();
-		Files.write(folder2.resolve(ConfigNoArguments.class.getName()), OtherConfigNoArguments.class.getName().getBytes(), StandardOpenOption.CREATE);
+		Files.write(folder2.resolve(ConfigNoArgumentsNonExclusive.class.getName()), OtherConfigNoArguments.class.getName().getBytes(), StandardOpenOption.CREATE);
 
 		AgentConfiguration agentconfig = TestRecorderAgent.loadConfig(folder1 + ";" + folder2);
 
-		assertThat(agentconfig.loadConfigurations(ConfigNoArguments.class)).hasSize(2);
-	}
-
-	@ExtendWith(LoggerExtension.class)
-	@ExtendWith(ClasspathResourceExtension.class)
-	@Test
-	public void testInitialize(ExtensibleClassLoader loader, @LogLevel("info") ByteArrayOutputStream info, @LogLevel("error") ByteArrayOutputStream error) throws Exception {
-		loader.defineResource("agentconfig/net.amygdalum.testrecorder.runtime.TestRecorderAgentInitializer", "net.amygdalum.testrecorder.runtime.AgentInitializer".getBytes());
-		AgentConfiguration agentconfig = TestRecorderAgent.loadConfig(null);
-		TestRecorderAgent agent = new TestRecorderAgent(Mockito.mock(Instrumentation.class), agentconfig);
-
-		agent.initialize();
-
-		assertThat(info.toString()).contains("init");
-		assertThat(error.toString()).isEmpty();
-	}
-
-	@ExtendWith(LoggerExtension.class)
-	@ExtendWith(ClasspathResourceExtension.class)
-	@Test
-	public void testInitializeWithInitializationFailure(ExtensibleClassLoader loader, @LogLevel("info") ByteArrayOutputStream info, @LogLevel("error") ByteArrayOutputStream error) throws Exception {
-		loader.defineResource("agentconfig/net.amygdalum.testrecorder.runtime.TestRecorderAgentInitializer", "net.amygdalum.testrecorder.runtime.BrokenAgentInitializer".getBytes());
-		AgentConfiguration agentconfig = TestRecorderAgent.loadConfig(null);
-		TestRecorderAgent agent = new TestRecorderAgent(Mockito.mock(Instrumentation.class), agentconfig);
-
-		agent.initialize();
-
-		assertThat(info.toString()).contains("loading BrokenAgentInitializer");
-		assertThat(error.toString()).contains("initializer BrokenAgentInitializer failed");
+		assertThat(agentconfig.loadConfigurations(ConfigNoArgumentsNonExclusive.class)).hasSize(2);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -86,7 +53,6 @@ public class TestRecorderAgentTest {
 		assertThat(argument.getAllValues())
 			.extracting(object -> (Class) object.getClass())
 			.containsExactlyInAnyOrder(SnapshotInstrumentor.class, AllLambdasSerializableTransformer.class);
-		verify(agent).initialize();
 	}
 
 	@SuppressWarnings("rawtypes")

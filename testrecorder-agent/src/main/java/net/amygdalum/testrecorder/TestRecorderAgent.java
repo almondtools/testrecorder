@@ -14,9 +14,8 @@ import net.amygdalum.testrecorder.profile.DefaultPathConfigurationLoader;
 import net.amygdalum.testrecorder.profile.PathConfigurationLoader;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.profile.SerializationProfile;
-import net.amygdalum.testrecorder.runtime.TestRecorderAgentInitializer;
+import net.amygdalum.testrecorder.profile.SnapshotConsumer;
 import net.amygdalum.testrecorder.util.AttachableClassFileTransformer;
-import net.amygdalum.testrecorder.util.Logger;
 
 public class TestRecorderAgent {
 
@@ -67,18 +66,6 @@ public class TestRecorderAgent {
 	public void prepareInstrumentations() {
 		lambdaTransformer = new AllLambdasSerializableTransformer().attach(inst);
 		snapshotInstrumentor = new SnapshotInstrumentor(config).attach(inst);
-
-		initialize();
-	}
-
-	public void initialize() {
-		for (TestRecorderAgentInitializer initializer : config.loadConfigurations(TestRecorderAgentInitializer.class)) {
-			try {
-				initializer.run();
-			} catch (RuntimeException e) {
-				Logger.error("initializer " + initializer.getClass().getSimpleName() + " failed with " + e.getMessage() + ", skipping", e);
-			}
-		}
 	}
 
 	public void clearInstrumentations() {

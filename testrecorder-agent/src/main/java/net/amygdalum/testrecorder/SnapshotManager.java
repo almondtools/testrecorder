@@ -42,6 +42,7 @@ import java.util.jar.Manifest;
 import net.amygdalum.testrecorder.bridge.BridgedSnapshotManager;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
+import net.amygdalum.testrecorder.profile.SnapshotConsumer;
 import net.amygdalum.testrecorder.serializers.SerializerFacade;
 import net.amygdalum.testrecorder.types.ContextSnapshot;
 import net.amygdalum.testrecorder.types.FieldSignature;

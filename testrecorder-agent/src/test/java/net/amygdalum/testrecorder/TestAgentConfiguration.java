@@ -14,6 +14,7 @@ import net.amygdalum.testrecorder.profile.ClassPathConfigurationLoader;
 import net.amygdalum.testrecorder.profile.DefaultPathConfigurationLoader;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.profile.SerializationProfile;
+import net.amygdalum.testrecorder.profile.SnapshotConsumer;
 
 public class TestAgentConfiguration extends AgentConfiguration {
 

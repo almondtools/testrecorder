@@ -17,7 +17,6 @@ import java.util.concurrent.TimeUnit;
 import net.amygdalum.testrecorder.DefaultPerformanceProfile;
 import net.amygdalum.testrecorder.DefaultSerializationProfile;
 import net.amygdalum.testrecorder.DefaultSnapshotConsumer;
-import net.amygdalum.testrecorder.SnapshotConsumer;
 import net.amygdalum.testrecorder.TestRecorderAgent;
 import net.amygdalum.testrecorder.TestrecorderThreadFactory;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
@@ -29,6 +28,7 @@ import net.amygdalum.testrecorder.profile.FixedConfigurationLoader;
 import net.amygdalum.testrecorder.profile.Methods;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.profile.SerializationProfile;
+import net.amygdalum.testrecorder.profile.SnapshotConsumer;
 import net.amygdalum.testrecorder.types.ContextSnapshot;
 import net.bytebuddy.agent.ByteBuddyAgent;
 

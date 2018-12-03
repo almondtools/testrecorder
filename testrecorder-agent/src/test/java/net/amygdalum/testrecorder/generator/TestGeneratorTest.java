@@ -82,33 +82,6 @@ public class TestGeneratorTest {
 	}
 
 	@Test
-	void testAcceptWithInitializer() throws Exception {
-		loader.defineResource("agentconfig/net.amygdalum.testrecorder.runtime.TestRecorderAgentInitializer", "net.amygdalum.testrecorder.runtime.AgentInitializer".getBytes());
-		config.reset().withLoader(loader);
-		testGenerator.reload(config);
-
-		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
-		FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
-		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
-		snapshot.setSetupArgs(literal(int.class, 16));
-		snapshot.setSetupGlobals(new SerializedField[0]);
-		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 8))));
-		snapshot.setExpectArgs(literal(int.class, 16));
-		snapshot.setExpectResult(literal(int.class, 22));
-		snapshot.setExpectGlobals(new SerializedField[0]);
-
-		testGenerator.accept(snapshot);
-
-		testGenerator.await();
-		assertThat(testGenerator.renderTest(TestGeneratorTest.class).getTestCode())
-			.containsSubsequence(
-				"@Before",
-				"public void initialize() throws Exception {",
-				"new AgentInitializer().run();",
-				"}");
-	}
-
-	@Test
 	void testAcceptWithInput() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 		FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");

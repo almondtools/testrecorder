@@ -57,25 +57,19 @@ public abstract class AbstractPathConfigurationLoader implements ConfigurationLo
 			if (constructor.isPresent()) {
 				return superClazz.cast(constructor.get().newInstance(args));
 			} else {
-				Logger.error("failed loading " + clazz.getSimpleName() + " because no constructor matching "
+				Logger.error("failed loading " + clazz.getName() + " because no constructor matching "
 					+ Arrays.stream(args).map(arg -> arg == null ? "null" : arg.getClass().getSimpleName()).collect(joining(", ", "(", ")"))
 					+ ", skipping");
 				return null;
 			}
 		} catch (ClassNotFoundException e) {
-			int pos = name.lastIndexOf('.');
-			String simpleName = name.substring(pos + 1);
-			Logger.error("failed loading " + simpleName + " from classpath, skipping");
+			Logger.error("failed loading " + name + " from classpath, skipping");
 			return null;
 		} catch (ClassCastException e) {
-			int pos = name.lastIndexOf('.');
-			String simpleName = name.substring(pos + 1);
-			Logger.error("loaded class " + simpleName + " is not a subclass of " + superClazz.getSimpleName() + ", skipping");
+			Logger.error("loaded class " + name + " is not a subclass of " + superClazz.getSimpleName() + ", skipping");
 			return null;
 		} catch (InvocationTargetException | InstantiationException | IllegalArgumentException | IllegalAccessException e) {
-			int pos = name.lastIndexOf('.');
-			String simpleName = name.substring(pos + 1);
-			Logger.error("failed instantiating " + simpleName + ": ", e);
+			Logger.error("failed instantiating " + name + ": ", e);
 			return null;
 		}
 	}

@@ -384,11 +384,3 @@ To register your `DateMatcherGenerator` for deserialization dispatch you will ha
 * create a directory `agentconfig` in your class path
 * create a file `net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerator` in this directory
 * put the full qualified class name `com.almondtools.testrecorder.examples.deserializers.DateMatcherGenerator` into this file
-
-## Custom Initializers
-
-TODO (Please file an issue if you need documentation on this subject)
-
-## Bundling your custom components
-
-TODO (Please file an issue if you need documentation on this subject)

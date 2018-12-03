@@ -22,23 +22,23 @@ public class PathConfigurationLoaderTest {
 
 	@Test
 	void testLoad(TemporaryFolder folder) throws Exception {
-		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigNoArguments",
+		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigNoArgumentsNonExclusive",
 			"net.amygdalum.testrecorder.profile.DefaultConfigNoArguments\nnet.amygdalum.testrecorder.profile.OtherConfigNoArguments".getBytes());
 
 		PathConfigurationLoader loader = new PathConfigurationLoader(folder.getRoot());
 
-		assertThat(loader.load(ConfigNoArguments.class).findFirst()).containsInstanceOf(DefaultConfigNoArguments.class);
+		assertThat(loader.load(ConfigNoArgumentsNonExclusive.class).findFirst()).containsInstanceOf(DefaultConfigNoArguments.class);
 	}
 
 	@Test
 	void testLoadWithClassLoader(TemporaryFolder folder) throws Exception {
-		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigNoArguments",
+		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigNoArgumentsNonExclusive",
 			"net.amygdalum.testrecorder.profile.DefaultConfigNoArguments\nnet.amygdalum.testrecorder.profile.OtherConfigNoArguments".getBytes());
 
 		ClassLoader classLoader = new ExtensibleClassLoader(PathConfigurationLoaderTest.class.getClassLoader(), "net.amygdalum.testrecorder.profile");
 		PathConfigurationLoader loader = new PathConfigurationLoader(classLoader, folder.getRoot());
 
-		Class<?> clazz = classLoader.loadClass(ConfigNoArguments.class.getName());
+		Class<?> clazz = classLoader.loadClass(ConfigNoArgumentsNonExclusive.class.getName());
 		assertThat(loader.load(clazz).findFirst())
 			.map(config -> config.getClass().getClassLoader())
 			.containsSame(classLoader);
@@ -47,7 +47,7 @@ public class PathConfigurationLoaderTest {
 	@ExtendWith(LoggerExtension.class)
 	@Test
 	void testLoadFileNotFound(TemporaryFolder folder, @LogLevel("debug") ByteArrayOutputStream debug) throws Exception {
-		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigNoArguments",
+		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigNoArgumentsNonExclusive",
 			"net.amygdalum.testrecorder.profile.DefaultConfigNoArguments\nnet.amygdalum.testrecorder.profile.OtherConfigNoArguments".getBytes());
 
 		PathConfigurationLoader loader = new PathConfigurationLoader(folder.getRoot()) {
@@ -57,14 +57,14 @@ public class PathConfigurationLoaderTest {
 			}
 		};
 
-		assertThat(loader.load(ConfigNoArguments.class).findFirst()).isNotPresent();
+		assertThat(loader.load(ConfigNoArgumentsNonExclusive.class).findFirst()).isNotPresent();
 		assertThat(debug.toString()).contains("did not find configuration file");
 	}
 
 	@ExtendWith(LoggerExtension.class)
 	@Test
 	void testLoadIOException(TemporaryFolder folder, @LogLevel("error") ByteArrayOutputStream error) throws Exception {
-		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigNoArguments",
+		folder.provideFile("net.amygdalum.testrecorder.profile.ConfigNoArgumentsNonExclusive",
 			"net.amygdalum.testrecorder.profile.DefaultConfigNoArguments\nnet.amygdalum.testrecorder.profile.OtherConfigNoArguments".getBytes());
 
 		PathConfigurationLoader loader = new PathConfigurationLoader(folder.getRoot()) {
@@ -74,7 +74,7 @@ public class PathConfigurationLoaderTest {
 			}
 		};
 
-		assertThat(loader.load(ConfigNoArguments.class).findFirst()).isNotPresent();
+		assertThat(loader.load(ConfigNoArgumentsNonExclusive.class).findFirst()).isNotPresent();
 		assertThat(error.toString()).contains("cannot load configuration file");
 	}
 

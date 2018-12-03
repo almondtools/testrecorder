@@ -3,7 +3,6 @@ package net.amygdalum.testrecorder;
 import static java.util.stream.Collectors.toList;
 import static net.amygdalum.testrecorder.deserializers.Templates.annotation;
 import static net.amygdalum.testrecorder.deserializers.Templates.callMethodStatement;
-import static net.amygdalum.testrecorder.deserializers.Templates.newObject;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -11,7 +10,6 @@ import java.util.List;
 
 import org.stringtemplate.v4.ST;
 
-import net.amygdalum.testrecorder.runtime.TestRecorderAgentInitializer;
 import net.amygdalum.testrecorder.types.TypeManager;
 
 public class SetupGenerator {
@@ -33,14 +31,6 @@ public class SetupGenerator {
 		this.name = name;
 		this.annotations = annotations.stream().map(type -> annotation(types.getRawTypeName(type))).collect(toList());
 		this.statements = new ArrayList<>();
-	}
-
-	public SetupGenerator generateInitialize(TestRecorderAgentInitializer initializer) {
-		types.registerType(initializer.getClass());
-		String initObject = newObject(types.getConstructorTypeName(initializer.getClass()));
-		String initStmt = callMethodStatement(initObject, "run");
-		statements.add(initStmt);
-		return this;
 	}
 
 	public SetupGenerator generateReset() {

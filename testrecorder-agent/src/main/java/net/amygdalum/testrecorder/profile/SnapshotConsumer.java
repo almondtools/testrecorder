@@ -2,12 +2,11 @@ package net.amygdalum.testrecorder.profile;
 
 import net.amygdalum.testrecorder.ExtensionPoint;
 import net.amygdalum.testrecorder.ExtensionStrategy;
+import net.amygdalum.testrecorder.types.ContextSnapshot;
 
 @ExtensionPoint(strategy=ExtensionStrategy.OVERRIDING)
-public interface PerformanceProfile {
+public interface SnapshotConsumer {
 
-	long getTimeoutInMillis();
-
-	long getIdleTime();
+	void accept(ContextSnapshot snapshot);
 
 }
