@@ -18,10 +18,15 @@ public class SerializableTypeVariable<D extends GenericDeclaration> implements T
 	private D genericDeclaration;
 	private Type[] bounds;
 
-	public SerializableTypeVariable(String name, D genericDeclaration, Type[] bounds) {
+	public SerializableTypeVariable(String name, D genericDeclaration) {
 		this.name = name;
 		this.genericDeclaration = genericDeclaration;
+		this.bounds = new Type[0];
+	}
+
+	public SerializableTypeVariable<D> boundedBy(Type... bounds) {
 		this.bounds = bounds;
+		return this;
 	}
 
 	@Override

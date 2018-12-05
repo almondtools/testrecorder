@@ -278,7 +278,7 @@ public class TypesTest {
 
 	@Test
 	void testIsBound() throws Exception {
-		assertThat(isBound(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class))).isFalse();
+		assertThat(isBound(typeVariable("T", GenericWithTypeVariable.class).boundedBy(CharSequence.class))).isFalse();
 		assertThat(isBound(wildcard())).isFalse();
 		assertThat(isBound(Object.class)).isTrue();
 	}
@@ -505,24 +505,24 @@ public class TypesTest {
 
 	@Test
 	void testTypeVariable() throws Exception {
-		assertThat(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class).getName()).isEqualTo("T");
-		assertThat(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class).getGenericDeclaration()).isEqualTo(GenericWithTypeVariable.class);
-		assertThat(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class).getBounds()).contains(CharSequence.class);
-		assertThat(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class).getAnnotations()).isEmpty();
-		assertThat(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class).getDeclaredAnnotations()).isEmpty();
-		assertThat(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class).getAnnotatedBounds()).isEmpty();
-		assertThat(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class).getAnnotation(MyAnnotation.class)).isNull();
-		assertThat(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class).getTypeName()).isEqualTo("T extends java.lang.CharSequence");
+		assertThat(typeVariable("T", GenericWithTypeVariable.class).boundedBy(CharSequence.class).getName()).isEqualTo("T");
+		assertThat(typeVariable("T", GenericWithTypeVariable.class).boundedBy(CharSequence.class).getGenericDeclaration()).isEqualTo(GenericWithTypeVariable.class);
+		assertThat(typeVariable("T", GenericWithTypeVariable.class).boundedBy(CharSequence.class).getBounds()).contains(CharSequence.class);
+		assertThat(typeVariable("T", GenericWithTypeVariable.class).boundedBy(CharSequence.class).getAnnotations()).isEmpty();
+		assertThat(typeVariable("T", GenericWithTypeVariable.class).boundedBy(CharSequence.class).getDeclaredAnnotations()).isEmpty();
+		assertThat(typeVariable("T", GenericWithTypeVariable.class).boundedBy(CharSequence.class).getAnnotatedBounds()).isEmpty();
+		assertThat(typeVariable("T", GenericWithTypeVariable.class).boundedBy(CharSequence.class).getAnnotation(MyAnnotation.class)).isNull();
+		assertThat(typeVariable("T", GenericWithTypeVariable.class).boundedBy(CharSequence.class).getTypeName()).isEqualTo("T extends java.lang.CharSequence");
 		assertThat(typeVariable("T", GenericWithTypeVariable.class).toString()).isEqualTo("T");
-		assertThat(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class).toString()).isEqualTo("T extends java.lang.CharSequence");
-		assertThat(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class, Serializable.class).toString()).isEqualTo("T extends java.lang.CharSequence, java.io.Serializable");
+		assertThat(typeVariable("T", GenericWithTypeVariable.class).boundedBy(CharSequence.class).toString()).isEqualTo("T extends java.lang.CharSequence");
+		assertThat(typeVariable("T", GenericWithTypeVariable.class).boundedBy(CharSequence.class, Serializable.class).toString()).isEqualTo("T extends java.lang.CharSequence, java.io.Serializable");
 
-		assertThat(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class)).satisfies(defaultEquality()
-			.andEqualTo(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class))
-			.andNotEqualTo(typeVariable("T", null, CharSequence.class))
-			.andNotEqualTo(typeVariable("S", GenericWithTypeVariable.class, CharSequence.class))
-			.andNotEqualTo(typeVariable("S", GenericWithTypeVariable.class, CharSequence.class, Serializable.class))
-			.andNotEqualTo(typeVariable("T", Object.class, CharSequence.class))
+		assertThat(typeVariable("T", GenericWithTypeVariable.class).boundedBy(CharSequence.class)).satisfies(defaultEquality()
+			.andEqualTo(typeVariable("T", GenericWithTypeVariable.class).boundedBy(CharSequence.class))
+			.andNotEqualTo(typeVariable("T", null).boundedBy(CharSequence.class))
+			.andNotEqualTo(typeVariable("S", GenericWithTypeVariable.class).boundedBy(CharSequence.class))
+			.andNotEqualTo(typeVariable("S", GenericWithTypeVariable.class).boundedBy(CharSequence.class, Serializable.class))
+			.andNotEqualTo(typeVariable("T", Object.class).boundedBy(CharSequence.class))
 			.andNotEqualTo(typeVariable("T", GenericWithTypeVariable.class))
 			.conventions());
 	}
@@ -686,9 +686,10 @@ public class TypesTest {
 		assertThat(serializableOf(Fields.parameterized())).isInstanceOf(Serializable.class);
 		assertThat(serializableOf(array(parameterized(List.class, null, String.class)))).isInstanceOf(Serializable.class);
 		assertThat(serializableOf(Fields.genericArray())).isInstanceOf(Serializable.class);
-		assertThat(serializableOf(typeVariable("T", GenericWithTypeVariable.class, CharSequence.class))).isInstanceOf(Serializable.class);
+		assertThat(serializableOf(typeVariable("T", GenericWithTypeVariable.class).boundedBy(CharSequence.class))).isInstanceOf(Serializable.class);
 		assertThat(serializableOf(GenericWithTypeVariable.class.getTypeParameters()[0])).isInstanceOf(Serializable.class);
 		assertThat(serializableOf(TypesPackagePrivate.class)).isInstanceOf(Serializable.class);
+		assertThat(serializableOf(Arguments.recursiveTypeVariable())).isInstanceOf(Serializable.class);
 	}
 
 	@Test
@@ -724,7 +725,7 @@ public class TypesTest {
 		assertThat(isGenericVariable(long.class)).isFalse();
 		assertThat(isGenericVariable(Long.class)).isFalse();
 		assertThat(isGenericVariable(parameterized(List.class, null, Long.class))).isFalse();
-		assertThat(isGenericVariable(typeVariable("E", List.class, Long.class))).isTrue();
+		assertThat(isGenericVariable(typeVariable("E", List.class).boundedBy(Long.class))).isTrue();
 	}
 
 	@Test
@@ -732,7 +733,7 @@ public class TypesTest {
 		assertThat(isGeneric(double.class)).isFalse();
 		assertThat(isGeneric(Double.class)).isFalse();
 		assertThat(isGeneric(parameterized(List.class, null, Long.class))).isTrue();
-		assertThat(isGeneric(typeVariable("E", List.class, Long.class))).isTrue();
+		assertThat(isGeneric(typeVariable("E", List.class).boundedBy(Long.class))).isTrue();
 		assertThat(isGeneric(array(parameterized(List.class, null, Integer.class)))).isTrue();
 	}
 
@@ -756,31 +757,37 @@ public class TypesTest {
 
 	@Test
 	void testByMostConcreteGeneric() throws Exception {
-		assertThat(Stream.of(String.class, String.class).sorted(Types::byMostConcreteGeneric)).containsExactly(String.class, String.class);
-		assertThat(Stream.of(List.class, ArrayList.class).sorted(Types::byMostConcreteGeneric)).containsExactly(ArrayList.class, List.class);
-		assertThat(Stream.of(ArrayList.class, List.class).sorted(Types::byMostConcreteGeneric)).containsExactly(ArrayList.class, List.class);
-		assertThat(Stream.of(List.class, Set.class).sorted(Types::byMostConcreteGeneric)).containsExactly(List.class, Set.class);
+		assertThat(Stream.of(String.class, String.class).sorted(Types::byMostConcreteGeneric))
+			.containsExactly(String.class, String.class);
+		assertThat(Stream.of(List.class, ArrayList.class).sorted(Types::byMostConcreteGeneric))
+			.containsExactly(ArrayList.class, List.class);
+		assertThat(Stream.of(ArrayList.class, List.class).sorted(Types::byMostConcreteGeneric))
+			.containsExactly(ArrayList.class, List.class);
+		assertThat(Stream.of(List.class, Set.class).sorted(Types::byMostConcreteGeneric))
+			.containsExactly(List.class, Set.class);
 		assertThat(Stream.of(wildcardExtends(List.class, ArrayList.class), wildcardExtends(List.class)).sorted(Types::byMostConcreteGeneric))
 			.containsExactly(wildcardExtends(List.class, ArrayList.class), wildcardExtends(List.class));
 		assertThat(Stream.of(wildcardExtends(List.class), wildcardExtends(List.class, ArrayList.class)).sorted(Types::byMostConcreteGeneric))
 			.containsExactly(wildcardExtends(List.class, ArrayList.class), wildcardExtends(List.class));
-		assertThat(Stream.of(wildcardExtends(ArrayList.class), wildcardExtends(List.class)).sorted(Types::byMostConcreteGeneric)).containsExactly(wildcardExtends(ArrayList.class),
-			wildcardExtends(List.class));
-		assertThat(Stream.of(wildcardExtends(List.class), wildcardExtends(ArrayList.class)).sorted(Types::byMostConcreteGeneric)).containsExactly(wildcardExtends(ArrayList.class),
-			wildcardExtends(List.class));
-		assertThat(Stream.of(wildcardExtends(List.class), ArrayList.class).sorted(Types::byMostConcreteGeneric)).containsExactly(ArrayList.class, wildcardExtends(List.class));
-		assertThat(Stream.of(ArrayList.class, wildcardExtends(List.class)).sorted(Types::byMostConcreteGeneric)).containsExactly(ArrayList.class, wildcardExtends(List.class));
-		assertThat(Stream.of(parameterized(List.class, null, String.class), ArrayList.class).sorted(Types::byMostConcreteGeneric)).containsExactly(ArrayList.class,
-			parameterized(List.class, null, String.class));
-		assertThat(Stream.of(ArrayList.class, parameterized(List.class, null, String.class)).sorted(Types::byMostConcreteGeneric)).containsExactly(ArrayList.class,
-			parameterized(List.class, null, String.class));
+		assertThat(Stream.of(wildcardExtends(ArrayList.class), wildcardExtends(List.class)).sorted(Types::byMostConcreteGeneric))
+			.containsExactly(wildcardExtends(ArrayList.class), wildcardExtends(List.class));
+		assertThat(Stream.of(wildcardExtends(List.class), wildcardExtends(ArrayList.class)).sorted(Types::byMostConcreteGeneric))
+			.containsExactly(wildcardExtends(ArrayList.class), wildcardExtends(List.class));
+		assertThat(Stream.of(wildcardExtends(List.class), (Type) ArrayList.class).sorted(Types::byMostConcreteGeneric))
+			.containsExactly(ArrayList.class, wildcardExtends(List.class));
+		assertThat(Stream.of((Type) ArrayList.class, wildcardExtends(List.class))
+			.sorted(Types::byMostConcreteGeneric)).containsExactly(ArrayList.class, wildcardExtends(List.class));
+		assertThat(Stream.of(parameterized(List.class, null, String.class), (Type) ArrayList.class).sorted(Types::byMostConcreteGeneric))
+			.containsExactly(ArrayList.class, parameterized(List.class, null, String.class));
+		assertThat(Stream.of((Type) ArrayList.class, parameterized(List.class, null, String.class)).sorted(Types::byMostConcreteGeneric))
+			.containsExactly(ArrayList.class, parameterized(List.class, null, String.class));
 		assertThat(Stream.of(parameterized(List.class, null, String.class), parameterized(List.class, null, Object.class)).sorted(Types::byMostConcreteGeneric))
 			.containsExactly(parameterized(List.class, null, String.class), parameterized(List.class, null, Object.class));
 		assertThat(Stream.of(parameterized(List.class, null, Object.class), parameterized(List.class, null, String.class)).sorted(Types::byMostConcreteGeneric))
 			.containsExactly(parameterized(List.class, null, String.class), parameterized(List.class, null, Object.class));
-		assertThat(Stream.of(ArrayList.class, parameterized(ArrayList.class, null, String.class)).sorted(Types::byMostConcreteGeneric))
+		assertThat(Stream.of((Type) ArrayList.class, parameterized(ArrayList.class, null, String.class)).sorted(Types::byMostConcreteGeneric))
 			.containsExactly(parameterized(ArrayList.class, null, String.class), ArrayList.class);
-		assertThat(Stream.of(parameterized(ArrayList.class, null, String.class), ArrayList.class).sorted(Types::byMostConcreteGeneric))
+		assertThat(Stream.of(parameterized(ArrayList.class, null, String.class), (Type) ArrayList.class).sorted(Types::byMostConcreteGeneric))
 			.containsExactly(parameterized(ArrayList.class, null, String.class), ArrayList.class);
 	}
 
@@ -872,6 +879,18 @@ public class TypesTest {
 
 		public static Type genericArray() throws ReflectiveOperationException {
 			return Fields.class.getDeclaredField("genericArray").getGenericType();
+		}
+
+	}
+
+	public static class Arguments {
+
+		public <E extends Enum<E>> E methodRecursive() {
+			return null;
+		}
+
+		public static Type recursiveTypeVariable() throws ReflectiveOperationException {
+			return Arguments.class.getDeclaredMethod("methodRecursive").getGenericReturnType();
 		}
 
 	}

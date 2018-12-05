@@ -598,28 +598,28 @@ public final class Types {
 		return new SerializableGenericArrayType(serializableOf(componentType));
 	}
 
-	public static ParameterizedType parameterized(Type raw, Type owner, Type... typeArgs) {
+	public static SerializableParameterizedType parameterized(Type raw, Type owner, Type... typeArgs) {
 		return new SerializableParameterizedType(serializableOf(raw), serializableOf(owner), serializableOf(typeArgs));
 	}
 
-	public static WildcardType wildcard() {
+	public static SerializableWildcardType wildcard() {
 		return new SerializableWildcardType(NO_TYPES, NO_TYPES);
 	}
 
-	public static WildcardType wildcard(Type[] upperBounds, Type[] lowerBounds) {
+	public static SerializableWildcardType wildcard(Type[] upperBounds, Type[] lowerBounds) {
 		return new SerializableWildcardType(serializableOf(upperBounds), serializableOf(lowerBounds));
 	}
 
-	public static WildcardType wildcardExtends(Type... bounds) {
+	public static SerializableWildcardType wildcardExtends(Type... bounds) {
 		return new SerializableWildcardType(serializableOf(bounds), NO_TYPES);
 	}
 
-	public static WildcardType wildcardSuper(Type... bounds) {
+	public static SerializableWildcardType wildcardSuper(Type... bounds) {
 		return new SerializableWildcardType(NO_TYPES, serializableOf(bounds));
 	}
 
-	public static <D extends GenericDeclaration> TypeVariable<D> typeVariable(String name, D genericDeclaration, Type... bounds) {
-		return new SerializableTypeVariable<>(name, genericDeclaration, serializableOf(bounds));
+	public static <D extends GenericDeclaration> SerializableTypeVariable<D> typeVariable(String name, D genericDeclaration) {
+		return new SerializableTypeVariable<>(name, genericDeclaration);
 	}
 
 	public static List<Field> allFields(Class<?> clazz) {
@@ -813,7 +813,6 @@ public final class Types {
 		Type serializableType = serializables.get(type);
 		if (serializableType == null) {
 			serializableType = newSerializableType(type);
-			serializables.put(type, serializableType);
 		}
 		return serializableType;
 	}
@@ -821,18 +820,28 @@ public final class Types {
 	private static Type newSerializableType(Type type) {
 		if (type instanceof WildcardType) {
 			WildcardType wildcardtype = (WildcardType) type;
-			return wildcard(wildcardtype.getUpperBounds(), wildcardtype.getLowerBounds());
+			SerializableWildcardType serializableType = wildcard(wildcardtype.getUpperBounds(), wildcardtype.getLowerBounds());
+			serializables.put(type, serializableType);
+			return serializableType;
 		} else if (type instanceof ParameterizedType) {
 			ParameterizedType parameterizedType = (ParameterizedType) type;
-			return parameterized(parameterizedType.getRawType(), parameterizedType.getOwnerType(), parameterizedType.getActualTypeArguments());
+			SerializableParameterizedType serializableType = parameterized(parameterizedType.getRawType(), parameterizedType.getOwnerType(), parameterizedType.getActualTypeArguments());
+			serializables.put(type, serializableType);
+			return serializableType;
 		} else if (type instanceof GenericArrayType) {
 			GenericArrayType genericArrayType = (GenericArrayType) type;
-			return genericArray(genericArrayType.getGenericComponentType());
+			SerializableGenericArrayType serializableType = genericArray(genericArrayType.getGenericComponentType());
+			serializables.put(type, serializableType);
+			return serializableType;
 		} else if (type instanceof TypeVariable<?>) {
 			TypeVariable<?> typeVariable = (TypeVariable<?>) type;
-			return typeVariable(typeVariable.getName(), typeVariable.getGenericDeclaration(), typeVariable.getBounds());
+			SerializableTypeVariable<?> serializableType = typeVariable(typeVariable.getName(), typeVariable.getGenericDeclaration());
+			serializables.put(type, serializableType);
+			return serializableType.boundedBy(serializableOf(typeVariable.getBounds()));
 		} else {
-			return baseType(type);
+			Class<?> serializableType = baseType(type);
+			serializables.put(type, serializableType);
+			return serializableType;
 		}
 	}
 
