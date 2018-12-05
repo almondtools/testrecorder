@@ -53,6 +53,7 @@ public class BuilderConstruction {
 		for (SerializedField field : serialized.getFields()) {
 			String withSetter = withSetterNameFor(field.getName());
 			Computation fieldComputation = field.getValue().accept(generator);
+			statements.addAll(fieldComputation.getStatements());
 			aggregate = callMethod(aggregate, withSetter, fieldComputation.getValue());
 		}
 		

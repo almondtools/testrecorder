@@ -2,6 +2,7 @@ package net.amygdalum.testrecorder.codeserializer;
 
 import static java.util.stream.Collectors.joining;
 import static net.amygdalum.testrecorder.deserializers.Templates.assignLocalVariableStatement;
+import static net.amygdalum.testrecorder.profile.ConfigurationLoader.defaultClassLoader;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -43,11 +44,15 @@ public class CodeSerializer {
 	}
 
 	public CodeSerializer(String pkg) {
-		this(pkg, ConfigurableSerializerFacade::new, SetupGenerators::new);
+		this(pkg, defaultClassLoader(CodeSerializer.class), ConfigurableSerializerFacade::new, SetupGenerators::new);
 	}
 	
 	public CodeSerializer(String pkg, Function<AgentConfiguration, SerializerFacade> facade, Function<AgentConfiguration, DeserializerFactory> deserializers) {
-		this.config = new AgentConfiguration(new ClassPathConfigurationLoader(), new DefaultPathConfigurationLoader())
+		this(pkg, defaultClassLoader(CodeSerializer.class), facade, deserializers);
+	}
+
+	public CodeSerializer(String pkg, ClassLoader loader, Function<AgentConfiguration, SerializerFacade> facade, Function<AgentConfiguration, DeserializerFactory> deserializers) {
+		this.config = new AgentConfiguration(new ClassPathConfigurationLoader(loader), new DefaultPathConfigurationLoader(loader))
 			.withDefaultValue(SerializationProfile.class, DefaultSerializationProfile::new)
 			.withDefaultValue(PerformanceProfile.class, DefaultPerformanceProfile::new)
 			.withDefaultValue(SnapshotConsumer.class, DefaultSnapshotConsumer::new);
@@ -56,7 +61,7 @@ public class CodeSerializer {
 		this.deserializers = deserializers.apply(config);
 		this.types = new DeserializerTypeManager(pkg);
 	}
-
+	
 	public TypeManager getTypes() {
 		return types;
 	}
