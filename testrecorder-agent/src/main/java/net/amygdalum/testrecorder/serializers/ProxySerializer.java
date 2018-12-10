@@ -16,6 +16,7 @@ import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.values.SerializedImmutable;
+import net.amygdalum.testrecorder.values.SerializedObject;
 import net.amygdalum.testrecorder.values.SerializedProxy;
 
 public class ProxySerializer extends AbstractCompositeSerializer implements Serializer<SerializedProxy> {
@@ -32,19 +33,21 @@ public class ProxySerializer extends AbstractCompositeSerializer implements Seri
 	public Stream<?> components(Object object, SerializerSession session) {
 		Builder<Object> components = Stream.builder();
 
-		InvocationHandler invocationHandler = Proxy.getInvocationHandler(object);
-		components.add(invocationHandler);
+		if (!session.facades(object)) {
+			InvocationHandler invocationHandler = Proxy.getInvocationHandler(object);
+			components.add(invocationHandler);
 
-		Class<?> objectClass = object.getClass();
-		while (objectClass != Proxy.class && objectClass != Object.class && !session.excludes(objectClass)) {
-			for (Field f : objectClass.getDeclaredFields()) {
-				if (!session.excludes(f)) {
-					if (!isPrimitive(f.getType())) {
-						components.add(fieldOf(object, f));
+			Class<?> objectClass = object.getClass();
+			while (objectClass != Proxy.class && objectClass != Object.class && !session.excludes(objectClass)) {
+				for (Field f : objectClass.getDeclaredFields()) {
+					if (!session.excludes(f) && !session.facades(f)) {
+						if (!isPrimitive(f.getType())) {
+							components.add(fieldOf(object, f));
+						}
 					}
 				}
+				objectClass = objectClass.getSuperclass();
 			}
-			objectClass = objectClass.getSuperclass();
 		}
 
 		return components.build();
@@ -64,21 +67,27 @@ public class ProxySerializer extends AbstractCompositeSerializer implements Seri
 			.collect(toList());
 		serializedProxy.setInterfaces(serializedInterfaces);
 
+		if (session.facades(object)) {
+			SerializedValue serializedInvocationHandler = new SerializedObject(InvocationHandler.class);
+			serializedProxy.setInvocationHandler(serializedInvocationHandler);
+
+			return;
+		}
+
 		InvocationHandler invocationHandler = Proxy.getInvocationHandler(object);
 		SerializedValue serializedInvocationHandler = resolvedValueOf(session, InvocationHandler.class, invocationHandler);
 		serializedProxy.setInvocationHandler(serializedInvocationHandler);
-		if (!session.facades(object)) {
 
-			Class<?> objectClass = object.getClass();
-			while (objectClass != Proxy.class && objectClass != Object.class && !session.excludes(objectClass)) {
-				for (Field f : objectClass.getDeclaredFields()) {
-					if (!session.excludes(f)) {
-						serializedProxy.addField(resolvedFieldOf(session, object, f));
-					}
+		Class<?> objectClass = object.getClass();
+		while (objectClass != Proxy.class && objectClass != Object.class && !session.excludes(objectClass)) {
+			for (Field f : objectClass.getDeclaredFields()) {
+				if (!session.excludes(f)) {
+					serializedProxy.addField(resolvedFieldOf(session, object, f));
 				}
-				objectClass = objectClass.getSuperclass();
 			}
+			objectClass = objectClass.getSuperclass();
 		}
+
 	}
 
 }

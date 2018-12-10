@@ -43,7 +43,10 @@ public final class SerializableParameterizedType implements ParameterizedType, S
 
 	@Override
 	public int hashCode() {
-		return raw.hashCode() * 3 + (owner == null ? 0 : owner.hashCode() * 5) + Arrays.hashCode(typeArgs) * 7 + 13;
+		return raw.hashCode() * 3
+			+ (owner == null ? 0 : owner.hashCode() * 5)
+			+ Arrays.hashCode(typeArgs) * 7
+			+ 13;
 	}
 
 	@Override

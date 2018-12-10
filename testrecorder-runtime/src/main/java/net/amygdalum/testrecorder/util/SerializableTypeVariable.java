@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.util;
 
 import static java.util.stream.Collectors.joining;
+import static net.amygdalum.testrecorder.util.Types.baseType;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
@@ -8,7 +9,6 @@ import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -66,7 +66,9 @@ public class SerializableTypeVariable<D extends GenericDeclaration> implements T
 
 	@Override
 	public int hashCode() {
-		return name.hashCode() * 37 + (genericDeclaration == null ? 0 : genericDeclaration.hashCode() * 17) + Arrays.hashCode(bounds) * 3 + 31;
+		return name.hashCode() * 37
+			+ (genericDeclaration == null ? 0 : genericDeclaration.hashCode() * 17)
+			+ 31;
 	}
 
 	@Override
@@ -81,9 +83,22 @@ public class SerializableTypeVariable<D extends GenericDeclaration> implements T
 			return false;
 		}
 		SerializableTypeVariable<?> that = (SerializableTypeVariable<?>) obj;
-		return this.name.equals(that.name)
-			&& Objects.equals(this.genericDeclaration, that.getGenericDeclaration())
-			&& Arrays.equals(this.bounds, that.bounds);
+		if (!this.name.equals(that.name)) {
+			return false;
+		}
+		if (!Objects.equals(this.genericDeclaration, that.getGenericDeclaration())) {
+			return false;
+		}
+		if (this.bounds.length != that.bounds.length) {
+			return false;
+		}
+		for (int i = 0; i < bounds.length; i++) {
+			if (!Objects.equals(baseType(this.bounds[i]), baseType(that.bounds[i]))) {
+				return false;
+			}
+		}
+		
+		return true;
 	}
 
 	@Override
@@ -92,7 +107,7 @@ public class SerializableTypeVariable<D extends GenericDeclaration> implements T
 		buffer.append(name);
 		String boundsStr = Stream.of(bounds)
 			.filter(type -> type != Object.class)
-			.map(type -> type.getTypeName())
+			.map(type -> baseType(type).getTypeName())
 			.collect(joining(", "));
 		if (!boundsStr.isEmpty()) {
 			buffer.append(" extends ").append(boundsStr);

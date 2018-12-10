@@ -32,7 +32,7 @@ public class GenericSerializer extends AbstractCompositeSerializer implements Se
 			Class<?> objectClass = object.getClass();
 			while (objectClass != Object.class && !session.excludes(objectClass)) {
 				for (Field f : objectClass.getDeclaredFields()) {
-					if (!session.excludes(f)) {
+					if (!session.excludes(f) && !session.facades(f)) {
 						if (!isPrimitive(f.getType())) {
 							components.add(fieldOf(object, f));
 						}
@@ -55,20 +55,18 @@ public class GenericSerializer extends AbstractCompositeSerializer implements Se
 
 	@Override
 	public void populate(SerializedReferenceType serializedValue, Object object, SerializerSession session) {
-		if (!(serializedValue instanceof SerializedObject)  || session.facades(object)) {
+		if (!(serializedValue instanceof SerializedObject) || session.facades(object)) {
 			return;
 		}
 		SerializedObject serializedObject = (SerializedObject) serializedValue;
-		if (!session.facades(object)) {
-			Class<?> objectClass = object.getClass();
-			while (objectClass != Object.class && !session.excludes(objectClass)) {
-				for (Field f : objectClass.getDeclaredFields()) {
-					if (!session.excludes(f)) {
-						serializedObject.addField(resolvedFieldOf(session, object, f));
-					}
+		Class<?> objectClass = object.getClass();
+		while (objectClass != Object.class && !session.excludes(objectClass)) {
+			for (Field f : objectClass.getDeclaredFields()) {
+				if (!session.excludes(f)) {
+					serializedObject.addField(resolvedFieldOf(session, object, f));
 				}
-				objectClass = objectClass.getSuperclass();
 			}
+			objectClass = objectClass.getSuperclass();
 		}
 	}
 

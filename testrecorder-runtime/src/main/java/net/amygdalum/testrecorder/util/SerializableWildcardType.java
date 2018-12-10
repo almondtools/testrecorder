@@ -35,7 +35,9 @@ public final class SerializableWildcardType implements WildcardType, Serializabl
 
 	@Override
 	public int hashCode() {
-		return Arrays.hashCode(upperBounds) * 5 + Arrays.hashCode(lowerBounds) * 7 + 23;
+		return Arrays.hashCode(upperBounds) * 5
+			+ Arrays.hashCode(lowerBounds) * 7
+			+ 23;
 	}
 
 	@Override

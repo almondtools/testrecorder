@@ -24,7 +24,8 @@ public final class SerializableGenericArrayType implements GenericArrayType, Ser
 
 	@Override
 	public int hashCode() {
-		return componentType.hashCode() + 19;
+		return componentType.hashCode()
+			+ 19;
 	}
 
 	@Override
