@@ -128,7 +128,7 @@ public class SimpleDeserializer implements RoleVisitor<Object> {
 		} else if (rt instanceof SerializedNull) {
 			return null;
 		} else {
-			return null;
+			throw new DeserializationException("failed deserializing: " + rt);
 		}
 	}
 

@@ -37,7 +37,8 @@ public class BeanObjectAdaptor implements SetupGenerator<SerializedObject> {
 
 		return context.forVariable(value, type, local -> {
 			try {
-				return new Construction(context, local, value).computeBest(types, generator);
+				Computation bean = new Construction(context, local, value).computeBest(types, generator);
+				return bean;
 			} catch (ReflectiveOperationException | RuntimeException e) {
 				throw new DeserializationException("failed deserializing as bean: " + value, e);
 			}

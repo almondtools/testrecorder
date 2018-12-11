@@ -45,7 +45,6 @@ public class Construction {
 	private SimpleDeserializer deserializer;
 	private SerializedObject serialized;
 	private LocalVariable var;
-	private Object value;
 	private Map<Constructor<?>, List<ConstructorParam>> constructors;
 	private List<SetterParam> setters;
 
@@ -53,12 +52,13 @@ public class Construction {
 		this.deserializer = new SimpleDeserializer(context);
 		this.var = var;
 		this.serialized = value;
-		this.value = serialized.accept(deserializer);
 		this.constructors = new HashMap<>();
 		this.setters = new ArrayList<>();
 	}
 
 	public Computation computeBest(TypeManager types, Deserializer generator) throws InstantiationException {
+		Object value = serialized.accept(deserializer);
+		
 		if (types.isHidden(serialized.getType())) {
 			throw new InstantiationException();
 		}
