@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder;
+package net.amygdalum.testrecorder.extensionpoint;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

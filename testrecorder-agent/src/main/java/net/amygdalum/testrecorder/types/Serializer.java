@@ -1,11 +1,11 @@
 package net.amygdalum.testrecorder.types;
 
-import static net.amygdalum.testrecorder.ExtensionStrategy.EXTENDING;
+import static net.amygdalum.testrecorder.extensionpoint.ExtensionStrategy.EXTENDING;
 
 import java.util.List;
 import java.util.stream.Stream;
 
-import net.amygdalum.testrecorder.ExtensionPoint;
+import net.amygdalum.testrecorder.extensionpoint.ExtensionPoint;
 
 @ExtensionPoint(strategy=EXTENDING)
 public interface Serializer<T extends SerializedValue> {

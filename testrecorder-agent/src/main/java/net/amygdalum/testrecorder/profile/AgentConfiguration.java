@@ -2,8 +2,8 @@ package net.amygdalum.testrecorder.profile;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
-import static net.amygdalum.testrecorder.ExtensionStrategy.EXTENDING;
-import static net.amygdalum.testrecorder.ExtensionStrategy.OVERRIDING;
+import static net.amygdalum.testrecorder.extensionpoint.ExtensionStrategy.EXTENDING;
+import static net.amygdalum.testrecorder.extensionpoint.ExtensionStrategy.OVERRIDING;
 
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.Stream.Builder;
 
-import net.amygdalum.testrecorder.ExtensionPoint;
+import net.amygdalum.testrecorder.extensionpoint.ExtensionPoint;
 import net.amygdalum.testrecorder.util.Logger;
 
 public class AgentConfiguration {
