@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder;
+package net.amygdalum.testrecorder.util.testobjects;
 
 public class Example {
 	public void noResultNoArgs() {

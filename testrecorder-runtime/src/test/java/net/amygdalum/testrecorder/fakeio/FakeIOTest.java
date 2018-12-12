@@ -1,10 +1,10 @@
-package net.amygdalum.testrecorder;
+package net.amygdalum.testrecorder.fakeio;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.FakeIO.SelfSpecification;
+import net.amygdalum.testrecorder.fakeio.FakeIO.SelfSpecification;
 
 public class FakeIOTest {
 

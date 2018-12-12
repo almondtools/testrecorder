@@ -1,7 +1,7 @@
-package net.amygdalum.testrecorder;
+package net.amygdalum.testrecorder.fakeio;
 
 import static java.util.Collections.emptyList;
-import static net.amygdalum.testrecorder.InstrumentationMethod.instrumentMethod;
+import static net.amygdalum.testrecorder.util.InstrumentationMethod.instrumentMethod;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -9,6 +9,8 @@ import org.objectweb.asm.tree.InsnList;
 
 import net.amygdalum.testrecorder.asm.ByteCode;
 import net.amygdalum.testrecorder.asm.MethodContext;
+import net.amygdalum.testrecorder.util.InstrumentationMethod;
+import net.amygdalum.testrecorder.util.testobjects.Example;
 
 public class FakeIOTransformerTest {
 
@@ -26,9 +28,9 @@ public class FakeIOTransformerTest {
 			"LDC \"()Z\"",
 			"LDC 0",
 			"ANEWARRAY java/lang/Object",
-			"INVOKESTATIC net/amygdalum/testrecorder/FakeIO.callFake (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;",
+			"INVOKESTATIC net/amygdalum/testrecorder/fakeio/FakeIO.callFake (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;",
 			"DUP",
-			"GETSTATIC net/amygdalum/testrecorder/FakeIO.NO_RESULT : Ljava/lang/Object;",
+			"GETSTATIC net/amygdalum/testrecorder/fakeio/FakeIO.NO_RESULT : Ljava/lang/Object;",
 			"IF_ACMPEQ L0",
 			"CHECKCAST java/lang/Boolean",
 			"INVOKEVIRTUAL java/lang/Boolean.booleanValue ()Z",
@@ -48,14 +50,14 @@ public class FakeIOTransformerTest {
 			"INVOKEVIRTUAL java/lang/Class.getName ()Ljava/lang/String;",
 			"ALOAD 0",
 			"LDC \"objectResultNoArgs\"",
-			"LDC \"()Lnet/amygdalum/testrecorder/ResultObject;\"",
+			"LDC \"()Lnet/amygdalum/testrecorder/util/testobjects/ResultObject;\"",
 			"LDC 0",
 			"ANEWARRAY java/lang/Object",
-			"INVOKESTATIC net/amygdalum/testrecorder/FakeIO.callFake (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;",
+			"INVOKESTATIC net/amygdalum/testrecorder/fakeio/FakeIO.callFake (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;",
 			"DUP",
-			"GETSTATIC net/amygdalum/testrecorder/FakeIO.NO_RESULT : Ljava/lang/Object;",
+			"GETSTATIC net/amygdalum/testrecorder/fakeio/FakeIO.NO_RESULT : Ljava/lang/Object;",
 			"IF_ACMPEQ L0",
-			"CHECKCAST net/amygdalum/testrecorder/ResultObject",
+			"CHECKCAST net/amygdalum/testrecorder/util/testobjects/ResultObject",
 			"ARETURN",
 			"L0",
 			"POP");
@@ -80,9 +82,9 @@ public class FakeIOTransformerTest {
 			"ILOAD 1",
 			"INVOKESTATIC java/lang/Integer.valueOf (I)Ljava/lang/Integer;",
 			"AASTORE",
-			"INVOKESTATIC net/amygdalum/testrecorder/FakeIO.callFake (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;",
+			"INVOKESTATIC net/amygdalum/testrecorder/fakeio/FakeIO.callFake (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;",
 			"DUP",
-			"GETSTATIC net/amygdalum/testrecorder/FakeIO.NO_RESULT : Ljava/lang/Object;",
+			"GETSTATIC net/amygdalum/testrecorder/fakeio/FakeIO.NO_RESULT : Ljava/lang/Object;",
 			"IF_ACMPEQ L0",
 			"POP",
 			"RETURN",
@@ -108,9 +110,9 @@ public class FakeIOTransformerTest {
 			"LDC 0",
 			"ALOAD 1",
 			"AASTORE",
-			"INVOKESTATIC net/amygdalum/testrecorder/FakeIO.callFake (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;",
+			"INVOKESTATIC net/amygdalum/testrecorder/fakeio/FakeIO.callFake (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;",
 			"DUP",
-			"GETSTATIC net/amygdalum/testrecorder/FakeIO.NO_RESULT : Ljava/lang/Object;",
+			"GETSTATIC net/amygdalum/testrecorder/fakeio/FakeIO.NO_RESULT : Ljava/lang/Object;",
 			"IF_ACMPEQ L0",
 			"POP",
 			"RETURN",
@@ -136,9 +138,9 @@ public class FakeIOTransformerTest {
 			"LDC 0",
 			"ALOAD 1",
 			"AASTORE",
-			"INVOKESTATIC net/amygdalum/testrecorder/FakeIO.callFake (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;",
+			"INVOKESTATIC net/amygdalum/testrecorder/fakeio/FakeIO.callFake (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;",
 			"DUP",
-			"GETSTATIC net/amygdalum/testrecorder/FakeIO.NO_RESULT : Ljava/lang/Object;",
+			"GETSTATIC net/amygdalum/testrecorder/fakeio/FakeIO.NO_RESULT : Ljava/lang/Object;",
 			"IF_ACMPEQ L0",
 			"POP",
 			"RETURN",
@@ -157,16 +159,16 @@ public class FakeIOTransformerTest {
 			"INVOKEVIRTUAL java/lang/Class.getName ()Ljava/lang/String;",
 			"ALOAD 0",
 			"LDC \"noResultObjectArg\"",
-			"LDC \"(Lnet/amygdalum/testrecorder/ArgumentObject;)V\"",
+			"LDC \"(Lnet/amygdalum/testrecorder/util/testobjects/ArgumentObject;)V\"",
 			"LDC 1",
 			"ANEWARRAY java/lang/Object",
 			"DUP",
 			"LDC 0",
 			"ALOAD 1",
 			"AASTORE",
-			"INVOKESTATIC net/amygdalum/testrecorder/FakeIO.callFake (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;",
+			"INVOKESTATIC net/amygdalum/testrecorder/fakeio/FakeIO.callFake (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;",
 			"DUP",
-			"GETSTATIC net/amygdalum/testrecorder/FakeIO.NO_RESULT : Ljava/lang/Object;",
+			"GETSTATIC net/amygdalum/testrecorder/fakeio/FakeIO.NO_RESULT : Ljava/lang/Object;",
 			"IF_ACMPEQ L0",
 			"POP",
 			"RETURN",
@@ -185,7 +187,7 @@ public class FakeIOTransformerTest {
 			"INVOKEVIRTUAL java/lang/Class.getName ()Ljava/lang/String;",
 			"ALOAD 0",
 			"LDC \"objectResultMixedArgs\"",
-			"LDC \"(DLnet/amygdalum/testrecorder/ArgumentObject;)Lnet/amygdalum/testrecorder/ResultObject;\"",
+			"LDC \"(DLnet/amygdalum/testrecorder/util/testobjects/ArgumentObject;)Lnet/amygdalum/testrecorder/util/testobjects/ResultObject;\"",
 			"LDC 2",
 			"ANEWARRAY java/lang/Object",
 			"DUP",
@@ -197,11 +199,11 @@ public class FakeIOTransformerTest {
 			"LDC 1",
 			"ALOAD 3",
 			"AASTORE",
-			"INVOKESTATIC net/amygdalum/testrecorder/FakeIO.callFake (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;",
+			"INVOKESTATIC net/amygdalum/testrecorder/fakeio/FakeIO.callFake (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;",
 			"DUP",
-			"GETSTATIC net/amygdalum/testrecorder/FakeIO.NO_RESULT : Ljava/lang/Object;",
+			"GETSTATIC net/amygdalum/testrecorder/fakeio/FakeIO.NO_RESULT : Ljava/lang/Object;",
 			"IF_ACMPEQ L0",
-			"CHECKCAST net/amygdalum/testrecorder/ResultObject",
+			"CHECKCAST net/amygdalum/testrecorder/util/testobjects/ResultObject",
 			"ARETURN",
 			"L0",
 			"POP");
@@ -213,10 +215,10 @@ public class FakeIOTransformerTest {
 		InsnList insnlist = new FakeIOTransformer.DefaultTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 
 		assertThat(ByteCode.toString(insnlist)).containsExactly(
-			"LDC \"net.amygdalum.testrecorder.Example\"",
+			"LDC \"net.amygdalum.testrecorder.util.testobjects.Example\"",
 			"ACONST_NULL",
 			"LDC \"staticPrimitiveResultMixedArgs\"",
-			"LDC \"(Lnet/amygdalum/testrecorder/ArgumentObject;C)J\"",
+			"LDC \"(Lnet/amygdalum/testrecorder/util/testobjects/ArgumentObject;C)J\"",
 			"LDC 2",
 			"ANEWARRAY java/lang/Object",
 			"DUP",
@@ -228,9 +230,9 @@ public class FakeIOTransformerTest {
 			"ILOAD 1",
 			"INVOKESTATIC java/lang/Character.valueOf (C)Ljava/lang/Character;",
 			"AASTORE",
-			"INVOKESTATIC net/amygdalum/testrecorder/FakeIO.callFake (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;",
+			"INVOKESTATIC net/amygdalum/testrecorder/fakeio/FakeIO.callFake (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;",
 			"DUP",
-			"GETSTATIC net/amygdalum/testrecorder/FakeIO.NO_RESULT : Ljava/lang/Object;",
+			"GETSTATIC net/amygdalum/testrecorder/fakeio/FakeIO.NO_RESULT : Ljava/lang/Object;",
 			"IF_ACMPEQ L0",
 			"CHECKCAST java/lang/Long",
 			"INVOKEVIRTUAL java/lang/Long.longValue ()J",
@@ -275,14 +277,14 @@ public class FakeIOTransformerTest {
 			"INVOKEVIRTUAL java/lang/Class.getName ()Ljava/lang/String;",
 			"ALOAD 0",
 			"LDC \"objectResultNoArgs\"",
-			"LDC \"()Lnet/amygdalum/testrecorder/ResultObject;\"",
+			"LDC \"()Lnet/amygdalum/testrecorder/util/testobjects/ResultObject;\"",
 			"LDC 0",
 			"ANEWARRAY java/lang/Object",
 			"INVOKESTATIC net/amygdalum/testrecorder/bridge/BridgedFakeIO.callFake (Ljava/lang/String;Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;",
 			"DUP",
 			"GETSTATIC net/amygdalum/testrecorder/bridge/BridgedFakeIO.NO_RESULT : Ljava/lang/Object;",
 			"IF_ACMPEQ L0",
-			"CHECKCAST net/amygdalum/testrecorder/ResultObject",
+			"CHECKCAST net/amygdalum/testrecorder/util/testobjects/ResultObject",
 			"ARETURN",
 			"L0",
 			"POP");
@@ -384,7 +386,7 @@ public class FakeIOTransformerTest {
 			"INVOKEVIRTUAL java/lang/Class.getName ()Ljava/lang/String;",
 			"ALOAD 0",
 			"LDC \"noResultObjectArg\"",
-			"LDC \"(Lnet/amygdalum/testrecorder/ArgumentObject;)V\"",
+			"LDC \"(Lnet/amygdalum/testrecorder/util/testobjects/ArgumentObject;)V\"",
 			"LDC 1",
 			"ANEWARRAY java/lang/Object",
 			"DUP",
@@ -412,7 +414,7 @@ public class FakeIOTransformerTest {
 			"INVOKEVIRTUAL java/lang/Class.getName ()Ljava/lang/String;",
 			"ALOAD 0",
 			"LDC \"objectResultMixedArgs\"",
-			"LDC \"(DLnet/amygdalum/testrecorder/ArgumentObject;)Lnet/amygdalum/testrecorder/ResultObject;\"",
+			"LDC \"(DLnet/amygdalum/testrecorder/util/testobjects/ArgumentObject;)Lnet/amygdalum/testrecorder/util/testobjects/ResultObject;\"",
 			"LDC 2",
 			"ANEWARRAY java/lang/Object",
 			"DUP",
@@ -428,7 +430,7 @@ public class FakeIOTransformerTest {
 			"DUP",
 			"GETSTATIC net/amygdalum/testrecorder/bridge/BridgedFakeIO.NO_RESULT : Ljava/lang/Object;",
 			"IF_ACMPEQ L0",
-			"CHECKCAST net/amygdalum/testrecorder/ResultObject",
+			"CHECKCAST net/amygdalum/testrecorder/util/testobjects/ResultObject",
 			"ARETURN",
 			"L0",
 			"POP");
@@ -440,10 +442,10 @@ public class FakeIOTransformerTest {
 		InsnList insnlist = new FakeIOTransformer.BridgedTask(unit.classNode, emptyList()).createIOFake(unit.methodNode).build(new MethodContext(unit.classNode, unit.methodNode));
 
 		assertThat(ByteCode.toString(insnlist)).containsExactly(
-			"LDC \"net.amygdalum.testrecorder.Example\"",
+			"LDC \"net.amygdalum.testrecorder.util.testobjects.Example\"",
 			"ACONST_NULL",
 			"LDC \"staticPrimitiveResultMixedArgs\"",
-			"LDC \"(Lnet/amygdalum/testrecorder/ArgumentObject;C)J\"",
+			"LDC \"(Lnet/amygdalum/testrecorder/util/testobjects/ArgumentObject;C)J\"",
 			"LDC 2",
 			"ANEWARRAY java/lang/Object",
 			"DUP",

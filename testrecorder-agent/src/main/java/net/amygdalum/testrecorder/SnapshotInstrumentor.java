@@ -68,8 +68,13 @@ import net.amygdalum.testrecorder.profile.Recorded;
 import net.amygdalum.testrecorder.profile.SerializationProfile;
 import net.amygdalum.testrecorder.util.AttachableClassFileTransformer;
 import net.amygdalum.testrecorder.util.Logger;
+import net.amygdalum.testrecorder.util.Recorder;
 
 public class SnapshotInstrumentor extends AttachableClassFileTransformer implements ClassFileTransformer {
+
+	static {
+		Recorder.registerClass(SnapshotInstrumentor.class);
+	}
 
 	private SerializationProfile profile;
 	private ClassNodeManager classes = new ClassNodeManager();

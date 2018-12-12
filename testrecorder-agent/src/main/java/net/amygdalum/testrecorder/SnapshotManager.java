@@ -40,6 +40,7 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
 import net.amygdalum.testrecorder.bridge.BridgedSnapshotManager;
+import net.amygdalum.testrecorder.fakeio.FakeIO;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.profile.SnapshotConsumer;
@@ -57,6 +58,7 @@ import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.util.CircularityLock;
 import net.amygdalum.testrecorder.util.Logger;
+import net.amygdalum.testrecorder.util.Recorder;
 import net.amygdalum.testrecorder.values.SerializedNull;
 import net.bytebuddy.agent.ByteBuddyAgent;
 
@@ -66,6 +68,10 @@ public class SnapshotManager {
 		.invalidate(Logger.class);
 
 	public static volatile SnapshotManager MANAGER;
+
+	static {
+		Recorder.registerClass(SnapshotManager.class);
+	}
 
 	private SerializationThreadPoolExecutor snapshotExecutor;
 	private CircularityLock lock = new CircularityLock();

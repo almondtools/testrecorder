@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import net.amygdalum.testrecorder.deserializers.Templates;
+import net.amygdalum.testrecorder.fakeio.FakeIO;
 import net.amygdalum.testrecorder.runtime.Aspect;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializationException;

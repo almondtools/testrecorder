@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.stringtemplate.v4.ST;
 
+import net.amygdalum.testrecorder.fakeio.FakeIO;
 import net.amygdalum.testrecorder.types.TypeManager;
 
 public class SetupGenerator {

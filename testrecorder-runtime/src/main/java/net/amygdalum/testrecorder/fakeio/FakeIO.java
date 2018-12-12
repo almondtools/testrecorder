@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder;
+package net.amygdalum.testrecorder.fakeio;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toSet;
@@ -42,6 +42,7 @@ import org.hamcrest.StringDescription;
 import net.amygdalum.testrecorder.runtime.Aspect;
 import net.amygdalum.testrecorder.runtime.GenericObjectException;
 import net.amygdalum.testrecorder.runtime.Invocation;
+import net.amygdalum.testrecorder.util.Recorder;
 import net.bytebuddy.agent.ByteBuddyAgent;
 
 public class FakeIO {

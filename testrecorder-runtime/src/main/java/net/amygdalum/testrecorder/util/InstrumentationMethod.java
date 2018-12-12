@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder;
+package net.amygdalum.testrecorder.util;
 
 import java.io.IOException;
 import java.lang.reflect.Method;

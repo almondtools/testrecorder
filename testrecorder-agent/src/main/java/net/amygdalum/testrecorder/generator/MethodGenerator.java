@@ -252,6 +252,8 @@ public class MethodGenerator {
 		types.staticImport(MatcherAssert.class, "assertThat");
 		statements.add(BEGIN_ASSERT);
 
+		statements.addAll(mocked.verify(locals, types, context));
+
 		if (error == null) {
 			snapshot.streamExpectResult()
 				.flatMap(res -> generateResultAssert(types, res, result))
@@ -282,8 +284,6 @@ public class MethodGenerator {
 		Stream.of(globals)
 			.flatMap(global -> generateGlobalAssert(types, global.getElement1(), global.getElement2()))
 			.forEach(statements::add);
-
-		statements.addAll(mocked.verify(locals, types, context));
 
 		return this;
 	}

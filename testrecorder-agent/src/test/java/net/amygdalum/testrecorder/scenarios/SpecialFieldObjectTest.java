@@ -10,7 +10,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import net.amygdalum.testrecorder.generator.TestGenerator;
 import net.amygdalum.testrecorder.integration.Instrumented;
 import net.amygdalum.testrecorder.integration.TestRecorderAgentExtension;
-import net.amygdalum.testrecorder.util.Debug;
 
 @ExtendWith(TestRecorderAgentExtension.class)
 @Instrumented(classes = { 
@@ -39,6 +38,6 @@ public class SpecialFieldObjectTest {
 		assertThat(bean.method()).isEqualTo(42);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		assertThat(Debug.print(testGenerator.renderTest(SpecialFieldObject.class))).satisfies(testsRun());
+		assertThat(testGenerator.renderTest(SpecialFieldObject.class)).satisfies(testsRun());
 	}
 }

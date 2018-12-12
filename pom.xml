@@ -54,9 +54,10 @@
 	</properties>
 
 	<modules>
-		<module>testrecorder-runtime</module>
 		<module>testrecorder-agent</module>
         <module>testrecorder-bridge</module>
+        <module>testrecorder-runtime</module>
+        <module>testrecorder-runtime-bridge</module>
 	</modules>
 	<dependencies>
    

@@ -12,7 +12,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.FakeIO;
+import net.amygdalum.testrecorder.fakeio.FakeIO;
 import net.amygdalum.testrecorder.runtime.Aspect;
 import net.amygdalum.testrecorder.runtime.Throwables;
 import net.amygdalum.testrecorder.util.testobjects.Bean;

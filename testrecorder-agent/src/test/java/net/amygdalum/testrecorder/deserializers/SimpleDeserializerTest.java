@@ -123,7 +123,7 @@ public class SimpleDeserializerTest {
 	@Test
 	public void testVisitOtherReferenceType() throws Exception {
 		SerializedReferenceType object = Mockito.mock(SerializedReferenceType.class);
-		assertThat(deserializer.visitReferenceType(object)).isNull();
+		assertThatThrownBy(() -> deserializer.visitReferenceType(object)).isInstanceOf(DeserializationException.class);
 	}
 
 	@Test

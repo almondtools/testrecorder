@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder;
+package net.amygdalum.testrecorder.fakeio;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -6,9 +6,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 
-import net.amygdalum.testrecorder.FakeIO.AnyInvocation;
-import net.amygdalum.testrecorder.FakeIO.Input;
-import net.amygdalum.testrecorder.FakeIO.InvocationData;
+import net.amygdalum.testrecorder.fakeio.FakeIO;
+import net.amygdalum.testrecorder.fakeio.FakeIO.AnyInvocation;
+import net.amygdalum.testrecorder.fakeio.FakeIO.Input;
+import net.amygdalum.testrecorder.fakeio.FakeIO.InvocationData;
 import net.amygdalum.testrecorder.runtime.Invocation;
 import net.amygdalum.testrecorder.util.testobjects.Bean;
 import net.amygdalum.testrecorder.util.testobjects.Simple;

@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder;
+package net.amygdalum.testrecorder.fakeio;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
