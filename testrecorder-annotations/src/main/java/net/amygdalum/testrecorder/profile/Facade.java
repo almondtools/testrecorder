@@ -5,12 +5,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import net.amygdalum.testrecorder.deserializers.builder.SetupGenerator;
-import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerator;
-import net.amygdalum.testrecorder.types.Serializer;
 
 /**
- * This annotation is a hint for the {@link Serializer}, {@link SetupGenerator}, {@link MatcherGenerator}:
+ * This annotation is a hint for serialization and test generation:
  * - not to record the inner state of an annotated entity
  * 
  * Use this annotation to save time and memory for objects.

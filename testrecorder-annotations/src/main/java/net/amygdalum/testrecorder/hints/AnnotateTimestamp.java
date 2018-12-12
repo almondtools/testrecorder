@@ -5,10 +5,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import net.amygdalum.testrecorder.types.Serializer;
-
 /**
- * This annotation is a hint for the {@link Serializer}:
+ * This annotation is a hint for the Serializer:
  * - to record and persist the time stamp of the recording
  * 
  * This annotation is planned for the future

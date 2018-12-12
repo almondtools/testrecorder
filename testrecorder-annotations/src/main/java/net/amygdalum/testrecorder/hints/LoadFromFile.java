@@ -5,10 +5,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import net.amygdalum.testrecorder.deserializers.builder.SetupGenerator;
-
 /**
- * This annotation is a hint for the {@link SetupGenerator}:
+ * This annotation is a hint for the SetupGenerator:
  * - to load the construction of the entity from file (using some kind of serialization reader)
  * 
  * Currently only supports primitive arrays.

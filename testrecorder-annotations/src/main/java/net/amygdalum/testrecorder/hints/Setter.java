@@ -5,10 +5,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import net.amygdalum.testrecorder.deserializers.builder.SetupGenerator;
-
 /**
- * This annotation is a hint for the {@link SetupGenerator}:
+ * This annotation is a hint for the SetupGenerator:
  * - to treat the annotated method as setter method
  * 
  * Use this annotation to generate better readable tests. The generation prefers constructing objects

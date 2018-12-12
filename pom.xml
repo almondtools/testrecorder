@@ -55,6 +55,7 @@
 
 	<modules>
 		<module>testrecorder-agent</module>
+        <module>testrecorder-annotations</module>
         <module>testrecorder-bridge</module>
         <module>testrecorder-runtime</module>
         <module>testrecorder-runtime-bridge</module>

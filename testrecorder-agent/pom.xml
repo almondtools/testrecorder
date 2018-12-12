@@ -14,6 +14,11 @@
 	<dependencies>
 		<dependency>
 			<groupId>net.amygdalum</groupId>
+			<artifactId>testrecorder-annotations</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.amygdalum</groupId>
 			<artifactId>testrecorder-runtime</artifactId>
 			<version>${project.version}</version>
 		</dependency>
