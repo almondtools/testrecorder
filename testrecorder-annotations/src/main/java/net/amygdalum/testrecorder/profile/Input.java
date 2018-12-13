@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
  * Note that a method could only be exclusively {@link Recorded}, {@link Input} or {@link Output}. {@link Input} 
  * will be ignored in presence of these annotations. 
  * 
- * @see SerializationProfile#getInputs()
+ * @see "SerializationProfile#getInputs()"
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD })

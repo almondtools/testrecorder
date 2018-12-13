@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>net.amygdalum</groupId>
@@ -40,28 +42,27 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <version.plugin.assembly>3.1.0</version.plugin.assembly>
-        <version.plugin.compiler>3.8.0</version.plugin.compiler>
-        <version.plugin.gpg>1.6</version.plugin.gpg>
-        <version.plugin.jacoco>0.8.2</version.plugin.jacoco>
-        <version.plugin.jar>3.1.0</version.plugin.jar>
-        <version.plugin.javadoc>3.0.1</version.plugin.javadoc>
-        <version.plugin.nexusstaging>1.6.8</version.plugin.nexusstaging>
+		<version.plugin.assembly>3.1.0</version.plugin.assembly>
+		<version.plugin.compiler>3.8.0</version.plugin.compiler>
+		<version.plugin.gpg>1.6</version.plugin.gpg>
+		<version.plugin.jacoco>0.8.2</version.plugin.jacoco>
+		<version.plugin.jar>3.1.0</version.plugin.jar>
+		<version.plugin.javadoc>3.0.1</version.plugin.javadoc>
+		<version.plugin.nexusstaging>1.6.8</version.plugin.nexusstaging>
 		<version.plugin.release>2.5.3</version.plugin.release>
 		<version.plugin.shade>3.2.1</version.plugin.shade>
-        <version.plugin.source>3.0.1</version.plugin.source>
-        <version.plugin.surefire>2.22.1</version.plugin.surefire>
+		<version.plugin.source>3.0.1</version.plugin.source>
+		<version.plugin.surefire>2.22.1</version.plugin.surefire>
 	</properties>
 
 	<modules>
 		<module>testrecorder-agent</module>
-        <module>testrecorder-annotations</module>
-        <module>testrecorder-bridge</module>
-        <module>testrecorder-runtime</module>
-        <module>testrecorder-runtime-bridge</module>
+		<module>testrecorder-annotations</module>
+		<module>testrecorder-bridge</module>
+		<module>testrecorder-runtime</module>
+		<module>testrecorder-runtime-bridge</module>
 	</modules>
 	<dependencies>
-   
 	</dependencies>
 	<build>
 		<plugins>

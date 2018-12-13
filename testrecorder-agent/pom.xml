@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -87,6 +89,13 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>com.tngtech.archunit</groupId>
+			<artifactId>archunit</artifactId>
+			<version>0.9.3</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
 			<groupId>net.amygdalum</groupId>
 			<artifactId>testrecorder-runtime</artifactId>
 			<version>${project.version}</version>
@@ -105,17 +114,17 @@
 			<version>0.3.1</version>
 			<scope>test</scope>
 		</dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>3.11.1</version>
-            <scope>test</scope>
-        </dependency>
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+			<version>3.11.1</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>net.amygdalum</groupId>
 			<artifactId>assertj-extensions</artifactId>
 			<version>0.0.6</version>
-            <scope>test</scope>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 	<build>

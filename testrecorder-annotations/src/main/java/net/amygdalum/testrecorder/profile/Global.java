@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * Annotating a field with {@link Global} specifies a field to be serialized as global variable.
  * 
- * @see SerializationProfile#getGlobalFields()
+ * @see "SerializationProfile#getGlobalFields()"
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD })

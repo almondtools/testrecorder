@@ -8,8 +8,8 @@ import java.lang.annotation.Target;
 /**
  * Annotating a field or class with {@link Excluded} excludes it from serialization.
  * 
- * @see SerializationProfile#getClassExclusions()
- * @see SerializationProfile#getFieldExclusions()
+ * @see "SerializationProfile#getClassExclusions()"
+ * @see "SerializationProfile#getFieldExclusions()"
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD, ElementType.FIELD })
