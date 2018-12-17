@@ -77,7 +77,7 @@ public class MatcherGenerators implements DeserializerFactory {
 				types.registerImport(baseType(fieldResultType));
 				Computation value = simpleAdaptor.tryDeserialize(fieldValue, this);
 
-				String assignField = fieldDeclaration(null, types.getRawTypeName(fieldResultType), field.getName(), value.getValue());
+				String assignField = fieldDeclaration(null, types.getVariableTypeName(fieldResultType), field.getName(), value.getValue());
 				return expression(assignField, null, value.getStatements());
 			} else {
 				types.registerImport(Matcher.class);
