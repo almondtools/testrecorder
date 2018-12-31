@@ -48,6 +48,7 @@ public class TestGenerator implements SnapshotConsumer {
 
 	private SetupGenerators setup;
 	private MatcherGenerators matcher;
+	private TestTemplate template;
 	private List<CustomAnnotation> annotations;
 
 
@@ -70,7 +71,16 @@ public class TestGenerator implements SnapshotConsumer {
 
 		this.setup = new SetupGenerators(new Adaptors().load(setup));
 		this.matcher = new MatcherGenerators(new Adaptors().load(matcher));
+		this.template = initTemplate(generatorProfile.template());
 		this.annotations = generatorProfile.annotations();
+	}
+
+	private TestTemplate initTemplate(Class<? extends TestTemplate> template) {
+		try {
+			return template.newInstance();
+		} catch (InstantiationException | IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public void reload(AgentConfiguration config) {
@@ -177,7 +187,7 @@ public class TestGenerator implements SnapshotConsumer {
 	}
 
 	public ClassGenerator newGenerator(ClassDescriptor clazz) {
-		return new ClassGenerator(setup, matcher, annotations, clazz.getPackage(), computeClassName(clazz));
+		return new ClassGenerator(setup, matcher, template, annotations, clazz.getPackage(), computeClassName(clazz));
 	}
 
 	public RenderedTest renderTest(Class<?> clazz) {

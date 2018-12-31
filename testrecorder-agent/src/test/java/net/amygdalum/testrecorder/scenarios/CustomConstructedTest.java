@@ -14,8 +14,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import net.amygdalum.testrecorder.TestAgentConfiguration;
 import net.amygdalum.testrecorder.deserializers.CustomAnnotation;
+import net.amygdalum.testrecorder.generator.JUnit4TestTemplate;
 import net.amygdalum.testrecorder.generator.TestGenerator;
 import net.amygdalum.testrecorder.generator.TestGeneratorProfile;
+import net.amygdalum.testrecorder.generator.TestTemplate;
 import net.amygdalum.testrecorder.hints.Setter;
 import net.amygdalum.testrecorder.integration.Instrumented;
 import net.amygdalum.testrecorder.integration.TestRecorderAgentExtension;
@@ -114,6 +116,11 @@ public class CustomConstructedTest {
 			} catch (ReflectiveOperationException e) {
 				return emptyList();
 			}
+		}
+		
+		@Override
+		public Class<? extends TestTemplate> template() {
+			return JUnit4TestTemplate.class;
 		}
 		
 	}

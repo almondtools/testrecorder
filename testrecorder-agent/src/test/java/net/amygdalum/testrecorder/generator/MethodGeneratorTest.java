@@ -5,6 +5,7 @@ import static java.util.Collections.emptyList;
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
+import static net.amygdalum.xrayinterface.XRayInterface.xray;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -32,6 +33,7 @@ import net.amygdalum.xrayinterface.XRayInterface;
 public class MethodGeneratorTest {
 
 	private TypeManager types;
+	private TestTemplate template;
 	private SetupGenerators setup;
 	private MatcherGenerators matcher;
 
@@ -39,41 +41,42 @@ public class MethodGeneratorTest {
 	void before() throws Exception {
 		AgentConfiguration config = defaultConfig();
 		types = new DeserializerTypeManager();
+		template = new JUnit4TestTemplate();
 		setup = new SetupGenerators(new Adaptors().load(config.loadConfigurations(SetupGenerator.class)));
 		matcher = new MatcherGenerators(new Adaptors().load(config.loadConfigurations(MatcherGenerator.class)));
 	}
-	
+
 	@Test
 	void testGenerateActWithResult() throws Exception {
-		MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher, emptyList());
+		MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher, template, emptyList());
 		methodGenerator.analyze(snapshotWithResult());
 		XRayInterface.xray(methodGenerator).to(OpenMethodGenerator.class).setBase("var");
-		
+
 		methodGenerator.generateAct();
-		
+
 		assertThat(methodGenerator.generateTest()).containsWildcardPattern("String string? = var.getAttribute();");
 	}
 
 	@Test
 	void testGenerateActNoResult() throws Exception {
-		MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher, emptyList());
+		MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher, template, emptyList());
 		methodGenerator.analyze(snapshotNoResult());
-		XRayInterface.xray(methodGenerator).to(OpenMethodGenerator.class).setBase("var");
-		XRayInterface.xray(methodGenerator).to(OpenMethodGenerator.class).setArgs(asList("\"newstr\""));
-		
+		xray(methodGenerator).to(OpenMethodGenerator.class).setBase("var");
+		xray(methodGenerator).to(OpenMethodGenerator.class).setArgs(asList("\"newstr\""));
+
 		methodGenerator.generateAct();
-		
+
 		assertThat(methodGenerator.generateTest()).containsWildcardPattern("var.setAttribute(\"newstr\");");
 	}
 
 	@Test
 	void testGenerateActWithResultAndException() throws Exception {
-		MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher, emptyList());
+		MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher, template, emptyList());
 		methodGenerator.analyze(snapshotWithResultAndException());
-		XRayInterface.xray(methodGenerator).to(OpenMethodGenerator.class).setBase("var");
-		
+		xray(methodGenerator).to(OpenMethodGenerator.class).setBase("var");
+
 		methodGenerator.generateAct();
-		
+
 		assertThat(methodGenerator.generateTest()).containsWildcardPattern(""
 			+ "RuntimeException runtimeException? = capture(() -> {"
 			+ "String string? = var.getAttribute();"
@@ -83,13 +86,13 @@ public class MethodGeneratorTest {
 
 	@Test
 	void testGenerateActNoResultAndException() throws Exception {
-		MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher, emptyList());
+		MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher, template, emptyList());
 		methodGenerator.analyze(snapshotNoResultAndException());
-		XRayInterface.xray(methodGenerator).to(OpenMethodGenerator.class).setBase("var");
-		XRayInterface.xray(methodGenerator).to(OpenMethodGenerator.class).setArgs(asList("\"newstr\""));
-		
+		xray(methodGenerator).to(OpenMethodGenerator.class).setBase("var");
+		xray(methodGenerator).to(OpenMethodGenerator.class).setArgs(asList("\"newstr\""));
+
 		methodGenerator.generateAct();
-		
+
 		assertThat(methodGenerator.generateTest()).containsWildcardPattern(""
 			+ "RuntimeException runtimeException? = capture(() -> {"
 			+ "var.setAttribute(\"newstr\");"
@@ -120,7 +123,7 @@ public class MethodGeneratorTest {
 		snapshot.setExpectGlobals(new SerializedField[0]);
 		return snapshot;
 	}
-	
+
 	private ContextSnapshot snapshotWithResultAndException() {
 		ContextSnapshot snapshot = contextSnapshot(Bean.class, String.class, "getAttribute");
 		FieldSignature attribute = new FieldSignature(Bean.class, String.class, "attribute");
@@ -133,7 +136,7 @@ public class MethodGeneratorTest {
 		snapshot.setExpectGlobals(new SerializedField[0]);
 		return snapshot;
 	}
-	
+
 	private ContextSnapshot snapshotNoResultAndException() {
 		ContextSnapshot snapshot = contextSnapshot(Bean.class, void.class, "setAttribute", String.class);
 		FieldSignature attribute = new FieldSignature(Bean.class, String.class, "attribute");
@@ -146,7 +149,7 @@ public class MethodGeneratorTest {
 		snapshot.setExpectGlobals(new SerializedField[0]);
 		return snapshot;
 	}
-	
+
 	private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
 		return new ContextSnapshot(0, "key", new VirtualMethodSignature(new MethodSignature(declaringClass, resultType, methodName, argumentTypes)));
 	}

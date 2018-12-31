@@ -1,19 +1,11 @@
 package net.amygdalum.testrecorder.generator;
 
-import static java.util.Arrays.asList;
-
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.stringtemplate.v4.ST;
-
-import net.amygdalum.testrecorder.SetupGenerator;
 import net.amygdalum.testrecorder.deserializers.CustomAnnotation;
 import net.amygdalum.testrecorder.deserializers.DeserializerFactory;
 import net.amygdalum.testrecorder.deserializers.DeserializerTypeManager;
@@ -22,18 +14,8 @@ import net.amygdalum.testrecorder.types.TypeManager;
 
 public class ClassGenerator {
 
-	private static final String TEST_FILE = "package <package>;\n\n"
-		+ "<imports: {pkg | import <pkg>;\n}>"
-		+ "\n\n\n"
-		+ "@SuppressWarnings(\"unused\")\n"
-		+ "public class <className> {\n"
-		+ "\n"
-		+ "  <setup; separator=\"\\n\">\n"
-		+ "\n"
-		+ "  <methods; separator=\"\\n\">"
-		+ "\n}";
-
 	private String testName;
+	private TestTemplate template;
 	private DeserializerFactory setup;
 	private DeserializerFactory matcher;
 	private List<CustomAnnotation> annotations;
@@ -41,9 +23,9 @@ public class ClassGenerator {
 	private Map<String, String> setups;
 	private Set<String> tests;
 
-
-	public ClassGenerator(DeserializerFactory setup, DeserializerFactory matcher, List<CustomAnnotation> annotations, String pkg, String testName) {
+	public ClassGenerator(DeserializerFactory setup, DeserializerFactory matcher, TestTemplate template, List<CustomAnnotation> annotations, String pkg, String testName) {
 		this.testName = testName;
+		this.template = template;
 		this.setup = setup;
 		this.matcher = matcher;
 		this.annotations = annotations;
@@ -51,15 +33,7 @@ public class ClassGenerator {
 		this.setups = new LinkedHashMap<>();
 		this.tests = new LinkedHashSet<>();
 
-		types.registerTypes(Test.class);
-	}
-
-	public void setSetup(DeserializerFactory setup) {
-		this.setup = setup;
-	}
-
-	public void setMatcher(DeserializerFactory matcher) {
-		this.matcher = matcher;
+		types.registerTypes(template.getTypes());
 	}
 
 	public String getTestName() {
@@ -84,12 +58,12 @@ public class ClassGenerator {
 
 	public void generate(ContextSnapshot snapshot) {
 		if (snapshot.hasSetupInput() || snapshot.hasExpectOutput()) {
-			SetupGenerator setupGenerator = new SetupGenerator(types, "resetFakeIO", asList(Before.class, After.class))
+			SetupGenerator setupGenerator = new SetupGenerator(types, "resetFakeIO", template, annotations)
 				.generateReset();
 			addSetup("resetFakeIO", setupGenerator.generateSetup());
 		}
 
-		MethodGenerator methodGenerator = new MethodGenerator(size(), types, setup, matcher, annotations)
+		MethodGenerator methodGenerator = new MethodGenerator(size(), types, setup, matcher, template, annotations)
 			.analyze(snapshot)
 			.generateArrange()
 			.generateAct()
@@ -99,14 +73,7 @@ public class ClassGenerator {
 	}
 
 	public String render() {
-		ST file = new ST(TEST_FILE);
-		file.add("package", types.getPackage());
-		file.add("className", testName);
-		file.add("setup", setups.values());
-		file.add("methods", tests);
-		file.add("imports", types.getImports());
-
-		return file.render();
+		return template.testClass(testName, types, setups, tests);
 	}
 
 }

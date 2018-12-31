@@ -12,4 +12,6 @@ public interface TestGeneratorProfile {
 
 	List<CustomAnnotation> annotations();
 	
+	Class<? extends TestTemplate> template();
+	
 }

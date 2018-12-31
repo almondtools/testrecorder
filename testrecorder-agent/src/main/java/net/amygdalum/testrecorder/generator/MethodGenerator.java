@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import org.hamcrest.MatcherAssert;
-import org.stringtemplate.v4.ST;
 
 import net.amygdalum.testrecorder.MockedInteractions;
 import net.amygdalum.testrecorder.deserializers.CustomAnnotation;
@@ -62,12 +61,6 @@ public class MethodGenerator {
 	private static final Set<Class<?>> LITERAL_TYPES = new HashSet<>(asList(
 		Boolean.class, Character.class, Byte.class, Short.class, Integer.class, Float.class, Long.class, Double.class, String.class));
 
-	private static final String TEST_TEMPLATE = "@Test\n"
-		+ "<annotations:{annotation | <annotation>\n}>"
-		+ "public void test<testName>() throws Exception {\n"
-		+ "  <statements;separator=\"\\n\">\n"
-		+ "}\n";
-
 	private static final String BEGIN_ARRANGE = "\n//Arrange";
 	private static final String BEGIN_ACT = "\n//Act";
 	private static final String BEGIN_ASSERT = "\n//Assert";
@@ -81,6 +74,7 @@ public class MethodGenerator {
 	private ContextSnapshot snapshot;
 	private DefaultDeserializerContext context;
 	private TypeManager types;
+	private TestTemplate template;
 	private MockedInteractions mocked;
 
 	private List<String> statements;
@@ -90,11 +84,12 @@ public class MethodGenerator {
 	private String result;
 	private String error;
 
-	public MethodGenerator(int no, TypeManager types, DeserializerFactory setup, DeserializerFactory matcher, List<CustomAnnotation> annotations) {
+	public MethodGenerator(int no, TypeManager types, DeserializerFactory setup, DeserializerFactory matcher, TestTemplate template, List<CustomAnnotation> annotations) {
 		this.no = no;
 		this.types = types;
 		this.setup = setup;
 		this.matcher = matcher;
+		this.template = template;
 		this.annotations = annotations;
 		this.locals = new LocalVariableNameGenerator();
 		this.statements = new ArrayList<>();
@@ -227,7 +222,7 @@ public class MethodGenerator {
 		String methodName = snapshot.getMethodName();
 
 		MethodGenerator gen = snapshot.onExpectException()
-			.map(e -> new MethodGenerator(no, types, setup, matcher, annotations).analyze(snapshot))
+			.map(e -> new MethodGenerator(no, types, setup, matcher, template, annotations).analyze(snapshot))
 			.orElse(this);
 
 		String statement = callMethod(base, methodName, args);
@@ -428,11 +423,7 @@ public class MethodGenerator {
 	}
 
 	public String generateTest() {
-		ST test = new ST(TEST_TEMPLATE);
-		test.add("annotations", annotations());
-		test.add("testName", testName());
-		test.add("statements", statements);
-		return test.render();
+		return template.testMethod(testName(), types, annotations(), statements);
 	}
 
 	private List<String> annotations() {

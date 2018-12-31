@@ -15,4 +15,9 @@ public class DefaultTestGeneratorProfile implements TestGeneratorProfile {
 		return DEFAULT_ANNOTATIONS;
 	}
 
+	@Override
+	public Class<? extends TestTemplate> template() {
+		return JUnit4TestTemplate.class;
+	}
+
 }

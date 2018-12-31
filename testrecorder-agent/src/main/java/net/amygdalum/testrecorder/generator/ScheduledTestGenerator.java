@@ -84,7 +84,9 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 
 	private SetupGenerators setup;
 	private MatcherGenerators matcher;
+	private TestTemplate template;
 	private List<CustomAnnotation> annotations;
+
 
 	public ScheduledTestGenerator(AgentConfiguration config) {
 		this(
@@ -110,7 +112,16 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 
 		this.setup = new SetupGenerators(new Adaptors().load(setup));
 		this.matcher = new MatcherGenerators(new Adaptors().load(matcher));
+		this.template = initTemplate(generatorProfile.template());
 		this.annotations = generatorProfile.annotations();
+	}
+
+	private TestTemplate initTemplate(Class<? extends TestTemplate> template) {
+		try {
+			return template.newInstance();
+		} catch (InstantiationException | IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public void reload(AgentConfiguration config) {
@@ -120,26 +131,26 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 			config.loadConfigurations(SetupGenerator.class),
 			config.loadConfigurations(MatcherGenerator.class));
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	public void reload(PerformanceProfile profile, TestGeneratorProfile generatorProfile, List<SetupGenerator> setup, List<MatcherGenerator> matcher) {
 		this.executor = initExecutor(profile);
-		
+
 		this.generators = synchronizedMap(new LinkedHashMap<>());
 		this.pipeline = this.pipeline.thenRunAsync(() -> {
 			Logger.info("restarting code generation");
 		}, executor);
-		
+
 		this.counterMaximum = -1;
 		this.counter = 0;
 		this.start = System.currentTimeMillis();
 		this.generateTo = Paths.get("generated + " + start);
-		
+
 		this.setup = new SetupGenerators(new Adaptors().load(setup));
 		this.matcher = new MatcherGenerators(new Adaptors().load(matcher));
 		this.annotations = generatorProfile.annotations();
 	}
-	
+
 	private static ThreadPoolExecutor initExecutor(PerformanceProfile profile) {
 		return new ThreadPoolExecutor(0, 1, profile.getIdleTime(), TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new TestrecorderThreadFactory("$consume"));
 	}
@@ -261,7 +272,7 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 	}
 
 	public ClassGenerator newGenerator(ClassDescriptor clazz) {
-		return new ClassGenerator(setup, matcher, annotations, clazz.getPackage(), computeClassName(clazz));
+		return new ClassGenerator(setup, matcher, template, annotations, clazz.getPackage(), computeClassName(clazz));
 	}
 
 	public RenderedTest renderTest(Class<?> clazz) {
