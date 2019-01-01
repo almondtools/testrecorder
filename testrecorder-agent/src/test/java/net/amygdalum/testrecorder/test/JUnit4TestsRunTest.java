@@ -1,6 +1,6 @@
 package net.amygdalum.testrecorder.test;
 
-import static net.amygdalum.testrecorder.test.TestsRun.testsRun;
+import static net.amygdalum.testrecorder.test.JUnit4TestsRun.testsRun;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -9,7 +9,7 @@ import org.opentest4j.MultipleFailuresError;
 
 import net.amygdalum.testrecorder.generator.RenderedTest;
 
-public class TestsRunTest {
+public class JUnit4TestsRunTest {
 
 	@Test
 	void testCompileError() throws Exception {
@@ -37,9 +37,15 @@ public class TestsRunTest {
 		assertThatThrownBy(() -> testsRun().accept(new RenderedTest(this.getClass(), ""
 			+ "package net.amygdalum.testrecorder.testing.assertj;"
 			+ "public class Test {"
+			+ "	"
+			+ " @org.junit.Test"
+			+ " public void testFails() throws Exception {"
+			+ "   assert false : \"failed assertion\";"
+			+ "	}"
 			+ "}")))
 				.isInstanceOf(MultipleFailuresError.class)
-				.hasMessageContaining("compiled successfully");
+				.hasMessageContaining("compiled successfully")
+				.hasMessageContaining("failed assertion");
 	}
 
 	@Test
@@ -49,7 +55,7 @@ public class TestsRunTest {
 			+ "public class Test {"
 			+ "	"
 			+ " @org.junit.Test"
-			+ " public void testName() throws Exception {"
+			+ " public void testSuccess() throws Exception {"
 			+ "	}"
 			+ "}")))
 				.doesNotThrowAnyException();

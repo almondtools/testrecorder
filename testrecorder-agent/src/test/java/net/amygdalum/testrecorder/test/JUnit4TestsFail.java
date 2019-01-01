@@ -11,18 +11,18 @@ import net.amygdalum.testrecorder.dynamiccompile.DynamicClassCompilerException;
 import net.amygdalum.testrecorder.generator.RenderedTest;
 import net.amygdalum.testrecorder.util.Instantiations;
 
-public class TestsFail implements Consumer<RenderedTest> {
+public class JUnit4TestsFail implements Consumer<RenderedTest> {
 
 	private SoftAssertions softly;
 	private DynamicClassCompiler compiler;
 
-	public TestsFail() {
+	public JUnit4TestsFail() {
 		softly = new SoftAssertions();
 		compiler = new DynamicClassCompiler();
 	}
 
-	public static TestsFail testsFail() {
-		return new TestsFail();
+	public static JUnit4TestsFail testsFail() {
+		return new JUnit4TestsFail();
 	}
 
 	@Override

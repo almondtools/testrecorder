@@ -4,7 +4,7 @@ import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.extensions.assertj.iterables.IterableConditions.containingExactly;
 import static net.amygdalum.extensions.assertj.strings.StringConditions.containing;
 import static net.amygdalum.extensions.assertj.strings.StringConditions.containingWildcardPattern;
-import static net.amygdalum.testrecorder.test.TestsRun.testsRun;
+import static net.amygdalum.testrecorder.test.JUnit4TestsRun.testsRun;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.condition.AllOf.allOf;
 import static org.assertj.core.condition.Not.not;

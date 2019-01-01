@@ -15,7 +15,7 @@ import static java.util.Collections.synchronizedSet;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
-import static net.amygdalum.testrecorder.test.TestsRun.testsRun;
+import static net.amygdalum.testrecorder.test.JUnit4TestsRun.testsRun;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;

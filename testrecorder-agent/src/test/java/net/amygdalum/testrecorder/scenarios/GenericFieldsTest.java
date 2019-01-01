@@ -1,7 +1,7 @@
 package net.amygdalum.testrecorder.scenarios;
 
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
-import static net.amygdalum.testrecorder.test.TestsRun.testsRun;
+import static net.amygdalum.testrecorder.test.JUnit4TestsRun.testsRun;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashSet;

@@ -102,6 +102,7 @@ public class TestGenerator implements SnapshotConsumer {
 
 		this.setup = new SetupGenerators(new Adaptors().load(setup));
 		this.matcher = new MatcherGenerators(new Adaptors().load(matcher));
+		this.template = initTemplate(generatorProfile.template());
 		this.annotations = generatorProfile.annotations();
 	}
 

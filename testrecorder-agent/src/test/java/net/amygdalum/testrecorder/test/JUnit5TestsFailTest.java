@@ -8,18 +8,18 @@ import org.opentest4j.MultipleFailuresError;
 
 import net.amygdalum.testrecorder.generator.RenderedTest;
 
-public class TestsFailTest {
+public class JUnit5TestsFailTest {
 
 	@Test
 	public void testCompileError() throws Exception {
-		assertThatThrownBy(() -> TestsFail.testsFail().accept(new RenderedTest(this.getClass(), "")))
+		assertThatThrownBy(() -> JUnit4TestsFail.testsFail().accept(new RenderedTest(this.getClass(), "")))
 			.isInstanceOf(MultipleFailuresError.class)
 			.hasMessageContaining("contains no public class");
 	}
 
 	@Test
 	public void testDetailedCompileError() throws Exception {
-		assertThatThrownBy(() -> TestsFail.testsFail().accept(new RenderedTest(this.getClass(), ""
+		assertThatThrownBy(() -> JUnit4TestsFail.testsFail().accept(new RenderedTest(this.getClass(), ""
 			+ "package net.amygdalum.testrecorder.testing.assertj;"
 			+ "public class Test {"
 			+ "	public void testName() throws Exception {"
@@ -33,16 +33,21 @@ public class TestsFailTest {
 
 	@Test
 	public void testTestError() throws Exception {
-		assertThatCode(() -> TestsFail.testsFail().accept(new RenderedTest(this.getClass(), ""
+		assertThatCode(() -> JUnit4TestsFail.testsFail().accept(new RenderedTest(this.getClass(), ""
 			+ "package net.amygdalum.testrecorder.testing.assertj;"
 			+ "public class Test {"
+			+ " @org.junit.Test"
+			+ " public void testFails() throws Exception {"
+			+ "   assert false : \"failed assertion\";"
+			+ "	}"
+
 			+ "}")))
 				.doesNotThrowAnyException();
 	}
 
 	@Test
 	public void testTestSuccess() throws Exception {
-		assertThatCode(() -> TestsFail.testsFail().accept(new RenderedTest(this.getClass(), ""
+		assertThatCode(() -> JUnit4TestsFail.testsFail().accept(new RenderedTest(this.getClass(), ""
 			+ "package net.amygdalum.testrecorder.testing.assertj;"
 			+ "public class Test {"
 			+ "	"
@@ -56,7 +61,7 @@ public class TestsFailTest {
 
 	@Test
 	public void testRuntimeException() throws Exception {
-		assertThatThrownBy(() -> TestsFail.testsFail().accept(new RenderedTest(this.getClass(), "") {
+		assertThatThrownBy(() -> JUnit4TestsFail.testsFail().accept(new RenderedTest(this.getClass(), "") {
 			public String getTestCode() {
 				throw new RuntimeException();
 			}

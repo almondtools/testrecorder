@@ -12,24 +12,24 @@ import net.amygdalum.testrecorder.dynamiccompile.DynamicClassCompilerException;
 import net.amygdalum.testrecorder.generator.RenderedTest;
 import net.amygdalum.testrecorder.util.Instantiations;
 
-public class TestsRun implements Consumer<RenderedTest> {
+public class JUnit4TestsRun implements Consumer<RenderedTest> {
 
 	private SoftAssertions softly;
 	private String[] code;
 	private DynamicClassCompiler compiler;
 
-	public TestsRun(String... code) {
+	public JUnit4TestsRun(String... code) {
 		this.softly = new SoftAssertions();
 		this.code = code;
 		this.compiler = new DynamicClassCompiler();
 	}
 
-	public static TestsRun testsRun() {
-		return new TestsRun();
+	public static JUnit4TestsRun testsRun() {
+		return new JUnit4TestsRun();
 	}
 
-	public static TestsRun testsRunWith(String... code) {
-		return new TestsRun(code);
+	public static JUnit4TestsRun testsRunWith(String... code) {
+		return new JUnit4TestsRun(code);
 	}
 
 	@Override
