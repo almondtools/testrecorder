@@ -39,7 +39,7 @@ public class JUnit5TestsRunTest {
 			+ "public class Test {"
 			+ " @org.junit.jupiter.api.Test"
 			+ " public void testFails() throws Exception {"
-			+ "   assert false : \"failed assertion\";"
+			+ "   throw new AssertionError(\"failed assertion\");"
 			+ "	}"
 			+ "}")))
 				.isInstanceOf(MultipleFailuresError.class)

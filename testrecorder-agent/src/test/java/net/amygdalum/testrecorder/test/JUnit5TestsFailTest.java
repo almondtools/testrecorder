@@ -37,11 +37,10 @@ public class JUnit5TestsFailTest {
 		assertThatCode(() -> testsFail().accept(new RenderedTest(this.getClass(), ""
 			+ "package net.amygdalum.testrecorder.testing.assertj;"
 			+ "public class Test {"
-			+ " @org.junit.Test"
+			+ " @org.junit.jupiter.api.Test"
 			+ " public void testFails() throws Exception {"
-			+ "   assert false : \"failed assertion\";"
+			+ "   throw new AssertionError(\"failed assertion\");"
 			+ "	}"
-
 			+ "}")))
 				.doesNotThrowAnyException();
 	}
@@ -52,7 +51,7 @@ public class JUnit5TestsFailTest {
 			+ "package net.amygdalum.testrecorder.testing.assertj;"
 			+ "public class Test {"
 			+ "	"
-			+ " @org.junit.Test"
+			+ " @org.junit.jupiter.api.Test"
 			+ " public void testName() throws Exception {"
 			+ "	}"
 			+ "}")))

@@ -39,7 +39,7 @@ public class JUnit4TestsFailTest {
 			+ "public class Test {"
 			+ " @org.junit.Test"
 			+ " public void testFails() throws Exception {"
-			+ "   assert false : \"failed assertion\";"
+			+ "   throw new AssertionError(\"failed assertion\");"
 			+ "	}"
 			+ "}")))
 				.doesNotThrowAnyException();

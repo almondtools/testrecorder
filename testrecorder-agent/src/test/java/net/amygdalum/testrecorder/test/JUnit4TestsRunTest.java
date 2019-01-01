@@ -40,7 +40,7 @@ public class JUnit4TestsRunTest {
 			+ "	"
 			+ " @org.junit.Test"
 			+ " public void testFails() throws Exception {"
-			+ "   assert false : \"failed assertion\";"
+			+ "   throw new AssertionError(\"failed assertion\");"
 			+ "	}"
 			+ "}")))
 				.isInstanceOf(MultipleFailuresError.class)

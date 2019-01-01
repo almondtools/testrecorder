@@ -5,11 +5,13 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import java.util.function.Consumer;
 
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.engine.JupiterTestEngine;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.LauncherDiscoveryRequest;
 import org.junit.platform.launcher.TestExecutionListener;
 import org.junit.platform.launcher.TestIdentifier;
+import org.junit.platform.launcher.core.LauncherConfig;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 
@@ -43,17 +45,26 @@ public class JUnit5TestsFail implements Consumer<RenderedTest> {
 				.selectors(selectClass(clazz))
 				.build();
 
-			Launcher launcher = LauncherFactory.create();
+			LauncherConfig config = LauncherConfig.builder()
+				.enableTestEngineAutoRegistration(false)
+			    .enableTestExecutionListenerAutoRegistration(false)
+			    .addTestEngines(new JupiterTestEngine())
+				.build();
+			Launcher launcher = LauncherFactory.create(config);
 
 			Instantiations.resetInstatiations();
 			launcher.execute(request, new TestExecutionListener() {
+
 				@Override
 				public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
+					if (testIdentifier.isContainer()) {
+						return;
+					}
 					switch (testExecutionResult.getStatus()) {
 					case FAILED:
 						return;
 					case SUCCESSFUL:
-						softly.fail("expected test failures but tests were successful");
+						softly.fail("expected test failures but tests were successful" + testIdentifier);
 						return;
 					case ABORTED:
 					default:
