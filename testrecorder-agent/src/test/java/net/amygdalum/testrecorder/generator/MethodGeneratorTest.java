@@ -28,7 +28,6 @@ import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.types.VirtualMethodSignature;
 import net.amygdalum.testrecorder.util.testobjects.Bean;
 import net.amygdalum.testrecorder.values.SerializedObject;
-import net.amygdalum.xrayinterface.XRayInterface;
 
 public class MethodGeneratorTest {
 
@@ -50,7 +49,7 @@ public class MethodGeneratorTest {
 	void testGenerateActWithResult() throws Exception {
 		MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher, template, emptyList());
 		methodGenerator.analyze(snapshotWithResult());
-		XRayInterface.xray(methodGenerator).to(OpenMethodGenerator.class).setBase("var");
+		xray(methodGenerator).to(OpenMethodGenerator.class).setBase("var");
 
 		methodGenerator.generateAct();
 

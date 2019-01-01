@@ -13,7 +13,6 @@ import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 
 public class WrapWithTryCatch implements SequenceInstruction {
@@ -26,7 +25,7 @@ public class WrapWithTryCatch implements SequenceInstruction {
 	private SequenceInstruction catchInstructions;
 	private SequenceInstruction returnInstructions;
 
-	public WrapWithTryCatch(MethodNode methodNode) {
+	public WrapWithTryCatch() {
 		this.tryLabel = new LabelNode();
 		this.catchLabel = new LabelNode();
 		this.returnLabel = new LabelNode();

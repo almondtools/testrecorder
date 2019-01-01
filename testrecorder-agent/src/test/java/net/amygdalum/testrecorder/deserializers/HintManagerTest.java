@@ -266,7 +266,7 @@ public class HintManagerTest {
 
 		private Class<?> type;
 
-		public Value(Class<?> type) {
+		Value(Class<?> type) {
 			this.type = type;
 		}
 

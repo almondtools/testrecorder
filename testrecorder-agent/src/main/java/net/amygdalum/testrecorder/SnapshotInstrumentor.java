@@ -269,7 +269,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		}
 
 		protected void instrumentSnapshotMethod(MethodNode methodNode) {
-			methodNode.instructions = new WrapWithTryCatch(methodNode)
+			methodNode.instructions = new WrapWithTryCatch()
 				.before(setupVariables(methodNode))
 				.after(expectVariables(methodNode))
 				.handler(throwVariables(methodNode))

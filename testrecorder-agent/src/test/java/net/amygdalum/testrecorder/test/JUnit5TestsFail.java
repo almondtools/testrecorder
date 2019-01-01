@@ -57,7 +57,7 @@ public class JUnit5TestsFail implements Consumer<RenderedTest> {
 						return;
 					case ABORTED:
 					default:
-						softly.fail("expected test failures but tests were successful");
+						softly.fail("expected test failures but tests were aborted");
 						return;
 					}
 				}
