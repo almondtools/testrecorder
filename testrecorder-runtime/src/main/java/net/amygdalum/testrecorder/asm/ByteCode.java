@@ -197,6 +197,7 @@ public final class ByteCode {
 		instruction.accept(mp);
 		String text = p.getText().stream()
 			.map(Object::toString)
+			.map(String::trim)
 			.collect(joining("\n"));
 		return text;
 	}
