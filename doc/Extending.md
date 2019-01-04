@@ -7,7 +7,7 @@ The [Architecture](Architecture.md) of Testrecorder is extensible at certain poi
 - Custom serializers allow you to simplify the model of a recorded object
 - Custom setup generators allow you to adjust the way the model is transformed to test setup code
 - Custom matcher generators allow you to adjust the way the model is transformed to matcher code
-- Custom initializers are needed if some instrumentations are needed before executing the agent/the test
+- Custom snapshot consumers allow you to plug in another class that will receive the serialized model (the default snapshot consumer generates tests but your custom consumer may do anything) 
 
 You can write such extensions in the workspace of your applications. You can even write testrecorder extension libraries, including your extensions.
 
@@ -384,3 +384,29 @@ To register your `DateMatcherGenerator` for deserialization dispatch you will ha
 * create a directory `agentconfig` in your class path
 * create a file `net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerator` in this directory
 * put the full qualified class name `com.almondtools.testrecorder.examples.deserializers.DateMatcherGenerator` into this file
+
+## Custom Snapshot Consumers
+
+Custom Serializers and Deserializers are designed to serve the main purpose of testrecorder - generating tests.
+
+But Testrecorder is not limited to test generation. One may skip the test generation and receive the serialized data immediately for further processing.
+
+An example of a custom snapshot consumer could look like this:
+
+    public class CustomSnapshotConsumer implements SnapshotConsumer {
+      public CustomSnapshotConsumer(AgentConfiguration config) {
+      }
+      
+      @Override
+      public void accept(ContextSnapshot snapshot) {
+        System.out.println("captured call of " + snapshot.getMethodName());
+      }
+    }
+    
+Every time a snapshot is recorded this consumer will print a message `captured call of <method>`
+
+To plug in this snapshot consumer:
+
+* create a directory `agentconfig` in your class path
+* create a file `net.amygdalum.testrecorder.profile.SnapshotConsumer` in this directory
+* put the full qualified class name `com.almondtools.testrecorder.examples.CustomSnapshotConsumer` into this file
