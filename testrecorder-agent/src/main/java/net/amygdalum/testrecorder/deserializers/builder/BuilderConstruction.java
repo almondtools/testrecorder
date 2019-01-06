@@ -19,6 +19,7 @@ import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.DeserializerContext;
 import net.amygdalum.testrecorder.types.LocalVariable;
 import net.amygdalum.testrecorder.types.SerializedField;
+import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
@@ -38,51 +39,82 @@ public class BuilderConstruction {
 	}
 
 	public Computation build(TypeManager types, Deserializer generator) throws ReflectiveOperationException {
-		String name = var.getName();
-		Type type = var.getType();
-
 		Class<?> builderClass = context.getHint(serialized, Builder.class).orElseThrow(() -> new InstantiationException()).builder();
-		assertBuilderConventions(builderClass);
 		
-		types.registerTypes(builderClass);
-
-		List<String> statements = new ArrayList<>();
-
-		String aggregate = newObject(types.getVariableTypeName(builderClass));
+		BuilderModel model = assertBuilderConventions(builderClass);
 		
-		for (SerializedField field : serialized.getFields()) {
-			String withSetter = withSetterNameFor(field.getName());
-			Computation fieldComputation = field.getValue().accept(generator);
-			statements.addAll(fieldComputation.getStatements());
-			aggregate = callMethod(aggregate, withSetter, fieldComputation.getValue());
-		}
-		
-		aggregate = callMethod(aggregate, BUILD);
-		
-		statements.add(assignLocalVariableStatement(types.getVariableTypeName(type), name, aggregate));
-		
-		return variable(name, type, statements);
+		return model.build(types, generator);
 	}
 
-	private void assertBuilderConventions(Class<?> builderClass) throws ReflectiveOperationException {
+	private BuilderModel assertBuilderConventions(Class<?> builderClass) throws ReflectiveOperationException {
 		builderClass.getConstructor();
 		
+		List<WithSetter> withSetters = new ArrayList<>();
 		for (SerializedField field : serialized.getFields()) {
 			String withSetter = withSetterNameFor(field.getName());
 			Method method = getDeclaredMethod(builderClass, withSetter, baseType(field.getType()));
 			if (method.getReturnType() != builderClass) {
 				throw new NoSuchMethodException();
 			}
+			withSetters.add(new WithSetter(withSetter, field.getValue()));
 		}
 		
 		Method builderMethod = builderClass.getMethod(BUILD);
 		if (builderMethod.getReturnType() != serialized.getType()) {
 			throw new NoSuchMethodException();
 		}
+		return new BuilderModel(var, builderClass, withSetters);
 	}
 
 	private String withSetterNameFor(String name) {
 		return WITH + toUpperCase(name.charAt(0)) + name.substring(1);
 	}
 
+	private static class BuilderModel {
+
+		private String name;
+		private Type type;
+		private Type builderClass;
+		private List<WithSetter> withSetters;
+
+		public BuilderModel(LocalVariable var, Type builderClass, List<WithSetter> withSetters) {
+			this.name = var.getName();
+			this.type = var.getType();
+			this.builderClass = builderClass;
+			this.withSetters = withSetters;
+		}
+		
+		public Computation build(TypeManager types, Deserializer generator) {
+			types.registerTypes(builderClass);
+
+			List<String> statements = new ArrayList<>();
+
+			String aggregate = newObject(types.getVariableTypeName(builderClass));
+			
+			for (WithSetter withSetter : withSetters) {
+				Computation fieldComputation = withSetter.value.accept(generator);
+				statements.addAll(fieldComputation.getStatements());
+				aggregate = callMethod(aggregate, withSetter.method, fieldComputation.getValue());
+			}
+			
+			aggregate = callMethod(aggregate, BUILD);
+			
+			statements.add(assignLocalVariableStatement(types.getVariableTypeName(type), name, aggregate));
+			
+			return variable(name, type, statements);
+		}
+		
+	}
+	
+	private static class WithSetter {
+
+		public String method;
+		public SerializedValue value;
+
+		public WithSetter(String method, SerializedValue value) {
+			this.method = method;
+			this.value = value;
+		}
+		
+	}
 }
