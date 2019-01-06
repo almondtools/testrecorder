@@ -16,48 +16,19 @@
             <body>
                     <header>
                               <nav class="navbar navbar-dark bg-dark navbar-expand-sm" role="navigation">
-      <div class="container-fluid">
-                  <div class="navbar-header">
-              <button type="button" class="navbar-toggler" data-toggle="collapse" data-target=".navbar-collapse">
-                  <span class="navbar-toggler-icon"></span>
-  </button>
-          <a href="download.html" class="navbar-brand">
-    Testrecorder
-  </a>
-  </div>
-              <div class="collapse navbar-collapse">
-      <ul class="navbar-nav">
-              <li class="nav-item active">  <a class="nav-link" href="index.html">
-    Home
-  </a></li>
-          <li class="nav-item">  <a class="nav-link" href="download.html">
-    Get it!
-  </a></li>
-          <li class="nav-item">  <a class="nav-link" href="license.html">
-    License
-  </a></li>
-  </ul>
-  </div>
-  </div>
+    <div class="container-fluid">            <div class="navbar-header">        <button type="button" class="navbar-toggler" data-toggle="collapse" data-target=".navbar-collapse">            <span class="navbar-toggler-icon"></span></button>
+        <a href="download.html" class="navbar-brand">Testrecorder</a></div>
+            <div class="collapse navbar-collapse"><ul class="navbar-nav">        <li class="nav-item active"><a class="nav-link" href="index.html">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="download.html">Get it!</a></li>
+        <li class="nav-item"><a class="nav-link" href="license.html">License</a></li></ul></div></div>
   </nav>
-                        <div class="jumbotron">
-      <div class="container">
-              <h1>Testrecorder</h1>
-          <p>Testrecorder ist a unit test generator for Java. Testrecorder is based on capturing and replaying the states before and after method calls. The generated result is a pure Java JUnit test.</p>
-          <p>  <a href="download.html" class="btn btn-primary">
-    Get Testrecorder
-  </a>   <a href="https://github.com/almondtools/testrecorder" class="btn btn-light">
-    Github
-  </a></p>
-  </div>
-  </div>
+                      <div class="jumbotron"><div class="container">        <h1>Testrecorder</h1>
+        <p>Testrecorder ist a unit test generator for Java. Testrecorder is based on capturing and replaying the states before and after method calls. The generated result is a pure Java JUnit test.</p>
+        <p><a href="download.html" class="btn btn-primary">Get Testrecorder</a> <a href="https://github.com/almondtools/testrecorder" class="btn btn-light">Github</a></p></div></div>
   </header>
               <main>
-      <div class="container">
-                  <section class="page-section">
-              <div class="row">
-                  <div class="col-lg-8">
-                    <p><strong>You have code</strong>, <strong>you have a running system</strong> - and <strong>you have no tests</strong>. This is where <strong>Testrecorder</strong> jumps in. The most relevant tests of a system are those, that resemble the workflow of the users of the system. <strong>Testrecorder</strong> records every user interaction a selected method is involved in and generates executable JUnit-Tests for this interaction.</p>
+    <div class="container">              <section class="page-section">
+            <div class="row">            <div class="col-lg-8">                <p><strong>You have code</strong>, <strong>you have a running system</strong> - and <strong>you have no tests</strong>. This is where <strong>Testrecorder</strong> jumps in. The most relevant tests of a system are those, that resemble the workflow of the users of the system. <strong>Testrecorder</strong> records every user interaction a selected method is involved in and generates executable JUnit-Tests for this interaction.</p>
 <p><strong>testrecorder</strong> is as capture-replay test generator. In contrast to most other capture-replay test generators <strong>testrecorder</strong> does not generate gui/web integration tests but pure Java unit tests.</p>
 <h2>Basic Usage</h2>
 <h3>1. Annotate the method to record</h3>
@@ -145,26 +116,14 @@ public void testFizzBuzz0() throws Exception {
 
 ...
 </code></pre>
-
-  </div>
-              <div class="col-lg-4">
-                          <div class="card info-card">
-              <div class="card-header">
-      <h4>Benefits</h4>
-  </div>
-          <div class="card-body">
-                        <p>Use the generated tests as <strong>characterization tests</strong> for test regression. Many refactoring will directly adjust the test, few will need some manual corrections and none will force you to dig in xml (or java serialization code) to correct the data of the test.</p>
+</div>
+            <div class="col-lg-4">                    <div class="card info-card">        <div class="card-header"><h4>Benefits</h4></div>
+        <div class="card-body">                    <p>Use the generated tests as <strong>characterization tests</strong> for test regression. Many refactoring will directly adjust the test, few will need some manual corrections and none will force you to dig in xml (or java serialization code) to correct the data of the test.</p>
 <p>The generated test can also give you <strong>insights about what is changed</strong> in the tested scenario - involving not only primitive arguments and results, but also side effects on arguments, global variables and exceptions.</p>
 <p>And if you think testrecording is cool, but byte code instrumetation is not: the <strong>api of testrecorder is open</strong>. You may generate setup code (the code that generates a given object) and matcher code (the code that validates a given object) as part of your debugging (or runtime system).</p>
-
-  </div>
-  </div>
-                      <div class="card info-card">
-              <div class="card-header">
-      <h4>Advanced Topics</h4>
-  </div>
-          <div class="card-body">
-                                                <p>Following subjects could be of further interest:</p>
+</div></div>
+                    <div class="card info-card">        <div class="card-header"><h4>Advanced Topics</h4></div>
+        <div class="card-body">                                            <p>Following subjects could be of further interest:</p>
 <ul>
 <li><a href="https://github.com/almondtools/testrecorder/blob/master/doc/Architecture.md">An Introduction to the Testrecorder Architecture</a></li>
 <li><a href="https://github.com/almondtools/testrecorder/blob/master/doc/RecordingIO.md">Recording Input/Output</a></li>
@@ -174,15 +133,9 @@ public void testFizzBuzz0() throws Exception {
 <li><a href="https://github.com/almondtools/testrecorder/blob/master/doc/TuningOutput.md">Tuning the Output of Testrecorder</a></li>
 <li><a href="https://github.com/almondtools/testrecorder/blob/master/doc/CreatingCustomAgents.md">Creating a Custom Agent</a></li>
 </ul>
-
-  </div>
-  </div>
-                      <div class="card info-card">
-              <div class="card-header">
-      <h4>Limitations</h4>
-  </div>
-          <div class="card-body">
-                                                <p>TestRecorder serialization (for values and tests) does not cover all of an objects properties. Problems might occur with:</p>
+</div></div>
+                    <div class="card info-card">        <div class="card-header"><h4>Limitations</h4></div>
+        <div class="card-body">                                            <p>TestRecorder serialization (for values and tests) does not cover all of an objects properties. Problems might occur with:</p>
 <ul>
 <li>static fields</li>
 <li>synthetic fields (e.g. added by some bytecode rewriting framework)</li>
@@ -191,35 +144,16 @@ public void testFizzBuzz0() throws Exception {
 <li>state that influences object access (e.g. modification counter in collections)</li>
 </ul>
 <p>Such scenarios should be solved with <a href="https://github.com/almondtools/testrecorder/blob/master/doc/Extending.md">custom serializers and/or custom desersializers</a>.</p>
-
-  </div>
-  </div>
-                      <div class="card info-card">
-              <div class="card-header">
-      <h4>Examples</h4>
-  </div>
-          <div class="card-body">
-                        <p>Examples can be found at <a href="https://github.com/almondtools/testrecorder-examples">testrecorder-examples</a></p>
-
-  </div>
-  </div>
-  </div>
-  </div>
+</div></div>
+                    <div class="card info-card">        <div class="card-header"><h4>Examples</h4></div>
+        <div class="card-body">                    <p>Examples can be found at <a href="https://github.com/almondtools/testrecorder-examples">testrecorder-examples</a></p>
+</div></div></div></div>
   </section>
               <section class="page-section">
-              <div class="row">
-                  <div class="order-2 col-lg-4">
-                
-  </div>
-              <div class="order-1 col-lg-8">
-                      <h2>Authors</h2>
-                  <p>  <a href="http://www.amygdalum.net">
-    Stefan Mandel
-  </a></p>
-  </div>
-  </div>
-  </section>
-  </div>
+            <div class="row">            <div class="order-2 col-lg-4">            </div>
+            <div class="order-1 col-lg-8">                <h2>Authors</h2>
+                <p><a href="http://www.amygdalum.net">Stefan Mandel</a></p></div></div>
+  </section></div>
   </main>
               <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
               <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
