@@ -5,6 +5,8 @@ import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.lang.annotation.Annotation;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -57,7 +59,6 @@ public class ObjectBuilderAdaptorTest {
 		Computation deserialized = adaptor.tryDeserialize(value, generator);
 		assertThat(deserialized.getStatements()).containsExactly("Buildable buildable1 = new MyBuilder().withA(1).withB(\"2\").build();");
 		assertThat(deserialized.getValue()).isEqualTo("buildable1");
-
 	}
 
 	@Test
@@ -130,6 +131,32 @@ public class ObjectBuilderAdaptorTest {
 		Deserializer generator = generator();
 
 		assertThrows(DeserializationException.class, () -> adaptor.tryDeserialize(value, generator));
+	}
+
+	@Test
+	public void testTryDeserializeWithExternalBuildable() throws Exception {
+		SerializedObject value = new SerializedObject(BuildableWithExternalHint.class);
+		value.addField(new SerializedField(new FieldSignature(BuildableWithExternalHint.class, int.class, "a"), literal(1)));
+		value.addField(new SerializedField(new FieldSignature(BuildableWithExternalHint.class, String.class, "b"), literal("2")));
+
+		context.getTypes().registerImport(BuildableWithExternalHint.class);
+		context.addHint(BuildableWithExternalHint.class, new Builder() {
+			
+			@Override
+			public Class<? extends Annotation> annotationType() {
+				return Builder.class;
+			}
+			
+			@Override
+			public Class<?> builder() {
+				return ExternalBuilder.class;
+			}
+		});
+		Deserializer generator = generator();
+
+		Computation deserialized = adaptor.tryDeserialize(value, generator);
+		assertThat(deserialized.getStatements()).containsExactly("BuildableWithExternalHint buildableWithExternalHint1 = new ExternalBuilder().withA(1).withB(\"2\").build();");
+		assertThat(deserialized.getValue()).isEqualTo("buildableWithExternalHint1");
 	}
 
 	private Deserializer generator() {
@@ -338,6 +365,38 @@ public class ObjectBuilderAdaptorTest {
 			}
 		}
 
+	}
+
+	public static class BuildableWithExternalHint {
+		private int a;
+		private String b;
+
+		@Override
+		public String toString() {
+			return a + ":" + b;
+		}
+	}
+
+	public static class ExternalBuilder {
+		private BuildableWithExternalHint build;
+
+		public ExternalBuilder() {
+			this.build = new BuildableWithExternalHint();
+		}
+
+		public ExternalBuilder withA(int a) {
+			build.a = a;
+			return this;
+		}
+
+		public ExternalBuilder withB(String b) {
+			build.b = b;
+			return this;
+		}
+
+		public BuildableWithExternalHint build() {
+			return build;
+		}
 	}
 
 }
