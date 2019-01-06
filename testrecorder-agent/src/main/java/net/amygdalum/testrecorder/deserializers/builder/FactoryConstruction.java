@@ -31,6 +31,8 @@ import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class FactoryConstruction {
 
+	private static final int NOT_MATCHED = -1;
+
 	private DeserializerContext context;
 	private SerializedObject serialized;
 	private LocalVariable var;
@@ -60,7 +62,7 @@ public class FactoryConstruction {
 			.findFirst()
 			.orElseThrow(() -> new NoSuchMethodException());
 
-			return new FactoryModel(var, factoryClass, methodName, parameters);
+		return new FactoryModel(var, factoryClass, methodName, parameters);
 	}
 
 	private List<SerializedValue> assignParametersFor(Method method) {
@@ -70,41 +72,54 @@ public class FactoryConstruction {
 			Class<?> fieldClass = Types.baseType(field.getType());
 			String fieldName = field.getName();
 			SerializedValue value = field.getValue();
-			int bestCandidate = -1;
-			for (int i = 0; i < parameters.length; i++) {
-				if (parameters[i].getType() == fieldClass) {
-					if (bestCandidate == -1) {
-						bestCandidate = i;
-					} else {
-						Name name = parameters[i].getAnnotation(Name.class);
-						if (name != null && name.value().equals(fieldName)) {
-							bestCandidate = i;
-						}
-					}
-				}
-			}
-			if (bestCandidate == -1) {
-				if (value instanceof SerializedNull) {
+
+			int bestCandidate = matchBestCandidate(parameters, fieldClass, fieldName);
+			if (bestCandidate == NOT_MATCHED) {
+				if (canBeOmitted(field.getType(), value)) {
 					continue;
-				} else if (value instanceof SerializedLiteral) {
-					SerializedLiteral literal = (SerializedLiteral) value;
-					if (literal.getValue() != null && literal.getValue().equals(DefaultValue.of(field.getType()))) {
-						continue;
-					}
-					
 				}
 				return null;
 			} else if (values[bestCandidate] != null) {
 				return null;
 			}
-			values[bestCandidate] = value; 
+			values[bestCandidate] = value;
 		}
-		
+
 		List<SerializedValue> arguments = asList(values);
 		if (arguments.contains(null)) {
 			return null;
 		}
 		return arguments;
+	}
+
+	private boolean canBeOmitted(Type type, SerializedValue value) {
+		if (value instanceof SerializedNull) {
+			return true;
+		}
+		if (value instanceof SerializedLiteral) {
+			SerializedLiteral literal = (SerializedLiteral) value;
+			if (literal.getValue() != null && literal.getValue().equals(DefaultValue.of(type))) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private int matchBestCandidate(Parameter[] parameters, Class<?> fieldClass, String fieldName) {
+		int bestCandidate = NOT_MATCHED;
+		for (int i = 0; i < parameters.length; i++) {
+			if (parameters[i].getType() == fieldClass) {
+				if (bestCandidate == NOT_MATCHED) {
+					bestCandidate = i;
+				} else {
+					Name name = parameters[i].getAnnotation(Name.class);
+					if (name != null && name.value().equals(fieldName)) {
+						bestCandidate = i;
+					}
+				}
+			}
+		}
+		return bestCandidate;
 	}
 
 	private static class FactoryModel {
@@ -115,32 +130,32 @@ public class FactoryConstruction {
 		private String methodName;
 		private List<SerializedValue> arguments;
 
-		public FactoryModel(LocalVariable var, Class<?> factoryClass, String methodName, List<SerializedValue> arguments) {
+		FactoryModel(LocalVariable var, Class<?> factoryClass, String methodName, List<SerializedValue> arguments) {
 			this.name = var.getName();
 			this.type = var.getType();
 			this.factoryClass = factoryClass;
 			this.methodName = methodName;
 			this.arguments = arguments;
 		}
-		
+
 		public Computation build(TypeManager types, Deserializer generator) {
 			types.registerTypes(factoryClass);
 
 			List<String> statements = new ArrayList<>();
-			
+
 			List<String> computedArguments = new ArrayList<String>();
 			for (SerializedValue argument : arguments) {
 				Computation argumentComputation = argument.accept(generator);
 				statements.addAll(argumentComputation.getStatements());
 				computedArguments.add(argumentComputation.getValue());
 			}
-			
+
 			String result = callMethod(types.getVariableTypeName(factoryClass), methodName, computedArguments);
-			
+
 			statements.add(assignLocalVariableStatement(types.getVariableTypeName(type), name, result));
 			return variable(name, type, statements);
 		}
-		
+
 	}
 
 }
