@@ -35,8 +35,16 @@ Maven Dependency
 ```xml
 <dependency>
     <groupId>net.amygdalum</groupId>
+    <artifactId>testrecorder-annotations</artifactId>
+    <version>0.10.0</version>
+</dependency>
+```
+
+```xml
+<dependency>
+    <groupId>net.amygdalum</groupId>
     <artifactId>testrecorder-agent</artifactId>
-    <version>0.8.1</version>
+    <version>0.10.0</version>
 </dependency>
 ```
 
@@ -44,6 +52,6 @@ Maven Dependency
 <dependency>
     <groupId>net.amygdalum</groupId>
     <artifactId>testrecorder-runtime</artifactId>
-    <version>0.8.1</version>
+    <version>0.10.0</version>
 </dependency>
 ```
