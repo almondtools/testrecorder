@@ -296,9 +296,6 @@ public class MethodGenerator {
 	private Stream<String> generateExceptionAssert(TypeManager types, SerializedValue exception, String expression) {
 		Deserializer deserializer = matcher.newGenerator(context.newIsolatedContext(types, locals));
 
-		if (exception == null) {
-			return Stream.empty();
-		}
 		Computation matcherExpression = exception.accept(deserializer);
 		return createAssertion(matcherExpression, expression).stream();
 	}

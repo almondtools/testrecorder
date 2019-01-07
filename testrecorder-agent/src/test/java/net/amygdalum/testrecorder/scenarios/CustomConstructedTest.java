@@ -15,15 +15,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import net.amygdalum.testrecorder.TestAgentConfiguration;
 import net.amygdalum.testrecorder.deserializers.CustomAnnotation;
 import net.amygdalum.testrecorder.generator.JUnit4TestTemplate;
-import net.amygdalum.testrecorder.generator.JUnit5TestTemplate;
 import net.amygdalum.testrecorder.generator.TestGenerator;
 import net.amygdalum.testrecorder.generator.TestGeneratorProfile;
 import net.amygdalum.testrecorder.generator.TestTemplate;
 import net.amygdalum.testrecorder.hints.Setter;
 import net.amygdalum.testrecorder.integration.Instrumented;
 import net.amygdalum.testrecorder.integration.TestRecorderAgentExtension;
-import net.amygdalum.testrecorder.test.JUnit4TestsRun;
-import net.amygdalum.testrecorder.test.JUnit5TestsRun;
 import net.amygdalum.testrecorder.util.ClasspathResourceExtension;
 import net.amygdalum.testrecorder.util.ExtensibleClassLoader;
 
@@ -77,11 +74,11 @@ public class CustomConstructedTest {
 					.contains("equalTo(3)");
 			});
 	}
-
+	
 	@Test
 	@ExtendWith(ClasspathResourceExtension.class)
-	public void testJUnit4CodeWithSetterHint(TestAgentConfiguration config, ExtensibleClassLoader loader) throws Exception {
-		loader.defineResource("agentconfig/net.amygdalum.testrecorder.generator.TestGeneratorProfile", "net.amygdalum.testrecorder.scenarios.CustomConstructedTest$JUnit4TestGeneratorProfile".getBytes());
+	public void testCustomCodeWithSetterHint(TestAgentConfiguration config, ExtensibleClassLoader loader) throws Exception {
+		loader.defineResource("agentconfig/net.amygdalum.testrecorder.generator.TestGeneratorProfile", "net.amygdalum.testrecorder.scenarios.CustomConstructedTest$CustomTestGeneratorProfile".getBytes());
 		config.reset().withLoader(loader);
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		testGenerator.reload(config);
@@ -104,39 +101,10 @@ public class CustomConstructedTest {
 			});
 		assertThat(testGenerator.renderTest(CustomConstructed.class).getTestCode())
 			.contains("import org.junit.Test;");
-		assertThat(testGenerator.renderTest(CustomConstructed.class)).satisfies(JUnit4TestsRun.testsRun());
+		assertThat(testGenerator.renderTest(CustomConstructed.class)).satisfies(testsRun());
 	}
 
-	@Test
-	@ExtendWith(ClasspathResourceExtension.class)
-	public void testJUnit5CodeWithSetterHint(TestAgentConfiguration config, ExtensibleClassLoader loader) throws Exception {
-		loader.defineResource("agentconfig/net.amygdalum.testrecorder.generator.TestGeneratorProfile", "net.amygdalum.testrecorder.scenarios.CustomConstructedTest$JUnit5TestGeneratorProfile".getBytes());
-		config.reset().withLoader(loader);
-		TestGenerator testGenerator = TestGenerator.fromRecorded();
-		testGenerator.reload(config);
-
-		CustomConstructed bean = new CustomConstructed();
-		bean.string("string");
-		bean.other("other");
-
-		assertThat(bean.hashCode()).isEqualTo(11);
-
-		testGenerator = TestGenerator.fromRecorded();
-		assertThat(testGenerator.testsFor(CustomConstructed.class)).hasSize(1);
-		assertThat(testGenerator.testsFor(CustomConstructed.class))
-			.anySatisfy(test -> {
-				assertThat(test)
-					.contains("new CustomConstructed()")
-					.containsWildcardPattern("customConstructed?.string")
-					.containsWildcardPattern("customConstructed?.other")
-					.contains("equalTo(11)");
-			});
-		assertThat(testGenerator.renderTest(CustomConstructed.class).getTestCode())
-			.contains("import org.junit.jupiter.api.Test;");
-		assertThat(testGenerator.renderTest(CustomConstructed.class)).satisfies(JUnit5TestsRun.testsRun());
-	}
-
-	public static class JUnit4TestGeneratorProfile implements TestGeneratorProfile {
+	public static class CustomTestGeneratorProfile implements TestGeneratorProfile {
 
 		@Override
 		public List<CustomAnnotation> annotations() {
@@ -156,30 +124,6 @@ public class CustomConstructedTest {
 		@Override
 		public Class<? extends TestTemplate> template() {
 			return JUnit4TestTemplate.class;
-		}
-
-	}
-
-	public static class JUnit5TestGeneratorProfile implements TestGeneratorProfile {
-
-		@Override
-		public List<CustomAnnotation> annotations() {
-			try {
-				return asList(new CustomAnnotation(CustomConstructed.class.getDeclaredMethod("other", String.class), new Setter() {
-
-					@Override
-					public Class<? extends Annotation> annotationType() {
-						return Setter.class;
-					}
-				}));
-			} catch (ReflectiveOperationException e) {
-				return emptyList();
-			}
-		}
-
-		@Override
-		public Class<? extends TestTemplate> template() {
-			return JUnit5TestTemplate.class;
 		}
 
 	}
