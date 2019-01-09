@@ -10,7 +10,14 @@ import java.lang.reflect.Type;
  */
 public class BridgedSnapshotManager {
 
-	public static Object MANAGER;
+	public static final ThreadLocal<MethodHandle> LOCK = new ThreadLocal<>();
+
+	public static volatile Object MANAGER;
+
+	public static MethodHandle setupVariables;
+	public static MethodHandle expectVariables;
+	public static MethodHandle expectVariablesVoid;
+	public static MethodHandle throwVariables;
 
 	public static MethodHandle inputVariables;
 	public static MethodHandle inputArguments;
@@ -22,36 +29,172 @@ public class BridgedSnapshotManager {
 	public static MethodHandle outputResult;
 	public static MethodHandle outputVoidResult;
 
+	public static void setupVariables(Class<?> clazz, Object self, String signature, Object... args) throws Throwable {
+		MethodHandle handle = setupVariables;
+		if (handle == null || LOCK.get() != null) {
+			return;
+		}
+		try {
+			LOCK.set(handle);
+			handle.invoke(MANAGER, clazz, self, signature, args);
+		} finally {
+			LOCK.set(null);
+		}
+	}
+
+	public static void expectVariables(Object self, String signature, Object result, Object... args) throws Throwable {
+		MethodHandle handle = expectVariables;
+		if (handle == null || LOCK.get() != null) {
+			return;
+		}
+		try {
+			LOCK.set(handle);
+			handle.invoke(MANAGER, self, signature, result, args);
+		} finally {
+			LOCK.set(null);
+		}
+
+	}
+
+	public static void expectVariables(Object self, String signature, Object... args) throws Throwable {
+		MethodHandle handle = expectVariablesVoid;
+		if (handle == null || LOCK.get() != null) {
+			return;
+		}
+		try {
+			LOCK.set(handle);
+			handle.invoke(MANAGER, self, signature, args);
+		} finally {
+			LOCK.set(null);
+		}
+	}
+
+	public static void throwVariables(Throwable throwable, Object self, String signature, Object... args) throws Throwable {
+		MethodHandle handle = throwVariables;
+		if (handle == null || LOCK.get() != null) {
+			return;
+		}
+		try {
+			LOCK.set(handle);
+			handle.invoke(MANAGER, throwable, self, signature, args);
+		} finally {
+			LOCK.set(null);
+		}
+
+	}
+
 	public static int inputVariables(Object object, String method, Type resultType, Type[] paramTypes) throws Throwable {
-		return (Integer) inputVariables.invoke(MANAGER, object, method, resultType, paramTypes);
+		MethodHandle handle = inputVariables;
+		if (handle == null || LOCK.get() != null) {
+			return 0;
+		}
+		try {
+			LOCK.set(handle);
+			Object result = handle.invoke(MANAGER, object, method, resultType, paramTypes);
+			if (result instanceof Integer) {
+				return ((Integer) result).intValue();
+			} else {
+				return 0;
+			}
+		} finally {
+			LOCK.set(null);
+		}
 	}
 
 	public static void inputArguments(int id, Object... args) throws Throwable {
-		inputArguments.invoke(MANAGER, id, args);
+		MethodHandle handle = inputArguments;
+		if (handle == null || LOCK.get() != null) {
+			return;
+		}
+		try {
+			LOCK.set(handle);
+			handle.invoke(MANAGER, id, args);
+		} finally {
+			LOCK.set(null);
+		}
 	}
 
 	public static void inputResult(int id, Object result) throws Throwable {
-		inputResult.invoke(MANAGER, id, result);
+		MethodHandle handle = inputResult;
+		if (handle == null || LOCK.get() != null) {
+			return;
+		}
+		try {
+			LOCK.set(handle);
+			handle.invoke(MANAGER, id, result);
+		} finally {
+			LOCK.set(null);
+		}
 	}
 
 	public static void inputVoidResult(int id) throws Throwable {
-		inputVoidResult.invoke(MANAGER, id);
+		MethodHandle handle = inputVoidResult;
+		if (handle == null || LOCK.get() != null) {
+			return;
+		}
+		try {
+			LOCK.set(handle);
+			handle.invoke(MANAGER, id);
+		} finally {
+			LOCK.set(null);
+		}
 	}
 
 	public static int outputVariables(Object object, String method, Type resultType, Type[] paramTypes) throws Throwable {
-		return (Integer) outputVariables.invoke(MANAGER, object, method, resultType, paramTypes);
+		MethodHandle handle = outputVariables;
+		if (handle == null || LOCK.get() != null) {
+			return 0;
+		}
+		try {
+			LOCK.set(handle);
+			Object result = handle.invoke(MANAGER, object, method, resultType, paramTypes);
+			if (result instanceof Integer) {
+				return ((Integer) result).intValue();
+			} else {
+				return 0;
+			}
+		} finally {
+			LOCK.set(null);
+		}
 	}
 
 	public static void outputArguments(int id, Object... args) throws Throwable {
-		outputArguments.invoke(MANAGER, id, args);
+		MethodHandle handle = outputArguments;
+		if (handle == null || LOCK.get() != null) {
+			return;
+		}
+		try {
+			LOCK.set(handle);
+			handle.invoke(MANAGER, id, args);
+		} finally {
+			LOCK.set(null);
+		}
 	}
 
 	public static void outputResult(int id, Object result) throws Throwable {
-		outputResult.invoke(MANAGER, id, result);
+		MethodHandle handle = outputResult;
+		if (handle == null || LOCK.get() != null) {
+			return;
+		}
+		try {
+			LOCK.set(handle);
+			handle.invoke(MANAGER, id, result);
+		} finally {
+			LOCK.set(null);
+		}
 	}
 
 	public static void outputVoidResult(int id) throws Throwable {
-		outputVoidResult.invoke(MANAGER, id);
+		MethodHandle handle = outputVoidResult;
+		if (handle == null || LOCK.get() != null) {
+			return;
+		}
+		try {
+			LOCK.set(handle);
+			handle.invoke(MANAGER, id);
+		} finally {
+			LOCK.set(null);
+		}
 	}
 
 }

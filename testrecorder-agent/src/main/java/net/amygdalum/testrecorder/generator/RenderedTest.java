@@ -6,7 +6,7 @@ public class RenderedTest {
 	private String testCode;
 
 	public RenderedTest(Class<?> testedClass, String testCode) {
-		this(testedClass == null ? RenderedTest.class.getClassLoader() : testedClass.getClassLoader(), testCode);
+		this(testedClass == null || testedClass.getClassLoader() == null ? RenderedTest.class.getClassLoader() : testedClass.getClassLoader(), testCode);
 	}
 	
 	public RenderedTest(ClassLoader classLoader, String testCode) {

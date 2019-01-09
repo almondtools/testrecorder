@@ -1,17 +1,17 @@
-package net.amygdalum.testrecorder;
+package net.amygdalum.testrecorder.util;
+
+import java.util.Objects;
 
 public class ClassDescriptor {
 	
 	private String pkg;
 	private String simpleName;
-	private String canonicalName;
 
 	private ClassDescriptor(Class<?> clazz) {
 		this.pkg = clazz.getPackage().getName();
 		this.simpleName = clazz.getSimpleName();
-		this.canonicalName = clazz.getCanonicalName();
 	}
-
+	
 	public static ClassDescriptor of(Class<?> clazz) {
 		return new ClassDescriptor(clazz);
 	}
@@ -26,7 +26,8 @@ public class ClassDescriptor {
 
 	@Override
 	public int hashCode() {
-		return canonicalName.hashCode();
+		return (pkg == null ? 0 : pkg.hashCode())
+			+ simpleName.hashCode();
 	}
 
 	@Override
@@ -41,12 +42,14 @@ public class ClassDescriptor {
 			return false;
 		}
 		ClassDescriptor that = (ClassDescriptor) obj;
-		return this.canonicalName.equals(that.canonicalName);
+		
+		return Objects.equals(this.pkg, that.pkg)
+			&& this.simpleName.equals(that.simpleName);
 	}
 	
 	@Override
 	public String toString() {
-	    return canonicalName;
+	    return pkg + "." + simpleName;
 	}
 
 }

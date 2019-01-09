@@ -20,7 +20,7 @@ public class DynamicClassCompilerTest {
 		Class<?> clazz = dynamicClassCompiler.compile(""
 			+ "package net.amygdalum.testrecorder.nopackage;"
 			+ "public class MyClass {}", DynamicClassCompilerTest.class.getClassLoader());
-		
+
 		assertThat(clazz.getName()).isEqualTo("net.amygdalum.testrecorder.nopackage.MyClass");
 	}
 
@@ -28,7 +28,7 @@ public class DynamicClassCompilerTest {
 	void testCompileNoPackage() throws Exception {
 		assertThatThrownBy(() -> dynamicClassCompiler.compile(""
 			+ "public class MyClass {}", DynamicClassCompilerTest.class.getClassLoader()))
-		.isInstanceOf(DynamicClassCompilerException.class);
+				.isInstanceOf(DynamicClassCompilerException.class);
 	}
 
 	@Test
@@ -36,11 +36,11 @@ public class DynamicClassCompilerTest {
 		Class<?> clazz = dynamicClassCompiler.compile(""
 			+ "package net.amygdalum.testrecorder.nopackage;"
 			+ "public class MyClass {}", DynamicClassCompilerTest.class.getClassLoader());
-		
+
 		Class<?> cachedclazz = dynamicClassCompiler.compile(""
 			+ "package net.amygdalum.testrecorder.nopackage;"
 			+ "public class MyClass {}", DynamicClassCompilerTest.class.getClassLoader());
-		
+
 		assertThat(cachedclazz).isSameAs(clazz);
 	}
 

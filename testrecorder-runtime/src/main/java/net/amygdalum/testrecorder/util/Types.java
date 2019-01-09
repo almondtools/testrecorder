@@ -36,7 +36,7 @@ public final class Types {
 
 	private static final Type[] NO_TYPES = new Type[0];
 	private static final String SYNTHETIC_INDICATOR = "$";
-	private static final String[] HANDLED_SYNTHETIC_PREFIXES = { "this$", "val$" };
+	private static final String[] HANDLED_SYNTHETIC_PREFIXES = {"this$", "val$"};
 
 	private static Map<Type, Type> serializables = new HashMap<>();
 
@@ -773,7 +773,11 @@ public final class Types {
 			arrayDimensions++;
 		}
 
-		Class<?> reloadedClazz = clazz.isPrimitive() ? clazz : loader.loadClass(clazz.getName());
+		Class<?> reloadedClazz = clazz.isPrimitive()
+			? clazz
+			: loader == null
+				? Class.forName(clazz.getName(), true, loader)
+				: loader.loadClass(clazz.getName());
 		for (int i = 0; i < arrayDimensions; i++) {
 			reloadedClazz = Array.newInstance(reloadedClazz, 0).getClass();
 		}

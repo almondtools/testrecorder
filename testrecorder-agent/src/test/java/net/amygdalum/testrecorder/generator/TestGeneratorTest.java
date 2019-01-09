@@ -15,7 +15,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import net.amygdalum.testrecorder.ClassDescriptor;
 import net.amygdalum.testrecorder.SnapshotManager;
 import net.amygdalum.testrecorder.TestAgentConfiguration;
 import net.amygdalum.testrecorder.types.ContextSnapshot;
@@ -25,6 +24,7 @@ import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.SerializedInput;
 import net.amygdalum.testrecorder.types.SerializedOutput;
 import net.amygdalum.testrecorder.types.VirtualMethodSignature;
+import net.amygdalum.testrecorder.util.ClassDescriptor;
 import net.amygdalum.testrecorder.util.ExtensibleClassLoader;
 import net.amygdalum.testrecorder.util.TemporaryFolder;
 import net.amygdalum.testrecorder.util.TemporaryFolderExtension;

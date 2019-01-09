@@ -4,7 +4,6 @@ import static java.lang.System.identityHashCode;
 import static java.lang.Thread.currentThread;
 import static java.util.stream.Collectors.joining;
 import static net.amygdalum.testrecorder.TestrecorderThreadFactory.RECORDING;
-import static net.amygdalum.testrecorder.types.ContextSnapshot.INVALID;
 import static net.amygdalum.testrecorder.util.Reflections.accessing;
 
 import java.io.File;
@@ -70,11 +69,15 @@ public class SnapshotManager {
 	public static volatile SnapshotManager MANAGER;
 
 	static {
+		Instrumentation inst = ByteBuddyAgent.install();
+
+		installBridge(inst);
+
 		Recorder.registerClass(SnapshotManager.class);
 	}
 
 	private SerializationThreadPoolExecutor snapshotExecutor;
-	private CircularityLock lock = new CircularityLock();
+	private CircularityLock lock;
 
 	private MethodContext methodContext;
 	private GlobalContext globalContext;
@@ -85,11 +88,6 @@ public class SnapshotManager {
 	private long timeoutInMillis;
 
 	private ConfigurableSerializerFacade facade;
-
-	static {
-		Instrumentation inst = ByteBuddyAgent.install();
-		installBridge(inst);
-	}
 
 	public SnapshotManager(AgentConfiguration config) {
 		this.snapshotConsumer = config.loadConfiguration(SnapshotConsumer.class, config);
@@ -102,6 +100,7 @@ public class SnapshotManager {
 		this.timeoutInMillis = performanceProfile.getTimeoutInMillis();
 		this.snapshotExecutor = new SerializationThreadPoolExecutor(performanceProfile.getIdleTime(), TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(),
 			new TestrecorderThreadFactory("$snapshot"));
+		this.lock = new CircularityLock();
 		this.methodContext = new MethodContext();
 		this.globalContext = new GlobalContext();
 	}
@@ -109,6 +108,14 @@ public class SnapshotManager {
 	private static void installBridge(Instrumentation inst) {
 		try {
 			inst.appendToBootstrapClassLoaderSearch(jarfile());
+			BridgedSnapshotManager.setupVariables = MethodHandles.lookup().findVirtual(SnapshotManager.class, "setupVariables",
+				MethodType.methodType(void.class, Class.class, Object.class, String.class, Object[].class));
+			BridgedSnapshotManager.expectVariables = MethodHandles.lookup().findVirtual(SnapshotManager.class, "expectVariables",
+				MethodType.methodType(void.class, Object.class, String.class, Object.class, Object[].class));
+			BridgedSnapshotManager.expectVariablesVoid = MethodHandles.lookup().findVirtual(SnapshotManager.class, "expectVariables",
+				MethodType.methodType(void.class, Object.class, String.class, Object[].class));
+			BridgedSnapshotManager.throwVariables = MethodHandles.lookup().findVirtual(SnapshotManager.class, "throwVariables",
+				MethodType.methodType(void.class, Throwable.class, Object.class, String.class, Object[].class));
 			BridgedSnapshotManager.inputVariables = MethodHandles.lookup().findVirtual(SnapshotManager.class, "inputVariables",
 				MethodType.methodType(int.class, Object.class, String.class, Type.class, Type[].class));
 			BridgedSnapshotManager.inputArguments = MethodHandles.lookup().findVirtual(SnapshotManager.class, "inputArguments",
@@ -223,7 +230,7 @@ public class SnapshotManager {
 			}
 			ClassLoader loader = selfClass.getClassLoader();
 			push(signature, loader).to((facade, session, snapshot) -> {
-				
+
 				if (self != null) {
 					snapshot.setSetupThis(facade.serialize(self.getClass(), self, session));
 				}
@@ -475,11 +482,7 @@ public class SnapshotManager {
 	}
 
 	private static Deque<ContextSnapshot> newStack() {
-		if (currentThread().getThreadGroup() == RECORDING) {
-			return new PassiveDeque<>(INVALID);
-		} else {
-			return new ArrayDeque<>();
-		}
+		return new ArrayDeque<>();
 	}
 
 	private SerializedField serializedGlobal(SerializerSession session, Field field) {
@@ -605,7 +608,8 @@ public class SnapshotManager {
 
 		public boolean submissionPermitted() {
 			Thread current = currentThread();
-			return current != active;
+			return current != active
+				&& current.getThreadGroup() != RECORDING;
 		}
 
 	}

@@ -1,9 +1,11 @@
-package net.amygdalum.testrecorder;
+package net.amygdalum.testrecorder.util;
 
 import static net.amygdalum.extensions.assertj.conventions.DefaultEquality.defaultEquality;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
+
+import net.amygdalum.testrecorder.util.ClassDescriptor;
 
 public class ClassDescriptorTest {
 

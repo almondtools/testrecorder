@@ -276,45 +276,11 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 				.build(new MethodContext(classNode, methodNode));
 		}
 
-		protected SequenceInstruction setupVariables(MethodNode methodNode) {
-			return new InvokeVirtual(SnapshotManager.class, "setupVariables", Class.class, Object.class, String.class, Object[].class)
-				.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-				.withArgument(0, new GetClass())
-				.withArgument(1, new GetThisOrNull())
-				.withArgument(2, new Ldc(keySignature(classNode, methodNode)))
-				.withArgument(3, new WrapArguments());
-		}
+		protected abstract SequenceInstruction setupVariables(MethodNode methodNode);
 
-		protected SequenceInstruction expectVariables(MethodNode methodNode) {
-			if (returnsResult(methodNode)) {
-				return Sequence.start()
-					.then(new MemoizeBoxed("returnValue", Type.getReturnType(methodNode.desc)))
-					.then(new InvokeVirtual(SnapshotManager.class, "expectVariables", Object.class, String.class, Object.class, Object[].class)
-						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-						.withArgument(0, new GetThisOrNull())
-						.withArgument(1, new Ldc(keySignature(classNode, methodNode)))
-						.withArgument(2, new Recall("returnValue"))
-						.withArgument(3, new WrapArguments()));
-			} else {
-				return Sequence.start()
-					.then(new InvokeVirtual(SnapshotManager.class, "expectVariables", Object.class, String.class, Object[].class)
-						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-						.withArgument(0, new GetThisOrNull())
-						.withArgument(1, new Ldc(keySignature(classNode, methodNode)))
-						.withArgument(2, new WrapArguments()));
-			}
-		}
+		protected abstract SequenceInstruction expectVariables(MethodNode methodNode);
 
-		protected SequenceInstruction throwVariables(MethodNode methodNode) {
-			return Sequence.start()
-				.then(new MemoizeBoxed("throwable", Type.getType(Throwable.class)))
-				.then(new InvokeVirtual(SnapshotManager.class, "throwVariables", Throwable.class, Object.class, String.class, Object[].class)
-					.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-					.withArgument(0, new Recall("throwable"))
-					.withArgument(1, new GetThisOrNull())
-					.withArgument(2, new Ldc(keySignature(classNode, methodNode)))
-					.withArgument(3, new WrapArguments()));
-		}
+		protected abstract SequenceInstruction throwVariables(MethodNode methodNode);
 
 		public void instrumentInputMethods() {
 			for (MethodNode method : getJavaInputMethods()) {
@@ -643,7 +609,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 			return method.matches(className, methodName, methodDescriptor);
 		}
 
-		private String keySignature(ClassNode classNode, MethodNode methodNode) {
+		protected String keySignature(ClassNode classNode, MethodNode methodNode) {
 			return classNode.name + ":" + methodNode.name + methodNode.desc;
 		}
 
@@ -655,15 +621,50 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 			super(loader, profile, classes, io, classNode);
 		}
 
+		protected SequenceInstruction setupVariables(MethodNode methodNode) {
+			return new InvokeStatic(BridgedSnapshotManager.class, "setupVariables", Class.class, Object.class, String.class, Object[].class)
+				.withArgument(0, new GetClass())
+				.withArgument(1, new GetThisOrNull())
+				.withArgument(2, new Ldc(keySignature(classNode, methodNode)))
+				.withArgument(3, new WrapArguments());
+		}
+
+		protected SequenceInstruction expectVariables(MethodNode methodNode) {
+			if (returnsResult(methodNode)) {
+				return Sequence.start()
+					.then(new MemoizeBoxed("returnValue", Type.getReturnType(methodNode.desc)))
+					.then(new InvokeStatic(BridgedSnapshotManager.class, "expectVariables", Object.class, String.class, Object.class, Object[].class)
+						.withArgument(0, new GetThisOrNull())
+						.withArgument(1, new Ldc(keySignature(classNode, methodNode)))
+						.withArgument(2, new Recall("returnValue"))
+						.withArgument(3, new WrapArguments()));
+			} else {
+				return Sequence.start()
+					.then(new InvokeStatic(BridgedSnapshotManager.class, "expectVariables", Object.class, String.class, Object[].class)
+						.withArgument(0, new GetThisOrNull())
+						.withArgument(1, new Ldc(keySignature(classNode, methodNode)))
+						.withArgument(2, new WrapArguments()));
+			}
+		}
+
+		protected SequenceInstruction throwVariables(MethodNode methodNode) {
+			return Sequence.start()
+				.then(new MemoizeBoxed("throwable", Type.getType(Throwable.class)))
+				.then(new InvokeStatic(BridgedSnapshotManager.class, "throwVariables", Throwable.class, Object.class, String.class, Object[].class)
+					.withArgument(0, new Recall("throwable"))
+					.withArgument(1, new GetThisOrNull())
+					.withArgument(2, new Ldc(keySignature(classNode, methodNode)))
+					.withArgument(3, new WrapArguments()));
+		}
+
 		@Override
 		protected SequenceInstruction inputVariables(MethodNode methodNode) {
 			return new Assign("inputId", Type.INT_TYPE)
-				.value(new InvokeStatic(BridgedSnapshotManager.class, "inputVariables", Object.class, String.class, java.lang.reflect.Type.class,
-					java.lang.reflect.Type[].class)
-						.withArgument(0, new GetThisOrClass())
-						.withArgument(1, new Ldc(methodNode.name))
-						.withArgument(2, new WrapResultType())
-						.withArgument(3, new WrapArgumentTypes()));
+				.value(new InvokeStatic(BridgedSnapshotManager.class, "inputVariables", Object.class, String.class, java.lang.reflect.Type.class, java.lang.reflect.Type[].class)
+					.withArgument(0, new GetThisOrClass())
+					.withArgument(1, new Ldc(methodNode.name))
+					.withArgument(2, new WrapResultType())
+					.withArgument(3, new WrapArgumentTypes()));
 		}
 
 		@Override
@@ -691,12 +692,11 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		protected SequenceInstruction outputVariables(MethodNode methodNode) {
 			return Sequence.start()
 				.then(new Assign("outputId", Type.INT_TYPE)
-					.value(new InvokeStatic(BridgedSnapshotManager.class, "outputVariables", Object.class, String.class, java.lang.reflect.Type.class,
-						java.lang.reflect.Type[].class)
-							.withArgument(0, new GetThisOrClass())
-							.withArgument(1, new Ldc(methodNode.name))
-							.withArgument(2, new WrapResultType())
-							.withArgument(3, new WrapArgumentTypes())))
+					.value(new InvokeStatic(BridgedSnapshotManager.class, "outputVariables", Object.class, String.class, java.lang.reflect.Type.class, java.lang.reflect.Type[].class)
+						.withArgument(0, new GetThisOrClass())
+						.withArgument(1, new Ldc(methodNode.name))
+						.withArgument(2, new WrapResultType())
+						.withArgument(3, new WrapArgumentTypes())))
 				.then(new InvokeStatic(BridgedSnapshotManager.class, "outputArguments", int.class, Object[].class)
 					.withArgument(0, new Recall("outputId"))
 					.withArgument(1, new WrapArguments()));
@@ -723,6 +723,46 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 		public DefaultTask(ClassLoader loader, SerializationProfile profile, ClassNodeManager classes, IOManager io, ClassNode classNode) {
 			super(loader, profile, classes, io, classNode);
+		}
+
+		protected SequenceInstruction setupVariables(MethodNode methodNode) {
+			return new InvokeVirtual(SnapshotManager.class, "setupVariables", Class.class, Object.class, String.class, Object[].class)
+				.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+				.withArgument(0, new GetClass())
+				.withArgument(1, new GetThisOrNull())
+				.withArgument(2, new Ldc(keySignature(classNode, methodNode)))
+				.withArgument(3, new WrapArguments());
+		}
+
+		protected SequenceInstruction expectVariables(MethodNode methodNode) {
+			if (returnsResult(methodNode)) {
+				return Sequence.start()
+					.then(new MemoizeBoxed("returnValue", Type.getReturnType(methodNode.desc)))
+					.then(new InvokeVirtual(SnapshotManager.class, "expectVariables", Object.class, String.class, Object.class, Object[].class)
+						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+						.withArgument(0, new GetThisOrNull())
+						.withArgument(1, new Ldc(keySignature(classNode, methodNode)))
+						.withArgument(2, new Recall("returnValue"))
+						.withArgument(3, new WrapArguments()));
+			} else {
+				return Sequence.start()
+					.then(new InvokeVirtual(SnapshotManager.class, "expectVariables", Object.class, String.class, Object[].class)
+						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+						.withArgument(0, new GetThisOrNull())
+						.withArgument(1, new Ldc(keySignature(classNode, methodNode)))
+						.withArgument(2, new WrapArguments()));
+			}
+		}
+
+		protected SequenceInstruction throwVariables(MethodNode methodNode) {
+			return Sequence.start()
+				.then(new MemoizeBoxed("throwable", Type.getType(Throwable.class)))
+				.then(new InvokeVirtual(SnapshotManager.class, "throwVariables", Throwable.class, Object.class, String.class, Object[].class)
+					.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+					.withArgument(0, new Recall("throwable"))
+					.withArgument(1, new GetThisOrNull())
+					.withArgument(2, new Ldc(keySignature(classNode, methodNode)))
+					.withArgument(3, new WrapArguments()));
 		}
 
 		@Override

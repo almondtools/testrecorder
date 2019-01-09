@@ -23,7 +23,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import net.amygdalum.testrecorder.ClassDescriptor;
 import net.amygdalum.testrecorder.TestrecorderThreadFactory;
 import net.amygdalum.testrecorder.deserializers.Adaptors;
 import net.amygdalum.testrecorder.deserializers.CustomAnnotation;
@@ -35,6 +34,7 @@ import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.profile.SnapshotConsumer;
 import net.amygdalum.testrecorder.types.ContextSnapshot;
+import net.amygdalum.testrecorder.util.ClassDescriptor;
 import net.amygdalum.testrecorder.util.Logger;
 
 /**
@@ -205,6 +205,14 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 		});
 	}
 
+	private String computePackage(ClassDescriptor clazz) {
+		String pkg = clazz.getPackage();
+		if (pkg.startsWith("java.lang")) {
+			pkg = "test.java.lang" + pkg.substring("java.lang".length());
+		}
+		return pkg;
+	}
+
 	public String computeClassName(ClassDescriptor clazz) {
 		if (classNameTemplate == null) {
 			return clazz.getSimpleName() + RECORDED_TEST;
@@ -240,7 +248,7 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 	}
 
 	private Path locateTestFile(Path dir, ClassDescriptor clazz) throws IOException {
-		String pkg = clazz.getPackage();
+		String pkg = computePackage(clazz);
 		String className = generatorFor(clazz).getTestName();
 		Path testpackage = dir.resolve(pkg.replace('.', '/'));
 
@@ -272,7 +280,7 @@ public class ScheduledTestGenerator implements SnapshotConsumer {
 	}
 
 	public ClassGenerator newGenerator(ClassDescriptor clazz) {
-		return new ClassGenerator(setup, matcher, template, annotations, clazz.getPackage(), computeClassName(clazz));
+		return new ClassGenerator(setup, matcher, template, annotations, computePackage(clazz), computeClassName(clazz));
 	}
 
 	public RenderedTest renderTest(Class<?> clazz) {
