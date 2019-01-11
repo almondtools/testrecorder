@@ -20,12 +20,14 @@ main {
   padding-bottom: 1rem; }
 
 .info-card {
-  margin: 1rem 0.5rem;
-  font-size: 0.8rem; }
+  margin: 1rem 0.5rem; }
+  @media (min-width: 992px) {
+    .info-card {
+      font-size: 0.8rem; } }
   .info-card h1 {
-    font-size: 2.5em; }
+    font-size: 3em; }
   .info-card h2 {
-    font-size: 2em; }
+    font-size: 2.5em; }
   .info-card h3 {
     font-size: 1.75em; }
   .info-card h4 {
@@ -40,3 +42,15 @@ pre {
   border: 1px solid #ccc;
   padding: 5px;
   border-radius: 5px; }
+
+body h1 {
+  font-size: 3rem; }
+
+body h2 {
+  font-size: 2.5rem; }
+
+body h3 {
+  font-size: 1.75rem; }
+
+body h4 {
+  font-size: 1.5rem; }
