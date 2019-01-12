@@ -296,7 +296,7 @@ public class GenericsResolver {
 		public Class<?> clazz;
 		public Type type;
 
-		public Unify(Class<?> clazz, Type type) {
+		Unify(Class<?> clazz, Type type) {
 			this.clazz = clazz;
 			this.type = type;
 		}
