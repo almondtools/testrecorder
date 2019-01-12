@@ -77,12 +77,11 @@ public class DefaultObjectAdaptor extends DefaultMatcherGenerator<SerializedObje
 			if (baseType(usedType) == Matcher.class) {
 				usedType = typeArgument(usedType, 0).orElse(wildcard());
 			}
-			if (usedType.equals(type)) {
-				String matcherRawType = types.getRawClass(type);
+			String matcherRawType = types.getRawClass(type);
+			String matcherToType = types.getRawClass(usedType);
+			if (matcherToType.equals(matcherRawType)) {
 				return genericObjectMatcher(matcherRawType, fieldAssignments);
 			} else {
-				String matcherRawType = types.getRawClass(type);
-				String matcherToType = types.getRawClass(usedType);
 				return genericObjectMatcher(matcherRawType, matcherToType, fieldAssignments);
 			}
 		}

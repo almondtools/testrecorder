@@ -260,13 +260,13 @@ public class MethodGenerator {
 		}
 
 		boolean thisChanged = snapshot.onThis()
-			.map((before, after) -> compare(before, after), other -> false)
+			.map((before, after) -> different(before, after), other -> false)
 			.orElse(true);
 		snapshot.streamExpectThis()
 			.flatMap(self -> generateThisAssert(types, self, base, thisChanged))
 			.forEach(statements::add);
 
-		Boolean[] argsChanged = compare(snapshot.getSetupArgs(), snapshot.getExpectArgs());
+		Boolean[] argsChanged = different(snapshot.getSetupArgs(), snapshot.getExpectArgs());
 		SerializedArgument[] snapshotExpectArgs = snapshot.getExpectArgs();
 		Triple<SerializedArgument, String, Boolean>[] arguments = Triple.zip(snapshotExpectArgs, args.toArray(new String[0]), argsChanged);
 		Stream.of(arguments)
@@ -331,27 +331,30 @@ public class MethodGenerator {
 	private Boolean[] compare(SerializedField[] s, SerializedField[] e) {
 		Boolean[] changes = new Boolean[s.length];
 		for (int i = 0; i < changes.length; i++) {
-			changes[i] = compare(s[i].getValue(), e[i].getValue());
+			changes[i] = different(s[i].getValue(), e[i].getValue());
 		}
 		return changes;
 	}
 
-	private Boolean[] compare(SerializedArgument[] s, SerializedArgument[] e) {
+	private Boolean[] different(SerializedArgument[] s, SerializedArgument[] e) {
 		Boolean[] changes = new Boolean[s.length];
 		for (int i = 0; i < changes.length; i++) {
-			changes[i] = compare(s[i].getValue(), e[i].getValue());
+			changes[i] = different(s[i].getValue(), e[i].getValue());
 		}
 		return changes;
 	}
 
-	private boolean compare(SerializedValue s, SerializedValue e) {
-		Deserializer deserializer = setup.newGenerator(DefaultDeserializerContext.empty());
+	private boolean different(SerializedValue s, SerializedValue e) {
 		if (s == e) {
-			return true;
-		} else if (s == null || e == null) {
 			return false;
+		} else if (s == null || e == null) {
+			return true;
 		}
+		DefaultDeserializerContext context = DefaultDeserializerContext.empty();
+		Deserializer deserializer = setup.newGenerator(context);
+		context.clear();
 		Computation sc = s.accept(deserializer);
+		context.clear();
 		Computation ec = e.accept(deserializer);
 		return !ec.getValue().equals(sc.getValue())
 			|| !ec.getStatements().equals(sc.getStatements());

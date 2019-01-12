@@ -12,6 +12,10 @@ import java.util.stream.Stream;
 public interface DeserializerContext {
 
 	DeserializerContext NULL = new DeserializerContext() {
+
+		@Override
+		public void clear() {
+		}
 		
 		@Override
 		public <T> DeserializerContext newIsolatedContext(TypeManager types, LocalVariableNameGenerator locals) {
@@ -134,6 +138,8 @@ public interface DeserializerContext {
 		}
 
 	};
+	
+	void clear();
 
 	<T> DeserializerContext newIsolatedContext(TypeManager types, LocalVariableNameGenerator locals);
 

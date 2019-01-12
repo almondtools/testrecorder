@@ -47,4 +47,33 @@ public class GlobalsTest {
 			.doesNotContainWildcardPattern("Globals.global, equalTo(2)*Globals.global, equalTo(2)");
 	}
 
+	@Test
+	public void testReportingOfNoChanges() throws Exception {
+		Globals.global = 1;
+
+		int global = Globals.getSum();
+
+		assertThat(Globals.global).isEqualTo(1);
+		assertThat(global).isEqualTo(1);
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(Globals.class)).satisfies(testsRun());
+		assertThat(testGenerator.renderTest(Globals.class).getTestCode())
+			.containsWildcardPattern("assertThat(\"expected no change, but was:\", Globals.global, equalTo(1));");
+	}
+
+	@Test
+	public void testReportingOfChanges() throws Exception {
+		Globals.global = 1;
+
+		Globals.incGlobal();
+
+		assertThat(Globals.global).isEqualTo(2);
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(Globals.class)).satisfies(testsRun());
+		assertThat(testGenerator.renderTest(Globals.class).getTestCode())
+			.containsWildcardPattern("assertThat(\"expected change:\", Globals.global, equalTo(2));");
+	}
+
 }

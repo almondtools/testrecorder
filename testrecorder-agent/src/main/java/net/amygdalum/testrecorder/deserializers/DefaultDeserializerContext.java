@@ -81,6 +81,18 @@ public class DefaultDeserializerContext implements DeserializerContext {
 	public static DefaultDeserializerContext empty() {
 		return new DefaultDeserializerContext();
 	}
+	
+	@Override
+	public void clear() {
+		this.backReferences.clear();
+		this.closures.clear();
+		this.hints = new HintManager();
+		this.types = new DeserializerTypeManager();
+		this.locals = new LocalVariableNameGenerator();
+		this.defined.clear();
+		this.computed.clear();
+		this.stack.clear();
+	}
 
 	@Override
 	public LocalVariableNameGenerator getLocals() {
