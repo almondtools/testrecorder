@@ -99,6 +99,12 @@ public class ContextSnapshot implements Serializable {
 		}
 	}
 
+	public Class<?>[] getActualArgumentTypes() {
+		return Arrays.stream(setupArgs)
+			.map(arg -> arg.getValue() == null ? Object.class : arg.getValue().getType())
+			.toArray(Class[]::new);
+	}
+
 	public SerializedValue getSetupThis() {
 		return setupThis;
 	}

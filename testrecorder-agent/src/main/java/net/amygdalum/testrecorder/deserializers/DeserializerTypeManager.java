@@ -112,13 +112,22 @@ public class DeserializerTypeManager implements TypeManager {
 			String base = isNotImported(clazz) ? clazz.getCanonicalName() : clazz.getSimpleName();
 			return base + array;
 		} else if (type instanceof GenericArrayType) {
-			return getVariableTypeName(((GenericArrayType) type).getGenericComponentType()) + "[]";
+			GenericArrayType genericArrayType = (GenericArrayType) type;
+			return getVariableTypeName(genericArrayType.getGenericComponentType()) + "[]";
 		} else if (type instanceof ParameterizedType) {
-			return getRawTypeName(((ParameterizedType) type).getRawType())
-				+ Stream.of(((ParameterizedType) type).getActualTypeArguments())
-					.map(argtype -> argtype instanceof TypeVariable<?> ? wildcard() : argtype)
-					.map(argtype -> getVariableTypeName(argtype))
-					.collect(joining(", ", "<", ">"));
+			ParameterizedType parameterizedType = (ParameterizedType) type;
+				return getRawTypeName(parameterizedType.getRawType())
+					+ Stream.of(parameterizedType.getActualTypeArguments())
+						.map(argtype -> argtype instanceof TypeVariable<?> ? wildcard() : argtype)
+						.map(argtype -> getVariableTypeName(argtype))
+						.collect(joining(", ", "<", ">"));
+		} else if (type instanceof TypeVariable<?>) {
+			TypeVariable<?> typeVariable = (TypeVariable<?>) type;
+			if (typeVariable.getBounds().length == 1) {
+				return getVariableTypeName(typeVariable.getBounds()[0]);
+			} else {
+				return getVariableTypeName(Object.class);
+			}
 		} else if (type instanceof WildcardType) {
 			return WILDCARD;
 		} else {
@@ -296,6 +305,5 @@ public class DeserializerTypeManager implements TypeManager {
 		Type[] visibleTypes = Arrays.stream(types).filter(type -> !isHidden(type)).toArray(Type[]::new);
 		return Types.mostSpecialOf(visibleTypes);
 	}
-
 
 }

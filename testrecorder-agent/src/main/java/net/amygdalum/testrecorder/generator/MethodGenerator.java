@@ -44,6 +44,7 @@ import net.amygdalum.testrecorder.hints.AnnotateTimestamp;
 import net.amygdalum.testrecorder.runtime.Throwables;
 import net.amygdalum.testrecorder.types.Computation;
 import net.amygdalum.testrecorder.types.ContextSnapshot;
+import net.amygdalum.testrecorder.types.GenericsResolver;
 import net.amygdalum.testrecorder.types.LocalVariableNameGenerator;
 import net.amygdalum.testrecorder.types.SerializedArgument;
 import net.amygdalum.testrecorder.types.SerializedField;
@@ -65,10 +66,12 @@ public class MethodGenerator {
 	private static final String BEGIN_ACT = "\n//Act";
 	private static final String BEGIN_ASSERT = "\n//Assert";
 
-	private LocalVariableNameGenerator locals;
 	private DeserializerFactory setup;
 	private DeserializerFactory matcher;
 	private List<CustomAnnotation> annotations;
+
+	private LocalVariableNameGenerator locals;
+	private GenericsResolver resolver;
 
 	private int no;
 	private ContextSnapshot snapshot;
@@ -99,6 +102,7 @@ public class MethodGenerator {
 		this.snapshot = snapshot;
 		this.context = computeInitialContext(snapshot);
 		this.mocked = new MockedInteractions(setup.newGenerator(context), matcher.newGenerator(context), snapshot.getSetupInput(), snapshot.getExpectOutput());
+		this.resolver = new GenericsResolver(snapshot.getActualArgumentTypes());
 		return this;
 	}
 
@@ -187,6 +191,7 @@ public class MethodGenerator {
 		Computation computation = arg.accept(deserializer);
 		if (!assignableTypes(argType, type)) {
 			types.registerType(argType);
+			argType = resolver.resolve(argType);
 			String value = cast(types.getVariableTypeName(argType), computation.getValue());
 			computation = Computation.expression(value, argType, computation.getStatements());
 		}
