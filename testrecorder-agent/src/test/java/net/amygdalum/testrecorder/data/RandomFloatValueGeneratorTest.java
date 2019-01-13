@@ -15,14 +15,14 @@ public class RandomFloatValueGeneratorTest {
 	}
 
 	@Test
-	public void testCreateMax() throws Exception {
+	void testCreateMax() throws Exception {
 		gen.random.setSeed(Long.MAX_VALUE);
 
 		assertThat(gen.create(null)).isEqualTo(1739.3969F);
 	}
 
 	@Test
-	public void testCreateMin() throws Exception {
+	void testCreateMin() throws Exception {
 		gen.random.setSeed(Long.MIN_VALUE);
 
 		assertThat(gen.create(null)).isEqualTo(-0.0024521574F);

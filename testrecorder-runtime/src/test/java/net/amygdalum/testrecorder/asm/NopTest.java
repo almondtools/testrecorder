@@ -16,7 +16,7 @@ public class NopTest {
 	}
 
 	@Test
-	public void testNop() throws Exception {
+	void testNop() throws Exception {
 		Nop nop = Nop.NOP;
 
 		InsnList insns = nop.build(context);

@@ -3,6 +3,7 @@ package net.amygdalum.testrecorder.asm;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.InsnList;
@@ -18,19 +19,31 @@ public class SequenceTest {
 	}
 
 	@Test
-	void testThenAbstractInsnNode() throws Exception {
-		InsnList insns = Sequence.start().then(new InsnNode(Opcodes.ICONST_0)).build(context);
+	void testStart() throws Exception {
+		InsnList insns = Sequence.start().build(context);
 
 		assertThat(ByteCode.toString(insns))
-			.containsExactly("ICONST_0");
+			.isEmpty();
 	}
 
-	@Test
-	void testThenSequenceInstruction() throws Exception {
-		InsnList insns = Sequence.start().then(new This()).build(context);
+	@Nested
+	class testThen {
 
-		assertThat(ByteCode.toString(insns))
-			.containsExactly("ALOAD 0");
+		@Test
+		void withAbstractInsnNode() throws Exception {
+			InsnList insns = Sequence.start().then(new InsnNode(Opcodes.ICONST_0)).build(context);
+
+			assertThat(ByteCode.toString(insns))
+				.containsExactly("ICONST_0");
+		}
+
+		@Test
+		void withSequenceInstruction() throws Exception {
+			InsnList insns = Sequence.start().then(new This()).build(context);
+
+			assertThat(ByteCode.toString(insns))
+				.containsExactly("ALOAD 0");
+		}
 	}
 
 }

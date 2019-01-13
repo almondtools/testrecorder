@@ -11,7 +11,7 @@ import net.amygdalum.testrecorder.types.TestValueVisitor;
 public class SerializedNullTest {
 
 	@Test
-	public void testLiteral() throws Exception {
+	public void testNullInstance() throws Exception {
 		SerializedNull value = nullInstance();
 		SerializedNull testvalue = nullInstance();
 
@@ -19,7 +19,7 @@ public class SerializedNullTest {
 	}
 
 	@Test
-	public void testGetResultType() throws Exception {
+	public void testGetUsedTypes() throws Exception {
 		SerializedNull value = nullInstance();
 		value.useAs(String.class);
 

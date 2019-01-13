@@ -17,7 +17,7 @@ public class SerializedImmutableTest {
 	}
 
 	@Test
-	public void testGetResultType() throws Exception {
+	public void testGetUsedTypes() throws Exception {
 		assertThat(value.getUsedTypes()).containsExactly(String.class);
 	}
 
@@ -34,7 +34,7 @@ public class SerializedImmutableTest {
 	}
 
 	@Test
-	public void testSetGetValue() throws Exception {
+	public void testSetValue() throws Exception {
 		value.setValue("value");
 
 		assertThat(value.getValue()).isEqualTo("value");

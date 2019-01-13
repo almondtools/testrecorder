@@ -18,7 +18,7 @@ public class InvokeNewTest {
 	}
 
 	@Test
-	public void testInvokeNew() throws Exception {
+	void testInvokeNew() throws Exception {
 		InvokeNew invokeNew = new InvokeNew(Simple.class, String.class)
 			.withArgument(0, new GetThisOrNull());
 

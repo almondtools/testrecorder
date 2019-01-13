@@ -54,7 +54,7 @@ public class SerializedArgumentTest {
 	}
 
 	@Test
-	public void testCompareTo() throws Exception {
+	void testCompareTo() throws Exception {
 		assertThat(Stream.of(
 			new SerializedArgument(0, MyObject.methodSignature(), literal("stringvalue")),
 			new SerializedArgument(1, MyObject.methodSignature(), literal("stringvalue"))).sorted())

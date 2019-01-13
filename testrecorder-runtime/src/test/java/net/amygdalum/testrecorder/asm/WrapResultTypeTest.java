@@ -16,7 +16,7 @@ public class WrapResultTypeTest {
 	}
 
 	@Test
-	void testAssign() throws Exception {
+	void testWrapResultType() throws Exception {
 		InsnList insns = new WrapResultType()
 			.build(context);
 

@@ -13,12 +13,12 @@ import org.junit.jupiter.api.Test;
 public class TypeFiltersTest {
 
     @Test
-    public void testTypeFilters() throws Exception {
+    void testTypeFilters() throws Exception {
         assertThat(TypeFilters.class).satisfies(utilityClass().conventions());
     }
 
     @Test
-    public void testStartingWith() throws Exception {
+    void testStartingWith() throws Exception {
         assertThat(startingWith("S").test(String.class)).isTrue();
         assertThat(startingWith("L").test(List.class)).isTrue();
         assertThat(startingWith("L").test(String.class)).isFalse();
@@ -26,7 +26,7 @@ public class TypeFiltersTest {
     }
 
     @Test
-    public void testEndingWith() throws Exception {
+    void testEndingWith() throws Exception {
         assertThat(endingWith("g").test(String.class)).isTrue();
         assertThat(endingWith("t").test(List.class)).isTrue();
         assertThat(endingWith("t").test(String.class)).isFalse();
@@ -34,7 +34,7 @@ public class TypeFiltersTest {
     }
     
     @Test
-    public void testIn() throws Exception {
+    void testIn() throws Exception {
         assertThat(in("String").test(String.class)).isTrue();
         assertThat(in("List").test(List.class)).isTrue();
         assertThat(in("List").test(String.class)).isFalse();

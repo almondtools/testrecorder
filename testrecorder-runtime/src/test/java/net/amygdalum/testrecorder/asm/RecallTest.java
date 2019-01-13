@@ -17,7 +17,7 @@ public class RecallTest {
 	}
 
 	@Test
-	void testAssign() throws Exception {
+	void testRecall() throws Exception {
 		Local local = context.newLocal("x", Type.getType(long.class));
 		
 		InsnList insns = new Recall("x")

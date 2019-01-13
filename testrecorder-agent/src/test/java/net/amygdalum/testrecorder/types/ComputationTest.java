@@ -46,7 +46,7 @@ public class ComputationTest {
 	}
 
 	@Test
-	public void testIsStored() throws Exception {
+	void testIsStored() throws Exception {
 		assertThat(variable("str", String.class).isStored()).isTrue();
 		assertThat(expression("str", String.class).isStored()).isFalse();
 	}

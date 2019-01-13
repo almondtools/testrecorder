@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 public class DebugTest {
 
 	@Test
-	public void testDebug() throws Exception {
+	void testDebug() throws Exception {
 		assertThat(Debug.class).satisfies(utilityClass().conventions());
 	}
 	

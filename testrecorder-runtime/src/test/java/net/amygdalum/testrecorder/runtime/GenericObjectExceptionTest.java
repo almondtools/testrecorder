@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 public class GenericObjectExceptionTest {
 
 	@Test
-	public void testGenericObjectException() throws Exception {
+	void testGenericObjectException() throws Exception {
 		assertThat(new GenericObjectException().getMessage()).isNull();
 		assertThat(new GenericObjectException("msg", new RuntimeException()).getMessage()).isEqualTo("msg");
 		assertThat(new GenericObjectException("msg", new RuntimeException()))

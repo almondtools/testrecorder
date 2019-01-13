@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.util.testobjects.Static;
@@ -64,70 +65,76 @@ public class ContextSnapshotTest {
 		assertThat(snapshot.getThisType()).isEqualTo(ArrayList.class);
 	}
 
-	@Test
-	void testSetGetSetupThis() throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
-		SerializedList setupThis = new SerializedList(ArrayList.class);
-		setupThis.useAs(List.class);
-		setupThis.add(literal("setup"));
+	@Nested
+	class testSetSetupThis {
+		@Test
+		void onCommon() throws Exception {
+			ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+			SerializedList setupThis = new SerializedList(ArrayList.class);
+			setupThis.useAs(List.class);
+			setupThis.add(literal("setup"));
 
-		snapshot.setSetupThis(setupThis);
+			snapshot.setSetupThis(setupThis);
 
-		SerializedValue getValue = snapshot.getSetupThis();
-		SerializedValue onValue = snapshot.onSetupThis().orElse(nullInstance());
-		SerializedValue streamValue = snapshot.streamSetupThis().findFirst().orElse(nullInstance());
+			SerializedValue getValue = snapshot.getSetupThis();
+			SerializedValue onValue = snapshot.onSetupThis().orElse(nullInstance());
+			SerializedValue streamValue = snapshot.streamSetupThis().findFirst().orElse(nullInstance());
 
-		assertThat(getValue).isSameAs(setupThis);
-		assertThat(onValue).isSameAs(setupThis);
-		assertThat(streamValue).isSameAs(setupThis);
+			assertThat(getValue).isSameAs(setupThis);
+			assertThat(onValue).isSameAs(setupThis);
+			assertThat(streamValue).isSameAs(setupThis);
+		}
+
+		@Test
+		void onNull() throws Exception {
+			ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+
+			SerializedValue getValue = snapshot.getSetupThis();
+			SerializedValue onValue = snapshot.onSetupThis().orElse(nullInstance());
+			SerializedValue streamValue = snapshot.streamSetupThis().findFirst().orElse(nullInstance());
+
+			assertThat(getValue).isNull();
+			assertThat(onValue).isInstanceOf(SerializedNull.class);
+			assertThat(streamValue).isInstanceOf(SerializedNull.class);
+		}
+	}
+
+	@Nested
+	class testSetExpectThis {
+		@Test
+		void onCommon() throws Exception {
+			ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+			SerializedList expectedThis = new SerializedList(ArrayList.class);
+			expectedThis.useAs(List.class);
+			expectedThis.add(literal("expected"));
+
+			snapshot.setExpectThis(expectedThis);
+
+			SerializedValue getValue = snapshot.getExpectThis();
+			SerializedValue onValue = snapshot.onExpectThis().orElse(nullInstance());
+			SerializedValue streamValue = snapshot.streamExpectThis().findFirst().orElse(nullInstance());
+
+			assertThat(getValue).isEqualTo(expectedThis);
+			assertThat(onValue).isEqualTo(expectedThis);
+			assertThat(streamValue).isEqualTo(expectedThis);
+		}
+
+		@Test
+		void onNull() throws Exception {
+			ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+
+			SerializedValue getValue = snapshot.getExpectThis();
+			SerializedValue onValue = snapshot.onExpectThis().orElse(nullInstance());
+			SerializedValue streamValue = snapshot.streamExpectThis().findFirst().orElse(nullInstance());
+
+			assertThat(getValue).isNull();
+			assertThat(onValue).isInstanceOf(SerializedNull.class);
+			assertThat(streamValue).isInstanceOf(SerializedNull.class);
+		}
 	}
 
 	@Test
-	void testSetGetSetupThisNull() throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
-
-		SerializedValue getValue = snapshot.getSetupThis();
-		SerializedValue onValue = snapshot.onSetupThis().orElse(nullInstance());
-		SerializedValue streamValue = snapshot.streamSetupThis().findFirst().orElse(nullInstance());
-
-		assertThat(getValue).isNull();
-		assertThat(onValue).isInstanceOf(SerializedNull.class);
-		assertThat(streamValue).isInstanceOf(SerializedNull.class);
-	}
-
-	@Test
-	void testSetGetExpectThis() throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
-		SerializedList expectedThis = new SerializedList(ArrayList.class);
-		expectedThis.useAs(List.class);
-		expectedThis.add(literal("expected"));
-
-		snapshot.setExpectThis(expectedThis);
-
-		SerializedValue getValue = snapshot.getExpectThis();
-		SerializedValue onValue = snapshot.onExpectThis().orElse(nullInstance());
-		SerializedValue streamValue = snapshot.streamExpectThis().findFirst().orElse(nullInstance());
-
-		assertThat(getValue).isEqualTo(expectedThis);
-		assertThat(onValue).isEqualTo(expectedThis);
-		assertThat(streamValue).isEqualTo(expectedThis);
-	}
-
-	@Test
-	void testSetGetExpectThisNull() throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
-
-		SerializedValue getValue = snapshot.getExpectThis();
-		SerializedValue onValue = snapshot.onExpectThis().orElse(nullInstance());
-		SerializedValue streamValue = snapshot.streamExpectThis().findFirst().orElse(nullInstance());
-
-		assertThat(getValue).isNull();
-		assertThat(onValue).isInstanceOf(SerializedNull.class);
-		assertThat(streamValue).isInstanceOf(SerializedNull.class);
-	}
-
-	@Test
-	void testSetGetSetupArgs() throws Exception {
+	void testSetSetupArgs() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class, Object.class);
 
 		snapshot.setSetupArgs(literal("a"), literal("b"));
@@ -146,7 +153,7 @@ public class ContextSnapshotTest {
 	}
 
 	@Test
-	void testSetGetExpectArgs() throws Exception {
+	void testSetExpectArgs() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class, Object.class);
 
 		snapshot.setExpectArgs(literal("c"), literal("d"));
@@ -165,7 +172,7 @@ public class ContextSnapshotTest {
 	}
 
 	@Test
-	void testSetGetExpectResult() throws Exception {
+	void testSetExpectResult() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 
 		snapshot.setExpectResult(literal(boolean.class, true));
@@ -180,7 +187,7 @@ public class ContextSnapshotTest {
 	}
 
 	@Test
-	void testSetGetExpectException() throws Exception {
+	void testSetExpectException() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		SerializedObject expectException = new SerializedObject(NullPointerException.class);
 
@@ -202,29 +209,7 @@ public class ContextSnapshotTest {
 	}
 
 	@Test
-	void testGetSetupArgs() throws Exception {
-		MethodSignature signature = new MethodSignature(Object.class, String.class, "method", new Type[] { Integer.class });
-		ContextSnapshot snapshot = new ContextSnapshot(0l, "key", new VirtualMethodSignature(signature));
-
-		snapshot.setSetupArgs(literal(int.class, 42));
-
-		assertThat(snapshot.getSetupArgs()).hasSize(1);
-		assertThat(snapshot.getSetupArgs()[0].getValue()).isEqualTo(literal(int.class, 42));
-	}
-
-	@Test
-	void testGetExpectArgs() throws Exception {
-		MethodSignature signature = new MethodSignature(Object.class, String.class, "method", new Type[] { Integer.class });
-		ContextSnapshot snapshot = new ContextSnapshot(0l, "key", new VirtualMethodSignature(signature));
-
-		snapshot.setExpectArgs(literal(int.class, 42));
-
-		assertThat(snapshot.getExpectArgs()).hasSize(1);
-		assertThat(snapshot.getExpectArgs()[0].getValue()).isEqualTo(literal(int.class, 42));
-	}
-
-	@Test
-	void testSetGetSetupGlobals() throws Exception {
+	void testSetSetupGlobals() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		SerializedField field = new SerializedField(new FieldSignature(Static.class, String.class, "global"), literal("a"));
 
@@ -238,7 +223,7 @@ public class ContextSnapshotTest {
 	}
 
 	@Test
-	void testSetGetExpectGlobals() throws Exception {
+	void testSetExpectGlobals() throws Exception {
 		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
 		SerializedField field = new SerializedField(new FieldSignature(Static.class, String.class, "global"), literal("a"));
 
@@ -249,76 +234,6 @@ public class ContextSnapshotTest {
 
 		assertThat(getValue).containsExactly(field);
 		assertThat(streamValue).containsExactly(field);
-	}
-
-	@Test
-	void testSetupInput() throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
-		SerializedInput input = new SerializedInput(41, new MethodSignature(String.class, char.class, "name", new Type[0]));
-
-		snapshot.addInput(input);
-
-		boolean hasInput = snapshot.hasSetupInput();
-		boolean hasInput2 = snapshot.lastInputSatitisfies(t -> true);
-		boolean hasInput3 = snapshot.lastInputSatitisfies(t -> false);
-		Queue<SerializedInput> getValue = snapshot.getSetupInput();
-		List<SerializedInput> streamValue = snapshot.streamInput().collect(toList());
-
-		assertThat(hasInput).isTrue();
-		assertThat(hasInput2).isTrue();
-		assertThat(hasInput3).isFalse();
-		assertThat(getValue).containsExactly(input);
-		assertThat(streamValue).containsExactly(input);
-	}
-
-	@Test
-	void testSetupNoInput() throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
-
-		boolean hasInput = snapshot.hasSetupInput();
-		boolean hasInput2 = snapshot.lastInputSatitisfies(t -> true);
-		Queue<SerializedInput> getValue = snapshot.getSetupInput();
-		List<SerializedInput> streamValue = snapshot.streamInput().collect(toList());
-
-		assertThat(hasInput).isFalse();
-		assertThat(hasInput2).isFalse();
-		assertThat(getValue).isEmpty();
-		assertThat(streamValue).isEmpty();
-	}
-
-	@Test
-	void testExpectOutput() throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
-		SerializedOutput output = new SerializedOutput(41, new MethodSignature(String.class, char.class, "name", new Type[0]));
-
-		snapshot.addOutput(output);
-
-		boolean hasOutput = snapshot.hasExpectOutput();
-		boolean hasOutput2 = snapshot.lastOutputSatitisfies(t -> true);
-		boolean hasOutput3 = snapshot.lastOutputSatitisfies(t -> false);
-		Queue<SerializedOutput> getValue = snapshot.getExpectOutput();
-		List<SerializedOutput> streamValue = snapshot.streamOutput().collect(toList());
-
-		assertThat(hasOutput).isTrue();
-		assertThat(hasOutput2).isTrue();
-		assertThat(hasOutput3).isFalse();
-		assertThat(getValue).containsExactly(output);
-		assertThat(streamValue).containsExactly(output);
-	}
-
-	@Test
-	void testExpectNoOutput() throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
-
-		boolean hasOutput = snapshot.hasExpectOutput();
-		boolean hasOutput2 = snapshot.lastOutputSatitisfies(t -> true);
-		Queue<SerializedOutput> getValue = snapshot.getExpectOutput();
-		List<SerializedOutput> streamValue = snapshot.streamOutput().collect(toList());
-
-		assertThat(hasOutput).isFalse();
-		assertThat(hasOutput2).isFalse();
-		assertThat(getValue).isEmpty();
-		assertThat(streamValue).isEmpty();
 	}
 
 	@Test
@@ -380,6 +295,80 @@ public class ContextSnapshotTest {
 			.map((first, second) -> first[0].getValue().toString() + ":" + second[0].getValue().toString(), first -> "second missing", second -> "first missing"))
 				.contains("a:b");
 
+	}
+
+	@Nested
+	class Scenarios {
+
+		@Test
+		void withInput() throws Exception {
+			ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+			SerializedInput input = new SerializedInput(41, new MethodSignature(String.class, char.class, "name", new Type[0]));
+
+			snapshot.addInput(input);
+
+			boolean hasInput = snapshot.hasSetupInput();
+			boolean hasInput2 = snapshot.lastInputSatitisfies(t -> true);
+			boolean hasInput3 = snapshot.lastInputSatitisfies(t -> false);
+			Queue<SerializedInput> getValue = snapshot.getSetupInput();
+			List<SerializedInput> streamValue = snapshot.streamInput().collect(toList());
+
+			assertThat(hasInput).isTrue();
+			assertThat(hasInput2).isTrue();
+			assertThat(hasInput3).isFalse();
+			assertThat(getValue).containsExactly(input);
+			assertThat(streamValue).containsExactly(input);
+		}
+
+		@Test
+		void withoutInput() throws Exception {
+			ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+
+			boolean hasInput = snapshot.hasSetupInput();
+			boolean hasInput2 = snapshot.lastInputSatitisfies(t -> true);
+			Queue<SerializedInput> getValue = snapshot.getSetupInput();
+			List<SerializedInput> streamValue = snapshot.streamInput().collect(toList());
+
+			assertThat(hasInput).isFalse();
+			assertThat(hasInput2).isFalse();
+			assertThat(getValue).isEmpty();
+			assertThat(streamValue).isEmpty();
+		}
+
+		@Test
+		void withOutput() throws Exception {
+			ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+			SerializedOutput output = new SerializedOutput(41, new MethodSignature(String.class, char.class, "name", new Type[0]));
+
+			snapshot.addOutput(output);
+
+			boolean hasOutput = snapshot.hasExpectOutput();
+			boolean hasOutput2 = snapshot.lastOutputSatitisfies(t -> true);
+			boolean hasOutput3 = snapshot.lastOutputSatitisfies(t -> false);
+			Queue<SerializedOutput> getValue = snapshot.getExpectOutput();
+			List<SerializedOutput> streamValue = snapshot.streamOutput().collect(toList());
+
+			assertThat(hasOutput).isTrue();
+			assertThat(hasOutput2).isTrue();
+			assertThat(hasOutput3).isFalse();
+			assertThat(getValue).containsExactly(output);
+			assertThat(streamValue).containsExactly(output);
+		}
+
+		@Test
+		void withoutOutput() throws Exception {
+			ContextSnapshot snapshot = contextSnapshot(ArrayList.class, boolean.class, "add", Object.class);
+
+			boolean hasOutput = snapshot.hasExpectOutput();
+			boolean hasOutput2 = snapshot.lastOutputSatitisfies(t -> true);
+			Queue<SerializedOutput> getValue = snapshot.getExpectOutput();
+			List<SerializedOutput> streamValue = snapshot.streamOutput().collect(toList());
+
+			assertThat(hasOutput).isFalse();
+			assertThat(hasOutput2).isFalse();
+			assertThat(getValue).isEmpty();
+			assertThat(streamValue).isEmpty();
+		}
 	}
 
 	private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {

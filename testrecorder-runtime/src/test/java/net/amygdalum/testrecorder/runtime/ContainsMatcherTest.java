@@ -11,12 +11,13 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.core.IsNull.nullValue;
 
 import org.hamcrest.StringDescription;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 public class ContainsMatcherTest {
 
 	@Test
-	public void testDescribeTo() throws Exception {
+	void testDescribeTo() throws Exception {
 		StringDescription description = new StringDescription();
 
 		contains(String.class, "A", "b").describeTo(description);
@@ -24,126 +25,141 @@ public class ContainsMatcherTest {
 		assertThat(description.toString()).isEqualTo("containing [<\"A\">, <\"b\">]");
 	}
 
-	@Test
-	public void testMatchesSafelyEmpty() throws Exception {
-		assertThat(empty(String.class).matchesSafely(asList("A", "b"))).isFalse();
-		assertThat(empty(String.class).matchesSafely(emptySet())).isTrue();
+	@Nested
+	class testMatchesSafely {
+
+		@Nested
+		class CommonConstruction {
+			@Test
+			void withSuccess() throws Exception {
+				assertThat(contains(String.class, "A", "b").matchesSafely(asList("A", "b"))).isTrue();
+				assertThat(contains(String.class, "A", null).matchesSafely(asList("A", null))).isTrue();
+			}
+
+			@Test
+			void withFailure() throws Exception {
+				boolean matches = contains(String.class, "A", "b").matchesSafely(asList("a", "b"));
+
+				assertThat(matches).isFalse();
+			}
+
+			@Test
+			void onEmpty() throws Exception {
+				assertThat(empty(String.class).matchesSafely(asList("A", "b"))).isFalse();
+				assertThat(empty(String.class).matchesSafely(emptySet())).isTrue();
+			}
+
+			@Test
+			void onMatchers() throws Exception {
+				assertThat(contains(String.class, equalTo("A")).matchesSafely(asList("A"))).isTrue();
+				assertThat(contains(String.class, equalTo("A")).matchesSafely(asList("b"))).isFalse();
+				assertThat(contains(String.class, equalTo("A")).matchesSafely(emptyList())).isFalse();
+			}
+
+		}
+
+		@Nested
+		@SuppressWarnings("unchecked")
+		class ErasedConstruction {
+
+			@Test
+			void withSuccess() throws Exception {
+				assertThat(contains("A", "b").matchesSafely(asList("A", "b"))).isTrue();
+				assertThat(contains("A", null).matchesSafely(asList("A", null))).isTrue();
+			}
+
+			@Test
+			void testErasedMatchesSafelyWithFailure() throws Exception {
+				boolean matches = contains("A", "b").matchesSafely(asList("a", "b"));
+
+				assertThat(matches).isFalse();
+			}
+
+			@Test
+			void onEmpty() throws Exception {
+				assertThat(empty().matchesSafely(asList("A", "b"))).isFalse();
+				assertThat(empty().matchesSafely(emptySet())).isTrue();
+			}
+
+			@Test
+			void onMatchers() throws Exception {
+				assertThat(contains(equalTo("A")).matchesSafely(asList("A"))).isTrue();
+				assertThat(contains(equalTo("A")).matchesSafely(asList("b"))).isFalse();
+				assertThat(contains(equalTo("A")).matchesSafely(emptyList())).isFalse();
+			}
+
+		}
+
 	}
 
-	@SuppressWarnings("unchecked")
-	@Test
-	public void testErasedMatchesSafelyEmpty() throws Exception {
-		assertThat(empty().matchesSafely(asList("A", "b"))).isFalse();
-		assertThat(empty().matchesSafely(emptySet())).isTrue();
-	}
+	@Nested
+	class testDescribeMismatchSafely {
+		@Test
+		void onNotEqual() throws Exception {
+			StringDescription description = new StringDescription();
 
-	@Test
-	public void testMatchesSafelyMatchers() throws Exception {
-		assertThat(contains(String.class, equalTo("A")).matchesSafely(asList("A"))).isTrue();
-		assertThat(contains(String.class, equalTo("A")).matchesSafely(asList("b"))).isFalse();
-		assertThat(contains(String.class, equalTo("A")).matchesSafely(emptyList())).isFalse();
-	}
-	@SuppressWarnings("unchecked")
-	@Test
-	public void testErasedMatchesSafelyMatchers() throws Exception {
-		assertThat(contains(equalTo("A")).matchesSafely(asList("A"))).isTrue();
-		assertThat(contains(equalTo("A")).matchesSafely(asList("b"))).isFalse();
-		assertThat(contains(equalTo("A")).matchesSafely(emptyList())).isFalse();
-	}
+			contains(String.class, "A", "b").describeMismatchSafely(asList("a", "b"), description);
 
-	@Test
-	public void testMatchesSafelyWithSuccess() throws Exception {
-		assertThat(contains(String.class, "A", "b").matchesSafely(asList("A", "b"))).isTrue();
-		assertThat(contains(String.class, "A", null).matchesSafely(asList("A", null))).isTrue();
-	}
+			assertThat(description.toString()).containsWildcardPattern(""
+				+ "mismatching elements <[*"
+				+ ".,*"
+				+ "found 1 elements surplus [was \"a\"],*"
+				+ "missing 1 elements*"
+				+ "]>");
+		}
 
-	@SuppressWarnings("unchecked")
-	@Test
-	public void testErasedMatchesSafelyWithSuccess() throws Exception {
-		assertThat(contains("A", "b").matchesSafely(asList("A", "b"))).isTrue();
-		assertThat(contains("A", null).matchesSafely(asList("A", null))).isTrue();
-	}
+		@Test
+		void onNull() throws Exception {
+			StringDescription description = new StringDescription();
 
-	@Test
-	public void testMatchesSafelyWithFailure() throws Exception {
-		boolean matches = contains(String.class, "A", "b").matchesSafely(asList("a", "b"));
+			contains(String.class, "A", null).describeMismatchSafely(asList("A", "b"), description);
 
-		assertThat(matches).isFalse();
-	}
+			assertThat(description.toString()).containsWildcardPattern(""
+				+ "mismatching elements <[*"
+				+ ".,*"
+				+ "found 1 elements surplus [was \"b\"],*"
+				+ "missing 1 elements*"
+				+ "]>");
+		}
 
-	@SuppressWarnings("unchecked")
-	@Test
-	public void testErasedMatchesSafelyWithFailure() throws Exception {
-		boolean matches = contains("A", "b").matchesSafely(asList("a", "b"));
+		@Test
+		void onToMany() throws Exception {
+			StringDescription description = new StringDescription();
 
-		assertThat(matches).isFalse();
-	}
+			contains(String.class, "A", "b").describeMismatchSafely(asList("A", "b", "c"), description);
 
-	@Test
-	public void testDescribeMismatchSafelyNotEqual() throws Exception {
-		StringDescription description = new StringDescription();
+			assertThat(description.toString()).containsWildcardPattern(""
+				+ "mismatching elements <[*"
+				+ ".,*"
+				+ "found 1 elements surplus [was \"c\"]*"
+				+ "]>");
+		}
 
-		contains(String.class, "A", "b").describeMismatchSafely(asList("a", "b"), description);
+		@Test
+		void onToFew() throws Exception {
+			StringDescription description = new StringDescription();
 
-		assertThat(description.toString()).containsWildcardPattern(""
-			+ "mismatching elements <[*"
-			+ ".,*"
-			+ "found 1 elements surplus [was \"a\"],*"
-			+ "missing 1 elements*"
-			+ "]>");
-	}
+			contains(String.class, "A", "b").describeMismatchSafely(asList("A"), description);
 
-	@Test
-	public void testDescribeMismatchSafelyNull() throws Exception {
-		StringDescription description = new StringDescription();
+			assertThat(description.toString()).containsWildcardPattern(""
+				+ "mismatching elements <[*"
+				+ ".,*"
+				+ "missing 1 elements*"
+				+ "]>");
+		}
 
-		contains(String.class, "A", null).describeMismatchSafely(asList("A", "b"), description);
+		@Test
+		void onNullOnly() throws Exception {
+			StringDescription description = new StringDescription();
 
-		assertThat(description.toString()).containsWildcardPattern(""
-			+ "mismatching elements <[*"
-			+ ".,*"
-			+ "found 1 elements surplus [was \"b\"],*"
-			+ "missing 1 elements*"
-			+ "]>");
-	}
+			contains(String.class, nullValue()).describeMismatchSafely(asList("A"), description);
 
-	@Test
-	public void testDescribeMismatchSafelyToMany() throws Exception {
-		StringDescription description = new StringDescription();
-
-		contains(String.class, "A", "b").describeMismatchSafely(asList("A", "b", "c"), description);
-
-		assertThat(description.toString()).containsWildcardPattern(""
-			+ "mismatching elements <[*"
-			+ ".,*"
-			+ "found 1 elements surplus [was \"c\"]*"
-			+ "]>");
-	}
-
-	@Test
-	public void testDescribeMismatchSafelyToFew() throws Exception {
-		StringDescription description = new StringDescription();
-
-		contains(String.class, "A", "b").describeMismatchSafely(asList("A"), description);
-
-		assertThat(description.toString()).containsWildcardPattern(""
-			+ "mismatching elements <[*"
-			+ ".,*"
-			+ "missing 1 elements*"
-			+ "]>");
-	}
-
-	@Test
-	public void testDescribeMismatchSafelyNullOnly() throws Exception {
-		StringDescription description = new StringDescription();
-
-		contains(String.class, nullValue()).describeMismatchSafely(asList("A"), description);
-
-		assertThat(description.toString()).containsWildcardPattern(""
-			+ "mismatching elements <["
-			+ "found 1 elements surplus [was \"A\"]*"
-			+ "missing 1 elements [null]"
-			+ "]>");
+			assertThat(description.toString()).containsWildcardPattern(""
+				+ "mismatching elements <["
+				+ "found 1 elements surplus [was \"A\"]*"
+				+ "missing 1 elements [null]"
+				+ "]>");
+		}
 	}
 
 }

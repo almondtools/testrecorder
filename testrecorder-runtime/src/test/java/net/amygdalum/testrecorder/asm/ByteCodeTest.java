@@ -8,6 +8,7 @@ import static org.objectweb.asm.Opcodes.POP;
 
 import java.io.ByteArrayOutputStream;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.objectweb.asm.Opcodes;
@@ -26,12 +27,12 @@ import net.amygdalum.testrecorder.util.testobjects.Simple;
 public class ByteCodeTest {
 
 	@Test
-	public void testByteCode() throws Exception {
+	void testByteCode() throws Exception {
 		assertThat(ByteCode.class).satisfies(utilityClass().conventions());
 	}
 
 	@Test
-	public void testConstructorDescriptor() throws Exception {
+	void testConstructorDescriptor() throws Exception {
 		assertThat(ByteCode.constructorDescriptor(String.class)).isEqualTo("()V");
 		assertThat(ByteCode.constructorDescriptor(String.class, char[].class)).isEqualTo("([C)V");
 		assertThatThrownBy(() -> ByteCode.constructorDescriptor(String.class, int.class))
@@ -40,7 +41,7 @@ public class ByteCodeTest {
 	}
 
 	@Test
-	public void testMethodDescriptor() throws Exception {
+	void testMethodDescriptor() throws Exception {
 		assertThat(ByteCode.methodDescriptor(String.class, "getBytes")).isEqualTo("()[B");
 		assertThat(ByteCode.methodDescriptor(String.class, "valueOf", char[].class)).isEqualTo("([C)Ljava/lang/String;");
 		assertThatThrownBy(() -> ByteCode.methodDescriptor(String.class, "valueOf", String.class))
@@ -49,7 +50,7 @@ public class ByteCodeTest {
 	}
 
 	@Test
-	public void testFieldDescriptor() throws Exception {
+	void testFieldDescriptor() throws Exception {
 		assertThat(ByteCode.fieldDescriptor(System.class, "out")).isEqualTo("Ljava/io/PrintStream;");
 		assertThatThrownBy(() -> ByteCode.fieldDescriptor(System.class, "inout"))
 			.isInstanceOf(ByteCodeException.class)
@@ -57,7 +58,7 @@ public class ByteCodeTest {
 	}
 
 	@Test
-	public void testBoxedType() throws Exception {
+	void testBoxedType() throws Exception {
 		assertThat(ByteCode.boxedType(Type.BOOLEAN_TYPE)).isEqualTo(Type.getType(Boolean.class));
 		assertThat(ByteCode.boxedType(Type.BYTE_TYPE)).isEqualTo(Type.getType(Byte.class));
 		assertThat(ByteCode.boxedType(Type.SHORT_TYPE)).isEqualTo(Type.getType(Short.class));
@@ -71,7 +72,7 @@ public class ByteCodeTest {
 	}
 
 	@Test
-	public void testUnboxedType() throws Exception {
+	void testUnboxedType() throws Exception {
 		assertThat(ByteCode.unboxedType(Type.BOOLEAN_TYPE)).isSameAs(Type.BOOLEAN_TYPE);
 		assertThat(ByteCode.unboxedType(Type.BYTE_TYPE)).isSameAs(Type.BYTE_TYPE);
 		assertThat(ByteCode.unboxedType(Type.SHORT_TYPE)).isSameAs(Type.SHORT_TYPE);
@@ -94,7 +95,7 @@ public class ByteCodeTest {
 	}
 
 	@Test
-	public void testUnboxingFactory() throws Exception {
+	void testUnboxingFactory() throws Exception {
 		assertThat(ByteCode.unboxingFactory(Type.BOOLEAN_TYPE)).isEqualTo("booleanValue");
 		assertThat(ByteCode.unboxingFactory(Type.BYTE_TYPE)).isEqualTo("byteValue");
 		assertThat(ByteCode.unboxingFactory(Type.SHORT_TYPE)).isEqualTo("shortValue");
@@ -107,7 +108,7 @@ public class ByteCodeTest {
 	}
 
 	@Test
-	public void testBoxingFactory() throws Exception {
+	void testBoxingFactory() throws Exception {
 		assertThat(ByteCode.boxingFactory(Type.BOOLEAN_TYPE)).isEqualTo("valueOf");
 		assertThat(ByteCode.boxingFactory(Type.BYTE_TYPE)).isEqualTo("valueOf");
 		assertThat(ByteCode.boxingFactory(Type.SHORT_TYPE)).isEqualTo("valueOf");
@@ -120,19 +121,19 @@ public class ByteCodeTest {
 	}
 
 	@Test
-	public void testIsStatic() throws Exception {
+	void testIsStatic() throws Exception {
 		assertThat(ByteCode.isStatic(methodWithModifiers(Opcodes.ACC_STATIC))).isTrue();
 		assertThat(ByteCode.isStatic(methodWithModifiers(~Opcodes.ACC_STATIC))).isFalse();
 	}
 
 	@Test
-	public void testIsNative() throws Exception {
+	void testIsNative() throws Exception {
 		assertThat(ByteCode.isNative(methodWithModifiers(Opcodes.ACC_NATIVE))).isTrue();
 		assertThat(ByteCode.isNative(methodWithModifiers(~Opcodes.ACC_NATIVE))).isFalse();
 	}
 
 	@Test
-	public void testReturnsResult() throws Exception {
+	void testReturnsResult() throws Exception {
 		assertThat(ByteCode.returnsResult(methodWithDesc("()I"))).isTrue();
 		assertThat(ByteCode.returnsResult(methodWithDesc("()V"))).isFalse();
 		assertThat(ByteCode.returnsResult(methodInsnWithDesc("()I"))).isTrue();
@@ -152,7 +153,7 @@ public class ByteCodeTest {
 	}
 
 	@Test
-	public void testIsPrimitive() throws Exception {
+	void testIsPrimitive() throws Exception {
 		assertThat(ByteCode.isPrimitive(Type.INT_TYPE)).isTrue();
 		assertThat(ByteCode.isPrimitive(Type.getType(int[].class))).isFalse();
 		assertThat(ByteCode.isPrimitive(Type.getType(Integer.class))).isFalse();
@@ -160,7 +161,7 @@ public class ByteCodeTest {
 	}
 
 	@Test
-	public void testIsArray() throws Exception {
+	void testIsArray() throws Exception {
 		assertThat(ByteCode.isArray(Type.getType(int[].class))).isTrue();
 		assertThat(ByteCode.isArray(Type.getType(int[][].class))).isTrue();
 		assertThat(ByteCode.isArray(Type.getType(Object[].class))).isTrue();
@@ -170,7 +171,7 @@ public class ByteCodeTest {
 	}
 
 	@Test
-	public void testClassFrom() throws Exception {
+	void testClassFrom() throws Exception {
 		assertThat(ByteCode.classFrom("net/amygdalum/testrecorder/util/testobjects/PublicEnum", PublicEnum.class.getClassLoader())).isEqualTo(PublicEnum.class);
 		assertThat(ByteCode.classFrom("net/amygdalum/testrecorder/util/testobjects/Simple", ByteCodeTest.class.getClassLoader())).isEqualTo(Simple.class);
 		assertThat(ByteCode.classFrom(Type.getType(Complex[].class))).isEqualTo(Complex[].class);
@@ -181,7 +182,7 @@ public class ByteCodeTest {
 	}
 
 	@Test
-	public void testArgumentTypes() throws Exception {
+	void testArgumentTypes() throws Exception {
 		ClassLoader loader = ByteCode.class.getClassLoader();
 		assertThat(ByteCode.argumentTypesFrom("()V", loader)).isEmpty();
 		assertThat(ByteCode.argumentTypesFrom("(Ljava/lang/Object;)I", loader)).containsExactly(Object.class);
@@ -189,34 +190,37 @@ public class ByteCodeTest {
 	}
 
 	@Test
-	public void testResultType() throws Exception {
+	void testResultType() throws Exception {
 		ClassLoader loader = ByteCode.class.getClassLoader();
 		assertThat(ByteCode.resultTypeFrom("()V", loader)).isEqualTo(void.class);
 		assertThat(ByteCode.resultTypeFrom("(Ljava/lang/Object;)I", loader)).isEqualTo(int.class);
 		assertThat(ByteCode.resultTypeFrom("(IC)Ljava/lang/String;", loader)).isEqualTo(String.class);
 	}
 
-	@ExtendWith(LoggerExtension.class)
-	@Test
-	public void testByteCodePrint(@LogLevel("info") ByteArrayOutputStream info) throws Exception {
-		InsnNode insn = new InsnNode(POP);
+	@Nested
+	class testPrint {
 
-		InsnNode result = ByteCode.print(insn);
+		@ExtendWith(LoggerExtension.class)
+		@Test
+		void instruction(@LogLevel("info") ByteArrayOutputStream info) throws Exception {
+			InsnNode insn = new InsnNode(POP);
 
-		assertThat(result).isEqualTo(insn);
-		assertThat(info.toString()).contains("POP");
+			InsnNode result = ByteCode.print(insn);
+
+			assertThat(result).isEqualTo(insn);
+			assertThat(info.toString()).contains("POP");
+		}
+
+		@ExtendWith(LoggerExtension.class)
+		@Test
+		void instructionList(@LogLevel("info") ByteArrayOutputStream info) throws Exception {
+			InsnList list = new InsnList();
+			list.add(new InsnNode(DUP));
+
+			InsnList result = ByteCode.print(list);
+
+			assertThat(result).isEqualTo(list);
+			assertThat(info.toString()).contains("[DUP]");
+		}
 	}
-
-	@ExtendWith(LoggerExtension.class)
-	@Test
-	public void testByteCodePrintList(@LogLevel("info") ByteArrayOutputStream info) throws Exception {
-		InsnList list = new InsnList();
-		list.add(new InsnNode(DUP));
-		
-		InsnList result = ByteCode.print(list);
-		
-		assertThat(result).isEqualTo(list);
-		assertThat(info.toString()).contains("[DUP]");
-	}
-	
 }

@@ -11,7 +11,7 @@ import net.amygdalum.testrecorder.types.TestValueVisitor;
 public class SerializedBigDecimalTest {
 
 	@Test
-	public void testGetType() throws Exception {
+	public void testGetUsedTypes() throws Exception {
 		SerializedImmutable<BigDecimal> value = new SerializedImmutable<BigDecimal>(BigDecimal.class);
 
 		assertThat(value.getUsedTypes()).containsExactly(BigDecimal.class);

@@ -15,7 +15,7 @@ public class FixedFloatValueGeneratorTest {
 	}
 	
 	@Test
-	public void testCreate() throws Exception {
+	void testCreate() throws Exception {
 		assertThat(new FixedFloatValueGenerator(0.134e-5f).create(generator)).isEqualTo(0.134e-5f);
 		assertThat(new FixedFloatValueGenerator(12.434e2f).create(generator)).isEqualTo(12.434e2f);
 	}

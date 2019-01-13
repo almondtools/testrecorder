@@ -13,12 +13,12 @@ import net.amygdalum.xrayinterface.XRayInterface;
 public class InstantiationsTest {
 
 	@BeforeEach
-	public void before() throws Exception {
+	void before() throws Exception {
 		Instantiations.resetInstatiations();
 	}
 	
 	@Test
-	public void testInstantiations() throws Exception {
+	void testInstantiations() throws Exception {
 		assertThat(Instantiations.class).satisfies(utilityClass().conventions());
 	}
 

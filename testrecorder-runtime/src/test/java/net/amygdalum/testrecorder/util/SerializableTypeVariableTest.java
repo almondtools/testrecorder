@@ -17,62 +17,62 @@ public class SerializableTypeVariableTest {
 	private SerializableParameterizedType recursiveBound = new SerializableParameterizedType(Enum.class, null, recursiveType);
 
 	@BeforeEach
-	public void before() throws Exception {
+	void before() throws Exception {
 		boundedType.boundedBy(Collection.class);
 		recursiveType.boundedBy(recursiveBound);
 	}
 	
 	@Test
-	public void testGetName() throws Exception {
+	void testGetName() throws Exception {
 		assertThat(type.getName()).isEqualTo("C");
 		assertThat(boundedType.getName()).isEqualTo("BC");
 		assertThat(recursiveType.getName()).isEqualTo("RC");
 	}
 
 	@Test
-	public void testGetBounds() throws Exception {
+	void testGetBounds() throws Exception {
 		assertThat(type.getBounds()).isEmpty();
 		assertThat(boundedType.getBounds()).isEqualTo(new Type[] {Collection.class});
 		assertThat(recursiveType.getBounds()).isEqualTo(new Type[] {recursiveBound});
 	}
 
 	@Test
-	public void testGetGenericDeclaration() throws Exception {
+	void testGetGenericDeclaration() throws Exception {
 		assertThat(type.getGenericDeclaration()).isSameAs(SerializableTypeVariableTest.class);
 		assertThat(boundedType.getGenericDeclaration()).isSameAs(SerializableTypeVariableTest.class);
 		assertThat(recursiveType.getGenericDeclaration()).isSameAs(SerializableTypeVariableTest.class);
 	}
 
 	@Test
-	public void testGetAnnotations() throws Exception {
+	void testGetAnnotations() throws Exception {
 		assertThat(type.getAnnotations()).isEmpty();
 		assertThat(boundedType.getAnnotations()).isEmpty();
 		assertThat(recursiveType.getAnnotations()).isEmpty();
 	}
 
 	@Test
-	public void testGetDeclaredAnnotations() throws Exception {
+	void testGetDeclaredAnnotations() throws Exception {
 		assertThat(type.getDeclaredAnnotations()).isEmpty();
 		assertThat(boundedType.getDeclaredAnnotations()).isEmpty();
 		assertThat(recursiveType.getDeclaredAnnotations()).isEmpty();
 	}
 
 	@Test
-	public void testGetAnnotatedBounds() throws Exception {
+	void testGetAnnotatedBounds() throws Exception {
 		assertThat(type.getAnnotatedBounds()).isEmpty();
 		assertThat(boundedType.getAnnotatedBounds()).isEmpty();
 		assertThat(recursiveType.getAnnotatedBounds()).isEmpty();
 	}
 
 	@Test
-	public void testGetAnnotation() throws Exception {
+	void testGetAnnotation() throws Exception {
 		assertThat(type.getAnnotation(Override.class)).isNull();
 		assertThat(boundedType.getAnnotation(Override.class)).isNull();
 		assertThat(recursiveType.getAnnotation(Override.class)).isNull();
 	}
 
 	@Test
-	public void testEqualsHashCode() throws Exception {
+	void testEqualsHashCode() throws Exception {
 		assertThat(type).satisfies(defaultEquality()
 			.andEqualTo(new SerializableTypeVariable<>("C", SerializableTypeVariableTest.class))
 			.andNotEqualTo(boundedType)
@@ -90,7 +90,7 @@ public class SerializableTypeVariableTest {
 	}
 
 	@Test
-	public void testToString() throws Exception {
+	void testToString() throws Exception {
 		assertThat(type.toString()).isEqualTo("C");
 		assertThat(boundedType.toString()).isEqualTo("BC extends java.util.Collection");
 		assertThat(recursiveType.toString()).isEqualTo("RC extends java.lang.Enum");

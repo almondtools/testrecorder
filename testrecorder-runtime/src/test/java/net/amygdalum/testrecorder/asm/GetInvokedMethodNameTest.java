@@ -13,6 +13,7 @@ import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodInsnNode;
 
 public class GetInvokedMethodNameTest {
+
 	private MethodContext context;
 
 	@BeforeEach

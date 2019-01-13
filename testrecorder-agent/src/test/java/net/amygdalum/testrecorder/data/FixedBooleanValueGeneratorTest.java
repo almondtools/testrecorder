@@ -15,7 +15,7 @@ public class FixedBooleanValueGeneratorTest {
 	}
 	
 	@Test
-	public void testCreate() throws Exception {
+	void testCreate() throws Exception {
 		assertThat(new FixedBooleanValueGenerator(true).create(generator)).isTrue();
 		assertThat(new FixedBooleanValueGenerator(false).create(generator)).isFalse();
 	}

@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.lang.reflect.Type;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.values.SerializedArray;
@@ -118,46 +119,58 @@ public class SerializedInputTest {
 		assertThat(input.getArguments()).isEmpty();
 	}
 
-	@Test
-	void testIsComplete() {
-		assertThat(input.isComplete()).isTrue();
-		assertThat(inputNoResult.isComplete()).isTrue();
+	@Nested
+	class testIsComplete {
+
+		@Test
+		void onComplete() {
+			assertThat(input.isComplete()).isTrue();
+			assertThat(inputNoResult.isComplete()).isTrue();
+		}
+
+		@Test
+		void onMissingResult() throws Exception {
+			input.result = null;
+			assertThat(input.isComplete()).isFalse();
+		}
+
+		@Test
+		void onNullArguments() throws Exception {
+			input.arguments = null;
+			assertThat(input.isComplete()).isFalse();
+		}
+
+		@Test
+		void onMissingArguments() throws Exception {
+			input.arguments = new SerializedArgument[] {null};
+			assertThat(input.isComplete()).isFalse();
+		}
 	}
 
-	@Test
-	void testIsCompleteOnMissingResult() throws Exception {
-		input.result = null;
-		assertThat(input.isComplete()).isFalse();
-	}
+	@Nested
+	class testHasResult {
 
-	@Test
-	void testIsCompleteOnNullArguments() throws Exception {
-		input.arguments = null;
-		assertThat(input.isComplete()).isFalse();
-	}
+		@Test
+		void onMethod() throws Exception {
+			assertThat(input.hasResult()).isTrue();
+		}
 
-	@Test
-	void testIsCompleteOnMissingArguments() throws Exception {
-		input.arguments = new SerializedArgument[] { null };
-		assertThat(input.isComplete()).isFalse();
-	}
+		@Test
+		void onVoidMethod() throws Exception {
+			assertThat(inputNoResult.hasResult()).isFalse();
+		}
 
-	@Test
-	void testHasResult() throws Exception {
-		assertThat(input.hasResult()).isTrue();
-		assertThat(inputNoResult.hasResult()).isFalse();
-	}
+		@Test
+		void withoutResultType() throws Exception {
+			input.signature.resultType = null;
+			assertThat(input.hasResult()).isFalse();
+		}
 
-	@Test
-	void testHasResultWithNoResultType() throws Exception {
-		input.signature.resultType = null;
-		assertThat(input.hasResult()).isFalse();
-	}
-
-	@Test
-	void testHasResultWithNoResult() throws Exception {
-		input.result = null;
-		assertThat(input.hasResult()).isFalse();
+		@Test
+		void withoutResult() throws Exception {
+			input.result = null;
+			assertThat(input.hasResult()).isFalse();
+		}
 	}
 
 	private MethodSignature bufferedReaderReadLine() {
@@ -165,7 +178,7 @@ public class SerializedInputTest {
 	}
 
 	private MethodSignature inputStreamRead() {
-		return new MethodSignature(InputStream.class, void.class, "read", new Type[] { byte[].class, int.class, int.class });
+		return new MethodSignature(InputStream.class, void.class, "read", new Type[] {byte[].class, int.class, int.class});
 	}
 
 }

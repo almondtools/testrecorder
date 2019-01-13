@@ -21,7 +21,7 @@ public class GenericsResolverTest {
 	@Nested
 	class testResolveType {
 		@Nested
-		class Classes {
+		class onClasses {
 
 			@Test
 			public void ground() throws Exception {
@@ -36,7 +36,7 @@ public class GenericsResolverTest {
 		}
 
 		@Nested
-		class GenericArrays {
+		class onGenericArrays {
 
 			@Test
 			public void ground() throws Exception {
@@ -72,7 +72,7 @@ public class GenericsResolverTest {
 		}
 
 		@Nested
-		class TypeVariables {
+		class onTypeVariables {
 
 			@Test
 			public void unbound() throws Exception {
@@ -106,7 +106,7 @@ public class GenericsResolverTest {
 		}
 
 		@Nested
-		class Wildcards {
+		class onWildcards {
 
 			@Test
 			public void variable() throws Exception {
@@ -171,7 +171,7 @@ public class GenericsResolverTest {
 		}
 
 		@Nested
-		class Other {
+		class onOther {
 
 			@Test
 			public void impossible() throws Exception {

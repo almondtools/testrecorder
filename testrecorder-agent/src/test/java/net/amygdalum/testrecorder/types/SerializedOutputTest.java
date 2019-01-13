@@ -8,6 +8,7 @@ import java.io.PrintStream;
 import java.lang.reflect.Type;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.values.SerializedLiteral;
@@ -121,54 +122,64 @@ public class SerializedOutputTest {
 		assertThat(output.getArguments()).isEmpty();
 	}
 
-	@Test
-	void testIsComplete() {
-		assertThat(output.isComplete()).isTrue();
-		assertThat(outputNoResult.isComplete()).isTrue();
+	@Nested
+	class testIsComplete {
+		@Test
+		void onComplete() {
+			assertThat(output.isComplete()).isTrue();
+			assertThat(outputNoResult.isComplete()).isTrue();
+		}
+
+		@Test
+		void onMissingResult() throws Exception {
+			output.result = null;
+			assertThat(output.isComplete()).isFalse();
+		}
+
+		@Test
+		void onNullArguments() throws Exception {
+			output.arguments = null;
+			assertThat(output.isComplete()).isFalse();
+		}
+
+		@Test
+		void onMissingArguments() throws Exception {
+			output.arguments = new SerializedArgument[0];
+			assertThat(output.isComplete()).isFalse();
+		}
 	}
 
-	@Test
-	void testIsCompleteOnMissingResult() throws Exception {
-		output.result = null;
-		assertThat(output.isComplete()).isFalse();
-	}
+	@Nested
+	class testHasResult {
+		@Test
+		void onMethod() throws Exception {
+			assertThat(output.hasResult()).isTrue();
+		}
 
-	@Test
-	void testIsCompleteOnNullArguments() throws Exception {
-		output.arguments = null;
-		assertThat(output.isComplete()).isFalse();
-	}
+		@Test
+		void onVoidMethod() throws Exception {
+			assertThat(outputNoResult.hasResult()).isFalse();
+		}
 
-	@Test
-	void testIsCompleteOnMissingArguments() throws Exception {
-		output.arguments = new SerializedArgument[0];
-		assertThat(output.isComplete()).isFalse();
-	}
+		@Test
+		void withoutResultType() throws Exception {
+			output.signature.resultType = null;
+			assertThat(output.hasResult()).isFalse();
+		}
 
-	@Test
-	void testHasResult() throws Exception {
-		assertThat(output.hasResult()).isTrue();
-		assertThat(outputNoResult.hasResult()).isFalse();
-	}
-
-	@Test
-	void testHasResultWithNoResultType() throws Exception {
-		output.signature.resultType = null;
-		assertThat(output.hasResult()).isFalse();
-	}
-
-	@Test
-	void testHasResultWithNoResult() throws Exception {
-		output.result = null;
-		assertThat(output.hasResult()).isFalse();
+		@Test
+		void withoutResult() throws Exception {
+			output.result = null;
+			assertThat(output.hasResult()).isFalse();
+		}
 	}
 
 	private MethodSignature printStreamAppend() {
-		return new MethodSignature(PrintStream.class, PrintStream.class, "append", new Type[] { CharSequence.class });
+		return new MethodSignature(PrintStream.class, PrintStream.class, "append", new Type[] {CharSequence.class});
 	}
 
 	private MethodSignature printStreamPrintln() {
-		return new MethodSignature(PrintStream.class, void.class, "println", new Type[] { String.class });
+		return new MethodSignature(PrintStream.class, void.class, "println", new Type[] {String.class});
 	}
 
 }

@@ -15,7 +15,7 @@ public class FixedByteValueGeneratorTest {
 	}
 	
 	@Test
-	public void testCreate() throws Exception {
+	void testCreate() throws Exception {
 		assertThat(new FixedByteValueGenerator((byte) -127).create(generator)).isEqualTo((byte)-127);
 		assertThat(new FixedByteValueGenerator((byte) 128).create(generator)).isEqualTo((byte) 128);
 	}

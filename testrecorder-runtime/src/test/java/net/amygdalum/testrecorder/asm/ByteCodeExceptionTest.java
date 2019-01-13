@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 public class ByteCodeExceptionTest {
 
 	@Test
-	public void testByteCodeException() throws Exception {
+	void testByteCodeException() throws Exception {
 		assertThat(new ByteCodeException(new IllegalArgumentException("msg")))
 			.isInstanceOf(ByteCodeException.class)
 			.satisfies(exception -> {

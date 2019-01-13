@@ -15,25 +15,25 @@ public class SerializableParameterizedTypeTest {
 	private SerializableParameterizedType typeWithOwner = new SerializableParameterizedType(List.class, SerializableParameterizedTypeTest.class, String.class);
 	
 	@Test
-	public void testGetRawType() throws Exception {
+	void testGetRawType() throws Exception {
 		assertThat(type.getRawType()).isSameAs(List.class);
 		assertThat(typeWithOwner.getRawType()).isSameAs(List.class);
 	}
 
 	@Test
-	public void testGetOwnerType() throws Exception {
+	void testGetOwnerType() throws Exception {
 		assertThat(type.getOwnerType()).isSameAs(null);
 		assertThat(typeWithOwner.getOwnerType()).isSameAs(SerializableParameterizedTypeTest.class);
 	}
 
 	@Test
-	public void testGetActualTypeArguments() throws Exception {
+	void testGetActualTypeArguments() throws Exception {
 		assertThat(type.getActualTypeArguments()).isEqualTo(new Type[]{String.class});
 		assertThat(typeWithOwner.getActualTypeArguments()).isEqualTo(new Type[]{String.class});
 	}
 
 	@Test
-	public void testEqualsHashCode() throws Exception {
+	void testEqualsHashCode() throws Exception {
 		assertThat(type).satisfies(defaultEquality()
 			.andNotEqualTo(typeWithOwner)
 			.andEqualTo(new SerializableParameterizedType(List.class, null, String.class))
@@ -49,7 +49,7 @@ public class SerializableParameterizedTypeTest {
 	}
 
 	@Test
-	public void testToString() throws Exception {
+	void testToString() throws Exception {
 		assertThat(type.toString()).isEqualTo("java.util.List<java.lang.String>");
 		assertThat(typeWithOwner.toString()).isEqualTo("java.util.List<java.lang.String>");
 	}

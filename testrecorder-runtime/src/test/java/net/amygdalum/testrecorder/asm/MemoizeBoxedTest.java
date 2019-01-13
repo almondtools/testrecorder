@@ -2,7 +2,6 @@ package net.amygdalum.testrecorder.asm;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.Type;
@@ -13,14 +12,11 @@ public class MemoizeBoxedTest {
 	private MethodContext context;
 
 	@Nested
-	class ShortType {
-		@BeforeEach
-		void before() {
-			context = new MethodContext(AClass.classNode(), AClass.staticMethodNode());
-		}
+	class testMemoizeBoxed {
 
 		@Test
-		void testMemoizeBoxed() throws Exception {
+		void onShortType() throws Exception {
+			context = new MethodContext(AClass.classNode(), AClass.staticMethodNode());
 			InsnList insns = new MemoizeBoxed("x", Type.getType(int.class))
 				.build(context);
 
@@ -32,17 +28,10 @@ public class MemoizeBoxedTest {
 			assertThat(context.local("x").index)
 				.isEqualTo(0);
 		}
-	}
-
-	@Nested
-	class LongType {
-		@BeforeEach
-		void before() {
-			context = new MethodContext(AClass.classNode(), AClass.staticMethodNode());
-		}
 
 		@Test
-		void testMemoizeBoxed() throws Exception {
+		void onLongType() throws Exception {
+			context = new MethodContext(AClass.classNode(), AClass.staticMethodNode());
 			InsnList insns = new MemoizeBoxed("x", Type.getType(double.class))
 				.build(context);
 

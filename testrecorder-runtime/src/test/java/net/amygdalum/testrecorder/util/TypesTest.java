@@ -62,6 +62,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.util.TypesTest.NestedPackagePrivate;
@@ -95,36 +96,39 @@ public class TypesTest {
 		assertThat(Types.class).satisfies(utilityClass().conventions());
 	}
 
-	@Test
-	void testBaseTypeOnSimpleTypes() throws Exception {
-		assertThat(baseType(Object.class)).isEqualTo(Object.class);
-		assertThat(baseType(String.class)).isEqualTo(String.class);
-		assertThat(baseType(StringTokenizer.class)).isEqualTo(StringTokenizer.class);
-	}
+	@Nested
+	class testBaseType {
+		@Test
+		void onSimpleTypes() throws Exception {
+			assertThat(baseType(Object.class)).isEqualTo(Object.class);
+			assertThat(baseType(String.class)).isEqualTo(String.class);
+			assertThat(baseType(StringTokenizer.class)).isEqualTo(StringTokenizer.class);
+		}
 
-	@Test
-	void testBaseTypeOnPrimitiveTypes() throws Exception {
-		assertThat(baseType(int.class)).isEqualTo(int.class);
-		assertThat(baseType(void.class)).isEqualTo(void.class);
-	}
+		@Test
+		void onPrimitiveTypes() throws Exception {
+			assertThat(baseType(int.class)).isEqualTo(int.class);
+			assertThat(baseType(void.class)).isEqualTo(void.class);
+		}
 
-	@Test
-	void testBaseTypeOnParameterizedTypes() throws Exception {
-		assertThat(baseType(parameterized(List.class, List.class, String.class))).isEqualTo(List.class);
-		assertThat(baseType(parameterized(Map.class, Map.class, String.class, Object.class))).isEqualTo(Map.class);
-	}
+		@Test
+		void onParameterizedTypes() throws Exception {
+			assertThat(baseType(parameterized(List.class, List.class, String.class))).isEqualTo(List.class);
+			assertThat(baseType(parameterized(Map.class, Map.class, String.class, Object.class))).isEqualTo(Map.class);
+		}
 
-	@Test
-	void testBaseTypeOnGenericArrayTypes() throws Exception {
-		assertThat(baseType(array(parameterized(List.class, List.class, String.class)))).isEqualTo(List[].class);
-		assertThat(baseType(array(parameterized(Map.class, Map.class, String.class, Object.class)))).isEqualTo(Map[].class);
-	}
+		@Test
+		void onGenericArrayTypes() throws Exception {
+			assertThat(baseType(array(parameterized(List.class, List.class, String.class)))).isEqualTo(List[].class);
+			assertThat(baseType(array(parameterized(Map.class, Map.class, String.class, Object.class)))).isEqualTo(Map[].class);
+		}
 
-	@Test
-	void testBaseTypeOnOtherTypes() throws Exception {
-		assertThat(baseType(wildcard())).isEqualTo(Object.class);
-		assertThat(baseType(wildcardExtends(String.class))).isEqualTo(Object.class);
-		assertThat(baseType(wildcardSuper(String.class))).isEqualTo(Object.class);
+		@Test
+		void onOtherTypes() throws Exception {
+			assertThat(baseType(wildcard())).isEqualTo(Object.class);
+			assertThat(baseType(wildcardExtends(String.class))).isEqualTo(Object.class);
+			assertThat(baseType(wildcardSuper(String.class))).isEqualTo(Object.class);
+		}
 	}
 
 	@Test
@@ -294,76 +298,82 @@ public class TypesTest {
 		assertThat(typeArgument(String.class, 0).isPresent()).isFalse();
 	}
 
-	@Test
-	void testInnerType() throws Exception {
-		assertThat(innerType(TypesTest.class, "NestedPublic")).isEqualTo(NestedPublic.class);
+	@Nested
+	class testInnerType {
+		@Test
+		void onSimple() throws Exception {
+			assertThat(innerType(TypesTest.class, "NestedPublic")).isEqualTo(NestedPublic.class);
+		}
+
+		@Test
+		void onNotResolved() throws Exception {
+			assertThatThrownBy(() -> innerType(TypesTest.class, "NotExistent")).isInstanceOf(TypeNotPresentException.class);
+		}
 	}
 
-	@Test
-	void testInnerTypeNotResolved() throws Exception {
-		assertThatThrownBy(() -> innerType(TypesTest.class, "NotExistent")).isInstanceOf(TypeNotPresentException.class);
-	}
+	@Nested
+	class testIsHidden {
+		@Test
+		void forTypes() throws Exception {
+			assertThat(isHidden(TypesTest.class, "any")).isFalse();
+			assertThat(isHidden(new NestedPrivate() {
+			}.getClass(), "any")).isTrue();
+			assertThat(isHidden(NestedPrivate.class, "any")).isTrue();
+			assertThat(isHidden(NestedPackagePrivate.class, "any")).isTrue();
+			assertThat(isHidden(NestedPackagePrivate.class, "net.amygdalum.testrecorder.util")).isFalse();
+			assertThat(isHidden(NestedProtected.class, "net.amygdalum.testrecorder.util")).isFalse();
+			assertThat(isHidden(NestedProtected.class, "other")).isTrue();
+			assertThat(isHidden(TypesPackagePrivate.class, "any")).isTrue();
+			assertThat(isHidden(TypesPackagePrivate.class, "net.amygdalum.testrecorder.util")).isFalse();
+			assertThat(isHidden(NestedPublic.class, "any")).isFalse();
+			assertThat(isHidden(TypesPublic.class, "net.amygdalum.testrecorder.util")).isFalse();
+			assertThat(isHidden(TypesPublic.class, "other")).isFalse();
+		}
 
-	@Test
-	void testIsHiddenType() throws Exception {
-		assertThat(isHidden(TypesTest.class, "any")).isFalse();
-		assertThat(isHidden(new NestedPrivate() {
-		}.getClass(), "any")).isTrue();
-		assertThat(isHidden(NestedPrivate.class, "any")).isTrue();
-		assertThat(isHidden(NestedPackagePrivate.class, "any")).isTrue();
-		assertThat(isHidden(NestedPackagePrivate.class, "net.amygdalum.testrecorder.util")).isFalse();
-		assertThat(isHidden(NestedProtected.class, "net.amygdalum.testrecorder.util")).isFalse();
-		assertThat(isHidden(NestedProtected.class, "other")).isTrue();
-		assertThat(isHidden(TypesPackagePrivate.class, "any")).isTrue();
-		assertThat(isHidden(TypesPackagePrivate.class, "net.amygdalum.testrecorder.util")).isFalse();
-		assertThat(isHidden(NestedPublic.class, "any")).isFalse();
-		assertThat(isHidden(TypesPublic.class, "net.amygdalum.testrecorder.util")).isFalse();
-		assertThat(isHidden(TypesPublic.class, "other")).isFalse();
-	}
+		@Test
+		void forArrays() throws Exception {
+			assertThat(isHidden(TypesPublic[].class, "any")).isFalse();
+			assertThat(isHidden(TypesPackagePrivate[].class, "net.amygdalum.testrecorder.util")).isFalse();
+			assertThat(isHidden(TypesPackagePrivate[].class, "other")).isTrue();
+			assertThat(isHidden(NestedProtected[].class, "net.amygdalum.testrecorder.util")).isFalse();
+			assertThat(isHidden(NestedProtected[].class, "other")).isTrue();
+			assertThat(isHidden(NestedPrivate[].class, "any")).isTrue();
+		}
 
-	@Test
-	void testIsHiddenForArrays() throws Exception {
-		assertThat(isHidden(TypesPublic[].class, "any")).isFalse();
-		assertThat(isHidden(TypesPackagePrivate[].class, "net.amygdalum.testrecorder.util")).isFalse();
-		assertThat(isHidden(TypesPackagePrivate[].class, "other")).isTrue();
-		assertThat(isHidden(NestedProtected[].class, "net.amygdalum.testrecorder.util")).isFalse();
-		assertThat(isHidden(NestedProtected[].class, "other")).isTrue();
-		assertThat(isHidden(NestedPrivate[].class, "any")).isTrue();
-	}
+		@Test
+		void forConstructors() throws Exception {
+			assertThat(isHidden(getDeclaredConstructor(TypesTest.class), "any")).isFalse();
+			assertThat(isHidden(getDeclaredConstructor(NestedPrivate.class), "any")).isTrue();
+			assertThat(isHidden(getDeclaredConstructor(NestedPackagePrivate.class), "any")).isTrue();
+			assertThat(isHidden(getDeclaredConstructor(NestedPackagePrivate.class), "net.amygdalum.testrecorder.util")).isTrue();
+			assertThat(isHidden(getDeclaredConstructor(TypesPackagePrivate.class), "any")).isTrue();
+			assertThat(isHidden(getDeclaredConstructor(TypesPackagePrivate.class), "net.amygdalum.testrecorder.util")).isFalse();
+		}
 
-	@Test
-	void testIsHiddenConstructor() throws Exception {
-		assertThat(isHidden(getDeclaredConstructor(TypesTest.class), "any")).isFalse();
-		assertThat(isHidden(getDeclaredConstructor(NestedPrivate.class), "any")).isTrue();
-		assertThat(isHidden(getDeclaredConstructor(NestedPackagePrivate.class), "any")).isTrue();
-		assertThat(isHidden(getDeclaredConstructor(NestedPackagePrivate.class), "net.amygdalum.testrecorder.util")).isTrue();
-		assertThat(isHidden(getDeclaredConstructor(TypesPackagePrivate.class), "any")).isTrue();
-		assertThat(isHidden(getDeclaredConstructor(TypesPackagePrivate.class), "net.amygdalum.testrecorder.util")).isFalse();
-	}
+		@Test
+		void forConstructorsOfNestedTypes() throws Exception {
+			assertThat(isHidden(getDeclaredConstructor(NestedConstructors.class), "any")).isTrue();
+			assertThat(isHidden(getDeclaredConstructor(NestedConstructors.class, int.class), "any")).isFalse();
+			assertThat(isHidden(getDeclaredConstructor(NestedConstructors.class, boolean.class), "any")).isTrue();
+			assertThat(isHidden(getDeclaredConstructor(NestedConstructors.class, char.class), "any")).isTrue();
+		}
 
-	@Test
-	void testIsHiddenTrueForConstructorsOfNestedTypes() throws Exception {
-		assertThat(isHidden(getDeclaredConstructor(NestedConstructors.class), "any")).isTrue();
-		assertThat(isHidden(getDeclaredConstructor(NestedConstructors.class, int.class), "any")).isFalse();
-		assertThat(isHidden(getDeclaredConstructor(NestedConstructors.class, boolean.class), "any")).isTrue();
-		assertThat(isHidden(getDeclaredConstructor(NestedConstructors.class, char.class), "any")).isTrue();
-	}
+		@Test
+		void forMethods() throws Exception {
+			assertThat(isHidden(getDeclaredMethod(NestedPrivate.class, "method"), "any")).isTrue();
+			assertThat(isHidden(getDeclaredMethod(NestedPackagePrivate.class, "method"), "any")).isTrue();
+			assertThat(isHidden(getDeclaredMethod(NestedPackagePrivate.class, "method"), "net.amygdalum.testrecorder.util")).isTrue();
+			assertThat(isHidden(getDeclaredMethod(TypesPackagePrivate.class, "method"), "any")).isTrue();
+			assertThat(isHidden(getDeclaredMethod(TypesPackagePrivate.class, "method"), "net.amygdalum.testrecorder.util")).isFalse();
+		}
 
-	@Test
-	void testIsHiddenMethod() throws Exception {
-		assertThat(isHidden(getDeclaredMethod(NestedPrivate.class, "method"), "any")).isTrue();
-		assertThat(isHidden(getDeclaredMethod(NestedPackagePrivate.class, "method"), "any")).isTrue();
-		assertThat(isHidden(getDeclaredMethod(NestedPackagePrivate.class, "method"), "net.amygdalum.testrecorder.util")).isTrue();
-		assertThat(isHidden(getDeclaredMethod(TypesPackagePrivate.class, "method"), "any")).isTrue();
-		assertThat(isHidden(getDeclaredMethod(TypesPackagePrivate.class, "method"), "net.amygdalum.testrecorder.util")).isFalse();
-	}
-
-	@Test
-	void testIsHiddenMethodOfNestedTypes() throws Exception {
-		assertThat(isHidden(getDeclaredMethod(NestedMethods.class, "method"), "any")).isTrue();
-		assertThat(isHidden(getDeclaredMethod(NestedMethods.class, "method", int.class), "any")).isFalse();
-		assertThat(isHidden(getDeclaredMethod(NestedMethods.class, "method", boolean.class), "any")).isTrue();
-		assertThat(isHidden(getDeclaredMethod(NestedMethods.class, "method", char.class), "any")).isTrue();
+		@Test
+		void forMethodsOfNestedTypes() throws Exception {
+			assertThat(isHidden(getDeclaredMethod(NestedMethods.class, "method"), "any")).isTrue();
+			assertThat(isHidden(getDeclaredMethod(NestedMethods.class, "method", int.class), "any")).isFalse();
+			assertThat(isHidden(getDeclaredMethod(NestedMethods.class, "method", boolean.class), "any")).isTrue();
+			assertThat(isHidden(getDeclaredMethod(NestedMethods.class, "method", char.class), "any")).isTrue();
+		}
 	}
 
 	@Test
@@ -534,132 +544,178 @@ public class TypesTest {
 		assertThat(Types.innerClasses(getClass())).contains(NestedPublic.class, NestedPrivate.class, NestedPackagePrivate.class);
 	}
 
-	@Test
-	void testSortByMostConcreteSubBeforeSuper() throws Exception {
-		assertThat(Stream.of(Super.class, Sub.class).sorted(Types::byMostConcrete).collect(toList())).containsExactly(Sub.class, Super.class);
-		assertThat(Stream.of(Sub.class, Super.class).sorted(Types::byMostConcrete).collect(toList())).containsExactly(Sub.class, Super.class);
+	@Nested
+	class testByMostConcrete {
+		@Test
+		void sortingSubBeforeSuper() throws Exception {
+			assertThat(Stream.of(Super.class, Sub.class).sorted(Types::byMostConcrete).collect(toList())).containsExactly(Sub.class, Super.class);
+			assertThat(Stream.of(Sub.class, Super.class).sorted(Types::byMostConcrete).collect(toList())).containsExactly(Sub.class, Super.class);
+		}
+
+		@Test
+		void sortingUnrelatedTypes() throws Exception {
+			assertThat(Stream.of(Simple.class, Complex.class).sorted(Types::byMostConcrete).collect(toList())).containsExactlyInAnyOrder(Simple.class,
+				Complex.class);
+		}
+
+		@Test
+		void sortingClassesBeforeGenericTypes() throws Exception {
+			WildcardType wildcard = wildcard();
+
+			assertThat(Stream.of(Simple.class, wildcard).sorted(Types::byMostConcrete).collect(toList())).containsExactly(Simple.class, wildcard);
+			assertThat(Stream.of(wildcard, Simple.class).sorted(Types::byMostConcrete).collect(toList())).containsExactly(Simple.class, wildcard);
+		}
+
+		@Test
+		void sortingOrderableBaseTypes() throws Exception {
+			ParameterizedType generic = parameterized(Generic.class, null, Sub.class);
+			ParameterizedType subGeneric = parameterized(SubGeneric.class, null, Super.class);
+
+			assertThat(Stream.of(generic, subGeneric).sorted(Types::byMostConcrete).collect(toList())).containsExactly(subGeneric, generic);
+			assertThat(Stream.of(subGeneric, generic).sorted(Types::byMostConcrete).collect(toList())).containsExactly(subGeneric, generic);
+		}
+
+		@Test
+		void sortingUnrelatedBaseTypes() throws Exception {
+			ParameterizedType generic = parameterized(Generic.class, null, Sub.class);
+			ParameterizedType otherGeneric = parameterized(GenericCycle.class, null, Super.class);
+
+			assertThat(Stream.of(generic, otherGeneric).sorted(Types::byMostConcrete).collect(toList())).containsExactlyInAnyOrder(generic, otherGeneric);
+		}
 	}
 
 	@Test
-	void testSortByMostConcreteUnrelatedTypes() throws Exception {
-		assertThat(Stream.of(Simple.class, Complex.class).sorted(Types::byMostConcrete).collect(toList())).containsExactlyInAnyOrder(Simple.class,
-			Complex.class);
+	void testByMostConcreteGeneric() throws Exception {
+		assertThat(Stream.of(String.class, String.class).sorted(Types::byMostConcreteGeneric))
+			.containsExactly(String.class, String.class);
+		assertThat(Stream.of(List.class, ArrayList.class).sorted(Types::byMostConcreteGeneric))
+			.containsExactly(ArrayList.class, List.class);
+		assertThat(Stream.of(ArrayList.class, List.class).sorted(Types::byMostConcreteGeneric))
+			.containsExactly(ArrayList.class, List.class);
+		assertThat(Stream.of(List.class, Set.class).sorted(Types::byMostConcreteGeneric))
+			.containsExactly(List.class, Set.class);
+		assertThat(Stream.of(wildcardExtends(List.class, ArrayList.class), wildcardExtends(List.class)).sorted(Types::byMostConcreteGeneric))
+			.containsExactly(wildcardExtends(List.class, ArrayList.class), wildcardExtends(List.class));
+		assertThat(Stream.of(wildcardExtends(List.class), wildcardExtends(List.class, ArrayList.class)).sorted(Types::byMostConcreteGeneric))
+			.containsExactly(wildcardExtends(List.class, ArrayList.class), wildcardExtends(List.class));
+		assertThat(Stream.of(wildcardExtends(ArrayList.class), wildcardExtends(List.class)).sorted(Types::byMostConcreteGeneric))
+			.containsExactly(wildcardExtends(ArrayList.class), wildcardExtends(List.class));
+		assertThat(Stream.of(wildcardExtends(List.class), wildcardExtends(ArrayList.class)).sorted(Types::byMostConcreteGeneric))
+			.containsExactly(wildcardExtends(ArrayList.class), wildcardExtends(List.class));
+		assertThat(Stream.of(wildcardExtends(List.class), (Type) ArrayList.class).sorted(Types::byMostConcreteGeneric))
+			.containsExactly(ArrayList.class, wildcardExtends(List.class));
+		assertThat(Stream.of((Type) ArrayList.class, wildcardExtends(List.class))
+			.sorted(Types::byMostConcreteGeneric)).containsExactly(ArrayList.class, wildcardExtends(List.class));
+		assertThat(Stream.of(parameterized(List.class, null, String.class), (Type) ArrayList.class).sorted(Types::byMostConcreteGeneric))
+			.containsExactly(ArrayList.class, parameterized(List.class, null, String.class));
+		assertThat(Stream.of((Type) ArrayList.class, parameterized(List.class, null, String.class)).sorted(Types::byMostConcreteGeneric))
+			.containsExactly(ArrayList.class, parameterized(List.class, null, String.class));
+		assertThat(Stream.of(parameterized(List.class, null, String.class), parameterized(List.class, null, Object.class)).sorted(Types::byMostConcreteGeneric))
+			.containsExactly(parameterized(List.class, null, String.class), parameterized(List.class, null, Object.class));
+		assertThat(Stream.of(parameterized(List.class, null, Object.class), parameterized(List.class, null, String.class)).sorted(Types::byMostConcreteGeneric))
+			.containsExactly(parameterized(List.class, null, String.class), parameterized(List.class, null, Object.class));
+		assertThat(Stream.of((Type) ArrayList.class, parameterized(ArrayList.class, null, String.class)).sorted(Types::byMostConcreteGeneric))
+			.containsExactly(parameterized(ArrayList.class, null, String.class), ArrayList.class);
+		assertThat(Stream.of(parameterized(ArrayList.class, null, String.class), (Type) ArrayList.class).sorted(Types::byMostConcreteGeneric))
+			.containsExactly(parameterized(ArrayList.class, null, String.class), ArrayList.class);
 	}
 
-	@Test
-	void testSortByMostConcreteClassesBeforeGenericTypes() throws Exception {
-		WildcardType wildcard = wildcard();
 
-		assertThat(Stream.of(Simple.class, wildcard).sorted(Types::byMostConcrete).collect(toList())).containsExactly(Simple.class, wildcard);
-		assertThat(Stream.of(wildcard, Simple.class).sorted(Types::byMostConcrete).collect(toList())).containsExactly(Simple.class, wildcard);
+	@Nested
+	class testResolve {
+		@Test
+		void onNonGenericType() throws Exception {
+			assertThat(Types.resolve(Simple.class, Generic.class)).isEqualTo(Simple.class);
+		}
+
+		@Test
+		void onUnboundWildcard() throws Exception {
+			Type unboundWildcard = getDeclaredField(Generic.class, "starx").getGenericType();
+
+			assertThat(Types.resolve(unboundWildcard, Generic.class)).isEqualTo(unboundWildcard);
+		}
+
+		@Test
+		void onFreeGenericArray() throws Exception {
+			Type genericArrayType = getDeclaredField(Generic.class, "vs").getGenericType();
+
+			assertThat(Types.resolve(genericArrayType, Generic.class)).isEqualTo(genericArrayType);
+		}
+
+		@Test
+		void onBoundGenericArray() throws Exception {
+			Type genericArrayType = getDeclaredField(Generic.class, "vs").getGenericType();
+
+			assertThat(Types.resolve(genericArrayType, BoundGeneric.class)).isEqualTo(Sub[].class);
+		}
+
+		@Test
+		void onPartlyBound() throws Exception {
+			Type freeType = getDeclaredField(BiGeneric.class, "k").getGenericType();
+			Type boundType = getDeclaredField(BiGeneric.class, "v").getGenericType();
+			Type partlyBoundType = getDeclaredField(BiGeneric.class, "vx").getGenericType();
+			Type unboundWildcardType = getDeclaredField(BiGeneric.class, "kstarv").getGenericType();
+			Type unboundSuperWildcardType = getDeclaredField(BiGeneric.class, "ksupv").getGenericType();
+			Type boundWildcardType = getDeclaredField(BiGeneric.class, "kvstar").getGenericType();
+			Type boundSuperWildcardType = getDeclaredField(BiGeneric.class, "kvsup").getGenericType();
+			Type unboundAndWildcardType = getDeclaredField(BiGeneric.class, "kstar").getGenericType();
+			Type boundAndWildcardType = getDeclaredField(BiGeneric.class, "starv").getGenericType();
+
+			assertThat(Types.resolve(freeType, PartlyBoundBiGeneric.class)).isEqualTo(freeType);
+			assertThat(Types.resolve(boundType, PartlyBoundBiGeneric.class)).isEqualTo(Sub.class);
+			assertThat(Types.resolve(partlyBoundType, PartlyBoundBiGeneric.class)).isEqualTo(parameterized(BiGeneric.class, null, freeType, Sub.class));
+			assertThat(Types.resolve(unboundWildcardType, PartlyBoundBiGeneric.class))
+				.isEqualTo(parameterized(BiGeneric.class, null, wildcardExtends(freeType), Sub.class));
+			assertThat(Types.resolve(unboundSuperWildcardType, PartlyBoundBiGeneric.class))
+				.isEqualTo(parameterized(BiGeneric.class, null, ((ParameterizedType) unboundSuperWildcardType).getActualTypeArguments()[0], Sub.class));
+			assertThat(Types.resolve(boundWildcardType, PartlyBoundBiGeneric.class))
+				.isEqualTo(parameterized(BiGeneric.class, null, freeType, wildcardExtends(Sub.class)));
+			assertThat(Types.resolve(boundSuperWildcardType, PartlyBoundBiGeneric.class))
+				.isEqualTo(parameterized(BiGeneric.class, null, freeType, wildcardSuper(Sub.class)));
+			assertThat(Types.resolve(boundAndWildcardType, PartlyBoundBiGeneric.class))
+				.isEqualTo(parameterized(BiGeneric.class, null, ((ParameterizedType) boundAndWildcardType).getActualTypeArguments()[0], Sub.class));
+			assertThat(serializableOf(Types.resolve(unboundAndWildcardType, PartlyBoundBiGeneric.class)))
+				.isEqualTo(parameterized(BiGeneric.class, null, freeType, ((ParameterizedType) unboundAndWildcardType).getActualTypeArguments()[1]));
+		}
+
+		@Test
+		void onPartlyBoundGenericArray() throws Exception {
+			Type freeType = getDeclaredField(BiGeneric.class, "ks").getGenericType();
+			Type boundType = getDeclaredField(BiGeneric.class, "vs").getGenericType();
+
+			assertThat(Types.resolve(freeType, PartlyBoundBiGeneric.class)).isEqualTo(freeType);
+			assertThat(Types.resolve(boundType, PartlyBoundBiGeneric.class)).isEqualTo(Sub[].class);
+		}
 	}
 
-	@Test
-	void testSortByMostConcreteOrderableBaseTypes() throws Exception {
-		ParameterizedType generic = parameterized(Generic.class, null, Sub.class);
-		ParameterizedType subGeneric = parameterized(SubGeneric.class, null, Super.class);
+	@Nested
+	class testClassFrom {
+		@Test
+		void simple() throws Exception {
+			ClassLoader classLoader = new ExtensibleClassLoader(ClassLoader.getSystemClassLoader(), Complex.class.getPackage().getName());
+			Class<?> clazz = Types.classFrom(Complex.class, classLoader);
 
-		assertThat(Stream.of(generic, subGeneric).sorted(Types::byMostConcrete).collect(toList())).containsExactly(subGeneric, generic);
-		assertThat(Stream.of(subGeneric, generic).sorted(Types::byMostConcrete).collect(toList())).containsExactly(subGeneric, generic);
-	}
+			assertThat(clazz.getName()).isEqualTo(Complex.class.getName());
+			assertThat(clazz.getClassLoader()).isSameAs(classLoader);
+		}
 
-	@Test
-	void testSortByMostConcreteUnrelatedBaseTypes() throws Exception {
-		ParameterizedType generic = parameterized(Generic.class, null, Sub.class);
-		ParameterizedType otherGeneric = parameterized(GenericCycle.class, null, Super.class);
+		@Test
+		void array() throws Exception {
+			ClassLoader classLoader = new ExtensibleClassLoader(ClassLoader.getSystemClassLoader(), Complex.class.getPackage().getName());
+			Class<?> clazz = Types.classFrom(Complex[].class, classLoader);
 
-		assertThat(Stream.of(generic, otherGeneric).sorted(Types::byMostConcrete).collect(toList())).containsExactlyInAnyOrder(generic, otherGeneric);
-	}
+			assertThat(clazz.getName()).isEqualTo(Complex[].class.getName());
+			assertThat(clazz.getClassLoader()).isSameAs(classLoader);
+		}
 
-	@Test
-	void testResolveOnNonGenericType() throws Exception {
-		assertThat(Types.resolve(Simple.class, Generic.class)).isEqualTo(Simple.class);
-	}
+		@Test
+		void primitive() throws Exception {
+			ClassLoader classLoader = new ExtensibleClassLoader(ClassLoader.getSystemClassLoader(), Complex.class.getPackage().getName());
+			Class<?> clazz = Types.classFrom(int.class, classLoader);
 
-	@Test
-	void testResolveOnUnboundWildcard() throws Exception {
-		Type unboundWildcard = getDeclaredField(Generic.class, "starx").getGenericType();
-
-		assertThat(Types.resolve(unboundWildcard, Generic.class)).isEqualTo(unboundWildcard);
-	}
-
-	@Test
-	void testResolveOnFreeGenericArray() throws Exception {
-		Type genericArrayType = getDeclaredField(Generic.class, "vs").getGenericType();
-
-		assertThat(Types.resolve(genericArrayType, Generic.class)).isEqualTo(genericArrayType);
-	}
-
-	@Test
-	void testResolveOnBoundGenericArray() throws Exception {
-		Type genericArrayType = getDeclaredField(Generic.class, "vs").getGenericType();
-
-		assertThat(Types.resolve(genericArrayType, BoundGeneric.class)).isEqualTo(Sub[].class);
-	}
-
-	@Test
-	void testResolveOnPartlyBound() throws Exception {
-		Type freeType = getDeclaredField(BiGeneric.class, "k").getGenericType();
-		Type boundType = getDeclaredField(BiGeneric.class, "v").getGenericType();
-		Type partlyBoundType = getDeclaredField(BiGeneric.class, "vx").getGenericType();
-		Type unboundWildcardType = getDeclaredField(BiGeneric.class, "kstarv").getGenericType();
-		Type unboundSuperWildcardType = getDeclaredField(BiGeneric.class, "ksupv").getGenericType();
-		Type boundWildcardType = getDeclaredField(BiGeneric.class, "kvstar").getGenericType();
-		Type boundSuperWildcardType = getDeclaredField(BiGeneric.class, "kvsup").getGenericType();
-		Type unboundAndWildcardType = getDeclaredField(BiGeneric.class, "kstar").getGenericType();
-		Type boundAndWildcardType = getDeclaredField(BiGeneric.class, "starv").getGenericType();
-
-		assertThat(Types.resolve(freeType, PartlyBoundBiGeneric.class)).isEqualTo(freeType);
-		assertThat(Types.resolve(boundType, PartlyBoundBiGeneric.class)).isEqualTo(Sub.class);
-		assertThat(Types.resolve(partlyBoundType, PartlyBoundBiGeneric.class)).isEqualTo(parameterized(BiGeneric.class, null, freeType, Sub.class));
-		assertThat(Types.resolve(unboundWildcardType, PartlyBoundBiGeneric.class))
-			.isEqualTo(parameterized(BiGeneric.class, null, wildcardExtends(freeType), Sub.class));
-		assertThat(Types.resolve(unboundSuperWildcardType, PartlyBoundBiGeneric.class))
-			.isEqualTo(parameterized(BiGeneric.class, null, ((ParameterizedType) unboundSuperWildcardType).getActualTypeArguments()[0], Sub.class));
-		assertThat(Types.resolve(boundWildcardType, PartlyBoundBiGeneric.class))
-			.isEqualTo(parameterized(BiGeneric.class, null, freeType, wildcardExtends(Sub.class)));
-		assertThat(Types.resolve(boundSuperWildcardType, PartlyBoundBiGeneric.class))
-			.isEqualTo(parameterized(BiGeneric.class, null, freeType, wildcardSuper(Sub.class)));
-		assertThat(Types.resolve(boundAndWildcardType, PartlyBoundBiGeneric.class))
-			.isEqualTo(parameterized(BiGeneric.class, null, ((ParameterizedType) boundAndWildcardType).getActualTypeArguments()[0], Sub.class));
-		assertThat(serializableOf(Types.resolve(unboundAndWildcardType, PartlyBoundBiGeneric.class)))
-			.isEqualTo(parameterized(BiGeneric.class, null, freeType, ((ParameterizedType) unboundAndWildcardType).getActualTypeArguments()[1]));
-	}
-
-	@Test
-	void testResolveOnPartlyBoundGenericArray() throws Exception {
-		Type freeType = getDeclaredField(BiGeneric.class, "ks").getGenericType();
-		Type boundType = getDeclaredField(BiGeneric.class, "vs").getGenericType();
-
-		assertThat(Types.resolve(freeType, PartlyBoundBiGeneric.class)).isEqualTo(freeType);
-		assertThat(Types.resolve(boundType, PartlyBoundBiGeneric.class)).isEqualTo(Sub[].class);
-	}
-
-	@Test
-	void testClassFrom() throws Exception {
-		ClassLoader classLoader = new ExtensibleClassLoader(ClassLoader.getSystemClassLoader(), Complex.class.getPackage().getName());
-		Class<?> clazz = Types.classFrom(Complex.class, classLoader);
-
-		assertThat(clazz.getName()).isEqualTo(Complex.class.getName());
-		assertThat(clazz.getClassLoader()).isSameAs(classLoader);
-	}
-
-	@Test
-	void testClassFromArray() throws Exception {
-		ClassLoader classLoader = new ExtensibleClassLoader(ClassLoader.getSystemClassLoader(), Complex.class.getPackage().getName());
-		Class<?> clazz = Types.classFrom(Complex[].class, classLoader);
-
-		assertThat(clazz.getName()).isEqualTo(Complex[].class.getName());
-		assertThat(clazz.getClassLoader()).isSameAs(classLoader);
-	}
-
-	@Test
-	void testClassFromPrimitive() throws Exception {
-		ClassLoader classLoader = new ExtensibleClassLoader(ClassLoader.getSystemClassLoader(), Complex.class.getPackage().getName());
-		Class<?> clazz = Types.classFrom(int.class, classLoader);
-
-		assertThat(clazz.getName()).isEqualTo(int.class.getName());
-		assertThat(clazz.getClassLoader()).isNull();
+			assertThat(clazz.getName()).isEqualTo(int.class.getName());
+			assertThat(clazz.getClassLoader()).isNull();
+		}
 	}
 
 	@Test
@@ -755,42 +811,6 @@ public class TypesTest {
 		assertThat(equalGenericTypes(Set.class, parameterized(Set.class, null, String.class))).isFalse();
 		assertThat(equalGenericTypes(Fields.class.getDeclaredField("parameterized").getGenericType(), parameterized(List.class, null, String.class))).isTrue();
 		assertThat(equalGenericTypes(parameterized(List.class, null, String.class), Fields.class.getDeclaredField("parameterized").getGenericType())).isTrue();
-	}
-
-	@Test
-	void testByMostConcreteGeneric() throws Exception {
-		assertThat(Stream.of(String.class, String.class).sorted(Types::byMostConcreteGeneric))
-			.containsExactly(String.class, String.class);
-		assertThat(Stream.of(List.class, ArrayList.class).sorted(Types::byMostConcreteGeneric))
-			.containsExactly(ArrayList.class, List.class);
-		assertThat(Stream.of(ArrayList.class, List.class).sorted(Types::byMostConcreteGeneric))
-			.containsExactly(ArrayList.class, List.class);
-		assertThat(Stream.of(List.class, Set.class).sorted(Types::byMostConcreteGeneric))
-			.containsExactly(List.class, Set.class);
-		assertThat(Stream.of(wildcardExtends(List.class, ArrayList.class), wildcardExtends(List.class)).sorted(Types::byMostConcreteGeneric))
-			.containsExactly(wildcardExtends(List.class, ArrayList.class), wildcardExtends(List.class));
-		assertThat(Stream.of(wildcardExtends(List.class), wildcardExtends(List.class, ArrayList.class)).sorted(Types::byMostConcreteGeneric))
-			.containsExactly(wildcardExtends(List.class, ArrayList.class), wildcardExtends(List.class));
-		assertThat(Stream.of(wildcardExtends(ArrayList.class), wildcardExtends(List.class)).sorted(Types::byMostConcreteGeneric))
-			.containsExactly(wildcardExtends(ArrayList.class), wildcardExtends(List.class));
-		assertThat(Stream.of(wildcardExtends(List.class), wildcardExtends(ArrayList.class)).sorted(Types::byMostConcreteGeneric))
-			.containsExactly(wildcardExtends(ArrayList.class), wildcardExtends(List.class));
-		assertThat(Stream.of(wildcardExtends(List.class), (Type) ArrayList.class).sorted(Types::byMostConcreteGeneric))
-			.containsExactly(ArrayList.class, wildcardExtends(List.class));
-		assertThat(Stream.of((Type) ArrayList.class, wildcardExtends(List.class))
-			.sorted(Types::byMostConcreteGeneric)).containsExactly(ArrayList.class, wildcardExtends(List.class));
-		assertThat(Stream.of(parameterized(List.class, null, String.class), (Type) ArrayList.class).sorted(Types::byMostConcreteGeneric))
-			.containsExactly(ArrayList.class, parameterized(List.class, null, String.class));
-		assertThat(Stream.of((Type) ArrayList.class, parameterized(List.class, null, String.class)).sorted(Types::byMostConcreteGeneric))
-			.containsExactly(ArrayList.class, parameterized(List.class, null, String.class));
-		assertThat(Stream.of(parameterized(List.class, null, String.class), parameterized(List.class, null, Object.class)).sorted(Types::byMostConcreteGeneric))
-			.containsExactly(parameterized(List.class, null, String.class), parameterized(List.class, null, Object.class));
-		assertThat(Stream.of(parameterized(List.class, null, Object.class), parameterized(List.class, null, String.class)).sorted(Types::byMostConcreteGeneric))
-			.containsExactly(parameterized(List.class, null, String.class), parameterized(List.class, null, Object.class));
-		assertThat(Stream.of((Type) ArrayList.class, parameterized(ArrayList.class, null, String.class)).sorted(Types::byMostConcreteGeneric))
-			.containsExactly(parameterized(ArrayList.class, null, String.class), ArrayList.class);
-		assertThat(Stream.of(parameterized(ArrayList.class, null, String.class), (Type) ArrayList.class).sorted(Types::byMostConcreteGeneric))
-			.containsExactly(parameterized(ArrayList.class, null, String.class), ArrayList.class);
 	}
 
 	@MyAnnotation

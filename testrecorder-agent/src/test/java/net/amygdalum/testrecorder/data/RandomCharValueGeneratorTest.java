@@ -15,14 +15,14 @@ public class RandomCharValueGeneratorTest {
 	}
 
 	@Test
-	public void testCreateMax() throws Exception {
+	void testCreateMax() throws Exception {
 		gen.random.setSeed(Long.MAX_VALUE);
 
 		assertThat(gen.create(null)).isEqualTo((char) 27827);
 	}
 
 	@Test
-	public void testCreateMin() throws Exception {
+	void testCreateMin() throws Exception {
 		gen.random.setSeed(Long.MIN_VALUE);
 
 		assertThat(gen.create(null)).isEqualTo((char) 46176);

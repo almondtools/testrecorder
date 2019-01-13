@@ -15,7 +15,7 @@ public class FixedLongValueGeneratorTest {
 	}
 	
 	@Test
-	public void testCreate() throws Exception {
+	void testCreate() throws Exception {
 		assertThat(new FixedLongValueGenerator(0x7fffffffffffffffl).create(generator)).isEqualTo(0x7fffffffffffffffl);
 		assertThat(new FixedLongValueGenerator(0xffffffffffffffffl).create(generator)).isEqualTo(0xffffffffffffffffl);
 	}

@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 public class OptionalsTest {
 
 	@Test
-	public void testOptionals() throws Exception {
+	void testOptionals() throws Exception {
 		assertThat(Optionals.class).satisfies(utilityClass().conventions());
 	}
 

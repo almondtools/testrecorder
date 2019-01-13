@@ -13,6 +13,7 @@ import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodInsnNode;
 
 public class GetInvokedMethodArgumentTypesTest {
+
 	private MethodContext context;
 
 	@BeforeEach

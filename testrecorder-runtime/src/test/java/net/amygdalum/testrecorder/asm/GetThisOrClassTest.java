@@ -2,7 +2,6 @@ package net.amygdalum.testrecorder.asm;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.tree.InsnList;
@@ -12,15 +11,11 @@ public class GetThisOrClassTest {
 	private MethodContext context;
 
 	@Nested
-	class InVirtualMethod {
-
-		@BeforeEach
-		void before() {
-			context = new MethodContext(AClass.classNode(), AClass.virtualMethodNode());
-		}
+	class testGetThis {
 
 		@Test
-		void testGetThis() throws Exception {
+		void inVirtualMethod() throws Exception {
+			context = new MethodContext(AClass.classNode(), AClass.virtualMethodNode());
 			InsnList insns = new GetThisOrClass()
 				.build(context);
 
@@ -28,18 +23,10 @@ public class GetThisOrClassTest {
 				.containsExactly(
 					"ALOAD 0");
 		}
-	}
-
-	@Nested
-	class InStaticMethod {
-
-		@BeforeEach
-		void before() {
-			context = new MethodContext(AClass.classNode(), AClass.staticMethodNode());
-		}
 
 		@Test
-		void testGetClass() throws Exception {
+		void inStaticMethod() throws Exception {
+			context = new MethodContext(AClass.classNode(), AClass.staticMethodNode());
 			InsnList insns = new GetThisOrClass()
 				.build(context);
 

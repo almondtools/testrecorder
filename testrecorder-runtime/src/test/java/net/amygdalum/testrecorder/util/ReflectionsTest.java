@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 public class ReflectionsTest {
 
     @Test
-    public void testReflections() throws Exception {
+    void testReflections() throws Exception {
         assertThat(Reflections.class).satisfies(utilityClass().conventions());
     }
 

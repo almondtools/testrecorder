@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.LinkedList;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 public class IdentityWorkSetTest {
@@ -17,66 +18,72 @@ public class IdentityWorkSetTest {
 		workSet = new IdentityWorkSet<>();
 	}
 
-	@Test
-	void testConstructor() throws Exception {
-		assertThat(workSet.hasMoreElements()).isEqualTo(false);
+	@Nested
+	class testHasMoreElements {
+		@Test
+		void onFresh() throws Exception {
+			assertThat(workSet.hasMoreElements()).isEqualTo(false);
+		}
+
+		@Test
+		void onInitiallyFilled() throws Exception {
+			workSet = new IdentityWorkSet<>(new LinkedList<>(asList("str", "str")));
+
+			assertThat(workSet).containsExactly("str");
+			assertThat(workSet.getDone()).isEmpty();
+		}
+
 	}
 
-	@Test
-	void testConstructorWithBase() throws Exception {
-		workSet = new IdentityWorkSet<>(new LinkedList<>(asList("str","str")));
+	@Nested
+	class testAdd {
+		@Test
+		void multipleAdds() throws Exception {
+			workSet.add("str");
+			workSet.add("str");
 
-		assertThat(workSet).containsExactly("str");
-		assertThat(workSet.getDone()).isEmpty();
+			assertThat(workSet).containsExactly("str");
+			assertThat(workSet.getDone()).isEmpty();
+		}
+
+		@Test
+		void addRemoveAdd() throws Exception {
+			workSet.add("str");
+			workSet.remove();
+			workSet.add("str");
+
+			assertThat(workSet).isEmpty();
+			assertThat(workSet.getDone()).containsExactly("str");
+		}
+
+		@Test
+		void addOnEqual() throws Exception {
+			workSet.add("str");
+			workSet.add(new String("str"));
+
+			assertThat(workSet).containsExactly("str", "str");
+			assertThat(workSet.getDone()).isEmpty();
+		}
+
+		@Test
+		void addRemoveAddOnEqual() throws Exception {
+			workSet.add("str");
+			workSet.remove();
+			workSet.add(new String("str"));
+
+			assertThat(workSet).containsExactly("str");
+			assertThat(workSet.getDone()).containsExactly("str");
+		}
+
+		@Test
+		void addMultipleRemoveMultipleOnEqual() throws Exception {
+			workSet.add("str");
+			workSet.add(new String("str"));
+			workSet.remove();
+			workSet.remove();
+
+			assertThat(workSet).isEmpty();
+			assertThat(workSet.getDone()).containsExactly("str", "str");
+		}
 	}
-
-	@Test
-	void testAdd2() throws Exception {
-		workSet.add("str");
-		workSet.add("str");
-
-		assertThat(workSet).containsExactly("str");
-		assertThat(workSet.getDone()).isEmpty();
-	}
-
-	@Test
-	void testAddRemoveAdd() throws Exception {
-		workSet.add("str");
-		workSet.remove();
-		workSet.add("str");
-
-		assertThat(workSet).isEmpty();
-		assertThat(workSet.getDone()).containsExactly("str");
-	}
-
-	@Test
-	void testAdd2OnEqual() throws Exception {
-		workSet.add("str");
-		workSet.add(new String("str"));
-
-		assertThat(workSet).containsExactly("str", "str");
-		assertThat(workSet.getDone()).isEmpty();
-	}
-
-	@Test
-	void testAddRemoveAddOnEqual() throws Exception {
-		workSet.add("str");
-		workSet.remove();
-		workSet.add(new String("str"));
-
-		assertThat(workSet).containsExactly("str");
-		assertThat(workSet.getDone()).containsExactly("str");
-	}
-
-	@Test
-	void testAdd2Remove2OnEqual() throws Exception {
-		workSet.add("str");
-		workSet.add(new String("str"));
-		workSet.remove();
-		workSet.remove();
-
-		assertThat(workSet).isEmpty();
-		assertThat(workSet.getDone()).containsExactly("str", "str");
-	}
-
 }

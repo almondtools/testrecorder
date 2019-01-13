@@ -15,7 +15,7 @@ public class FixedStringValueGeneratorTest {
 	}
 	
 	@Test
-	public void testCreate() throws Exception {
+	void testCreate() throws Exception {
 		assertThat(new FixedStringValueGenerator("Foo").create(generator)).isEqualTo("Foo");
 		assertThat(new FixedStringValueGenerator("Bar").create(generator)).isEqualTo("Bar");
 	}

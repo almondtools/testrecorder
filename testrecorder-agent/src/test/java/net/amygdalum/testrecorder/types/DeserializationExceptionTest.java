@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 public class DeserializationExceptionTest {
 
 	@Test
-	public void testDeserializationException() throws Exception {
+	void testDeserializationException() throws Exception {
 		assertThat(new DeserializationException("main msg"))
 			.isInstanceOf(DeserializationException.class)
 			.hasMessage("main msg");

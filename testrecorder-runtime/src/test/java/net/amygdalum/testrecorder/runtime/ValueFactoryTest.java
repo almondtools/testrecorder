@@ -7,12 +7,12 @@ import org.junit.jupiter.api.Test;
 public class ValueFactoryTest {
 
     @Test
-    public void testNONE() throws Exception {
+    void testNewValue() throws Exception {
         assertThat(ValueFactory.NONE.newValue(Object.class)).isNull();
     }
 
     @Test
-    public void testGetDescriptionNull() throws Exception {
+    void testGetDescription() throws Exception {
         assertThat(ValueFactory.NONE.getDescription(Object.class)).isEqualTo("null");
         assertThat(new ValueFactory() {
 

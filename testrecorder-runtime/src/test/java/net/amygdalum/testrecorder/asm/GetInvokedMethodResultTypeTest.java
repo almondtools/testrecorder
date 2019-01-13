@@ -14,6 +14,7 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import net.amygdalum.testrecorder.util.testobjects.Simple;
 
 public class GetInvokedMethodResultTypeTest {
+
 	private MethodContext context;
 
 	@BeforeEach

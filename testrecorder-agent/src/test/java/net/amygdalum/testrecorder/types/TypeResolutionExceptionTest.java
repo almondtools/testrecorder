@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 public class TypeResolutionExceptionTest {
 
 	@Test
-	public void testTypeResolutionException() throws Exception {
+	void testTypeResolutionException() throws Exception {
 		assertThat(new TypeResolutionException("msg"))
 			.isInstanceOf(TypeResolutionException.class)
 			.hasMessage("msg");

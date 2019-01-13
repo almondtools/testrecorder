@@ -15,7 +15,7 @@ public class FixedIntValueGeneratorTest {
 	}
 	
 	@Test
-	public void testCreate() throws Exception {
+	void testCreate() throws Exception {
 		assertThat(new FixedIntValueGenerator(0x7fffffff).create(generator)).isEqualTo(0x7fffffff);
 		assertThat(new FixedIntValueGenerator(0xffffffff).create(generator)).isEqualTo(0xffffffff);
 	}

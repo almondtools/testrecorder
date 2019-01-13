@@ -15,7 +15,7 @@ public class FixedDoubleValueGeneratorTest {
 	}
 	
 	@Test
-	public void testCreate() throws Exception {
+	void testCreate() throws Exception {
 		assertThat(new FixedDoubleValueGenerator(0.01348e-7d).create(generator)).isEqualTo(0.01348e-7d);
 		assertThat(new FixedDoubleValueGenerator(1267.434e2d).create(generator)).isEqualTo(1267.434e2d);
 	}

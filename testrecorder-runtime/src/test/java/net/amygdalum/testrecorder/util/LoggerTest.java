@@ -6,37 +6,41 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 public class LoggerTest {
 
-	@Test
-	void testLogString() throws Exception {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
+	@Nested
+	class testLog {
+		@Test
+		void string() throws Exception {
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-		new Logger(new PrintStream(out)).log("msg");
+			new Logger(new PrintStream(out)).log("msg");
 
-		assertThat(out.toString()).isEqualTo("msg" + System.lineSeparator());
-	}
+			assertThat(out.toString()).isEqualTo("msg" + System.lineSeparator());
+		}
 
-	@Test
-	void testLogObject() throws Exception {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		@Test
+		void object() throws Exception {
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-		new Logger(new PrintStream(out)).log(new ArrayList<>());
+			new Logger(new PrintStream(out)).log(new ArrayList<>());
 
-		assertThat(out.toString()).isEqualTo("[]" + System.lineSeparator());
-	}
+			assertThat(out.toString()).isEqualTo("[]" + System.lineSeparator());
+		}
 
-	@Test
-	void testLogException() throws Exception {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		@Test
+		void exception() throws Exception {
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-		new Logger(new PrintStream(out)).log(new RuntimeException("exc"));
+			new Logger(new PrintStream(out)).log(new RuntimeException("exc"));
 
-		assertThat(out.toString())
-			.contains("java.lang.RuntimeException: exc")
-			.contains("at net.amygdalum.testrecorder.util.LoggerTest.testLogException");
+			assertThat(out.toString())
+				.contains("java.lang.RuntimeException: exc")
+				.contains("at net.amygdalum.testrecorder.util.LoggerTest$testLog.exception");
+		}
 	}
 
 	@Test

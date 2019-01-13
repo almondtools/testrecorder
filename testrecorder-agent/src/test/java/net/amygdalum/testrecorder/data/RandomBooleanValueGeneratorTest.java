@@ -15,14 +15,14 @@ public class RandomBooleanValueGeneratorTest {
 	}
 
 	@Test
-	public void testCreateTrue() throws Exception {
+	void testCreateTrue() throws Exception {
 		gen.random.setSeed(Integer.MAX_VALUE);
 
 		assertThat(gen.create(null)).isEqualTo(true);
 	}
 
 	@Test
-	public void testCreateFalse() throws Exception {
+	void testCreateFalse() throws Exception {
 		gen.random.setSeed(Integer.MIN_VALUE);
 
 		assertThat(gen.create(null)).isEqualTo(false);

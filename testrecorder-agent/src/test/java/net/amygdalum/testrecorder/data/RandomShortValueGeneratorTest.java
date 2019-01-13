@@ -15,14 +15,14 @@ public class RandomShortValueGeneratorTest {
 	}
 
 	@Test
-	public void testCreateMax() throws Exception {
+	void testCreateMax() throws Exception {
 		gen.random.setSeed(Long.MAX_VALUE);
 
 		assertThat(gen.create(null)).isEqualTo((short) 27827);
 	}
 
 	@Test
-	public void testCreateMin() throws Exception {
+	void testCreateMin() throws Exception {
 		gen.random.setSeed(Long.MIN_VALUE);
 
 		assertThat(gen.create(null)).isEqualTo((short) -19360);

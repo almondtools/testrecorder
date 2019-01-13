@@ -59,7 +59,7 @@ public class SerializedFieldTest {
 	}
 
 	@Test
-	public void testCompareTo() throws Exception {
+	void testCompareTo() throws Exception {
 		assertThat(Stream.of(
 			new SerializedField(new FieldSignature(Object.class, String.class, "a"), literal("stringvalue")),
 			new SerializedField(new FieldSignature(Object.class, String.class, "b"), literal("stringvalue"))).sorted())

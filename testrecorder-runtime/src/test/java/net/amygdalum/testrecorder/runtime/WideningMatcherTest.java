@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 public class WideningMatcherTest {
 
     @Test
-    public void testDescribeTo() throws Exception {
+    void testDescribeTo() throws Exception {
         StringDescription description = new StringDescription();
         
         widening(equalTo("x")).describeTo(description);
@@ -19,7 +19,7 @@ public class WideningMatcherTest {
     }
 
     @Test
-    public void testMatches() throws Exception {
+    void testMatches() throws Exception {
         assertThat(widening(equalTo("x")).matches("x")).isTrue();
         assertThat(widening(equalTo("x")).matches("y")).isFalse();
     }

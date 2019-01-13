@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.util.testobjects.DoubleShadowingObject;
@@ -12,97 +13,104 @@ import net.amygdalum.testrecorder.util.testobjects.ShadowingObject;
 @SuppressWarnings("unused")
 public class GenericObjectTest {
 
-	@Test
-	public void testAsSimple() throws Exception {
-		assertThat(new GenericObject() {
-			public String str = "myStr";
-		}.as(Simple.class).getStr()).isEqualTo("myStr");
+	@Nested
+	class testAs {
+		@Test
+		void onSimple() throws Exception {
+			assertThat(new GenericObject() {
+				public String str = "myStr";
+			}.as(Simple.class).getStr()).isEqualTo("myStr");
+		}
+
+		@Test
+		void onComplex() throws Exception {
+			assertThat(new GenericObject() {
+				public Simple simple = new GenericObject() {
+					public String str = "nestedStr";
+				}.as(Simple.class);
+			}.as(Complex.class).getSimple().getStr()).isEqualTo("nestedStr");
+		}
+
+		@Test
+		void onSimplePrivateConstructor() throws Exception {
+			assertThat(new GenericObject() {
+				public String str = "myStr";
+			}.as(SimplePrivateConstructor.class).getStr()).isEqualTo("myStr");
+		}
+
+		@Test
+		void onSimpleImplicitConstructor() throws Exception {
+			assertThat(new GenericObject() {
+				public String str = "myStr";
+			}.as(SimpleImplicitConstructor.class).getStr()).isEqualTo("myStr");
+		}
+
+		@Test
+		void onSimpleNoDefaultConstructor() throws Exception {
+			assertThat(new GenericObject() {
+				public String str = "myStr";
+			}.as(SimpleNoDefaultConstructor.class).getStr()).isEqualTo("myStr");
+		}
+
+		@Test
+		void onConstructorSupplied() throws Exception {
+			assertThat(new GenericObject() {
+				public String str = "myStr";
+			}.as(Simple::new).getStr()).isEqualTo("myStr");
+		}
+
+		@Test
+		void onConstructorWrapped() throws Exception {
+			Wrapped obj = GenericObject.forward(Wrapped.clazz(SimplePrivateConstructor.class.getName()));
+
+			assertThat(((SimplePrivateConstructor) new GenericObject() {
+				public String str = "myStr";
+			}.as(obj).value()).getStr()).isEqualTo("myStr");
+		}
+	}
+
+	@Nested
+	class testSetField {
+
+		@Test
+		void onCommon() throws Exception {
+			Simple value = new Simple();
+			Complex object = new Complex();
+
+			GenericObject.setField(object, "simple", value);
+			assertThat(object.simple).isSameAs(value);
+		}
+
+		@Test
+		void onWrapped() throws Exception {
+			Wrapped value = Wrapped.clazz(Simple.class.getName());
+			Complex object = new Complex();
+
+			GenericObject.setField(object, "simple", value);
+			assertThat(object.simple).isSameAs(value.value());
+		}
+
+		@Test
+		void onNonAssignableArray() throws Exception {
+			Object[] value = new Object[] {"foo", "bar"};
+			ContainingArray object = new ContainingArray();
+
+			GenericObject.setField(object, "array", value);
+			assertThat(object.array).containsExactly("foo", "bar");
+		}
+
+		@Test
+		void onField() throws Exception {
+			Simple value = new Simple();
+			Complex object = new Complex();
+
+			GenericObject.setField(object, Complex.class.getDeclaredField("simple"), value);
+			assertThat(object.simple).isSameAs(value);
+		}
 	}
 
 	@Test
-	public void testAsComplex() throws Exception {
-		assertThat(new GenericObject() {
-			public Simple simple = new GenericObject() {
-				public String str = "nestedStr";
-			}.as(Simple.class);
-		}.as(Complex.class).getSimple().getStr()).isEqualTo("nestedStr");
-	}
-
-	@Test
-	public void testAsSimplePrivateConstructor() throws Exception {
-		assertThat(new GenericObject() {
-			public String str = "myStr";
-		}.as(SimplePrivateConstructor.class).getStr()).isEqualTo("myStr");
-	}
-
-	@Test
-	public void testAsSimpleImplicitConstructor() throws Exception {
-		assertThat(new GenericObject() {
-			public String str = "myStr";
-		}.as(SimpleImplicitConstructor.class).getStr()).isEqualTo("myStr");
-	}
-
-	@Test
-	public void testAsSimpleNoDefaultConstructor() throws Exception {
-		assertThat(new GenericObject() {
-			public String str = "myStr";
-		}.as(SimpleNoDefaultConstructor.class).getStr()).isEqualTo("myStr");
-	}
-
-	@Test
-	public void testAsConstructorSupplied() throws Exception {
-		assertThat(new GenericObject() {
-			public String str = "myStr";
-		}.as(Simple::new).getStr()).isEqualTo("myStr");
-	}
-
-	@Test
-	public void testAsConstructorWrapped() throws Exception {
-		Wrapped obj = GenericObject.forward(Wrapped.clazz(SimplePrivateConstructor.class.getName()));
-
-		assertThat(((SimplePrivateConstructor) new GenericObject() {
-			public String str = "myStr";
-		}.as(obj).value()).getStr()).isEqualTo("myStr");
-	}
-
-	@Test
-	public void testSetField() throws Exception {
-		Simple value = new Simple();
-		Complex object = new Complex();
-
-		GenericObject.setField(object, "simple", value);
-		assertThat(object.simple).isSameAs(value);
-	}
-
-	@Test
-	public void testSetFieldWrapped() throws Exception {
-		Wrapped value = Wrapped.clazz(Simple.class.getName());
-		Complex object = new Complex();
-
-		GenericObject.setField(object, "simple", value);
-		assertThat(object.simple).isSameAs(value.value());
-	}
-
-	@Test
-	public void testSetFieldNonAssignableArray() throws Exception {
-		Object[] value = new Object[] { "foo", "bar" };
-		ContainingArray object = new ContainingArray();
-
-		GenericObject.setField(object, "array", value);
-		assertThat(object.array).containsExactly("foo", "bar");
-	}
-
-	@Test
-	public void testSetFieldField() throws Exception {
-		Simple value = new Simple();
-		Complex object = new Complex();
-
-		GenericObject.setField(object, Complex.class.getDeclaredField("simple"), value);
-		assertThat(object.simple).isSameAs(value);
-	}
-
-	@Test
-	public void testCopyField() throws Exception {
+	void testCopyField() throws Exception {
 		Simple from = new Simple();
 		Simple to = new Simple();
 		from.str = "stringToCopy";
@@ -114,8 +122,8 @@ public class GenericObjectTest {
 	}
 
 	@Test
-	public void testCopyArrayValues() throws Exception {
-		String[] from = { "foo", "bar" };
+	void testCopyArrayValues() throws Exception {
+		String[] from = {"foo", "bar"};
 		String[] to = new String[2];
 
 		GenericObject.copyArrayValues(from, to);
@@ -124,91 +132,103 @@ public class GenericObjectTest {
 		assertThat(to).containsExactly("foo", "bar");
 	}
 
-	@Test
-	public void testForward() throws Exception {
-		Simple obj = GenericObject.forward(Simple.class);
+	@Nested
+	class testForward {
+		@Test
+		void onCommon() throws Exception {
+			Simple obj = GenericObject.forward(Simple.class);
 
-		assertThat(obj.str).isNull();
+			assertThat(obj.str).isNull();
+		}
+
+		@Test
+		void onWrapped() throws Exception {
+			Wrapped obj = GenericObject.forward(Wrapped.clazz(SimplePrivateConstructor.class.getName()));
+
+			assertThat((SimplePrivateConstructor) obj.value())
+				.isEqualToComparingFieldByFieldRecursively(new SimplePrivateConstructor());
+		}
 	}
 
-	@Test
-	public void testForwardWrapped() throws Exception {
-		Wrapped obj = GenericObject.forward(Wrapped.clazz(SimplePrivateConstructor.class.getName()));
+	@Nested
+	class testDefine {
+		@Test
+		void onCommon() throws Exception {
+			Simple obj = GenericObject.forward(Simple.class);
 
-		assertThat((SimplePrivateConstructor) obj.value())
-			.isEqualToComparingFieldByFieldRecursively(new SimplePrivateConstructor());
+			GenericObject.define(obj, new GenericObject() {
+				String str = "definition";
+			});
+
+			assertThat(obj.str).isEqualTo("definition");
+		}
+
+		@Test
+		void onWrapped() throws Exception {
+			Wrapped obj = GenericObject.forward(Wrapped.clazz(SimplePrivateConstructor.class.getName()));
+
+			GenericObject.define(obj, new GenericObject() {
+				String str = "definition";
+			});
+
+			assertThat(((SimplePrivateConstructor) obj.value()).str).isEqualTo("definition");
+		}
 	}
 
-	@Test
-	public void testDefine() throws Exception {
-		Simple obj = GenericObject.forward(Simple.class);
+	@Nested
+	class testNewInstance {
+		@Test
+		void withNullParams() throws Exception {
+			NullParamConstructor instance = GenericObject.newInstance(NullParamConstructor.class);
 
-		GenericObject.define(obj, new GenericObject() {
-			String str = "definition";
-		});
+			assertThat(instance.getStr()).isNull();
+		}
 
-		assertThat(obj.str).isEqualTo("definition");
+		@Test
+		void withDefaultParams() throws Exception {
+			DefaultParamConstructor instance = GenericObject.newInstance(DefaultParamConstructor.class);
+
+			assertThat(instance.getStr()).isEmpty();
+		}
+
+		@Test
+		void withNonDefaultParams() throws Exception {
+			NonDefaultParamConstructor instance = GenericObject.newInstance(NonDefaultParamConstructor.class);
+
+			assertThat(instance.getStr()).isEqualTo("String");
+		}
+
+		@Test
+		void bruteForceReflection() throws Exception {
+			ExceptionConstructor instance = GenericObject.newInstance(ExceptionConstructor.class);
+
+			assertThat(instance.getStr()).isNull();
+		}
 	}
 
-	@Test
-	public void testDefineWrapped() throws Exception {
-		Wrapped obj = GenericObject.forward(Wrapped.clazz(SimplePrivateConstructor.class.getName()));
+	@Nested
+	class Scenarios {
+		@Test
+		void shadowingObjects() throws Exception {
+			ShadowingObject shadowingObject = new GenericObject() {
+				int ShadowedObject$field = 42;
+				String ShadowingObject$field = "field";
+			}.as(ShadowingObject.class);
+			assertThat(shadowingObject.getField()).isEqualTo(42);
+			assertThat(shadowingObject.getShadowingField()).isEqualTo("field");
+		}
 
-		GenericObject.define(obj, new GenericObject() {
-			String str = "definition";
-		});
-
-		assertThat(((SimplePrivateConstructor) obj.value()).str).isEqualTo("definition");
-	}
-
-	@Test
-	public void testNewInstanceWithNullParams() throws Exception {
-		NullParamConstructor instance = GenericObject.newInstance(NullParamConstructor.class);
-
-		assertThat(instance.getStr()).isNull();
-	}
-
-	@Test
-	public void testNewInstanceWithDefaultParams() throws Exception {
-		DefaultParamConstructor instance = GenericObject.newInstance(DefaultParamConstructor.class);
-
-		assertThat(instance.getStr()).isEmpty();
-	}
-
-	@Test
-	public void testNewInstanceWithNonDefaultParams() throws Exception {
-		NonDefaultParamConstructor instance = GenericObject.newInstance(NonDefaultParamConstructor.class);
-
-		assertThat(instance.getStr()).isEqualTo("String");
-	}
-
-	@Test
-	public void testNewInstanceBruteForceReflection() throws Exception {
-		ExceptionConstructor instance = GenericObject.newInstance(ExceptionConstructor.class);
-
-		assertThat(instance.getStr()).isNull();
-	}
-
-	@Test
-	public void testShadowingObject() throws Exception {
-		ShadowingObject shadowingObject = new GenericObject() {
-			int ShadowedObject$field = 42;
-			String ShadowingObject$field = "field";
-		}.as(ShadowingObject.class);
-		assertThat(shadowingObject.getField()).isEqualTo(42);
-		assertThat(shadowingObject.getShadowingField()).isEqualTo("field");
-	}
-
-	@Test
-	public void testDoubleShadowingObject() throws Exception {
-		DoubleShadowingObject shadowingObject = new GenericObject() {
-			int ShadowedObject$field = 42;
-			String ShadowingObject$field = "field";
-			String DoubleShadowingObject$field = "fieldshadowing";
-		}.as(DoubleShadowingObject.class);
-		assertThat(shadowingObject.getField()).isEqualTo(42);
-		assertThat(shadowingObject.getShadowingField()).isEqualTo("field");
-		assertThat(shadowingObject.getDoubleShadowingField()).isEqualTo("fieldshadowing");
+		@Test
+		void doubleShadowingObjects() throws Exception {
+			DoubleShadowingObject shadowingObject = new GenericObject() {
+				int ShadowedObject$field = 42;
+				String ShadowingObject$field = "field";
+				String DoubleShadowingObject$field = "fieldshadowing";
+			}.as(DoubleShadowingObject.class);
+			assertThat(shadowingObject.getField()).isEqualTo(42);
+			assertThat(shadowingObject.getShadowingField()).isEqualTo("field");
+			assertThat(shadowingObject.getDoubleShadowingField()).isEqualTo("fieldshadowing");
+		}
 	}
 
 	private interface AnInterface {

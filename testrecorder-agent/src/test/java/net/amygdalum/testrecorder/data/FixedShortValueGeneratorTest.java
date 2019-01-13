@@ -15,7 +15,7 @@ public class FixedShortValueGeneratorTest {
 	}
 	
 	@Test
-	public void testCreate() throws Exception {
+	void testCreate() throws Exception {
 		assertThat(new FixedShortValueGenerator((short) 0x7fff).create(generator)).isEqualTo((short) 0x7fff);
 		assertThat(new FixedShortValueGenerator((short) 0xffff).create(generator)).isEqualTo((short) 0xffff);
 	}

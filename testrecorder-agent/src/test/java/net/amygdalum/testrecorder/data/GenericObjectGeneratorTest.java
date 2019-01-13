@@ -18,45 +18,45 @@ import net.amygdalum.testrecorder.util.testobjects.SimplePrivateConstructor;
 public class GenericObjectGeneratorTest {
 
     @Test
-    public void testCreateSimpleClass() throws Exception {
+    void testCreateSimpleClass() throws Exception {
         Simple object = new GenericObjectGenerator<>(Simple.class).create(new TestDataGenerator());
 
         assertThat(object).isNotNull();
     }
 
     @Test
-    public void testCreateNoDefaultConstructorClass() throws Exception {
+    void testCreateNoDefaultConstructorClass() throws Exception {
         SimpleNoDefaultConstructor object = new GenericObjectGenerator<>(SimpleNoDefaultConstructor.class).create(new TestDataGenerator());
 
         assertThat(object).isNotNull();
     }
 
     @Test
-    public void testCreatePrivateConstructorClass() throws Exception {
+    void testCreatePrivateConstructorClass() throws Exception {
         SimplePrivateConstructor object = new GenericObjectGenerator<>(SimplePrivateConstructor.class).create(new TestDataGenerator());
         assertThat(object).isNotNull();
     }
 
     @Test
-    public void testCreateExceptionConstructorClass() throws Exception {
+    void testCreateExceptionConstructorClass() throws Exception {
         SimpleExceptionConstructor object = new GenericObjectGenerator<>(SimpleExceptionConstructor.class).create(new TestDataGenerator());
         assertThat(object).isNotNull();
     }
 
     @Test
-    public void testCreateExceptionStandardConstructorClass() throws Exception {
+    void testCreateExceptionStandardConstructorClass() throws Exception {
         SimpleExceptionStandardConstructor object = new GenericObjectGenerator<>(SimpleExceptionStandardConstructor.class).create(new TestDataGenerator());
         assertThat(object).isNotNull();
     }
 
     @Test
-    public void testCreateOnlyExceptionConstructorClass() throws Exception {
+    void testCreateOnlyExceptionConstructorClass() throws Exception {
         SimpleOnlyExceptionConstructor object = new GenericObjectGenerator<>(SimpleOnlyExceptionConstructor.class).create(new TestDataGenerator());
         assertThat(object).isNull();
     }
 
     @Test
-    public void testGenerateFieldOnSyntheticFields() throws Exception {
+    void testGenerateFieldOnSyntheticFields() throws Exception {
         TestDataGenerator generator = Mockito.mock(TestDataGenerator.class);
 
         new GenericObjectGenerator<>(PseudoSynthetic.class).generateField(PseudoSynthetic.class.getDeclaredField("$attr"), generator, new PseudoSynthetic());
@@ -65,7 +65,7 @@ public class GenericObjectGeneratorTest {
     }
 
     @Test
-    public void testGenerateFieldOnNonSyntheticFields() throws Exception {
+    void testGenerateFieldOnNonSyntheticFields() throws Exception {
         TestDataGenerator generator = Mockito.mock(TestDataGenerator.class);
 
         new GenericObjectGenerator<>(Simple.class).generateField(Simple.class.getDeclaredField("str"), generator, new Simple());

@@ -14,12 +14,12 @@ public class SerializableGenericArrayTypeTest {
 	private SerializableGenericArrayType type = new SerializableGenericArrayType(componentType);
 
 	@Test
-	public void testGetGenericComponentType() throws Exception {
+	void testGetGenericComponentType() throws Exception {
 		assertThat(type.getGenericComponentType()).isSameAs(componentType);
 	}
 
 	@Test
-	public void testEqualsHashCode() throws Exception {
+	void testEqualsHashCode() throws Exception {
 		assertThat(type).satisfies(defaultEquality()
 			.andEqualTo(new SerializableGenericArrayType(componentType))
 			.andNotEqualTo(new SerializableGenericArrayType(new SerializableParameterizedType(Set.class, null, String.class)))
@@ -27,7 +27,7 @@ public class SerializableGenericArrayTypeTest {
 	}
 
 	@Test
-	public void testToString() throws Exception {
+	void testToString() throws Exception {
 		assertThat(type.toString()).isEqualTo("java.util.List<java.lang.String>[]");
 	}
 

@@ -12,12 +12,12 @@ import net.amygdalum.testrecorder.types.TestValueVisitor;
 public class SerializedObjectTest {
 
 	@Test
-	void testGetResultType() throws Exception {
+	void testGetUsedTypes() throws Exception {
 		assertThat(new SerializedObject(String.class).getUsedTypes()).containsExactly(String.class);
 	}
 
 	@Test
-	void testSetGetObjectType() throws Exception {
+	void testGetType() throws Exception {
 		SerializedObject value = new SerializedObject(String.class);
 		value.useAs(Object.class);
 
@@ -36,7 +36,7 @@ public class SerializedObjectTest {
 	}
 
 	@Test
-	void testGetAddFields() throws Exception {
+	void testAddFields() throws Exception {
 		SerializedObject serializedObject = new SerializedObject(Object.class);
 
 		FieldSignature f1 = new FieldSignature(Object.class, Object.class, "f1");

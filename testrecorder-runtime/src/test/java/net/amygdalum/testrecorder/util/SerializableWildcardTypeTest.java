@@ -14,21 +14,21 @@ public class SerializableWildcardTypeTest {
 	private SerializableWildcardType lowerBoundedType = new SerializableWildcardType(new Type[0], new Type[] {SerializableWildcardTypeTest.class});
 	
 	@Test
-	public void testGetUpperBounds() throws Exception {
+	void testGetUpperBounds() throws Exception {
 		assertThat(unboundedType.getUpperBounds()).isEmpty();
 		assertThat(upperBoundedType.getUpperBounds()).contains(SerializableWildcardTypeTest.class);
 		assertThat(lowerBoundedType.getUpperBounds()).isEmpty();
 	}
 
 	@Test
-	public void testGetLowerBounds() throws Exception {
+	void testGetLowerBounds() throws Exception {
 		assertThat(unboundedType.getLowerBounds()).isEmpty();
 		assertThat(upperBoundedType.getLowerBounds()).isEmpty();
 		assertThat(lowerBoundedType.getLowerBounds()).contains(SerializableWildcardTypeTest.class);
 	}
 
 	@Test
-	public void testEqualsHashCode() throws Exception {
+	void testEqualsHashCode() throws Exception {
 		assertThat(unboundedType).satisfies(defaultEquality()
 			.andEqualTo(new SerializableWildcardType(new Type[0], new Type[0]))
 			.andNotEqualTo(upperBoundedType)
@@ -47,7 +47,7 @@ public class SerializableWildcardTypeTest {
 	}
 
 	@Test
-	public void testToString() throws Exception {
+	void testToString() throws Exception {
 		assertThat(unboundedType.toString()).isEqualTo("?");
 		assertThat(lowerBoundedType.toString()).isEqualTo("? super net.amygdalum.testrecorder.util.SerializableWildcardTypeTest");
 		assertThat(upperBoundedType.toString()).isEqualTo("? extends net.amygdalum.testrecorder.util.SerializableWildcardTypeTest");

@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.lang.reflect.Field;
 import java.util.List;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.types.TestValueVisitor;
@@ -19,52 +20,61 @@ public class SerializedArrayTest {
 	@SuppressWarnings("unused")
 	private List<String>[] genericArray = null;
 
-	@Test
-	public void testGetResultType() throws Exception {
-		SerializedArray array = new SerializedArray(String[].class);
+	@Nested
+	class getUsedTypes {
+		@Test
+		public void onUnused() throws Exception {
+			SerializedArray array = new SerializedArray(String[].class);
 
-		assertThat(array.getUsedTypes()).containsExactly(String[].class);
+			assertThat(array.getUsedTypes()).containsExactly(String[].class);
+		}
+
+		@Test
+		public void onUsed() throws Exception {
+			SerializedArray value = new SerializedArray(String[].class);
+			value.useAs(Object.class);
+
+			assertThat(value.getUsedTypes()).containsExactly(Object.class);
+		}
 	}
 
-	@Test
-	public void testGetSetResultType() throws Exception {
-		SerializedArray value = new SerializedArray(String[].class);
-		value.useAs(Object.class);
+	@Nested
+	class testGetComponentType {
+		@Test
+		public void onArray() throws Exception {
+			SerializedArray array = new SerializedArray(String[].class);
+			array.add(literal("s1"));
+			array.add(literal("s2"));
 
-		assertThat(value.getUsedTypes()).containsExactly(Object.class);
+			assertThat(array.getComponentType()).isEqualTo(String.class);
+		}
+
+		@Test
+		public void onGenericArray() throws Exception {
+			Field genericArrayField = SerializedArrayTest.class.getDeclaredField("genericArray");
+
+			SerializedArray array = new SerializedArray(genericArrayField.getType());
+			array.useAs(Types.serializableOf(genericArrayField.getGenericType()));
+
+			assertThat(array.getComponentType()).isEqualTo(parameterized(List.class, null, String.class));
+		}
 	}
 
-	@Test
-	public void testGetComponentType() throws Exception {
-		SerializedArray array = new SerializedArray(String[].class);
-		array.add(literal("s1"));
-		array.add(literal("s2"));
-		
-		assertThat(array.getComponentType()).isEqualTo(String.class);
-	}
+	@Nested
+	class testGetRawType {
+		@Test
+		public void onArray() throws Exception {
+			SerializedArray array = new SerializedArray(String[].class);
+			assertThat(array.getRawType()).isEqualTo(String.class);
+		}
 
-	@Test
-	public void testGetComponentTypeOnGenericArray() throws Exception {
-		Field genericArrayField = SerializedArrayTest.class.getDeclaredField("genericArray");
+		@Test
+		public void onGenericArray() throws Exception {
+			SerializedArray array = new SerializedArray(List[].class);
+			array.useAs(array(parameterized(List.class, null, String.class)));
 
-		SerializedArray array = new SerializedArray(genericArrayField.getType());
-		array.useAs(Types.serializableOf(genericArrayField.getGenericType()));
-
-		assertThat(array.getComponentType()).isEqualTo(parameterized(List.class, null, String.class));
-	}
-
-	@Test
-	public void testGetRawType() throws Exception {
-		SerializedArray array = new SerializedArray(String[].class);
-		assertThat(array.getRawType()).isEqualTo(String.class);
-	}
-
-	@Test
-	public void testGetRawTypeOnGenericArray() throws Exception {
-		SerializedArray array = new SerializedArray(List[].class);
-		array.useAs(array(parameterized(List.class, null, String.class)));
-
-		assertThat(array.getRawType()).isEqualTo(List.class);
+			assertThat(array.getRawType()).isEqualTo(List.class);
+		}
 	}
 
 	@Test

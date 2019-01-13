@@ -23,6 +23,14 @@ public class SerializedProxyTest {
 		value.useAs(MyInterface.class);
 
 		assertThat(value.getType()).isEqualTo(Proxy.class);
+	}
+
+	@Test
+	void testGetUsedTypes() throws Exception {
+		SerializedProxy value = new SerializedProxy(Proxy.class);
+		value.setInterfaces(asList(new SerializedImmutable<Class<?>>(Class.class).withValue(MyInterface.class)));
+		value.useAs(MyInterface.class);
+
 		assertThat(value.getUsedTypes()).contains(MyInterface.class);
 	}
 
@@ -46,7 +54,7 @@ public class SerializedProxyTest {
 	}
 
 	@Test
-	void testGetAddFields() throws Exception {
+	void testAddFields() throws Exception {
 		SerializedProxy value = new SerializedProxy(Proxy.class);
 
 		FieldSignature f1 = new FieldSignature(Object.class, Object.class, "f1");
@@ -71,15 +79,15 @@ public class SerializedProxyTest {
 	}
 
 	public interface MyInterface {
-		
+
 	}
-	
+
 	public static class MyInvocationHandler implements InvocationHandler {
 
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 			return null;
 		}
-		
+
 	}
 }

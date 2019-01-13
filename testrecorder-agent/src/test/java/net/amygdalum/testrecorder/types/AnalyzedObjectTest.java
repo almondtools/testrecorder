@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 public class AnalyzedObjectTest {
 
 	@Test
-	void testAnalyzedObjectObject() throws Exception {
+	void testAnalyzedObject() throws Exception {
 		assertThat(new AnalyzedObject(null).effectiveType).isNull();
 		assertThat(new AnalyzedObject(null).object).isNull();
 		assertThat(new AnalyzedObject(null).effectiveObject).isNull();

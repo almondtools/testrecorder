@@ -8,13 +8,13 @@ import org.junit.jupiter.api.Test;
 public class FileSerializerTest {
 
 	@Test
-	public void testStore() throws Exception {
+	void testStore() throws Exception {
 		String stored = new FileSerializer("target/temp").store(new byte[] { 1, 2 });
 		assertThat(stored).containsWildcardPattern("*.serialized");
 	}
 
 	@Test
-	public void testLoad() throws Exception {
+	void testLoad() throws Exception {
 		FileSerializer fileSerializer = new FileSerializer("target/temp");
 		String stored = fileSerializer.store(new byte[] { 1, 2 });
 		byte[] loaded = fileSerializer.load(stored, byte[].class);
