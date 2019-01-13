@@ -102,7 +102,7 @@ public class MethodGenerator {
 		this.snapshot = snapshot;
 		this.context = computeInitialContext(snapshot);
 		this.mocked = new MockedInteractions(setup.newGenerator(context), matcher.newGenerator(context), snapshot.getSetupInput(), snapshot.getExpectOutput());
-		this.resolver = new GenericsResolver(snapshot.getActualArgumentTypes());
+		this.resolver = new GenericsResolver(snapshot.getMethod(), snapshot.getActualArgumentTypes());
 		return this;
 	}
 

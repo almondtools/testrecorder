@@ -1,6 +1,7 @@
 package net.amygdalum.testrecorder.types;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayDeque;
 import java.util.Arrays;
@@ -91,6 +92,14 @@ public class ContextSnapshot implements Serializable {
 		return signature.signature.argumentTypes;
 	}
 
+	public Method getMethod() {
+		try {
+			return signature.signature.resolveMethod();
+		} catch (NoSuchMethodException e) {
+			return null;
+		}
+	}
+
 	public Type getThisType() {
 		if (setupThis != null) {
 			return setupThis.getType();
@@ -99,10 +108,10 @@ public class ContextSnapshot implements Serializable {
 		}
 	}
 
-	public Class<?>[] getActualArgumentTypes() {
+	public Type[] getActualArgumentTypes() {
 		return Arrays.stream(setupArgs)
 			.map(arg -> arg.getValue() == null ? Object.class : arg.getValue().getType())
-			.toArray(Class[]::new);
+			.toArray(Type[]::new);
 	}
 
 	public SerializedValue getSetupThis() {

@@ -35,6 +35,7 @@ import java.util.stream.Stream;
 public final class Types {
 
 	private static final Type[] NO_TYPES = new Type[0];
+	private static final Type[] OBJECT_ONLY_TYPES = new Type[] {Object.class};
 	private static final String SYNTHETIC_INDICATOR = "$";
 	private static final String[] HANDLED_SYNTHETIC_PREFIXES = {"this$", "val$"};
 
@@ -603,7 +604,7 @@ public final class Types {
 	}
 
 	public static SerializableWildcardType wildcard() {
-		return new SerializableWildcardType(NO_TYPES, NO_TYPES);
+		return new SerializableWildcardType(OBJECT_ONLY_TYPES, NO_TYPES);
 	}
 
 	public static SerializableWildcardType wildcard(Type[] upperBounds, Type[] lowerBounds) {
@@ -615,7 +616,7 @@ public final class Types {
 	}
 
 	public static SerializableWildcardType wildcardSuper(Type... bounds) {
-		return new SerializableWildcardType(NO_TYPES, serializableOf(bounds));
+		return new SerializableWildcardType(OBJECT_ONLY_TYPES, serializableOf(bounds));
 	}
 
 	public static <D extends GenericDeclaration> SerializableTypeVariable<D> typeVariable(String name, D genericDeclaration) {

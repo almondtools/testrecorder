@@ -24,35 +24,62 @@ import net.amygdalum.testrecorder.util.SerializableWildcardType;
 
 public class GenericsResolver {
 
-	private Class<?>[] actualArgumentTypes;
 	private Map<Type, Type> groundTypes;
 
-	public GenericsResolver(Class<?>[] actualArgumentTypes) {
-		this.actualArgumentTypes = actualArgumentTypes;
+	public GenericsResolver(Method method, Type[] actualArgumentTypes) {
 		this.groundTypes = new HashMap<>();
+		if (method != null) {
+			unify(method.getGenericParameterTypes(), actualArgumentTypes);
+		} else {
+			throw new RuntimeException();
+		}
 	}
 
-	private void resolve(GenericDeclaration declaration) {
-		if (!(declaration instanceof Method)) {
-			return;
+	public Type resolve(Type type) {
+		if (type instanceof Class<?>) {
+			return type;
 		}
-		Method method = (Method) declaration;
-		Type[] genericParameterTypes = method.getGenericParameterTypes();
-		unify(genericParameterTypes, actualArgumentTypes);
+		Type resolvedType = resolveType(type);
+		if (resolvedType != null) {
+			return resolvedType;
+		}
 
+		resolvedType = resolveParametric(type);
+
+		return resolvedType;
 	}
 
-	private void unify(Type[] types, Class<?>[] classes) {
-		if (classes.length != types.length) {
+	public Type[] resolve(Type[] types) {
+		Type[] resolvedTypes = null;
+		for (int i = 0; i < types.length; i++) {
+			Type unresolvedType = types[i];
+			Type resolvedType = resolve(unresolvedType);
+			if (resolvedTypes != null) {
+				resolvedTypes[i] = resolvedType;
+			} else if (unresolvedType != resolvedType) {
+				resolvedTypes = new Type[types.length];
+				System.arraycopy(types, 0, resolvedTypes, 0, i);
+				resolvedTypes[i] = resolvedType;
+			}
+		}
+		if (resolvedTypes == null) {
+			return types;
+		} else {
+			return resolvedTypes;
+		}
+	}
+
+	private void unify(Type[] types, Type[] targets) {
+		if (targets.length != types.length) {
 			return;
 		}
-		int len = classes.length;
+		int len = targets.length;
 		Queue<Unify> toresolve = new LinkedList<>();
 		for (int i = 0; i < len; i++) {
 			if (groundTypes.containsKey(types[i])) {
 				continue;
 			}
-			Unify candidate = new Unify(classes[i], types[i]);
+			Unify candidate = new Unify(targets[i], types[i]);
 			toresolve.add(candidate);
 		}
 		int lastresolvedVariables = groundTypes.size();
@@ -62,7 +89,7 @@ public class GenericsResolver {
 			while (!toresolve.isEmpty()) {
 				Unify current = toresolve.remove();
 				Type type = current.type;
-				Class<?> target = current.clazz;
+				Type target = current.target;
 				unify(bind(type), target);
 				if (groundTypes.containsKey(type)) {
 					continue;
@@ -166,6 +193,9 @@ public class GenericsResolver {
 		if (type == target) {
 			return type;
 		} else if (type instanceof Class<?>) {
+			if (assignableTypes(type, target)) {
+				return type;
+			}
 			throw new TypeResolutionException("signatures are not unifiable");
 		} else if (type instanceof TypeVariable<?>) {
 			return unifyVariable((TypeVariable<?>) type, target);
@@ -173,6 +203,8 @@ public class GenericsResolver {
 			return unifyParameterized((ParameterizedType) type, target);
 		} else if (type instanceof WildcardType) {
 			return unifyWildcard((WildcardType) type, target);
+		} else if (type instanceof GenericArrayType) {
+			return unifyGenericArrayType((GenericArrayType) type, target);
 		} else {
 			throw new TypeResolutionException("signatures are not unifiable");
 		}
@@ -199,6 +231,13 @@ public class GenericsResolver {
 		return target;
 	}
 
+	private Type unifyGenericArrayType(GenericArrayType genericArrayType, Type target) {
+		if (assignableTypes(genericArrayType, target)) {
+			return genericArrayType;
+		}
+		return target;
+	}
+
 	private Type unifyVariable(TypeVariable<?> typeVariable, Type target) {
 		assignGround(typeVariable, target);
 		return target;
@@ -214,20 +253,6 @@ public class GenericsResolver {
 
 	private Type resolveType(Type type, Type defaultType) {
 		return groundTypes.getOrDefault(serializableOf(type), defaultType);
-	}
-	
-	public Type resolve(Type type) {
-		if (type instanceof Class<?>) {
-			return type;
-		}
-		Type resolvedType = resolveType(type);
-		if (resolvedType != null) {
-			return resolvedType;
-		}
-
-		resolvedType = resolveParametric(type);
-		
-		return resolvedType;
 	}
 
 	private Type resolveParametric(Type type) {
@@ -252,8 +277,6 @@ public class GenericsResolver {
 		} else if (type instanceof TypeVariable<?>) {
 			@SuppressWarnings("unchecked")
 			TypeVariable<GenericDeclaration> typeVariable = (TypeVariable<GenericDeclaration>) type;
-			resolve(typeVariable.getGenericDeclaration());
-
 			return resolveType(typeVariable, type);
 		} else if (type instanceof WildcardType) {
 			WildcardType wildcardType = (WildcardType) type;
@@ -272,32 +295,12 @@ public class GenericsResolver {
 		}
 	}
 
-	public Type[] resolve(Type[] types) {
-		Type[] resolvedTypes = null;
-		for (int i = 0; i < types.length; i++) {
-			Type unresolvedType = types[i];
-			Type resolvedType = resolve(unresolvedType);
-			if (resolvedTypes != null) {
-				resolvedTypes[i] = resolvedType;
-			} else if (unresolvedType != resolvedType) {
-				resolvedTypes = new Type[types.length];
-				System.arraycopy(types, 0, resolvedTypes, 0, i);
-				resolvedTypes[i] = resolvedType;
-			}
-		}
-		if (resolvedTypes == null) {
-			return types;
-		} else {
-			return resolvedTypes;
-		}
-	}
-
 	private static class Unify {
-		public Class<?> clazz;
+		public Type target;
 		public Type type;
 
-		Unify(Class<?> clazz, Type type) {
-			this.clazz = clazz;
+		Unify(Type target, Type type) {
+			this.target = target;
 			this.type = type;
 		}
 	}

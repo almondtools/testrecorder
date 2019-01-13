@@ -488,13 +488,15 @@ public class TypesTest {
 	@Test
 	void testWildcard() throws Exception {
 		assertThat(wildcard().getTypeName()).isEqualTo("?");
-		assertThat(wildcard().getLowerBounds()).hasSize(0);
-		assertThat(wildcard().getUpperBounds()).hasSize(0);
+		assertThat(wildcard().getLowerBounds()).isEmpty();
+		assertThat(wildcard().getUpperBounds()).containsExactly(Object.class);
 		assertThat(wildcardExtends(String.class).getTypeName()).isEqualTo("? extends java.lang.String");
 		assertThat(wildcardExtends(String.class).toString()).isEqualTo("? extends java.lang.String");
 		assertThat(wildcardExtends(String.class).getUpperBounds()).containsExactly(String.class);
+		assertThat(wildcardExtends(String.class).getLowerBounds()).isEmpty();
 		assertThat(wildcardSuper(String.class).getTypeName()).isEqualTo("? super java.lang.String");
 		assertThat(wildcardSuper(String.class).toString()).isEqualTo("? super java.lang.String");
+		assertThat(wildcardSuper(String.class).getUpperBounds()).containsExactly(Object.class);
 		assertThat(wildcardSuper(String.class).getLowerBounds()).containsExactly(String.class);
 		assertThat(wildcard()).satisfies(defaultEquality()
 			.andEqualTo(wildcard())
