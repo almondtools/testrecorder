@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.types.SerializedValue;
@@ -51,7 +52,7 @@ public class CollectionsSetSerializerTest {
 	@Test
 	void testGenerate() throws Exception {
 		Class<?> unmodifiableSet = innerType(Collections.class, "UnmodifiableSet");
-		
+
 		SerializedSet value = serializer.generate(unmodifiableSet, session);
 		value.useAs(parameterized(Set.class, null, String.class));
 
@@ -60,32 +61,34 @@ public class CollectionsSetSerializerTest {
 		assertThat(value.getComponentType()).isEqualTo(String.class);
 	}
 
-	@Test
-	void testPopulate() throws Exception {
-		SerializedValue foo = literal("Foo");
-		SerializedValue bar = literal("Bar");
-		when(session.find("Foo")).thenReturn(foo);
-		when(session.find("Bar")).thenReturn(bar);
-		Class<?> unmodifiableSet = innerType(Collections.class, "UnmodifiableSet");
-		SerializedSet value = serializer.generate(unmodifiableSet, session);
-		value.useAs(parameterized(Set.class, null, String.class));
+	@Nested
+	class testPopulate {
+		@Test
+		void onCommon() throws Exception {
+			SerializedValue foo = literal("Foo");
+			SerializedValue bar = literal("Bar");
+			when(session.find("Foo")).thenReturn(foo);
+			when(session.find("Bar")).thenReturn(bar);
+			Class<?> unmodifiableSet = innerType(Collections.class, "UnmodifiableSet");
+			SerializedSet value = serializer.generate(unmodifiableSet, session);
+			value.useAs(parameterized(Set.class, null, String.class));
 
-		serializer.populate(value, new HashSet<>(asList("Foo", "Bar")), session);
+			serializer.populate(value, new HashSet<>(asList("Foo", "Bar")), session);
 
-		assertThat(value).containsExactlyInAnyOrder(foo, bar);
+			assertThat(value).containsExactlyInAnyOrder(foo, bar);
+		}
+
+		@Test
+		void onNull() throws Exception {
+			SerializedValue foo = literal("Foo");
+			when(session.find("Foo")).thenReturn(foo);
+			Class<?> unmodifiableSet = innerType(Collections.class, "UnmodifiableSet");
+			SerializedSet value = serializer.generate(unmodifiableSet, session);
+			value.useAs(parameterized(Set.class, null, String.class));
+
+			serializer.populate(value, new HashSet<>(asList("Foo", null)), session);
+
+			assertThat(value).containsExactlyInAnyOrder(foo, nullValue(String.class));
+		}
 	}
-
-	@Test
-	void testPopulateNull() throws Exception {
-		SerializedValue foo = literal("Foo");
-		when(session.find("Foo")).thenReturn(foo);
-		Class<?> unmodifiableSet = innerType(Collections.class, "UnmodifiableSet");
-		SerializedSet value = serializer.generate(unmodifiableSet, session);
-		value.useAs(parameterized(Set.class, null, String.class));
-
-		serializer.populate(value, new HashSet<>(asList("Foo", null)), session);
-
-		assertThat(value).containsExactlyInAnyOrder(foo, nullValue(String.class));
-	}
-
 }

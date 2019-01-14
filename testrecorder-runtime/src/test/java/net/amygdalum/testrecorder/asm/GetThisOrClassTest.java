@@ -14,6 +14,17 @@ public class GetThisOrClassTest {
 	class testGetThis {
 
 		@Test
+		void inStaticMethod() throws Exception {
+			context = new MethodContext(AClass.classNode(), AClass.staticMethodNode());
+			InsnList insns = new GetThisOrClass()
+				.build(context);
+
+			assertThat(ByteCode.toString(insns))
+				.containsExactly(
+					"LDC L" + AClass.class.getName().replace('.', '/') + ";.class");
+		}
+
+		@Test
 		void inVirtualMethod() throws Exception {
 			context = new MethodContext(AClass.classNode(), AClass.virtualMethodNode());
 			InsnList insns = new GetThisOrClass()
@@ -24,15 +35,5 @@ public class GetThisOrClassTest {
 					"ALOAD 0");
 		}
 
-		@Test
-		void inStaticMethod() throws Exception {
-			context = new MethodContext(AClass.classNode(), AClass.staticMethodNode());
-			InsnList insns = new GetThisOrClass()
-				.build(context);
-
-			assertThat(ByteCode.toString(insns))
-				.containsExactly(
-					"LDC L" + AClass.class.getName().replace('.', '/') + ";.class");
-		}
 	}
 }

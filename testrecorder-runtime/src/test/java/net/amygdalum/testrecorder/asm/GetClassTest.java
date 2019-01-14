@@ -13,6 +13,17 @@ public class GetClassTest {
 	class testGetClass {
 
 		@Test
+		void inStaticMethod() throws Exception {
+			context = new MethodContext(AClass.classNode(), AClass.staticMethodNode());
+			InsnList insns = new GetClass()
+				.build(context);
+
+			assertThat(ByteCode.toString(insns))
+				.containsExactly(
+					"LDC L" + AClass.class.getName().replace('.', '/') + ";.class");
+		}
+
+		@Test
 		void inVirtualMethod() throws Exception {
 			context = new MethodContext(AClass.classNode(), AClass.virtualMethodNode());
 			InsnList insns = new GetClass()
@@ -24,15 +35,5 @@ public class GetClassTest {
 					"INVOKEVIRTUAL java/lang/Object.getClass ()Ljava/lang/Class;");
 		}
 
-		@Test
-		void inStaticMethod() throws Exception {
-			context = new MethodContext(AClass.classNode(), AClass.staticMethodNode());
-			InsnList insns = new GetClass()
-				.build(context);
-
-			assertThat(ByteCode.toString(insns))
-				.containsExactly(
-					"LDC L" + AClass.class.getName().replace('.', '/') + ";.class");
-		}
 	}
 }

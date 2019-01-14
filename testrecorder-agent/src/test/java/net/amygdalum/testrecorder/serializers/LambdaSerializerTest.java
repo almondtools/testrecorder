@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.types.Serializer;
@@ -48,96 +49,101 @@ public class LambdaSerializerTest {
 		assertThat(value.getType()).isEqualTo(Callable.class);
 	}
 
-	@Test
-	void testComponentsOnNonSerializedLambda() throws Exception {
-		Callable<String> nonSerialized = () -> "result";
+	@Nested
+	class testComponents {
+		@Test
+		void onNonSerializedLambda() throws Exception {
+			Callable<String> nonSerialized = () -> "result";
 
-		assertThat(serializer.components(nonSerialized, session)).isEmpty();
+			assertThat(serializer.components(nonSerialized, session)).isEmpty();
+		}
+
+		@Test
+		void onCommon() throws Exception {
+			Callable<String> nonSerialized = (Callable<String> & Serializable) () -> "result";
+			SerializedLambda serialized = Lambdas.serializeLambda(nonSerialized);
+
+			assertThat(serializer.components(serialized, session)).isEmpty();
+		}
+
+		@Test
+		void withCapturedArgs() throws Exception {
+			List<String> world = asList("World1", "World2");
+			int times = 2;
+			Callable<String> nonSerialized = (Callable<String> & Serializable) () -> {
+				String r = "";
+				for (int i = 0; i < times; i++) {
+					r += "Hello " + world.get(i);
+				}
+				return r;
+			};
+			SerializedLambda serialized = Lambdas.serializeLambda(nonSerialized);
+
+			assertThat(serializer.components(serialized, session).map(o -> (Object) o)).contains(world);
+		}
 	}
 
-	@Test
-	void testComponents() throws Exception {
-		Callable<String> nonSerialized = (Callable<String> & Serializable) () -> "result";
-		SerializedLambda serialized = Lambdas.serializeLambda(nonSerialized);
+	@Nested
+	class testPopulate {
+		@Test
+		void onNonSerializedLambda() throws Exception {
+			Callable<String> nonSerialized = () -> "result";
+			SerializedLambdaObject serializedObject = new SerializedLambdaObject(Callable.class);
 
-		assertThat(serializer.components(serialized, session)).isEmpty();
+			serializer.populate(serializedObject, nonSerialized, session);
+
+			assertThat(serializedObject.getSignature()).isNull();
+			assertThat(serializedObject.getCapturedArguments()).isNull();
+		}
+
+		@Test
+		void onCommon() throws Exception {
+			Callable<String> nonSerialized = (Callable<String> & Serializable) () -> "result";
+			SerializedLambda serialized = Lambdas.serializeLambda(nonSerialized);
+			SerializedLambdaObject serializedObject = new SerializedLambdaObject(Callable.class);
+
+			serializer.populate(serializedObject, serialized, session);
+
+			assertThat(serializedObject.getSignature().getCapturingClass()).isEqualTo("net/amygdalum/testrecorder/serializers/LambdaSerializerTest");
+			assertThat(serializedObject.getSignature().getFunctionalInterfaceClass()).isEqualTo("java/util/concurrent/Callable");
+			assertThat(serializedObject.getSignature().getFunctionalInterfaceMethodName()).isEqualTo("call");
+			assertThat(serializedObject.getSignature().getFunctionalInterfaceMethodSignature()).isEqualTo("()Ljava/lang/Object;");
+			assertThat(serializedObject.getSignature().getImplClass()).isEqualTo("net/amygdalum/testrecorder/serializers/LambdaSerializerTest");
+			assertThat(serializedObject.getSignature().getImplMethodKind()).isEqualTo(MethodHandleInfo.REF_invokeStatic);
+			assertThat(serializedObject.getSignature().getImplMethodName()).contains("lambda$");
+			assertThat(serializedObject.getSignature().getImplMethodSignature()).isEqualTo("()Ljava/lang/String;");
+			assertThat(serializedObject.getSignature().getInstantiatedMethodType()).isEqualTo("()Ljava/lang/String;");
+			assertThat(serializedObject.getCapturedArguments()).isEmpty();
+		}
+
+		@Test
+		void withCapturedArgs() throws Exception {
+			List<String> world = new ArrayList<>(asList("World1", "World2"));
+			int times = 2;
+			Callable<String> nonSerialized = (Callable<String> & Serializable) () -> {
+				String r = "";
+				for (int i = 0; i < times; i++) {
+					r += "Hello " + world.get(i);
+				}
+				return r;
+			};
+			SerializedLambda serialized = Lambdas.serializeLambda(nonSerialized);
+			SerializedLambdaObject serializedObject = new SerializedLambdaObject(Callable.class);
+			SerializedList capturedList = new SerializedList(ArrayList.class);
+			when(session.ref(world, ArrayList.class)).thenReturn(capturedList);
+
+			serializer.populate(serializedObject, serialized, session);
+
+			assertThat(serializedObject.getSignature().getCapturingClass()).isEqualTo("net/amygdalum/testrecorder/serializers/LambdaSerializerTest");
+			assertThat(serializedObject.getSignature().getFunctionalInterfaceClass()).isEqualTo("java/util/concurrent/Callable");
+			assertThat(serializedObject.getSignature().getFunctionalInterfaceMethodName()).isEqualTo("call");
+			assertThat(serializedObject.getSignature().getFunctionalInterfaceMethodSignature()).isEqualTo("()Ljava/lang/Object;");
+			assertThat(serializedObject.getSignature().getImplClass()).isEqualTo("net/amygdalum/testrecorder/serializers/LambdaSerializerTest");
+			assertThat(serializedObject.getSignature().getImplMethodKind()).isEqualTo(MethodHandleInfo.REF_invokeStatic);
+			assertThat(serializedObject.getSignature().getImplMethodName()).contains("lambda$");
+			assertThat(serializedObject.getSignature().getImplMethodSignature()).isEqualTo("(ILjava/util/List;)Ljava/lang/String;");
+			assertThat(serializedObject.getSignature().getInstantiatedMethodType()).isEqualTo("()Ljava/lang/String;");
+			assertThat(serializedObject.getCapturedArguments()).contains(capturedList);
+		}
 	}
-
-	@Test
-	void testComponentsWithCapturedArgs() throws Exception {
-		List<String> world = asList("World1", "World2");
-		int times = 2;
-		Callable<String> nonSerialized = (Callable<String> & Serializable) () -> {
-			String r = "";
-			for (int i = 0; i < times; i++) {
-				r += "Hello " + world.get(i);
-			}
-			return r;
-		};
-		SerializedLambda serialized = Lambdas.serializeLambda(nonSerialized);
-
-		assertThat(serializer.components(serialized, session).map(o -> (Object) o)).contains(world);
-	}
-
-	@Test
-	void testPopulateOnNonSerializedLambda() throws Exception {
-		Callable<String> nonSerialized = () -> "result";
-		SerializedLambdaObject serializedObject = new SerializedLambdaObject(Callable.class);
-
-		serializer.populate(serializedObject, nonSerialized, session);
-
-		assertThat(serializedObject.getSignature()).isNull();
-		assertThat(serializedObject.getCapturedArguments()).isNull();
-	}
-
-	@Test
-	void testPopulate() throws Exception {
-		Callable<String> nonSerialized = (Callable<String> & Serializable) () -> "result";
-		SerializedLambda serialized = Lambdas.serializeLambda(nonSerialized);
-		SerializedLambdaObject serializedObject = new SerializedLambdaObject(Callable.class);
-
-		serializer.populate(serializedObject, serialized, session);
-
-		assertThat(serializedObject.getSignature().getCapturingClass()).isEqualTo("net/amygdalum/testrecorder/serializers/LambdaSerializerTest");
-		assertThat(serializedObject.getSignature().getFunctionalInterfaceClass()).isEqualTo("java/util/concurrent/Callable");
-		assertThat(serializedObject.getSignature().getFunctionalInterfaceMethodName()).isEqualTo("call");
-		assertThat(serializedObject.getSignature().getFunctionalInterfaceMethodSignature()).isEqualTo("()Ljava/lang/Object;");
-		assertThat(serializedObject.getSignature().getImplClass()).isEqualTo("net/amygdalum/testrecorder/serializers/LambdaSerializerTest");
-		assertThat(serializedObject.getSignature().getImplMethodKind()).isEqualTo(MethodHandleInfo.REF_invokeStatic);
-		assertThat(serializedObject.getSignature().getImplMethodName()).contains("lambda$");
-		assertThat(serializedObject.getSignature().getImplMethodSignature()).isEqualTo("()Ljava/lang/String;");
-		assertThat(serializedObject.getSignature().getInstantiatedMethodType()).isEqualTo("()Ljava/lang/String;");
-		assertThat(serializedObject.getCapturedArguments()).isEmpty();
-	}
-	
-	@Test
-	void testPopulateWithCapturedArgs() throws Exception {
-		List<String> world = new ArrayList<>(asList("World1", "World2"));
-		int times = 2;
-		Callable<String> nonSerialized = (Callable<String> & Serializable) () -> {
-			String r = "";
-			for (int i = 0; i < times; i++) {
-				r += "Hello " + world.get(i);
-			}
-			return r;
-		};
-		SerializedLambda serialized = Lambdas.serializeLambda(nonSerialized);
-		SerializedLambdaObject serializedObject = new SerializedLambdaObject(Callable.class);
-		SerializedList capturedList = new SerializedList(ArrayList.class);
-		when(session.ref(world, ArrayList.class)).thenReturn(capturedList);
-
-		serializer.populate(serializedObject, serialized, session);
-
-		assertThat(serializedObject.getSignature().getCapturingClass()).isEqualTo("net/amygdalum/testrecorder/serializers/LambdaSerializerTest");
-		assertThat(serializedObject.getSignature().getFunctionalInterfaceClass()).isEqualTo("java/util/concurrent/Callable");
-		assertThat(serializedObject.getSignature().getFunctionalInterfaceMethodName()).isEqualTo("call");
-		assertThat(serializedObject.getSignature().getFunctionalInterfaceMethodSignature()).isEqualTo("()Ljava/lang/Object;");
-		assertThat(serializedObject.getSignature().getImplClass()).isEqualTo("net/amygdalum/testrecorder/serializers/LambdaSerializerTest");
-		assertThat(serializedObject.getSignature().getImplMethodKind()).isEqualTo(MethodHandleInfo.REF_invokeStatic);
-		assertThat(serializedObject.getSignature().getImplMethodName()).contains("lambda$");
-		assertThat(serializedObject.getSignature().getImplMethodSignature()).isEqualTo("(ILjava/util/List;)Ljava/lang/String;");
-		assertThat(serializedObject.getSignature().getInstantiatedMethodType()).isEqualTo("()Ljava/lang/String;");
-		assertThat(serializedObject.getCapturedArguments()).contains(capturedList);
-	}
-
 }

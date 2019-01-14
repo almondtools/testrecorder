@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.Random;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.types.FieldSignature;
@@ -41,57 +42,63 @@ public class GenericSerializerTest {
 		assertThat(serializer.getMatchingClasses()).isEmpty();
 	}
 
-	@Test
-	void testGenerate() throws Exception {
-		SerializedReferenceType value = serializer.generate(GenericObject.class, session);
-		value.useAs(GenericObject.class);
+	@Nested
+	class testGenerate {
+		@Test
+		void onCommon() throws Exception {
+			SerializedReferenceType value = serializer.generate(GenericObject.class, session);
+			value.useAs(GenericObject.class);
 
-		assertThat(value.getUsedTypes()).containsExactly(GenericObject.class);
-		assertThat(value.getType()).isEqualTo(GenericObject.class);
+			assertThat(value.getUsedTypes()).containsExactly(GenericObject.class);
+			assertThat(value.getType()).isEqualTo(GenericObject.class);
+		}
+
+		@Test
+		void onExcludedType() throws Exception {
+			when(session.excludes(Random.class)).thenReturn(true);
+			SerializedReferenceType value = serializer.generate(Random.class, session);
+			value.useAs(Random.class);
+
+			assertThat(value).isInstanceOf(SerializedNull.class);
+		}
 	}
 
-	@Test
-	void testGenerateOnExcludedType() throws Exception {
-		when(session.excludes(Random.class)).thenReturn(true);
-		SerializedReferenceType value = serializer.generate(Random.class, session);
-		value.useAs(Random.class);
+	@Nested
+	class testPopulate {
+		@Test
+		void onCommon() throws Exception {
+			SerializedValue foo = literal("Foo");
+			SerializedValue bar = literal(int.class, 1);
+			when(session.excludes(any(Field.class))).thenAnswer(field -> ((Field) field.getArguments()[0]).isSynthetic());
+			when(session.find("Foo")).thenReturn(foo);
+			when(session.find("Bar")).thenReturn(bar);
+			SerializedObject value = (SerializedObject) serializer.generate(GenericObject.class, session);
+			value.useAs(GenericObject.class);
 
-		assertThat(value).isInstanceOf(SerializedNull.class);
-	}
+			serializer.populate(value, new GenericObject("Foo", 1), session);
 
-	@Test
-	void testPopulate() throws Exception {
-		SerializedValue foo = literal("Foo");
-		SerializedValue bar = literal(int.class, 1);
-		when(session.excludes(any(Field.class))).thenAnswer(field -> ((Field) field.getArguments()[0]).isSynthetic());
-		when(session.find("Foo")).thenReturn(foo);
-		when(session.find("Bar")).thenReturn(bar);
-		SerializedObject value = (SerializedObject) serializer.generate(GenericObject.class, session);
-		value.useAs(GenericObject.class);
+			SerializedField fooField = new SerializedField(new FieldSignature(GenericObject.class, String.class, "stringField"), foo);
+			SerializedField barField = new SerializedField(new FieldSignature(GenericObject.class, int.class, "intField"), bar);
+			assertThat(value.getFields()).containsExactlyInAnyOrder(fooField, barField);
+		}
 
-		serializer.populate(value, new GenericObject("Foo", 1), session);
+		@Test
+		void onOtherNullType() throws Exception {
+			SerializedNull nullValue = nullInstance();
 
-		SerializedField fooField = new SerializedField(new FieldSignature(GenericObject.class, String.class, "stringField"), foo);
-		SerializedField barField = new SerializedField(new FieldSignature(GenericObject.class, int.class, "intField"), bar);
-		assertThat(value.getFields()).containsExactlyInAnyOrder(fooField, barField);
-	}
+			serializer.populate(nullValue, "Element", session);
 
-	@Test
-	void testPopulateOtherNullType() throws Exception {
-		SerializedNull nullValue = nullInstance();
+			assertThat(nullValue).isEqualTo(nullInstance());
+		}
 
-		serializer.populate(nullValue, "Element", session);
+		@Test
+		void onOtherReferenceTypes() throws Exception {
+			SerializedSet set = new SerializedSet(HashSet.class);
 
-		assertThat(nullValue).isEqualTo(nullInstance());
-	}
+			serializer.populate(set, singleton("Element"), session);
 
-	@Test
-	void testPopulateOtherReferenceTypes() throws Exception {
-		SerializedSet set = new SerializedSet(HashSet.class);
-
-		serializer.populate(set, singleton("Element"), session);
-
-		assertThat(set).isEmpty();
+			assertThat(set).isEmpty();
+		}
 	}
 
 	@SuppressWarnings("unused")

@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.types.SerializedValue;
@@ -58,31 +59,34 @@ public class CollectionsListSerializerTest {
 		assertThat(value.getComponentType()).isEqualTo(String.class);
 	}
 
-	@Test
-	void testPopulate() throws Exception {
-		SerializedValue foo = literal("Foo");
-		SerializedValue bar = literal("Bar");
-		when(session.find("Foo")).thenReturn(foo);
-		when(session.find("Bar")).thenReturn(bar);
-		Class<?> unmodifiableList = innerType(Collections.class, "UnmodifiableList");
-		SerializedList value = serializer.generate(unmodifiableList, session);
+	@Nested
+	class testPopulate {
+		@Test
+		void onCommon() throws Exception {
+			SerializedValue foo = literal("Foo");
+			SerializedValue bar = literal("Bar");
+			when(session.find("Foo")).thenReturn(foo);
+			when(session.find("Bar")).thenReturn(bar);
+			Class<?> unmodifiableList = innerType(Collections.class, "UnmodifiableList");
+			SerializedList value = serializer.generate(unmodifiableList, session);
 
-		serializer.populate(value, asList("Foo", "Bar"), session);
+			serializer.populate(value, asList("Foo", "Bar"), session);
 
-		assertThat(value).containsExactly(foo, bar);
-	}
+			assertThat(value).containsExactly(foo, bar);
+		}
 
-	@Test
-	void testPopulateNull() throws Exception {
-		SerializedValue foo = literal("Foo");
-		when(session.find("Foo")).thenReturn(foo);
-		Class<?> unmodifiableList = innerType(Collections.class, "UnmodifiableList");
-		SerializedList value = serializer.generate(unmodifiableList, session);
-		value.useAs(parameterized(List.class, null, String.class));
+		@Test
+		void onNull() throws Exception {
+			SerializedValue foo = literal("Foo");
+			when(session.find("Foo")).thenReturn(foo);
+			Class<?> unmodifiableList = innerType(Collections.class, "UnmodifiableList");
+			SerializedList value = serializer.generate(unmodifiableList, session);
+			value.useAs(parameterized(List.class, null, String.class));
 
-		serializer.populate(value, asList("Foo", null), session);
+			serializer.populate(value, asList("Foo", null), session);
 
-		assertThat(value).containsExactly(foo, nullValue(String.class));
+			assertThat(value).containsExactly(foo, nullValue(String.class));
+		}
 	}
 
 }

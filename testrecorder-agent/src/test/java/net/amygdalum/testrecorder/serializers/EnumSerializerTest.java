@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.types.Serializer;
@@ -26,22 +27,25 @@ public class EnumSerializerTest {
 		assertThat(serializer.getMatchingClasses()).isEmpty();
 	}
 
-	@Test
-	void testGenerate() throws Exception {
-		SerializedEnum value = serializer.generate(MyEnum.class, session);
-		value.useAs(MyInterface.class);
+	@Nested
+	class testGenerate {
+		@Test
+		void onCommon() throws Exception {
+			SerializedEnum value = serializer.generate(MyEnum.class, session);
+			value.useAs(MyInterface.class);
 
-		assertThat(value.getUsedTypes()).containsExactly(MyInterface.class);
-		assertThat(value.getType()).isEqualTo(MyEnum.class);
-	}
+			assertThat(value.getUsedTypes()).containsExactly(MyInterface.class);
+			assertThat(value.getType()).isEqualTo(MyEnum.class);
+		}
 
-	@Test
-	void testGenerateWithExtendedEnum() throws Exception {
-		SerializedEnum value = serializer.generate(ExtendedEnum.VALUE1.getClass(), session);
-		value.useAs(MyInterface.class);
+		@Test
+		void onExtendedEnum() throws Exception {
+			SerializedEnum value = serializer.generate(ExtendedEnum.VALUE1.getClass(), session);
+			value.useAs(MyInterface.class);
 
-		assertThat(value.getUsedTypes()).containsExactly(MyInterface.class);
-		assertThat(value.getType()).isEqualTo(ExtendedEnum.class);
+			assertThat(value.getUsedTypes()).containsExactly(MyInterface.class);
+			assertThat(value.getType()).isEqualTo(ExtendedEnum.class);
+		}
 	}
 
 	@Test
