@@ -25,7 +25,7 @@ public class GetClassTest {
 		}
 
 		@Test
-		void InStaticMethod() throws Exception {
+		void inStaticMethod() throws Exception {
 			context = new MethodContext(AClass.classNode(), AClass.staticMethodNode());
 			InsnList insns = new GetClass()
 				.build(context);

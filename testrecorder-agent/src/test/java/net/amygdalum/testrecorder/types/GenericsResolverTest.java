@@ -197,7 +197,7 @@ public class GenericsResolverTest {
 	private static class InheritedObject extends SimpleObject {
 	}
 	
-	private static abstract class SimpleObjectList implements List<SimpleObject> {
+	private abstract static class SimpleObjectList implements List<SimpleObject> {
 	}
 
 	@SuppressWarnings("unused")
