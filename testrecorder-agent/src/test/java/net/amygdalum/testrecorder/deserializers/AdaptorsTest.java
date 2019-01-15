@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.types.Computation;
@@ -26,113 +27,116 @@ public class AdaptorsTest {
 		openadaptors = xray(adaptors).to(OpenAdaptors.class);
 	}
 
-	@Test
-	public void testAddSingleAdaptor() throws Exception {
-		MyAdaptor1 a1 = new MyAdaptor1(null, true, Computation.variable("a1", Object.class));
+	@Nested
+	class testAdd {
+		@Test
+		public void singleAdaptor() throws Exception {
+			MyAdaptor1 a1 = new MyAdaptor1(null, true, Computation.variable("a1", Object.class));
 
-		adaptors.add(a1);
+			adaptors.add(a1);
 
-		assertThat(openadaptors.getAdaptors().get(SerializedObject.class)).containsExactly(a1);
-	}
+			assertThat(openadaptors.getAdaptors().get(SerializedObject.class)).containsExactly(a1);
+		}
 
-	@Test
-	public void testAddOrphanAdaptor() throws Exception {
-		MyAdaptor1 a1 = new MyAdaptor1(null, true, Computation.variable("a1", Object.class));
-		MyAdaptor2 a2 = new MyAdaptor2(null, true, Computation.variable("a2", Object.class));
+		@Test
+		public void orphanAdaptor() throws Exception {
+			MyAdaptor1 a1 = new MyAdaptor1(null, true, Computation.variable("a1", Object.class));
+			MyAdaptor2 a2 = new MyAdaptor2(null, true, Computation.variable("a2", Object.class));
 
-		adaptors.add(a1);
-		adaptors.add(a2);
+			adaptors.add(a1);
+			adaptors.add(a2);
 
-		assertThat(openadaptors.getAdaptors().get(SerializedObject.class)).containsExactly(a1, a2);
-	}
+			assertThat(openadaptors.getAdaptors().get(SerializedObject.class)).containsExactly(a1, a2);
+		}
 
-	@Test
-	public void testAddChildAdaptor() throws Exception {
-		MyAdaptor1 a1 = new MyAdaptor1(null, true, Computation.variable("a1", Object.class));
-		MyAdaptor2 a2 = new MyAdaptor2(MyAdaptor1.class, true, Computation.variable("a2", Object.class));
+		@Test
+		public void childAdaptor() throws Exception {
+			MyAdaptor1 a1 = new MyAdaptor1(null, true, Computation.variable("a1", Object.class));
+			MyAdaptor2 a2 = new MyAdaptor2(MyAdaptor1.class, true, Computation.variable("a2", Object.class));
 
-		adaptors.add(a1);
-		adaptors.add(a2);
+			adaptors.add(a1);
+			adaptors.add(a2);
 
-		assertThat(openadaptors.getAdaptors().get(SerializedObject.class)).containsExactly(a2, a1);
-	}
+			assertThat(openadaptors.getAdaptors().get(SerializedObject.class)).containsExactly(a2, a1);
+		}
 
-	@Test
-	public void testAddParentAdaptor() throws Exception {
-		MyAdaptor1 a1 = new MyAdaptor1(MyAdaptor1.class, true, Computation.variable("a1", Object.class));
-		MyAdaptor2 a2 = new MyAdaptor2(MyAdaptor1.class, true, Computation.variable("a2", Object.class));
+		@Test
+		public void parentAdaptor() throws Exception {
+			MyAdaptor1 a1 = new MyAdaptor1(MyAdaptor1.class, true, Computation.variable("a1", Object.class));
+			MyAdaptor2 a2 = new MyAdaptor2(MyAdaptor1.class, true, Computation.variable("a2", Object.class));
 
-		adaptors.add(a2);
-		adaptors.add(a1);
+			adaptors.add(a2);
+			adaptors.add(a1);
 
-		assertThat(openadaptors.getAdaptors().get(SerializedObject.class)).containsExactly(a2, a1);
-	}
+			assertThat(openadaptors.getAdaptors().get(SerializedObject.class)).containsExactly(a2, a1);
+		}
 
-	@Test
-	public void testAddMultipleAdaptor123() throws Exception {
-		MyAdaptor1 a1 = new MyAdaptor1(null, true, Computation.variable("a1", Object.class));
-		MyAdaptor2 a2 = new MyAdaptor2(MyAdaptor1.class, true, Computation.variable("a2", Object.class));
-		MyAdaptor3 a3 = new MyAdaptor3(MyAdaptor2.class, true, Computation.variable("a3", Object.class));
+		@Test
+		public void multipleAdaptor123() throws Exception {
+			MyAdaptor1 a1 = new MyAdaptor1(null, true, Computation.variable("a1", Object.class));
+			MyAdaptor2 a2 = new MyAdaptor2(MyAdaptor1.class, true, Computation.variable("a2", Object.class));
+			MyAdaptor3 a3 = new MyAdaptor3(MyAdaptor2.class, true, Computation.variable("a3", Object.class));
 
-		adaptors.add(a1);
-		adaptors.add(a2);
-		adaptors.add(a3);
+			adaptors.add(a1);
+			adaptors.add(a2);
+			adaptors.add(a3);
 
-		assertThat(openadaptors.getAdaptors().get(SerializedObject.class)).containsExactly(a3, a2, a1);
-	}
+			assertThat(openadaptors.getAdaptors().get(SerializedObject.class)).containsExactly(a3, a2, a1);
+		}
 
-	@Test
-	public void testAddMultipleAdaptor132() throws Exception {
-		MyAdaptor1 a1 = new MyAdaptor1(null, true, Computation.variable("a1", Object.class));
-		MyAdaptor2 a2 = new MyAdaptor2(MyAdaptor1.class, true, Computation.variable("a2", Object.class));
-		MyAdaptor3 a3 = new MyAdaptor3(MyAdaptor2.class, true, Computation.variable("a3", Object.class));
+		@Test
+		public void multipleAdaptor132() throws Exception {
+			MyAdaptor1 a1 = new MyAdaptor1(null, true, Computation.variable("a1", Object.class));
+			MyAdaptor2 a2 = new MyAdaptor2(MyAdaptor1.class, true, Computation.variable("a2", Object.class));
+			MyAdaptor3 a3 = new MyAdaptor3(MyAdaptor2.class, true, Computation.variable("a3", Object.class));
 
-		adaptors.add(a1);
-		adaptors.add(a3);
-		adaptors.add(a2);
+			adaptors.add(a1);
+			adaptors.add(a3);
+			adaptors.add(a2);
 
-		assertThat(openadaptors.getAdaptors().get(SerializedObject.class)).containsExactly(a3, a2, a1);
-	}
+			assertThat(openadaptors.getAdaptors().get(SerializedObject.class)).containsExactly(a3, a2, a1);
+		}
 
-	@Test
-	public void testAddMultipleAdaptor321() throws Exception {
-		MyAdaptor1 a1 = new MyAdaptor1(null, true, Computation.variable("a1", Object.class));
-		MyAdaptor2 a2 = new MyAdaptor2(MyAdaptor1.class, true, Computation.variable("a2", Object.class));
-		MyAdaptor3 a3 = new MyAdaptor3(MyAdaptor2.class, true, Computation.variable("a3", Object.class));
+		@Test
+		public void multipleAdaptor321() throws Exception {
+			MyAdaptor1 a1 = new MyAdaptor1(null, true, Computation.variable("a1", Object.class));
+			MyAdaptor2 a2 = new MyAdaptor2(MyAdaptor1.class, true, Computation.variable("a2", Object.class));
+			MyAdaptor3 a3 = new MyAdaptor3(MyAdaptor2.class, true, Computation.variable("a3", Object.class));
 
-		adaptors.add(a3);
-		adaptors.add(a2);
-		adaptors.add(a1);
+			adaptors.add(a3);
+			adaptors.add(a2);
+			adaptors.add(a1);
 
-		assertThat(openadaptors.getAdaptors().get(SerializedObject.class)).containsExactly(a3, a2, a1);
-	}
+			assertThat(openadaptors.getAdaptors().get(SerializedObject.class)).containsExactly(a3, a2, a1);
+		}
 
-	@Test
-	public void testAddMultipleAdaptor4321() throws Exception {
-		MyAdaptor1 a1 = new MyAdaptor1(null, true, Computation.variable("a1", Object.class));
-		MyAdaptor2 a2 = new MyAdaptor2(MyAdaptor1.class, true, Computation.variable("a2", Object.class));
-		MyAdaptor3 a3 = new MyAdaptor3(MyAdaptor2.class, true, Computation.variable("a3", Object.class));
-		MyAdaptor4 a4 = new MyAdaptor4(MyAdaptor3.class, true, Computation.variable("a3", Object.class));
+		@Test
+		public void multipleAdaptor4321() throws Exception {
+			MyAdaptor1 a1 = new MyAdaptor1(null, true, Computation.variable("a1", Object.class));
+			MyAdaptor2 a2 = new MyAdaptor2(MyAdaptor1.class, true, Computation.variable("a2", Object.class));
+			MyAdaptor3 a3 = new MyAdaptor3(MyAdaptor2.class, true, Computation.variable("a3", Object.class));
+			MyAdaptor4 a4 = new MyAdaptor4(MyAdaptor3.class, true, Computation.variable("a3", Object.class));
 
-		adaptors.add(a4);
-		adaptors.add(a3);
-		adaptors.add(a2);
-		adaptors.add(a1);
+			adaptors.add(a4);
+			adaptors.add(a3);
+			adaptors.add(a2);
+			adaptors.add(a1);
 
-		assertThat(openadaptors.getAdaptors().get(SerializedObject.class)).containsExactly(a4, a3, a2, a1);
-	}
+			assertThat(openadaptors.getAdaptors().get(SerializedObject.class)).containsExactly(a4, a3, a2, a1);
+		}
 
-	@Test
-	public void testAddMultipleAdaptorNoTotalOrder() throws Exception {
-		MyAdaptor1 a1 = new MyAdaptor1(null, true, Computation.variable("a1", Object.class));
-		MyAdaptor2 a2 = new MyAdaptor2(MyAdaptor1.class, true, Computation.variable("a2", Object.class));
-		MyAdaptor4 a4 = new MyAdaptor4(MyAdaptor3.class, true, Computation.variable("a3", Object.class));
+		@Test
+		public void multipleAdaptorNoTotalOrder() throws Exception {
+			MyAdaptor1 a1 = new MyAdaptor1(null, true, Computation.variable("a1", Object.class));
+			MyAdaptor2 a2 = new MyAdaptor2(MyAdaptor1.class, true, Computation.variable("a2", Object.class));
+			MyAdaptor4 a4 = new MyAdaptor4(MyAdaptor3.class, true, Computation.variable("a3", Object.class));
 
-		adaptors.add(a1);
-		adaptors.add(a2);
-		adaptors.add(a4);
+			adaptors.add(a1);
+			adaptors.add(a2);
+			adaptors.add(a4);
 
-		assertThat(openadaptors.getAdaptors().get(SerializedObject.class)).containsExactly(a4, a2, a1);
+			assertThat(openadaptors.getAdaptors().get(SerializedObject.class)).containsExactly(a4, a2, a1);
+		}
 	}
 
 	private abstract class MyAbstractAdaptor implements Adaptor<SerializedObject> {

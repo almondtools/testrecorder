@@ -12,6 +12,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.types.FieldSignature;
@@ -34,163 +35,165 @@ public class HintManagerTest {
 		hintManager = new HintManager();
 	}
 
-	@Test
-	void testFetchArgument() throws Exception {
-		assertThat(hintManager.fetch(Anno.class, new SerializedArgument(0, notExistingMethod(), nullInstance())))
-			.isEmpty();
-		assertThat(hintManager.fetch(Anno.class, new SerializedArgument(0, resultMethod(), nullInstance())))
-			.isEmpty();
-		assertThat(hintManager.fetch(Anno.class, new SerializedArgument(0, argumentMethod(), nullInstance())))
-			.hasSize(1)
-			.allMatch(hint -> hint instanceof Anno);
-	}
+	@Nested
+	class testFetch {
+		@Test
+		void onArgument() throws Exception {
+			assertThat(hintManager.fetch(Anno.class, new SerializedArgument(0, notExistingMethod(), nullInstance())))
+				.isEmpty();
+			assertThat(hintManager.fetch(Anno.class, new SerializedArgument(0, resultMethod(), nullInstance())))
+				.isEmpty();
+			assertThat(hintManager.fetch(Anno.class, new SerializedArgument(0, argumentMethod(), nullInstance())))
+				.hasSize(1)
+				.allMatch(hint -> hint instanceof Anno);
+		}
 
-	@Test
-	void testFetchArgumentWithCustomAnnotation() throws Exception {
-		hintManager.addHint(MyObject.class.getDeclaredMethod("result", MyArgument.class), anno());
-		hintManager.addHint(MyObject.class.getDeclaredMethod("result", MyArgument.class), new Annotation[] { anno() });
+		@Test
+		void onArgumentWithCustomAnnotation() throws Exception {
+			hintManager.addHint(MyObject.class.getDeclaredMethod("result", MyArgument.class), anno());
+			hintManager.addHint(MyObject.class.getDeclaredMethod("result", MyArgument.class), new Annotation[] {anno()});
 
-		assertThat(hintManager.fetch(Anno.class, new SerializedArgument(0, resultMethod(), nullInstance())))
-			.hasSize(1)
-			.allMatch(hint -> hint instanceof Anno);
-		assertThat(hintManager.fetch(Anno.class, new SerializedArgument(0, argumentMethod(), nullInstance())))
-			.hasSize(1)
-			.allMatch(hint -> hint instanceof Anno);
-	}
+			assertThat(hintManager.fetch(Anno.class, new SerializedArgument(0, resultMethod(), nullInstance())))
+				.hasSize(1)
+				.allMatch(hint -> hint instanceof Anno);
+			assertThat(hintManager.fetch(Anno.class, new SerializedArgument(0, argumentMethod(), nullInstance())))
+				.hasSize(1)
+				.allMatch(hint -> hint instanceof Anno);
+		}
 
-	@Test
-	void testFetchResult() throws Exception {
-		assertThat(hintManager.fetch(Anno.class, new SerializedResult(notExistingMethod(), nullInstance())))
-			.isEmpty();
-		assertThat(hintManager.fetch(Anno.class, new SerializedResult(argumentMethod(), nullInstance())))
-			.isEmpty();
-		assertThat(hintManager.fetch(Anno.class, new SerializedResult(resultMethod(), nullInstance())))
-			.hasSize(1)
-			.allMatch(hint -> hint instanceof Anno);
-		assertThat(hintManager.fetch(Anno.class, MyObject.class.getDeclaredMethod("argument", MyArgument.class)))
-			.isEmpty();
-		assertThat(hintManager.fetch(Anno.class, MyObject.class.getDeclaredMethod("result", MyArgument.class)))
-			.hasSize(1)
-			.allMatch(hint -> hint instanceof Anno);
-	}
+		@Test
+		void onResult() throws Exception {
+			assertThat(hintManager.fetch(Anno.class, new SerializedResult(notExistingMethod(), nullInstance())))
+				.isEmpty();
+			assertThat(hintManager.fetch(Anno.class, new SerializedResult(argumentMethod(), nullInstance())))
+				.isEmpty();
+			assertThat(hintManager.fetch(Anno.class, new SerializedResult(resultMethod(), nullInstance())))
+				.hasSize(1)
+				.allMatch(hint -> hint instanceof Anno);
+			assertThat(hintManager.fetch(Anno.class, MyObject.class.getDeclaredMethod("argument", MyArgument.class)))
+				.isEmpty();
+			assertThat(hintManager.fetch(Anno.class, MyObject.class.getDeclaredMethod("result", MyArgument.class)))
+				.hasSize(1)
+				.allMatch(hint -> hint instanceof Anno);
+		}
 
-	@Test
-	void testFetchResultWithCustomAnnotation() throws Exception {
-		hintManager.addHint(MyObject.class.getDeclaredMethod("argument", MyArgument.class), new Annotation[] { anno() });
-		hintManager.addHint(MyObject.class.getDeclaredMethod("argument", MyArgument.class), anno());
+		@Test
+		void onResultWithCustomAnnotation() throws Exception {
+			hintManager.addHint(MyObject.class.getDeclaredMethod("argument", MyArgument.class), new Annotation[] {anno()});
+			hintManager.addHint(MyObject.class.getDeclaredMethod("argument", MyArgument.class), anno());
 
-		assertThat(hintManager.fetch(Anno.class, new SerializedResult(argumentMethod(), nullInstance())))
-			.hasSize(1)
-			.allMatch(hint -> hint instanceof Anno);
-		assertThat(hintManager.fetch(Anno.class, new SerializedResult(resultMethod(), nullInstance())))
-			.hasSize(1)
-			.allMatch(hint -> hint instanceof Anno);
-	}
+			assertThat(hintManager.fetch(Anno.class, new SerializedResult(argumentMethod(), nullInstance())))
+				.hasSize(1)
+				.allMatch(hint -> hint instanceof Anno);
+			assertThat(hintManager.fetch(Anno.class, new SerializedResult(resultMethod(), nullInstance())))
+				.hasSize(1)
+				.allMatch(hint -> hint instanceof Anno);
+		}
 
-	@Test
-	void testFetchField() throws Exception {
-		assertThat(hintManager.fetch(Anno.class, new SerializedField(notExistingField(), nullInstance())))
-			.isEmpty();
-		assertThat(hintManager.fetch(Anno.class, new SerializedField(field(), nullInstance())))
-			.isEmpty();
-		assertThat(hintManager.fetch(Anno.class, new SerializedField(annotatedField(), nullInstance())))
-			.hasSize(1)
-			.allMatch(hint -> hint instanceof Anno);
-		assertThat(hintManager.fetch(Anno.class, MyObject.class.getDeclaredField("field")))
-			.isEmpty();
-		assertThat(hintManager.fetch(Anno.class, MyObject.class.getDeclaredField("annotatedField")))
-			.hasSize(1)
-			.allMatch(hint -> hint instanceof Anno);
-	}
+		@Test
+		void onField() throws Exception {
+			assertThat(hintManager.fetch(Anno.class, new SerializedField(notExistingField(), nullInstance())))
+				.isEmpty();
+			assertThat(hintManager.fetch(Anno.class, new SerializedField(field(), nullInstance())))
+				.isEmpty();
+			assertThat(hintManager.fetch(Anno.class, new SerializedField(annotatedField(), nullInstance())))
+				.hasSize(1)
+				.allMatch(hint -> hint instanceof Anno);
+			assertThat(hintManager.fetch(Anno.class, MyObject.class.getDeclaredField("field")))
+				.isEmpty();
+			assertThat(hintManager.fetch(Anno.class, MyObject.class.getDeclaredField("annotatedField")))
+				.hasSize(1)
+				.allMatch(hint -> hint instanceof Anno);
+		}
 
-	@Test
-	void testFetchFieldWithCustomAnnotation() throws Exception {
-		hintManager.addHint(MyObject.class.getDeclaredField("field"), anno());
+		@Test
+		void onFieldWithCustomAnnotation() throws Exception {
+			hintManager.addHint(MyObject.class.getDeclaredField("field"), anno());
 
-		assertThat(hintManager.fetch(Anno.class, new SerializedField(field(), nullInstance())))
-			.hasSize(1)
-			.allMatch(hint -> hint instanceof Anno);
-		assertThat(hintManager.fetch(Anno.class, new SerializedField(annotatedField(), nullInstance())))
-			.hasSize(1)
-			.allMatch(hint -> hint instanceof Anno);
-	}
+			assertThat(hintManager.fetch(Anno.class, new SerializedField(field(), nullInstance())))
+				.hasSize(1)
+				.allMatch(hint -> hint instanceof Anno);
+			assertThat(hintManager.fetch(Anno.class, new SerializedField(annotatedField(), nullInstance())))
+				.hasSize(1)
+				.allMatch(hint -> hint instanceof Anno);
+		}
 
-	@Test
-	void testFetchReferenceType() throws Exception {
-		assertThat(hintManager.fetch(Anno.class, new SerializedObject(Annotated.class)))
-			.hasSize(1)
-			.allMatch(hint -> hint instanceof Anno);
-		assertThat(hintManager.fetch(Anno.class, new SerializedObject(NotAnnotated.class)))
-			.isEmpty();
-	}
+		@Test
+		void onReferenceType() throws Exception {
+			assertThat(hintManager.fetch(Anno.class, new SerializedObject(Annotated.class)))
+				.hasSize(1)
+				.allMatch(hint -> hint instanceof Anno);
+			assertThat(hintManager.fetch(Anno.class, new SerializedObject(NotAnnotated.class)))
+				.isEmpty();
+		}
 
-	@Test
-	void testFetchReferenceTypeWithCustomAnnotation() throws Exception {
-		hintManager.addHint(NotAnnotated.class, anno());
+		@Test
+		void onReferenceTypeWithCustomAnnotation() throws Exception {
+			hintManager.addHint(NotAnnotated.class, anno());
 
-		assertThat(hintManager.fetch(Anno.class, new SerializedObject(Annotated.class)))
-			.hasSize(1)
-			.allMatch(hint -> hint instanceof Anno);
-		assertThat(hintManager.fetch(Anno.class, new SerializedObject(NotAnnotated.class)))
-			.hasSize(1)
-			.allMatch(hint -> hint instanceof Anno);
-	}
+			assertThat(hintManager.fetch(Anno.class, new SerializedObject(Annotated.class)))
+				.hasSize(1)
+				.allMatch(hint -> hint instanceof Anno);
+			assertThat(hintManager.fetch(Anno.class, new SerializedObject(NotAnnotated.class)))
+				.hasSize(1)
+				.allMatch(hint -> hint instanceof Anno);
+		}
 
-	@Test
-	void testFetchImmutableType() throws Exception {
-		assertThat(hintManager.fetch(Anno.class, new SerializedImmutable<>(Annotated.class)))
-			.hasSize(1)
-			.allMatch(hint -> hint instanceof Anno);
-		assertThat(hintManager.fetch(Anno.class, new SerializedImmutable<>(NotAnnotated.class)))
-			.isEmpty();
-	}
+		@Test
+		void onImmutableType() throws Exception {
+			assertThat(hintManager.fetch(Anno.class, new SerializedImmutable<>(Annotated.class)))
+				.hasSize(1)
+				.allMatch(hint -> hint instanceof Anno);
+			assertThat(hintManager.fetch(Anno.class, new SerializedImmutable<>(NotAnnotated.class)))
+				.isEmpty();
+		}
 
-	@Test
-	void testFetchImmutableTypeWithCustomAnnotation() throws Exception {
-		hintManager.addHint(NotAnnotated.class, anno());
+		@Test
+		void onImmutableTypeWithCustomAnnotation() throws Exception {
+			hintManager.addHint(NotAnnotated.class, anno());
 
-		assertThat(hintManager.fetch(Anno.class, new SerializedImmutable<>(Annotated.class)))
-			.hasSize(1)
-			.allMatch(hint -> hint instanceof Anno);
-		assertThat(hintManager.fetch(Anno.class, new SerializedImmutable<>(NotAnnotated.class)))
-			.hasSize(1)
-			.allMatch(hint -> hint instanceof Anno);
+			assertThat(hintManager.fetch(Anno.class, new SerializedImmutable<>(Annotated.class)))
+				.hasSize(1)
+				.allMatch(hint -> hint instanceof Anno);
+			assertThat(hintManager.fetch(Anno.class, new SerializedImmutable<>(NotAnnotated.class)))
+				.hasSize(1)
+				.allMatch(hint -> hint instanceof Anno);
 
-	}
+		}
 
-	@Test
-	void testFetchValueType() throws Exception {
-		assertThat(hintManager.fetch(Anno.class, new Value(Annotated.class)))
-			.hasSize(1)
-			.allMatch(hint -> hint instanceof Anno);
-		assertThat(hintManager.fetch(Anno.class, new Value(NotAnnotated.class)))
-			.isEmpty();
-		assertThat(hintManager.fetch(Anno.class, new Value(null)))
-			.isEmpty();
-	}
+		@Test
+		void onValueType() throws Exception {
+			assertThat(hintManager.fetch(Anno.class, new Value(Annotated.class)))
+				.hasSize(1)
+				.allMatch(hint -> hint instanceof Anno);
+			assertThat(hintManager.fetch(Anno.class, new Value(NotAnnotated.class)))
+				.isEmpty();
+			assertThat(hintManager.fetch(Anno.class, new Value(null)))
+				.isEmpty();
+		}
 
-	@Test
-	void testFetchValueTypeWithCustomAnnotation() throws Exception {
-		hintManager.addHint(NotAnnotated.class, anno());
+		@Test
+		void onValueTypeWithCustomAnnotation() throws Exception {
+			hintManager.addHint(NotAnnotated.class, anno());
 
-		assertThat(hintManager.fetch(Anno.class, new Value(Annotated.class)))
-			.hasSize(1)
-			.allMatch(hint -> hint instanceof Anno);
-		assertThat(hintManager.fetch(Anno.class, new Value(NotAnnotated.class)))
-			.hasSize(1)
-			.allMatch(hint -> hint instanceof Anno);
-	}
+			assertThat(hintManager.fetch(Anno.class, new Value(Annotated.class)))
+				.hasSize(1)
+				.allMatch(hint -> hint instanceof Anno);
+			assertThat(hintManager.fetch(Anno.class, new Value(NotAnnotated.class)))
+				.hasSize(1)
+				.allMatch(hint -> hint instanceof Anno);
+		}
 
-	@Test
-	void testFetchByType() throws Exception {
-		assertThat(hintManager.fetch(Anno.class, NotAnnotated.class))
-			.isEmpty();
-		assertThat(hintManager.fetch(Anno.class, Annotated.class))
-			.hasSize(1)
-			.allMatch(hint -> hint instanceof Anno);
-		assertThat(hintManager.fetch(Anno.class, (AnnotatedElement) null))
-			.isEmpty();
-
+		@Test
+		void byType() throws Exception {
+			assertThat(hintManager.fetch(Anno.class, NotAnnotated.class))
+				.isEmpty();
+			assertThat(hintManager.fetch(Anno.class, Annotated.class))
+				.hasSize(1)
+				.allMatch(hint -> hint instanceof Anno);
+			assertThat(hintManager.fetch(Anno.class, (AnnotatedElement) null))
+				.isEmpty();
+		}
 	}
 
 	private FieldSignature field() {
@@ -206,15 +209,15 @@ public class HintManagerTest {
 	}
 
 	private MethodSignature notExistingMethod() {
-		return new MethodSignature(MyObject.class, MyResult.class, "notexisting", new Type[] { MyArgument.class });
+		return new MethodSignature(MyObject.class, MyResult.class, "notexisting", new Type[] {MyArgument.class});
 	}
 
 	private MethodSignature resultMethod() {
-		return new MethodSignature(MyObject.class, MyResult.class, "result", new Type[] { MyArgument.class });
+		return new MethodSignature(MyObject.class, MyResult.class, "result", new Type[] {MyArgument.class});
 	}
 
 	private MethodSignature argumentMethod() {
-		return new MethodSignature(MyObject.class, MyResult.class, "argument", new Type[] { MyArgument.class });
+		return new MethodSignature(MyObject.class, MyResult.class, "argument", new Type[] {MyArgument.class});
 	}
 
 	@Anno

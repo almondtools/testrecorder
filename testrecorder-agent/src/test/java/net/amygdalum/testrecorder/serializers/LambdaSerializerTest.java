@@ -104,11 +104,11 @@ public class LambdaSerializerTest {
 
 			serializer.populate(serializedObject, serialized, session);
 
-			assertThat(serializedObject.getSignature().getCapturingClass()).isEqualTo("net/amygdalum/testrecorder/serializers/LambdaSerializerTest");
+			assertThat(serializedObject.getSignature().getCapturingClass()).isEqualTo("net/amygdalum/testrecorder/serializers/LambdaSerializerTest$testPopulate");
 			assertThat(serializedObject.getSignature().getFunctionalInterfaceClass()).isEqualTo("java/util/concurrent/Callable");
 			assertThat(serializedObject.getSignature().getFunctionalInterfaceMethodName()).isEqualTo("call");
 			assertThat(serializedObject.getSignature().getFunctionalInterfaceMethodSignature()).isEqualTo("()Ljava/lang/Object;");
-			assertThat(serializedObject.getSignature().getImplClass()).isEqualTo("net/amygdalum/testrecorder/serializers/LambdaSerializerTest");
+			assertThat(serializedObject.getSignature().getImplClass()).isEqualTo("net/amygdalum/testrecorder/serializers/LambdaSerializerTest$testPopulate");
 			assertThat(serializedObject.getSignature().getImplMethodKind()).isEqualTo(MethodHandleInfo.REF_invokeStatic);
 			assertThat(serializedObject.getSignature().getImplMethodName()).contains("lambda$");
 			assertThat(serializedObject.getSignature().getImplMethodSignature()).isEqualTo("()Ljava/lang/String;");
@@ -134,11 +134,11 @@ public class LambdaSerializerTest {
 
 			serializer.populate(serializedObject, serialized, session);
 
-			assertThat(serializedObject.getSignature().getCapturingClass()).isEqualTo("net/amygdalum/testrecorder/serializers/LambdaSerializerTest");
+			assertThat(serializedObject.getSignature().getCapturingClass()).isEqualTo("net/amygdalum/testrecorder/serializers/LambdaSerializerTest$testPopulate");
 			assertThat(serializedObject.getSignature().getFunctionalInterfaceClass()).isEqualTo("java/util/concurrent/Callable");
 			assertThat(serializedObject.getSignature().getFunctionalInterfaceMethodName()).isEqualTo("call");
 			assertThat(serializedObject.getSignature().getFunctionalInterfaceMethodSignature()).isEqualTo("()Ljava/lang/Object;");
-			assertThat(serializedObject.getSignature().getImplClass()).isEqualTo("net/amygdalum/testrecorder/serializers/LambdaSerializerTest");
+			assertThat(serializedObject.getSignature().getImplClass()).isEqualTo("net/amygdalum/testrecorder/serializers/LambdaSerializerTest$testPopulate");
 			assertThat(serializedObject.getSignature().getImplMethodKind()).isEqualTo(MethodHandleInfo.REF_invokeStatic);
 			assertThat(serializedObject.getSignature().getImplMethodName()).contains("lambda$");
 			assertThat(serializedObject.getSignature().getImplMethodSignature()).isEqualTo("(ILjava/util/List;)Ljava/lang/String;");

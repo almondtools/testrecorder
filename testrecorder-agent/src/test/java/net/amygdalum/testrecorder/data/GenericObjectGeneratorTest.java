@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -17,59 +18,65 @@ import net.amygdalum.testrecorder.util.testobjects.SimplePrivateConstructor;
 
 public class GenericObjectGeneratorTest {
 
-    @Test
-    void testCreateSimpleClass() throws Exception {
-        Simple object = new GenericObjectGenerator<>(Simple.class).create(new TestDataGenerator());
+	@Nested
+	class testCreate {
+		@Test
+		void onSimpleClass() throws Exception {
+			Simple object = new GenericObjectGenerator<>(Simple.class).create(new TestDataGenerator());
 
-        assertThat(object).isNotNull();
-    }
+			assertThat(object).isNotNull();
+		}
 
-    @Test
-    void testCreateNoDefaultConstructorClass() throws Exception {
-        SimpleNoDefaultConstructor object = new GenericObjectGenerator<>(SimpleNoDefaultConstructor.class).create(new TestDataGenerator());
+		@Test
+		void onNoDefaultConstructorClass() throws Exception {
+			SimpleNoDefaultConstructor object = new GenericObjectGenerator<>(SimpleNoDefaultConstructor.class).create(new TestDataGenerator());
 
-        assertThat(object).isNotNull();
-    }
+			assertThat(object).isNotNull();
+		}
 
-    @Test
-    void testCreatePrivateConstructorClass() throws Exception {
-        SimplePrivateConstructor object = new GenericObjectGenerator<>(SimplePrivateConstructor.class).create(new TestDataGenerator());
-        assertThat(object).isNotNull();
-    }
+		@Test
+		void onPrivateConstructorClass() throws Exception {
+			SimplePrivateConstructor object = new GenericObjectGenerator<>(SimplePrivateConstructor.class).create(new TestDataGenerator());
+			assertThat(object).isNotNull();
+		}
 
-    @Test
-    void testCreateExceptionConstructorClass() throws Exception {
-        SimpleExceptionConstructor object = new GenericObjectGenerator<>(SimpleExceptionConstructor.class).create(new TestDataGenerator());
-        assertThat(object).isNotNull();
-    }
+		@Test
+		void onExceptionConstructorClass() throws Exception {
+			SimpleExceptionConstructor object = new GenericObjectGenerator<>(SimpleExceptionConstructor.class).create(new TestDataGenerator());
+			assertThat(object).isNotNull();
+		}
 
-    @Test
-    void testCreateExceptionStandardConstructorClass() throws Exception {
-        SimpleExceptionStandardConstructor object = new GenericObjectGenerator<>(SimpleExceptionStandardConstructor.class).create(new TestDataGenerator());
-        assertThat(object).isNotNull();
-    }
+		@Test
+		void onExceptionStandardConstructorClass() throws Exception {
+			SimpleExceptionStandardConstructor object = new GenericObjectGenerator<>(SimpleExceptionStandardConstructor.class).create(new TestDataGenerator());
+			assertThat(object).isNotNull();
+		}
 
-    @Test
-    void testCreateOnlyExceptionConstructorClass() throws Exception {
-        SimpleOnlyExceptionConstructor object = new GenericObjectGenerator<>(SimpleOnlyExceptionConstructor.class).create(new TestDataGenerator());
-        assertThat(object).isNull();
-    }
+		@Test
+		void onOnlyExceptionConstructorClass() throws Exception {
+			SimpleOnlyExceptionConstructor object = new GenericObjectGenerator<>(SimpleOnlyExceptionConstructor.class).create(new TestDataGenerator());
+			assertThat(object).isNull();
+		}
+	}
 
-    @Test
-    void testGenerateFieldOnSyntheticFields() throws Exception {
-        TestDataGenerator generator = Mockito.mock(TestDataGenerator.class);
+	@Nested
+	class testGenerateField {
+		@Test
+		void onSyntheticFields() throws Exception {
+			TestDataGenerator generator = Mockito.mock(TestDataGenerator.class);
 
-        new GenericObjectGenerator<>(PseudoSynthetic.class).generateField(PseudoSynthetic.class.getDeclaredField("$attr"), generator, new PseudoSynthetic());
+			new GenericObjectGenerator<>(PseudoSynthetic.class).generateField(PseudoSynthetic.class.getDeclaredField("$attr"), generator, new PseudoSynthetic());
 
-        verifyZeroInteractions(generator);
-    }
+			verifyZeroInteractions(generator);
+		}
 
-    @Test
-    void testGenerateFieldOnNonSyntheticFields() throws Exception {
-        TestDataGenerator generator = Mockito.mock(TestDataGenerator.class);
+		@Test
+		void onNonSyntheticFields() throws Exception {
+			TestDataGenerator generator = Mockito.mock(TestDataGenerator.class);
 
-        new GenericObjectGenerator<>(Simple.class).generateField(Simple.class.getDeclaredField("str"), generator, new Simple());
+			new GenericObjectGenerator<>(Simple.class).generateField(Simple.class.getDeclaredField("str"), generator, new Simple());
 
-        verify(generator).create(String.class);
-    }
+			verify(generator).create(String.class);
+		}
+	}
 }

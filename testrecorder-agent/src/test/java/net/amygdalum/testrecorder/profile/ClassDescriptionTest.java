@@ -3,6 +3,7 @@ package net.amygdalum.testrecorder.profile;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.util.testobjects.Complex;
@@ -17,25 +18,27 @@ public class ClassDescriptionTest {
 	public void before() {
 		classByDescription = new ClassDescription("net/amygdalum/testrecorder/util/testobjects/Simple");
 	}
-	
+
 	@Test
-	public void testAlternativeFactories() throws Exception {
+	public void testClassDescription() throws Exception {
 		assertThat(classByDescription).isEqualToComparingFieldByField(Classes.byDescription("net/amygdalum/testrecorder/util/testobjects/Simple"));
 		assertThat(classByDescription).isEqualToComparingFieldByField(Classes.byDescription(Simple.class));
 	}
-	
-	@Test
-	public void testMatchesReflectiveClass() throws Exception {
-		assertThat(classByDescription.matches(Simple.class)).isTrue(); 
-		assertThat(classByDescription.matches(SimpleMisleadingFieldName.class)).isFalse(); 
-		assertThat(classByDescription.matches(Complex.class)).isFalse(); 
-	}
 
-	@Test
-	public void testMatchesClassDescriptor() throws Exception {
-		assertThat(classByDescription.matches("net/amygdalum/testrecorder/util/testobjects/Simple")).isTrue(); 
-		assertThat(classByDescription.matches("net/amygdalum/testrecorder/util/testobjects/SimpleMisleadingFieldName")).isFalse(); 
-		assertThat(classByDescription.matches("net/amygdalum/testrecorder/util/testobjects/Complex")).isFalse(); 
-	}
+	@Nested
+	class testMatches {
+		@Test
+		public void onReflectiveClass() throws Exception {
+			assertThat(classByDescription.matches(Simple.class)).isTrue();
+			assertThat(classByDescription.matches(SimpleMisleadingFieldName.class)).isFalse();
+			assertThat(classByDescription.matches(Complex.class)).isFalse();
+		}
 
+		@Test
+		public void onClassDescriptor() throws Exception {
+			assertThat(classByDescription.matches("net/amygdalum/testrecorder/util/testobjects/Simple")).isTrue();
+			assertThat(classByDescription.matches("net/amygdalum/testrecorder/util/testobjects/SimpleMisleadingFieldName")).isFalse();
+			assertThat(classByDescription.matches("net/amygdalum/testrecorder/util/testobjects/Complex")).isFalse();
+		}
+	}
 }

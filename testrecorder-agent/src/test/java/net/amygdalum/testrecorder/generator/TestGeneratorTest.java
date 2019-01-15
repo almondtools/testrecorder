@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -56,120 +57,126 @@ public class TestGeneratorTest {
 		testGenerator = new TestGenerator(config);
 	}
 
-	@Test
-	void testAccept() throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
-		FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
-		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
-		snapshot.setSetupArgs(literal(int.class, 16));
-		snapshot.setSetupGlobals(new SerializedField[0]);
-		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 8))));
-		snapshot.setExpectArgs(literal(int.class, 16));
-		snapshot.setExpectResult(literal(int.class, 22));
-		snapshot.setExpectGlobals(new SerializedField[0]);
+	@Nested
+	class testAccept {
+		@Test
+		void onCommon() throws Exception {
+			ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
+			FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
+			snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
+			snapshot.setSetupArgs(literal(int.class, 16));
+			snapshot.setSetupGlobals(new SerializedField[0]);
+			snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 8))));
+			snapshot.setExpectArgs(literal(int.class, 16));
+			snapshot.setExpectResult(literal(int.class, 22));
+			snapshot.setExpectGlobals(new SerializedField[0]);
 
-		testGenerator.accept(snapshot);
+			testGenerator.accept(snapshot);
 
-		testGenerator.await();
-		assertThat(testGenerator.testsFor(TestGeneratorTest.class))
-			.hasSize(1)
-			.anySatisfy(test -> {
-				assertThat(test).containsSubsequence("int field = 12;",
-					"intMethod(16);",
-					"equalTo(22)",
-					"int field = 8;");
-			});
+			testGenerator.await();
+			assertThat(testGenerator.testsFor(TestGeneratorTest.class))
+				.hasSize(1)
+				.anySatisfy(test -> {
+					assertThat(test).containsSubsequence("int field = 12;",
+						"intMethod(16);",
+						"equalTo(22)",
+						"int field = 8;");
+				});
+		}
+
+		@Test
+		void withInput() throws Exception {
+			ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
+			FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
+			snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
+			snapshot.setSetupArgs(literal(int.class, 16));
+			snapshot.setSetupGlobals(new SerializedField[0]);
+			snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 8))));
+			snapshot.setExpectArgs(literal(int.class, 16));
+			snapshot.setExpectResult(literal(int.class, 22));
+			snapshot.setExpectGlobals(new SerializedField[0]);
+			snapshot.addInput(new SerializedInput(42, new MethodSignature(System.class, long.class, "currentTimeMillis", new Type[0])).updateResult(literal(42l)));
+
+			testGenerator.accept(snapshot);
+
+			testGenerator.await();
+			assertThat(testGenerator.renderTest(TestGeneratorTest.class).getTestCode())
+				.containsSubsequence(
+					"@Before",
+					"@After",
+					"public void resetFakeIO() throws Exception {",
+					"FakeIO.reset();",
+					"}");
+		}
+
+		@Test
+		void withOutput() throws Exception {
+			ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
+			FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
+			snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
+			snapshot.setSetupArgs(literal(int.class, 16));
+			snapshot.setSetupGlobals(new SerializedField[0]);
+			snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 8))));
+			snapshot.setExpectArgs(literal(int.class, 16));
+			snapshot.setExpectResult(literal(int.class, 22));
+			snapshot.setExpectGlobals(new SerializedField[0]);
+			snapshot.addOutput(new SerializedOutput(42, new MethodSignature(Writer.class, void.class, "write", new Type[] {Writer.class})).updateArguments(literal("hello")));
+
+			testGenerator.accept(snapshot);
+
+			testGenerator.await();
+			assertThat(testGenerator.renderTest(TestGeneratorTest.class).getTestCode())
+				.containsSubsequence(
+					"@Before",
+					"@After",
+					"public void resetFakeIO() throws Exception {",
+					"FakeIO.reset();",
+					"}");
+		}
+
+		@Test
+		void suppressingWarnings() throws Exception {
+			ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
+			FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
+			snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
+			snapshot.setSetupArgs(literal(int.class, 16));
+			snapshot.setSetupGlobals(new SerializedField[0]);
+			snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 8))));
+			snapshot.setExpectArgs(literal(int.class, 16));
+			snapshot.setExpectResult(literal(int.class, 22));
+			snapshot.setExpectGlobals(new SerializedField[0]);
+
+			testGenerator.accept(snapshot);
+
+			testGenerator.await();
+			assertThat(testGenerator.renderTest(MyClass.class).getTestCode()).containsSubsequence("@SuppressWarnings(\"unused\")" + System.lineSeparator() + "public class");
+		}
 	}
 
-	@Test
-	void testAcceptWithInput() throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
-		FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
-		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
-		snapshot.setSetupArgs(literal(int.class, 16));
-		snapshot.setSetupGlobals(new SerializedField[0]);
-		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 8))));
-		snapshot.setExpectArgs(literal(int.class, 16));
-		snapshot.setExpectResult(literal(int.class, 22));
-		snapshot.setExpectGlobals(new SerializedField[0]);
-		snapshot.addInput(new SerializedInput(42, new MethodSignature(System.class, long.class, "currentTimeMillis", new Type[0])).updateResult(literal(42l)));
+	@Nested
+	class testTestsFor {
+		@Test
+		void onEmpty() throws Exception {
+			assertThat(testGenerator.testsFor(MyClass.class)).isEmpty();
+		}
 
-		testGenerator.accept(snapshot);
+		@Test
+		void afterClear() throws Exception {
+			ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
+			FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
+			snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
+			snapshot.setSetupArgs(literal(int.class, 16));
+			snapshot.setSetupGlobals(new SerializedField[0]);
+			snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 8))));
+			snapshot.setExpectArgs(literal(int.class, 16));
+			snapshot.setExpectResult(literal(int.class, 22));
+			snapshot.setExpectGlobals(new SerializedField[0]);
+			testGenerator.accept(snapshot);
 
-		testGenerator.await();
-		assertThat(testGenerator.renderTest(TestGeneratorTest.class).getTestCode())
-			.containsSubsequence(
-				"@Before",
-				"@After",
-				"public void resetFakeIO() throws Exception {",
-				"FakeIO.reset();",
-				"}");
-	}
+			testGenerator.clearResults();
 
-	@Test
-	void testAcceptWithOutput() throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
-		FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
-		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
-		snapshot.setSetupArgs(literal(int.class, 16));
-		snapshot.setSetupGlobals(new SerializedField[0]);
-		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 8))));
-		snapshot.setExpectArgs(literal(int.class, 16));
-		snapshot.setExpectResult(literal(int.class, 22));
-		snapshot.setExpectGlobals(new SerializedField[0]);
-		snapshot.addOutput(new SerializedOutput(42, new MethodSignature(Writer.class, void.class, "write", new Type[] { Writer.class })).updateArguments(literal("hello")));
-
-		testGenerator.accept(snapshot);
-
-		testGenerator.await();
-		assertThat(testGenerator.renderTest(TestGeneratorTest.class).getTestCode())
-			.containsSubsequence(
-				"@Before",
-				"@After",
-				"public void resetFakeIO() throws Exception {",
-				"FakeIO.reset();",
-				"}");
-	}
-
-	@Test
-	void testSuppressesWarnings() throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
-		FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
-		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
-		snapshot.setSetupArgs(literal(int.class, 16));
-		snapshot.setSetupGlobals(new SerializedField[0]);
-		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 8))));
-		snapshot.setExpectArgs(literal(int.class, 16));
-		snapshot.setExpectResult(literal(int.class, 22));
-		snapshot.setExpectGlobals(new SerializedField[0]);
-
-		testGenerator.accept(snapshot);
-
-		testGenerator.await();
-		assertThat(testGenerator.renderTest(MyClass.class).getTestCode()).containsSubsequence("@SuppressWarnings(\"unused\")" + System.lineSeparator() + "public class");
-	}
-
-	@Test
-	void testTestsForEmpty() throws Exception {
-		assertThat(testGenerator.testsFor(MyClass.class)).isEmpty();
-	}
-
-	@Test
-	void testTestsForAfterClear() throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
-		FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
-		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
-		snapshot.setSetupArgs(literal(int.class, 16));
-		snapshot.setSetupGlobals(new SerializedField[0]);
-		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 8))));
-		snapshot.setExpectArgs(literal(int.class, 16));
-		snapshot.setExpectResult(literal(int.class, 22));
-		snapshot.setExpectGlobals(new SerializedField[0]);
-		testGenerator.accept(snapshot);
-
-		testGenerator.clearResults();
-
-		assertThat(testGenerator.testsFor(MyClass.class)).isEmpty();
+			assertThat(testGenerator.testsFor(MyClass.class)).isEmpty();
+		}
 	}
 
 	@Test

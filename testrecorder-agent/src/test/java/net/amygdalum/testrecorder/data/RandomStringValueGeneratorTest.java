@@ -3,6 +3,7 @@ package net.amygdalum.testrecorder.data;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 public class RandomStringValueGeneratorTest {
@@ -11,21 +12,24 @@ public class RandomStringValueGeneratorTest {
 
 	@BeforeEach
 	public void before() throws Exception {
-		gen = new RandomStringValueGenerator("A","b");
+		gen = new RandomStringValueGenerator("A", "b");
 	}
 
-	@Test
-	void testCreateMax() throws Exception {
-		gen.random.setSeed(Long.MAX_VALUE);
+	@Nested
+	class testCreate {
+		@Test
+		void onMax() throws Exception {
+			gen.random.setSeed(Long.MAX_VALUE);
 
-		assertThat(gen.create(null)).isEqualTo("A");
-	}
+			assertThat(gen.create(null)).isEqualTo("A");
+		}
 
-	@Test
-	void testCreateMin() throws Exception {
-		gen.random.setSeed(Long.MIN_VALUE);
+		@Test
+		void onMin() throws Exception {
+			gen.random.setSeed(Long.MIN_VALUE);
 
-		assertThat(gen.create(null)).isEqualTo("b");
+			assertThat(gen.create(null)).isEqualTo("b");
+		}
 	}
 
 }

@@ -15,6 +15,7 @@ import java.util.Set;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -70,126 +71,132 @@ public class ScheduledTestGeneratorTest {
 		testGenerator.counterMaximum = 1;
 	}
 
-	@Test
-	void testAccept() throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
-		FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
-		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
-		snapshot.setSetupArgs(literal(int.class, 16));
-		snapshot.setSetupGlobals(new SerializedField[0]);
-		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 8))));
-		snapshot.setExpectArgs(literal(int.class, 16));
-		snapshot.setExpectResult(literal(int.class, 22));
-		snapshot.setExpectGlobals(new SerializedField[0]);
+	@Nested
+	class testAccept {
+		@Test
+		void onCommon() throws Exception {
+			ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
+			FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
+			snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
+			snapshot.setSetupArgs(literal(int.class, 16));
+			snapshot.setSetupGlobals(new SerializedField[0]);
+			snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 8))));
+			snapshot.setExpectArgs(literal(int.class, 16));
+			snapshot.setExpectResult(literal(int.class, 22));
+			snapshot.setExpectGlobals(new SerializedField[0]);
 
-		testGenerator.accept(snapshot);
+			testGenerator.accept(snapshot);
 
-		testGenerator.await();
-		assertThat(testGenerator.testsFor(ScheduledTestGeneratorTest.class))
-			.hasSize(1)
-			.anySatisfy(test -> {
-				assertThat(test)
-					.containsSubsequence(
-						"int field = 12;",
-						"intMethod(16);",
-						"equalTo(22)",
-						"int field = 8;");
-			});
+			testGenerator.await();
+			assertThat(testGenerator.testsFor(ScheduledTestGeneratorTest.class))
+				.hasSize(1)
+				.anySatisfy(test -> {
+					assertThat(test)
+						.containsSubsequence(
+							"int field = 12;",
+							"intMethod(16);",
+							"equalTo(22)",
+							"int field = 8;");
+				});
+		}
+
+		@Test
+		void withInput() throws Exception {
+			ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
+			FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
+			snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
+			snapshot.setSetupArgs(literal(int.class, 16));
+			snapshot.setSetupGlobals(new SerializedField[0]);
+			snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 8))));
+			snapshot.setExpectArgs(literal(int.class, 16));
+			snapshot.setExpectResult(literal(int.class, 22));
+			snapshot.setExpectGlobals(new SerializedField[0]);
+			snapshot.addInput(new SerializedInput(42, new MethodSignature(System.class, long.class, "currentTimeMillis", new Type[0])).updateResult(literal(42l)));
+
+			testGenerator.accept(snapshot);
+
+			testGenerator.await();
+			assertThat(testGenerator.renderTest(ScheduledTestGeneratorTest.class).getTestCode())
+				.containsSubsequence(
+					"@Before",
+					"@After",
+					"public void resetFakeIO() throws Exception {",
+					"FakeIO.reset();",
+					"}");
+		}
+
+		@Test
+		void withOutput() throws Exception {
+			ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
+			FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
+			snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
+			snapshot.setSetupArgs(literal(int.class, 16));
+			snapshot.setSetupGlobals(new SerializedField[0]);
+			snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 8))));
+			snapshot.setExpectArgs(literal(int.class, 16));
+			snapshot.setExpectResult(literal(int.class, 22));
+			snapshot.setExpectGlobals(new SerializedField[0]);
+			snapshot.addOutput(new SerializedOutput(42, new MethodSignature(Writer.class, void.class, "write", new Type[] {Writer.class})).updateArguments(literal("hello")));
+
+			testGenerator.accept(snapshot);
+
+			testGenerator.await();
+			assertThat(testGenerator.renderTest(ScheduledTestGeneratorTest.class).getTestCode())
+				.containsSubsequence(
+					"@Before",
+					"@After",
+					"public void resetFakeIO() throws Exception {",
+					"FakeIO.reset();",
+					"}");
+		}
+
+		@Test
+		void suppressinWarnings() throws Exception {
+			ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
+			FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
+			snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
+			snapshot.setSetupArgs(literal(int.class, 16));
+			snapshot.setSetupGlobals(new SerializedField[0]);
+			snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 8))));
+			snapshot.setExpectArgs(literal(int.class, 16));
+			snapshot.setExpectResult(literal(int.class, 22));
+			snapshot.setExpectGlobals(new SerializedField[0]);
+
+			testGenerator.accept(snapshot);
+
+			testGenerator.await();
+			assertThat(testGenerator.renderTest(MyClass.class).getTestCode()).containsSubsequence("@SuppressWarnings(\"unused\")" + System.lineSeparator() + "public class");
+		}
+	}
+
+	@Nested
+	class testTestsFor {
+		@Test
+		void onEmpty() throws Exception {
+			assertThat(testGenerator.testsFor(MyClass.class)).isEmpty();
+		}
+
+		@Test
+		void afterClear() throws Exception {
+			ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
+			FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
+			snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
+			snapshot.setSetupArgs(literal(int.class, 16));
+			snapshot.setSetupGlobals(new SerializedField[0]);
+			snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 8))));
+			snapshot.setExpectArgs(literal(int.class, 16));
+			snapshot.setExpectResult(literal(int.class, 22));
+			snapshot.setExpectGlobals(new SerializedField[0]);
+			testGenerator.accept(snapshot);
+
+			testGenerator.clearResults();
+
+			assertThat(testGenerator.testsFor(MyClass.class)).isEmpty();
+		}
 	}
 
 	@Test
-	void testAcceptWithInput() throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
-		FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
-		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
-		snapshot.setSetupArgs(literal(int.class, 16));
-		snapshot.setSetupGlobals(new SerializedField[0]);
-		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 8))));
-		snapshot.setExpectArgs(literal(int.class, 16));
-		snapshot.setExpectResult(literal(int.class, 22));
-		snapshot.setExpectGlobals(new SerializedField[0]);
-		snapshot.addInput(new SerializedInput(42, new MethodSignature(System.class, long.class, "currentTimeMillis", new Type[0])).updateResult(literal(42l)));
-
-		testGenerator.accept(snapshot);
-
-		testGenerator.await();
-		assertThat(testGenerator.renderTest(ScheduledTestGeneratorTest.class).getTestCode())
-			.containsSubsequence(
-				"@Before",
-				"@After",
-				"public void resetFakeIO() throws Exception {",
-				"FakeIO.reset();",
-				"}");
-	}
-
-	@Test
-	void testAcceptWithOutput() throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
-		FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
-		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
-		snapshot.setSetupArgs(literal(int.class, 16));
-		snapshot.setSetupGlobals(new SerializedField[0]);
-		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 8))));
-		snapshot.setExpectArgs(literal(int.class, 16));
-		snapshot.setExpectResult(literal(int.class, 22));
-		snapshot.setExpectGlobals(new SerializedField[0]);
-		snapshot.addOutput(new SerializedOutput(42, new MethodSignature(Writer.class, void.class, "write", new Type[] { Writer.class })).updateArguments(literal("hello")));
-
-		testGenerator.accept(snapshot);
-
-		testGenerator.await();
-		assertThat(testGenerator.renderTest(ScheduledTestGeneratorTest.class).getTestCode())
-			.containsSubsequence(
-				"@Before",
-				"@After",
-				"public void resetFakeIO() throws Exception {",
-				"FakeIO.reset();",
-				"}");
-	}
-
-	@Test
-	void testSuppressesWarnings() throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
-		FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
-		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
-		snapshot.setSetupArgs(literal(int.class, 16));
-		snapshot.setSetupGlobals(new SerializedField[0]);
-		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 8))));
-		snapshot.setExpectArgs(literal(int.class, 16));
-		snapshot.setExpectResult(literal(int.class, 22));
-		snapshot.setExpectGlobals(new SerializedField[0]);
-
-		testGenerator.accept(snapshot);
-
-		testGenerator.await();
-		assertThat(testGenerator.renderTest(MyClass.class).getTestCode()).containsSubsequence("@SuppressWarnings(\"unused\")" + System.lineSeparator() + "public class");
-	}
-
-	@Test
-	void testTestsForEmpty() throws Exception {
-		assertThat(testGenerator.testsFor(MyClass.class)).isEmpty();
-	}
-
-	@Test
-	void testTestsForAfterClear() throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
-		FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
-		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
-		snapshot.setSetupArgs(literal(int.class, 16));
-		snapshot.setSetupGlobals(new SerializedField[0]);
-		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 8))));
-		snapshot.setExpectArgs(literal(int.class, 16));
-		snapshot.setExpectResult(literal(int.class, 22));
-		snapshot.setExpectGlobals(new SerializedField[0]);
-		testGenerator.accept(snapshot);
-
-		testGenerator.clearResults();
-
-		assertThat(testGenerator.testsFor(MyClass.class)).isEmpty();
-	}
-
-	@Test
-	void testRenderCode() throws Exception {
+	void testRenderTest() throws Exception {
 		FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
 
 		ContextSnapshot snapshot1 = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
@@ -225,27 +232,30 @@ public class ScheduledTestGeneratorTest {
 			"int field = 9;");
 	}
 
-	@Test
-	void testComputeClassName() throws Exception {
-		assertThat(testGenerator.computeClassName(ClassDescriptor.of(MyClass.class))).isEqualTo("MyClassRecordedTest");
-	}
+	@Nested
+	class testComputeClassName {
+		@Test
+		void onCommon() throws Exception {
+			assertThat(testGenerator.computeClassName(ClassDescriptor.of(MyClass.class))).isEqualTo("MyClassRecordedTest");
+		}
 
-	@Test
-	void testComputeClassNameWithTemplateClass() throws Exception {
-		testGenerator.classNameTemplate = "${class}Suffix";
-		assertThat(testGenerator.computeClassName(ClassDescriptor.of(MyClass.class))).isEqualTo("MyClassSuffix");
-	}
+		@Test
+		void withTemplateClass() throws Exception {
+			testGenerator.classNameTemplate = "${class}Suffix";
+			assertThat(testGenerator.computeClassName(ClassDescriptor.of(MyClass.class))).isEqualTo("MyClassSuffix");
+		}
 
-	@Test
-	void testComputeClassNameWithTemplateCounter() throws Exception {
-		testGenerator.classNameTemplate = "${counter}Suffix";
-		assertThat(testGenerator.computeClassName(ClassDescriptor.of(MyClass.class))).isEqualTo("0Suffix");
-	}
+		@Test
+		void withTemplateCounter() throws Exception {
+			testGenerator.classNameTemplate = "${counter}Suffix";
+			assertThat(testGenerator.computeClassName(ClassDescriptor.of(MyClass.class))).isEqualTo("0Suffix");
+		}
 
-	@Test
-	void testComputeClassNameWithTemplateMillis() throws Exception {
-		testGenerator.classNameTemplate = "Prefix${millis}Suffix";
-		assertThat(testGenerator.computeClassName(ClassDescriptor.of(MyClass.class))).containsWildcardPattern("Prefix*Suffix");
+		@Test
+		void withTemplateMillis() throws Exception {
+			testGenerator.classNameTemplate = "Prefix${millis}Suffix";
+			assertThat(testGenerator.computeClassName(ClassDescriptor.of(MyClass.class))).containsWildcardPattern("Prefix*Suffix");
+		}
 	}
 
 	@Test
@@ -321,65 +331,68 @@ public class ScheduledTestGeneratorTest {
 		assertThat(folder.fileNames()).containsExactlyInAnyOrder("0Test.java", "2Test.java");
 	}
 
-	@Test
-	void testWithDumpOnShutDown(TemporaryFolder folder) throws Exception {
-		testGenerator.counterMaximum = 5;
-		testGenerator.generateTo = folder.getRoot();
-		testGenerator.classNameTemplate = "${counter}Test";
-		testGenerator.dumpOnShutdown(true);
+	@Nested
+	class testWithDumpOnShutDown {
+		@Test
+		void singleThread(TemporaryFolder folder) throws Exception {
+			testGenerator.counterMaximum = 5;
+			testGenerator.generateTo = folder.getRoot();
+			testGenerator.classNameTemplate = "${counter}Test";
+			testGenerator.dumpOnShutdown(true);
 
-		testGenerator.accept(newSnapshot());
-		testGenerator.accept(newSnapshot());
-		testGenerator.accept(newSnapshot());
-		testGenerator.accept(newSnapshot());
-		testGenerator.accept(newSnapshot());
-		testGenerator.accept(newSnapshot());
-		testGenerator.accept(newSnapshot());
-		testGenerator.accept(newSnapshot());
-		testGenerator.await();
-		assertThat(folder.fileNames()).isEmpty();
+			testGenerator.accept(newSnapshot());
+			testGenerator.accept(newSnapshot());
+			testGenerator.accept(newSnapshot());
+			testGenerator.accept(newSnapshot());
+			testGenerator.accept(newSnapshot());
+			testGenerator.accept(newSnapshot());
+			testGenerator.accept(newSnapshot());
+			testGenerator.accept(newSnapshot());
+			testGenerator.await();
+			assertThat(folder.fileNames()).isEmpty();
 
-		Thread shutdown = shutdownHooks().entrySet().stream()
-			.filter(e -> e.getKey().getName().equals("$generate-shutdown"))
-			.map(e -> e.getValue())
-			.findFirst().orElseThrow(() -> new AssertionError("no shutdown thread"));
+			Thread shutdown = shutdownHooks().entrySet().stream()
+				.filter(e -> e.getKey().getName().equals("$generate-shutdown"))
+				.map(e -> e.getValue())
+				.findFirst().orElseThrow(() -> new AssertionError("no shutdown thread"));
 
-		shutdown.run();
-		shutdown.join();
+			shutdown.run();
+			shutdown.join();
 
-		assertThat(folder.fileNames()).containsExactlyInAnyOrder("0Test.java");
-	}
+			assertThat(folder.fileNames()).containsExactlyInAnyOrder("0Test.java");
+		}
 
-	@Test
-	void testWithDumpOnShutDownConcurrent(TemporaryFolder folder) throws Exception {
-		testGenerator.counterMaximum = 2;
-		testGenerator.generateTo = folder.getRoot();
-		testGenerator.classNameTemplate = "${counter}Test";
-		testGenerator.dumpOnShutdown(true);
+		@Test
+		void concurrent(TemporaryFolder folder) throws Exception {
+			testGenerator.counterMaximum = 2;
+			testGenerator.generateTo = folder.getRoot();
+			testGenerator.classNameTemplate = "${counter}Test";
+			testGenerator.dumpOnShutdown(true);
 
-		ScheduledTestGenerator second = new ScheduledTestGenerator(config);
-		second.counterMaximum = 2;
-		second.generateTo = folder.getRoot();
-		second.classNameTemplate = "${counter}SecondTest";
-		second.dumpOnShutdown(true);
+			ScheduledTestGenerator second = new ScheduledTestGenerator(config);
+			second.counterMaximum = 2;
+			second.generateTo = folder.getRoot();
+			second.classNameTemplate = "${counter}SecondTest";
+			second.dumpOnShutdown(true);
 
-		testGenerator.accept(newSnapshot());
-		testGenerator.accept(newSnapshot());
-		testGenerator.accept(newSnapshot());
-		second.accept(newSnapshot());
-		second.accept(newSnapshot());
-		second.accept(newSnapshot());
-		assertThat(folder.fileNames()).isEmpty();
+			testGenerator.accept(newSnapshot());
+			testGenerator.accept(newSnapshot());
+			testGenerator.accept(newSnapshot());
+			second.accept(newSnapshot());
+			second.accept(newSnapshot());
+			second.accept(newSnapshot());
+			assertThat(folder.fileNames()).isEmpty();
 
-		Thread shutdown = shutdownHooks().entrySet().stream()
-			.filter(e -> e.getKey().getName().equals("$generate-shutdown"))
-			.map(e -> e.getValue())
-			.findFirst().orElseThrow(() -> new AssertionError("no shutdown thread"));
+			Thread shutdown = shutdownHooks().entrySet().stream()
+				.filter(e -> e.getKey().getName().equals("$generate-shutdown"))
+				.map(e -> e.getValue())
+				.findFirst().orElseThrow(() -> new AssertionError("no shutdown thread"));
 
-		shutdown.run();
-		shutdown.join();
+			shutdown.run();
+			shutdown.join();
 
-		assertThat(folder.fileNames()).containsExactlyInAnyOrder("0Test.java", "0SecondTest.java");
+			assertThat(folder.fileNames()).containsExactlyInAnyOrder("0Test.java", "0SecondTest.java");
+		}
 	}
 
 	private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {

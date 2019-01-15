@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 public class DefaultPathConfigurationLoaderTest {
 
 	@Test
-	void testDefaultPathConfigurationLoader() throws Exception {
+	void testLoad() throws Exception {
 		Object result = new Object();
 		DefaultPathConfigurationLoader loader = new DefaultPathConfigurationLoader() {
 			@SuppressWarnings("unchecked")

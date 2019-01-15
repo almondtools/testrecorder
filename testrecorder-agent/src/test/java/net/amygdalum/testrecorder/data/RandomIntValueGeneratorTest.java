@@ -3,6 +3,7 @@ package net.amygdalum.testrecorder.data;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 public class RandomIntValueGeneratorTest {
@@ -14,18 +15,20 @@ public class RandomIntValueGeneratorTest {
 		gen = new RandomIntValueGenerator();
 	}
 
-	@Test
-	void testCreateMax() throws Exception {
-		gen.random.setSeed(Long.MAX_VALUE);
+	@Nested
+	class testCreate {
+		@Test
+		void onMax() throws Exception {
+			gen.random.setSeed(Long.MAX_VALUE);
 
-		assertThat(gen.create(null)).isEqualTo(1155099827);
+			assertThat(gen.create(null)).isEqualTo(1155099827);
+		}
+
+		@Test
+		void onMin() throws Exception {
+			gen.random.setSeed(Long.MIN_VALUE);
+
+			assertThat(gen.create(null)).isEqualTo(-1155484576);
+		}
 	}
-
-	@Test
-	void testCreateMin() throws Exception {
-		gen.random.setSeed(Long.MIN_VALUE);
-
-		assertThat(gen.create(null)).isEqualTo(-1155484576);
-	}
-
 }

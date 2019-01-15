@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 public class FieldsAtRuntimeTest {
 
 	@Test
-	public void testMatchDefaults() throws Exception {
+	public void testMatches() throws Exception {
 		FieldsAtRuntime fieldsAtRuntime = new FieldsAtRuntime() {
 			
 			@Override

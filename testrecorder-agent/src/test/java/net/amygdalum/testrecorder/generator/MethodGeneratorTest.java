@@ -11,6 +11,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.deserializers.Adaptors;
@@ -45,57 +46,60 @@ public class MethodGeneratorTest {
 		matcher = new MatcherGenerators(new Adaptors().load(config.loadConfigurations(MatcherGenerator.class)));
 	}
 
-	@Test
-	void testGenerateActWithResult() throws Exception {
-		MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher, template, emptyList());
-		methodGenerator.analyze(snapshotWithResult());
-		xray(methodGenerator).to(OpenMethodGenerator.class).setBase("var");
+	@Nested
+	class testGenerateAct {
+		@Test
+		void withResult() throws Exception {
+			MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher, template, emptyList());
+			methodGenerator.analyze(snapshotWithResult());
+			xray(methodGenerator).to(OpenMethodGenerator.class).setBase("var");
 
-		methodGenerator.generateAct();
+			methodGenerator.generateAct();
 
-		assertThat(methodGenerator.generateTest()).containsWildcardPattern("String string? = var.getAttribute();");
-	}
+			assertThat(methodGenerator.generateTest()).containsWildcardPattern("String string? = var.getAttribute();");
+		}
 
-	@Test
-	void testGenerateActNoResult() throws Exception {
-		MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher, template, emptyList());
-		methodGenerator.analyze(snapshotNoResult());
-		xray(methodGenerator).to(OpenMethodGenerator.class).setBase("var");
-		xray(methodGenerator).to(OpenMethodGenerator.class).setArgs(asList("\"newstr\""));
+		@Test
+		void withoutResult() throws Exception {
+			MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher, template, emptyList());
+			methodGenerator.analyze(snapshotNoResult());
+			xray(methodGenerator).to(OpenMethodGenerator.class).setBase("var");
+			xray(methodGenerator).to(OpenMethodGenerator.class).setArgs(asList("\"newstr\""));
 
-		methodGenerator.generateAct();
+			methodGenerator.generateAct();
 
-		assertThat(methodGenerator.generateTest()).containsWildcardPattern("var.setAttribute(\"newstr\");");
-	}
+			assertThat(methodGenerator.generateTest()).containsWildcardPattern("var.setAttribute(\"newstr\");");
+		}
 
-	@Test
-	void testGenerateActWithResultAndException() throws Exception {
-		MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher, template, emptyList());
-		methodGenerator.analyze(snapshotWithResultAndException());
-		xray(methodGenerator).to(OpenMethodGenerator.class).setBase("var");
+		@Test
+		void withResultAndException() throws Exception {
+			MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher, template, emptyList());
+			methodGenerator.analyze(snapshotWithResultAndException());
+			xray(methodGenerator).to(OpenMethodGenerator.class).setBase("var");
 
-		methodGenerator.generateAct();
+			methodGenerator.generateAct();
 
-		assertThat(methodGenerator.generateTest()).containsWildcardPattern(""
-			+ "RuntimeException runtimeException? = capture(() -> {"
-			+ "String string? = var.getAttribute();"
-			+ "return string?;"
-			+ "}, RuntimeException.class);");
-	}
+			assertThat(methodGenerator.generateTest()).containsWildcardPattern(""
+				+ "RuntimeException runtimeException? = capture(() -> {"
+				+ "String string? = var.getAttribute();"
+				+ "return string?;"
+				+ "}, RuntimeException.class);");
+		}
 
-	@Test
-	void testGenerateActNoResultAndException() throws Exception {
-		MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher, template, emptyList());
-		methodGenerator.analyze(snapshotNoResultAndException());
-		xray(methodGenerator).to(OpenMethodGenerator.class).setBase("var");
-		xray(methodGenerator).to(OpenMethodGenerator.class).setArgs(asList("\"newstr\""));
+		@Test
+		void withoutResultAndException() throws Exception {
+			MethodGenerator methodGenerator = new MethodGenerator(1, types, setup, matcher, template, emptyList());
+			methodGenerator.analyze(snapshotNoResultAndException());
+			xray(methodGenerator).to(OpenMethodGenerator.class).setBase("var");
+			xray(methodGenerator).to(OpenMethodGenerator.class).setArgs(asList("\"newstr\""));
 
-		methodGenerator.generateAct();
+			methodGenerator.generateAct();
 
-		assertThat(methodGenerator.generateTest()).containsWildcardPattern(""
-			+ "RuntimeException runtimeException? = capture(() -> {"
-			+ "var.setAttribute(\"newstr\");"
-			+ "}, RuntimeException.class);");
+			assertThat(methodGenerator.generateTest()).containsWildcardPattern(""
+				+ "RuntimeException runtimeException? = capture(() -> {"
+				+ "var.setAttribute(\"newstr\");"
+				+ "}, RuntimeException.class);");
+		}
 	}
 
 	private ContextSnapshot snapshotWithResult() {

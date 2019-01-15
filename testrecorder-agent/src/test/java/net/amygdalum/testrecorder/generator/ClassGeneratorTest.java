@@ -43,17 +43,14 @@ public class ClassGeneratorTest {
 	}
 
 	@Nested
-	class Setup {
+	class testGenerate {
 
-		@BeforeEach
-		void before() throws Exception {
+		@Test
+		void forSetup() throws Exception {
 			DeserializerFactory setup = new TestDeserializer.Factory();
 			DeserializerFactory matcher = new MatcherGenerators(new Adaptors().load(config.loadConfigurations(MatcherGenerator.class)));
 			testGenerator = new ClassGenerator(setup, matcher, template, emptyList(), MyClass.class.getPackage().getName(), MyClass.class.getSimpleName());
-		}
 
-		@Test
-		void testSetSetup() throws Exception {
 			ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 			FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
 			snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
@@ -77,20 +74,13 @@ public class ClassGeneratorTest {
 				});
 
 		}
-	}
 
-	@Nested
-	class Matcher {
-
-		@BeforeEach
-		void before() throws Exception {
+		@Test
+		void forMatcher() throws Exception {
 			DeserializerFactory setup = new SetupGenerators(new Adaptors().load(config.loadConfigurations(SetupGenerator.class)));
 			DeserializerFactory matcher = new TestDeserializer.Factory();
 			testGenerator = new ClassGenerator(setup, matcher, template, emptyList(), MyClass.class.getPackage().getName(), MyClass.class.getSimpleName());
-		}
 
-		@Test
-		void testSetMatcher() throws Exception {
 			ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
 			FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
 			snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
@@ -114,6 +104,7 @@ public class ClassGeneratorTest {
 						"int field: 8");
 				});
 		}
+
 	}
 
 	private static ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
