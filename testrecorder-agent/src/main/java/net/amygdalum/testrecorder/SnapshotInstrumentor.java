@@ -478,8 +478,10 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 						if (isNativeInputMethod(calledClassNode, calledMethodNode)) {
 							calls.add(methodinsn);
 						}
-					} catch (IOException | NoSuchMethodException e) {
-						Logger.error("cannot load method " + methodinsn.owner + "." + methodinsn.name + methodinsn.desc, e);
+					} catch (IOException e) {
+						Logger.warn("cannot find referenced class " + methodinsn.owner + ", skipping");
+					} catch (NoSuchMethodException e) {
+						Logger.warn("cannot find referenced method " + methodinsn.owner + "." + methodinsn.name + methodinsn.desc + ", skipping");
 					}
 				}
 			}
@@ -503,8 +505,10 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 						if (isNativeOutputMethod(calledClassNode, calledMethodNode)) {
 							calls.add(methodinsn);
 						}
-					} catch (IOException | NoSuchMethodException e) {
-						Logger.error("cannot load method " + methodinsn.owner + "." + methodinsn.name + methodinsn.desc, e);
+					} catch (IOException e) {
+						Logger.warn("cannot find referenced class " + methodinsn.owner + ", skipping");
+					} catch (NoSuchMethodException e) {
+						Logger.warn("cannot find referenced method " + methodinsn.owner + "." + methodinsn.name + methodinsn.desc + ", skipping");
 					}
 				}
 			}
