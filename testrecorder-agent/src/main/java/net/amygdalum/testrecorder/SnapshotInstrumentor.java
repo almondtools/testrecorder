@@ -328,46 +328,6 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 			}
 		}
 
-		protected InsnList beforeNativeInputCall(MethodContext context, MethodInsnNode inputCall) {
-			return Sequence.start()
-				.then(new CaptureCall(inputCall, "base", "arguments"))
-				.then(new Assign("inputId", Type.INT_TYPE)
-					.value(
-						new InvokeVirtual(SnapshotManager.class, "inputVariables", Object.class, String.class, java.lang.reflect.Type.class, java.lang.reflect.Type[].class)
-							.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-							.withArgument(0, new Recall("base"))
-							.withArgument(1, new GetInvokedMethodName(inputCall))
-							.withArgument(2, new GetInvokedMethodResultType(inputCall))
-							.withArgument(3, new GetInvokedMethodArgumentTypes(inputCall))))
-				.build(context);
-		}
-
-		protected InsnList afterNativeInputCall(MethodContext context, MethodInsnNode inputCall) {
-			if (returnsResult(inputCall)) {
-				return Sequence.start()
-					.then(new MemoizeBoxed("returnValue", Type.getReturnType(inputCall.desc)))
-					.then(new InvokeVirtual(SnapshotManager.class, "inputArguments", int.class, Object[].class)
-						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-						.withArgument(0, new Recall("inputId"))
-						.withArgument(1, new Recall("arguments")))
-					.then(new InvokeVirtual(SnapshotManager.class, "inputResult", int.class, Object.class)
-						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-						.withArgument(0, new Recall("inputId"))
-						.withArgument(1, new Recall("returnValue")))
-					.build(context);
-			} else {
-				return Sequence.start()
-					.then(new InvokeVirtual(SnapshotManager.class, "inputArguments", int.class, Object[].class)
-						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-						.withArgument(0, new Recall("inputId"))
-						.withArgument(1, new Recall("arguments")))
-					.then(new InvokeVirtual(SnapshotManager.class, "inputVoidResult", int.class)
-						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-						.withArgument(0, new Recall("inputId")))
-					.build(context);
-			}
-		}
-
 		private void instrumentNativeOutputCalls() {
 			for (MethodNode method : classNode.methods) {
 				if (!isOutputMethod(classNode, method)) {
@@ -380,41 +340,13 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 			}
 		}
 
-		protected InsnList beforeNativeOutputCall(MethodContext context, MethodInsnNode inputCall) {
-			return Sequence.start()
-				.then(new CaptureCall(inputCall, "base", "arguments"))
-				.then(new Assign("outputId", Type.INT_TYPE)
-					.value(
-						new InvokeVirtual(SnapshotManager.class, "outputVariables", Object.class, String.class, java.lang.reflect.Type.class, java.lang.reflect.Type[].class)
-							.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-							.withArgument(0, new Recall("base"))
-							.withArgument(1, new GetInvokedMethodName(inputCall))
-							.withArgument(2, new GetInvokedMethodResultType(inputCall))
-							.withArgument(3, new GetInvokedMethodArgumentTypes(inputCall))))
-				.then(new InvokeVirtual(SnapshotManager.class, "outputArguments", int.class, Object[].class)
-					.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-					.withArgument(0, new Recall("outputId"))
-					.withArgument(1, new Recall("arguments")))
-				.build(context);
-		}
+		protected abstract InsnList afterNativeInputCall(MethodContext context, MethodInsnNode inputCall);
 
-		protected InsnList afterNativeOutputCall(MethodContext context, MethodInsnNode inputCall) {
-			if (returnsResult(inputCall)) {
-				return Sequence.start()
-					.then(new MemoizeBoxed("returnValue", Type.getReturnType(inputCall.desc)))
-					.then(new InvokeVirtual(SnapshotManager.class, "outputResult", int.class, Object.class)
-						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-						.withArgument(0, new Recall("outputId"))
-						.withArgument(1, new Recall("returnValue")))
-					.build(context);
-			} else {
-				return Sequence.start()
-					.then(new InvokeVirtual(SnapshotManager.class, "outputVoidResult", int.class)
-						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
-						.withArgument(0, new Recall("outputId")))
-					.build(context);
-			}
-		}
+		protected abstract InsnList beforeNativeInputCall(MethodContext context, MethodInsnNode inputCall);
+
+		protected abstract InsnList beforeNativeOutputCall(MethodContext context, MethodInsnNode inputCall);
+
+		protected abstract InsnList afterNativeOutputCall(MethodContext context, MethodInsnNode inputCall);
 
 		private List<MethodNode> getSkippedSnapshotMethods() {
 			return classNode.methods.stream()
@@ -721,6 +653,77 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 			}
 		}
 
+		@Override
+		protected InsnList beforeNativeInputCall(MethodContext context, MethodInsnNode inputCall) {
+			return Sequence.start()
+				.then(new CaptureCall(inputCall, "base", "arguments"))
+				.then(new Assign("inputId", Type.INT_TYPE)
+					.value(
+						new InvokeStatic(BridgedSnapshotManager.class, "inputVariables", Object.class, String.class, java.lang.reflect.Type.class, java.lang.reflect.Type[].class)
+							.withArgument(0, new Recall("base"))
+							.withArgument(1, new GetInvokedMethodName(inputCall))
+							.withArgument(2, new GetInvokedMethodResultType(inputCall))
+							.withArgument(3, new GetInvokedMethodArgumentTypes(inputCall))))
+				.build(context);
+		}
+
+		@Override
+		protected InsnList afterNativeInputCall(MethodContext context, MethodInsnNode inputCall) {
+			if (returnsResult(inputCall)) {
+				return Sequence.start()
+					.then(new MemoizeBoxed("returnValue", Type.getReturnType(inputCall.desc)))
+					.then(new InvokeStatic(BridgedSnapshotManager.class, "inputArguments", int.class, Object[].class)
+						.withArgument(0, new Recall("inputId"))
+						.withArgument(1, new Recall("arguments")))
+					.then(new InvokeStatic(BridgedSnapshotManager.class, "inputResult", int.class, Object.class)
+						.withArgument(0, new Recall("inputId"))
+						.withArgument(1, new Recall("returnValue")))
+					.build(context);
+			} else {
+				return Sequence.start()
+					.then(new InvokeStatic(BridgedSnapshotManager.class, "inputArguments", int.class, Object[].class)
+						.withArgument(0, new Recall("inputId"))
+						.withArgument(1, new Recall("arguments")))
+					.then(new InvokeStatic(BridgedSnapshotManager.class, "inputVoidResult", int.class)
+						.withArgument(0, new Recall("inputId")))
+					.build(context);
+			}
+		}
+
+		@Override
+		protected InsnList beforeNativeOutputCall(MethodContext context, MethodInsnNode inputCall) {
+			return Sequence.start()
+				.then(new CaptureCall(inputCall, "base", "arguments"))
+				.then(new Assign("outputId", Type.INT_TYPE)
+					.value(
+						new InvokeStatic(BridgedSnapshotManager.class, "outputVariables", Object.class, String.class, java.lang.reflect.Type.class, java.lang.reflect.Type[].class)
+							.withArgument(0, new Recall("base"))
+							.withArgument(1, new GetInvokedMethodName(inputCall))
+							.withArgument(2, new GetInvokedMethodResultType(inputCall))
+							.withArgument(3, new GetInvokedMethodArgumentTypes(inputCall))))
+				.then(new InvokeStatic(BridgedSnapshotManager.class, "outputArguments", int.class, Object[].class)
+					.withArgument(0, new Recall("outputId"))
+					.withArgument(1, new Recall("arguments")))
+				.build(context);
+		}
+
+		@Override
+		protected InsnList afterNativeOutputCall(MethodContext context, MethodInsnNode inputCall) {
+			if (returnsResult(inputCall)) {
+				return Sequence.start()
+					.then(new MemoizeBoxed("returnValue", Type.getReturnType(inputCall.desc)))
+					.then(new InvokeStatic(BridgedSnapshotManager.class, "outputResult", int.class, Object.class)
+						.withArgument(0, new Recall("outputId"))
+						.withArgument(1, new Recall("returnValue")))
+					.build(context);
+			} else {
+				return Sequence.start()
+					.then(new InvokeStatic(BridgedSnapshotManager.class, "outputVoidResult", int.class)
+						.withArgument(0, new Recall("outputId")))
+					.build(context);
+			}
+		}
+
 	}
 
 	public static class DefaultTask extends Task {
@@ -836,6 +839,86 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 					.then(new InvokeVirtual(SnapshotManager.class, "outputVoidResult", int.class)
 						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
 						.withArgument(0, new Recall("outputId")));
+			}
+		}
+
+		@Override
+		protected InsnList beforeNativeInputCall(MethodContext context, MethodInsnNode inputCall) {
+			return Sequence.start()
+				.then(new CaptureCall(inputCall, "base", "arguments"))
+				.then(new Assign("inputId", Type.INT_TYPE)
+					.value(
+						new InvokeVirtual(SnapshotManager.class, "inputVariables", Object.class, String.class, java.lang.reflect.Type.class, java.lang.reflect.Type[].class)
+							.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+							.withArgument(0, new Recall("base"))
+							.withArgument(1, new GetInvokedMethodName(inputCall))
+							.withArgument(2, new GetInvokedMethodResultType(inputCall))
+							.withArgument(3, new GetInvokedMethodArgumentTypes(inputCall))))
+				.build(context);
+		}
+
+		@Override
+		protected InsnList afterNativeInputCall(MethodContext context, MethodInsnNode inputCall) {
+			if (returnsResult(inputCall)) {
+				return Sequence.start()
+					.then(new MemoizeBoxed("returnValue", Type.getReturnType(inputCall.desc)))
+					.then(new InvokeVirtual(SnapshotManager.class, "inputArguments", int.class, Object[].class)
+						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+						.withArgument(0, new Recall("inputId"))
+						.withArgument(1, new Recall("arguments")))
+					.then(new InvokeVirtual(SnapshotManager.class, "inputResult", int.class, Object.class)
+						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+						.withArgument(0, new Recall("inputId"))
+						.withArgument(1, new Recall("returnValue")))
+					.build(context);
+			} else {
+				return Sequence.start()
+					.then(new InvokeVirtual(SnapshotManager.class, "inputArguments", int.class, Object[].class)
+						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+						.withArgument(0, new Recall("inputId"))
+						.withArgument(1, new Recall("arguments")))
+					.then(new InvokeVirtual(SnapshotManager.class, "inputVoidResult", int.class)
+						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+						.withArgument(0, new Recall("inputId")))
+					.build(context);
+			}
+		}
+
+		@Override
+		protected InsnList beforeNativeOutputCall(MethodContext context, MethodInsnNode inputCall) {
+			return Sequence.start()
+				.then(new CaptureCall(inputCall, "base", "arguments"))
+				.then(new Assign("outputId", Type.INT_TYPE)
+					.value(
+						new InvokeVirtual(SnapshotManager.class, "outputVariables", Object.class, String.class, java.lang.reflect.Type.class, java.lang.reflect.Type[].class)
+							.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+							.withArgument(0, new Recall("base"))
+							.withArgument(1, new GetInvokedMethodName(inputCall))
+							.withArgument(2, new GetInvokedMethodResultType(inputCall))
+							.withArgument(3, new GetInvokedMethodArgumentTypes(inputCall))))
+				.then(new InvokeVirtual(SnapshotManager.class, "outputArguments", int.class, Object[].class)
+					.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+					.withArgument(0, new Recall("outputId"))
+					.withArgument(1, new Recall("arguments")))
+				.build(context);
+		}
+
+		@Override
+		protected InsnList afterNativeOutputCall(MethodContext context, MethodInsnNode inputCall) {
+			if (returnsResult(inputCall)) {
+				return Sequence.start()
+					.then(new MemoizeBoxed("returnValue", Type.getReturnType(inputCall.desc)))
+					.then(new InvokeVirtual(SnapshotManager.class, "outputResult", int.class, Object.class)
+						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+						.withArgument(0, new Recall("outputId"))
+						.withArgument(1, new Recall("returnValue")))
+					.build(context);
+			} else {
+				return Sequence.start()
+					.then(new InvokeVirtual(SnapshotManager.class, "outputVoidResult", int.class)
+						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
+						.withArgument(0, new Recall("outputId")))
+					.build(context);
 			}
 		}
 

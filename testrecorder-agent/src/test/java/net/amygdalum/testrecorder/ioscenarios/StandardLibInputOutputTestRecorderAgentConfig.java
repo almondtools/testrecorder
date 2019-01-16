@@ -16,7 +16,7 @@ public class StandardLibInputOutputTestRecorderAgentConfig extends DefaultSerial
 			Methods.byDescription("java/io/FileInputStream", "skip", "(J)J"),
 			Methods.byDescription("java/io/FileInputStream", "read", "()I"),
 			Methods.byDescription("java/io/FileInputStream", "read", "([B)I"),
-			Methods.byDescription("java/io/RandomAccessFile", "readFully", "([B)V"));
+			Methods.byDescription("java/io/RandomAccessFile", "readBytes", "([BII)I"));
 	}
 
 	@Override
