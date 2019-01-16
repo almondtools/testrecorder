@@ -77,7 +77,7 @@ public class Adaptors {
 				}
 			}
 		}
-		return null;
+		return Computation.NULL;
 	}
 
 }

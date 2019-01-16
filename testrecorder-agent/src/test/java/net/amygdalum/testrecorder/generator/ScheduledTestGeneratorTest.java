@@ -1,5 +1,7 @@
 package net.amygdalum.testrecorder.generator;
 
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.joining;
 import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
@@ -9,6 +11,7 @@ import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,12 +24,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import net.amygdalum.testrecorder.SnapshotManager;
 import net.amygdalum.testrecorder.TestAgentConfiguration;
+import net.amygdalum.testrecorder.deserializers.CustomAnnotation;
+import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.types.ContextSnapshot;
 import net.amygdalum.testrecorder.types.FieldSignature;
 import net.amygdalum.testrecorder.types.MethodSignature;
 import net.amygdalum.testrecorder.types.SerializedField;
 import net.amygdalum.testrecorder.types.SerializedInput;
 import net.amygdalum.testrecorder.types.SerializedOutput;
+import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.types.VirtualMethodSignature;
 import net.amygdalum.testrecorder.util.ClassDescriptor;
 import net.amygdalum.testrecorder.util.ExtensibleClassLoader;
@@ -58,17 +64,44 @@ public class ScheduledTestGeneratorTest {
 			.findFirst()
 			.ifPresent(shutdown -> {
 				Runtime.getRuntime().removeShutdownHook(shutdown);
-				XRayInterface.xray(ScheduledTestGenerator.class).to(OpenScheduledTestGenerator.class).setDumpOnShutDown(null);
+				XRayInterface.xray(ScheduledTestGenerator.class).to(StaticScheduledTestGenerator.class).setDumpOnShutDown(null);
 			});
 	}
 
 	@BeforeEach
 	void before() throws Exception {
-		XRayInterface.xray(ScheduledTestGenerator.class).to(OpenScheduledTestGenerator.class).setDumpOnShutDown(null);
+		XRayInterface.xray(ScheduledTestGenerator.class).to(StaticScheduledTestGenerator.class).setDumpOnShutDown(null);
 		loader = new ExtensibleClassLoader(ScheduledTestGenerator.class.getClassLoader());
 		config = defaultConfig().withLoader(loader);
 		testGenerator = new ScheduledTestGenerator(config);
 		testGenerator.counterMaximum = 1;
+	}
+
+	@Test
+	void testReload() throws Exception {
+		loader.defineResource("agentconfig/net.amygdalum.testrecorder.profile.PerformanceProfile", "net.amygdalum.testrecorder.generator.ScheduledTestGeneratorTest$CustomPerformanceProfile".getBytes());
+		loader.defineResource("agentconfig/net.amygdalum.testrecorder.generator.TestGeneratorProfile", "net.amygdalum.testrecorder.generator.ScheduledTestGeneratorTest$Profile".getBytes());
+		loader.defineResource("agentconfig/net.amygdalum.testrecorder.deserializers.builder.SetupGenerator","".getBytes());
+		loader.defineResource("agentconfig/net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerator","".getBytes());
+		config.reset();
+
+		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
+		FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
+		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
+		snapshot.setSetupArgs(literal(int.class, 16));
+		snapshot.setSetupGlobals(new SerializedField[0]);
+		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 8))));
+		snapshot.setExpectArgs(literal(int.class, 16));
+		snapshot.setExpectResult(literal(int.class, 22));
+		snapshot.setExpectGlobals(new SerializedField[0]);
+		snapshot.addInput(new SerializedInput(42, new MethodSignature(System.class, long.class, "currentTimeMillis", new Type[0])).updateResult(literal(42l)));
+		snapshot.addOutput(new SerializedOutput(42, new MethodSignature(Writer.class, void.class, "write", new Type[] {Writer.class})).updateArguments(literal("hello")));
+
+		testGenerator.reload(config);
+		
+		ClassGenerator gen = testGenerator.generatorFor(ClassDescriptor.of(MyClass.class));
+		gen.generate(snapshot);
+		assertThat(gen.render()).containsWildcardPattern("Test*resetFakeIO:setup*test");
 	}
 
 	@Nested
@@ -441,11 +474,64 @@ public class ScheduledTestGeneratorTest {
 		}
 	}
 
+	public static class CustomPerformanceProfile implements PerformanceProfile {
+
+		@Override
+		public long getTimeoutInMillis() {
+			return 0;
+		}
+
+		@Override
+		public long getIdleTime() {
+			return 0;
+		}
+	}
+
+	public static class Profile implements TestGeneratorProfile {
+
+		@Override
+		public List<CustomAnnotation> annotations() {
+			return emptyList();
+		}
+
+		@Override
+		public Class<? extends TestTemplate> template() {
+			return CustomTemplate.class;
+		}
+
+	}
+
+	public static class CustomTemplate implements TestTemplate {
+
+		@Override
+		public Class<?>[] getTypes() {
+			return new Class[0];
+		}
+
+		@Override
+		public String testClass(String methodName, TypeManager types, Map<String, String> setups, Set<String> tests) {
+			return "Test\n"
+				+ setups.entrySet().stream().map(entry -> entry.getKey() + ":" + entry.getValue()).collect(joining("\n","\n","\n"))
+				+ tests.stream().collect(joining("\n","\n","\n"));
+		}
+
+		@Override
+		public String setupMethod(String methodName, TypeManager types, List<String> annotations, List<String> statements) {
+			return "setup";
+		}
+
+		@Override
+		public String testMethod(String methodName, TypeManager types, List<String> annotations, List<String> statements) {
+			return "test";
+		}
+
+	}
+
 	interface StaticShutdownHooks {
 		IdentityHashMap<Thread, Thread> getHooks();
 	}
 
-	interface OpenScheduledTestGenerator {
+	interface StaticScheduledTestGenerator {
 		void setDumpOnShutDown(Set<ScheduledTestGenerator> value);
 	}
 }
