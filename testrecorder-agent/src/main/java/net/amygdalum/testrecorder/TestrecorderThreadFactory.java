@@ -14,9 +14,7 @@ public class TestrecorderThreadFactory implements ThreadFactory {
 
 	@Override
 	public Thread newThread(Runnable runnable) {
-		Thread thread = new Thread(RECORDING, runnable, name, 0);
-		//thread.setDaemon(true);
-		return thread;
+		return new Thread(RECORDING, runnable, name, 0);
 	}
 
 }

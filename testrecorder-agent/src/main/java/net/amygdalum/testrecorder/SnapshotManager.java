@@ -223,9 +223,12 @@ public class SnapshotManager {
 	}
 
 	public void setupVariables(Class<?> selfClass, Object self, String signature, Object... args) {
+		boolean aquired = lock.acquire();
+		if (!aquired) {
+			return;
+		}
 		try {
-			boolean aquired = lock.acquire() && snapshotExecutor.submissionPermitted();
-			if (!aquired || !matches(self, signature)) {
+			if (!aquired || !snapshotExecutor.submissionPermitted() || !matches(self, signature)) {
 				return;
 			}
 			ClassLoader loader = selfClass.getClassLoader();
@@ -245,9 +248,12 @@ public class SnapshotManager {
 	}
 
 	public int inputVariables(Object object, String method, Type resultType, Type[] paramTypes) {
+		boolean aquired = lock.acquire();
+		if (!aquired) {
+			return 0;
+		}
 		try {
-			boolean aquired = lock.acquire() && snapshotExecutor.submissionPermitted();
-			if (!aquired || isNestedIO() || isInvalidStacktrace()) {
+			if (!aquired || !snapshotExecutor.submissionPermitted() || isNestedIO() || isInvalidStacktrace()) {
 				return 0;
 			}
 			Class<?> clazz = toClass(object);
@@ -265,9 +271,12 @@ public class SnapshotManager {
 	}
 
 	public void inputArguments(int id, Object... arguments) {
+		boolean aquired = lock.acquire();
+		if (!aquired) {
+			return;
+		}
 		try {
-			boolean aquired = lock.acquire() && snapshotExecutor.submissionPermitted();
-			if (!aquired || id == 0) {
+			if (!aquired || !snapshotExecutor.submissionPermitted() || id == 0) {
 				return;
 			}
 			current().to((facade, session, snapshot) -> {
@@ -281,9 +290,12 @@ public class SnapshotManager {
 	}
 
 	public void inputResult(int id, Object result) {
+		boolean aquired = lock.acquire();
+		if (!aquired) {
+			return;
+		}
 		try {
-			boolean aquired = lock.acquire() && snapshotExecutor.submissionPermitted();
-			if (!aquired || id == 0) {
+			if (!aquired || !snapshotExecutor.submissionPermitted() || id == 0) {
 				return;
 			}
 			current().to((facade, session, snapshot) -> {
@@ -297,9 +309,12 @@ public class SnapshotManager {
 	}
 
 	public void inputVoidResult(int id) {
+		boolean aquired = lock.acquire();
+		if (!aquired) {
+			return;
+		}
 		try {
-			boolean aquired = lock.acquire() && snapshotExecutor.submissionPermitted();
-			if (!aquired || id == 0) {
+			if (!aquired || !snapshotExecutor.submissionPermitted() || id == 0) {
 				return;
 			}
 			current().to((facade, session, snapshot) -> {
@@ -313,9 +328,12 @@ public class SnapshotManager {
 	}
 
 	public int outputVariables(Object object, String method, Type resultType, Type[] paramTypes) {
+		boolean aquired = lock.acquire();
+		if (!aquired) {
+			return 0;
+		}
 		try {
-			boolean aquired = lock.acquire() && snapshotExecutor.submissionPermitted();
-			if (!aquired || isNestedIO() || isInvalidStacktrace()) {
+			if (!aquired || !snapshotExecutor.submissionPermitted() || isNestedIO() || isInvalidStacktrace()) {
 				return 0;
 			}
 			Class<?> clazz = toClass(object);
@@ -333,9 +351,12 @@ public class SnapshotManager {
 	}
 
 	public void outputArguments(int id, Object... arguments) {
+		boolean aquired = lock.acquire();
+		if (!aquired) {
+			return;
+		}
 		try {
-			boolean aquired = lock.acquire() && snapshotExecutor.submissionPermitted();
-			if (!aquired || id == 0) {
+			if (!aquired || !snapshotExecutor.submissionPermitted() || id == 0) {
 				return;
 			}
 			current().to((facade, session, snapshot) -> {
@@ -349,9 +370,12 @@ public class SnapshotManager {
 	}
 
 	public void outputResult(int id, Object result) {
+		boolean aquired = lock.acquire();
+		if (!aquired) {
+			return;
+		}
 		try {
-			boolean aquired = lock.acquire() && snapshotExecutor.submissionPermitted();
-			if (!aquired || id == 0) {
+			if (!aquired || !snapshotExecutor.submissionPermitted() || id == 0) {
 				return;
 			}
 			current().to((facade, session, snapshot) -> {
@@ -365,9 +389,12 @@ public class SnapshotManager {
 	}
 
 	public void outputVoidResult(int id) {
+		boolean aquired = lock.acquire();
+		if (!aquired) {
+			return;
+		}
 		try {
-			boolean aquired = lock.acquire() && snapshotExecutor.submissionPermitted();
-			if (!aquired || id == 0) {
+			if (!aquired || !snapshotExecutor.submissionPermitted() || id == 0) {
 				return;
 			}
 			current().to((facade, session, snapshot) -> {
@@ -393,9 +420,12 @@ public class SnapshotManager {
 	}
 
 	public void expectVariables(Object self, String signature, Object result, Object... args) {
+		boolean aquired = lock.acquire();
+		if (!aquired) {
+			return;
+		}
 		try {
-			boolean aquired = lock.acquire() && snapshotExecutor.submissionPermitted();
-			if (!aquired || !matches(self, signature)) {
+			if (!aquired || !snapshotExecutor.submissionPermitted() || !matches(self, signature)) {
 				return;
 			}
 			pop(signature).to((facade, session, snapshot) -> {
@@ -414,9 +444,12 @@ public class SnapshotManager {
 	}
 
 	public void expectVariables(Object self, String signature, Object... args) {
+		boolean aquired = lock.acquire();
+		if (!aquired) {
+			return;
+		}
 		try {
-			boolean aquired = lock.acquire() && snapshotExecutor.submissionPermitted();
-			if (!aquired || !matches(self, signature)) {
+			if (!aquired || !snapshotExecutor.submissionPermitted() || !matches(self, signature)) {
 				return;
 			}
 			pop(signature).to((facade, session, snapshot) -> {
@@ -434,9 +467,12 @@ public class SnapshotManager {
 	}
 
 	public void throwVariables(Throwable throwable, Object self, String signature, Object... args) {
+		boolean aquired = lock.acquire();
+		if (!aquired) {
+			return;
+		}
 		try {
-			boolean aquired = lock.acquire() && snapshotExecutor.submissionPermitted();
-			if (!aquired || !matches(self, signature)) {
+			if (!aquired || !snapshotExecutor.submissionPermitted() || !matches(self, signature)) {
 				return;
 			}
 			pop(signature).to((facade, session, snapshot) -> {
@@ -595,21 +631,13 @@ public class SnapshotManager {
 
 	private static class SerializationThreadPoolExecutor extends ThreadPoolExecutor {
 
-		private Thread active;
-
 		SerializationThreadPoolExecutor(long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory) {
 			super(0, 1, keepAliveTime, unit, workQueue, threadFactory);
 		}
 
-		@Override
-		protected void beforeExecute(Thread t, Runnable r) {
-			active = t;
-		}
-
 		public boolean submissionPermitted() {
 			Thread current = currentThread();
-			return current != active
-				&& current.getThreadGroup() != RECORDING;
+			return current.getThreadGroup() != RECORDING;
 		}
 
 	}
