@@ -59,12 +59,20 @@ public class TestRecorderAgentExtension implements BeforeEachCallback, BeforeAll
 
 	@Override
 	public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-		return AgentConfiguration.class.isAssignableFrom(parameterContext.getParameter().getType());
+		return AgentConfiguration.class.isAssignableFrom(parameterContext.getParameter().getType())
+			|| TestRecorderAgent.class.isAssignableFrom(parameterContext.getParameter().getType());
 	}
 
 	@Override
 	public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-		return agent.getConfig();
+		if (AgentConfiguration.class.isAssignableFrom(parameterContext.getParameter().getType())) {
+			return agent.getConfig();	
+		} else if (TestRecorderAgent.class.isAssignableFrom(parameterContext.getParameter().getType())) {
+			return agent;
+		} else {
+			return null;
+		}
+		
 	}
 
 	private void setupTransformer(Class<?> testClass) {

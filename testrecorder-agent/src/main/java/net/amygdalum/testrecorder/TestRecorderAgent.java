@@ -77,4 +77,14 @@ public class TestRecorderAgent {
 		}
 	}
 
+	public void withoutInstrumentation(Runnable runnable) {
+		try {
+			clearInstrumentations();
+			runnable.run();
+		} finally {
+			prepareInstrumentations();
+		}
+		
+	}
+
 }

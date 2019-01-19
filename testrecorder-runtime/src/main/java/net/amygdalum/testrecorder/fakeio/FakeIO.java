@@ -42,7 +42,6 @@ import org.hamcrest.StringDescription;
 import net.amygdalum.testrecorder.runtime.Aspect;
 import net.amygdalum.testrecorder.runtime.GenericObjectException;
 import net.amygdalum.testrecorder.runtime.Invocation;
-import net.amygdalum.testrecorder.util.Recorder;
 import net.bytebuddy.agent.ByteBuddyAgent;
 
 public class FakeIO {
@@ -61,9 +60,6 @@ public class FakeIO {
 	}
 
 	public static Object callFake(String name, Object instance, String methodName, String methodDesc, Object... varargs) {
-		if (Recorder.isRecording()) {
-			return NO_RESULT;
-		}
 		FakeIO fake = faked.get(name);
 		if (fake == null) {
 			return NO_RESULT;

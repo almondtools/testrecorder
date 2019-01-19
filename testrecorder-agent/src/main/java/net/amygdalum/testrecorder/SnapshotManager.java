@@ -37,7 +37,6 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
 import net.amygdalum.testrecorder.bridge.BridgedSnapshotManager;
-import net.amygdalum.testrecorder.fakeio.FakeIO;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.profile.SnapshotConsumer;
@@ -55,7 +54,6 @@ import net.amygdalum.testrecorder.types.SerializedValue;
 import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.util.CircularityLock;
 import net.amygdalum.testrecorder.util.Logger;
-import net.amygdalum.testrecorder.util.Recorder;
 import net.amygdalum.testrecorder.values.SerializedNull;
 import net.bytebuddy.agent.ByteBuddyAgent;
 
@@ -68,10 +66,7 @@ public class SnapshotManager {
 
 	static {
 		Instrumentation inst = ByteBuddyAgent.install();
-
 		installBridge(inst);
-
-		Recorder.registerClass(SnapshotManager.class);
 	}
 
 	private ThreadPoolExecutor snapshotExecutor;
@@ -137,7 +132,7 @@ public class SnapshotManager {
 
 	private static JarFile jarfile() throws IOException {
 		String bridge = "net/amygdalum/testrecorder/bridge/BridgedSnapshotManager.class";
-		InputStream resourceStream = FakeIO.class.getResourceAsStream("/" + bridge);
+		InputStream resourceStream = SnapshotManager.class.getResourceAsStream("/" + bridge);
 		if (resourceStream == null) {
 			throw new FileNotFoundException(bridge);
 		}

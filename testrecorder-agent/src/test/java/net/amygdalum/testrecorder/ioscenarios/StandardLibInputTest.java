@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import net.amygdalum.testrecorder.TestRecorderAgent;
 import net.amygdalum.testrecorder.generator.TestGenerator;
 import net.amygdalum.testrecorder.integration.Instrumented;
 import net.amygdalum.testrecorder.integration.TestRecorderAgentExtension;
@@ -15,11 +16,11 @@ import net.amygdalum.testrecorder.integration.TestRecorderAgentExtension;
 	"net.amygdalum.testrecorder.ioscenarios.StandardLibInputOutput",
 	"java.lang.System",
 	"java.io.FileInputStream",
-	"java.io.RandomAccessFile" }, config = StandardLibInputOutputTestRecorderAgentConfig.class)
+	"java.io.RandomAccessFile"}, config = StandardLibInputOutputTestRecorderAgentConfig.class)
 public class StandardLibInputTest {
 
 	@Test
-	public void testNativeMethodCompilesAndRuns() throws Exception {
+	public void testNativeMethodCompilesAndRuns(TestRecorderAgent agent) throws Exception {
 		StandardLibInputOutput io = new StandardLibInputOutput();
 		io.getTimestamp();
 
@@ -27,14 +28,16 @@ public class StandardLibInputTest {
 		assertThat(testGenerator.renderTest(StandardLibInputOutput.class).getTestCode()).containsSubsequence(
 			"FakeIO",
 			"fakeInput");
-		assertThat(testGenerator.renderTest(StandardLibInputOutput.class)).satisfies(testsRun());
+		agent.withoutInstrumentation(() -> {
+			assertThat(testGenerator.renderTest(StandardLibInputOutput.class)).satisfies(testsRun());
+		});
 	}
 
 	@Test
 	public void testNativeMethodWithResultCompilesAndRuns() throws Exception {
 		StandardLibInputOutput io = new StandardLibInputOutput();
 
-		int result = io.readFile(new byte[] { 41, 42 }, 1);
+		int result = io.readFile(new byte[] {41, 42}, 1);
 
 		assertThat(result).isEqualTo(42);
 
@@ -49,9 +52,9 @@ public class StandardLibInputTest {
 	public void testNativeMethodWithArgsAndResultCompilesAndRuns() throws Exception {
 		StandardLibInputOutput io = new StandardLibInputOutput();
 
-		byte[] result = io.readFile(new byte[] { 41, 42 });
+		byte[] result = io.readFile(new byte[] {41, 42});
 
-		assertThat(result).isEqualTo(new byte[] { 41, 42 });
+		assertThat(result).isEqualTo(new byte[] {41, 42});
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(StandardLibInputOutput.class).getTestCode()).containsSubsequence(
@@ -64,9 +67,9 @@ public class StandardLibInputTest {
 	public void testNativeMethodWithArgsNoResultCompilesAndRuns() throws Exception {
 		StandardLibInputOutput io = new StandardLibInputOutput();
 
-		byte[] result = io.readRandomAccessFile(new byte[] { 41, 42 });
+		byte[] result = io.readRandomAccessFile(new byte[] {41, 42});
 
-		assertThat(result).isEqualTo(new byte[] { 41, 42 });
+		assertThat(result).isEqualTo(new byte[] {41, 42});
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(StandardLibInputOutput.class).getTestCode()).containsSubsequence(
