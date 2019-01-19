@@ -22,13 +22,11 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -76,7 +74,7 @@ public class SnapshotManager {
 		Recorder.registerClass(SnapshotManager.class);
 	}
 
-	private SerializationThreadPoolExecutor snapshotExecutor;
+	private ThreadPoolExecutor snapshotExecutor;
 	private CircularityLock lock;
 
 	private MethodContext methodContext;
@@ -98,7 +96,7 @@ public class SnapshotManager {
 		PerformanceProfile performanceProfile = config.loadConfiguration(PerformanceProfile.class);
 
 		this.timeoutInMillis = performanceProfile.getTimeoutInMillis();
-		this.snapshotExecutor = new SerializationThreadPoolExecutor(performanceProfile.getIdleTime(), TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(),
+		this.snapshotExecutor = new ThreadPoolExecutor(0, 1, performanceProfile.getIdleTime(), TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(),
 			new TestrecorderThreadFactory("$snapshot"));
 		this.lock = new CircularityLock();
 		this.methodContext = new MethodContext();
@@ -228,7 +226,7 @@ public class SnapshotManager {
 			return;
 		}
 		try {
-			if (!aquired || !snapshotExecutor.submissionPermitted() || !matches(self, signature)) {
+			if (!matches(self, signature)) {
 				return;
 			}
 			ClassLoader loader = selfClass.getClassLoader();
@@ -253,7 +251,7 @@ public class SnapshotManager {
 			return 0;
 		}
 		try {
-			if (!aquired || !snapshotExecutor.submissionPermitted() || isNestedIO() || isInvalidStacktrace()) {
+			if (isNestedIO() || isInvalidStacktrace()) {
 				return 0;
 			}
 			Class<?> clazz = toClass(object);
@@ -276,7 +274,7 @@ public class SnapshotManager {
 			return;
 		}
 		try {
-			if (!aquired || !snapshotExecutor.submissionPermitted() || id == 0) {
+			if (id == 0) {
 				return;
 			}
 			current().to((facade, session, snapshot) -> {
@@ -295,7 +293,7 @@ public class SnapshotManager {
 			return;
 		}
 		try {
-			if (!aquired || !snapshotExecutor.submissionPermitted() || id == 0) {
+			if (id == 0) {
 				return;
 			}
 			current().to((facade, session, snapshot) -> {
@@ -314,7 +312,7 @@ public class SnapshotManager {
 			return;
 		}
 		try {
-			if (!aquired || !snapshotExecutor.submissionPermitted() || id == 0) {
+			if (id == 0) {
 				return;
 			}
 			current().to((facade, session, snapshot) -> {
@@ -333,7 +331,7 @@ public class SnapshotManager {
 			return 0;
 		}
 		try {
-			if (!aquired || !snapshotExecutor.submissionPermitted() || isNestedIO() || isInvalidStacktrace()) {
+			if (isNestedIO() || isInvalidStacktrace()) {
 				return 0;
 			}
 			Class<?> clazz = toClass(object);
@@ -356,7 +354,7 @@ public class SnapshotManager {
 			return;
 		}
 		try {
-			if (!aquired || !snapshotExecutor.submissionPermitted() || id == 0) {
+			if (id == 0) {
 				return;
 			}
 			current().to((facade, session, snapshot) -> {
@@ -375,7 +373,7 @@ public class SnapshotManager {
 			return;
 		}
 		try {
-			if (!aquired || !snapshotExecutor.submissionPermitted() || id == 0) {
+			if (id == 0) {
 				return;
 			}
 			current().to((facade, session, snapshot) -> {
@@ -394,7 +392,7 @@ public class SnapshotManager {
 			return;
 		}
 		try {
-			if (!aquired || !snapshotExecutor.submissionPermitted() || id == 0) {
+			if (id == 0) {
 				return;
 			}
 			current().to((facade, session, snapshot) -> {
@@ -425,7 +423,7 @@ public class SnapshotManager {
 			return;
 		}
 		try {
-			if (!aquired || !snapshotExecutor.submissionPermitted() || !matches(self, signature)) {
+			if (!matches(self, signature)) {
 				return;
 			}
 			pop(signature).to((facade, session, snapshot) -> {
@@ -449,7 +447,7 @@ public class SnapshotManager {
 			return;
 		}
 		try {
-			if (!aquired || !snapshotExecutor.submissionPermitted() || !matches(self, signature)) {
+			if (!matches(self, signature)) {
 				return;
 			}
 			pop(signature).to((facade, session, snapshot) -> {
@@ -472,7 +470,7 @@ public class SnapshotManager {
 			return;
 		}
 		try {
-			if (!aquired || !snapshotExecutor.submissionPermitted() || !matches(self, signature)) {
+			if (!matches(self, signature)) {
 				return;
 			}
 			pop(signature).to((facade, session, snapshot) -> {
@@ -580,6 +578,9 @@ public class SnapshotManager {
 
 		@Override
 		public ContextSnapshotTransaction to(SerializationTask task) {
+			if (currentThread().getThreadGroup() == RECORDING) {
+				snapshot.invalidate();
+			}
 			if (!snapshot.isValid()) {
 				return this;
 			}
@@ -625,19 +626,6 @@ public class SnapshotManager {
 		public StackTraceValidator invalidate(Class<?> clazz) {
 			classNames.add(clazz.getName());
 			return this;
-		}
-
-	}
-
-	private static class SerializationThreadPoolExecutor extends ThreadPoolExecutor {
-
-		SerializationThreadPoolExecutor(long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory) {
-			super(0, 1, keepAliveTime, unit, workQueue, threadFactory);
-		}
-
-		public boolean submissionPermitted() {
-			Thread current = currentThread();
-			return current.getThreadGroup() != RECORDING;
 		}
 
 	}
