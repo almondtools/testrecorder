@@ -18,6 +18,7 @@ public class StandardLibOutputTestRecorderAgentConfig extends DefaultSerializati
 	@Override
 	public List<Methods> getOutputs() {
 		return asList(
+			Methods.byDescription("java/lang/reflect/Array", "getByte", "(Ljava/lang/Object;I)B"),
 			Methods.byDescription("java/io/OutputStream", "write", "([B)V"),
 			Methods.byDescription("java/nio/channels/FileChannel", "write", "([Ljava/nio/ByteBuffer;)J"),
 			Methods.byDescription("java/lang/Thread", "sleep", "(J)V"));

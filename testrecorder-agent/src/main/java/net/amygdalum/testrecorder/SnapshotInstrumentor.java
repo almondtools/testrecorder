@@ -880,17 +880,17 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		}
 
 		@Override
-		protected InsnList beforeNativeOutputCall(MethodContext context, MethodInsnNode inputCall) {
+		protected InsnList beforeNativeOutputCall(MethodContext context, MethodInsnNode outputCall) {
 			return Sequence.start()
-				.then(new CaptureCall(inputCall, "base", "arguments"))
+				.then(new CaptureCall(outputCall, "base", "arguments"))
 				.then(new Assign("outputId", Type.INT_TYPE)
 					.value(
 						new InvokeVirtual(SnapshotManager.class, "outputVariables", Object.class, String.class, java.lang.reflect.Type.class, java.lang.reflect.Type[].class)
 							.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
 							.withArgument(0, new Recall("base"))
-							.withArgument(1, new GetInvokedMethodName(inputCall))
-							.withArgument(2, new GetInvokedMethodResultType(inputCall))
-							.withArgument(3, new GetInvokedMethodArgumentTypes(inputCall))))
+							.withArgument(1, new GetInvokedMethodName(outputCall))
+							.withArgument(2, new GetInvokedMethodResultType(outputCall))
+							.withArgument(3, new GetInvokedMethodArgumentTypes(outputCall))))
 				.then(new InvokeVirtual(SnapshotManager.class, "outputArguments", int.class, Object[].class)
 					.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
 					.withArgument(0, new Recall("outputId"))
@@ -899,10 +899,10 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		}
 
 		@Override
-		protected InsnList afterNativeOutputCall(MethodContext context, MethodInsnNode inputCall) {
-			if (returnsResult(inputCall)) {
+		protected InsnList afterNativeOutputCall(MethodContext context, MethodInsnNode outputCall) {
+			if (returnsResult(outputCall)) {
 				return Sequence.start()
-					.then(new MemoizeBoxed("returnValue", Type.getReturnType(inputCall.desc)))
+					.then(new MemoizeBoxed("returnValue", Type.getReturnType(outputCall.desc)))
 					.then(new InvokeVirtual(SnapshotManager.class, "outputResult", int.class, Object.class)
 						.withBase(new GetStatic(SnapshotManager.class, "MANAGER"))
 						.withArgument(0, new Recall("outputId"))

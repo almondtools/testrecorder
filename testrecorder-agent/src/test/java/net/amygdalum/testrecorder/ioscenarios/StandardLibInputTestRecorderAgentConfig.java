@@ -14,6 +14,7 @@ public class StandardLibInputTestRecorderAgentConfig extends DefaultSerializatio
 	public List<Methods> getInputs() {
 		return asList(
 			Methods.byDescription("java/lang/System", "currentTimeMillis", "()J"),
+			Methods.byDescription("java/lang/reflect/Array", "setByte", "(Ljava/lang/Object;IB)V"),
 			Methods.byDescription("java/io/FileInputStream", "skip", "(J)J"),
 			Methods.byDescription("java/io/FileInputStream", "read", "()I"),
 			Methods.byDescription("java/io/FileInputStream", "read", "([B)I"),

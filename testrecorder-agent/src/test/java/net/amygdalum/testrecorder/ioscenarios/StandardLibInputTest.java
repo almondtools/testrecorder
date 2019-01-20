@@ -15,6 +15,7 @@ import net.amygdalum.testrecorder.integration.TestRecorderAgentExtension;
 @Instrumented(classes = {
 	"net.amygdalum.testrecorder.ioscenarios.StandardLibInputOutput",
 	"java.lang.System",
+	"java.lang.reflect.Array",
 	"java.io.FileInputStream",
 	"java.io.RandomAccessFile"}, config = StandardLibInputTestRecorderAgentConfig.class)
 public class StandardLibInputTest {
@@ -23,6 +24,23 @@ public class StandardLibInputTest {
 	public void testNativeMethodCompilesAndRuns(TestRecorderAgent agent) throws Exception {
 		StandardLibInputOutput io = new StandardLibInputOutput();
 		io.getTimestamp();
+
+		TestGenerator testGenerator = TestGenerator.fromRecorded();
+		assertThat(testGenerator.renderTest(StandardLibInputOutput.class).getTestCode()).containsSubsequence(
+			"FakeIO",
+			"fakeInput");
+		agent.withoutInstrumentation(() -> {
+			assertThat(testGenerator.renderTest(StandardLibInputOutput.class)).satisfies(testsRun());
+		});
+	}
+
+	@Test
+	public void testNativeMethodNoResultCompilesAndRuns(TestRecorderAgent agent) throws Exception {
+		StandardLibInputOutput io = new StandardLibInputOutput();
+		byte[] buffer = new byte[1];
+		byte[] filled = io.fill(buffer, (byte) 42);
+
+		assertThat(filled[0]).isEqualTo((byte) 42);
 
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(StandardLibInputOutput.class).getTestCode()).containsSubsequence(

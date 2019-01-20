@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 
 import net.amygdalum.testrecorder.profile.Recorded;
@@ -21,6 +22,17 @@ public class StandardLibInputOutput {
 	public long getTimestamp() {
 		timestamp = System.currentTimeMillis();
 		return timestamp;
+	}
+
+	@Recorded
+	public byte[] fill(byte[] buffer, byte b) {
+		Array.setByte(buffer, 0, b);
+		return buffer;
+	}
+
+	@Recorded
+	public byte extract(byte[] buffer) {
+		return Array.getByte(buffer, 0);
 	}
 
 	@Recorded
