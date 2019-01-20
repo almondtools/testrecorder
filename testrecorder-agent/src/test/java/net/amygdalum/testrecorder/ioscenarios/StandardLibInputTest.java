@@ -16,7 +16,7 @@ import net.amygdalum.testrecorder.integration.TestRecorderAgentExtension;
 	"net.amygdalum.testrecorder.ioscenarios.StandardLibInputOutput",
 	"java.lang.System",
 	"java.io.FileInputStream",
-	"java.io.RandomAccessFile"}, config = StandardLibInputOutputTestRecorderAgentConfig.class)
+	"java.io.RandomAccessFile"}, config = StandardLibInputTestRecorderAgentConfig.class)
 public class StandardLibInputTest {
 
 	@Test

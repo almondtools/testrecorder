@@ -11,11 +11,11 @@ import net.amygdalum.testrecorder.integration.Instrumented;
 import net.amygdalum.testrecorder.integration.TestRecorderAgentExtension;
 
 @ExtendWith(TestRecorderAgentExtension.class)
-@Instrumented(classes = { 
-	"net.amygdalum.testrecorder.ioscenarios.StandardLibInputOutput", 
+@Instrumented(classes = {
+	"net.amygdalum.testrecorder.ioscenarios.StandardLibInputOutput",
 	"java.io.OutputStream",
 	"java.nio.channels.FileChannel",
-	"java.io.ByteArrayOutputStream" }, config = StandardLibInputOutputTestRecorderAgentConfig.class)
+	"java.io.ByteArrayOutputStream"}, config = StandardLibOutputTestRecorderAgentConfig.class)
 public class StandardLibOutputTest {
 
 	@Test
@@ -34,14 +34,14 @@ public class StandardLibOutputTest {
 	public void testJavaMethodWithResultCompilesAndRuns() throws Exception {
 		StandardLibInputOutput io = new StandardLibInputOutput();
 		io.storeBuffered("My Output");
-		
+
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		assertThat(testGenerator.renderTest(StandardLibInputOutput.class).getTestCode()).containsSubsequence(
 			"FakeIO",
 			"fakeOutput");
 		assertThat(testGenerator.renderTest(StandardLibInputOutput.class)).satisfies(testsRun());
 	}
-	
+
 	@Test
 	public void testNativeMethodCompilesAndRuns() throws Exception {
 		StandardLibInputOutput io = new StandardLibInputOutput();
