@@ -54,6 +54,10 @@ public class AllLambdasSerializableTransformer extends AttachableClassFileTransf
 
 	@Override
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+		boolean aquired = lock.acquire();
+		if (!aquired) {
+			return null;
+		}
 		try {
 			if (className != null && className.equals("java/lang/invoke/InnerClassLambdaMetafactory")) {
 				ClassReader cr = new ClassReader(classfileBuffer);
@@ -76,6 +80,8 @@ public class AllLambdasSerializableTransformer extends AttachableClassFileTransf
 		} catch (Throwable e) {
 			Logger.error("transformation error: ", e);
 			return null;
+		} finally {
+			lock.release();
 		}
 
 	}

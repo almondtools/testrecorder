@@ -112,11 +112,11 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 
 	@Override
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+		boolean aquired = lock.acquire();
+		if (!aquired) {
+			return null;
+		}
 		try {
-			boolean aquired = lock.acquire();
-			if (!aquired) {
-				return null;
-			}
 			if (className == null) {
 				return null;
 			}

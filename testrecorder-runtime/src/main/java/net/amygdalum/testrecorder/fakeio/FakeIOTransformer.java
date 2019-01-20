@@ -34,7 +34,7 @@ import net.amygdalum.testrecorder.asm.ReturnFakeOrProceed;
 import net.amygdalum.testrecorder.asm.Sequence;
 import net.amygdalum.testrecorder.asm.SequenceInstruction;
 import net.amygdalum.testrecorder.asm.WrapArguments;
-import net.amygdalum.testrecorder.bridge.BridgedFakeIO;
+import net.amygdalum.testrecorder.fakeio.bridge.BridgedFakeIO;
 import net.amygdalum.testrecorder.util.AttachableClassFileTransformer;
 import net.amygdalum.testrecorder.util.Logger;
 
@@ -90,6 +90,10 @@ public class FakeIOTransformer extends AttachableClassFileTransformer implements
 
 	@Override
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+		boolean aquired = lock.acquire();
+		if (!aquired) {
+			return null;
+		}
 		try {
 			if (className != null && matches(className)) {
 				ClassReader cr = new ClassReader(classfileBuffer);
@@ -115,6 +119,8 @@ public class FakeIOTransformer extends AttachableClassFileTransformer implements
 		} catch (Throwable e) {
 			Logger.error("transformation error: ", e);
 			return null;
+		} finally {
+			lock.release();
 		}
 	}
 

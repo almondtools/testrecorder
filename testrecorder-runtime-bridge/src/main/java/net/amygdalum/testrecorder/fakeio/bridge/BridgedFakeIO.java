@@ -1,4 +1,4 @@
-package net.amygdalum.testrecorder.bridge;
+package net.amygdalum.testrecorder.fakeio.bridge;
 
 import java.lang.invoke.MethodHandle;
 
@@ -9,11 +9,21 @@ import java.lang.invoke.MethodHandle;
  */
 public class BridgedFakeIO {
 
+	public static final ThreadLocal<MethodHandle> LOCK = new ThreadLocal<>();
+
 	public static MethodHandle callFake;
 	public static Object NO_RESULT;
-	
+
 	public static Object callFake(String name, Object instance, String methodName, String methodDesc, Object... varargs) throws Throwable {
-		return callFake.invoke(name, instance, methodName, methodDesc, varargs);		
+		if (callFake == null || LOCK.get() != null) {
+			return NO_RESULT;
+		}
+		try {
+			LOCK.set(callFake);
+			return callFake.invoke(name, instance, methodName, methodDesc, varargs);
+		} finally {
+			LOCK.set(null);
+		}
 	}
-	
+
 }

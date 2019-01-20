@@ -94,7 +94,7 @@ public class FakeIO {
 
 	private static void installBridge(Instrumentation inst) {
 		try {
-			String bridgeClassName = "net.amygdalum.testrecorder.bridge.BridgedFakeIO";
+			String bridgeClassName = "net.amygdalum.testrecorder.fakeio.bridge.BridgedFakeIO";
 			
 			inst.appendToBootstrapClassLoaderSearch(jarfile(bridgeClassName));
 
