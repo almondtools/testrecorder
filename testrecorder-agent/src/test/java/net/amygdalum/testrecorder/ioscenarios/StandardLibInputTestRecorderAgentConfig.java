@@ -18,6 +18,7 @@ public class StandardLibInputTestRecorderAgentConfig extends DefaultSerializatio
 			Methods.byDescription("java/io/FileInputStream", "skip", "(J)J"),
 			Methods.byDescription("java/io/FileInputStream", "read", "()I"),
 			Methods.byDescription("java/io/FileInputStream", "read", "([B)I"),
+			Methods.byDescription("java/io/ObjectInputStream", "bytesToFloats", "([BI[FII)V"),
 			Methods.byDescription("java/io/RandomAccessFile", "readBytes", "([BII)I"));
 	}
 
