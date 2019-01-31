@@ -164,7 +164,7 @@ public class TestGenerator implements SnapshotConsumer {
 	}
 
 	private Path locateTestFile(Path dir, ClassDescriptor clazz) throws IOException {
-		String pkg = clazz.getPackage();
+		String pkg = computePackage(clazz);
 		String className = generatorFor(clazz).getTestName();
 		Path testpackage = dir.resolve(pkg.replace('.', '/'));
 

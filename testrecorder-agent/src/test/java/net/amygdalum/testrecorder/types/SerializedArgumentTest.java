@@ -3,16 +3,35 @@ package net.amygdalum.testrecorder.types;
 import static net.amygdalum.extensions.assertj.conventions.DefaultEquality.defaultEquality;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.testrecorder.util.testobjects.MyAnnotation;
 
 public class SerializedArgumentTest {
+
+	@Nested
+	class testSerializedArgument {
+
+		@Test
+		void onSignatureNull() throws Exception {
+			assertThatCode(() -> new SerializedArgument(0, null, literal("stringvalue")))
+				.isInstanceOf(AssertionError.class);
+		}
+
+		@Test
+		void onValueNull() throws Exception {
+			assertThatCode(() -> new SerializedArgument(0, MyObject.methodSignature(), null))
+				.isInstanceOf(AssertionError.class);
+		}
+
+	}
 
 	@Test
 	void testGetIndex() throws Exception {
@@ -82,7 +101,7 @@ public class SerializedArgumentTest {
 	public static class MyObject {
 
 		public static MethodSignature methodSignature() {
-			return new MethodSignature(MyObject.class, String.class, "method", new Type[] { String.class, int.class });
+			return new MethodSignature(MyObject.class, String.class, "method", new Type[] {String.class, int.class});
 		}
 
 		public String method(String arg1, int arg2) {
@@ -90,7 +109,7 @@ public class SerializedArgumentTest {
 		}
 
 		public static MethodSignature otherSignature() {
-			return new MethodSignature(MyObject.class, String.class, "other", new Type[] { String.class, int.class });
+			return new MethodSignature(MyObject.class, String.class, "other", new Type[] {String.class, int.class});
 		}
 
 		public String other(String arg1, int arg2) {

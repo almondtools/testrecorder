@@ -5,17 +5,29 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.lang.reflect.Field;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import net.amygdalum.extensions.assertj.conventions.DefaultEquality;
 
 public class FieldSignatureTest {
 
-	@Test
-	void testFieldSignature() throws Exception {
-		assertThatThrownBy(() -> new FieldSignature(null, String.class, "field")).isInstanceOf(AssertionError.class);
-		assertThatThrownBy(() -> new FieldSignature(MyObject.class, null, "field")).isInstanceOf(AssertionError.class);
-		assertThatThrownBy(() -> new FieldSignature(MyObject.class, String.class, null)).isInstanceOf(AssertionError.class);
+	@Nested
+	class testFieldSignature {
+		@Test
+		void onDeclaringClassNull() throws Exception {
+			assertThatThrownBy(() -> new FieldSignature(null, String.class, "field")).isInstanceOf(AssertionError.class);
+		}
+
+		@Test
+		void onTypeNull() throws Exception {
+			assertThatThrownBy(() -> new FieldSignature(MyObject.class, null, "field")).isInstanceOf(AssertionError.class);
+		}
+
+		@Test
+		void onFieldNameNull() throws Exception {
+			assertThatThrownBy(() -> new FieldSignature(MyObject.class, String.class, null)).isInstanceOf(AssertionError.class);
+		}
 	}
 
 	@Test

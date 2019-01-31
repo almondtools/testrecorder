@@ -186,6 +186,44 @@ public class GenericsResolverTest {
 			}
 			
 		}
+		@Nested
+		class onTypeArray {
+			
+			@Test
+			public void returningSameIfSingleResolved() throws Exception {
+				Method method = MethodExamples.class.getDeclaredMethod("method", SimpleObject.class);
+				GenericsResolver resolver = new GenericsResolver(method, new Type[] {SimpleObject.class});
+				Type[] unresolved = method.getGenericParameterTypes();
+				
+				Type[] resolved = resolver.resolve(unresolved);
+
+				assertThat(resolved).isSameAs(unresolved);
+			}
+			
+			@Test
+			public void returningSameIfMultipleResolved() throws Exception {
+				Method method = MethodExamples.class.getDeclaredMethod("method", SimpleObject.class, SimpleObject.class);
+				GenericsResolver resolver = new GenericsResolver(method, new Type[] {SimpleObject.class, SimpleObject.class});
+				Type[] unresolved = method.getGenericParameterTypes();
+				
+				Type[] resolved = resolver.resolve(unresolved);
+				
+				assertThat(resolved).isSameAs(unresolved);
+			}
+			
+			@Test
+			public void resolvingGenerics() throws Exception {
+				Method method = MethodExamples.class.getDeclaredMethod("method", Object.class, List.class);
+				GenericsResolver resolver = new GenericsResolver(method, new Type[] {SimpleObject.class, List.class});
+				Type[] unresolved = method.getGenericParameterTypes();
+				
+				Type[] resolved = resolver.resolve(unresolved);
+
+				assertThat(resolved).isNotSameAs(unresolved);
+				assertThat(resolved).contains(SimpleObject.class, SimpleObject.class);
+			}
+			
+		}
 	}
 
 	private static class GenericObject<T> {
@@ -198,6 +236,16 @@ public class GenericsResolverTest {
 	}
 	
 	private abstract static class SimpleObjectList implements List<SimpleObject> {
+	}
+
+	@SuppressWarnings("unused")
+	private static class MethodExamples {
+		void method(SimpleObject o) {
+		}
+		void method(SimpleObject o1, SimpleObject o2) {
+		}
+		<S> void method(S o1, List<S> o2) {
+		}
 	}
 
 	@SuppressWarnings("unused")

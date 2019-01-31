@@ -6,7 +6,9 @@ import static net.amygdalum.extensions.assertj.Assertions.assertThat;
 import static net.amygdalum.testrecorder.TestAgentConfiguration.defaultConfig;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
+import java.io.ByteArrayOutputStream;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
@@ -25,6 +27,7 @@ import net.amygdalum.testrecorder.SnapshotManager;
 import net.amygdalum.testrecorder.TestAgentConfiguration;
 import net.amygdalum.testrecorder.deserializers.CustomAnnotation;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
+import net.amygdalum.testrecorder.profile.SnapshotConsumer;
 import net.amygdalum.testrecorder.types.ContextSnapshot;
 import net.amygdalum.testrecorder.types.FieldSignature;
 import net.amygdalum.testrecorder.types.MethodSignature;
@@ -35,9 +38,12 @@ import net.amygdalum.testrecorder.types.TypeManager;
 import net.amygdalum.testrecorder.types.VirtualMethodSignature;
 import net.amygdalum.testrecorder.util.ClassDescriptor;
 import net.amygdalum.testrecorder.util.ExtensibleClassLoader;
+import net.amygdalum.testrecorder.util.LogLevel;
+import net.amygdalum.testrecorder.util.LoggerExtension;
 import net.amygdalum.testrecorder.util.TemporaryFolder;
 import net.amygdalum.testrecorder.util.TemporaryFolderExtension;
 import net.amygdalum.testrecorder.values.SerializedObject;
+import net.amygdalum.xrayinterface.XRayInterface;
 
 @ExtendWith(TemporaryFolderExtension.class)
 public class TestGeneratorTest {
@@ -66,11 +72,19 @@ public class TestGeneratorTest {
 	}
 
 	@Test
+	void testTestGenerator() throws Exception {
+		loader.defineResource("agentconfig/net.amygdalum.testrecorder.generator.TestGeneratorProfile", "net.amygdalum.testrecorder.generator.TestGeneratorTest$InvalidTestTemplateTestGeneratorProfile".getBytes());
+		config.reset();
+		assertThatCode(() -> new TestGenerator(config))
+			.isInstanceOf(RuntimeException.class);
+	}
+
+	@Test
 	void testReload() throws Exception {
 		loader.defineResource("agentconfig/net.amygdalum.testrecorder.profile.PerformanceProfile", "net.amygdalum.testrecorder.generator.TestGeneratorTest$CustomPerformanceProfile".getBytes());
 		loader.defineResource("agentconfig/net.amygdalum.testrecorder.generator.TestGeneratorProfile", "net.amygdalum.testrecorder.generator.TestGeneratorTest$Profile".getBytes());
-		loader.defineResource("agentconfig/net.amygdalum.testrecorder.deserializers.builder.SetupGenerator","".getBytes());
-		loader.defineResource("agentconfig/net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerator","".getBytes());
+		loader.defineResource("agentconfig/net.amygdalum.testrecorder.deserializers.builder.SetupGenerator", "".getBytes());
+		loader.defineResource("agentconfig/net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerator", "".getBytes());
 		config.reset();
 
 		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
@@ -86,7 +100,7 @@ public class TestGeneratorTest {
 		snapshot.addOutput(new SerializedOutput(42, new MethodSignature(Writer.class, void.class, "write", new Type[] {Writer.class})).updateArguments(literal("hello")));
 
 		testGenerator.reload(config);
-		
+
 		ClassGenerator gen = testGenerator.generatorFor(ClassDescriptor.of(MyClass.class));
 		gen.generate(snapshot);
 		assertThat(gen.render()).containsWildcardPattern("Test*resetFakeIO:setup*test");
@@ -186,6 +200,28 @@ public class TestGeneratorTest {
 			testGenerator.await();
 			assertThat(testGenerator.renderTest(MyClass.class).getTestCode()).containsSubsequence("@SuppressWarnings(\"unused\")" + System.lineSeparator() + "public class");
 		}
+
+		@ExtendWith(LoggerExtension.class)
+		@Test
+		void withExceptionIsLogging(@LogLevel("error") ByteArrayOutputStream error) throws Exception {
+			ContextSnapshot snapshot = new ContextSnapshot(0, "key", new VirtualMethodSignature(new MethodSignature(String.class, String.class, "toString", new Class[0]))) {
+				@Override
+				public Type getThisType() {
+					throw new RuntimeException("Message for RuntimeException");
+				}
+			};
+			snapshot.setSetupThis(literal(String.class, "astring"));
+			snapshot.setSetupArgs();
+			snapshot.setSetupGlobals(new SerializedField[0]);
+			snapshot.setExpectThis(literal(String.class, "astring"));
+			snapshot.setExpectArgs();
+			snapshot.setExpectResult(literal(String.class, "astring"));
+			snapshot.setExpectGlobals(new SerializedField[0]);
+
+			testGenerator.accept(snapshot);
+			testGenerator.await();
+			assertThat(error.toString()).contains("Message for RuntimeException");
+		}
 	}
 
 	@Nested
@@ -254,24 +290,52 @@ public class TestGeneratorTest {
 		assertThat(testGenerator.computeClassName(ClassDescriptor.of(MyClass.class))).isEqualTo("MyClassRecordedTest");
 	}
 
+	@Nested
+	class testWriteResults {
+		@Test
+		void withOrdinaryPackage(TemporaryFolder folder) throws Exception {
+			ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
+			FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
+			snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
+			snapshot.setSetupArgs(literal(int.class, 16));
+			snapshot.setSetupGlobals(new SerializedField[0]);
+			snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 8))));
+			snapshot.setExpectArgs(literal(int.class, 16));
+			snapshot.setExpectResult(literal(int.class, 22));
+			snapshot.setExpectGlobals(new SerializedField[0]);
+
+			testGenerator.accept(snapshot);
+
+			testGenerator.await();
+			testGenerator.writeResults(folder.getRoot());
+
+			assertThat(Files.exists(folder.resolve("net/amygdalum/testrecorder/generator/TestGeneratorTestRecordedTest.java"))).isTrue();
+		}
+
+		@Test
+		void withProtectedPackage(TemporaryFolder folder) throws Exception {
+			ContextSnapshot snapshot = contextSnapshot(String.class, String.class, "toString");
+			snapshot.setSetupThis(literal(String.class, "astring"));
+			snapshot.setSetupArgs();
+			snapshot.setSetupGlobals(new SerializedField[0]);
+			snapshot.setExpectThis(literal(String.class, "astring"));
+			snapshot.setExpectArgs();
+			snapshot.setExpectResult(literal(String.class, "astring"));
+			snapshot.setExpectGlobals(new SerializedField[0]);
+
+			testGenerator.accept(snapshot);
+
+			testGenerator.await();
+			testGenerator.writeResults(folder.getRoot());
+
+			assertThat(Files.exists(folder.resolve("test/java/lang/StringRecordedTest.java"))).isTrue();
+		}
+	}
+
 	@Test
-	void testWriteResults(TemporaryFolder folder) throws Exception {
-		ContextSnapshot snapshot = contextSnapshot(MyClass.class, int.class, "intMethod", int.class);
-		FieldSignature field = new FieldSignature(MyClass.class, int.class, "field");
-		snapshot.setSetupThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 12))));
-		snapshot.setSetupArgs(literal(int.class, 16));
-		snapshot.setSetupGlobals(new SerializedField[0]);
-		snapshot.setExpectThis(objectOf(MyClass.class, new SerializedField(field, literal(int.class, 8))));
-		snapshot.setExpectArgs(literal(int.class, 16));
-		snapshot.setExpectResult(literal(int.class, 22));
-		snapshot.setExpectGlobals(new SerializedField[0]);
-
-		testGenerator.accept(snapshot);
-
-		testGenerator.await();
-		testGenerator.writeResults(folder.getRoot());
-
-		assertThat(Files.exists(folder.resolve("net/amygdalum/testrecorder/generator/TestGeneratorTestRecordedTest.java"))).isTrue();
+	public void testFromRecorded() throws Exception {
+		XRayInterface.xray(SnapshotManager.init(config)).to(OpenSnapshotManager.class).setSnapshotConsumer(null);
+		assertThat(TestGenerator.fromRecorded()).isNull();
 	}
 
 	private ContextSnapshot contextSnapshot(Class<?> declaringClass, Type resultType, String methodName, Type... argumentTypes) {
@@ -333,8 +397,8 @@ public class TestGeneratorTest {
 		@Override
 		public String testClass(String methodName, TypeManager types, Map<String, String> setups, Set<String> tests) {
 			return "Test\n"
-				+ setups.entrySet().stream().map(entry -> entry.getKey() + ":" + entry.getValue()).collect(joining("\n","\n","\n"))
-				+ tests.stream().collect(joining("\n","\n","\n"));
+				+ setups.entrySet().stream().map(entry -> entry.getKey() + ":" + entry.getValue()).collect(joining("\n", "\n", "\n"))
+				+ tests.stream().collect(joining("\n", "\n", "\n"));
 		}
 
 		@Override
@@ -346,6 +410,54 @@ public class TestGeneratorTest {
 		public String testMethod(String methodName, TypeManager types, List<String> annotations, List<String> statements) {
 			return "test";
 		}
+
+	}
+
+	public static class InvalidTestTemplateTestGeneratorProfile implements TestGeneratorProfile {
+
+		@Override
+		public List<CustomAnnotation> annotations() {
+			return emptyList();
+		}
+
+		@Override
+		public Class<? extends TestTemplate> template() {
+			return InvalidTestTemplate.class;
+		}
+
+	}
+
+	public static class InvalidTestTemplate implements TestTemplate {
+
+		InvalidTestTemplate(String s) {
+			//constructor with arguments to suppress auto constructor
+		}
+
+		@Override
+		public Class<?>[] getTypes() {
+			return new Class[0];
+		}
+
+		@Override
+		public String testClass(String methodName, TypeManager types, Map<String, String> setups, Set<String> tests) {
+			return "class";
+		}
+
+		@Override
+		public String setupMethod(String methodName, TypeManager types, List<String> annotations, List<String> statements) {
+			return "setup";
+		}
+
+		@Override
+		public String testMethod(String methodName, TypeManager types, List<String> annotations, List<String> statements) {
+			return "test";
+		}
+
+	}
+
+	interface OpenSnapshotManager {
+
+		void setSnapshotConsumer(SnapshotConsumer s);
 
 	}
 

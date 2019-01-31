@@ -3,12 +3,30 @@ package net.amygdalum.testrecorder.types;
 import static net.amygdalum.extensions.assertj.conventions.DefaultEquality.defaultEquality;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 import java.lang.reflect.Type;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 public class SerializedResultTest {
+
+	@Nested
+	class testSerializedResult {
+
+		@Test
+		public void onSignatureNull() throws Exception {
+			assertThatCode(() -> new SerializedResult(null, literal("stringvalue")))
+				.isInstanceOf(AssertionError.class);
+		}
+
+		@Test
+		public void onValueNull() throws Exception {
+			assertThatCode(() -> new SerializedResult(MyObject.stringSignature(), null))
+				.isInstanceOf(AssertionError.class);
+		}
+	}
 
 	@Test
 	void testGetType() throws Exception {

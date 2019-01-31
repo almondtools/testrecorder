@@ -3,12 +3,30 @@ package net.amygdalum.testrecorder.types;
 import static net.amygdalum.extensions.assertj.conventions.DefaultEquality.defaultEquality;
 import static net.amygdalum.testrecorder.values.SerializedLiteral.literal;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 public class SerializedFieldTest {
+
+	@Nested
+	class testSerializedField {
+
+		@Test
+		public void onFieldNull() throws Exception {
+			assertThatCode(() -> new SerializedField(null, literal("stringvalue")))
+				.isInstanceOf(AssertionError.class);
+		}
+
+		@Test
+		public void onValueNull() throws Exception {
+			assertThatCode(() -> new SerializedField(new FieldSignature(Object.class, String.class, "field"), null))
+				.isInstanceOf(AssertionError.class);
+		}
+	}
 
 	@Test
 	void testGetName() throws Exception {
