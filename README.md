@@ -19,18 +19,20 @@ __Some more Documentation (Work in Progress)__
 * [Extending Testrecorder with Custom Components](doc/Extending.md)
 * [Creating a Custom Agent](doc/CreatingCustomAgents.md) 
 
+At this time there are multiple APIs that could be used to support you in your projects. Not every API is well-documented and not every API is stable. If you are uncertain how to start, __open an issue__ and describe the problem you want to solve. Even if the tool does not support your problem this could give us valuable insight on future features.   
+
 Examples
-========
+--------
 Examples can be found at [testrecorder-examples](https://github.com/almondtools/testrecorder-examples)
 
 Some additional notes ...
-=========================
+-------------------------
 The objective of Testrecorder is to provide an interface that is powerful, clean and extensible. To achieve this we will provide more and more configuration settings to extend the core framework. The fact that tests are generated automatically might rise wrong expectations: Testrecorder will probably always be an experts tool, meaning strong programming and debug skills are recommended to find the correct configuration and the necessary custom extensions.
 
 Testrecorder was not yet tested on a large set of code examples. Some classes are not as easy to serialize as others, so if you encounter problems, try to write an issue. Hopefully - most fixes to such problems should be solvable with custom serializers or custom deserializers.
 
 Maven Dependency
-================
+----------------
 
 ```xml
 <dependency>
