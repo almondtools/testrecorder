@@ -10,6 +10,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Writer;
+import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.util.List;
@@ -22,6 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 
 import net.amygdalum.testrecorder.SnapshotManager;
 import net.amygdalum.testrecorder.TestAgentConfiguration;
@@ -334,7 +336,8 @@ public class TestGeneratorTest {
 
 	@Test
 	public void testFromRecorded() throws Exception {
-		XRayInterface.xray(SnapshotManager.init(config)).to(OpenSnapshotManager.class).setSnapshotConsumer(null);
+		Instrumentation inst = Mockito.mock(Instrumentation.class);
+		XRayInterface.xray(SnapshotManager.init(config, inst)).to(OpenSnapshotManager.class).setSnapshotConsumer(null);
 		assertThat(TestGenerator.fromRecorded()).isNull();
 	}
 

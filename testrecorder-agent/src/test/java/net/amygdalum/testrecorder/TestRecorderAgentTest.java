@@ -1,14 +1,19 @@
 package net.amygdalum.testrecorder;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.security.ProtectionDomain;
+import java.util.Collection;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,7 +49,7 @@ public class TestRecorderAgentTest {
 	public void testPrepareInstrumentations() throws Exception {
 		AgentConfiguration agentconfig = TestRecorderAgent.loadConfig(null);
 		Instrumentation inst = Mockito.mock(Instrumentation.class);
-		TestRecorderAgent agent = Mockito.spy(new TestRecorderAgent(inst, agentconfig));
+		TestRecorderAgent agent = new TestRecorderAgent(inst, agentconfig, asList(ClassFileTransformer1.class, ClassFileTransformer2.class));
 
 		agent.prepareInstrumentations();
 
@@ -52,7 +57,7 @@ public class TestRecorderAgentTest {
 		verify(inst, Mockito.atLeastOnce()).addTransformer(argument.capture(), anyBoolean());
 		assertThat(argument.getAllValues())
 			.extracting(object -> (Class) object.getClass())
-			.containsExactlyInAnyOrder(SnapshotInstrumentor.class, AllLambdasSerializableTransformer.class);
+			.containsExactlyInAnyOrder(ClassFileTransformer1.class, ClassFileTransformer2.class);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -60,7 +65,7 @@ public class TestRecorderAgentTest {
 	public void testClearInstrumentations() throws Exception {
 		AgentConfiguration agentconfig = TestRecorderAgent.loadConfig(null);
 		Instrumentation inst = Mockito.mock(Instrumentation.class);
-		TestRecorderAgent agent = new TestRecorderAgent(inst, agentconfig);
+		TestRecorderAgent agent = new TestRecorderAgent(inst, agentconfig, asList(ClassFileTransformer1.class, ClassFileTransformer2.class));
 		agent.prepareInstrumentations();
 
 		agent.clearInstrumentations();
@@ -69,7 +74,7 @@ public class TestRecorderAgentTest {
 		verify(inst, Mockito.atLeastOnce()).removeTransformer(argument.capture());
 		assertThat(argument.getAllValues())
 			.extracting(object -> (Class) object.getClass())
-			.containsExactlyInAnyOrder(SnapshotInstrumentor.class, AllLambdasSerializableTransformer.class);
+			.containsExactlyInAnyOrder(ClassFileTransformer2.class, ClassFileTransformer1.class);
 	}
 
 	@Test
@@ -92,4 +97,41 @@ public class TestRecorderAgentTest {
 		assertThat(agent.getConfig()).isSameAs(agentconfig);
 	}
 
+	public static class ClassFileTransformer1 extends AttachableClassFileTransformer {
+
+		@Override
+		public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+			return null;
+		}
+
+		@Override
+		public Collection<Class<?>> filterClassesToRetransform(Class<?>[] loaded) {
+			return emptyList();
+		}
+
+		@Override
+		public Collection<Class<?>> getClassesToRetransform() {
+			return emptyList();
+		}
+
+	}
+
+	public static class ClassFileTransformer2 extends AttachableClassFileTransformer {
+
+		@Override
+		public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+			return null;
+		}
+
+		@Override
+		public Collection<Class<?>> filterClassesToRetransform(Class<?>[] loaded) {
+			return emptyList();
+		}
+
+		@Override
+		public Collection<Class<?>> getClassesToRetransform() {
+			return emptyList();
+		}
+
+	}
 }

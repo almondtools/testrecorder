@@ -13,6 +13,7 @@ import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
+import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -71,6 +72,7 @@ import net.amygdalum.testrecorder.util.Logger;
 
 public class SnapshotInstrumentor extends AttachableClassFileTransformer implements ClassFileTransformer {
 
+	private AgentConfiguration config;
 	private SerializationProfile profile;
 	private ClassNodeManager classes = new ClassNodeManager();
 	private IOManager io = new IOManager();
@@ -78,11 +80,31 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 	private Set<Class<?>> instrumentedClasses;
 
 	public SnapshotInstrumentor(AgentConfiguration config) {
+		this.config = config;
 		this.profile = config.loadConfiguration(SerializationProfile.class);
 		this.classes = new ClassNodeManager();
 		this.instrumentedClassPrototypes = new LinkedHashMap<>();
 		this.instrumentedClasses = new LinkedHashSet<>();
-		SnapshotManager.init(config);
+	}
+	
+	@Override
+	public AttachableClassFileTransformer attach(Instrumentation inst) {
+		initialize(inst);
+		return super.attach(inst);
+	}
+
+	protected void initialize(Instrumentation inst) {
+		SnapshotManager.init(config, inst);
+	}
+	
+	@Override
+	public void detach(Instrumentation inst) {
+		super.detach(inst);
+		shutdown(inst);
+	}
+
+	protected void shutdown(Instrumentation inst) {
+		SnapshotManager.done(config, inst);
 	}
 
 	@Override

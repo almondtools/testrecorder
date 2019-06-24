@@ -13,6 +13,13 @@ public class BridgedSnapshotManager {
 	public static final ThreadLocal<MethodHandle> LOCK = new ThreadLocal<>();
 
 	public static volatile Object MANAGER;
+	
+	static {
+		Class<?> clazz = BridgedSnapshotManager.class;
+		if (clazz.getClassLoader() != null) {
+			throw new IllegalStateException("Bridged classes (" + clazz.getName() + ") must be loaded with the system class loader (=null)");
+		}
+	}
 
 	public static MethodHandle setupVariables;
 	public static MethodHandle expectVariables;

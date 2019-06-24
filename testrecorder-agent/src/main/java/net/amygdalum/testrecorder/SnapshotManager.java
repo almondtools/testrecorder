@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.instrument.Instrumentation;
+import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
@@ -36,7 +37,6 @@ import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
-import net.amygdalum.testrecorder.bridge.BridgedSnapshotManager;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.profile.SnapshotConsumer;
@@ -55,7 +55,6 @@ import net.amygdalum.testrecorder.types.SerializerSession;
 import net.amygdalum.testrecorder.util.CircularityLock;
 import net.amygdalum.testrecorder.util.Logger;
 import net.amygdalum.testrecorder.values.SerializedNull;
-import net.bytebuddy.agent.ByteBuddyAgent;
 
 public class SnapshotManager {
 
@@ -63,11 +62,6 @@ public class SnapshotManager {
 		.invalidate(Logger.class);
 
 	public static volatile SnapshotManager MANAGER;
-
-	static {
-		Instrumentation inst = ByteBuddyAgent.install();
-		installBridge(inst);
-	}
 
 	private ThreadPoolExecutor snapshotExecutor;
 	private CircularityLock lock;
@@ -98,40 +92,55 @@ public class SnapshotManager {
 		this.globalContext = new GlobalContext();
 	}
 
-	private static void installBridge(Instrumentation inst) {
+	private static Class<?> installBridge(Instrumentation inst) {
 		try {
-			inst.appendToBootstrapClassLoaderSearch(jarfile());
-			BridgedSnapshotManager.setupVariables = MethodHandles.lookup().findVirtual(SnapshotManager.class, "setupVariables",
+			String bridgeClassName = "net.amygdalum.testrecorder.bridge.BridgedSnapshotManager";
+			inst.appendToBootstrapClassLoaderSearch(jarfile(bridgeClassName));
+			Class<?> bridgedSnapshotManagerClass = Class.forName(bridgeClassName, true, null);
+			MethodHandle setupVariables = MethodHandles.lookup().findVirtual(SnapshotManager.class, "setupVariables",
 				MethodType.methodType(void.class, Class.class, Object.class, String.class, Object[].class));
-			BridgedSnapshotManager.expectVariables = MethodHandles.lookup().findVirtual(SnapshotManager.class, "expectVariables",
+			bridgedSnapshotManagerClass.getField("setupVariables").set(null, setupVariables);
+			MethodHandle expectVariables = MethodHandles.lookup().findVirtual(SnapshotManager.class, "expectVariables",
 				MethodType.methodType(void.class, Object.class, String.class, Object.class, Object[].class));
-			BridgedSnapshotManager.expectVariablesVoid = MethodHandles.lookup().findVirtual(SnapshotManager.class, "expectVariables",
+			bridgedSnapshotManagerClass.getField("expectVariables").set(null, expectVariables);
+			MethodHandle expectVariablesVoid = MethodHandles.lookup().findVirtual(SnapshotManager.class, "expectVariables",
 				MethodType.methodType(void.class, Object.class, String.class, Object[].class));
-			BridgedSnapshotManager.throwVariables = MethodHandles.lookup().findVirtual(SnapshotManager.class, "throwVariables",
+			bridgedSnapshotManagerClass.getField("expectVariablesVoid").set(null, expectVariablesVoid);
+			MethodHandle throwVariables = MethodHandles.lookup().findVirtual(SnapshotManager.class, "throwVariables",
 				MethodType.methodType(void.class, Throwable.class, Object.class, String.class, Object[].class));
-			BridgedSnapshotManager.inputVariables = MethodHandles.lookup().findVirtual(SnapshotManager.class, "inputVariables",
+			bridgedSnapshotManagerClass.getField("throwVariables").set(null, throwVariables);
+			MethodHandle inputVariables = MethodHandles.lookup().findVirtual(SnapshotManager.class, "inputVariables",
 				MethodType.methodType(int.class, Object.class, String.class, Type.class, Type[].class));
-			BridgedSnapshotManager.inputArguments = MethodHandles.lookup().findVirtual(SnapshotManager.class, "inputArguments",
+			bridgedSnapshotManagerClass.getField("inputVariables").set(null, inputVariables);
+			MethodHandle inputArguments = MethodHandles.lookup().findVirtual(SnapshotManager.class, "inputArguments",
 				MethodType.methodType(void.class, int.class, Object[].class));
-			BridgedSnapshotManager.inputResult = MethodHandles.lookup().findVirtual(SnapshotManager.class, "inputResult",
+			bridgedSnapshotManagerClass.getField("inputArguments").set(null, inputArguments);
+			MethodHandle inputResult = MethodHandles.lookup().findVirtual(SnapshotManager.class, "inputResult",
 				MethodType.methodType(void.class, int.class, Object.class));
-			BridgedSnapshotManager.inputVoidResult = MethodHandles.lookup().findVirtual(SnapshotManager.class, "inputVoidResult",
+			bridgedSnapshotManagerClass.getField("inputResult").set(null, inputResult);
+			MethodHandle inputVoidResult = MethodHandles.lookup().findVirtual(SnapshotManager.class, "inputVoidResult",
 				MethodType.methodType(void.class, int.class));
-			BridgedSnapshotManager.outputVariables = MethodHandles.lookup().findVirtual(SnapshotManager.class, "outputVariables",
+			bridgedSnapshotManagerClass.getField("inputVoidResult").set(null, inputVoidResult);
+			MethodHandle outputVariables = MethodHandles.lookup().findVirtual(SnapshotManager.class, "outputVariables",
 				MethodType.methodType(int.class, Object.class, String.class, Type.class, Type[].class));
-			BridgedSnapshotManager.outputArguments = MethodHandles.lookup().findVirtual(SnapshotManager.class, "outputArguments",
+			bridgedSnapshotManagerClass.getField("outputVariables").set(null, outputVariables);
+			MethodHandle outputArguments = MethodHandles.lookup().findVirtual(SnapshotManager.class, "outputArguments",
 				MethodType.methodType(void.class, int.class, Object[].class));
-			BridgedSnapshotManager.outputResult = MethodHandles.lookup().findVirtual(SnapshotManager.class, "outputResult",
+			bridgedSnapshotManagerClass.getField("outputArguments").set(null, outputArguments);
+			MethodHandle outputResult = MethodHandles.lookup().findVirtual(SnapshotManager.class, "outputResult",
 				MethodType.methodType(void.class, int.class, Object.class));
-			BridgedSnapshotManager.outputVoidResult = MethodHandles.lookup().findVirtual(SnapshotManager.class, "outputVoidResult",
+			bridgedSnapshotManagerClass.getField("outputResult").set(null, outputResult);
+			MethodHandle outputVoidResult = MethodHandles.lookup().findVirtual(SnapshotManager.class, "outputVoidResult",
 				MethodType.methodType(void.class, int.class));
+			bridgedSnapshotManagerClass.getField("outputVoidResult").set(null, outputVoidResult);
+			return bridgedSnapshotManagerClass;
 		} catch (ReflectiveOperationException | IOException e) {
 			throw new RuntimeException("failed installing fake bridge", e);
 		}
 	}
 
-	private static JarFile jarfile() throws IOException {
-		String bridge = "net/amygdalum/testrecorder/bridge/BridgedSnapshotManager.class";
+	private static JarFile jarfile(String bridgeClassName) throws IOException {
+		String bridge = bridgeClassName.replace('.', '/') + ".class";
 		InputStream resourceStream = SnapshotManager.class.getResourceAsStream("/" + bridge);
 		if (resourceStream == null) {
 			throw new FileNotFoundException(bridge);
@@ -154,10 +163,19 @@ public class SnapshotManager {
 		}
 	}
 
-	public static SnapshotManager init(AgentConfiguration config) {
-		MANAGER = new SnapshotManager(config);
-		BridgedSnapshotManager.MANAGER = MANAGER;
-		return MANAGER;
+	public static SnapshotManager init(AgentConfiguration config, Instrumentation inst) {
+		Class<?> bridgeClass = installBridge(inst);
+		try {
+			MANAGER = new SnapshotManager(config);
+			bridgeClass.getField("MANAGER").set(null, MANAGER);
+			return MANAGER;
+		} catch (ReflectiveOperationException e) {
+			throw new RuntimeException("failed initializing bridged manager", e);
+		}
+	}
+
+	public static void done(AgentConfiguration config, Instrumentation inst) {
+		MANAGER = null;
 	}
 
 	public SnapshotConsumer getMethodConsumer() {

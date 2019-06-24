@@ -14,6 +14,13 @@ public class BridgedFakeIO {
 	public static MethodHandle callFake;
 	public static Object NO_RESULT;
 
+	static {
+		Class<?> clazz = BridgedFakeIO.class;
+		if (clazz.getClassLoader() != null) {
+			throw new IllegalStateException("Bridged classes (" + clazz.getName() + ") must be loaded with the system class loader (=null)");
+		}
+	}
+
 	public static Object callFake(String name, Object instance, String methodName, String methodDesc, Object... varargs) throws Throwable {
 		if (callFake == null || LOCK.get() != null) {
 			return NO_RESULT;

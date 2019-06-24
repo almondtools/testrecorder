@@ -1,11 +1,14 @@
 package net.amygdalum.testrecorder;
 
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
 import java.lang.instrument.Instrumentation;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
@@ -21,12 +24,17 @@ public class TestRecorderAgent {
 
 	private Instrumentation inst;
 	private AgentConfiguration config;
-	private AttachableClassFileTransformer lambdaTransformer;
-	private AttachableClassFileTransformer snapshotInstrumentor;
+	private List<Class<? extends AttachableClassFileTransformer>> transformerClasses;
+	private Deque<AttachableClassFileTransformer> transformers;
 
-	public TestRecorderAgent(Instrumentation inst, AgentConfiguration config) {
+	public TestRecorderAgent(Instrumentation inst, AgentConfiguration config, List<Class<? extends AttachableClassFileTransformer>> transformerClasses) {
 		this.inst = inst;
 		this.config = config;
+		this.transformerClasses = transformerClasses;
+	}
+
+	public TestRecorderAgent(Instrumentation inst, AgentConfiguration config) {
+		this(inst, config, asList(AllLambdasSerializableTransformer.class, SnapshotInstrumentor.class));
 	}
 
 	public AgentConfiguration getConfig() {
@@ -64,16 +72,39 @@ public class TestRecorderAgent {
 	}
 
 	public void prepareInstrumentations() {
-		lambdaTransformer = new AllLambdasSerializableTransformer().attach(inst);
-		snapshotInstrumentor = new SnapshotInstrumentor(config).attach(inst);
+		transformers = new LinkedList<>();
+		
+		for (Class<? extends AttachableClassFileTransformer> clazz : transformerClasses) {
+			AttachableClassFileTransformer transformer = instantiate(clazz);
+			transformer.attach(inst);
+			transformers.add(transformer);
+		}
+	}
+
+	public AttachableClassFileTransformer instantiate(Class<? extends AttachableClassFileTransformer> clazz) {
+		try {
+			return clazz.getDeclaredConstructor(AgentConfiguration.class)
+				.newInstance(config);
+		} catch (ReflectiveOperationException e) {
+			//try next
+		}
+		try {
+			return clazz.newInstance();
+		} catch (ReflectiveOperationException e) {
+			//try next
+		}
+		throw new RuntimeException("failed to instantiate transformer <" + clazz.getName() + ">, tried:"
+			+ "\nnew " + clazz.getSimpleName() + "(AgentConfig)"
+			+ "\nnew " + clazz.getSimpleName() + "()");
 	}
 
 	public void clearInstrumentations() {
-		if (snapshotInstrumentor != null) {
-			snapshotInstrumentor.detach(inst);
+		if (transformers == null) {
+			return;
 		}
-		if (lambdaTransformer != null) {
-			lambdaTransformer.detach(inst);
+		while (!transformers.isEmpty()) {
+			AttachableClassFileTransformer current = transformers.removeLast();
+			current.detach(inst);
 		}
 	}
 
@@ -84,7 +115,7 @@ public class TestRecorderAgent {
 		} finally {
 			prepareInstrumentations();
 		}
-		
+
 	}
 
 }

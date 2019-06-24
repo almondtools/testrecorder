@@ -97,10 +97,9 @@ public class FakeIO {
 			String bridgeClassName = "net.amygdalum.testrecorder.fakeio.bridge.BridgedFakeIO";
 			
 			inst.appendToBootstrapClassLoaderSearch(jarfile(bridgeClassName));
+			Class<?> bridgedFakeIOClass = Class.forName(bridgeClassName, true, null);
 
 			MethodHandle callFakeMethod = MethodHandles.lookup().findStatic(FakeIO.class, "callFake", MethodType.methodType(Object.class, String.class, Object.class, String.class, String.class, Object[].class));
-			
-			Class<?> bridgedFakeIOClass = Class.forName(bridgeClassName, true, null);
 			bridgedFakeIOClass.getField("callFake").set(null, callFakeMethod);
 			bridgedFakeIOClass.getField("NO_RESULT").set(null, NO_RESULT);
 		} catch (ReflectiveOperationException | IOException e) {
