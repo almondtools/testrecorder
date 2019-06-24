@@ -40,17 +40,17 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<version.plugin.assembly>3.1.0</version.plugin.assembly>
-		<version.plugin.compiler>3.8.0</version.plugin.compiler>
+		<version.plugin.assembly>3.1.1</version.plugin.assembly>
+		<version.plugin.compiler>3.8.1</version.plugin.compiler>
 		<version.plugin.gpg>1.6</version.plugin.gpg>
-		<version.plugin.jacoco>0.8.2</version.plugin.jacoco>
+		<version.plugin.jacoco>0.8.4</version.plugin.jacoco>
 		<version.plugin.jar>3.1.0</version.plugin.jar>
 		<version.plugin.javadoc>3.0.1</version.plugin.javadoc>
 		<version.plugin.nexusstaging>1.6.8</version.plugin.nexusstaging>
 		<version.plugin.release>2.5.3</version.plugin.release>
 		<version.plugin.shade>3.2.1</version.plugin.shade>
-		<version.plugin.source>3.0.1</version.plugin.source>
-		<version.plugin.surefire>2.22.1</version.plugin.surefire>
+		<version.plugin.source>3.1.0</version.plugin.source>
+		<version.plugin.surefire>2.22.2</version.plugin.surefire>
 	</properties>
 
 	<modules>
