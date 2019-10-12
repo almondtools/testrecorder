@@ -11,7 +11,7 @@ Now find out how to generate setup or verification code manually:
 
 ## Runtime Object Serialization with CodeSerializer
 
-How can we generate builders and matchers for existing code, just by inserting API-call to testrecorder? The [following code](https://github.com/almondtools/testrecorder-examples/tree/master/src/main/java/com/almondtools/testrecorder/examples/codeserializer) will serve as example:
+How can we generate builders and matchers for existing code, just by inserting API-call to testrecorder? The following code in [codeserializer](https://github.com/almondtools/testrecorder-examples/tree/master/src/main/java/com/almondtools/testrecorder/examples/codeserializer) will serve as example:
 
     public class ExampleObject {
         private String name;
@@ -64,26 +64,27 @@ The matcher generation is mostly straight forward, just validating the structura
 
 ## Recording a Method Call with CallsiteRecorder
 
-The fact that testrecorder requires your program to be startet with an agent is somewhat distracting. You may consider  `CallsiteRecorder` to overcome this requirement. The [following code](https://github.com/almondtools/testrecorder-examples/tree/master/src/main/java/com/almondtools/testrecorder/examples/callsiterecorder) will serve as example:
+The full featured testrecorder requires your program to be started with an agent. Yet there is another method to record code, that allows you to record certain code parts explicitly. This is done with the `CallsiteRecorder`. Note that `CallsiteRecorder` is limited to common recorder test cases (this will be probably be documented in future).
 
-    public class ExampleObject {
-        private int counter;
+The code in [callsiterecorder](https://github.com/almondtools/testrecorder-examples/tree/master/src/main/java/com/almondtools/testrecorder/examples/callsiterecorder) will serve as example (class [Counter](https://github.com/almondtools/testrecorder-examples/blob/master/src/main/java/com/almondtools/testrecorder/examples/callsiterecorder/Counter.java)):
 
-        public int inc() {
-            counter++;
-            return counter;
-        }
-    
-        public ExampleObject reset() {
-            this.counter = 0;
-            return this;
-        }
-    }
+	public class Counter {
+		private int counter;
 
-To record a callsite you must specify:
+		pulic int get() {
+			return counter;
+		}
 
-* all methods you want to record
-* the scenario you want to record
+		public Counter inc() {
+			counter++;
+			return this;
+		}
+
+		public Counter reset() {
+			this.counter = 0;
+			return this;
+		}
+	}
 
 In the example we want to record the calls to `inc()` in the code lines:
 
@@ -91,34 +92,8 @@ In the example we want to record the calls to `inc()` in the code lines:
     
     int resetInc = exampleObject.reset().inc().get();
 
-We first start to explain how to record with a given `CallsiteRecorder` and then explain the recommended way how to get the callsite recorder. So if we start with a recorder, we can pass `Runnables` or `Callables<T>` to its `record()` method, e.g.
+Now let us visit the recording code (found in [CounterMain](https://github.com/almondtools/testrecorder-examples/blob/master/src/main/java/com/almondtools/testrecorder/examples/callsiterecorder/CounterMain.java)):
 
-    recordings = recorder.record(() -> {
-        int doubleInc = exampleObject.inc().inc().get();
-        System.out.println(doubleInc);
-    });
-
-or 
-
-    recordings = recorder.record(() -> {
-        int resetInc = exampleObject.reset().inc().get();
-        System.out.println(resetInc);
-    });
-
-The result `recordings` is is a `CompletableFuture<List<ContextSnapshot>>`, i.e. a delayed list of context snapshots (recorded serialized state before and after the method call). In the example we delegate this result to a method `printTest(CompletableFuture<List<ContextSnapshot>>)` which generates a test from each snapshot, but you are free to handle these snapshots in the way you want. This is the code with delegations to `printTest(CompletableFuture<List<ContextSnapshot>>)` (lookup the code of printTest in the example code):
-
-    printTest(recorder.record(() -> {
-        int doubleInc = exampleObject.inc().inc().get();
-        System.out.println(doubleInc);
-    }));
-    printTest(recorder.record(() -> {
-        int resetInc = exampleObject.reset().inc().get();
-        System.out.println(resetInc);
-    })); 
-
-Now that we know how to generate tests, we only need to know how to get the `recorder`. Note that the recorder internally uses the java agent (as the commandline tool), so we should ensure that the code instrumentation is limited to our recordings and does not escape to other program parts (making them slower and sometimes even unpredictable). `CallsiteRecorder` is `Autoclosable` so we can use it in a `try-with-resources` block, like this:
-
- 
     try (CallsiteRecorder recorder = new CallsiteRecorder(ExampleObject.class.getDeclaredMethod("inc"))) {
         printTest(recorder.record(() -> {
             int doubleInc = exampleObject.inc().inc().get();
@@ -129,3 +104,9 @@ Now that we know how to generate tests, we only need to know how to get the `rec
             System.out.println(resetInc);
         }));
     }
+
+First of all we need a `CallsiteRecorder`. It must be configured with each method that should be recorded (recorded methods may be specified by Reflection). `CallsiteRecorder` is `Autocloseable`, i.e. if you put it in a try-with-resources-block the teardown is called automatically.
+
+The `printTest` method displays the recorded contents. For an example implementation look into the referenced source code.
+
+`CallsiteRecorder.record` captures all interactions with the configured methods in the given lambda expression.
