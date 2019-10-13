@@ -23,7 +23,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 
 import net.amygdalum.testrecorder.SnapshotManager;
 import net.amygdalum.testrecorder.TestAgentConfiguration;
@@ -46,9 +45,12 @@ import net.amygdalum.testrecorder.util.TemporaryFolder;
 import net.amygdalum.testrecorder.util.TemporaryFolderExtension;
 import net.amygdalum.testrecorder.values.SerializedObject;
 import net.amygdalum.xrayinterface.XRayInterface;
+import net.bytebuddy.agent.ByteBuddyAgent;
 
 @ExtendWith(TemporaryFolderExtension.class)
 public class TestGeneratorTest {
+
+	public static Instrumentation inst = ByteBuddyAgent.install();
 
 	private static SnapshotManager saveManager;
 
@@ -336,8 +338,8 @@ public class TestGeneratorTest {
 
 	@Test
 	public void testFromRecorded() throws Exception {
-		Instrumentation inst = Mockito.mock(Instrumentation.class);
-		XRayInterface.xray(SnapshotManager.init(config, inst)).to(OpenSnapshotManager.class).setSnapshotConsumer(null);
+		SnapshotManager manager = SnapshotManager.init(config, inst);
+		XRayInterface.xray(manager).to(OpenSnapshotManager.class).setSnapshotConsumer(null);
 		assertThat(TestGenerator.fromRecorded()).isNull();
 	}
 
