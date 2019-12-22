@@ -75,6 +75,9 @@ import net.amygdalum.testrecorder.util.testobjects.ElevatingToPublic;
 import net.amygdalum.testrecorder.util.testobjects.Final;
 import net.amygdalum.testrecorder.util.testobjects.Generic;
 import net.amygdalum.testrecorder.util.testobjects.GenericCycle;
+import net.amygdalum.testrecorder.util.testobjects.MethodsPackagePrivate;
+import net.amygdalum.testrecorder.util.testobjects.MethodsPrivate;
+import net.amygdalum.testrecorder.util.testobjects.MethodsProtected;
 import net.amygdalum.testrecorder.util.testobjects.Overridden;
 import net.amygdalum.testrecorder.util.testobjects.Overriding;
 import net.amygdalum.testrecorder.util.testobjects.PartlyBoundBiGeneric;
@@ -348,6 +351,11 @@ public class TypesTest {
 			assertThat(isHidden(getDeclaredConstructor(NestedPackagePrivate.class), "net.amygdalum.testrecorder.util")).isTrue();
 			assertThat(isHidden(getDeclaredConstructor(TypesPackagePrivate.class), "any")).isTrue();
 			assertThat(isHidden(getDeclaredConstructor(TypesPackagePrivate.class), "net.amygdalum.testrecorder.util")).isFalse();
+			assertThat(isHidden(getDeclaredConstructor(MethodsPrivate.class), "any")).isTrue();
+			assertThat(isHidden(getDeclaredConstructor(MethodsProtected.class), "any")).isTrue();
+			assertThat(isHidden(getDeclaredConstructor(MethodsProtected.class), "net.amygdalum.testrecorder.util.testobjects")).isFalse();
+			assertThat(isHidden(getDeclaredConstructor(MethodsPackagePrivate.class), "any")).isTrue();
+			assertThat(isHidden(getDeclaredConstructor(MethodsPackagePrivate.class), "net.amygdalum.testrecorder.util.testobjects")).isFalse();
 		}
 
 		@Test
@@ -365,6 +373,11 @@ public class TypesTest {
 			assertThat(isHidden(getDeclaredMethod(NestedPackagePrivate.class, "method"), "net.amygdalum.testrecorder.util")).isTrue();
 			assertThat(isHidden(getDeclaredMethod(TypesPackagePrivate.class, "method"), "any")).isTrue();
 			assertThat(isHidden(getDeclaredMethod(TypesPackagePrivate.class, "method"), "net.amygdalum.testrecorder.util")).isFalse();
+			assertThat(isHidden(getDeclaredMethod(MethodsPrivate.class, "method"), "any")).isTrue();
+			assertThat(isHidden(getDeclaredMethod(MethodsProtected.class, "method"), "any")).isTrue();
+			assertThat(isHidden(getDeclaredMethod(MethodsProtected.class, "method"), "net.amygdalum.testrecorder.util.testobjects")).isFalse();
+			assertThat(isHidden(getDeclaredMethod(MethodsPackagePrivate.class, "method"), "any")).isTrue();
+			assertThat(isHidden(getDeclaredMethod(MethodsPackagePrivate.class, "method"), "net.amygdalum.testrecorder.util.testobjects")).isFalse();
 		}
 
 		@Test

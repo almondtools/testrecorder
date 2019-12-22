@@ -525,6 +525,11 @@ public final class Types {
 		if (isPrivate(modifiers)) {
 			return true;
 		} else {
+			if (!isPublic(modifiers)) {
+				if  (pkg == null || !pkg.equals(constructor.getDeclaringClass().getPackage().getName())) {
+					return true;
+				}
+			}
 			return isHidden(constructor.getDeclaringClass(), pkg)
 				|| (constructor.getDeclaringClass().getEnclosingClass() != null && !isPublic(modifiers));
 		}
@@ -535,6 +540,11 @@ public final class Types {
 		if (isPrivate(modifiers)) {
 			return true;
 		} else {
+			if (!isPublic(modifiers)) {
+				if  (pkg == null || !pkg.equals(method.getDeclaringClass().getPackage().getName())) {
+					return true;
+				}
+			}
 			return isHidden(method.getDeclaringClass(), pkg)
 				|| (method.getDeclaringClass().getEnclosingClass() != null && !isPublic(modifiers));
 		}
