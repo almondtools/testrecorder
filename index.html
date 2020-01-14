@@ -10,8 +10,8 @@
               <link rel="stylesheet" href="custom.css"/>
               <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.0.0/styles/default.min.css"/>
                   <title>Testrecorder - Generate Test Fixtures from Runnable Java Code</title>
-      <meta name="description" content="Testrecorder ist a unit test generator for Java. Testrecorder is based on capturing and replaying the states before and after method calls. The generated result is a pure Java JUnit test."/>
-      <meta name="keywords" content="testing,recorder,code generator,test generator,generate tests,Java,JUnit,unit test,characterization test,capture,replay"/>
+      <meta name="description" content="Testrecorder ist a semi-automatic unit test generator for Java. Testrecorder is based on capturing and replaying the states before and after method calls. The generated result is a pure Java JUnit test."/>
+      <meta name="keywords" content="automatic,testing,recorder,code generator,test generator,generate tests,Java,JUnit,unit test,characterization test,capture,replay"/>
       <link rel="canonical" href="http://testrecorder.amygdalum.net"/>
   </head>
             <body>
@@ -24,13 +24,25 @@
         <li class="nav-item"><a class="nav-link" href="license.html">License</a></li></ul></div></div>
   </nav>
                       <div class="jumbotron"><div class="container">        <h1>Testrecorder</h1>
-        <p>Testrecorder ist a unit test generator for Java. Testrecorder is based on capturing and replaying the states before and after method calls. The generated result is a pure Java JUnit test.</p>
+        <p>Testrecorder ist a semi-automatic unit test generator for Java. Testrecorder is based on capturing and replaying the states before and after method calls. The generated result is a pure Java JUnit test.</p>
         <p><a href="download.html" class="btn btn-primary">Get Testrecorder</a> <a href="https://github.com/almondtools/testrecorder" class="btn btn-light">Github</a></p></div></div>
   </header>
               <main>
     <div class="container">              <section class="page-section">
-            <div class="row">            <div class="col-lg-8">                <p><strong>You have code</strong>, <strong>you have a running system</strong> - and <strong>you have no tests</strong>. This is where <strong>Testrecorder</strong> jumps in. The most relevant tests of a system are those, that resemble the workflow of the users of the system. <strong>Testrecorder</strong> records every user interaction a selected method is involved in and generates executable JUnit-Tests for this interaction.</p>
-<p><strong>testrecorder</strong> is as capture-replay test generator. In contrast to most other capture-replay test generators <strong>testrecorder</strong> does not generate gui/web integration tests but pure Java unit tests.</p>
+            <div class="row">            <div class="col-lg-8">                <p>You have code, you have a running system - and you have no tests. This is where <strong>Testrecorder</strong> jumps in. The most relevant tests of a system are those, that resemble the workflow of the users of the system. <strong>Testrecorder</strong> in an automatic test case generator from user inputs. It records every user interaction in which the previously selected method is involved and generates executable JUnit-Tests for this recorded interaction. Thus</p>
+<h2>TL;DR?</h2>
+<p><strong>Testrecorder</strong> generates tests with a capture-replay technique. It differs in some ways from other capture-replay or test generation tools:</p>
+<ul>
+<li>Testrecorder records method calls not GUI/Web interactions</li>
+<li>Testrecorder generates ready-to-run-unit tests (java files) not only specifications</li>
+<li>Testrecorder records not only arguments and results, but also fields, global variables, exceptions and input/output</li>
+<li>Testrecorder records not only input data but also changes</li>
+<li>Testrecorder is configurable and extensible with custom components</li>
+<li>Testrecorder may be used as agent at load time, as agent on an already running system, or as library dependency</li>
+<li>Testrecorder is strictly about recording real interactions (no fuzzing, no randomness, no static analysis)</li>
+<li>Testrecorder supports different testing frameworks (e.g. JUnit 4, JUnit 5) and is extensible for others</li>
+</ul>
+<p>Use <strong>Testrecorder</strong> as an automatic test generator by just recording all interactions of a certain method. Or you can explicitly reproduce buggy scenarios and record them (semi-automatic since such tests afford the attention of an analyzing tester).</p>
 <h2>Basic Usage</h2>
 <h3>1. Annotate the method to record</h3>
 <p>Annotate the method to record with <code>@Recorded</code>. For example you want to record this simple example</p>
@@ -121,7 +133,7 @@ public void testFizzBuzz0() throws Exception {
             <div class="col-lg-4">                    <div class="card info-card">        <div class="card-header"><h4>Benefits</h4></div>
         <div class="card-body">                    <p>Use the generated tests as <strong>characterization tests</strong> for test regression. Many refactoring will directly adjust the test, few will need some manual corrections and none will force you to dig in xml (or java serialization code) to correct the data of the test.</p>
 <p>The generated test can also give you <strong>insights about what is changed</strong> in the tested scenario - involving not only primitive arguments and results, but also side effects on arguments, global variables and exceptions.</p>
-<p>And if you think testrecording is cool, but byte code instrumetation is not: the <strong>api of testrecorder is open</strong>. You may generate setup code (the code that generates a given object) and matcher code (the code that validates a given object) as part of your debugging (or runtime system).</p>
+<p>And if you think testrecording is cool, but you are missing certain features: the <strong>api of testrecorder is open</strong>. You may generate setup code (the code that generates a given object) and matcher code (the code that validates a given object) as part of your debugging (or runtime system).</p>
 </div></div>
                     <div class="card info-card">        <div class="card-header"><h4>Advanced Topics</h4></div>
         <div class="card-body">                                            <p>Following subjects could be of further interest:</p>
@@ -148,6 +160,20 @@ public void testFizzBuzz0() throws Exception {
 </div></div>
                     <div class="card info-card">        <div class="card-header"><h4>Examples</h4></div>
         <div class="card-body">                    <p>Examples can be found at <a href="https://github.com/almondtools/testrecorder-examples">testrecorder-examples</a></p>
+</div></div>
+                    <div class="card info-card">        <div class="card-header"><h4>Talks</h4></div>
+        <div class="card-body">                    <h5>Recent</h5>
+<ul>
+<li><a href="https://entwicklertag.de/karlsruhe/2017/legacy-code-reverse">Legacy Code Reverse Engineering (ET Karlsruhe)</a></li>
+<li><a href="https://www.xpdays.de/2017/sessions/124-record-refactor-replay-characterization-tests-einfach-aufnehmen.html">Record - Refactor - Replay (XP-Days)</a></li>
+<li><a href="https://entwicklertag.de/karlsruhe/2018/testgenerierung-java-ein">Testgenerierung in Java - ein Überblick (ET Karlsruhe)</a></li>
+<li><a href="https://www.xpdays.de/2018/sessions/170-testgenerierung-in-java-ein-ueberblick.html">Testgenerierung in Java - ein Überblick (XP-Days)</a></li>
+</ul>
+<h5>Preview</h5>
+<ul>
+<li><a href="https://www.code-days.de/programm/programm-details/409/just-in-time-patching-java-applications/">Just-In-Time Patching Java Applications (Code-Days Munich</a></li>
+<li><a href="https://entwicklertag.de/frankfurt/2020/just-time-patching-java-applications">Just-In-Time Patching Java Applications (ET Frankfurt)</a></li>
+</ul>
 </div></div></div></div>
   </section>
               <section class="page-section">
