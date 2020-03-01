@@ -69,6 +69,6 @@ Creating a validator from a model with a `MatcherGenerator` is probably a kind m
  
 Extension points for deserialization are:
 
-* `net.amygdalum.testrecorder.SnapshotConsumer`   
+* `net.amygdalum.testrecorder.profile.SnapshotConsumer`   
 * `net.amygdalum.testrecorder.deserializers.builder.SetupGenerator`   
 * `net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerator`   
