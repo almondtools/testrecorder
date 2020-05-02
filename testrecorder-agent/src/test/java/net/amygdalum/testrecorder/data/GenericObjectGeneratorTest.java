@@ -2,7 +2,7 @@ package net.amygdalum.testrecorder.data;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -67,7 +67,7 @@ public class GenericObjectGeneratorTest {
 
 			new GenericObjectGenerator<>(PseudoSynthetic.class).generateField(PseudoSynthetic.class.getDeclaredField("$attr"), generator, new PseudoSynthetic());
 
-			verifyZeroInteractions(generator);
+			verifyNoInteractions(generator);
 		}
 
 		@Test

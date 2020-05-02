@@ -146,7 +146,8 @@ public class GenericObjectTest {
 			Wrapped obj = GenericObject.forward(Wrapped.clazz(SimplePrivateConstructor.class.getName()));
 
 			assertThat((SimplePrivateConstructor) obj.value())
-				.isEqualToComparingFieldByFieldRecursively(new SimplePrivateConstructor());
+				.usingRecursiveComparison()
+				.isEqualTo(new SimplePrivateConstructor());
 		}
 	}
 

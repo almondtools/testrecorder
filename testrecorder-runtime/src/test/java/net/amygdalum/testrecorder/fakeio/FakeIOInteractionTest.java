@@ -135,7 +135,7 @@ public class FakeIOInteractionTest {
 
 		MyInteraction myInteraction = new MyInteraction(fakeIO, "setAttribute", "(Ljava/lang/String;)V");
 
-		assertThat(myInteraction.signatureFor(new Object[] {"str", Long.valueOf(4), Byte.valueOf((byte) 1)})).isEqualTo("setAttribute(\"str\", <4L>, <1>)");
+		assertThat(myInteraction.signatureFor(new Object[] {"str", Long.valueOf(4), Byte.valueOf((byte) 1)})).isEqualTo("setAttribute(\"str\", <4L>, <1b>)");
 	}
 
 	@Test

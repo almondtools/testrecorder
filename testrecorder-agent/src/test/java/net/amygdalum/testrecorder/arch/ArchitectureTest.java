@@ -8,15 +8,20 @@ import org.junit.jupiter.api.Test;
 
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
+import com.tngtech.archunit.core.importer.ImportOption;
+import com.tngtech.archunit.core.importer.ImportOptions;
 
 public class ArchitectureTest {
 
+	
 	private static JavaClasses classes;
 
 	@BeforeAll
 	public static void beforeAll() throws Exception {
 		classes = new ClassFileImporter()
-			.importPath("target/classes");
+			.importClasspath(new ImportOptions()
+				.with(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
+				.with(location -> location.contains("/net/amygdalum/testrecorder/")));
 	}
 
 	@Test
@@ -27,6 +32,7 @@ public class ArchitectureTest {
 			.layer("dynamiccompile").definedBy("net.amygdalum.testrecorder.dynamiccompile")
 			.layer("data").definedBy("net.amygdalum.testrecorder.data")
 			.layer("main").definedBy("net.amygdalum.testrecorder")
+			.layer("runtime").definedBy("net.amygdalum.testrecorder.runtime")
 			.layer("profile").definedBy("net.amygdalum.testrecorder.profile")
 			.layer("extensionpoint").definedBy("net.amygdalum.testrecorder.extensionpoint")
 			.layer("serializers").definedBy("net.amygdalum.testrecorder.serializers")
@@ -37,6 +43,7 @@ public class ArchitectureTest {
 			.layer("evaluator").definedBy("net.amygdalum.testrecorder.evaluator")
 			.layer("values").definedBy("net.amygdalum.testrecorder.values")
 			.layer("types").definedBy("net.amygdalum.testrecorder.types")
+			.layer("fakeio").definedBy("net.amygdalum.testrecorder.fakeio")
 			.layer("util").definedBy("net.amygdalum.testrecorder.util")
 			.layer("asm").definedBy("net.amygdalum.testrecorder.asm")
 
@@ -58,6 +65,7 @@ public class ArchitectureTest {
 			.whereLayer("extensionpoint").mayOnlyBeAccessedByLayers(
 				"main",
 				"profile",
+				"types",
 				"serializers",
 				"generator",
 				"builder",
@@ -114,15 +122,27 @@ public class ArchitectureTest {
 				"builder",
 				"evaluator",
 				"values")
+			.whereLayer("fakeio").mayOnlyBeAccessedByLayers(
+				"main",
+				"codeserializer",
+				"callsiterecorder",
+				"generator",
+				"serializers",
+				"deserializers",
+				"matcher",
+				"builder")
 			.whereLayer("asm").mayOnlyBeAccessedByLayers(
+				"main",
 				"codeserializer",
 				"callsiterecorder",
 				"profile",
 				"serializers",
+				"fakeio",
 				"types",
 				"values")
 			.whereLayer("util").mayOnlyBeAccessedByLayers(
 				"main",
+				"runtime",
 				"codeserializer",
 				"callsiterecorder",
 				"profile",
@@ -132,6 +152,9 @@ public class ArchitectureTest {
 				"matcher",
 				"builder",
 				"evaluator",
+				"dynamiccompile",
+				"fakeio",
+				"data",
 				"values",
 				"types",
 				"asm")

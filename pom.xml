@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>net.amygdalum</groupId>
@@ -40,17 +42,19 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<version.plugin.assembly>3.1.1</version.plugin.assembly>
+		<version.plugin.enforcer>3.0.0-M3</version.plugin.enforcer>
+		<version.plugin.assembly>3.3.0</version.plugin.assembly>
 		<version.plugin.compiler>3.8.1</version.plugin.compiler>
 		<version.plugin.gpg>1.6</version.plugin.gpg>
 		<version.plugin.jacoco>0.8.4</version.plugin.jacoco>
-		<version.plugin.jar>3.1.0</version.plugin.jar>
-		<version.plugin.javadoc>3.0.1</version.plugin.javadoc>
+		<version.plugin.jar>3.2.0</version.plugin.jar>
+		<version.plugin.javadoc>3.2.0</version.plugin.javadoc>
 		<version.plugin.nexusstaging>1.6.8</version.plugin.nexusstaging>
-		<version.plugin.release>2.5.3</version.plugin.release>
+		<version.plugin.release>3.0.0-M1</version.plugin.release>
+		<version.plugin.versions>2.7</version.plugin.versions>
 		<version.plugin.shade>3.2.1</version.plugin.shade>
-		<version.plugin.source>3.1.0</version.plugin.source>
-		<version.plugin.surefire>2.22.2</version.plugin.surefire>
+		<version.plugin.source>3.2.1</version.plugin.source>
+		<version.plugin.surefire>3.0.0-M4</version.plugin.surefire>
 	</properties>
 
 	<modules>
@@ -62,8 +66,133 @@
 	</modules>
 	<dependencies>
 	</dependencies>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.ow2.asm</groupId>
+				<artifactId>asm</artifactId>
+				<version>8.0.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.ow2.asm</groupId>
+				<artifactId>asm-tree</artifactId>
+				<version>8.0.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.ow2.asm</groupId>
+				<artifactId>asm-util</artifactId>
+				<version>8.0.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.objenesis</groupId>
+				<artifactId>objenesis</artifactId>
+				<version>3.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.antlr</groupId>
+				<artifactId>ST4</artifactId>
+				<version>4.3</version>
+			</dependency>
+			<dependency>
+				<groupId>net.bytebuddy</groupId>
+				<artifactId>byte-buddy-agent</artifactId>
+				<version>1.10.10</version>
+			</dependency>
+			<dependency>
+				<groupId>org.junit.jupiter</groupId>
+				<artifactId>junit-jupiter-api</artifactId>
+				<version>5.7.0-M1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.junit.platform</groupId>
+				<artifactId>junit-platform-launcher</artifactId>
+				<version>1.7.0-M1</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.junit.jupiter</groupId>
+				<artifactId>junit-jupiter-engine</artifactId>
+				<version>5.7.0-M1</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.junit.vintage</groupId>
+				<artifactId>junit-vintage-engine</artifactId>
+				<version>5.7.0-M1</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.13</version>
+			</dependency>
+			<dependency>
+				<groupId>com.tngtech.archunit</groupId>
+				<artifactId>archunit</artifactId>
+				<version>0.13.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.hamcrest</groupId>
+				<artifactId>hamcrest-core</artifactId>
+				<version>2.2</version>
+			</dependency>
+			<dependency>
+				<groupId>org.hamcrest</groupId>
+				<artifactId>hamcrest-library</artifactId>
+				<version>2.2</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-core</artifactId>
+				<version>3.3.3</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>net.amygdalum</groupId>
+				<artifactId>xrayinterface</artifactId>
+				<version>0.3.3</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.assertj</groupId>
+				<artifactId>assertj-core</artifactId>
+				<version>3.15.0</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>net.amygdalum</groupId>
+				<artifactId>assertj-extensions</artifactId>
+				<version>0.0.6</version>
+				<scope>test</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<version>${version.plugin.enforcer}</version>
+				<executions>
+					<execution>
+						<id>enforce-versions</id>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<requireMavenVersion>
+									<version>3.5.0</version>
+								</requireMavenVersion>
+								<requireJavaVersion>
+									<version>1.8</version>
+								</requireJavaVersion>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<inherited>true</inherited>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -113,6 +242,14 @@
 			<id>release</id>
 			<build>
 				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>versions-maven-plugin</artifactId>
+						<version>${version.plugin.versions}</version>
+						<configuration>
+							<generateBackupPoms>false</generateBackupPoms>
+						</configuration>
+					</plugin>
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-release-plugin</artifactId>
