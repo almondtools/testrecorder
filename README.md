@@ -31,6 +31,15 @@ The objective of Testrecorder is to provide an interface that is powerful, clean
 
 Testrecorder was not yet tested on a large set of code examples. Some classes are not as easy to serialize as others, so if you encounter problems, try to write an issue. Hopefully - most fixes to such problems should be solvable with custom serializers or custom deserializers.
 
+Feature Requests and Contribution
+---------------------------------
+At this time I do not use Testrecorder in my own daily work (pretty good tested non-legacy code). And this means that Testrecorder updates are not driven by my own feature requests.
+
+Yet this project is not abandoned. So if there are questions on using Testrecorder (frankly the documentation is quite short) please feel free to open an [issue](https://github.com/almondtools/testrecorder/issues). Of course you can go even further and propose improvements to usability.
+
+The API of Testrecorder is not stable at this time. This means less comfort for users, but more flexibility for contributors. I am open to fundamental redesign of Testrecorder parts. But please do not write an expensive source code contribution (pull request) before discussion the consequences (in an issue) with me. 
+
+
 Maven Dependency
 ----------------
 
