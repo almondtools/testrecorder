@@ -23,30 +23,28 @@ public class AgentConfiguration {
 	private Map<Class<?>, Object> singleValues;
 	private Map<Class<?>, List<?>> multiValues;
 
-
 	public AgentConfiguration(ConfigurationLoader... configurationLoaders) {
 		this(asList(configurationLoaders));
 	}
-	
+
 	public AgentConfiguration(List<ConfigurationLoader> configurationLoaders) {
 		this.configurationLoaders = configurationLoaders;
 		this.defaultValues = new IdentityHashMap<>();
 		this.singleValues = new IdentityHashMap<>();
 		this.multiValues = new IdentityHashMap<>();
 	}
-	
+
 	public List<ConfigurationLoader> getConfigurationLoaders() {
 		return configurationLoaders;
 	}
-	
+
 	public void setConfigurationLoaders(List<ConfigurationLoader> configurationLoaders) {
 		this.configurationLoaders = configurationLoaders;
 	}
 
-	public AgentConfiguration reset() {
+	public void reset() {
 		singleValues.clear();
 		multiValues.clear();
-		return this;
 	}
 
 	public <T> AgentConfiguration withDefaultValue(Class<T> clazz, Supplier<T> defaultValue) {

@@ -23,7 +23,7 @@ public class JUnitProfileTest {
 	@ExtendWith(ClasspathResourceExtension.class)
 	void testJUnit4Code(TestAgentConfiguration config, ExtensibleClassLoader loader) throws Exception {
 		loader.defineResource("agentconfig/net.amygdalum.testrecorder.generator.TestGeneratorProfile", "net.amygdalum.testrecorder.generator.JUnit4TestGeneratorProfile".getBytes());
-		config.reset().withLoader(loader);
+		config.init().withLoader(loader);
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		testGenerator.reload(config);
 
@@ -43,7 +43,7 @@ public class JUnitProfileTest {
 	@ExtendWith(ClasspathResourceExtension.class)
 	void testJUnit5Code(TestAgentConfiguration config, ExtensibleClassLoader loader) throws Exception {
 		loader.defineResource("agentconfig/net.amygdalum.testrecorder.generator.TestGeneratorProfile", "net.amygdalum.testrecorder.generator.JUnit5TestGeneratorProfile".getBytes());
-		config.reset().withLoader(loader);
+		config.init().withLoader(loader);
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		testGenerator.reload(config);
 

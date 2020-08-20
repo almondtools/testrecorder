@@ -79,7 +79,7 @@ public class CustomConstructedTest {
 	@ExtendWith(ClasspathResourceExtension.class)
 	public void testCustomCodeWithSetterHint(TestAgentConfiguration config, ExtensibleClassLoader loader) throws Exception {
 		loader.defineResource("agentconfig/net.amygdalum.testrecorder.generator.TestGeneratorProfile", "net.amygdalum.testrecorder.scenarios.CustomConstructedTest$CustomTestGeneratorProfile".getBytes());
-		config.reset().withLoader(loader);
+		config.init().withLoader(loader);
 		TestGenerator testGenerator = TestGenerator.fromRecorded();
 		testGenerator.reload(config);
 

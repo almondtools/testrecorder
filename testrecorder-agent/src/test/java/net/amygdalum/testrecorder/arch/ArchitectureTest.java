@@ -32,6 +32,7 @@ public class ArchitectureTest {
 			.layer("dynamiccompile").definedBy("net.amygdalum.testrecorder.dynamiccompile")
 			.layer("data").definedBy("net.amygdalum.testrecorder.data")
 			.layer("main").definedBy("net.amygdalum.testrecorder")
+			.layer("configurator").definedBy("net.amygdalum.testrecorder.configurator")
 			.layer("runtime").definedBy("net.amygdalum.testrecorder.runtime")
 			.layer("profile").definedBy("net.amygdalum.testrecorder.profile")
 			.layer("extensionpoint").definedBy("net.amygdalum.testrecorder.extensionpoint")
@@ -50,14 +51,17 @@ public class ArchitectureTest {
 			.whereLayer("codeserializer").mayNotBeAccessedByAnyLayer() // only from outside module
 			.whereLayer("callsiterecorder").mayNotBeAccessedByAnyLayer() // only from outside module
 			.whereLayer("dynamiccompile").mayNotBeAccessedByAnyLayer() // only from outside module
+			.whereLayer("configurator").mayNotBeAccessedByAnyLayer() // only from outside module
 			.whereLayer("data").mayNotBeAccessedByAnyLayer() // reserved for future use
 			.whereLayer("main").mayOnlyBeAccessedByLayers(
 				"codeserializer",
 				"callsiterecorder",
+				"configurator",
 				"generator")
 			.whereLayer("profile").mayOnlyBeAccessedByLayers(
 				"codeserializer",
 				"callsiterecorder",
+				"configurator",
 				"main",
 				"generator",
 				"builder",
@@ -73,15 +77,18 @@ public class ArchitectureTest {
 			.whereLayer("serializers").mayOnlyBeAccessedByLayers(
 				"main",
 				"codeserializer",
-				"callsiterecorder")
+				"callsiterecorder",
+				"configurator")
 			.whereLayer("generator").mayOnlyBeAccessedByLayers(
 				"main",
 				"codeserializer",
-				"callsiterecorder")
+				"callsiterecorder",
+				"configurator")
 			.whereLayer("deserializers").mayOnlyBeAccessedByLayers(
 				"main",
 				"codeserializer",
 				"callsiterecorder",
+				"configurator",
 				"builder",
 				"matcher",
 				"generator")
@@ -89,21 +96,25 @@ public class ArchitectureTest {
 				"main",
 				"codeserializer",
 				"callsiterecorder",
+				"configurator",
 				"generator")
 			.whereLayer("matcher").mayOnlyBeAccessedByLayers(
 				"main",
 				"codeserializer",
 				"callsiterecorder",
+				"configurator",
 				"generator")
 			.whereLayer("evaluator").mayOnlyBeAccessedByLayers(
 				"main",
 				"codeserializer",
 				"callsiterecorder",
+				"configurator",
 				"generator")
 			.whereLayer("values").mayOnlyBeAccessedByLayers(
 				"main",
 				"codeserializer",
 				"callsiterecorder",
+				"configurator",
 				"generator",
 				"serializers",
 				"deserializers",
@@ -114,6 +125,7 @@ public class ArchitectureTest {
 				"main",
 				"codeserializer",
 				"callsiterecorder",
+				"configurator",
 				"profile",
 				"generator",
 				"serializers",
@@ -126,6 +138,7 @@ public class ArchitectureTest {
 				"main",
 				"codeserializer",
 				"callsiterecorder",
+				"configurator",
 				"generator",
 				"serializers",
 				"deserializers",
@@ -135,6 +148,7 @@ public class ArchitectureTest {
 				"main",
 				"codeserializer",
 				"callsiterecorder",
+				"configurator",
 				"profile",
 				"serializers",
 				"fakeio",
@@ -145,6 +159,7 @@ public class ArchitectureTest {
 				"runtime",
 				"codeserializer",
 				"callsiterecorder",
+				"configurator",
 				"profile",
 				"generator",
 				"serializers",

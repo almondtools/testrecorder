@@ -9,10 +9,10 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.ClassPathConfigurationLoader;
 import net.amygdalum.testrecorder.profile.DefaultPathConfigurationLoader;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
+import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.SerializationProfile;
 import net.amygdalum.testrecorder.profile.SnapshotConsumer;
 
@@ -28,10 +28,6 @@ public class TestAgentConfiguration extends AgentConfiguration {
 	public TestAgentConfiguration(ClassLoader loader) {
 		super(new ClassPathConfigurationLoader(loader), new DefaultPathConfigurationLoader(loader));
 		configs = new HashMap<>();
-	}
-
-	public TestAgentConfiguration reset() {
-		return (TestAgentConfiguration) super.reset();
 	}
 
 	public TestAgentConfiguration withLoader(ClassLoader loader) {
@@ -60,6 +56,11 @@ public class TestAgentConfiguration extends AgentConfiguration {
 				.map(object -> clazz.cast(object));
 		}
 		return super.load(clazz, args);
+	}
+
+	public TestAgentConfiguration init() {
+		this.reset();
+		return this;
 	}
 
 }

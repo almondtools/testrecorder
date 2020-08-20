@@ -91,34 +91,34 @@
 			<dependency>
 				<groupId>org.antlr</groupId>
 				<artifactId>ST4</artifactId>
-				<version>4.3</version>
+				<version>4.3.1</version>
 			</dependency>
 			<dependency>
 				<groupId>net.bytebuddy</groupId>
 				<artifactId>byte-buddy-agent</artifactId>
-				<version>1.10.10</version>
+				<version>1.10.14</version>
 			</dependency>
 			<dependency>
 				<groupId>org.junit.jupiter</groupId>
 				<artifactId>junit-jupiter-api</artifactId>
-				<version>5.7.0-M1</version>
+				<version>5.7.0-RC1</version>
 			</dependency>
 			<dependency>
 				<groupId>org.junit.platform</groupId>
 				<artifactId>junit-platform-launcher</artifactId>
-				<version>1.7.0-M1</version>
+				<version>1.7.0-RC1</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.junit.jupiter</groupId>
 				<artifactId>junit-jupiter-engine</artifactId>
-				<version>5.7.0-M1</version>
+				<version>5.7.0-RC1</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.junit.vintage</groupId>
 				<artifactId>junit-vintage-engine</artifactId>
-				<version>5.7.0-M1</version>
+				<version>5.7.0-RC1</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -129,7 +129,7 @@
 			<dependency>
 				<groupId>com.tngtech.archunit</groupId>
 				<artifactId>archunit</artifactId>
-				<version>0.13.1</version>
+				<version>0.14.1</version>
 			</dependency>
 			<dependency>
 				<groupId>org.hamcrest</groupId>
@@ -145,7 +145,7 @@
 			<dependency>
 				<groupId>org.mockito</groupId>
 				<artifactId>mockito-core</artifactId>
-				<version>3.3.3</version>
+				<version>3.5.2</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -157,7 +157,7 @@
 			<dependency>
 				<groupId>org.assertj</groupId>
 				<artifactId>assertj-core</artifactId>
-				<version>3.15.0</version>
+				<version>3.16.1</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>

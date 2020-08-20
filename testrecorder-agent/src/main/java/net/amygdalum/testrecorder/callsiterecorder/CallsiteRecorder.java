@@ -36,48 +36,16 @@ public class CallsiteRecorder implements SnapshotConsumer, AutoCloseable {
 
 	public static Instrumentation inst = ByteBuddyAgent.install();
 
-	private ConfigurableSerializationProfile profile;
-	private AgentConfiguration config;
 	private ThreadPoolExecutor executor;
 
 	private CompletableFuture<List<ContextSnapshot>> snapshots;
 
 	private TestRecorderAgent agent;
+	private Class<?>[] classes;
 
-
-	public CallsiteRecorder(Method... methods) {
-		this(new DefaultSerializationProfile(), methods);
-	}
-	
-	public CallsiteRecorder(SerializationProfile profile, Method... methods) {
-		this.profile = ConfigurableSerializationProfile.builder(profile)
-			.withClasses(Arrays.stream(methods)
-				.map(Method::getDeclaringClass)
-				.map(Classes::byDescription)
-				.collect(toList()))
-			.withRecorded(Arrays.stream(methods)
-				.map(Methods::byDescription)
-				.collect(toList()))
-			.build();
-		this.config = new AgentConfiguration(
-			new FixedConfigurationLoader()
-				.provide(SerializationProfile.class, this.profile)
-				.provide(SnapshotConsumer.class, this),
-			new ClassPathConfigurationLoader(),
-			new DefaultPathConfigurationLoader())
-				.withDefaultValue(SerializationProfile.class, DefaultSerializationProfile::new)
-				.withDefaultValue(PerformanceProfile.class, DefaultPerformanceProfile::new)
-				.withDefaultValue(SnapshotConsumer.class, DefaultSnapshotConsumer::new);
-		
-		agent = new TestRecorderAgent(inst, config);
-		agent.prepareInstrumentations();
-		try {
-			Class<?>[] classes = Arrays.stream(methods)
-			.map(Method::getDeclaringClass).toArray(Class[]::new);
-			inst.retransformClasses(classes);
-		} catch (UnmodifiableClassException e) {
-			throw new RuntimeException(e);
-		}
+	private CallsiteRecorder(AgentConfiguration config, Class<?>[] classes) {
+		this.agent = new TestRecorderAgent(inst, config);
+		this.classes = classes;
 
 		PerformanceProfile performanceProfile = config.loadConfiguration(PerformanceProfile.class);
 		this.executor = new ThreadPoolExecutor(0, 1, performanceProfile.getIdleTime(), TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new TestrecorderThreadFactory("$consume"));
@@ -85,15 +53,64 @@ public class CallsiteRecorder implements SnapshotConsumer, AutoCloseable {
 		this.snapshots = CompletableFuture.supplyAsync(() -> new LinkedList<>(), executor);
 	}
 
+	public static CallsiteRecorder create(Method... methods) {
+		return create(new DefaultSerializationProfile(), methods);
+	}
+
+	public static CallsiteRecorder create(SerializationProfile profile, Method... methods) {
+		FixedConfigurationLoader fixedLoader = new FixedConfigurationLoader();
+		ClassPathConfigurationLoader classpathLoader = new ClassPathConfigurationLoader();
+		DefaultPathConfigurationLoader defaultPathLoader = new DefaultPathConfigurationLoader();
+		AgentConfiguration config = new AgentConfiguration(fixedLoader, classpathLoader, defaultPathLoader)
+			.withDefaultValue(SerializationProfile.class, DefaultSerializationProfile::new)
+			.withDefaultValue(PerformanceProfile.class, DefaultPerformanceProfile::new)
+			.withDefaultValue(SnapshotConsumer.class, DefaultSnapshotConsumer::new);
+		Class<?>[] classes = Arrays.stream(methods)
+			.map(Method::getDeclaringClass)
+			.toArray(Class[]::new);
+		CallsiteRecorder recorder = new CallsiteRecorder(config, classes);
+		
+		fixedLoader
+			.provide(SerializationProfile.class, ConfigurableSerializationProfile.builder(profile)
+				.withClasses(Arrays.stream(methods)
+					.map(Method::getDeclaringClass)
+					.map(Classes::byDescription)
+					.collect(toList()))
+				.withRecorded(Arrays.stream(methods)
+					.map(Methods::byDescription)
+					.collect(toList()))
+				.build())
+			.provide(SnapshotConsumer.class, recorder);
+
+		return recorder.init();
+	}
+
+	@SuppressWarnings("resource")
+	public static CallsiteRecorder create(AgentConfiguration config, Class<?>[] classes) {
+		CallsiteRecorder recorder = new CallsiteRecorder(config, classes);
+		return recorder
+			.init();
+	}
+
+	private CallsiteRecorder init() {
+		this.agent.prepareInstrumentations();
+		try {
+			inst.retransformClasses(classes);
+		} catch (UnmodifiableClassException e) {
+			throw new RuntimeException(e);
+		}
+		return this;
+	}
+
 	public CompletableFuture<List<ContextSnapshot>> record(Runnable runnable) {
 		runnable.run();
 		return snapshots;
 	}
-	
+
 	public <T> T record(Callable<T> callable) throws Exception {
 		return callable.call();
 	}
-	
+
 	public synchronized CompletableFuture<List<ContextSnapshot>> snapshots() {
 		return snapshots;
 	}

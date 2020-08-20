@@ -21,7 +21,7 @@ public class CallsiteRecorderTest {
 		void onRunnable() throws Exception {
 			Example example = new Example(2);
 
-			try (CallsiteRecorder recorder = new CallsiteRecorder(method("reset"))) {
+			try (CallsiteRecorder recorder = CallsiteRecorder.create(method("reset"))) {
 				List<ContextSnapshot> recorded = recorder.record(() -> example.reset()).join();
 
 				assertThat(recorded).hasSize(1);
@@ -32,7 +32,7 @@ public class CallsiteRecorderTest {
 		void onCallable() throws Exception {
 			Example example = new Example(0);
 
-			try (CallsiteRecorder recorder = new CallsiteRecorder(method("inc"))) {
+			try (CallsiteRecorder recorder = CallsiteRecorder.create(method("inc"))) {
 
 				int value = recorder.record(() -> example.inc());
 
