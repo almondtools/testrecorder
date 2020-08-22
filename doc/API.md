@@ -94,7 +94,7 @@ In the example we want to record the calls to `inc()` in the code lines:
 
 Now let us visit the recording code (found in [CounterMain](https://github.com/almondtools/testrecorder-examples/blob/master/src/main/java/com/almondtools/testrecorder/examples/callsiterecorder/CounterMain.java)):
 
-    try (CallsiteRecorder recorder = new CallsiteRecorder(ExampleObject.class.getDeclaredMethod("inc"))) {
+    try (CallsiteRecorder recorder = CallsiteRecorder.create(ExampleObject.class.getDeclaredMethod("inc"))) {
         printTest(recorder.record(() -> {
             int doubleInc = exampleObject.inc().inc().get();
             System.out.println(doubleInc);
