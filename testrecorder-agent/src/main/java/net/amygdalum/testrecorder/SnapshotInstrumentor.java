@@ -72,6 +72,8 @@ import net.amygdalum.testrecorder.util.Logger;
 
 public class SnapshotInstrumentor extends AttachableClassFileTransformer implements ClassFileTransformer {
 
+	private static final ClassLoader BOOTSTRAP_CLASSLOADER = null;
+	
 	private AgentConfiguration config;
 	private SerializationProfile profile;
 	private ClassNodeManager classes = new ClassNodeManager();
@@ -181,7 +183,7 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		if (!isClass(classNode)) {
 			return null;
 		}
-		Task task = needsBridging(classNode, clazz)
+		Task task = needsBridging(classNode, clazz, loader)
 			? new BridgedTask(loader, profile, classes, io, classNode)
 			: new DefaultTask(loader, profile, classes, io, classNode);
 
@@ -225,11 +227,11 @@ public class SnapshotInstrumentor extends AttachableClassFileTransformer impleme
 		return (classNode.access & (ACC_INTERFACE | ACC_ANNOTATION)) == 0;
 	}
 
-	private boolean needsBridging(ClassNode classNode, Class<?> clazz) {
-		if (clazz != null && clazz.getClassLoader() == null) {
+	private boolean needsBridging(ClassNode classNode, Class<?> clazz, ClassLoader loader) {
+		if (clazz != null && clazz.getClassLoader() == BOOTSTRAP_CLASSLOADER) {
 			return true;
 		}
-		return false;
+		return loader == BOOTSTRAP_CLASSLOADER;
 	}
 
 	private static List<AnnotationNode> annotations(FieldNode node) {
