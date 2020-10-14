@@ -31,14 +31,21 @@ The objective of Testrecorder is to provide an interface that is powerful, clean
 
 Testrecorder was not yet tested on a large set of code examples. Some classes are not as easy to serialize as others, so if you encounter problems, try to write an issue. Hopefully - most fixes to such problems should be solvable with custom serializers or custom deserializers.
 
+Testrecorder with Java 9+
+-------------------------
+Testrecorder was implemented based on Java 8 - without module system and without restriction for reflective access. Currently I am not involved in Java 9+ projects, so I cannot drive Testrecorder by own code examples.
+
+If your project depends on a Java 9+ (9 and higher) feel free to ask for support to migrate Testrecorder to the current java version, I will see how I could help you. This would be possibly a benefit for both sides (I get meaningful test cases, you get a tested tool).
+
 Feature Requests and Contribution
 ---------------------------------
-At this time I do not use Testrecorder in my own daily work (pretty good tested non-legacy code). And this means that Testrecorder updates are not driven by my own feature requests.
+If there are questions on using Testrecorder (frankly the documentation is quite short) please feel free to open an [issue](https://github.com/almondtools/testrecorder/issues). Of course you can go even further and propose improvements to usability.
 
-Yet this project is not abandoned. So if there are questions on using Testrecorder (frankly the documentation is quite short) please feel free to open an [issue](https://github.com/almondtools/testrecorder/issues). Of course you can go even further and propose improvements to usability.
+The API of Testrecorder is not stable at this time. This means less comfort for users, but more flexibility for contributors. I am open to fundamental redesign of Testrecorder parts. But please do not write an expensive source code contribution (pull request) before discussing the consequences (in an issue) with me. 
 
-The API of Testrecorder is not stable at this time. This means less comfort for users, but more flexibility for contributors. I am open to fundamental redesign of Testrecorder parts. But please do not write an expensive source code contribution (pull request) before discussion the consequences (in an issue) with me. 
-
+Research on test generation
+---------------------------
+If you are a student in search for a good subject for a master thesis related to test generation - I could give you some interesting challenges (some that use Testrecorder, some that extend Testrecorder).
 
 Maven Dependency
 ----------------
