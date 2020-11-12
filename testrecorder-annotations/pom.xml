@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>net.amygdalum</groupId>
 		<artifactId>testrecorder</artifactId>
-		<version>0.10.5</version>
+		<version>0.10.6-SNAPSHOT</version>
 	</parent>
 	<artifactId>testrecorder-annotations</artifactId>
 	<name>${project.groupId}:${project.artifactId}</name>
