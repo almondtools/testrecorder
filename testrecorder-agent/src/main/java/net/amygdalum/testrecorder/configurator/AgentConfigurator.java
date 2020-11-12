@@ -10,7 +10,9 @@ import java.util.function.Supplier;
 import net.amygdalum.testrecorder.DefaultPerformanceProfile;
 import net.amygdalum.testrecorder.DefaultSerializationProfile;
 import net.amygdalum.testrecorder.DefaultSnapshotConsumer;
+import net.amygdalum.testrecorder.deserializers.builder.DefaultSetupGenerators;
 import net.amygdalum.testrecorder.deserializers.builder.SetupGenerator;
+import net.amygdalum.testrecorder.deserializers.matcher.DefaultMatcherGenerators;
 import net.amygdalum.testrecorder.deserializers.matcher.MatcherGenerator;
 import net.amygdalum.testrecorder.extensionpoint.ExtensionPoint;
 import net.amygdalum.testrecorder.generator.DefaultTestGeneratorProfile;
@@ -21,6 +23,7 @@ import net.amygdalum.testrecorder.profile.FixedConfigurationLoader;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.profile.SerializationProfile;
 import net.amygdalum.testrecorder.profile.SnapshotConsumer;
+import net.amygdalum.testrecorder.serializers.DefaultSerializers;
 import net.amygdalum.testrecorder.types.Serializer;
 
 public class AgentConfigurator {
@@ -62,19 +65,8 @@ public class AgentConfigurator {
 	}
 
 	public AgentConfigurator defaultSerializers() {
-		configurationLoaders.computeIfAbsent(Serializer.class, c -> new FixedConfigurationLoader())
-			.provide(Serializer.class, args -> new net.amygdalum.testrecorder.serializers.ArraysListSerializer())
-			.provide(Serializer.class, args -> new net.amygdalum.testrecorder.serializers.CollectionsListSerializer())
-			.provide(Serializer.class, args -> new net.amygdalum.testrecorder.serializers.CollectionsSetSerializer())
-			.provide(Serializer.class, args -> new net.amygdalum.testrecorder.serializers.CollectionsMapSerializer())
-			.provide(Serializer.class, args -> new net.amygdalum.testrecorder.serializers.DefaultListSerializer())
-			.provide(Serializer.class, args -> new net.amygdalum.testrecorder.serializers.DefaultQueueSerializer())
-			.provide(Serializer.class, args -> new net.amygdalum.testrecorder.serializers.DefaultDequeSerializer())
-			.provide(Serializer.class, args -> new net.amygdalum.testrecorder.serializers.DefaultSetSerializer())
-			.provide(Serializer.class, args -> new net.amygdalum.testrecorder.serializers.DefaultMapSerializer())
-			.provide(Serializer.class, args -> new net.amygdalum.testrecorder.serializers.ClassSerializer())
-			.provide(Serializer.class, args -> new net.amygdalum.testrecorder.serializers.BigIntegerSerializer())
-			.provide(Serializer.class, args -> new net.amygdalum.testrecorder.serializers.BigDecimalSerializer());
+		configurationLoaders.computeIfAbsent(Serializer.class, c -> DefaultSerializers.defaults().stream()
+			.reduce(new FixedConfigurationLoader(), (loader, generator) -> loader.provide(Serializer.class, generator), (l1,l2) -> l1));
 		return this;
 	}
 
@@ -84,30 +76,8 @@ public class AgentConfigurator {
 	}
 
 	public AgentConfigurator defaultSetupGenerators() {
-		configurationLoaders.computeIfAbsent(SetupGenerator.class, c -> new FixedConfigurationLoader())
-			.provide(SetupGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.builder.DefaultLiteralAdaptor())
-			.provide(SetupGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.builder.DefaultNullAdaptor())
-			.provide(SetupGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.builder.DefaultClassAdaptor())
-			.provide(SetupGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.builder.DefaultBigIntegerAdaptor())
-			.provide(SetupGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.builder.DefaultBigDecimalAdaptor())
-			.provide(SetupGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.builder.DefaultEnumAdaptor())
-			.provide(SetupGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.builder.DefaultLambdaAdaptor())
-			.provide(SetupGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.builder.DefaultProxyAdaptor())
-			.provide(SetupGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.builder.ProxyPlaceholderAdaptor())
-			.provide(SetupGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.builder.ObjectBuilderAdaptor())
-			.provide(SetupGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.builder.ObjectFactoryAdaptor())
-			.provide(SetupGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.builder.BeanObjectAdaptor())
-			.provide(SetupGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.builder.DefaultObjectAdaptor())
-			.provide(SetupGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.builder.DefaultArrayAdaptor())
-			.provide(SetupGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.builder.ArraysListAdaptor())
-			.provide(SetupGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.builder.CollectionsListAdaptor())
-			.provide(SetupGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.builder.DefaultListAdaptor())
-			.provide(SetupGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.builder.DefaultQueueAdaptor())
-			.provide(SetupGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.builder.CollectionsSetAdaptor())
-			.provide(SetupGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.builder.DefaultSetAdaptor())
-			.provide(SetupGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.builder.CollectionsMapAdaptor())
-			.provide(SetupGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.builder.DefaultMapAdaptor())
-			.provide(SetupGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.builder.LargePrimitiveArrayAdaptor());
+		configurationLoaders.computeIfAbsent(SetupGenerator.class, c -> DefaultSetupGenerators.defaults().stream()
+			.reduce(new FixedConfigurationLoader(), (loader, generator) -> loader.provide(SetupGenerator.class, generator), (l1,l2) -> l1));
 		return this;
 	}
 
@@ -117,21 +87,8 @@ public class AgentConfigurator {
 	}
 
 	public AgentConfigurator defaultMatcherGenerators() {
-		configurationLoaders.computeIfAbsent(MatcherGenerator.class, c -> new FixedConfigurationLoader())
-			.provide(MatcherGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.matcher.DefaultLiteralAdaptor())
-			.provide(MatcherGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.matcher.DefaultNullAdaptor())
-			.provide(MatcherGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.matcher.DefaultClassAdaptor())
-			.provide(MatcherGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.matcher.DefaultBigIntegerAdaptor())
-			.provide(MatcherGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.matcher.DefaultBigDecimalAdaptor())
-			.provide(MatcherGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.matcher.DefaultEnumAdaptor())
-			.provide(MatcherGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.matcher.DefaultLambdaAdaptor())
-			.provide(MatcherGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.matcher.DefaultProxyAdaptor())
-			.provide(MatcherGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.matcher.DefaultObjectAdaptor())
-			.provide(MatcherGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.matcher.DefaultArrayAdaptor())
-			.provide(MatcherGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.matcher.DefaultSequenceAdaptor())
-			.provide(MatcherGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.matcher.DefaultSetAdaptor())
-			.provide(MatcherGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.matcher.DefaultMapAdaptor())
-			.provide(MatcherGenerator.class, args -> new net.amygdalum.testrecorder.deserializers.matcher.LargePrimitiveArrayAdaptor());
+		configurationLoaders.computeIfAbsent(MatcherGenerator.class, c -> DefaultMatcherGenerators.defaults().stream()
+			.reduce(new FixedConfigurationLoader(), (loader, generator) -> loader.provide(MatcherGenerator.class, generator), (l1,l2) -> l1));
 		return this;
 	}
 
@@ -148,9 +105,7 @@ public class AgentConfigurator {
 			.withDefaultValue(SerializationProfile.class, DefaultSerializationProfile::new)
 			.withDefaultValue(PerformanceProfile.class, DefaultPerformanceProfile::new)
 			.withDefaultValue(TestGeneratorProfile.class, DefaultTestGeneratorProfile::new)
-			.withDefaultValue(SnapshotConsumer.class, DefaultSnapshotConsumer::new)			;
+			.withDefaultValue(SnapshotConsumer.class, DefaultSnapshotConsumer::new);
 	}
-
-	
 
 }
