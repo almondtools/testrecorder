@@ -1,8 +1,8 @@
 package net.amygdalum.testrecorder.configurator;
 
-import static java.util.stream.Collectors.toList;
-
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -16,6 +16,7 @@ import net.amygdalum.testrecorder.extensionpoint.ExtensionPoint;
 import net.amygdalum.testrecorder.generator.DefaultTestGeneratorProfile;
 import net.amygdalum.testrecorder.generator.TestGeneratorProfile;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
+import net.amygdalum.testrecorder.profile.ConfigurationLoader;
 import net.amygdalum.testrecorder.profile.FixedConfigurationLoader;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.profile.SerializationProfile;
@@ -25,9 +26,11 @@ import net.amygdalum.testrecorder.types.Serializer;
 public class AgentConfigurator {
 
 	private Map<Class<?>, FixedConfigurationLoader> configurationLoaders;
+	private List<ConfigurationLoader> fallbackLoaders;
 
 	public AgentConfigurator() {
 		this.configurationLoaders = new LinkedHashMap<>();
+		this.fallbackLoaders = new ArrayList<>();
 	}
 
 	public AgentConfigurator generateTests(Supplier<TestGeneratorProfile> profile) {
@@ -50,6 +53,11 @@ public class AgentConfigurator {
 		assert clazz.isAnnotationPresent(ExtensionPoint.class);
 		configurationLoaders.computeIfAbsent(clazz, c -> new FixedConfigurationLoader())
 			.provide(clazz, value);
+		return this;
+	}
+
+	public AgentConfigurator fallbackTo(ConfigurationLoader configurationLoader) {
+		this.fallbackLoaders.add(configurationLoader);
 		return this;
 	}
 
@@ -133,17 +141,16 @@ public class AgentConfigurator {
 	}
 
 	public AgentConfiguration configure() {
-		configurationLoaders.computeIfAbsent(SerializationProfile.class, c -> new FixedConfigurationLoader()
-			.provide(SerializationProfile.class, args -> new DefaultSerializationProfile()));
-		configurationLoaders.computeIfAbsent(PerformanceProfile.class, c -> new FixedConfigurationLoader()
-			.provide(PerformanceProfile.class, args -> new DefaultPerformanceProfile()));
-		configurationLoaders.computeIfAbsent(TestGeneratorProfile.class, c -> new FixedConfigurationLoader()
-			.provide(TestGeneratorProfile.class, args -> new DefaultTestGeneratorProfile()));
-		configurationLoaders.computeIfAbsent(SnapshotConsumer.class, c -> new FixedConfigurationLoader()
-			.provide(SnapshotConsumer.class, args -> new DefaultSnapshotConsumer()));
-
-		return new AgentConfiguration(configurationLoaders.values().stream()
-			.collect(toList()));
+		List<ConfigurationLoader> loaders = new ArrayList<>();
+		loaders.addAll(configurationLoaders.values());
+		loaders.addAll(fallbackLoaders);
+		return new AgentConfiguration(loaders)
+			.withDefaultValue(SerializationProfile.class, DefaultSerializationProfile::new)
+			.withDefaultValue(PerformanceProfile.class, DefaultPerformanceProfile::new)
+			.withDefaultValue(TestGeneratorProfile.class, DefaultTestGeneratorProfile::new)
+			.withDefaultValue(SnapshotConsumer.class, DefaultSnapshotConsumer::new)			;
 	}
+
+	
 
 }

@@ -51,13 +51,15 @@ public class ArchitectureTest {
 			.whereLayer("codeserializer").mayNotBeAccessedByAnyLayer() // only from outside module
 			.whereLayer("callsiterecorder").mayNotBeAccessedByAnyLayer() // only from outside module
 			.whereLayer("dynamiccompile").mayNotBeAccessedByAnyLayer() // only from outside module
-			.whereLayer("configurator").mayNotBeAccessedByAnyLayer() // only from outside module
 			.whereLayer("data").mayNotBeAccessedByAnyLayer() // reserved for future use
 			.whereLayer("main").mayOnlyBeAccessedByLayers(
 				"codeserializer",
 				"callsiterecorder",
 				"configurator",
 				"generator")
+			.whereLayer("configurator").mayOnlyBeAccessedByLayers(
+				"main",
+				"callsiterecorder")
 			.whereLayer("profile").mayOnlyBeAccessedByLayers(
 				"codeserializer",
 				"callsiterecorder",

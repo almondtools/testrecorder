@@ -14,17 +14,15 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import net.amygdalum.testrecorder.DefaultPerformanceProfile;
 import net.amygdalum.testrecorder.DefaultSerializationProfile;
-import net.amygdalum.testrecorder.DefaultSnapshotConsumer;
 import net.amygdalum.testrecorder.TestRecorderAgent;
 import net.amygdalum.testrecorder.TestrecorderThreadFactory;
+import net.amygdalum.testrecorder.configurator.AgentConfigurator;
 import net.amygdalum.testrecorder.profile.AgentConfiguration;
 import net.amygdalum.testrecorder.profile.ClassPathConfigurationLoader;
 import net.amygdalum.testrecorder.profile.Classes;
 import net.amygdalum.testrecorder.profile.ConfigurableSerializationProfile;
 import net.amygdalum.testrecorder.profile.DefaultPathConfigurationLoader;
-import net.amygdalum.testrecorder.profile.FixedConfigurationLoader;
 import net.amygdalum.testrecorder.profile.Methods;
 import net.amygdalum.testrecorder.profile.PerformanceProfile;
 import net.amygdalum.testrecorder.profile.SerializationProfile;
@@ -43,7 +41,10 @@ public class CallsiteRecorder implements SnapshotConsumer, AutoCloseable {
 	private TestRecorderAgent agent;
 	private Class<?>[] classes;
 
-	private CallsiteRecorder(AgentConfiguration config, Class<?>[] classes) {
+	private CallsiteRecorder(AgentConfigurator configurator, Class<?>[] classes) {
+		AgentConfiguration config = configurator
+			.provideConfiguration(SnapshotConsumer.class, args->this)
+			.configure();
 		this.agent = new TestRecorderAgent(inst, config);
 		this.classes = classes;
 
@@ -57,21 +58,10 @@ public class CallsiteRecorder implements SnapshotConsumer, AutoCloseable {
 		return create(new DefaultSerializationProfile(), methods);
 	}
 
+	@SuppressWarnings("resource")
 	public static CallsiteRecorder create(SerializationProfile profile, Method... methods) {
-		FixedConfigurationLoader fixedLoader = new FixedConfigurationLoader();
-		ClassPathConfigurationLoader classpathLoader = new ClassPathConfigurationLoader();
-		DefaultPathConfigurationLoader defaultPathLoader = new DefaultPathConfigurationLoader();
-		AgentConfiguration config = new AgentConfiguration(fixedLoader, classpathLoader, defaultPathLoader)
-			.withDefaultValue(SerializationProfile.class, DefaultSerializationProfile::new)
-			.withDefaultValue(PerformanceProfile.class, DefaultPerformanceProfile::new)
-			.withDefaultValue(SnapshotConsumer.class, DefaultSnapshotConsumer::new);
-		Class<?>[] classes = Arrays.stream(methods)
-			.map(Method::getDeclaringClass)
-			.toArray(Class[]::new);
-		CallsiteRecorder recorder = new CallsiteRecorder(config, classes);
-		
-		fixedLoader
-			.provide(SerializationProfile.class, ConfigurableSerializationProfile.builder(profile)
+		AgentConfigurator configurator = new AgentConfigurator()
+			.provideConfiguration(SerializationProfile.class, args -> ConfigurableSerializationProfile.builder(profile)
 				.withClasses(Arrays.stream(methods)
 					.map(Method::getDeclaringClass)
 					.map(Classes::byDescription)
@@ -80,15 +70,18 @@ public class CallsiteRecorder implements SnapshotConsumer, AutoCloseable {
 					.map(Methods::byDescription)
 					.collect(toList()))
 				.build())
-			.provide(SnapshotConsumer.class, recorder);
-
-		return recorder.init();
+			.fallbackTo(new ClassPathConfigurationLoader())
+			.fallbackTo(new DefaultPathConfigurationLoader());
+		Class<?>[] classes = Arrays.stream(methods)
+			.map(Method::getDeclaringClass)
+			.toArray(Class[]::new);
+		return new CallsiteRecorder(configurator, classes)
+			.init();
 	}
 
 	@SuppressWarnings("resource")
-	public static CallsiteRecorder create(AgentConfiguration config, Class<?>[] classes) {
-		CallsiteRecorder recorder = new CallsiteRecorder(config, classes);
-		return recorder
+	public static CallsiteRecorder create(AgentConfigurator configurator, Class<?>[] classes) {
+		return new CallsiteRecorder(configurator, classes)
 			.init();
 	}
 
