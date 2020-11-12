@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>net.amygdalum</groupId>
 		<artifactId>testrecorder</artifactId>
-		<version>0.10.4-SNAPSHOT</version>
+		<version>0.10.4</version>
 	</parent>
 	<artifactId>testrecorder-bridge</artifactId>
 	<name>${project.groupId}:${project.artifactId}</name>
