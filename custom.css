@@ -1,56 +1,74 @@
 .btn-primary {
-  border-color: #888; }
+  border-color: #888;
+}
 
 .btn-light {
-  border-color: #ccc; }
+  border-color: #ccc;
+}
 
 .navbar.fixed-top + .navbar-placeholder {
-  padding-top: 50px; }
+  padding-top: 50px;
+}
 
 main {
-  margin: 2rem 0; }
+  margin: 2rem 0;
+}
 
 .jumbotron {
-  margin-bottom: 0; }
-  .jumbotron h1 {
-    font-size: 4rem; }
+  margin-bottom: 0;
+}
+.jumbotron h1 {
+  font-size: 4rem;
+}
 
 .page-section {
   padding-top: 1rem;
-  padding-bottom: 1rem; }
+  padding-bottom: 1rem;
+}
 
 .info-card {
-  margin: 1rem 0.5rem; }
-  @media (min-width: 992px) {
-    .info-card {
-      font-size: 0.8rem; } }
-  .info-card h1 {
-    font-size: 3em; }
-  .info-card h2 {
-    font-size: 2.5em; }
-  .info-card h3 {
-    font-size: 1.75em; }
-  .info-card h4 {
-    font-size: 1.5em; }
-  .info-card ul {
-    padding-left: 2em; }
+  margin: 1rem 0.5rem;
+}
+@media (min-width: 992px) {
+  .info-card {
+    font-size: 0.8rem;
+  }
+}
+.info-card h1 {
+  font-size: 3em;
+}
+.info-card h2 {
+  font-size: 2.5em;
+}
+.info-card h3 {
+  font-size: 1.75em;
+}
+.info-card h4 {
+  font-size: 1.5em;
+}
+.info-card ul {
+  padding-left: 2em;
+}
 
 div pre code {
-  min-width: 600px; }
+  min-width: 600px;
+}
 
 pre {
   border: 1px solid #ccc;
   padding: 5px;
-  border-radius: 5px; }
+  border-radius: 5px;
+}
 
 body h1 {
-  font-size: 3rem; }
-
+  font-size: 3rem;
+}
 body h2 {
-  font-size: 2.5rem; }
-
+  font-size: 2.5rem;
+}
 body h3 {
-  font-size: 1.75rem; }
-
+  font-size: 1.75rem;
+}
 body h4 {
-  font-size: 1.5rem; }
+  font-size: 1.5rem;
+}
