@@ -13,6 +13,7 @@ import java.util.stream.Stream.Builder;
 import net.amygdalum.testrecorder.types.SerializedReferenceType;
 import net.amygdalum.testrecorder.types.Serializer;
 import net.amygdalum.testrecorder.types.SerializerSession;
+import net.amygdalum.testrecorder.values.SerializedNull;
 import net.amygdalum.testrecorder.values.SerializedObject;
 
 public class GenericSerializer extends AbstractCompositeSerializer implements Serializer<SerializedReferenceType> {
@@ -46,8 +47,13 @@ public class GenericSerializer extends AbstractCompositeSerializer implements Se
 
 	@Override
 	public SerializedReferenceType generate(Class<?> type, SerializerSession session) {
-		if (session.excludes(baseType(type))) {
-			return nullInstance();
+		Class<?> clazz = baseType(type);
+        if (session.excludes(clazz)) {
+			SerializedNull nullInstance = nullInstance();
+			if (type != null) {
+			    nullInstance.useAs(type);
+			}
+            return nullInstance;
 		} else {
 			return new SerializedObject(type);
 		}

@@ -7,6 +7,7 @@ import static net.amygdalum.testrecorder.util.Types.getDeclaredField;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 public final class Reflections {
@@ -73,9 +74,17 @@ public final class Reflections {
         }
 
         private void makeNonFinal(Field field) throws ReflectiveOperationException {
-            Field modifiersField = Field.class.getDeclaredField(MODIFIERS);
-            modifiersField.setAccessible(true);
-            modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+            Method getDeclaredFields0 = Class.class.getDeclaredMethod("getDeclaredFields0", boolean.class);
+            getDeclaredFields0.setAccessible(true);
+            Field modifiersField = null;
+            for (Field fieldCandidate : (Field[]) getDeclaredFields0.invoke(Field.class, false)) {
+                if (MODIFIERS.equals(fieldCandidate.getName())) {
+                    modifiersField = fieldCandidate;
+                    modifiersField.setAccessible(true);
+                    modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+                    break;
+                }
+            }
         }
 
         private void resetAccess(boolean reset) {
